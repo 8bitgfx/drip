@@ -83,6 +83,15 @@ export function missingBeforeUi(task, config) {
   if (task.size === "full") {
     const studied = (task.refs.studied || []).length;
     const designers = studiedDesigners(task);
+    const pageWork = ["landing", "app", "mobile", "component"].includes(task.surface);
+    const onSurfaceCount = (task.refs.studied || []).filter((x) => x.onSurface).length;
+    if (pageWork && onSurfaceCount < g.minOnSurface) {
+      const what = task.surface === "landing" ? "real landing pages, heroes and full-site shots" : task.surface === "component" ? "real components in real products" : "real app screens and flows";
+      missing.push({
+        need: "real examples",
+        how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects: refs_search with category "web-design" or "product-design", refs_tag "landing page" / "hero section" / "website" (now ${onSurfaceCount}/${g.minOnSurface})`,
+      });
+    }
     if (studied < g.minRefsStudied || designers < g.minDesigners)
       missing.push({
         need: "references",

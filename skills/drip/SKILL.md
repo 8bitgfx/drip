@@ -14,7 +14,7 @@ user-invocable: false
 | # | Step | Do | Tools |
 |---|---|---|---|
 | 1 | **Intake** | ONE round of ≤ 4 clickable questions (AskUserQuestion), options specific to this request, your recommendation first. Read the project first; never ask what you can look up. | AskUserQuestion → `drip_brief` |
-| 2 | **References** | 3+ angles of search, scan sheets, **pick** the few that fit, **view + zoom + study** each (structured notes with values). 6-12 studied, 3+ designers. | `refs_search` `refs_tag` `refs_related` `refs_designer` → `refs_pick` → `refs_view` → `refs_zoom` → `refs_study` |
+| 2 | **References** | 3+ angles of search, scan sheets, **pick** the few that fit, **view the originals** (every section, full size) and **study** each (structured notes with values); zoom only for one detail. 6-12 studied, 3+ designers. | `refs_search` `refs_tag` `refs_related` `refs_designer` → `refs_pick` → `refs_view` → `refs_zoom` → `refs_study` |
 | 3 | **Directions** | Board auto-collects studies. 2-3 directions that differ in **idea**, each named like a movement with a manifesto; at least one daring. Render **style tiles**. | `board_create` `board_add` `board_directions` `board_tile` |
 | 4 | **Critic ranks** | Independent harsh review of the tiles. Rework anything it rejects BEFORE the user sees it. | `critic_prepare` → Agent `drip:critic` → `critic_record` |
 | 5 | **User chooses** | Board link + one line per direction with the critic's score + your pick and its risk; ask with buttons. Chosen = locked. | `board_open` → AskUserQuestion → `board_choose` |
@@ -33,7 +33,7 @@ user-invocable: false
 ## Rules you must not break
 1. **Ambition is bold by default** (`drip_guide rules/ambition`). The safe default (cream + terracotta + serif, centred hero + 3 cards, neon-on-black, gradients, Inter) is a failure unless the user asked for plain.
 2. Read a craft's guide (`drip_guide <topic>`) before doing that craft. Skimming this file is not reading.
-3. Studying means looking closely: pick, view full size, zoom into details, write values. A contact sheet is not research.
+3. Studying means looking at the original: pick, view it full size top to bottom, write values. A contact sheet is not research, and most studies must BE what you are building (real landing pages for a landing page).
 4. Options differ in idea, not palette. Equal fidelity, no strawmen.
 5. Follow an existing system unless it's a redesign; say so if you change it. Chosen = locked; never "improve" a user's pick without asking.
 6. Real content only: no lorem, fake stats, fake logos or placeholder boxes.

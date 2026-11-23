@@ -82616,6 +82616,8 @@ var DEFAULTS = {
     // full loop: references studied with refs_study before UI is written
     minDesigners: 3,
     // ...from at least this many different designers
+    minOnSurface: 4,
+    // ...and at least this many must show the thing being built (real landing pages, app screens), not print or objects
     minBoardItems: 6,
     // items on the moodboard before directions can be formed
     requireDirection: true,
@@ -82858,6 +82860,15 @@ function missingBeforeUi(task, config2) {
   if (task.size === "full") {
     const studied = (task.refs.studied || []).length;
     const designers = studiedDesigners(task);
+    const pageWork = ["landing", "app", "mobile", "component"].includes(task.surface);
+    const onSurfaceCount = (task.refs.studied || []).filter((x2) => x2.onSurface).length;
+    if (pageWork && onSurfaceCount < g.minOnSurface) {
+      const what = task.surface === "landing" ? "real landing pages, heroes and full-site shots" : task.surface === "component" ? "real components in real products" : "real app screens and flows";
+      missing.push({
+        need: "real examples",
+        how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects: refs_search with category "web-design" or "product-design", refs_tag "landing page" / "hero section" / "website" (now ${onSurfaceCount}/${g.minOnSurface})`
+      });
+    }
     if (studied < g.minRefsStudied || designers < g.minDesigners)
       missing.push({
         need: "references",
@@ -82984,6 +82995,17 @@ var INTAKE = `INTAKE (do this now, before any research): ask ONE round of up to 
 4. "Anything you love or hate?": common answers for this kind of work (e.g. "Love: brutalist sites", "Hate: dark mode", "No preference").
 Skip questions the request already answers. If the user said "just do it"/"decide for me", skip all and state assumptions.
 Then call drip_brief with the answers. Default ambition is BOLD: distinctive and memorable, never the safe default, unless the user asked for plain/conservative.`;
+function refPlan(task, surface, mode) {
+  const subject = task.toLowerCase().replace(/\b(design|redesign|make|build|create|me|my|our|a|an|the|for|please|new|site|website|web|page|landing|homepage|portfolio|app|screen|logo|for an?)\b/g, " ").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim() || "product";
+  const kind = /portfolio/i.test(task) ? "portfolio website" : surface === "landing" ? "landing page" : surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : mode === "logo" ? "logo" : "website";
+  if (mode === "logo")
+    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark" (pages 1-3), refs_tag "${subject.split(" ")[0]} logo", refs_search "${subject} branding" category "branding", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
+  const cat = surface === "app" || surface === "mobile" ? "product-design" : "web-design";
+  return `REFERENCE PLAN (most studied refs must BE ${kind}s, the gate counts them):
+1. refs_search "${kind}" category "${cat}"  \xB7  2. refs_tag "${kind}" pages 1-3  \xB7  3. refs_tag "${surface === "landing" ? "hero section" : kind}"  \xB7  4. refs_search "${subject} ${kind}" category "${cat}"  \xB7  5. refs_designer on 2 designers whose pages are strongest.
+Then ONE or TWO outside-the-category angles for ideas (posters, editorial, the subject's own world), never more than a third of what you study.
+Run searches one after another (they share a rate limit) and refer to shots by their tagged number (L3-7) or id.`;
+}
 var TALK = `HOW TO TALK TO THE USER (whole task): decisions first; 3-6 short lines per message; show (board link, screenshots, renders) instead of describing; one question at a time with buttons (AskUserQuestion); never paste tool output walls; at milestones say what changed and what's next in one line each.`;
 function register(server2, ctx2) {
   server2.registerTool(
@@ -83023,6 +83045,8 @@ REQUIRED GUIDES (read each with drip_guide; UI writes are blocked until then):
 ${guides.map((x2) => `- ${x2}${x2 === first ? "  (included below)" : ""}`).join("\n")}
 
 ` + (s2 === "full" && config2.gates.requireBrief ? `${INTAKE}
+
+` : "") + (s2 === "full" ? `${refPlan(task, sf, m)}
 
 ` : "") + `${TALK}
 
@@ -83156,6 +83180,7 @@ ${nextStep(st.task, ctx2.config())}`);
 // src/modules/refs/index.mjs
 var refs_exports = {};
 __export(refs_exports, {
+  onSurface: () => onSurface,
   register: () => register2
 });
 
@@ -92067,6 +92092,18 @@ function throttle(host, delayMs, fn) {
   }));
   return next;
 }
+var active = 0;
+var waiting = [];
+async function pooled(fn) {
+  if (active >= 10) await new Promise((r2) => waiting.push(r2));
+  active++;
+  try {
+    return await fn();
+  } finally {
+    active--;
+    waiting.shift()?.();
+  }
+}
 var HttpError = class extends Error {
   constructor(status, url2, body) {
     super(`HTTP ${status} for ${url2}${body ? `: ${String(body).slice(0, 200)}` : ""}`);
@@ -92082,7 +92119,8 @@ async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as 
     if (hit) return { body: decode5(hit, as), contentType: meta3?.toString() || "", cached: true };
   }
   const host = new URL(url2).host;
-  return throttle(host, delayMs, async () => {
+  const run = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
+  return run(async () => {
     let res;
     for (let attempt = 0; ; attempt++) {
       res = await fetch(url2, { headers: headers2, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
@@ -92193,19 +92231,27 @@ import path8 from "node:path";
 var file2 = () => path8.join(ensureDir(path8.join(ensureProjectDrip(), "cache")), "seen.json");
 function load() {
   try {
-    return JSON.parse(fs11.readFileSync(file2(), "utf8"));
+    const db = JSON.parse(fs11.readFileSync(file2(), "utf8"));
+    return { items: {}, last: [], listings: {}, counter: 0, ...db };
   } catch {
-    return { items: {}, last: [] };
+    return { items: {}, last: [], listings: {}, counter: 0 };
   }
 }
 function save(db) {
   fs11.writeFileSync(file2(), JSON.stringify(db));
 }
-function rememberListing(items) {
+function rememberListing(items, from = null) {
   const db = load();
-  for (const it of items) db.items[it.key] = { ...db.items[it.key], ...it };
+  for (const it of items) db.items[it.key] = { ...db.items[it.key], ...it, ...from && !db.items[it.key]?.from ? { from } : {} };
+  db.counter += 1;
+  const tag = `L${db.counter}`;
+  db.listings[tag] = items.map((it) => it.key);
+  const keep = Object.keys(db.listings).slice(-40);
+  db.listings = Object.fromEntries(keep.map((k) => [k, db.listings[k]]));
   db.last = items.map((it) => it.key);
+  db.lastTag = tag;
   save(db);
+  return tag;
 }
 function remember(item) {
   const db = load();
@@ -92215,6 +92261,11 @@ function remember(item) {
 function resolve(ref, source = "dribbble") {
   const db = load();
   const s2 = String(ref).trim();
+  const tagged = s2.match(/^(L\d+)[-:#](\d{1,3})$/i);
+  if (tagged) {
+    const list = db.listings[tagged[1].toUpperCase()];
+    if (list?.[+tagged[2] - 1]) return list[+tagged[2] - 1];
+  }
   const num = s2.match(/^#?(\d{1,3})$/);
   if (num && db.last[+num[1] - 1]) return db.last[+num[1] - 1];
   if (s2.includes(":")) return s2;
@@ -92354,7 +92405,11 @@ async function shot(id, config2) {
 }
 
 // src/modules/refs/index.mjs
-var NEXT_STUDY = "NEXT: don't stop at the sheet. refs_pick the 2-5 numbers that solve THIS brief best (one reason each; not just the prettiest), then for each: refs_view (full size) -> refs_zoom on the detail that matters -> refs_study (structured notes). Fan out with refs_tag on tags you see in good shots and refs_designer on designers whose work fits. Target: 6-12 studied from 3+ designers.";
+var NEXT_STUDY = `NEXT: the sheet is only for choosing. refs_pick the 2-5 that solve THIS brief best (use the tagged numbers, e.g. "L3-7"; one reason each), then refs_view each: the ORIGINAL full-size images, every section of the page; study the whole design, then refs_study with values. refs_zoom is optional, for one small detail. Fan out with refs_tag and refs_designer. Target: 6-12 studied from 3+ designers, most of them real examples of what you're building.`;
+function onSurface(item) {
+  const hay = `${item.title || ""} ${(item.tags || []).join(" ")} ${item.from?.category || ""} ${item.from?.query || ""} ${item.from?.tag || ""}`.toLowerCase();
+  return /\b(web|website|landing|hero|homepage|home page|site|portfolio|saas|dashboard|app|ui|ux|interface|product design|mobile|screen|page)\b/.test(hay) && !/\b(print|poster|packaging|book|editorial print|label|logo only|illustration)\b/.test(`${item.from?.category || ""}`);
+}
 function toItem(card2) {
   return { key: `dribbble:${card2.id}`, source: "dribbble", id: card2.id, title: card2.title, url: card2.url, image: card2.image, designer: card2.designer, designerUrl: card2.designerUrl, likes: card2.likes, views: card2.views };
 }
@@ -92364,22 +92419,26 @@ async function sheetFor(items, opts) {
 }
 async function listingResult(kind, params, ctx2, label) {
   const config2 = ctx2.config();
-  const { url: url2, cards } = await listing(kind, params, config2);
+  let { url: url2, cards } = await listing(kind, params, config2);
+  if (kind === "search" && params.category && !cards.some((c3) => c3.image)) {
+    ({ url: url2, cards } = await listing(kind, { ...params, category: void 0 }, config2));
+    label = `${label} (no results in ${params.category}; showing all categories)`;
+  }
   const fresh = cards.filter((c3) => c3.image);
   if (!fresh.length) return text(`No shots for ${label} (page ${params.page || 1}). Try other words, a tag (refs_tag) or a category feed (refs_feed).`);
   const items = fresh.map(toItem);
-  rememberListing(items);
+  const tag = rememberListing(items, { kind, query: params.query || params.username || "", tag: params.tag || "", category: params.category || "" });
   updateState((st) => {
     if (st.task) {
       st.task.refs.searches += 1;
       st.task.refs.seen += items.length;
     }
   });
-  const lines = items.map((it, i2) => `${i2 + 1}. ${it.title} \u2014 ${it.designer || "?"} (@${it.designerUrl || "?"}) \xB7 ${it.likes || "?"} likes \xB7 ${it.views || "?"} views \xB7 id ${it.id}`);
+  const lines = items.map((it, i2) => `${tag}-${i2 + 1}. ${it.title} \u2014 ${it.designer || "?"} (@${it.designerUrl || "?"}) \xB7 ${it.likes || "?"} likes \xB7 ${it.views || "?"} views \xB7 id ${it.id}`);
   const capped = kind === "search" && (params.page || 1) >= 2;
   const content = [
     textBlock(
-      `${label} \u2014 page ${params.page || 1}, ${items.length} shots (${url2})
+      `Listing ${tag}: ${label} \u2014 page ${params.page || 1}, ${items.length} shots (${url2}). Sheet numbers = ${tag}-<n>.
 ${lines.join("\n")}
 
 ` + (capped ? "Note: logged-out keyword search stops after about 2 pages. Go deeper with refs_tag / refs_feed / refs_designer.\n" : `More: same call with page ${(params.page || 1) + 1}.
@@ -92447,13 +92506,13 @@ function register2(server2, ctx2) {
     "refs_view",
     {
       title: "Study a shot full size",
-      description: "Open one shot to study it: title, designer, tags, palette, the designer's description, stats, and the actual images full size. Counts toward the references the plugin requires before UI is written. After looking, write down WHAT it does well (layout, type, colour, density, motion, a specific detail) \u2014 then board_add it with that note.",
+      description: `Open one shot and study the ORIGINAL: title, designer, tags, palette, the designer's notes, and its images at full width. Long pages (landing pages, full-site shots) are split into readable sections so nothing is a squashed thumbnail. Look at the whole design top to bottom, then refs_study it. Example: refs_view({ shot: "L3-7" }) or refs_view({ shot: "27185355" })`,
       inputSchema: {
-        shot: external_exports.string().describe("Number from the last listing (e.g. '7'), or a shot id"),
-        maxImages: external_exports.number().int().min(1).max(8).optional().describe("How many of its images to return (default 3)")
+        shot: external_exports.string().describe("Tagged number from a listing (e.g. 'L3-7'), a bare number for the latest listing, or a shot id"),
+        maxImages: external_exports.number().int().min(1).max(8).optional().describe("How many of its images (default 4)")
       }
     },
-    safe(async ({ shot: shot2, maxImages = 3 }) => {
+    safe(async ({ shot: shot2, maxImages = 4 }) => {
       const key = resolve(shot2);
       const id = key.split(":")[1];
       let s2;
@@ -92472,10 +92531,20 @@ function register2(server2, ctx2) {
         if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
       });
       const imgs = [];
-      for (const url2 of s2.images.slice(0, maxImages)) {
+      const fetched = await Promise.all(s2.images.slice(0, maxImages).map((url2) => fetchImage(fullUrl(url2, 1600)).then((r2) => r2.buf).catch(() => null)));
+      for (const buf of fetched) {
+        if (!buf || imgs.length >= 8) continue;
         try {
-          const { buf } = await fetchImage(fullUrl(url2));
-          imgs.push(imageBlock(await toJpeg(buf, 1400, 1800)));
+          const img = await Jimp.read(buf);
+          const sectionH = Math.round(img.width * 0.8);
+          if (img.height > img.width * 1.6) {
+            const parts = Math.min(4, Math.ceil(img.height / sectionH));
+            for (let p2 = 0; p2 < parts && imgs.length < 8; p2++) {
+              const y2 = Math.round(p2 * (img.height - sectionH) / Math.max(1, parts - 1));
+              const piece = img.clone().crop({ x: 0, y: y2, w: img.width, h: Math.min(sectionH, img.height - y2) });
+              imgs.push(imageBlock(await toJpeg(await piece.getBuffer("image/png"), 1600, 1300, 86)));
+            }
+          } else imgs.push(imageBlock(await toJpeg(buf, 1600, 1600, 86)));
         } catch {
         }
       }
@@ -92483,12 +92552,12 @@ function register2(server2, ctx2) {
 Posted ${s2.postedOn || "?"} \xB7 ${s2.likes ?? "?"} likes \xB7 ${s2.saves ?? "?"} saves \xB7 ${s2.views ?? "?"} views
 Palette: ${s2.palette.join(" ") || "\u2014"}
 Tags: ${s2.tags.join(", ") || "\u2014"}
-Images: ${s2.images.length} (showing ${imgs.length})${s2.videos.length ? ` \xB7 ${s2.videos.length} video(s), still frame shown` : ""}
+Images: ${s2.images.length} originals (showing ${imgs.length} pictures; tall pages split into top-to-bottom sections)${s2.videos.length ? ` \xB7 ${s2.videos.length} video(s), still frame shown` : ""}
 ` + (s2.description ? `
 Designer's notes:
 ${s2.description.slice(0, 1500)}
 ` : "") + `
-NEXT: look closely (refs_zoom on a region, e.g. the nav, a card, the type), then refs_study("${s2.id}", \u2026) with specific values. More from this designer: refs_designer("${s2.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
+NEXT: study the whole design (every section above), then refs_study("${s2.id}", \u2026) with specific values. refs_zoom only if one small detail needs a closer look. More from this designer: refs_designer("${s2.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
       return blocks([textBlock(info), ...imgs]);
     })
   );
@@ -92617,7 +92686,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
       const st = updateState((s2) => {
         if (!s2.task) return;
         s2.task.refs.studied = (s2.task.refs.studied || []).filter((x2) => x2.key !== key);
-        s2.task.refs.studied.push({ key, designer: item.designer || item.designerUrl, at: (/* @__PURE__ */ new Date()).toISOString() });
+        s2.task.refs.studied.push({ key, designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: (/* @__PURE__ */ new Date()).toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -94822,7 +94891,7 @@ Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack
 }
 
 // src/index.mjs
-var VERSION = "0.3.0";
+var VERSION = "0.3.1";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it runs intake, tells you which guides to read (drip_guide) and what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Full loop: intake (AskUserQuestion -> drip_brief) -> refs (search/tag -> refs_pick -> refs_view -> refs_zoom -> refs_study) -> board_create -> board_directions -> board_tile -> critic (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> system -> build -> fitcheck_shot -> critic -> fitcheck_done -> drip_end.

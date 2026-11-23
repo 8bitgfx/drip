@@ -23,7 +23,8 @@ User sees: just the three questions. No narration.
 ## 2. References (≈5 minutes)
 ```
 drip_guide("refs")
-refs_search({ query: "portfolio kinetic typography", category: "web-design" })
+refs_search({ query: "portfolio website", category: "web-design" })   ← real examples first: most studies must BE portfolio sites
+refs_tag({ tag: "portfolio website" }) · refs_tag({ tag: "hero section" })
 refs_related({ query: "portfolio kinetic typography" })     → tags: "type", "motion design", "creative portfolio", "editorial"
 refs_tag({ tag: "creative portfolio", page: 2 })
 refs_search({ query: "exhibition poster typography", category: "typography" })   ← outside the category on purpose
@@ -31,7 +32,7 @@ refs_pick({ picks: [
   { shot: "4", why: "type IS the layout; 200px words cropped by the viewport" },
   { shot: "11", why: "the only one using a live cursor as a design element" },
   { shot: "17", why: "index of works as a giant numbered list, no cards" } ] })
-refs_view({ shot: "4" }) → refs_zoom({ shot: "4", region: "top-left" }) → refs_study({ shot: "4",
+refs_view({ shot: "L3-4" }) → (whole page, every section) → refs_study({ shot: "L3-4",
   layout: "no grid visible; words placed edge to edge, 3 per screen-height",
   type: "condensed grotesk ~220px, tight -4% tracking, body 18px, ratio ~12:1",
   color: "#F2F0EA ground, #111 ink, one #FF3D00 accent only on hover states",

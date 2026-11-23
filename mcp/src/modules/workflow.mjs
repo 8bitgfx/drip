@@ -79,7 +79,29 @@ const INTAKE = `INTAKE (do this now, before any research): ask ONE round of up t
 Skip questions the request already answers. If the user said "just do it"/"decide for me", skip all and state assumptions.
 Then call drip_brief with the answers. Default ambition is BOLD: distinctive and memorable, never the safe default, unless the user asked for plain/conservative.`;
 
-const TALK = `HOW TO TALK TO THE USER (whole task): decisions first; 3-6 short lines per message; show (board link, screenshots, renders) instead of describing; one question at a time with buttons (AskUserQuestion); never paste tool output walls; at milestones say what changed and what's next in one line each.`;
+/** A concrete research plan: mostly real examples of the surface, then 1-2 outside-the-category angles. */
+function refPlan(task, surface, mode) {
+  const subject =
+    task
+      .toLowerCase()
+      .replace(/\b(design|redesign|make|build|create|me|my|our|a|an|the|for|please|new|site|website|web|page|landing|homepage|portfolio|app|screen|logo|for an?)\b/g, " ")
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim() || "product";
+  const kind = /portfolio/i.test(task) ? "portfolio website" : surface === "landing" ? "landing page" : surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : mode === "logo" ? "logo" : "website";
+  if (mode === "logo")
+    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark" (pages 1-3), refs_tag "${subject.split(" ")[0]} logo", refs_search "${subject} branding" category "branding", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
+  const cat = surface === "app" || surface === "mobile" ? "product-design" : "web-design";
+  return (
+    `REFERENCE PLAN (most studied refs must BE ${kind}s, the gate counts them):\n` +
+    `1. refs_search "${kind}" category "${cat}"  ·  2. refs_tag "${kind}" pages 1-3  ·  3. refs_tag "${surface === "landing" ? "hero section" : kind}"  ·  ` +
+    `4. refs_search "${subject} ${kind}" category "${cat}"  ·  5. refs_designer on 2 designers whose pages are strongest.\n` +
+    `Then ONE or TWO outside-the-category angles for ideas (posters, editorial, the subject's own world), never more than a third of what you study.\n` +
+    "Run searches one after another (they share a rate limit) and refer to shots by their tagged number (L3-7) or id."
+  );
+}
+
+const TALK =`HOW TO TALK TO THE USER (whole task): decisions first; 3-6 short lines per message; show (board link, screenshots, renders) instead of describing; one question at a time with buttons (AskUserQuestion); never paste tool output walls; at milestones say what changed and what's next in one line each.`;
 
 export function register(server, ctx) {
   server.registerTool(
@@ -119,6 +141,7 @@ export function register(server, ctx) {
           (m === "polish" ? "Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode \"design\".\n" : "") +
           `\nREQUIRED GUIDES (read each with drip_guide; UI writes are blocked until then):\n${guides.map((x) => `- ${x}${x === first ? "  (included below)" : ""}`).join("\n")}\n\n` +
           (s === "full" && config.gates.requireBrief ? `${INTAKE}\n\n` : "") +
+          (s === "full" ? `${refPlan(task, sf, m)}\n\n` : "") +
           `${TALK}\n\n${nextStep(t, config)}\n\n` +
           (body ? `=================== GUIDE: ${first} ===================\n${body}` : ""),
       );

@@ -76,7 +76,16 @@ test("full task blocks until guides, references and direction are done", () => {
   task.guidesRead = ["rules/hard-rules", "loop"];
   task.brief = { what: "pricing", audience: "devs", job: "pick a plan", feel: ["precise"], ambition: "bold" };
   task.refs.viewed = ["a", "b", "c", "d", "e", "f"].map((x) => `dribbble:${x}`);
-  task.refs.studied = task.refs.viewed.map((key, i) => ({ key, designer: `designer${i % 3}` }));
+  task.refs.studied = task.refs.viewed.map((key, i) => ({ key, designer: `designer${i % 3}`, onSurface: false }));
+  task.board = { id: "b", items: 9, directions: 2, chosen: "Terminal Calm" };
+  task.critic.records.push({ kind: "directions", verdict: "pass", summary: "ok", at: new Date().toISOString() });
+  task.guidesRead = ["rules/hard-rules", "loop"];
+  saveState({ version: 1, task, history: [] }, p);
+  const printOnly = runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: path.join(p, "src/Pricing.tsx"), content: "<div/>" } }, p);
+  assert.ok(deny(printOnly), "6 studies of posters and books must not unlock a landing page");
+  assert.match(printOnly.hookSpecificOutput.permissionDecisionReason, /real examples/);
+  task.refs.studied = task.refs.studied.map((x, i) => ({ ...x, onSurface: i < 4 }));
+  task.critic.records = [];
   task.board = { id: "b", items: 9, directions: 2, chosen: "Terminal Calm" };
   task.critic.records.push({ kind: "directions", verdict: "pass", summary: "ok", at: new Date().toISOString() });
   saveState({ version: 1, task, history: [] }, p);

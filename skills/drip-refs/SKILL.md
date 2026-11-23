@@ -18,7 +18,7 @@ what it chose not to do, so the build is made of decisions you saw work.
 2. Go past page 1: `refs_related` → `refs_tag` (pages 2-3) → `refs_designer`.
 3. Round 1 is wide: 15-30 distinct candidates on sheets, with at least 2 contrasting readings of each feel word. Reject fast; open slowly.
 4. **Pick before you look closer**: `refs_pick` 2-5 per sheet, each with a reason tied to this brief, not "nice".
-5. **View, then zoom**: `refs_view` full size, then `refs_zoom` on the part that matters (nav, card, type, chart). Never study from a thumbnail; `refs_study` refuses unviewed shots.
+5. **View the original**: `refs_view` shows every image full width, long pages in top-to-bottom sections; study the whole design. `refs_zoom` only for one small detail. Never study from a thumbnail; `refs_study` refuses unviewed shots.
 6. **Study with values**: `refs_study` every field with a size, ratio, hex, count or named type class. "Clean", "modern", "premium", "elegant" are rejected.
 7. No unearned praise: a claim ("refined type", "restrained colour") needs the value that earns it. At least one field records what the reference **chose not to do**; every "A over B" names a real B.
 8. Gate: **6+ studied from 3+ designers** (a full loop usually studies 8-12). At most 3 from one designer; at least 2 from outside the category.

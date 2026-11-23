@@ -47,7 +47,7 @@ status, keys, skip and stop.
 
 Research is blocked on full loops until the brief exists.
 
-## 2. References: pick, view, zoom, study (`drip_guide refs`)
+## 2. References: pick, view the originals, study (`drip_guide refs`)
 
 You do not know what good looks like for this brief until you have looked closely.
 
@@ -55,7 +55,7 @@ You do not know what good looks like for this brief until you have looked closel
    100+ thumbnails on contact sheets; reject fast.
 2. **Pick**: `refs_pick` the 2-5 per sheet that solve *this* brief, each with a reason. Not the prettiest.
 3. **View**: `refs_view` each pick full size.
-4. **Zoom**: `refs_zoom` on the part that matters (nav, a card, the type, a chart).
+4. **Zoom (optional)**: `refs_zoom` only when one small detail needs a closer look; the full original from `refs_view` comes first.
 5. **Study**: `refs_study` with values in every field (layout, type, color, density, detail, take,
    leave). Vague notes are rejected. Studies go on the board automatically.
 

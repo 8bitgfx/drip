@@ -47,6 +47,20 @@ function throttle(host, delayMs, fn) {
   return next;
 }
 
+// At most 10 un-throttled requests in flight at once.
+let active = 0;
+const waiting = [];
+async function pooled(fn) {
+  if (active >= 10) await new Promise((r) => waiting.push(r));
+  active++;
+  try {
+    return await fn();
+  } finally {
+    active--;
+    waiting.shift()?.();
+  }
+}
+
 export class HttpError extends Error {
   constructor(status, url, body) {
     super(`HTTP ${status} for ${url}${body ? `: ${String(body).slice(0, 200)}` : ""}`);
@@ -67,7 +81,10 @@ export async function get(url, { headers = {}, delayMs = 0, ttlMs = DAY, as = "t
     if (hit) return { body: decode(hit, as), contentType: meta?.toString() || "", cached: true };
   }
   const host = new URL(url).host;
-  return throttle(host, delayMs, async () => {
+  // Hosts that need spacing (Dribbble pages) are queued one at a time; everything else (CDN images,
+  // APIs) runs in parallel, capped by `limit` below.
+  const run = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
+  return run(async () => {
     // Rate limited (429) or briefly unavailable (503): wait as told (Retry-After) or back off, then retry.
     let res;
     for (let attempt = 0; ; attempt++) {

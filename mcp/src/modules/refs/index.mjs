@@ -11,37 +11,49 @@ import { loadState, updateState } from "../../core/state.mjs";
 import * as dribbble from "./dribbble.mjs";
 
 const NEXT_STUDY =
-  "NEXT: don't stop at the sheet. refs_pick the 2-5 numbers that solve THIS brief best (one reason each; not just the prettiest), " +
-  "then for each: refs_view (full size) -> refs_zoom on the detail that matters -> refs_study (structured notes). " +
-  "Fan out with refs_tag on tags you see in good shots and refs_designer on designers whose work fits. Target: 6-12 studied from 3+ designers.";
+  "NEXT: the sheet is only for choosing. refs_pick the 2-5 that solve THIS brief best (use the tagged numbers, e.g. \"L3-7\"; one reason each), " +
+  "then refs_view each: the ORIGINAL full-size images, every section of the page; study the whole design, then refs_study with values. " +
+  "refs_zoom is optional, for one small detail. Fan out with refs_tag and refs_designer. Target: 6-12 studied from 3+ designers, most of them real examples of what you're building.";
+
+/** Does this reference show the kind of thing being built (a page, a screen), not print or objects? */
+export function onSurface(item) {
+  const hay = `${item.title || ""} ${(item.tags || []).join(" ")} ${item.from?.category || ""} ${item.from?.query || ""} ${item.from?.tag || ""}`.toLowerCase();
+  return /\b(web|website|landing|hero|homepage|home page|site|portfolio|saas|dashboard|app|ui|ux|interface|product design|mobile|screen|page)\b/.test(hay) && !/\b(print|poster|packaging|book|editorial print|label|logo only|illustration)\b/.test(`${item.from?.category || ""}`);
+}
 
 function toItem(card) {
   return { key: `dribbble:${card.id}`, source: "dribbble", id: card.id, title: card.title, url: card.url, image: card.image, designer: card.designer, designerUrl: card.designerUrl, likes: card.likes, views: card.views };
 }
 
 async function sheetFor(items, opts) {
+  // Thumbnails come from Dribbble's CDN, fetched in parallel (core/http pools them).
   const bufs = await Promise.all(items.map((it) => fetchImage(dribbble.thumbUrl(it.image)).then((r) => r.buf).catch(() => Buffer.alloc(0))));
   return contactSheet(bufs, opts);
 }
 
 async function listingResult(kind, params, ctx, label) {
   const config = ctx.config();
-  const { url, cards } = await dribbble.listing(kind, params, config);
+  let { url, cards } = await dribbble.listing(kind, params, config);
+  // Category-filtered searches often return nothing for multi-word queries; retry without the filter.
+  if (kind === "search" && params.category && !cards.some((c) => c.image)) {
+    ({ url, cards } = await dribbble.listing(kind, { ...params, category: undefined }, config));
+    label = `${label} (no results in ${params.category}; showing all categories)`;
+  }
   const fresh = cards.filter((c) => c.image);
   if (!fresh.length) return text(`No shots for ${label} (page ${params.page || 1}). Try other words, a tag (refs_tag) or a category feed (refs_feed).`);
   const items = fresh.map(toItem);
-  rememberListing(items);
+  const tag = rememberListing(items, { kind, query: params.query || params.username || "", tag: params.tag || "", category: params.category || "" });
   updateState((st) => {
     if (st.task) {
       st.task.refs.searches += 1;
       st.task.refs.seen += items.length;
     }
   });
-  const lines = items.map((it, i) => `${i + 1}. ${it.title} — ${it.designer || "?"} (@${it.designerUrl || "?"}) · ${it.likes || "?"} likes · ${it.views || "?"} views · id ${it.id}`);
+  const lines = items.map((it, i) => `${tag}-${i + 1}. ${it.title} — ${it.designer || "?"} (@${it.designerUrl || "?"}) · ${it.likes || "?"} likes · ${it.views || "?"} views · id ${it.id}`);
   const capped = kind === "search" && (params.page || 1) >= 2;
   const content = [
     textBlock(
-      `${label} — page ${params.page || 1}, ${items.length} shots (${url})\n` +
+      `Listing ${tag}: ${label} — page ${params.page || 1}, ${items.length} shots (${url}). Sheet numbers = ${tag}-<n>.\n` +
         `${lines.join("\n")}\n\n` +
         (capped ? "Note: logged-out keyword search stops after about 2 pages. Go deeper with refs_tag / refs_feed / refs_designer.\n" : `More: same call with page ${(params.page || 1) + 1}.\n`) +
         NEXT_STUDY,
@@ -119,14 +131,14 @@ export function register(server, ctx) {
     {
       title: "Study a shot full size",
       description:
-        "Open one shot to study it: title, designer, tags, palette, the designer's description, stats, and the actual images full size. " +
-        "Counts toward the references the plugin requires before UI is written. After looking, write down WHAT it does well (layout, type, colour, density, motion, a specific detail) — then board_add it with that note.",
+        "Open one shot and study the ORIGINAL: title, designer, tags, palette, the designer's notes, and its images at full width. Long pages (landing pages, full-site shots) are split into readable sections so nothing is a squashed thumbnail. " +
+        "Look at the whole design top to bottom, then refs_study it. Example: refs_view({ shot: \"L3-7\" }) or refs_view({ shot: \"27185355\" })",
       inputSchema: {
-        shot: z.string().describe("Number from the last listing (e.g. '7'), or a shot id"),
-        maxImages: z.number().int().min(1).max(8).optional().describe("How many of its images to return (default 3)"),
+        shot: z.string().describe("Tagged number from a listing (e.g. 'L3-7'), a bare number for the latest listing, or a shot id"),
+        maxImages: z.number().int().min(1).max(8).optional().describe("How many of its images (default 4)"),
       },
     },
-    safe(async ({ shot, maxImages = 3 }) => {
+    safe(async ({ shot, maxImages = 4 }) => {
       const key = resolve(shot);
       const id = key.split(":")[1];
       let s;
@@ -145,11 +157,23 @@ export function register(server, ctx) {
       updateState((st) => {
         if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
       });
+      // Originals at 1600px wide. Tall images (full landing pages) are cut into ~4:3 sections so each one is
+      // readable at full width instead of being shrunk to fit one tile. At most 8 images in total.
       const imgs = [];
-      for (const url of s.images.slice(0, maxImages)) {
+      const fetched = await Promise.all(s.images.slice(0, maxImages).map((url) => fetchImage(dribbble.fullUrl(url, 1600)).then((r) => r.buf).catch(() => null)));
+      for (const buf of fetched) {
+        if (!buf || imgs.length >= 8) continue;
         try {
-          const { buf } = await fetchImage(dribbble.fullUrl(url));
-          imgs.push(imageBlock(await toJpeg(buf, 1400, 1800)));
+          const img = await Jimp.read(buf);
+          const sectionH = Math.round(img.width * 0.8);
+          if (img.height > img.width * 1.6) {
+            const parts = Math.min(4, Math.ceil(img.height / sectionH));
+            for (let p = 0; p < parts && imgs.length < 8; p++) {
+              const y = Math.round((p * (img.height - sectionH)) / Math.max(1, parts - 1));
+              const piece = img.clone().crop({ x: 0, y, w: img.width, h: Math.min(sectionH, img.height - y) });
+              imgs.push(imageBlock(await toJpeg(await piece.getBuffer("image/png"), 1600, 1300, 86)));
+            }
+          } else imgs.push(imageBlock(await toJpeg(buf, 1600, 1600, 86)));
         } catch {
           /* skip broken image */
         }
@@ -159,9 +183,9 @@ export function register(server, ctx) {
         `Posted ${s.postedOn || "?"} · ${s.likes ?? "?"} likes · ${s.saves ?? "?"} saves · ${s.views ?? "?"} views\n` +
         `Palette: ${s.palette.join(" ") || "—"}\n` +
         `Tags: ${s.tags.join(", ") || "—"}\n` +
-        `Images: ${s.images.length} (showing ${imgs.length})${s.videos.length ? ` · ${s.videos.length} video(s), still frame shown` : ""}\n` +
+        `Images: ${s.images.length} originals (showing ${imgs.length} pictures; tall pages split into top-to-bottom sections)${s.videos.length ? ` · ${s.videos.length} video(s), still frame shown` : ""}\n` +
         (s.description ? `\nDesigner's notes:\n${s.description.slice(0, 1500)}\n` : "") +
-        `\nNEXT: look closely (refs_zoom on a region, e.g. the nav, a card, the type), then refs_study("${s.id}", …) with specific values. More from this designer: refs_designer("${s.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
+        `\nNEXT: study the whole design (every section above), then refs_study("${s.id}", …) with specific values. refs_zoom only if one small detail needs a closer look. More from this designer: refs_designer("${s.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
       return blocks([textBlock(info), ...imgs]);
     }),
   );
@@ -297,7 +321,7 @@ export function register(server, ctx) {
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.refs.studied = (s.task.refs.studied || []).filter((x) => x.key !== key);
-        s.task.refs.studied.push({ key, designer: item.designer || item.designerUrl, at: new Date().toISOString() });
+        s.task.refs.studied.push({ key, designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: new Date().toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
