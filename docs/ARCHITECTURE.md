@@ -31,6 +31,8 @@ drip/
    and which were read, references studied, the board and chosen direction, UI writes, fit-check results.
 2. **Guides through a tool.** `drip_guide` returns a guide and records the read. Skill files hold only the
    first-screen rules; the depth lives behind the tool call, so "I read the skill" can be checked.
+0. **Opt-in.** With `gates.mode: "task"` (default) every hook is silent unless a Drip task is open
+   (`/drip:start` → `drip_start` … `drip_end`). `"always"` makes the gate apply to every UI write.
 3. **Gates in hooks.** `hooks/pre-write.mjs` runs before Write/Edit. For UI files it computes what is missing
    (`missingBeforeUi` in `core/state.mjs`) and denies with the exact next call. Logic-only edits pass.
 4. **Recording + lint.** `hooks/post-write.mjs` records UI writes and lints the file (rules in `data/slop.json`),

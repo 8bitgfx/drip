@@ -1,7 +1,7 @@
 {
   "name": "drip",
   "displayName": "Drip",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Give Claude drip: a real designer's process for coding agents. References from Dribbble, moodboards, directions, design systems, components, icons, fonts, palettes, gradients, image generation and fit checks, enforced by hooks so the work actually gets done.",
   "author": { "name": "Drip contributors" },
   "license": "MIT",

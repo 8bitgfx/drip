@@ -9,8 +9,13 @@ export const DEFAULTS = {
   // Turn whole tool groups on or off.
   modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true },
 
-  // What the hooks enforce. Set enforce:false to make Drip advisory only.
+  // What the hooks enforce.
+  //   mode "task"   (default) Drip only acts while a Drip task is active (/drip:start or drip_start).
+  //                 Without a task the hooks stay silent: no blocking, no nudges, no lint.
+  //   mode "always" every UI write needs a Drip task (strict; for teams that want it on every change).
+  //   enforce:false advisory only: the tools and guides work, nothing is blocked.
   gates: {
+    mode: "task",
     enforce: true,
     minRefsViewed: 6,        // shots opened full size (refs_view) before UI is written, full loop
     minBoardItems: 8,        // items on the moodboard before a direction can be chosen
@@ -26,7 +31,7 @@ export const DEFAULTS = {
   // Words in a prompt that mean "this is design work" (the prompt hook reminds Claude to start Drip).
   designWords: "\\b(design|redesign|landing|hero|page|screen|component|ui|ux|layout|dashboard|navbar|header|footer|pricing|onboarding|modal|card|form|theme|style|restyle|look|polish|pretty|beautiful|ugly|mid)\\b",
 
-  refs: { delayMs: 1100, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
+  refs: { delayMs: 2000, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
 
   board: { port: 4567 },
 

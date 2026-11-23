@@ -1,12 +1,13 @@
 ---
 name: drip-system
 description: Use when creating, extending or documenting a design system - DESIGN.md, design tokens, CSS variables, a Tailwind v4 @theme block, theming and dark mode wiring, radius/shadow/z-index/motion tokens - or when turning a chosen moodboard direction into tokens (step 6 of the Drip loop). Part of Drip.
+user-invocable: false
 ---
 
 # Design system (Drip)
 
 **Before you do anything: call `drip_guide` with topic `system`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Look before you write: find the existing tokens (`globals.css`, `@theme`, `tailwind.config`, shadcn variables, theme files) first. Extend that system under its own names; never add a parallel set.

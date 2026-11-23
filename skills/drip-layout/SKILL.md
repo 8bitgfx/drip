@@ -1,12 +1,13 @@
 ---
 name: drip-layout
 description: Use when laying out a page, screen or component - spacing, grids, composition, alignment, visual hierarchy, density, responsive breakpoints, fluid sizing with clamp(), containers and max-widths, above-the-fold, whitespace, card and section anatomy - or when a layout feels cramped, empty, templated or "off". Part of Drip.
+user-invocable: false
 ---
 
 # Layout and spacing (Drip)
 
 **Before you do anything: call `drip_guide` with topic `layout`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. One spacing scale on a 4px base: 4 8 12 16 24 32 48 64 96 128. No 13px, 22px or 37px; at most a few optical nudges, each with a comment.

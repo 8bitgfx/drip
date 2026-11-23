@@ -1,12 +1,13 @@
 ---
 name: drip-fitcheck
 description: Use after building or changing any UI, and whenever asked to critique, review, QA, polish-check or judge a design ("does this look good", "review my page", "why does this look AI-made"). Screenshots at phone and desktop, compares with the chosen direction, lints for slop, scores 8 axes 1-5 and fixes until every score is 4+. Part of Drip.
+user-invocable: false
 ---
 
 # Fit check (Drip)
 
 **Before you do anything: call `drip_guide` with topic `fitcheck`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Never judge from code. Call `fitcheck_shot` (phone and desktop) and look at every screenshot before you say anything about the design.

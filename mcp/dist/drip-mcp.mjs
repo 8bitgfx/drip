@@ -66380,6 +66380,12 @@ function projectDir(cwd) {
 function projectDripDir(cwd) {
   return path.join(projectDir(cwd), ".drip");
 }
+function ensureProjectDrip(cwd) {
+  const dir = ensureDir(projectDripDir(cwd));
+  const ignore = path.join(dir, ".gitignore");
+  if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, "# Drip's working files. Shareable settings and the asset credits log stay tracked.\n*\n!.gitignore\n!config.json\n!slop.json\n!catalogue.json\n!assets.json\n");
+  return dir;
+}
 var homeDripDir = process.env.DRIP_HOME || path.join(os.homedir(), ".drip");
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -66390,8 +66396,13 @@ function ensureDir(dir) {
 var DEFAULTS = {
   // Turn whole tool groups on or off.
   modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true },
-  // What the hooks enforce. Set enforce:false to make Drip advisory only.
+  // What the hooks enforce.
+  //   mode "task"   (default) Drip only acts while a Drip task is active (/drip:start or drip_start).
+  //                 Without a task the hooks stay silent: no blocking, no nudges, no lint.
+  //   mode "always" every UI write needs a Drip task (strict; for teams that want it on every change).
+  //   enforce:false advisory only: the tools and guides work, nothing is blocked.
   gates: {
+    mode: "task",
     enforce: true,
     minRefsViewed: 6,
     // shots opened full size (refs_view) before UI is written, full loop
@@ -66408,7 +66419,7 @@ var DEFAULTS = {
   ignoreFiles: "(node_modules|\\.drip|dist|build|\\.next|__tests__|\\.test\\.|\\.spec\\.|\\.stories\\.)",
   // Words in a prompt that mean "this is design work" (the prompt hook reminds Claude to start Drip).
   designWords: "\\b(design|redesign|landing|hero|page|screen|component|ui|ux|layout|dashboard|navbar|header|footer|pricing|onboarding|modal|card|form|theme|style|restyle|look|polish|pretty|beautiful|ugly|mid)\\b",
-  refs: { delayMs: 1100, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
+  refs: { delayMs: 2e3, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
   board: { port: 4567 },
   gen: {
     defaultProvider: "openai",
@@ -66504,13 +66515,11 @@ function loadState(cwd) {
   }
 }
 function saveState(state, cwd) {
-  ensureDir(projectDripDir(cwd));
+  ensureProjectDrip(cwd);
   const file4 = statePath(cwd);
   const tmp = `${file4}.${process.pid}.tmp`;
   fs4.writeFileSync(tmp, JSON.stringify(state, null, 2));
   fs4.renameSync(tmp, file4);
-  const ignore = path4.join(projectDripDir(cwd), ".gitignore");
-  if (!fs4.existsSync(ignore)) fs4.writeFileSync(ignore, "state.json\ncache/\n");
 }
 function updateState(fn, cwd) {
   const state = loadState(cwd);
@@ -66645,7 +66654,7 @@ function register(server3, ctx2) {
     "drip_start",
     {
       title: "Start a design task",
-      description: "CALL THIS FIRST for any UI work: a new page, screen, component, redesign, or a visual tweak. It opens a Drip task, decides the loop (full for new/redesigned UI, quick for tweaks), lists the guides you must read and returns the first one. Until the task's requirements are met, the plugin blocks writing UI files.",
+      description: "Start a Drip design task (the user ran /drip:start or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. It decides the loop (full for new/redesigned UI, quick for tweaks), lists the guides you must read and returns the first one. While the task is open, the plugin blocks writing UI files until its requirements are met; close it with drip_end.",
       inputSchema: {
         task: external_exports.string().describe("What you are designing, in the user's words plus context. e.g. 'pricing page for a dev-tools SaaS, dark, technical audience'"),
         size: external_exports.enum(["full", "quick"]).optional().describe("full = new page/component/redesign (references, moodboard, direction). quick = tweak to existing UI. Omit to let Drip decide."),
@@ -75653,7 +75662,7 @@ var HttpError = class extends Error {
     this.status = status;
   }
 };
-async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as = "text", timeoutMs = 3e4 } = {}) {
+async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as = "text", timeoutMs = 3e4, retries = 2, maxWaitS = 8 } = {}) {
   const ext = as === "buffer" ? "bin" : "txt";
   const file4 = cacheFile(url2 + JSON.stringify(headers2), ext);
   if (ttlMs > 0) {
@@ -75663,8 +75672,18 @@ async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as 
   }
   const host = new URL(url2).host;
   return throttle(host, delayMs, async () => {
-    const res = await fetch(url2, { headers: headers2, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
+    let res;
+    for (let attempt = 0; ; attempt++) {
+      res = await fetch(url2, { headers: headers2, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
+      if (![429, 503].includes(res.status) || attempt >= retries) break;
+      const after = Number(res.headers.get("retry-after"));
+      const wait = Math.min(maxWaitS, Number.isFinite(after) && after > 0 ? after : 3 * 2 ** attempt) * 1e3;
+      await res.arrayBuffer().catch(() => {
+      });
+      await new Promise((r2) => setTimeout(r2, wait));
+    }
     const buf = Buffer.from(await res.arrayBuffer());
+    if (res.status === 429) throw new HttpError(429, url2, "rate limited after retries; slow down (fewer parallel calls) and try again in a minute");
     if (!res.ok) throw new HttpError(res.status, url2, as === "buffer" ? "" : buf.toString("utf8"));
     const contentType = res.headers.get("content-type") || "";
     if (ttlMs > 0) {
@@ -75760,7 +75779,7 @@ async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap =
 // src/core/seen.mjs
 import fs9 from "node:fs";
 import path6 from "node:path";
-var file2 = () => path6.join(ensureDir(path6.join(projectDripDir(), "cache")), "seen.json");
+var file2 = () => path6.join(ensureDir(path6.join(ensureProjectDrip(), "cache")), "seen.json");
 function load() {
   try {
     return JSON.parse(fs9.readFileSync(file2(), "utf8"));
@@ -75800,8 +75819,8 @@ var CATEGORIES = ["animation", "branding", "illustration", "mobile", "print", "p
 function headers(config2) {
   return { "User-Agent": config2.refs.userAgent, "X-Requested-With": "XMLHttpRequest", Accept: "text/html, */*" };
 }
-async function fetchHtml(url2, config2, ttlMs = 6 * 36e5) {
-  const { body } = await get(url2, { headers: headers(config2), delayMs: config2.refs.delayMs, ttlMs });
+async function fetchHtml(url2, config2, ttlMs = 6 * 36e5, retries = 2) {
+  const { body } = await get(url2, { headers: headers(config2), delayMs: config2.refs.delayMs, ttlMs, retries });
   if (!body || body.length < 200) throw new Error("Dribbble returned an empty page (it may be blocking automated requests right now). Try again later or use a browser.");
   return body;
 }
@@ -75885,7 +75904,7 @@ function docText(node2) {
 ` : inner;
 }
 async function shot(id, config2) {
-  const html = await fetchHtml(`${BASE}/shots/${id}`, config2, 24 * 36e5);
+  const html = await fetchHtml(`${BASE}/shots/${id}`, config2, 24 * 36e5, 0);
   const data = jsonAfter(html, "shotData:") || {};
   const blocks2 = (data.contentBlocks?.results || []).slice().sort((a2, b) => a2.position - b.position);
   const media = [];
@@ -76026,7 +76045,17 @@ function register2(server3, ctx2) {
     safe(async ({ shot: shot2, maxImages = 3 }) => {
       const key = resolve(shot2);
       const id = key.split(":")[1];
-      const s2 = await shot(id, ctx2.config());
+      let s2;
+      let degraded = "";
+      try {
+        s2 = await shot(id, ctx2.config());
+      } catch (err) {
+        const known = lookup(key);
+        if (!known?.image) throw err;
+        s2 = { id, url: known.url, title: known.title, designer: known.designer, designerUrl: known.designerUrl, postedOn: null, likes: known.likes, saves: null, views: known.views, tags: [], palette: [], description: "", images: [known.image], videos: [], isVideo: false };
+        degraded = `
+(Details unavailable: ${String(err.message).includes("429") ? "Dribbble rate-limited the shot page" : "shot page failed"}; showing the cover image from the listing. Space out refs_view calls.)`;
+      }
       remember({ key, source: "dribbble", id: s2.id, title: s2.title, url: s2.url, image: s2.images[0] || lookup(key)?.image, designer: s2.designer, designerUrl: s2.designerUrl, tags: s2.tags, palette: s2.palette });
       updateState((st) => {
         if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
@@ -76048,7 +76077,7 @@ Images: ${s2.images.length} (showing ${imgs.length})${s2.videos.length ? ` \xB7 
 Designer's notes:
 ${s2.description.slice(0, 1500)}
 ` : "") + `
-Study it, then board_add("${s2.id}", note: what exactly to take from it). More from this designer: refs_designer("${s2.designerUrl}"). Related: refs_tag on a tag above.`;
+Study it, then board_add("${s2.id}", note: what exactly to take from it). More from this designer: refs_designer("${s2.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
       return blocks([textBlock(info), ...imgs]);
     })
   );
@@ -76143,7 +76172,7 @@ async function screenshot(url2, { width = 1440, height = 900, dark = false, wait
 // src/modules/board/store.mjs
 import fs11 from "node:fs";
 import path8 from "node:path";
-var boardsDir = () => ensureDir(path8.join(projectDripDir(), "boards"));
+var boardsDir = () => ensureDir(path8.join(ensureProjectDrip(), "boards"));
 function slug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "board";
 }
@@ -77251,7 +77280,7 @@ Save one with images_save (logs the credit). Add to the board with board_add (re
       const file4 = path16.resolve(projectDir(), dest);
       fs19.mkdirSync(path16.dirname(file4), { recursive: true });
       fs19.writeFileSync(file4, buf);
-      const log = path16.join(ensureDir(projectDripDir()), "assets.json");
+      const log = path16.join(ensureProjectDrip(), "assets.json");
       const list = fs19.existsSync(log) ? JSON.parse(fs19.readFileSync(log, "utf8")) : [];
       list.push({ file: dest, source: item.url, author: item.designer || null, license: item.license || "unknown \u2014 check before shipping", credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
       fs19.writeFileSync(log, JSON.stringify(list, null, 2));
@@ -77403,7 +77432,7 @@ function register11(server3, ctx2) {
       fs20.mkdirSync(path17.dirname(file4), { recursive: true });
       fs20.writeFileSync(file4, imgs[0].buf);
       logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
-      const log = path17.join(ensureDir(projectDripDir()), "assets.json");
+      const log = path17.join(ensureProjectDrip(), "assets.json");
       const list = fs20.existsSync(log) ? JSON.parse(fs20.readFileSync(log, "utf8")) : [];
       list.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
       fs20.writeFileSync(log, JSON.stringify(list, null, 2));
@@ -77616,9 +77645,9 @@ ${formatIssues(issues, root)}`);
 }
 
 // src/index.mjs
-var VERSION = "0.1.0";
+var VERSION = "0.2.0";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
-RULE: before writing or restyling ANY UI (page, screen, component, visual tweak) call drip_start. It tells you which guides to read (drip_guide) and what to do next; the plugin blocks UI file writes until the task's requirements are met.
+Start with drip_start when the user asks for Drip (/drip:start) or for a proper design process; it tells you which guides to read (drip_guide) and what to do next. While a Drip task is active, the plugin blocks UI file writes until the task's requirements are met and blocks ending the turn until a fit check. The other tools (references, palettes, fonts, icons, components\u2026) are fine to use any time.
 Full loop (new UI): brief -> references (refs_search / refs_tag / refs_view) -> moodboard (board_*) -> direction (board_choose) -> system (DESIGN.md) -> assets (icons_*, fonts_*, palette_*, gradient_*, images_*, gen_*) -> build (components_*) -> fit check (fitcheck_shot, fitcheck_done).
 Quick loop (tweaks): drip_start size quick -> read the listed guides -> change -> fitcheck.
 Lost? drip_status shows what is done and the exact next call.`;

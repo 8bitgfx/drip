@@ -1,4 +1,6 @@
 ---
-description: Add API keys for image generation and photo sources (pasted into a local page, never into chat)
+description: Add optional API keys (image generation, photo search) in a local page, never in chat
 ---
-Call `keys_open` and give me the link it returns. Tell me which keys are optional and what each unlocks (`keys_status`): OpenAI or Gemini for image generation, Unsplash or Pexels for better photo search.
+If `keys_open` is not in your tools, run ToolSearch with `select:mcp__plugin_drip_drip__keys_open,mcp__plugin_drip_drip__keys_status`.
+
+Call `keys_open` and give me the link it returns. Then show `keys_status` and say what each optional key unlocks: OpenAI or Gemini for image generation, Unsplash or Pexels for better photo search.

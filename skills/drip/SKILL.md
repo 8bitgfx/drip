@@ -1,11 +1,15 @@
 ---
 name: drip
-description: Use for ANY user-interface work — a new page, screen, site, landing page, dashboard, component, redesign, restyle, or a visual tweak ("make it look better", "this looks mid/AI-made", "polish this") — in any frontend stack. Drip is the design director: it runs a real designer's process (brief, references, moodboard, direction, system, assets, build, fit check) through the Drip MCP tools, and its hooks block UI file writes until the process is done.
+description: Use when the user asks for Drip or for a real design process on UI work ("use drip", "/drip:start", "design this properly", "with references / a moodboard", "make it not look AI-made") — a new page, screen, site, dashboard, component or redesign in any frontend stack. Runs a real designer's loop (brief, references, moodboard, direction, system, assets, build, fit check) through the Drip MCP tools; while a Drip task is active its hooks enforce the loop.
+user-invocable: false
 ---
 
 # Drip: work like a real designer
 
-**Step 1, always: call `drip_start` with what you are designing.** It decides the loop (full or quick), lists the guides you must read, returns the first one, and tells you the next call. The plugin **blocks writing UI files** until the task's requirements are met, and **blocks ending your turn** after UI changes until a fit check is recorded. There is no shortcut: do the work.
+**Step 0, load the tools.** Drip's tools are deferred. If `drip_start` is not already callable, load them in one call:
+ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide,mcp__plugin_drip_drip__drip_status` (load more `mcp__plugin_drip_drip__*` tools the same way as each step needs them, e.g. `+drip refs`). Only if that returns nothing is the server down: tell the user to run `/mcp` and reconnect `plugin:drip:drip`.
+
+**Step 1: call `drip_start` with what you are designing.** It decides the loop (full or quick), lists the guides you must read, returns the first one, and tells you the next call. From then until `drip_end`, the plugin **blocks writing UI files** until the task's requirements are met, and **blocks ending your turn** after UI changes until a fit check is recorded. There is no shortcut: do the work.
 
 Lost at any point: `drip_status` (checklist + the exact next call).
 

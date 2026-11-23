@@ -1,12 +1,13 @@
 ---
 name: drip-mobile
 description: Use when building or reviewing anything that runs on a phone or tablet: mobile web, responsive layouts at 390 and below, PWAs, bottom sheets, tab bars, carousels, swipe gestures, full-screen app shells, touch interactions, or native apps (iOS, Android, React Native, Expo, Flutter). Also when something "works in Chrome but feels wrong on my phone" (sticky hover, tap flash, input zoom, 100vh bugs, content under the notch). Part of Drip.
+user-invocable: false
 ---
 
 # Mobile (Drip)
 
 **Before you do anything: call `drip_guide` with topic `mobile`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Touch targets: 44x44pt on iOS, 48x48dp on Android, 44x44 CSS px on mobile web, with 8px between neighbours. Expand small icons' hit area, not their look.

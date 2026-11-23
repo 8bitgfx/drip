@@ -1,12 +1,13 @@
 ---
 name: drip-productshots
 description: Use when making faux or mocked product UI as an illustration: hero product shots, feature-card and bento-tile pictures, docs heroes, browser/app/phone frames, notifications, terminals, chat threads, cropped and masked screenshots, and animated product demos with a moving cursor. Triggers on "mockup", "product shot", "fake UI", "demo animation", "walkthrough", "bento", "browser frame", "phone frame", "cursor animation", even when nobody says "faux UI". Part of Drip.
+user-invocable: false
 ---
 
 # Product shots (Drip)
 
 **Before you do anything: call `drip_guide` with topic `productshots`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Write the plan before code: where it sits (width, ground), the one focal object, the one thing that happens, the payoff, what is left out.

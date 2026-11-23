@@ -23,11 +23,13 @@ run(async () => {
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
         permissionDecision: "deny",
-        permissionDecisionReason: `[Drip] ${reason}\nIf the user explicitly asked to skip the design process, call drip_skip with their words. Unsure what is next: drip_status.`,
+        permissionDecisionReason: `[Drip] ${reason}\nUnsure what is next: drip_status. Tools not loaded: ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide. If the user wants out of the process, they can run /drip:skip (or call drip_skip quoting their words).`,
       },
     });
 
   if (!task) {
+    // Default: Drip is opt-in. Without an active task it never gets in the way.
+    if (config.gates.mode !== "always") return allow();
     if (isNew) return deny(`Creating a new UI file (${rel}) without a Drip task. Call drip_start with what you are designing (full loop for new UI), follow what it returns, then write this file.`);
     if (looksVisual(ti)) return deny(`This edit to ${rel} changes how the UI looks. Call drip_start first (size "quick" for a tweak, "full" for a redesign) and read the guides it lists; then make the edit.`);
     return allow();

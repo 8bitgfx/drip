@@ -126,7 +126,18 @@ export function register(server, ctx) {
     safe(async ({ shot, maxImages = 3 }) => {
       const key = resolve(shot);
       const id = key.split(":")[1];
-      const s = await dribbble.shot(id, ctx.config());
+      let s;
+      let degraded = "";
+      try {
+        s = await dribbble.shot(id, ctx.config());
+      } catch (err) {
+        // Shot pages are rate-limited much harder than listings. The image CDN is not, and the listing
+        // already told us title, designer and image: show that instead of failing the study.
+        const known = lookup(key);
+        if (!known?.image) throw err;
+        s = { id, url: known.url, title: known.title, designer: known.designer, designerUrl: known.designerUrl, postedOn: null, likes: known.likes, saves: null, views: known.views, tags: [], palette: [], description: "", images: [known.image], videos: [], isVideo: false };
+        degraded = `\n(Details unavailable: ${String(err.message).includes("429") ? "Dribbble rate-limited the shot page" : "shot page failed"}; showing the cover image from the listing. Space out refs_view calls.)`;
+      }
       remember({ key, source: "dribbble", id: s.id, title: s.title, url: s.url, image: s.images[0] || lookup(key)?.image, designer: s.designer, designerUrl: s.designerUrl, tags: s.tags, palette: s.palette });
       updateState((st) => {
         if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
@@ -147,7 +158,7 @@ export function register(server, ctx) {
         `Tags: ${s.tags.join(", ") || "—"}\n` +
         `Images: ${s.images.length} (showing ${imgs.length})${s.videos.length ? ` · ${s.videos.length} video(s), still frame shown` : ""}\n` +
         (s.description ? `\nDesigner's notes:\n${s.description.slice(0, 1500)}\n` : "") +
-        `\nStudy it, then board_add("${s.id}", note: what exactly to take from it). More from this designer: refs_designer("${s.designerUrl}"). Related: refs_tag on a tag above.`;
+        `\nStudy it, then board_add("${s.id}", note: what exactly to take from it). More from this designer: refs_designer("${s.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
       return blocks([textBlock(info), ...imgs]);
     }),
   );

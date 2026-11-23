@@ -11,10 +11,10 @@ import * as assets from "./modules/assets/index.mjs";
 import * as gen from "./modules/gen/index.mjs";
 import * as fitcheck from "./modules/fitcheck/index.mjs";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
-RULE: before writing or restyling ANY UI (page, screen, component, visual tweak) call drip_start. It tells you which guides to read (drip_guide) and what to do next; the plugin blocks UI file writes until the task's requirements are met.
+Start with drip_start when the user asks for Drip (/drip:start) or for a proper design process; it tells you which guides to read (drip_guide) and what to do next. While a Drip task is active, the plugin blocks UI file writes until the task's requirements are met and blocks ending the turn until a fit check. The other tools (references, palettes, fonts, icons, components…) are fine to use any time.
 Full loop (new UI): brief -> references (refs_search / refs_tag / refs_view) -> moodboard (board_*) -> direction (board_choose) -> system (DESIGN.md) -> assets (icons_*, fonts_*, palette_*, gradient_*, images_*, gen_*) -> build (components_*) -> fit check (fitcheck_shot, fitcheck_done).
 Quick loop (tweaks): drip_start size quick -> read the listed guides -> change -> fitcheck.
 Lost? drip_status shows what is done and the exact next call.`;

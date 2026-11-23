@@ -1,12 +1,13 @@
 ---
 name: drip-app
 description: Use when building, redesigning or reviewing app UI people work in: dashboards, admin panels, settings, data tables, forms, CRUD screens, internal tools, consoles, navigation (sidebars, tabs, breadcrumbs, command palettes), charts and KPI tiles, and empty, loading, error and permission states. Triggers on "dashboard", "admin", "table", "settings page", "form", "chart", "empty state", "skeleton". Part of Drip.
+user-invocable: false
 ---
 
 # App UI (Drip)
 
 **Before you do anything: call `drip_guide` with topic `app`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. The screen serves the task. A fluent user of the category must find everything where they expect it: standard navigation, standard controls, no invented affordances.

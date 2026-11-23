@@ -1,12 +1,13 @@
 ---
 name: drip-interaction
 description: Use when building or reviewing how UI responds to people - hover, press/active, focus-visible, disabled, loading, selected states; tooltips, popovers, menus, dialogs; drag, swipe and gestures; feedback, optimistic updates, undo; forms, validation and submit; "feels unresponsive", "feels laggy", "button does nothing". Part of Drip; covers the states every control needs, overlay origin and timing, perceived performance, and forms that feel good.
+user-invocable: false
 ---
 
 # Interaction (Drip)
 
 **Before you do anything: call `drip_guide` with topic `interaction`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Every interactive element has default, hover, active (pressed), focus-visible and disabled states; async controls add loading; toggles add selected. Write them all in the same change.

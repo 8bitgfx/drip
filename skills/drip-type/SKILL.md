@@ -1,12 +1,13 @@
 ---
 name: drip-type
 description: Use when choosing fonts or a font pairing, setting a type scale, fixing hierarchy, line-height, line length, letter-spacing, numerals, font loading or variable fonts, or when text looks generic, cramped, flat or "AI-made". Applies to CSS, Tailwind, next/font, @font-face and any UI or marketing page. Part of Drip.
+user-invocable: false
 ---
 
 # Typography (Drip)
 
 **Before you do anything: call `drip_guide` with topic `type`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. One family, or two with clearly different jobs (display + text). A third face only for code or figures. Never two similar sans-serifs.

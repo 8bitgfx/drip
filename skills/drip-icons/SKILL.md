@@ -1,12 +1,13 @@
 ---
 name: drip-icons
 description: Use when adding, choosing or fixing icons in a UI (icon libraries like Lucide, Phosphor, Tabler, Heroicons, icon buttons, toolbars, nav icons, feature icons, brand logos for integrations), or when a screen uses emoji as icons, mixes icon sets, or has an icon on every heading. Part of Drip.
+user-invocable: false
 ---
 
 # Icons (Drip)
 
 **Before you do anything: call `drip_guide` with topic `icons`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. One icon family per project, chosen once and written in `DESIGN.md`. If the project already uses one, keep it. Brand marks (Simple Icons) are the only second source.

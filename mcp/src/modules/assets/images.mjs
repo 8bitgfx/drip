@@ -6,7 +6,7 @@ import { z } from "zod";
 import { get } from "../../core/http.mjs";
 import { contactSheet, fetchImage, imageBlock, textBlock } from "../../core/images.mjs";
 import { getKey } from "../../core/keys.mjs";
-import { projectDir, projectDripDir, ensureDir } from "../../core/paths.mjs";
+import { ensureProjectDrip, projectDir, projectDripDir, ensureDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { rememberListing, resolve, lookup } from "../../core/seen.mjs";
 
@@ -87,7 +87,7 @@ export function register(server, ctx) {
       const file = path.resolve(projectDir(), dest);
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, buf);
-      const log = path.join(ensureDir(projectDripDir()), "assets.json");
+      const log = path.join(ensureProjectDrip(), "assets.json");
       const list = fs.existsSync(log) ? JSON.parse(fs.readFileSync(log, "utf8")) : [];
       list.push({ file: dest, source: item.url, author: item.designer || null, license: item.license || "unknown — check before shipping", credit: credit || null, savedAt: new Date().toISOString() });
       fs.writeFileSync(log, JSON.stringify(list, null, 2));

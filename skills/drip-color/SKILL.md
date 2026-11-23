@@ -1,12 +1,13 @@
 ---
 name: drip-color
 description: Use when choosing or fixing colour - a palette, brand or accent colour, neutrals, OKLCH ramps, contrast, dark mode, state colours (error, success, warning), gradients, mesh gradients, grain, or a palette taken from a reference image. Also when a UI looks "generic", "flat", "too colourful" or "AI-made". Part of Drip.
+user-invocable: false
 ---
 
 # Colour (Drip)
 
 **Before you do anything: call `drip_guide` with topic `color`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Work in OKLCH. Lightness steps you can predict; hue stays put while you lighten or darken.

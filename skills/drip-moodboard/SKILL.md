@@ -1,12 +1,13 @@
 ---
 name: drip-moodboard
 description: Use when building a moodboard or presenting visual directions ("make a moodboard", "show me some directions", "what could this look like", step 4-5 of the Drip loop), including standalone requests with no build attached. Covers collecting references with specific notes, clustering them into 2-4 genuinely different directions, publishing the board, reading the user's reactions and locking a choice. Part of Drip.
+user-invocable: false
 ---
 
 # Moodboard (Drip)
 
 **Before you do anything: call `drip_guide` with topic `moodboard`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 A board is a decision tool, not a collage. It turns studied references into 2-4 named directions the user
 can compare in one look and choose between, so the build starts from a choice instead of a default.

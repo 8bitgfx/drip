@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="shade" cx="38%" cy="34%" r="70%">
+      <stop offset="0" stop-color="#FF6A45"/>
+      <stop offset="0.6" stop-color="#E8452C"/>
+      <stop offset="1" stop-color="#C73A22"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E1B16"/>
+      <stop offset="1" stop-color="#121110"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
+  <!-- the drop: a teardrop with a soft point, slightly off-centre like a real falling drop -->
+  <path d="M512 178
+           C 560 300, 724 450, 724 610
+           C 724 734, 629 830, 512 830
+           C 395 830, 300 734, 300 610
+           C 300 450, 464 300, 512 178 Z" fill="url(#shade)"/>
+  <!-- one soft highlight along the left shoulder, like wet paint -->
+  <path d="M392 640 C 380 560, 420 480, 468 420" stroke="#FFE1D8" stroke-opacity="0.55" stroke-width="26" stroke-linecap="round" fill="none"/>
+</svg>

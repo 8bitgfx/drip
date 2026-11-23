@@ -59,9 +59,9 @@ export function register(server, ctx) {
     {
       title: "Start a design task",
       description:
-        "CALL THIS FIRST for any UI work: a new page, screen, component, redesign, or a visual tweak. " +
-        "It opens a Drip task, decides the loop (full for new/redesigned UI, quick for tweaks), lists the guides you must read and returns the first one. " +
-        "Until the task's requirements are met, the plugin blocks writing UI files.",
+        "Start a Drip design task (the user ran /drip:start or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. " +
+        "It decides the loop (full for new/redesigned UI, quick for tweaks), lists the guides you must read and returns the first one. " +
+        "While the task is open, the plugin blocks writing UI files until its requirements are met; close it with drip_end.",
       inputSchema: {
         task: z.string().describe("What you are designing, in the user's words plus context. e.g. 'pricing page for a dev-tools SaaS, dark, technical audience'"),
         size: z.enum(["full", "quick"]).optional().describe("full = new page/component/redesign (references, moodboard, direction). quick = tweak to existing UI. Omit to let Drip decide."),

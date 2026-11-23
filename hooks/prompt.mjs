@@ -1,29 +1,27 @@
-// UserPromptSubmit: when the prompt is design work, tell Claude to start (or continue) the Drip loop.
-import { checklist, loadConfig, loadState, out, readInput, run, allow } from "./lib.mjs";
+// UserPromptSubmit: keep Claude on track while a Drip task is active. In "always" mode, also
+// remind it to start Drip on design prompts. Otherwise silent: Drip is opt-in.
+import { allow, checklist, loadConfig, loadState, out, readInput, run } from "./lib.mjs";
+
+const LOAD = "If the drip_* tools are not loaded, ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide.";
 
 run(async () => {
   const input = await readInput();
   const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
   const config = loadConfig(dir);
-  const prompt = input.prompt || "";
   const { task } = loadState(dir);
-  const design = new RegExp(config.designWords, "i").test(prompt);
   if (task) {
     return out({
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: `[Drip] Active design task:\n${checklist(task, config)}\nContinue it (drip_status for the next call). If this message starts different design work, call drip_start again; when the task is finished, drip_end.`,
+        additionalContext: `[Drip] Active design task:\n${checklist(task, config)}\nContinue it (drip_status gives the next call). If this message is unrelated or ends the design work, call drip_end. ${LOAD}`,
       },
     });
   }
-  if (!design) return allow();
+  if (config.gates.mode !== "always" || !new RegExp(config.designWords, "i").test(input.prompt || "")) return allow();
   out({
     hookSpecificOutput: {
       hookEventName: "UserPromptSubmit",
-      additionalContext:
-        "[Drip] This looks like design/UI work. Before writing or restyling any UI, call drip_start (Drip MCP) with what you are designing. " +
-        "It picks the loop, gives you the guides to read (drip_guide) and the next step. UI file writes are blocked until its requirements are met. " +
-        "Use the drip-* skills for each craft (drip-color, drip-type, drip-layout, drip-motion, …).",
+      additionalContext: `[Drip] This looks like design/UI work. Before writing or restyling UI, call drip_start with what you are designing and follow it. ${LOAD}`,
     },
   });
 });

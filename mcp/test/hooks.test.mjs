@@ -15,16 +15,38 @@ function runHook(name, input, project) {
   return r.stdout ? JSON.parse(r.stdout) : null;
 }
 
-function project() {
+function project({ strict = true } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "drip-hooks-"));
   fs.mkdirSync(path.join(dir, "src"));
+  if (strict) {
+    fs.mkdirSync(path.join(dir, ".drip"));
+    fs.writeFileSync(path.join(dir, ".drip", "config.json"), JSON.stringify({ gates: { mode: "always" } }));
+  }
   fs.writeFileSync(path.join(dir, "src", "Old.tsx"), "export const Old = () => <div className='p-4'>hi</div>;");
   return dir;
 }
 
 const deny = (r) => r?.hookSpecificOutput?.permissionDecision === "deny";
 
-test("new UI file without a task is blocked", () => {
+test("default (opt-in): without a Drip task the hooks stay out of the way", () => {
+  const p = project({ strict: false });
+  const file = path.join(p, "src/New.tsx");
+  assert.equal(runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: file, content: "<div/>" } }, p), null);
+  assert.equal(runHook("pre-write.mjs", { tool_name: "Edit", tool_input: { file_path: path.join(p, "src/Old.tsx"), old_string: "p-4", new_string: "className='p-8 bg-zinc-900'" } }, p), null);
+  fs.writeFileSync(file, `<h1 className="from-purple-500 to-pink-500">Unlock</h1>`);
+  assert.equal(runHook("post-write.mjs", { tool_name: "Write", tool_input: { file_path: file, content: "x" } }, p), null);
+  assert.equal(runHook("prompt.mjs", { prompt: "redesign the pricing page" }, p), null);
+  assert.equal(runHook("session-start.mjs", {}, p), null);
+  assert.equal(runHook("stop.mjs", {}, p), null);
+});
+
+test("default (opt-in): once a task is started, the gate applies", () => {
+  const p = project({ strict: false });
+  saveState({ version: 1, task: newTask({ title: "pricing", size: "full", surface: "landing", guides: ["loop"] }), history: [] }, p);
+  assert.ok(deny(runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: path.join(p, "src/P.tsx"), content: "<div/>" } }, p)));
+});
+
+test("strict: new UI file without a task is blocked", () => {
   const p = project();
   assert.ok(deny(runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: path.join(p, "src/New.tsx"), content: "<div/>" } }, p)));
 });
@@ -39,7 +61,7 @@ test("logic-only edit to a UI file without a task is allowed", () => {
   assert.equal(runHook("pre-write.mjs", { tool_name: "Edit", tool_input: { file_path: path.join(p, "src/Old.tsx"), old_string: "hi", new_string: "count + 1" } }, p), null);
 });
 
-test("visual edit without a task is blocked", () => {
+test("strict: visual edit without a task is blocked", () => {
   const p = project();
   assert.ok(deny(runHook("pre-write.mjs", { tool_name: "Edit", tool_input: { file_path: path.join(p, "src/Old.tsx"), old_string: "p-4", new_string: "className='p-8 bg-zinc-900'" } }, p)));
 });
@@ -82,7 +104,7 @@ test("stop is blocked after UI changes until a fit check, then gives up after 3"
   assert.equal(runHook("stop.mjs", {}, p), null);
 });
 
-test("prompt hook nudges design prompts only", () => {
+test("strict: prompt hook nudges design prompts only", () => {
   const p = project();
   assert.match(runHook("prompt.mjs", { prompt: "redesign the pricing page" }, p).hookSpecificOutput.additionalContext, /drip_start/);
   assert.equal(runHook("prompt.mjs", { prompt: "fix the failing unit test in the parser" }, p), null);

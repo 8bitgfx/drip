@@ -1,12 +1,13 @@
 ---
 name: drip-motion
 description: Use when adding, tuning or reviewing motion of any kind - animate, transition, enter/exit, stagger, spring, easing, duration, AnimatePresence, Motion (Framer Motion), GSAP, @starting-style, view transitions, scroll effects, "feels janky", "feels slow", reduced motion. Part of Drip; covers whether something should move at all, which property, which curve, how groups move together, and keeping it inside the frame budget.
+user-invocable: false
 ---
 
 # Motion (Drip)
 
 **Before you do anything: call `drip_guide` with topic `motion`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Decide whether it should move before choosing a curve. Anything used 100+ times a day, and anything a keyboard shortcut triggers, gets no animation.

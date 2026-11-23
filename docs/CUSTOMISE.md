@@ -8,6 +8,7 @@ Project wins over personal, personal wins over the defaults (`mcp/src/core/confi
 ```json
 {
   "gates": {
+    "mode": "task",
     "enforce": true,
     "minRefsViewed": 6,
     "minBoardItems": 8,
@@ -25,6 +26,7 @@ Project wins over personal, personal wins over the defaults (`mcp/src/core/confi
 }
 ```
 
+- `gates.mode`: `"task"` (default) means Drip only acts while a Drip task is open (`/drip:start` … `drip_end`); with no task the hooks are silent. `"always"` means every UI write needs a Drip task, and design prompts get a reminder (strict, for teams).
 - `gates.enforce: false` makes Drip advisory: no blocking, the guides and tools still work.
 - Lower `minRefsViewed` for small teams that iterate fast; raise it for big launches.
 - `modules` turns tool groups off (fewer tools in Claude's context).

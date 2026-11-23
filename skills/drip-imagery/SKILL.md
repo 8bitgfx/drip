@@ -1,12 +1,13 @@
 ---
 name: drip-imagery
 description: Use when a page or screen needs pictures (hero images, photos, illustrations, 3D renders, textures, image prompts, alt text, image licences, srcset, lazy loading, AVIF/WebP), or when a layout shows empty image boxes, gradient placeholders, stock-looking art or drawn SVG scenes. Part of Drip.
+user-invocable: false
 ---
 
 # Imagery (Drip)
 
 **Before you do anything: call `drip_guide` with topic `imagery`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Pick the source in this order: the user's own assets, a capture of the real product, a found photo with a known licence, a generated image, type alone. Never an empty box or a gradient where a picture belongs.

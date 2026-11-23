@@ -2,9 +2,9 @@
 // plus the numbering of the last listing (so "open #12" works). Lives in <project>/.drip/cache/.
 import fs from "node:fs";
 import path from "node:path";
-import { ensureDir, projectDripDir } from "./paths.mjs";
+import { ensureDir, ensureProjectDrip, projectDripDir } from "./paths.mjs";
 
-const file = () => path.join(ensureDir(path.join(projectDripDir(), "cache")), "seen.json");
+const file = () => path.join(ensureDir(path.join(ensureProjectDrip(), "cache")), "seen.json");
 
 function load() {
   try {

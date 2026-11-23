@@ -58,7 +58,7 @@ export class HttpError extends Error {
  * GET a URL. Options: headers, delayMs (per-host spacing), ttlMs (cache; 0 = no cache), as ("text" | "json" | "buffer").
  * Returns { body, contentType, cached }.
  */
-export async function get(url, { headers = {}, delayMs = 0, ttlMs = DAY, as = "text", timeoutMs = 30000 } = {}) {
+export async function get(url, { headers = {}, delayMs = 0, ttlMs = DAY, as = "text", timeoutMs = 30000, retries = 2, maxWaitS = 8 } = {}) {
   const ext = as === "buffer" ? "bin" : "txt";
   const file = cacheFile(url + JSON.stringify(headers), ext);
   if (ttlMs > 0) {
@@ -68,8 +68,18 @@ export async function get(url, { headers = {}, delayMs = 0, ttlMs = DAY, as = "t
   }
   const host = new URL(url).host;
   return throttle(host, delayMs, async () => {
-    const res = await fetch(url, { headers, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
+    // Rate limited (429) or briefly unavailable (503): wait as told (Retry-After) or back off, then retry.
+    let res;
+    for (let attempt = 0; ; attempt++) {
+      res = await fetch(url, { headers, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
+      if (![429, 503].includes(res.status) || attempt >= retries) break;
+      const after = Number(res.headers.get("retry-after"));
+      const wait = Math.min(maxWaitS, Number.isFinite(after) && after > 0 ? after : 3 * 2 ** attempt) * 1000;
+      await res.arrayBuffer().catch(() => {});
+      await new Promise((r) => setTimeout(r, wait));
+    }
     const buf = Buffer.from(await res.arrayBuffer());
+    if (res.status === 429) throw new HttpError(429, url, "rate limited after retries; slow down (fewer parallel calls) and try again in a minute");
     if (!res.ok) throw new HttpError(res.status, url, as === "buffer" ? "" : buf.toString("utf8"));
     const contentType = res.headers.get("content-type") || "";
     if (ttlMs > 0) {

@@ -67,7 +67,7 @@ test("every drip_guide topic mentioned exists", () => {
   for (const f of mdFiles)
     for (const m of fs.readFileSync(f, "utf8").matchAll(/drip_guide[`\s(]+(?:topic\s+)?`?([a-z0-9][a-z0-9/-]*)`?/g)) {
       const t = m[1].replace(/^drip-/, "");
-      if (!["index", "with", "for", "topic"].includes(t) && !TOPICS.has(t)) missing.push(`${path.relative(root, f)}: ${t}`);
+      if (!["index", "with", "for", "topic", "is", "are", "and", "or", "to", "on", "first", "before"].includes(t) && !TOPICS.has(t)) missing.push(`${path.relative(root, f)}: ${t}`);
     }
   assert.deepEqual(missing, []);
 });

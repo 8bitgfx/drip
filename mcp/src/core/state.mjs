@@ -3,7 +3,7 @@
 // No dependencies: hooks import this file directly.
 import fs from "node:fs";
 import path from "node:path";
-import { ensureDir, projectDripDir } from "./paths.mjs";
+import { ensureProjectDrip, projectDripDir } from "./paths.mjs";
 import { loadConfig } from "./config.mjs";
 
 const EMPTY = () => ({ version: 1, task: null, history: [] });
@@ -21,14 +21,11 @@ export function loadState(cwd) {
 }
 
 export function saveState(state, cwd) {
-  ensureDir(projectDripDir(cwd));
+  ensureProjectDrip(cwd);
   const file = statePath(cwd);
   const tmp = `${file}.${process.pid}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(state, null, 2));
   fs.renameSync(tmp, file);
-  // Keep the folder out of git without touching the user's .gitignore.
-  const ignore = path.join(projectDripDir(cwd), ".gitignore");
-  if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, "state.json\ncache/\n");
 }
 
 /** Read, change and save in one go. `fn` gets the state and may mutate it. */

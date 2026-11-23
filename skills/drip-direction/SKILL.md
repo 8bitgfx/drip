@@ -1,12 +1,13 @@
 ---
 name: drip-direction
 description: Use when choosing or committing to a look ("what style should this be", "make it distinctive", "it looks generic / AI-made / templated", "give me alternatives"), after a moodboard direction is chosen, and before writing tokens or UI. Covers the genres and styles catalogue, making alternatives that really differ, committing to a point of view, and scaling ambition to the surface mode. Part of Drip, between the moodboard and the system.
+user-invocable: false
 ---
 
 # Direction (Drip)
 
 **Before you do anything: call `drip_guide` with topic `direction`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 A direction turns a chosen board card into a world you could recognise with every word removed: one idea,
 one ground and ink, one type voice, one signature move, committed as far as the surface's mode allows.

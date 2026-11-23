@@ -11,8 +11,8 @@ function headers(config) {
   return { "User-Agent": config.refs.userAgent, "X-Requested-With": "XMLHttpRequest", Accept: "text/html, */*" };
 }
 
-async function fetchHtml(url, config, ttlMs = 6 * 3600e3) {
-  const { body } = await get(url, { headers: headers(config), delayMs: config.refs.delayMs, ttlMs });
+async function fetchHtml(url, config, ttlMs = 6 * 3600e3, retries = 2) {
+  const { body } = await get(url, { headers: headers(config), delayMs: config.refs.delayMs, ttlMs, retries });
   if (!body || body.length < 200) throw new Error("Dribbble returned an empty page (it may be blocking automated requests right now). Try again later or use a browser.");
   return body;
 }
@@ -110,7 +110,8 @@ function docText(node) {
 
 /** Everything about one shot: data, description, palette, media in order. */
 export async function shot(id, config) {
-  const html = await fetchHtml(`${BASE}/shots/${id}`, config, 24 * 3600e3);
+  // No retries: shot pages are rate-limited hard; refs_view falls back to the CDN image instead of waiting.
+  const html = await fetchHtml(`${BASE}/shots/${id}`, config, 24 * 3600e3, 0);
   const data = jsonAfter(html, "shotData:") || {};
   const blocks = (data.contentBlocks?.results || []).slice().sort((a, b) => a.position - b.position);
   const media = [];

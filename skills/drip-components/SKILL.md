@@ -1,12 +1,13 @@
 ---
 name: drip-components
 description: Use when building, adding or refactoring any UI component - button, input, dialog, menu, table, card, tabs, toast, drawer, command palette, date picker, chart, animated text or hero effect - or when choosing or installing a component library (shadcn/ui, Radix, Base UI, React Aria, coss ui, Kibo UI, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI). Part of Drip; covers finding a proven component first, restyling it to the project's tokens, and designing variants, sizes, states and APIs that last.
+user-invocable: false
 ---
 
 # Components (Drip)
 
 **Before you do anything: call `drip_guide` with topic `components`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Search before you build: call `components_find` for every component with behaviour (focus, keyboard, overlays, selection, drag). Hand-roll only when nothing fits, and say why.

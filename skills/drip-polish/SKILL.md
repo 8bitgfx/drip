@@ -1,12 +1,13 @@
 ---
 name: drip-polish
 description: Use for the final details pass on any UI before it ships, or when something "feels off", "looks cheap", "isn't crisp" - shadows and borders, border radius nesting, optical alignment, icon and text alignment, tabular numbers, font smoothing, text wrapping, image outlines, hairlines, focus rings, scrollbars, selection colour, cursors, empty/loading/error and long-content states. Part of Drip; a checklist pass after the build and before the fit check.
+user-invocable: false
 ---
 
 # Polish (Drip)
 
 **Before you do anything: call `drip_guide` with topic `polish`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Polish refines; it never redesigns. Keep the chosen direction, content and behaviour; if the concept is wrong, say so instead of smuggling in a new one.

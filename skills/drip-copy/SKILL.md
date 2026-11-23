@@ -1,12 +1,13 @@
 ---
 name: drip-copy
 description: Use when writing or fixing any text in a UI (headlines, subheads, buttons, labels, nav, forms, errors, empty states, toasts, pricing, FAQ, microcopy), or when a page reads as AI-written or generic (eyebrow labels, "unlock/seamless/elevate", fake stats, numbered sections, captions that explain the UI, decorative badges and status dots). Part of Drip.
+user-invocable: false
 ---
 
 # Copy (Drip)
 
 **Before you do anything: call `drip_guide` with topic `copy`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. The headline says what the product is and who it is for, in 8 words or fewer. It must fail the swap test: if a competitor could use it unchanged, rewrite it with a noun only this product has.

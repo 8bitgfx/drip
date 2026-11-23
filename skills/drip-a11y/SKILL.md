@@ -1,12 +1,13 @@
 ---
 name: drip-a11y
 description: Use when building or reviewing any interactive UI for accessibility (contrast, focus rings, keyboard navigation, screen readers, ARIA, form labels and errors, reduced motion, touch target size, alt text, WCAG 2.2 AA), or when code removes outlines, uses clickable divs, placeholder-only inputs or colour-only status. Part of Drip.
+user-invocable: false
 ---
 
 # Accessibility (Drip)
 
 **Before you do anything: call `drip_guide` with topic `a11y`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Contrast (WCAG 2.2 AA): body text 4.5:1; large text (24px, or 18.66px bold) 3:1; icons, focus rings, input borders and chart marks 3:1. Check every pair with `palette_check`.

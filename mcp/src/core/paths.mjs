@@ -34,6 +34,14 @@ export function projectDripDir(cwd) {
   return path.join(projectDir(cwd), ".drip");
 }
 
+/** Create <project>/.drip (with a .gitignore that keeps only shareable settings) and return its path. */
+export function ensureProjectDrip(cwd) {
+  const dir = ensureDir(projectDripDir(cwd));
+  const ignore = path.join(dir, ".gitignore");
+  if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, "# Drip's working files. Shareable settings and the asset credits log stay tracked.\n*\n!.gitignore\n!config.json\n!slop.json\n!catalogue.json\n!assets.json\n");
+  return dir;
+}
+
 export const homeDripDir = process.env.DRIP_HOME || path.join(os.homedir(), ".drip");
 
 export function ensureDir(dir) {

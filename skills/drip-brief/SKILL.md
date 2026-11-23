@@ -1,12 +1,13 @@
 ---
 name: drip-brief
 description: Use when any design task starts (a new page, screen, flow, component or redesign) or when a request is vague ("build a landing page", "make it look better", "design a dashboard for X"). Frames the audience, the surface's job and mode, brand truth, material and constraints, and reads the existing project before any visual decision. Part of Drip, step 1 of the designer loop.
+user-invocable: false
 ---
 
 # Brief (Drip)
 
 **Before you do anything: call `drip_guide` with topic `brief`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 A brief is ten lines that make every later decision checkable. Without one, references, directions and
 critique have nothing to be measured against, and the work drifts to the category default.

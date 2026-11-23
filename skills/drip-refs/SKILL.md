@@ -1,12 +1,13 @@
 ---
 name: drip-refs
 description: Use when gathering design references or inspiration for a page, screen, component or brand ("find references", "look for inspiration", "what do good X look like", step 3 of the Drip loop), and before writing any new UI. Covers writing search queries, fanning out through tags and designers, scanning contact sheets, studying shots full size and writing specific notes. Part of Drip.
+user-invocable: false
 ---
 
 # References (Drip)
 
 **Before you do anything: call `drip_guide` with topic `refs`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 References are how a designer escapes their own defaults. You look at 100+ pieces of work, study 8-15 of
 them closely, and write down exactly what each one does, so the build is made of decisions you saw work.

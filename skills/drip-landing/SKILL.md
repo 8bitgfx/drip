@@ -1,12 +1,13 @@
 ---
 name: drip-landing
 description: Use when building, redesigning, restyling or reviewing a landing page, marketing site, company or product homepage, launch or waitlist page, pricing page, or any page whose job is to make a stranger understand an offer and act (hero, features, how it works, social proof, pricing, FAQ, CTA, footer). Also use when someone says a site looks generic, templated or "AI-made". Part of Drip.
+user-invocable: false
 ---
 
 # Landing pages (Drip)
 
 **Before you do anything: call `drip_guide` with topic `landing`.** It returns the full guide and records the read;
-the Drip hooks block writing UI files until it is read. No Drip task yet? Call `drip_start` first.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
 1. Write the copy and a page plan first: one line per section with its one idea, its picture and its height in screens. No markup before the plan.
