@@ -8,6 +8,7 @@ import { z } from "zod";
 import { readPackFile } from "../../core/packs.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
+import { capture, formatAudit, judgeAudit } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { loadBoard, saveBoard } from "../board/store.mjs";
@@ -74,6 +75,7 @@ export function register(server, ctx) {
       const dir = rendersDir(`critic-${stamp()}`);
       const files = [];
       const notes = [];
+      const measured = [];
 
       if (kind === "directions") {
         const board = task?.board?.id && loadBoard(task.board.id);
@@ -83,18 +85,23 @@ export function register(server, ctx) {
         board.directions.forEach((d, i) => {
           files.push(d.tile);
           notes.push(`Direction ${i + 1} "${d.name}" (${files.length}): ${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} · ${d.adjectives.join(", ")} · palette ${d.palette.join(" ")} · type ${d.type}`);
-          if (i === 0 && board.criteria?.length) context = `${context ? `${context}
-` : ""}Choice criteria (written before the tiles): ${board.criteria.join("; ")}`;
+          if (i === 0 && board.criteria?.length) context = `${context ? `${context}\n` : ""}Choice criteria (written before the tiles): ${board.criteria.join("; ")}`;
         });
       }
 
       for (const t of kind === "directions" || kind === "pack" ? [] : targets) {
         if (isUrl(t)) {
+          // The whole page, top to bottom, plus measured facts the critic must weigh.
           for (const s of config.fitcheck.sizes) {
-            const f = path.join(dir, `${s.name}-${files.length + 1}.png`);
-            await renderUrl(t, f, { width: s.width, height: s.height, config });
-            files.push(f);
-            notes.push(`${t} at ${s.name} ${s.width}x${s.height}`);
+            const r = await capture(t, { width: s.width, height: s.height, maxSlices: s.width < 600 ? 4 : 6, config });
+            const j = judgeAudit(r.audit);
+            measured.push(`${s.name}: ${formatAudit(r.audit, j)}`);
+            r.slices.forEach((sl, i) => {
+              const f = path.join(dir, `${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);
+              fs.writeFileSync(f, sl.buf);
+              files.push(f);
+              notes.push(`${t} at ${s.name} ${s.width}px, screen ${i + 1} of ${r.sliceCount} (from y=${sl.y}px)`);
+            });
           }
         } else {
           const abs = path.resolve(projectDir(), t);
@@ -138,6 +145,7 @@ export function register(server, ctx) {
         briefBlock(task),
         task?.board?.chosen && kind === "build" ? `Chosen direction: ${task.board.chosen}` : "",
         context ? `Context: ${context}` : "",
+        measured.length ? `\nMEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):\n${measured.join("\n")}` : "",
         rubric ? `\nNICHE RUBRIC (also judge against this)\n${rubric}` : "",
         "",
         files.length ? `IMAGES (open every one with the Read tool before judging):\n${files.map((f, i) => `${i + 1}. ${f}${notes[i] ? `  — ${notes[i]}` : ""}`).join("\n")}` : "",
@@ -149,7 +157,7 @@ export function register(server, ctx) {
         .filter((x) => x !== "")
         .join("\n");
       updateState((st) => {
-        if (st.task) st.task.critic.pending = { id, kind, files, at: new Date().toISOString() };
+        if (st.task) st.task.critic.pending = { id, kind, files, at: new Date().toISOString(), blockers: measured.filter((m) => /BLOCKERS:/.test(m)).map((m) => m.split("BLOCKERS:")[1].split("\n")[0].trim()) };
       });
       return text(
         `Prepared ${id}: ${files.length} image(s) in ${dir}.\n\nNOW: launch the critic with exactly this prompt (do not edit it, do not add your opinion):\nAgent({ subagent_type: "drip:critic", description: "Critic review ${kind}", prompt: <the text between the lines> })\n\n` +
@@ -184,7 +192,10 @@ export function register(server, ctx) {
         const ran = (task.critic?.runs || []).some((r) => !pending || r >= pending.at);
         if (!ran) return text('No drip:critic run found after critic_prepare. Launch it: Agent({ subagent_type: "drip:critic", prompt: <prompt from critic_prepare> }). Then record its verdict.', true);
       }
-      const r = { ...rec, at: new Date().toISOString() };
+      // Measured blockers outrank any verdict: a page with tiny text or 12 type sizes can't PASS.
+      const measuredBlockers = task?.critic?.pending?.blockers || [];
+      if (rec.verdict === "pass" && measuredBlockers.length) rec.verdict = "revise";
+      const r = { ...rec, at: new Date().toISOString(), measuredBlockers };
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.critic.records.push(r);

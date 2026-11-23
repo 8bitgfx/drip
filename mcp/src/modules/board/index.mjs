@@ -76,9 +76,13 @@ export function register(server, ctx) {
       inputSchema: {
         board: z.string().optional(),
         copy: z.object({ brand: z.string().optional(), headline: z.string().optional(), body: z.string().optional(), cta: z.string().optional() }).optional().describe("Real copy for the tiles (defaults from the brief)"),
+        custom: z
+          .array(z.object({ direction: z.string(), html: z.string().describe("A full HTML document or fragment for this direction's tile (fonts via Google Fonts links)") }))
+          .optional()
+          .describe("Your own tile per direction when the template can't show the idea (e.g. a draggable paper stack). Rendered at the same 1200x760 so options stay at equal fidelity."),
       },
     },
-    safe(async ({ board: bid, copy = {} }) => {
+    safe(async ({ board: bid, copy = {}, custom = [] }) => {
       const board = activeBoard(bid);
       if (!board.directions.length) return text("No directions yet: board_directions first.", true);
       const brief = loadState().task?.brief;
@@ -88,13 +92,16 @@ export function register(server, ctx) {
       const files = [];
       for (const d of board.directions) {
         const file = path.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
+        const own = custom.find((c) => c.direction.toLowerCase() === d.name.toLowerCase());
         const png = await renderHtml(
-          tileHtml(d, {
-            brand: copy.brand || board.name,
-            headline: copy.headline || d.summary,
-            body: copy.body || (brief ? `${brief.job[0].toUpperCase()}${brief.job.slice(1)}. Made for ${brief.audience}.` : d.adjectives.join(" · ")),
-            cta: copy.cta || "See the work",
-          }),
+          own
+            ? own.html
+            : tileHtml(d, {
+                brand: copy.brand || board.name,
+                headline: copy.headline || d.summary,
+                body: copy.body || (brief ? `${brief.job[0].toUpperCase()}${brief.job.slice(1)}. Made for ${brief.audience}.` : d.adjectives.join(" · ")),
+                cta: copy.cta || "See the work",
+              }),
           file,
           { width: 1200, height: 760, config: ctx.config() },
         );
@@ -302,9 +309,17 @@ export function register(server, ctx) {
       board.chosenReason = reason;
       saveBoard(board);
       syncTask(board);
+      // The craft guides become required now: building without them is how type ends up at 13px in 12 sizes.
+      const craft = loadState().task?.mode === "logo" ? ["type", "color"] : ["system", "type", "color", "layout", "copy"];
+      const st = updateState((s) => {
+        if (s.task) s.task.requiredGuides = [...new Set([...s.task.requiredGuides, ...craft])];
+      });
+      const unread = (st.task?.requiredGuides || []).filter((g) => !st.task.guidesRead.includes(g));
       return text(
         `Direction locked: "${d.name}" — ${d.summary}\nAdjectives: ${d.adjectives.join(", ")} · Palette: ${d.palette.join(" ")} · Type: ${d.type}\n\n` +
-          "NEXT: drip_guide system, then write DESIGN.md + tokens for this direction (palette_generate / palette_check, fonts_search), and drip_mark system.",
+          `NEXT: read the craft guides now required before any UI file can be written: ${unread.map((g) => `drip_guide ${g}`).join(", ")}. ` +
+          "Then choose the type for real (fonts_pair with the direction's adjectives, fonts_preview with the real headline; never a font because an example used it), " +
+          "write DESIGN.md + tokens (palette_generate / palette_check): a type scale of 4-6 sizes, body text 17-20px on marketing pages, no reading text under 14px, mono only for code or tiny labels. Then drip_mark system.",
       );
     }),
   );

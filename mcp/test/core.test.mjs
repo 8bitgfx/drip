@@ -59,6 +59,18 @@ test("mesh gradient is deterministic per seed", () => {
   assert.match(a.svg, /^<svg/);
 });
 
+test("page audit: measured blockers for tiny text, too many sizes, overflow", async () => {
+  const { judgeAudit } = await import("../src/core/cdp.mjs");
+  const bad = { width: 390, scrollWidth: 412, overflowX: true, offenders: ["div.stack 412px"], fontSizes: [[12, 186], [15, 95], [13, 68], [17, 48], [16, 38], [14, 31], [36, 27], [28, 23], [24, 9]], families: [["Martian Mono", 423], ["Bricolage Grotesque", 139]], words: 562, smallShare: 0.45, gaps: [[3000, 4200]], media: 0, bodyText: 12 };
+  const j = judgeAudit(bad);
+  assert.ok(j.blockers.some((b) => /overflow/.test(b)));
+  assert.ok(j.blockers.some((b) => /text sizes/.test(b)));
+  assert.ok(j.blockers.some((b) => /under 14px/.test(b)));
+  assert.ok(j.warnings.some((w) => /monospace/.test(w)));
+  const good = { width: 1440, scrollWidth: 1440, overflowX: false, offenders: [], fontSizes: [[18, 400], [64, 20], [28, 40], [14, 30]], families: [["Söhne", 400], ["Tiempos", 90]], words: 490, smallShare: 0.06, gaps: [], media: 4, bodyText: 18 };
+  assert.deepEqual(judgeAudit(good).blockers, []);
+});
+
 test("gates: quick tasks need only guides; skip opens everything", () => {
   const t = newTask({ title: "x", size: "quick", surface: "other", guides: ["polish"] });
   assert.equal(missingBeforeUi(t, DEFAULTS).length, 1);

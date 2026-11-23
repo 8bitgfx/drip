@@ -23,7 +23,7 @@ import * as critic from "./modules/critic/index.mjs";
 import * as logo from "./modules/logo/index.mjs";
 import * as packs from "./modules/packs/index.mjs";
 
-const VERSION = "0.3.1";
+const VERSION = "0.3.2";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it runs intake, tells you which guides to read (drip_guide) and what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.

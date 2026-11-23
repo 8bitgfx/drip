@@ -48,6 +48,15 @@ Mark unseen axes N/A and renormalise. Give the weighted total out of 100.
 `P# [S0 blocker | S1 high | S2 medium | S3 polish · observed | guideline | inference · confidence] location — what you see — why it matters here — fix with a testable target` ("headline 120-160px, not 56"; "redraw the drip as one curve with 3 nodes, not 9 lumps").
 Never raise S0/S1 on taste alone. Never invent hex, px or contrast ratios you can't see; say "verify".
 
+## 6a. Measured facts (when the prompt has MEASURED FACTS, they override your impression)
+- **BLOCKERS listed** → each is an S0/S1 finding; verdict can't be PASS.
+- More than 6 text sizes → Typography ≤ 5. More than 2-3 font families → System ≤ 5.
+- Paragraphs under 16px, or more than 15% of words under 14px → Typography and Delivery ≤ 5 ("too small to read" is the #1 complaint about AI pages).
+- More than 40% of text in monospace → name it as the "developer default" in WHAT'S GENERIC; Typography ≤ 5 unless the brief is literally a terminal.
+- Empty stretches taller than a screen → Composition ≤ 5.
+- No imagery on a persuasive page → Fit/Idea must say what's carrying the page instead; if nothing is, cap Idea at 5.
+- **Scale**: judge the slices at the size a person sees them. A 15px body and 13px labels on a 1440px screen read as "really small" even if the hierarchy is "correct".
+
 ## 6. Caps and rules
 - An unresolved S0 means no PASS (cap 59/100). A wrong or unreadable core message caps at 49.
 - **One fatal flaw outweighs a high total.** Logo fatal flaws: illegible at 16px, looks like an existing mark, an unfortunate reading.

@@ -7,6 +7,9 @@ import { blocks, safe, text } from "../../core/result.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
 import { loadBoard } from "../board/store.mjs";
+import fs from "node:fs";
+import { capture, formatAudit, judgeAudit } from "../../core/cdp.mjs";
+import { rendersDir, stamp } from "../../core/render.mjs";
 import { screenshot } from "./chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
 
@@ -18,34 +21,50 @@ export function register(server, ctx) {
     {
       title: "Screenshot the result",
       description:
-        "Screenshots a running page at phone and desktop sizes (Chrome/Edge headless) and returns the images so you can judge them. Required after building or changing UI. " +
-        "Start the dev server first. Then compare with the board (fitcheck_compare), fix what you see, and record the verdict with fitcheck_done.",
+        "Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: " +
+        "horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. " +
+        "Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. Example: fitcheck_shot({ url: \"http://localhost:3000\" })",
       inputSchema: {
         url: z.string().describe("e.g. http://localhost:3000/pricing"),
         sizes: z.array(z.object({ name: z.string(), width: z.number(), height: z.number() })).optional(),
-        dark: z.boolean().optional().describe("Also try dark mode (best effort)"),
+        maxSlices: z.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
       },
     },
-    safe(async ({ url, sizes, dark }) => {
+    safe(async ({ url, sizes, maxSlices }) => {
       const config = ctx.config();
       const list = sizes || config.fitcheck.sizes;
+      const dir = rendersDir(`fitcheck-${stamp()}`);
       const content = [];
-      for (const s of list)
-        for (const d of dark ? [false, true] : [false]) {
-          const png = await screenshot(url, { width: s.width, height: s.height, dark: d, config });
-          content.push(textBlock(`${s.name} ${s.width}x${s.height}${d ? " dark" : ""}`), imageBlock(await toJpeg(png, 1440, 1440)));
+      const audits = [];
+      const files = [];
+      for (const s of list) {
+        const r = await capture(url, { width: s.width, height: s.height, maxSlices: maxSlices || (s.width < 600 ? 4 : 5), config });
+        const j = judgeAudit(r.audit);
+        audits.push({ size: s.name, width: s.width, audit: r.audit, ...j });
+        content.push(textBlock(`${s.name} ${s.width}px · ${r.slices.length} of ${r.sliceCount} screens\n${formatAudit(r.audit, j)}`));
+        for (const [i, sl] of r.slices.entries()) {
+          const f = path.join(dir, `${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);
+          fs.writeFileSync(f, sl.buf);
+          files.push(f);
+          content.push(imageBlock(s.width < 600 ? sl.buf : await toJpeg(sl.buf, 1200, 900, 80)));
         }
+      }
+      const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
       updateState((st) => {
         if (st.task) {
-          st.task.fitcheck.shots += content.length / 2;
+          st.task.fitcheck.shots += files.length;
           st.task.fitcheck.lastShotAt = new Date().toISOString();
           st.task.fitcheck.url = url;
+          st.task.fitcheck.blockers = blockers;
+          st.task.fitcheck.files = files;
         }
       });
       content.unshift(
         textBlock(
-          "Judge these like a design director, not like the author. Read drip_guide fitcheck if you have not. Look for: weak hierarchy, cramped or uneven spacing, more than one accent, " +
-            "off-system type, placeholder imagery, slop tells (rules/slop-tells), broken phone layout, missing states. Fix, re-shoot, then fitcheck_done.",
+          `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n- ${blockers.join("\n- ")}\n\n` : "No measured blockers.\n\n"}` +
+            "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, " +
+            "off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " +
+            dir,
         ),
       );
       return blocks(content);
@@ -117,6 +136,12 @@ export function register(server, ctx) {
     },
     safe(async ({ scores, verdict, fixes, acceptedByUser }) => {
       const low = Object.entries(scores).filter(([, v]) => v < 4);
+      const { task: t0 } = loadState();
+      if (t0 && !t0.fitcheck?.lastShotAt) return text("Shoot the page first: fitcheck_shot({ url }). A fit check needs the measured, full-page capture.", true);
+      if (t0 && t0.lastUiWriteAt && t0.fitcheck.lastShotAt < t0.lastUiWriteAt) return text("The UI changed after the last fitcheck_shot. Shoot it again so the verdict is about the current page.", true);
+      const blockers = t0?.fitcheck?.blockers || [];
+      if (verdict === "pass" && blockers.length && !acceptedByUser)
+        return text(`Can't pass with measured blockers:\n- ${blockers.join("\n- ")}\nFix them (drip_guide type / layout), fitcheck_shot again, then record the verdict.`, true);
       const pass = verdict === "pass" && !low.length;
       const st = updateState((s) => {
         if (!s.task) return;

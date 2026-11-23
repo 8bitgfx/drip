@@ -1,5 +1,7 @@
 # Worked run: "/drip:design a portfolio for Claude"
 
+> Font names, colours and copy below are placeholders. Never reuse them because they appear here: choose for the brief with `fonts_pair` and `fonts_preview`.
+
 What a good Drip run looks like, call by call, with the messages the user sees. Copy the shape, not the content.
 
 ## 1. Start + intake (≈1 minute)
@@ -45,14 +47,14 @@ refs_view({ shot: "L3-4" }) → (whole page, every section) → refs_study({ sho
 ```
 drip_guide("moodboard"); drip_guide("direction")
 board_create({ name: "Claude portfolio" })                 → studies imported automatically
-board_add({ items: [{ ref: "#FF3D00", note: "accent for one moving thing per screen" }, { ref: "Bricolage Grotesque", note: "display at 160px+, heavy, tight" }] })
+board_add({ items: [{ ref: "#FF3D00", note: "accent for one moving thing per screen" }, { ref: "<display face chosen with fonts_pair>", note: "display at 160px+; the face that fits THIS brief, previewed with the real headline" }] })
 board_directions({ directions: [
   { name: "Live Wire", summary: "Claude's words assemble themselves as you scroll; the page is a conversation happening in type.",
-    adjectives: ["loud", "kinetic", "playful"], palette: ["#0E0E0E", "#F3EFE6", "#D4FF3A"], type: "Bricolage Grotesque + Inter", items: ["1","2","5"] },
+    adjectives: ["loud", "kinetic", "playful"], palette: ["#0E0E0E", "#F3EFE6", "#D4FF3A"], type: "<display> + <text> (from fonts_pair)", items: ["1","2","5"] },
   { name: "Margin Notes", summary: "A manuscript of finished work with Claude's reasoning written in the margins beside it.",
-    adjectives: ["editorial", "witty", "intimate"], palette: ["#F7F3EA", "#141414", "#2340FF"], type: "Fraunces + IBM Plex Mono", items: ["3","4"] },
+    adjectives: ["editorial", "witty", "intimate"], palette: ["#F7F3EA", "#141414", "#2340FF"], type: "<a different pairing>", items: ["3","4"] },
   { name: "Signal Fire", summary: "An exhibition poster wall: each project a giant numbered poster, colour fields that own the screen.",
-    adjectives: ["graphic", "saturated", "confident"], palette: ["#FF3D00", "#111111", "#FFE9DC"], type: "Archivo Black + Archivo", items: ["6","7"] } ] })
+    adjectives: ["graphic", "saturated", "confident"], palette: ["#FF3D00", "#111111", "#FFE9DC"], type: "<a third pairing>", items: ["6","7"] } ] })
 board_tile({ copy: { brand: "Claude", headline: "I think in drafts. Here are the good ones.", cta: "See the work" } })
 critic_prepare({ kind: "directions" })
 Agent({ subagent_type: "drip:critic", description: "Critic review directions", prompt: <exactly the prompt returned> })
@@ -77,7 +79,7 @@ plus one AskUserQuestion: "Which direction?" (Live Wire (Recommended) · Signal 
 
 ## 5. System, build, check
 ```
-drip_guide("system"); palette_generate({ accent: "#D4FF3A" }); fonts_preview({ display: "Bricolage Grotesque", text: "Inter" })
+drip_guide("system"); palette_generate({ accent: "#D4FF3A" }); fonts_pair({ mood: "<the direction adjectives>" }); fonts_preview({ display: "<chosen>", text: "<chosen>", sample: "<the real headline>" })
 → DESIGN.md + tokens → drip_mark({ step: "system" })
 … build with components_find / icons_search / real copy …
 fitcheck_shot({ url: "http://localhost:3000" }) → self-critique, fix

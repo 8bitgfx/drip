@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path26) {
-      let input2 = path26;
+    function removeDotSegments(path27) {
+      let input2 = path27;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path26) {
-      if (path26 === "" || path26[0] === "/") {
-        return removeDotSegments(path26);
+    function removeDotSegmentsRelative(path27) {
+      if (path27 === "" || path27[0] === "/") {
+        return removeDotSegments(path27);
       }
-      const segments = path26.split("/");
+      const segments = path27.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path26 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path26 && path26 !== "/" ? path26 : void 0;
+        const path27 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path27 && path27 !== "/" ? path27 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -7257,12 +7257,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f2;
     };
-    function addFormats(ajv, list, fs29, exportName) {
+    function addFormats(ajv, list, fs31, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f2 of list)
-        ajv.addFormat(f2, fs29[f2]);
+        ajv.addFormat(f2, fs31[f2]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -11032,7 +11032,7 @@ var require_gifframe = __commonJS({
 var require_gifutil = __commonJS({
   "node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
-    var fs29 = __require("fs");
+    var fs31 = __require("fs");
     var ImageQ = require_image_q();
     var BitmapImage2 = require_bitmapimage();
     var { GifFrame: GifFrame2 } = require_gifframe();
@@ -11147,14 +11147,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path26, frames, spec, encoder) {
+    exports.write = function(path27, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches = path26.match(/\.[a-zA-Z]+$/);
+      const matches = path27.match(/\.[a-zA-Z]+$/);
       if (matches !== null && INVALID_SUFFIXES.includes(matches[0].toLowerCase())) {
-        throw new Error(`GIF '${path26}' has an unexpected suffix`);
+        throw new Error(`GIF '${path27}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path26, gif2.buffer).then(() => {
+        return _writeBinary(path27, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -11226,9 +11226,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path26) {
+    function _readBinary(path27) {
       return new Promise((resolve2, reject) => {
-        fs29.readFile(path26, (err, buffer) => {
+        fs31.readFile(path27, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -11236,9 +11236,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path26, buffer) {
+    function _writeBinary(path27, buffer) {
       return new Promise((resolve2, reject) => {
-        fs29.writeFile(path26, buffer, (err) => {
+        fs31.writeFile(path27, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -13217,9 +13217,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path26) {
+        load: function load2(path27) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path26, true);
+          xhr.open("GET", path27, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -23646,11 +23646,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path26) {
-      path26 = String(path26);
-      let last = path26.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path27) {
+      path27 = String(path27);
+      let last = path27.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path26.length;
+      let hasPath = last.length < path27.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -25903,9 +25903,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path26) {
-        super(`Not a regular file: ${path26}`);
-        this.path = path26;
+      constructor(path27) {
+        super(`Not a regular file: ${path27}`);
+        this.path = path27;
         this.name = "NotRegularFileError";
       }
     };
@@ -30252,8 +30252,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path26, options) {
-  return new FileTypeParser2(options).fromFile(path26, options);
+async function fileTypeFromFile(path27, options) {
+  return new FileTypeParser2(options).fromFile(path27, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -30284,9 +30284,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path26) {
+      async fromFile(path27) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs8.open(path26, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs8.open(path27, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -30295,7 +30295,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path26,
+            path: path27,
             size: fileStat.size
           }
         });
@@ -37549,9 +37549,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path26, options) {
+      Path.fromSVG = function(path27, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path26, options);
+        return newPath.fromSVG(path27, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -42716,8 +42716,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path26) {
-        let _path = path26 || new path_default();
+      function getPathDefinition(glyph, path27) {
+        let _path = path27 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -42945,8 +42945,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path26 = this.getPath(x2, y2, fontSize, options, font);
-        path26.draw(ctx2);
+        const path27 = this.getPath(x2, y2, fontSize, options, font);
+        path27.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -42975,8 +42975,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path26 = this.path;
-        let commands = path26.commands;
+        const path27 = this.path;
+        let commands = path27.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -43123,9 +43123,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path26 = buildPath2(font.glyphs, glyph);
-            path26.unitsPerEm = font.unitsPerEm;
-            return path26;
+            const path27 = buildPath2(font.glyphs, glyph);
+            path27.unitsPerEm = font.unitsPerEm;
+            return path27;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -43140,9 +43140,9 @@ var require_opentype = __commonJS({
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path26 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path26.unitsPerEm = font.unitsPerEm;
-            return path26;
+            const path27 = parseCFFCharstring2(font, glyph, charstring, version2);
+            path27.unitsPerEm = font.unitsPerEm;
+            return path27;
           };
           return glyph;
         };
@@ -43609,12 +43609,12 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path26) {
+      function applyPaintType(font, path27) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path26.fill = null;
-          path26.stroke = "black";
-          path26.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path27.fill = null;
+          path27.stroke = "black";
+          path27.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
@@ -44377,16 +44377,16 @@ var require_opentype = __commonJS({
       }
       function glyphToOps(glyph, version2) {
         const ops = [];
-        const path26 = glyph.path;
+        const path27 = glyph.path;
         if (version2 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path26.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path27.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path26.commands[i2];
+          let cmd = path27.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -52394,8 +52394,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path26 = this.getPath(text2, x2, y2, fontSize, options);
-        path26.draw(ctx2);
+        const path27 = this.getPath(text2, x2, y2, fontSize, options);
+        path27.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -53154,8 +53154,8 @@ var require_opentype = __commonJS({
 });
 
 // src/index.mjs
-import fs28 from "node:fs";
-import path25 from "node:path";
+import fs30 from "node:fs";
+import path26 from "node:path";
 
 // node_modules/zod/v3/helpers/util.js
 var util;
@@ -53531,8 +53531,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path26, errorMaps, issueData } = params;
-  const fullPath = [...path26, ...issueData.path || []];
+  const { data, path: path27, errorMaps, issueData } = params;
+  const fullPath = [...path27, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -53647,11 +53647,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path26, key) {
+  constructor(parent, value, path27, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path26;
+    this._path = path27;
     this._key = key;
   }
   get path() {
@@ -57606,10 +57606,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path26) {
-  if (!path26)
+function getElementAtPath(obj, path27) {
+  if (!path27)
     return obj;
-  return path26.reduce((acc, key) => acc?.[key], obj);
+  return path27.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -57949,11 +57949,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path26, issues) {
+function prefixIssues(path27, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path26);
+    iss.path.unshift(path27);
     return iss;
   });
 }
@@ -58415,16 +58415,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path26 = []) => {
+  const processError = (error63, path27 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path26, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path27, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path26, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path26, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
       } else {
-        const fullpath = [...path26, ...issue2.path];
+        const fullpath = [...path27, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -58463,17 +58463,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path26 = []) => {
+  const processError = (error63, path27 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path26, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path27, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path26, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path26, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
       } else {
-        const fullpath = [...path26, ...issue2.path];
+        const fullpath = [...path27, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -58512,8 +58512,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path26 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path26) {
+  const path27 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path27) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -74064,11 +74064,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path26) {
-  if (path26.length === 0) {
+function getDotPath(path27) {
+  if (path27.length === 0) {
     return "object root";
   }
-  return path26.reduce((acc, seg, index) => {
+  return path27.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -76295,13 +76295,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path26 = ref.slice(1).split("/").filter(Boolean);
-  if (path26.length === 0) {
+  const path27 = ref.slice(1).split("/").filter(Boolean);
+  if (path27.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path26[0] === defsKey) {
-    const key = path26[1] === void 0 ? void 0 : decodeJSONPointerSegment(path26[1]);
+  if (path27[0] === defsKey) {
+    const key = path27[1] === void 0 ? void 0 : decodeJSONPointerSegment(path27[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -87122,9 +87122,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path26, options) {
-      const mimeType = import_lite.default.getType(path26);
-      await writeFile(path26, await this.getBuffer(mimeType, options));
+    async write(path27, options) {
+      const mimeType = import_lite.default.getType(path27);
+      await writeFile(path27, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -93179,10 +93179,11 @@ NEXT: add 3-6 colours and 2-4 fonts from what you studied (board_add), then boar
       description: "Renders one style tile per direction: its palette, type pairing, a nav, a headline, body copy, buttons and a card, so the user (and the critic) sees each direction APPLIED, not just references. Run after board_directions; tiles are saved as files (for the critic) and shown on the board. Optional per-direction headline/sample copy makes them real.",
       inputSchema: {
         board: external_exports.string().optional(),
-        copy: external_exports.object({ brand: external_exports.string().optional(), headline: external_exports.string().optional(), body: external_exports.string().optional(), cta: external_exports.string().optional() }).optional().describe("Real copy for the tiles (defaults from the brief)")
+        copy: external_exports.object({ brand: external_exports.string().optional(), headline: external_exports.string().optional(), body: external_exports.string().optional(), cta: external_exports.string().optional() }).optional().describe("Real copy for the tiles (defaults from the brief)"),
+        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string().describe("A full HTML document or fragment for this direction's tile (fonts via Google Fonts links)") })).optional().describe("Your own tile per direction when the template can't show the idea (e.g. a draggable paper stack). Rendered at the same 1200x760 so options stay at equal fidelity.")
       }
     },
-    safe(async ({ board: bid, copy = {} }) => {
+    safe(async ({ board: bid, copy = {}, custom: custom2 = [] }) => {
       const board = activeBoard(bid);
       if (!board.directions.length) return text("No directions yet: board_directions first.", true);
       const brief = loadState().task?.brief;
@@ -93192,8 +93193,9 @@ NEXT: add 3-6 colours and 2-4 fonts from what you studied (board_add), then boar
       const files = [];
       for (const d of board.directions) {
         const file4 = path11.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
+        const own2 = custom2.find((c3) => c3.direction.toLowerCase() === d.name.toLowerCase());
         const png2 = await renderHtml(
-          tileHtml(d, {
+          own2 ? own2.html : tileHtml(d, {
             brand: copy.brand || board.name,
             headline: copy.headline || d.summary,
             body: copy.body || (brief ? `${brief.job[0].toUpperCase()}${brief.job.slice(1)}. Made for ${brief.audience}.` : d.adjectives.join(" \xB7 ")),
@@ -93398,11 +93400,16 @@ ${lines.join("\n")}`
       board.chosenReason = reason;
       saveBoard(board);
       syncTask(board);
+      const craft = loadState().task?.mode === "logo" ? ["type", "color"] : ["system", "type", "color", "layout", "copy"];
+      const st = updateState((s2) => {
+        if (s2.task) s2.task.requiredGuides = [.../* @__PURE__ */ new Set([...s2.task.requiredGuides, ...craft])];
+      });
+      const unread = (st.task?.requiredGuides || []).filter((g) => !st.task.guidesRead.includes(g));
       return text(
         `Direction locked: "${d.name}" \u2014 ${d.summary}
 Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7 Type: ${d.type}
 
-NEXT: drip_guide system, then write DESIGN.md + tokens for this direction (palette_generate / palette_check, fonts_search), and drip_mark system.`
+NEXT: read the craft guides now required before any UI file can be written: ${unread.map((g) => `drip_guide ${g}`).join(", ")}. Then choose the type for real (fonts_pair with the direction's adjectives, fonts_preview with the real headline; never a font because an example used it), write DESIGN.md + tokens (palette_generate / palette_check): a type scale of 4-6 sizes, body text 17-20px on marketing pages, no reading text under 14px, mono only for code or tiny labels. Then drip_mark system.`
       );
     })
   );
@@ -94234,23 +94241,185 @@ var fitcheck_exports = {};
 __export(fitcheck_exports, {
   register: () => register12
 });
-import path21 from "node:path";
+import path22 from "node:path";
+import fs26 from "node:fs";
+
+// src/core/cdp.mjs
+import { spawn } from "node:child_process";
+import fs24 from "node:fs";
+import os5 from "node:os";
+import path20 from "node:path";
+async function launch(config2) {
+  const chrome = findChrome(config2);
+  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
+  const profile = fs24.mkdtempSync(path20.join(os5.tmpdir(), "drip-cdp-"));
+  const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
+    env: browserEnv(),
+    windowsHide: true,
+    stdio: ["ignore", "ignore", "pipe"]
+  });
+  const wsUrl = await new Promise((resolve2, reject) => {
+    let buf = "";
+    const t2 = setTimeout(() => reject(new Error("Browser did not start (no DevTools endpoint).")), 2e4);
+    proc.stderr.on("data", (d) => {
+      buf += d;
+      const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
+      if (m) {
+        clearTimeout(t2);
+        resolve2(m[1]);
+      }
+    });
+    proc.on("exit", () => reject(new Error("Browser exited early.")));
+  });
+  const ws = new WebSocket(wsUrl);
+  await new Promise((r2, j) => {
+    ws.onopen = r2;
+    ws.onerror = () => j(new Error("Couldn't connect to the browser."));
+  });
+  let id = 0;
+  const waiting2 = /* @__PURE__ */ new Map();
+  const listeners = /* @__PURE__ */ new Set();
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(ev.data);
+    if (msg.id && waiting2.has(msg.id)) {
+      const { resolve: resolve2, reject } = waiting2.get(msg.id);
+      waiting2.delete(msg.id);
+      msg.error ? reject(new Error(msg.error.message)) : resolve2(msg.result);
+    } else for (const l2 of listeners) l2(msg);
+  };
+  const send = (method, params = {}, sessionId) => new Promise((resolve2, reject) => {
+    const mid = ++id;
+    waiting2.set(mid, { resolve: resolve2, reject });
+    ws.send(JSON.stringify({ id: mid, method, params, ...sessionId ? { sessionId } : {} }));
+  });
+  const close = async () => {
+    try {
+      await send("Browser.close");
+    } catch {
+    }
+    try {
+      ws.close();
+    } catch {
+    }
+    proc.kill();
+    setTimeout(() => {
+      try {
+        fs24.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      } catch {
+      }
+    }, 500).unref();
+  };
+  return { send, close, listeners };
+}
+var AUDIT = `(() => {
+  const vw = innerWidth, vh = innerHeight;
+  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
+  const textEls = [...document.querySelectorAll('body *')].filter((el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1) && visible(el));
+  const sizes = {}, families = {}, weights = {};
+  let small = 0, words = 0;
+  for (const el of textEls) {
+    const cs = getComputedStyle(el); const s = Math.round(parseFloat(cs.fontSize));
+    const n = [...el.childNodes].filter((x) => x.nodeType === 3).map((x) => x.textContent).join(' ').trim().split(/\\s+/).length;
+    sizes[s] = (sizes[s] || 0) + n; words += n;
+    const fam = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(); families[fam] = (families[fam] || 0) + n;
+    weights[cs.fontWeight] = (weights[cs.fontWeight] || 0) + n;
+    if (s < 14) small += n;
+  }
+  const doc = document.documentElement;
+  const overflowX = doc.scrollWidth > vw + 1;
+  const offenders = overflowX ? [...document.querySelectorAll('body *')].filter((el) => { const r = el.getBoundingClientRect(); return r.right > vw + 1 && r.width > 0 && visible(el); }).slice(0, 6).map((el) => (el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/)[0] : '') + ' ' + Math.round(el.getBoundingClientRect().right) + 'px')) : [];
+  // Empty bands: vertical stretches with no visible text, image or control.
+  const marks = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|SVG|CANVAS|VIDEO|PICTURE|BUTTON|INPUT|TEXTAREA|SELECT|IFRAME)$/i.test(el.tagName) || textEls.includes(el))).map((el) => { const r = el.getBoundingClientRect(); return [r.top + scrollY, r.bottom + scrollY]; }).sort((a, b) => a[0] - b[0]);
+  const gaps = []; let end = 0;
+  for (const [t, b] of marks) { if (t - end > vh * 0.6) gaps.push([Math.round(end), Math.round(t)]); end = Math.max(end, b); }
+  if (doc.scrollHeight - end > vh * 0.6) gaps.push([Math.round(end), doc.scrollHeight]);
+  const media = [...document.querySelectorAll('img, picture, video, canvas, svg')].filter((el) => { const r = el.getBoundingClientRect(); return visible(el) && r.width * r.height > 120 * 120; }).length;
+  const h1 = document.querySelector('h1'); const h1s = h1 ? Math.round(parseFloat(getComputedStyle(h1).fontSize)) : null;
+  const bodyP = [...document.querySelectorAll('p')].filter(visible).map((p) => Math.round(parseFloat(getComputedStyle(p).fontSize)));
+  const medianP = bodyP.length ? bodyP.sort((a, b) => a - b)[Math.floor(bodyP.length / 2)] : null;
+  return { width: vw, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
+    fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
+    words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, bodyText: medianP, title: document.title };
+})()`;
+async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, config: config2 } = {}) {
+  const b = await launch(config2);
+  try {
+    const { targetId } = await b.send("Target.createTarget", { url: "about:blank" });
+    const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
+    const s2 = (m, p2) => b.send(m, p2, sessionId);
+    await s2("Page.enable");
+    await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+    if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
+    const loaded = new Promise((r2) => {
+      const l2 = (msg) => {
+        if (msg.method === "Page.loadEventFired" && msg.sessionId === sessionId) {
+          b.listeners.delete(l2);
+          r2();
+        }
+      };
+      b.listeners.add(l2);
+      setTimeout(r2, 15e3);
+    });
+    await s2("Page.navigate", { url: url2 });
+    await loaded;
+    await new Promise((r2) => setTimeout(r2, 1200));
+    await s2("Runtime.evaluate", { expression: "(async()=>{for(let y=0;y<document.documentElement.scrollHeight;y+=innerHeight){scrollTo(0,y);await new Promise(r=>setTimeout(r,120));}scrollTo(0,0);await new Promise(r=>setTimeout(r,300));})()", awaitPromise: true });
+    const { result } = await s2("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
+    const audit = result.value;
+    const total = Math.min(audit.height, 3e4);
+    const count = Math.max(1, Math.ceil(total / height));
+    const picks = count <= maxSlices ? [...Array(count).keys()] : [...Array(maxSlices).keys()].map((i2) => Math.round(i2 * (count - 1) / (maxSlices - 1)));
+    const slices = [];
+    for (const i2 of picks) {
+      const y2 = Math.min(i2 * height, Math.max(0, total - height));
+      const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: quality2, captureBeyondViewport: true, clip: { x: 0, y: y2, width, height: Math.min(height, total - y2), scale: 1 } });
+      slices.push({ y: y2, buf: Buffer.from(data, "base64") });
+    }
+    return { audit, slices, sliceCount: count };
+  } finally {
+    await b.close();
+  }
+}
+function judgeAudit(a2, kind = "page") {
+  const blockers = [];
+  const warnings = [];
+  if (a2.overflowX) blockers.push(`horizontal overflow at ${a2.width}px: page is ${a2.scrollWidth}px wide (${a2.offenders.join(", ") || "unknown element"})`);
+  const sizes = a2.fontSizes.filter(([, n2]) => n2 >= 2).length;
+  if (sizes > 8) blockers.push(`${sizes} different text sizes; a type scale has 4-6 (drip_guide type)`);
+  else if (sizes > 6) warnings.push(`${sizes} text sizes; tighten to 4-6`);
+  const fams = a2.families.filter(([, n2]) => n2 >= 3);
+  if (fams.length > 3) blockers.push(`${fams.length} font families (${fams.map(([f2]) => f2).join(", ")}); use one pairing`);
+  if (a2.smallShare > 0.3) blockers.push(`${Math.round(a2.smallShare * 100)}% of the words are under 14px; body and UI text is too small`);
+  else if (a2.smallShare > 0.15) warnings.push(`${Math.round(a2.smallShare * 100)}% of words under 14px`);
+  if (a2.bodyText && a2.bodyText < (a2.width < 600 ? 16 : 16)) warnings.push(`typical paragraph size ${a2.bodyText}px; marketing body text reads best at 17-20px`);
+  const monoShare = a2.families.filter(([f2]) => /mono|courier|code/i.test(f2)).reduce((t2, [, n2]) => t2 + n2, 0) / Math.max(1, a2.words);
+  if (monoShare > 0.4) warnings.push(`${Math.round(monoShare * 100)}% of the text is monospace; mono for reading text is hard work and a default "developer" look`);
+  const bigGaps = a2.gaps.filter(([t2, b]) => b - t2 > 900);
+  if (bigGaps.length) warnings.push(`${bigGaps.length} empty stretch(es) taller than a screen: ${bigGaps.map(([t2, b]) => `${t2}-${b}px`).join(", ")}`);
+  if (kind === "page" && a2.media === 0) warnings.push("no images, video or illustration anywhere on the page");
+  return { blockers, warnings };
+}
+function formatAudit(a2, j) {
+  return `${a2.width}px: ${a2.screens} screens tall \xB7 text sizes ${a2.fontSizes.slice(0, 8).map(([s2, n2]) => `${s2}px\xD7${n2}`).join(" ")} \xB7 families ${a2.families.map(([f2, n2]) => `${f2}\xD7${n2}`).join(", ")} \xB7 ${Math.round(a2.smallShare * 100)}% words <14px \xB7 h1 ${a2.h1 ?? "-"}px \xB7 paragraphs ${a2.bodyText ?? "-"}px \xB7 media ${a2.media}` + (j.blockers.length ? `
+  BLOCKERS: ${j.blockers.join(" | ")}` : "") + (j.warnings.length ? `
+  warnings: ${j.warnings.join(" | ")}` : "");
+}
 
 // src/modules/fitcheck/lint.mjs
-import fs24 from "node:fs";
-import path20 from "node:path";
+import fs25 from "node:fs";
+import path21 from "node:path";
 function readRules(file4) {
   try {
-    return JSON.parse(fs24.readFileSync(file4, "utf8")).rules || [];
+    return JSON.parse(fs25.readFileSync(file4, "utf8")).rules || [];
   } catch {
     return [];
   }
 }
 function loadRules(cwd) {
-  const rules = [...readRules(path20.join(dataDir, "slop.json")), ...readRules(path20.join(projectDripDir(cwd), "slop.json"))];
+  const rules = [...readRules(path21.join(dataDir, "slop.json")), ...readRules(path21.join(projectDripDir(cwd), "slop.json"))];
   for (const id of loadState(cwd).task?.packs || []) {
     const dir = packDir(id, cwd);
-    if (dir) rules.push(...readRules(path20.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
+    if (dir) rules.push(...readRules(path21.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
   }
   return rules;
 }
@@ -94284,7 +94453,7 @@ function lintFiles(files, cwd) {
   for (const f2 of files) {
     let src;
     try {
-      src = fs24.readFileSync(f2, "utf8");
+      src = fs25.readFileSync(f2, "utf8");
     } catch {
       continue;
     }
@@ -94295,7 +94464,7 @@ function lintFiles(files, cwd) {
 function formatIssues(issues, cwd) {
   if (!issues.length) return "No slop or polish issues found by the static checks (that does not replace looking at it).";
   const order = { error: 0, warn: 1, info: 2 };
-  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path20.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
+  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path21.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
 }
 
 // src/modules/fitcheck/index.mjs
@@ -94305,32 +94474,49 @@ function register12(server2, ctx2) {
     "fitcheck_shot",
     {
       title: "Screenshot the result",
-      description: "Screenshots a running page at phone and desktop sizes (Chrome/Edge headless) and returns the images so you can judge them. Required after building or changing UI. Start the dev server first. Then compare with the board (fitcheck_compare), fix what you see, and record the verdict with fitcheck_done.",
+      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. Example: fitcheck_shot({ url: "http://localhost:3000" })',
       inputSchema: {
         url: external_exports.string().describe("e.g. http://localhost:3000/pricing"),
         sizes: external_exports.array(external_exports.object({ name: external_exports.string(), width: external_exports.number(), height: external_exports.number() })).optional(),
-        dark: external_exports.boolean().optional().describe("Also try dark mode (best effort)")
+        maxSlices: external_exports.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly")
       }
     },
-    safe(async ({ url: url2, sizes, dark }) => {
+    safe(async ({ url: url2, sizes, maxSlices }) => {
       const config2 = ctx2.config();
       const list = sizes || config2.fitcheck.sizes;
+      const dir = rendersDir(`fitcheck-${stamp()}`);
       const content = [];
-      for (const s2 of list)
-        for (const d of dark ? [false, true] : [false]) {
-          const png2 = await screenshot(url2, { width: s2.width, height: s2.height, dark: d, config: config2 });
-          content.push(textBlock(`${s2.name} ${s2.width}x${s2.height}${d ? " dark" : ""}`), imageBlock(await toJpeg(png2, 1440, 1440)));
+      const audits = [];
+      const files = [];
+      for (const s2 of list) {
+        const r2 = await capture(url2, { width: s2.width, height: s2.height, maxSlices: maxSlices || (s2.width < 600 ? 4 : 5), config: config2 });
+        const j = judgeAudit(r2.audit);
+        audits.push({ size: s2.name, width: s2.width, audit: r2.audit, ...j });
+        content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${r2.slices.length} of ${r2.sliceCount} screens
+${formatAudit(r2.audit, j)}`));
+        for (const [i2, sl] of r2.slices.entries()) {
+          const f2 = path22.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+          fs26.writeFileSync(f2, sl.buf);
+          files.push(f2);
+          content.push(imageBlock(s2.width < 600 ? sl.buf : await toJpeg(sl.buf, 1200, 900, 80)));
         }
+      }
+      const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
       updateState((st) => {
         if (st.task) {
-          st.task.fitcheck.shots += content.length / 2;
+          st.task.fitcheck.shots += files.length;
           st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
           st.task.fitcheck.url = url2;
+          st.task.fitcheck.blockers = blockers;
+          st.task.fitcheck.files = files;
         }
       });
       content.unshift(
         textBlock(
-          "Judge these like a design director, not like the author. Read drip_guide fitcheck if you have not. Look for: weak hierarchy, cramped or uneven spacing, more than one accent, off-system type, placeholder imagery, slop tells (rules/slop-tells), broken phone layout, missing states. Fix, re-shoot, then fitcheck_done."
+          `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):
+- ${blockers.join("\n- ")}
+
+` : "No measured blockers.\n\n"}Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: ` + dir
         )
       );
       return blocks(content);
@@ -94377,7 +94563,7 @@ ${items.map((it, i2) => `${i2 + 1}. ${it.note}`).join("\n")}`),
     safe(async ({ files }) => {
       const { task } = loadState();
       const root = projectDir();
-      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path21.resolve(root, f2));
+      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path22.resolve(root, f2));
       if (!list.length) return text("No files given and none recorded for this task.", true);
       const issues = lintFiles(list, root);
       updateState((st) => {
@@ -94401,6 +94587,14 @@ ${formatIssues(issues, root)}`);
     },
     safe(async ({ scores, verdict, fixes, acceptedByUser }) => {
       const low = Object.entries(scores).filter(([, v]) => v < 4);
+      const { task: t0 } = loadState();
+      if (t0 && !t0.fitcheck?.lastShotAt) return text("Shoot the page first: fitcheck_shot({ url }). A fit check needs the measured, full-page capture.", true);
+      if (t0 && t0.lastUiWriteAt && t0.fitcheck.lastShotAt < t0.lastUiWriteAt) return text("The UI changed after the last fitcheck_shot. Shoot it again so the verdict is about the current page.", true);
+      const blockers = t0?.fitcheck?.blockers || [];
+      if (verdict === "pass" && blockers.length && !acceptedByUser)
+        return text(`Can't pass with measured blockers:
+- ${blockers.join("\n- ")}
+Fix them (drip_guide type / layout), fitcheck_shot again, then record the verdict.`, true);
       const pass = verdict === "pass" && !low.length;
       const st = updateState((s2) => {
         if (!s2.task) return;
@@ -94420,8 +94614,8 @@ var critic_exports = {};
 __export(critic_exports, {
   register: () => register13
 });
-import fs25 from "node:fs";
-import path22 from "node:path";
+import fs27 from "node:fs";
+import path23 from "node:path";
 var KIND_BRIEF = {
   directions: "You are judging 2-4 candidate DESIGN DIRECTIONS (style tiles) before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it distinctive, crafted and finished, or a competent template? Name every place it looks amateur, generic or AI-made.",
@@ -94470,10 +94664,11 @@ function register13(server2, ctx2) {
       const dir = rendersDir(`critic-${stamp()}`);
       const files = [];
       const notes = [];
+      const measured = [];
       if (kind === "directions") {
         const board = task?.board?.id && loadBoard(task.board.id);
         if (!board?.directions?.length) return text("No directions to judge. board_directions + board_tile first.", true);
-        const missing = board.directions.filter((d) => !d.tile || !fs25.existsSync(d.tile));
+        const missing = board.directions.filter((d) => !d.tile || !fs27.existsSync(d.tile));
         if (missing.length) return text(`Render the style tiles first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
         board.directions.forEach((d, i2) => {
           files.push(d.tile);
@@ -94485,24 +94680,29 @@ function register13(server2, ctx2) {
       for (const t2 of kind === "directions" || kind === "pack" ? [] : targets) {
         if (isUrl(t2)) {
           for (const s2 of config2.fitcheck.sizes) {
-            const f2 = path22.join(dir, `${s2.name}-${files.length + 1}.png`);
-            await renderUrl(t2, f2, { width: s2.width, height: s2.height, config: config2 });
-            files.push(f2);
-            notes.push(`${t2} at ${s2.name} ${s2.width}x${s2.height}`);
+            const r2 = await capture(t2, { width: s2.width, height: s2.height, maxSlices: s2.width < 600 ? 4 : 6, config: config2 });
+            const j = judgeAudit(r2.audit);
+            measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
+            r2.slices.forEach((sl, i2) => {
+              const f2 = path23.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs27.writeFileSync(f2, sl.buf);
+              files.push(f2);
+              notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
+            });
           }
         } else {
-          const abs = path22.resolve(projectDir(), t2);
-          if (!fs25.existsSync(abs)) return text(`File not found: ${t2}`, true);
+          const abs = path23.resolve(projectDir(), t2);
+          if (!fs27.existsSync(abs)) return text(`File not found: ${t2}`, true);
           if (/\.svg$/i.test(abs)) {
-            const svg = fs25.readFileSync(abs, "utf8");
+            const svg = fs27.readFileSync(abs, "utf8");
             for (const [bg, label, size] of [["#FFFFFF", "light", 1024], ["#111111", "dark", 1024], ["#FFFFFF", "small 64px", 64], ["#FFFFFF", "tiny 24px", 24]]) {
-              const f2 = path22.join(dir, `${path22.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
+              const f2 = path23.join(dir, `${path23.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
               await renderSvg(svg, f2, { size, bg, config: config2 });
               files.push(f2);
               notes.push(`${t2} on ${label}`);
             }
           } else if (/\.html?$/i.test(abs)) {
-            const f2 = path22.join(dir, `${path22.basename(abs)}.png`);
+            const f2 = path23.join(dir, `${path23.basename(abs)}.png`);
             await renderUrl(`file:///${abs.replace(/\\/g, "/")}`, f2, { width: 1440, height: 900, config: config2 });
             files.push(f2);
             notes.push(`${t2} rendered`);
@@ -94531,6 +94731,9 @@ ${c3.slice(0, 9e3)}`).join("\n\n");
         briefBlock(task),
         task?.board?.chosen && kind === "build" ? `Chosen direction: ${task.board.chosen}` : "",
         context ? `Context: ${context}` : "",
+        measured.length ? `
+MEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):
+${measured.join("\n")}` : "",
         rubric ? `
 NICHE RUBRIC (also judge against this)
 ${rubric}` : "",
@@ -94545,7 +94748,7 @@ ${packText}` : "",
         "Answer in your standard format (VERDICT, SCORES, RANKING if several, WORST PROBLEM, WHAT'S GENERIC, FIXES, ONE-LINE SUMMARY)."
       ].filter((x2) => x2 !== "").join("\n");
       updateState((st) => {
-        if (st.task) st.task.critic.pending = { id, kind, files, at: (/* @__PURE__ */ new Date()).toISOString() };
+        if (st.task) st.task.critic.pending = { id, kind, files, at: (/* @__PURE__ */ new Date()).toISOString(), blockers: measured.filter((m) => /BLOCKERS:/.test(m)).map((m) => m.split("BLOCKERS:")[1].split("\n")[0].trim()) };
       });
       return text(
         `Prepared ${id}: ${files.length} image(s) in ${dir}.
@@ -94584,7 +94787,9 @@ Then critic_record the verdict and show the user the critic's own words.`
         const ran = (task.critic?.runs || []).some((r3) => !pending || r3 >= pending.at);
         if (!ran) return text('No drip:critic run found after critic_prepare. Launch it: Agent({ subagent_type: "drip:critic", prompt: <prompt from critic_prepare> }). Then record its verdict.', true);
       }
-      const r2 = { ...rec, at: (/* @__PURE__ */ new Date()).toISOString() };
+      const measuredBlockers = task?.critic?.pending?.blockers || [];
+      if (rec.verdict === "pass" && measuredBlockers.length) rec.verdict = "revise";
+      const r2 = { ...rec, at: (/* @__PURE__ */ new Date()).toISOString(), measuredBlockers };
       const st = updateState((s2) => {
         if (!s2.task) return;
         s2.task.critic.records.push(r2);
@@ -94616,17 +94821,17 @@ __export(logo_exports, {
   pathStats: () => pathStats,
   register: () => register14
 });
-import fs27 from "node:fs";
-import path24 from "node:path";
+import fs29 from "node:fs";
+import path25 from "node:path";
 
 // src/modules/logo/outline.mjs
 var import_opentype = __toESM(require_opentype(), 1);
-import fs26 from "node:fs";
-import path23 from "node:path";
+import fs28 from "node:fs";
+import path24 from "node:path";
 async function loadFont2(font, weight = 400, style = "normal") {
-  const local = path23.resolve(projectDir(), font);
-  if (/\.(ttf|otf|woff)$/i.test(font) && fs26.existsSync(local)) {
-    const b = fs26.readFileSync(local);
+  const local = path24.resolve(projectDir(), font);
+  if (/\.(ttf|otf|woff)$/i.test(font) && fs28.existsSync(local)) {
+    const b = fs28.readFileSync(local);
     return import_opentype.default.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
   }
   const id = font.trim().toLowerCase().replace(/\s+/g, "-");
@@ -94681,9 +94886,9 @@ function outline(font, text2, { size = 200, letterSpacing = 0, kerning = true } 
 var esc5 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
 function loadSvg(src) {
   if (/^\s*<svg/i.test(src)) return src;
-  const abs = path24.resolve(projectDir(), src);
-  if (!fs27.existsSync(abs)) throw new Error(`SVG not found: ${src}`);
-  return fs27.readFileSync(abs, "utf8");
+  const abs = path25.resolve(projectDir(), src);
+  if (!fs29.existsSync(abs)) throw new Error(`SVG not found: ${src}`);
+  return fs29.readFileSync(abs, "utf8");
 }
 var fit = (svg) => svg.replace(/<\?xml[^>]*>/, "").replace(/<svg/, '<svg style="width:100%;height:100%;display:block"');
 var LIGHT = /^(#f{3}|#f{6}|white|#fff[0-9a-f]{3}|#f[0-9a-f]f[0-9a-f]f[0-9a-f])$/i;
@@ -94728,14 +94933,14 @@ function register14(server2, ctx2) {
       const o2 = outline(f2, str, { size, letterSpacing });
       let saved = "";
       if (out) {
-        const abs = path24.resolve(projectDir(), out);
-        fs27.mkdirSync(path24.dirname(abs), { recursive: true });
-        fs27.writeFileSync(abs, o2.svg);
+        const abs = path25.resolve(projectDir(), out);
+        fs29.mkdirSync(path25.dirname(abs), { recursive: true });
+        fs29.writeFileSync(abs, o2.svg);
         saved = `Saved ${out}
 `;
       }
       const m = o2.metrics;
-      const file4 = path24.join(rendersDir("logo"), `outline-${stamp()}.png`);
+      const file4 = path25.join(rendersDir("logo"), `outline-${stamp()}.png`);
       const png2 = await renderHtml(
         `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o2.width}px;height:${o2.height}px">${o2.svg}
 <div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
@@ -94780,7 +94985,7 @@ Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to 
 .small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
 <h1>${esc5(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
       const rows = Math.ceil(svgs.length / cols);
-      const file4 = path24.join(rendersDir("logo"), `sheet-${stamp()}.png`);
+      const file4 = path25.join(rendersDir("logo"), `sheet-${stamp()}.png`);
       const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, config: ctx2.config() });
       return blocks([
         textBlock(`Concept sheet saved: ${file4}
@@ -94807,7 +95012,7 @@ Judge ideas first (one clear thought each, no clich\xE9s), then have the critic 
 <p class="label">Sizes 16 / 24 / 32 / 64 / 128 \u2014 light, dark, one colour, inverse, busy ground</p>
 ${strip2("#fff", svg)}${strip2(dark, svg)}${strip2("#fff", mono(svg, "#111", "#fff"))}${strip2("#111", mono(svg, "#fff", "#111"))}
 ${strip2("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
-      const file4 = path24.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
+      const file4 = path25.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
       const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, config: ctx2.config() });
       const stats = pathStats(svg);
       const hints = [];
@@ -94891,7 +95096,7 @@ Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack
 }
 
 // src/index.mjs
-var VERSION = "0.3.1";
+var VERSION = "0.3.2";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it runs intake, tells you which guides to read (drip_guide) and what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Full loop: intake (AskUserQuestion -> drip_brief) -> refs (search/tag -> refs_pick -> refs_view -> refs_zoom -> refs_study) -> board_create -> board_directions -> board_tile -> critic (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> system -> build -> fitcheck_shot -> critic -> fitcheck_done -> drip_end.
@@ -94918,16 +95123,16 @@ async function cli(argv) {
     process.exit(2);
   }
   const outIdx = rest.indexOf("--out");
-  const outDir = path25.resolve(outIdx >= 0 ? rest[outIdx + 1] : path25.join(projectDripDir(), "cli"));
+  const outDir = path26.resolve(outIdx >= 0 ? rest[outIdx + 1] : path26.join(projectDripDir(), "cli"));
   const args = external_exports.object(tool.meta.inputSchema || {}).parse(json2 ? JSON.parse(json2) : {});
   const res = await tool.handler(args, {});
   let n2 = 0;
   for (const c3 of res.content || []) {
     if (c3.type === "text") console.log(c3.text);
     if (c3.type === "image") {
-      fs28.mkdirSync(outDir, { recursive: true });
-      const file4 = path25.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
-      fs28.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs30.mkdirSync(outDir, { recursive: true });
+      const file4 = path26.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
+      fs30.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       console.log(`[image] ${file4}`);
     }
   }
