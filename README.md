@@ -157,14 +157,12 @@ Your own slop rules, component registries and image providers: [docs/CUSTOMISE.m
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---|---|
-| Claude says the Drip tools aren't available | Run `/mcp` and check `plugin:drip:drip` is connected; reconnect it if not. Claude Code loads plugin tools lazily, so Drip's skills tell Claude the exact names to load. |
-| Dribbble results stop or `refs_view` shows only the cover image | Dribbble rate-limits shot pages. Drip backs off and falls back to the image; wait a minute between heavy research runs. |
-| No screenshots or previews | Install Chrome or Edge, or set `fitcheck.chromePath` in `.drip/config.json`. |
-| Drip blocked a write you wanted | `/drip:status` shows what's missing. `/drip:skip` turns the checks off for the current task. |
+First check `/mcp` in Claude Code: `plugin:drip:drip` should be **connected**.
 
-More in [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+> [!WARNING]
+> If the Drip log says `'node' is not recognized`, install Node.js 20+ so `node` is on the system PATH, then fully quit and reopen the Claude app.
+
+Rate limits, tool loading, blocked writes and more: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 <details>
 <summary><b>Under the hood</b></summary>
