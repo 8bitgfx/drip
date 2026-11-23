@@ -1,31 +1,48 @@
 # Drip brand
 
-## Direction: Paint Drop
-THESIS: The name is the idea: one drop of paint. Lowercase serif "drip" whose i-dot is a single vermilion drop; the icon is that drop alone. Refuses gradient AI orbs, sparkles and terminal glyphs.
-WORLD: Warm chalk ground, warm ink, one vermilion accent used only for the drop. Instrument Serif for the wordmark, Geist for UI text. No gradients except the drop's own soft shading.
-SIGNATURE: The drop over the i.
+## Idea: Out of bounds
+A design tool's selection box around a block of ultramarine paint that won't stay inside it. The paint bulges over the bottom edge of the frame and runs off in drips.
+
+It says what Drip does: agents left alone produce work that fits the template box; Drip gets them to break out of it. "Drip" is also slang for style, and the paint is literal: real material, made by hand, slightly out of control.
+
+Refuses: blood-red drops, water droplets, gradient AI orbs, sparkles, terminal glyphs.
+
+## Mark
+- **Frame**: hairline selection box with seven white handles (corners, top and side midpoints). The bottom-middle handle is left out because the paint covers that edge.
+- **Paint**: flat ultramarine. It fills the frame, sits 5% past its bottom line, and falls in three drips of different weights. One small glint on the longest drip is the only highlight.
+- **Lockup**: the frame's top sits on the ascender of "drip", its bottom on the baseline; the drips hang below like a descender.
 
 ## Colours
 | Role | Hex | Use |
 |---|---|---|
-| Chalk | `#F4F1EA` | light ground |
-| Ink | `#16140F` | wordmark on light, icon ground |
-| Bone | `#F4F1EA` | wordmark on dark |
-| Vermilion | `#E8452C` | the drop only (shaded `#FF7A5C` → `#E8452C` → `#B8301B`) |
+| Ultramarine | `#2340FF` | the paint, handle borders, the frame on light grounds, badges |
+| Ink | `#0D0E12` (`#1B1D26` at the top of the icon gradient) | icon ground, wordmark on light |
+| Paper | `#F5F2EC` | wordmark on dark, light panels |
+| Frame on dark | `#93A2FF` | the selection box on dark grounds |
 
-Ink on chalk ≈ 17:1. The drop never carries text.
+Ink on paper ≈ 17:1. Paper on ultramarine ≈ 5.8:1 and white on ultramarine ≈ 6.5:1, so text on the paint passes AA at any size.
+
+## Type
+**Bricolage Grotesque** Bold (SIL OFL 1.1) for the wordmark, outlined to paths in `src/glyphs.json` so it renders without the font. The same family at 400–800 for the social card and README panels.
 
 ## Files (`assets/brand/`)
 | File | Use |
 |---|---|
-| `icon.png` (1024²) | plugin icon, GitHub social card source, favicons |
-| `icon.svg` | the icon as vector |
-| `drop.svg` | the drop alone, transparent |
-| `wordmark-light.png` / `wordmark-dark.png` | README header (light / dark GitHub themes) |
+| `icon.png` (1024²), `icon.svg` | plugin icon (also `.claude-plugin/icon.png`), avatars, favicons |
+| `mark.svg` / `mark-dark.svg` | the mark alone, transparent, for light / dark grounds |
+| `wordmark-light.*` / `wordmark-dark.*` | README header and docs, light / dark themes (PNG at 2×) |
+| `social-preview.png` (1280×640) | GitHub social preview (repo Settings → Social preview) |
+| `loop-light.png` / `loop-dark.png` | README panel: the designer loop |
 
-Sources in `assets/brand/src/` (render with `node assets/brand/src/render.mjs`).
+Everything is generated: `src/brand.mjs` holds the geometry, `src/render.mjs` writes the files with headless Chrome or Edge.
+
+```
+node assets/brand/src/render.mjs
+```
 
 ## Rules
-- Clear space around the wordmark: the drop's height on every side.
-- Minimum sizes: icon 16px, wordmark 80px wide.
-- Never recolour the drop, stretch it, add a gradient behind it, or set the wordmark in another face.
+- Clear space: half the frame's width on every side of the mark and the lockup.
+- Minimum sizes: icon 16 px, lockup 120 px wide. Below 24 px the handles blur into the frame; that's fine.
+- Keep the paint flat ultramarine. No gradients, no recolouring, no extra drips, no drips on the type.
+- The handles stay white with ultramarine borders, on every ground.
+- Never set "drip" in another face, stretch the mark, or put the paint outside a frame.

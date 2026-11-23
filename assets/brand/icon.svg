@@ -1,22 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <defs>
-    <radialGradient id="shade" cx="38%" cy="34%" r="70%">
-      <stop offset="0" stop-color="#FF6A45"/>
-      <stop offset="0.6" stop-color="#E8452C"/>
-      <stop offset="1" stop-color="#C73A22"/>
-    </radialGradient>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1E1B16"/>
-      <stop offset="1" stop-color="#121110"/>
-    </linearGradient>
-  </defs>
-  <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
-  <!-- the drop: a teardrop with a soft point, slightly off-centre like a real falling drop -->
-  <path d="M512 178
-           C 560 300, 724 450, 724 610
-           C 724 734, 629 830, 512 830
-           C 395 830, 300 734, 300 610
-           C 300 450, 464 300, 512 178 Z" fill="url(#shade)"/>
-  <!-- one soft highlight along the left shoulder, like wet paint -->
-  <path d="M392 640 C 380 560, 420 480, 468 420" stroke="#FFE1D8" stroke-opacity="0.55" stroke-width="26" stroke-linecap="round" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B1D26"/><stop offset="1" stop-color="#0D0E12"/></linearGradient></defs>
+<rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
+<rect x="2" y="2" width="1020" height="1020" rx="230" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="4"/>
+<g transform="translate(272 172)"><path d="M0,480 H480" stroke="#93A2FF" stroke-width="6"/><path d="M0,0 H480 V474 Q480,504 450,504 L450,504 C406.2,504 377,536.9 377,577 C377,596.8 372.7,596.8 372.7,616.5 C372.7,637.9 384,636.5 384,664 A50,50 0 0 1 284,664 C284,636.5 295.3,637.9 295.3,616.5 C295.3,596.8 291,596.8 291,577 C291,536.9 261.8,504 218,504 L284.8,504 C267.5,504 256,507.1 256,511 C256,522.3 258,525 258,536 A20,20 0 0 1 218,536 C218,525 220,522.3 220,511 C220,507.1 208.5,504 191.2,504 L202,504 C170.2,504 149,521.3 149,542.5 C149,548.2 145.7,548.2 145.7,553.9 C145.7,570.1 154,569.1 154,590 A38,38 0 0 1 78,590 C78,569.1 86.3,570.1 86.3,553.9 C86.3,548.2 83,548.2 83,542.5 C83,521.3 61.8,504 30,504 L30,504 Q0,504 0,474 Z" fill="#2340FF"/><path d="M306.5,661.5 A30,30 0 0 1 331.5,636.5" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="9" stroke-linecap="round"/><path d="M0,480 V0 H480 V480" fill="none" stroke="#93A2FF" stroke-width="6"/><rect x="-20" y="-20" width="40" height="40" rx="5" fill="#fff" stroke="#2340FF" stroke-width="6"/><rect x="220" y="-20" width="40" height="40" rx="5" fill="#fff" stroke="#2340FF" stroke-width="6"/><rect x="460" y="-20" width="40" height="40" rx="5" fill="#fff" stroke="#2340FF" stroke-width="6"/><rect x="-20" y="220" width="40" height="40" rx="5" fill="#fff" stroke="#2340FF" stroke-width="6"/><rect x="460" y="220" width="40" height="40" rx="5" fill="#fff" stroke="#2340FF" stroke-width="6"/><rect x="-20" y="460" width="40" height="40" rx="5" fill="#fff" stroke="#2340FF" stroke-width="6"/><rect x="460" y="460" width="40" height="40" rx="5" fill="#fff" stroke="#2340FF" stroke-width="6"/></g>
 </svg>
