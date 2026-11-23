@@ -86,10 +86,10 @@ Do: one moment, built with care, with a still poster under reduced motion. Don't
 
 | Token | Desktop 1440 | Tablet 768 | Phone 390 |
 |---|---|---|---|
-| Container | min(100% - 160px, 1280px) | 100% - 96px | 100% - 48px |
+| Container | min(100% - 128px, 1312px) | 100% - 96px | 100% - 48px |
 | Columns / gutter | 12 / 24px | 8 / 24px | 4 / 16px |
-| Section padding (top/bottom) | 120-160 / 96-120 | 96 / 80 | 72-96 / 56-72 |
-| h1 | 56-80px, tracking -2% to -4% | 44-56px | 36-44px |
+| Section padding (top/bottom) | 96-176, mixed by mass | 96 | 64-96 |
+| h1 | Display role: ~127px, tracking -3% to -4.5% | ~100px | ~48px |
 | h2 | 40-48px | 32-40px | 28-32px |
 | Lead / card title | 20px | 18-20px | 18px |
 | Body | 16-18px, line-height 1.5-1.6 | 16-18px | 16px |

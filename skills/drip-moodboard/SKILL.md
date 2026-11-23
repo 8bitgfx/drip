@@ -10,7 +10,7 @@ user-invocable: false
 during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`; load the board and critic tools with ToolSearch `+drip board` and `+drip critic`.
 
 A board is a decision tool, not a collage. It turns studied references into 2-3 directions the user can
-compare in one look: each a named idea with a manifesto, rendered as a style tile, ranked by an
+compare in one look: each a named idea with a manifesto, rendered as a first-viewport comp, ranked by an
 independent critic, with Drip's pick and its risk. The user chooses with one click; the choice is locked.
 
 ## Rules you must not break
@@ -20,7 +20,7 @@ independent critic, with Drip's pick and its risk. The user chooses with one cli
 4. Each direction is named like a movement (1-2 words: "Live Wire", "Door Counter") with a **3-sentence manifesto** in `summary`: the idea; how it looks and moves; what it refuses. Never a mood word ("Modern", "Bold", "Clean").
 5. **At least one unexpected pairing**: the subject crossed with a genre from another world, with one line on why it beats the safe version.
 6. No AI default as a direction unless the brief pins it (cream + serif + terracotta, neon on black, purple gradients, the SaaS card kit). Ambition is bold.
-7. `board_tile` renders every direction at **equal fidelity** with real copy from the brief. No strawman option you wouldn't build.
+7. `board_directions` renders every direction as a first-viewport comp at **equal fidelity** with real copy from the brief. No strawman option you wouldn't build.
 8. **The critic ranks before the user sees anything**: `critic_prepare({ kind: "directions", context: <criteria> })` → Agent `drip:critic` with the prompt unchanged → `critic_record` with `perDirection`. A REJECT blocks `board_open` and `board_choose`.
 9. Rework rejected or "same idea twice" directions with a new idea, not a recolour; re-tile; re-run the critic.
 10. Present per `rules/communication`: the link, one line per direction with the critic's score and words, your pick and its risk, then one AskUserQuestion with your pick first.
@@ -30,7 +30,7 @@ independent critic, with Drip's pick and its risk. The user chooses with one cli
 - `board_create` — start the board; imports every study so far.
 - `board_add` — colours (`#hex`), fonts, images (with `source`), extra shots, each with a specific note.
 - `board_directions` — save 2-4 directions (name, summary = manifesto, adjectives, palette, type, items). Replaces the set.
-- `board_tile` — one style tile per direction: nav, headline, body, buttons, card, palette, type. Pass real `copy`.
+- `board_tile` — re-renders the comps (new copy, or your own comp HTML per direction).
 - `critic_prepare` (kind `directions`) → Agent `drip:critic` → `critic_record` (with `perDirection`) — the ranking shown on the board.
 - `board_open` — live link, shareable `board.html`, preview screenshot. Blocked until the critic ranked and didn't reject.
 - `board_read` — the user's stars, removals and notes (or pasted feedback).

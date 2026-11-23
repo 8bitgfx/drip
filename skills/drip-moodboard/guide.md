@@ -12,7 +12,7 @@ A good board lets the user choose between a few real futures for the design in u
 4. **Write the choice criteria** (section 2). 3-5 lines, before any direction.
 5. **Form 2-3 directions** (`drip_guide moodboard/directions`): an idea each, a movement name, a manifesto, at least one unexpected pairing. Name each one's genre and check its `breaks_if` list (`drip_guide direction/genres`).
 6. **Verify each**: `palette_check` (ink on ground ≥ 4.5:1 for body), `fonts_pair` / `fonts_preview` with words from the brief.
-7. **Save and tile.** `board_directions`, then `board_tile` with real copy (`brand`, `headline`, `body`, `cta` from the brief). Look at every tile. Unequal fidelity: fix before the critic.
+7. **Save and comp.** `board_directions` with a real `headline`, `picture` and `layout` per direction and `copy` (`brand`, `body`, `cta`): it renders each as a first-viewport comp at 1440x900. Look at every tile. Unequal fidelity: fix before the critic.
 8. **Critic ranks.** `critic_prepare({ kind: "directions", context: "Criteria: …" })` → `Agent({ subagent_type: "drip:critic", description: "Critic review", prompt })` with the prompt unchanged → `critic_record({ kind: "directions", …, ranking, perDirection })`.
 9. **Rework** what it rejected or cut (section 6). Re-tile and re-run until the set is not rejected (max 3 rounds; then show the best set and say what the critic still objects to).
 10. **Present** (`drip_guide moodboard/presenting`): `board_open`, publish `board.html` as an artifact when you can, the message, one AskUserQuestion.

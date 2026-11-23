@@ -34,18 +34,21 @@ const fakeCriticRun = () => {
   fs.writeFileSync(statePath, JSON.stringify(s));
 };
 
-await call("drip_start", { task: "portfolio site for Claude" }, (r, t) => /mode design/.test(t) && /INTAKE/.test(t));
+const start = await call("drip_start", { task: "portfolio site for Claude" }, (r, t) => /mode design/.test(t) && /INTAKE/.test(t) && /GUIDE: playbook/.test(t) && /refs_site/.test(t));
+console.log(`   drip_start returned ~${Math.round(start.length / 4)} tokens`);
+await call("refs_site", { urls: ["https://example.com"], screens: 1 }, (r, t) => /h1 \d+px/.test(t) && r.content.some((c) => c.type === "image"));
+await call("refs_study", { shot: "https://example.com", layout: "single 600px column, centred, no grid", type: "h1 32px system sans, body 16px", color: "#f0f0f2 ground, #38488f link", density: "~30 words, one screen", detail: "the link is the only colour", take: "how little it needs", leave: "the 32px h1 on a 1440 screen" }, (r, t) => /✓/.test(t));
 await call("refs_tag", { tag: "portfolio", sheet: false }, (r, t) => /refs_pick/.test(t));
 await call("refs_view", { shot: "1", maxImages: 1 });
 await call("refs_study", { shot: "1", layout: "nice", type: "clean", color: "good", density: "ok", detail: "cool", take: "vibe", leave: "nothing" }, (r) => r.isError);
 await call("refs_study", { shot: "2", layout: "12-col grid, hero spans 8 cols", type: "condensed sans at ~140px", color: "#111 ground, one #E8452C accent", density: "~30 words above the fold", detail: "index numbers in mono", take: "the huge type ratio", leave: "stock render" }, (r, t) => r.isError && /refs_view/.test(t));
 await call("refs_pick", { picks: [{ shot: "1", why: "type-led hero with a real point of view" }, { shot: "2", why: "only one with motion as structure" }, { shot: "3", why: "editorial grid that breaks the template" }] });
 await call("refs_zoom", { shot: "1", region: "top-left" }, (r) => r.content.some((c) => c.type === "image"));
-for (const s of ["1", "2", "3"]) {
-  if (s !== "1") await call("refs_view", { shot: s, maxImages: 1 });
-  await call("refs_study", { shot: s, layout: `12-col grid, headline spans ${s === "2" ? 8 : 9} columns, image bleeds right`, type: "condensed grotesk caps ~140px, 10:1 display to body", color: "#0E0E0E ground, one acid #D4FF3A accent under 5%", density: "~30 words above the fold, 2 sections per screen", detail: "project index numbered 01-12 in mono on the baseline grid", take: "the 10:1 type ratio and single accent", leave: "the stock 3D render" });
-}
-await call("board_create", { name: "Claude portfolio" }, (r, t) => /3 studied/.test(t));
+await call("refs_view", { shots: ["2", "3"], maxImages: 1 }, (r, t) => /refs_study all 2 in one call/.test(t));
+await call("refs_study", {
+  studies: ["1", "2", "3"].map((s) => ({ shot: s, layout: `12-col grid, headline spans ${s === "2" ? 8 : 9} columns, image bleeds right`, type: "condensed grotesk caps ~140px, 10:1 display to body", color: "#0E0E0E ground, one acid #D4FF3A accent under 5%", density: "~30 words above the fold, 2 sections per screen", detail: "project index numbered 01-12 in mono on the baseline grid", take: "the 10:1 type ratio and single accent", leave: "the stock 3D render" })),
+}, (r, t) => (t.match(/✓/g) || []).length === 3);
+await call("board_create", { name: "Claude portfolio" }, (r, t) => /4 studied/.test(t));
 await call("drip_brief", { what: "portfolio site for Claude", audience: "people meeting Claude", job: "see what Claude makes", feel: ["loud & playful"], ambition: "bold" });
 await call("board_add", { items: [{ ref: "#0E0E0E", note: "ink ground for the kinetic direction, 18:1 with paper" }, { ref: "#D4FF3A", note: "acid accent for the single CTA and the cursor" }, { ref: "#F3EFE6", note: "paper ground for the editorial direction" }] });
 await call("board_directions", {
@@ -61,8 +64,18 @@ await call("critic_record", { kind: "directions", verdict: "pass", scores: { con
 fakeCriticRun();
 await call("critic_record", { kind: "directions", verdict: "pass", scores: { concept: 8, distinctiveness: 8 }, worst: "Live Wire's body copy is timid", fixes: ["set body at 20px"], summary: "Live Wire wins", perDirection: [{ name: "Live Wire", score: 8, verdict: "keep", note: "the only one with an idea" }, { name: "Margin Notes", score: 6, verdict: "rework", note: "safe" }] });
 await call("board_open", {}, (r) => !r.isError);
-await call("board_choose", { direction: "Live Wire", reason: "critic + user" });
-await call("drip_status", {}, (r, t) => /critic ranked the directions/.test(t));
+await call("board_choose", { direction: "Live Wire", reason: "critic + user" }, (r, t) => /drip_kit/.test(t) && /seven type roles/.test(t));
+await call("drip_status", {}, (r, t) => /critic ranked the directions/.test(t) && /hero gate/.test(t));
+await call("drip_kit", {}, (r, t) => /styles\/drip-base.css/.test(t) && fs.existsSync(path.join(project, "styles", "drip-base.css")));
+await call("drip_mark", { step: "system" }, (r, t) => /hero: true/.test(t));
+// The hero gate in a real browser: a timid hero fails, a hero on the kit passes.
+const page = (h1css, body) => `<!doctype html><html><head><meta name=viewport content="width=device-width"><link rel=stylesheet href="styles/drip-base.css"><style>${h1css}</style></head><body>${body}</body></html>`;
+const pic = `<svg data-visual viewBox="0 0 10 10" style="width:100%;height:720px" preserveAspectRatio="none"><rect width="10" height="10" fill="#c33"/></svg>`;
+fs.writeFileSync(path.join(project, "timid.html"), page("h1{font-size:56px}", `<main class="container"><nav>Studio</nav><h1>Six works and the drafts thrown away</h1><p>Small text.</p></main>`));
+fs.writeFileSync(path.join(project, "bold.html"), page("", `<main class="container"><nav style="height:72px;display:flex;align-items:center">Studio</nav><div class="grid" style="align-items:end"><div style="grid-column:1/7"><h1>Six works, every draft</h1><p class="lead">What was made and what was thrown away.</p><a class="button" href="#">See the work</a></div><div style="grid-column:7/13">${pic}</div></div></main>`));
+const url = (f) => `file:///${path.join(project, f).replace(/\\/g, "/")}`;
+await call("fitcheck_shot", { url: url("timid.html"), hero: true }, (r, t) => /HERO GATE FAILED/.test(t) && /h1 is 56px/.test(t));
+await call("fitcheck_shot", { url: url("bold.html"), hero: true }, (r, t) => /HERO GATE PASSED/.test(t));
 
 const svgA = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="18" y="18" width="64" height="64" rx="10" fill="#2340FF"/><path d="M30 70 C 40 40, 60 40, 70 70" stroke="#fff" stroke-width="8" fill="none"/></svg>`;
 const svgB = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="#111"/><circle cx="62" cy="40" r="9" fill="#D4FF3A"/></svg>`;

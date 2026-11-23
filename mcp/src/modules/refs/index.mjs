@@ -6,7 +6,11 @@ import { z } from "zod";
 import { loadBoard, saveBoard } from "../board/store.mjs";
 import { contactSheet, fetchImage, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
-import { lookup, remember, rememberListing, resolve } from "../../core/seen.mjs";
+import { lookup, remember, rememberListing, resolve, siteKey } from "../../core/seen.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { capture, formatAudit } from "../../core/cdp.mjs";
+import { rendersDir, stamp } from "../../core/render.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import * as dribbble from "./dribbble.mjs";
 
@@ -129,17 +133,34 @@ export function register(server, ctx) {
   server.registerTool(
     "refs_view",
     {
-      title: "Study a shot full size",
+      title: "View the originals of 1-4 shots",
       description:
-        "Open one shot and study the ORIGINAL: title, designer, tags, palette, the designer's notes, and its images at full width. Long pages (landing pages, full-site shots) are split into readable sections so nothing is a squashed thumbnail. " +
-        "Look at the whole design top to bottom, then refs_study it. Example: refs_view({ shot: \"L3-7\" }) or refs_view({ shot: \"27185355\" })",
+        "Open the ORIGINALS of 1-4 shots at once (viewing counts as picking): title, designer, tags, palette, notes, and the images at full width; long pages are split into readable top-to-bottom sections. " +
+        "Then refs_study them (several in one call). Example: refs_view({ shots: [\"L3-7\", \"L3-12\", \"L4-2\"] })",
       inputSchema: {
-        shot: z.string().describe("Tagged number from a listing (e.g. 'L3-7'), a bare number for the latest listing, or a shot id"),
-        maxImages: z.number().int().min(1).max(8).optional().describe("How many of its images (default 4)"),
+        shots: z.array(z.string()).min(1).max(4).optional().describe("Tagged numbers (e.g. 'L3-7') or shot ids"),
+        shot: z.string().optional().describe("A single shot (same as shots: [shot])"),
+        maxImages: z.number().int().min(1).max(8).optional().describe("Images per shot (default: 4 for one shot, 2 each for several)"),
       },
     },
-    safe(async ({ shot, maxImages = 4 }) => {
+    safe(async ({ shots, shot, maxImages }) => {
+      const list = shots?.length ? shots : shot ? [shot] : [];
+      if (!list.length) return text("Pass shots: [\"L3-7\", …] (or shot).", true);
+      const per = maxImages || (list.length === 1 ? 4 : 2);
+      const out = [];
+      for (const one of list) {
+        const r = await viewOne(one, per);
+        out.push(textBlock(r.info), ...r.imgs);
+      }
+      if (list.length > 1) out.push(textBlock(`NEXT: refs_study all ${list.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, …] }).`));
+      return blocks(out);
+    }),
+  );
+
+  async function viewOne(shot, maxImages) {
+    {
       const key = resolve(shot);
+      if (key.startsWith("site:")) return { info: `${shot}: a shipped site; open it with refs_site (already counts as viewed once it has been).`, imgs: [] };
       const id = key.split(":")[1];
       let s;
       let degraded = "";
@@ -156,6 +177,7 @@ export function register(server, ctx) {
       remember({ key, source: "dribbble", id: s.id, title: s.title, url: s.url, image: s.images[0] || lookup(key)?.image, images: s.images, designer: s.designer || lookup(key)?.designer, designerUrl: s.designerUrl, tags: s.tags, palette: s.palette });
       updateState((st) => {
         if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
+        if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
       });
       // Originals at 1600px wide. Tall images (full landing pages) are cut into ~4:3 sections so each one is
       // readable at full width instead of being shrunk to fit one tile. At most 8 images in total.
@@ -185,8 +207,69 @@ export function register(server, ctx) {
         `Tags: ${s.tags.join(", ") || "—"}\n` +
         `Images: ${s.images.length} originals (showing ${imgs.length} pictures; tall pages split into top-to-bottom sections)${s.videos.length ? ` · ${s.videos.length} video(s), still frame shown` : ""}\n` +
         (s.description ? `\nDesigner's notes:\n${s.description.slice(0, 1500)}\n` : "") +
-        `\nNEXT: study the whole design (every section above), then refs_study("${s.id}", …) with specific values. refs_zoom only if one small detail needs a closer look. More from this designer: refs_designer("${s.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
-      return blocks([textBlock(info), ...imgs]);
+        `Study the whole design (every section), then refs_study with values. More from this designer: refs_designer("${s.designerUrl}").${degraded}`;
+      return { info, imgs };
+    }
+  }
+
+  server.registerTool(
+    "refs_site",
+    {
+      title: "Study shipped sites",
+      description:
+        "Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. " +
+        "The best references for a page: what strong studios actually ship, at real scale (Dribbble shots are concepts whose type sizes are fiction). Pick sites in the category and a notch above it. " +
+        "Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: [\"https://linear.app\", \"https://www.figma.com\"] })",
+      inputSchema: {
+        urls: z.array(z.string()).min(1).max(4),
+        screens: z.number().int().min(1).max(4).optional().describe("Screens per site from the top (default 2)"),
+      },
+    },
+    safe(async ({ urls, screens = 2 }) => {
+      const config = ctx.config();
+      const dir = rendersDir(`sites-${stamp()}`);
+      const results = await Promise.all(
+        urls.map(async (raw) => {
+          const url = /^https?:/i.test(raw) ? raw : `https://${raw}`;
+          try {
+            const r = await capture(url, { width: 1440, height: 900, maxSlices: screens, config });
+            const key = siteKey(url);
+            const slug = key.slice(5).replace(/[^a-z0-9]+/gi, "-");
+            const files = r.slices.map((sl, i) => {
+              const f = path.join(dir, `${slug}-${i + 1}.jpg`);
+              fs.writeFileSync(f, sl.buf);
+              return f;
+            });
+            const host = key.slice(5).split("/")[0];
+            remember({ key, source: "site", id: host, title: r.audit.title || host, url, image: files[0], images: files, designer: host, designerUrl: host, tags: ["website"], from: { category: "web-design" } });
+            updateState((st) => {
+              if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
+              if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
+            });
+            return { ok: true, url, key, audit: r.audit, slices: r.slices, total: r.sliceCount };
+          } catch (err) {
+            return { ok: false, url, err: String(err.message || err) };
+          }
+        }),
+      );
+      const out = [];
+      for (const r of results) {
+        if (!r.ok) {
+          out.push(textBlock(`${r.url}: could not open (${r.err}).`));
+          continue;
+        }
+        out.push(textBlock(`=== ${r.audit.title || r.url} (${r.key}) · ${r.slices.length} of ${r.total} screens\n${formatAudit(r.audit, { blockers: [], warnings: [] })}`));
+        for (const sl of r.slices) out.push(imageBlock(await toJpeg(sl.buf, 1440, 900, 82)));
+      }
+      const ok = results.filter((r) => r.ok);
+      if (ok.length)
+        out.push(
+          textBlock(
+            `NEXT: refs_study ${ok.length > 1 ? `all ${ok.length} in one call` : "it"} with the measured numbers (shot = ${ok.map((r) => `"${r.url}"`).join(", ")}): ` +
+              "the hero's h1 px and column span, the picture's share of the first screen, what each section shows. Note what is bigger and emptier than you would dare.",
+          ),
+        );
+      return blocks(out);
     }),
   );
 
@@ -292,30 +375,40 @@ export function register(server, ctx) {
       description:
         "Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. " +
         "Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). " +
-        'Example: refs_study({ shot: "7", layout: "12-col, headline spans cols 1-9 at ~180px, image bleeds off right edge", type: "condensed grotesk caps, display:body ~10:1, tight -2% tracking", color: "#0E0E0E ground, one acid #D4FF3A accent on CTA only (<3%)", density: "~25 words above fold, 3 sections per screen-height", detail: "nav items numbered 01-04 in mono, aligned to the grid baseline", take: "the 10:1 type ratio and single acid accent", leave: "the stock 3D render" })',
+        'Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "12-col, headline spans cols 1-9 at ~180px, image bleeds off right edge", type: "condensed grotesk caps, display:body ~10:1", color: "#1B3BFF drenched ground, #F4F1EA ink, the CTA in ink", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, …] })',
       inputSchema: {
-        shot: z.string(),
-        layout: z.string(),
-        type: z.string(),
-        color: z.string(),
-        density: z.string(),
-        detail: z.string().describe("ONE specific move worth stealing"),
-        take: z.string().describe("What this reference lends the design"),
-        leave: z.string().describe("What not to copy / Dribbble fiction"),
-        motion: z.string().optional(),
+        studies: z.array(z.object(STUDY_SHAPE)).min(1).max(8).optional(),
+        ...Object.fromEntries(Object.entries(STUDY_SHAPE).map(([k, v]) => [k, v.optional()])),
       },
     },
-    safe(async (n) => {
+    safe(async (args) => {
+      const list = args.studies?.length ? args.studies : args.shot ? [args] : [];
+      if (!list.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave }, …].", true);
+      const lines = [];
+      let bad = 0;
+      for (const n of list) {
+        const r = await studyOne(n);
+        if (!r.ok) bad++;
+        lines.push(`${r.ok ? "✓" : "✗"} ${r.msg}`);
+      }
+      const t = loadState().task;
+      const count = t ? `\n${t.refs.studied.length} studied from ${new Set(t.refs.studied.map((x) => x.designer)).size} designers (${t.refs.studied.filter((x) => x.onSurface).length} real examples of the surface).` : "";
+      return text(lines.join("\n") + count, bad === list.length);
+    }),
+  );
+
+  async function studyOne(n) {
+    {
       const key = resolve(n.shot);
       const item = lookup(key);
-      if (!item) return text("Unknown shot. Use a number from the last listing or an id.", true);
+      if (!item) return { ok: false, msg: `${n.shot}: unknown shot. Use a tagged number (L3-7) or an id.` };
       const st0 = loadState();
-      if (st0.task && !st0.task.refs.viewed.includes(key)) return text(`Look at it first: refs_view("${n.shot}") (and refs_zoom on its key detail). Studying from a thumbnail doesn't count.`, true);
+      if (st0.task && !st0.task.refs.viewed.includes(key)) return { ok: false, msg: `${n.shot}: look at it first with refs_view. Studying from a thumbnail doesn't count.` };
       const fields = ["layout", "type", "color", "density", "detail", "take", "leave"];
       const weak = fields.filter((f) => !n[f] || n[f].trim().length < 12 || VAGUE.test(n[f].trim()));
       const concrete = fields.filter((f) => CONCRETE.test(n[f] || "")).length;
       if (weak.length || concrete < 3)
-        return text(`Too vague to count. ${weak.length ? `Rewrite: ${weak.join(", ")}. ` : ""}${concrete < 3 ? "Give at least 3 fields concrete values (sizes, ratios, hex, counts, named type classes). " : ""}Look again with refs_zoom if needed.`, true);
+        return { ok: false, msg: `${n.shot}: too vague. ${weak.length ? `Rewrite: ${weak.join(", ")}. ` : ""}${concrete < 3 ? "Give at least 3 fields concrete values (sizes, ratios, hex, counts, named type classes)." : ""}` };
       const note = `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · density: ${n.density} · detail: ${n.detail} · leave: ${n.leave}`;
       remember({ ...item, study: { ...n, at: new Date().toISOString() } });
       const st = updateState((s) => {
@@ -335,9 +428,19 @@ export function register(server, ctx) {
           boardNote = `Added to board "${board.name}".`;
         }
       }
-      const t = st.task;
-      const count = t ? `${t.refs.studied.length} studied from ${new Set(t.refs.studied.map((x) => x.designer)).size} designers.` : "";
-      return text(`Studied: ${item.title} — ${item.designer}. ${boardNote} ${count}`);
-    }),
-  );
+      return { ok: true, msg: `${item.title} — ${item.designer}. ${boardNote}` };
+    }
+  }
 }
+
+const STUDY_SHAPE = {
+  shot: z.string(),
+  layout: z.string(),
+  type: z.string(),
+  color: z.string(),
+  density: z.string(),
+  detail: z.string().describe("ONE specific move worth stealing"),
+  take: z.string().describe("What this reference lends the design"),
+  leave: z.string().describe("What not to copy / Dribbble fiction"),
+  motion: z.string().optional(),
+};

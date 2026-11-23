@@ -4,15 +4,15 @@ These apply to every Drip task, full or quick. Breaking one is a failed fit chec
 
 ## Process
 1. **`drip_start` before any UI work.** Read every guide it lists through `drip_guide`.
-2. **References before new UI.** 8-15 studied (`refs_view`) across 3+ searches, each with a specific note. Study, never copy one-to-one.
+2. **References before new UI.** 4+ studied, most of them shipped examples of the same surface (`refs_site`, or `refs_view` for shots), each with measured values. Study, never copy one-to-one.
 3. **A chosen direction before building new UI**, from a board with 2-3 genuinely different directions.
 4. **Write the system down** (DESIGN.md + tokens) before components use it. Extend an existing system; replace it only in a redesign, and say so.
 5. **Fit check on real screenshots** (phone 390px and desktop 1440px) before you finish. Score honestly; fix anything under 4.
 6. **`drip_skip` only when the user explicitly says to skip**, quoting them.
 
 ## Visual discipline
-7. **One accent colour.** Neutrals carry ~90% of the UI. A second accent needs a reason written in DESIGN.md.
-8. **One type pairing** (display + text, optional mono). Max 4 sizes on a screen for marketing, 5 for app UI.
+7. **Colour by surface.** App UI: neutrals carry ~90%, one accent for actions and selection. Landing pages, portfolios and showcases: commit at page scale (one colour on 30-60% of the surface, or a drenched ground); the accent still marks the action. A second accent needs a reason in DESIGN.md.
+8. **One type pairing** (display + text). Pages use the 7 roles of `kit/base.css` and no eighth size; app UI uses at most 5. Mono only inside code, measurements and tables, never labels, nav or body.
 9. **One icon family**, one stroke weight, sized to the text it sits with.
 10. **One spacing scale** (4px base: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128). No off-scale values.
 11. **One radius scale** (2-3 values). Nested radius = outer radius − padding.

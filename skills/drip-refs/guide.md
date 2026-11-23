@@ -10,7 +10,7 @@ Good reference work looks like this: from the brief, you write queries that come
 2. **Write 4-6 query lines** before searching (`drip_guide refs/queries`):
    - **Direct:** surface + category. `fintech dashboard`, `restaurant website`.
    - **Quality-led:** a named trait or school + surface. `swiss typography landing page`, `dense data table dark`.
-   - **Subject world:** something the audience knows by heart, outside screens. `railway timetable`, `seed packet design`.
+   - **Shipped sites:** `refs_site` on 3-4 real sites of the same kind; they give you measured sizes, which Dribbble shots never do.
    - **Pattern:** the hardest component. `pricing table toggle`, `onboarding empty state`.
    - **Contrast pair:** for each feel word, one query for each of two readings (`playful` → `playful toy ui` and `playful kinetic typography`).
 3. **Search.** `refs_search` for the direct and quality-led lines, with `category` where it narrows. Read the contact sheet.
@@ -30,7 +30,7 @@ Good reference work looks like this: from the brief, you write queries that come
 
 | Loop | Queries | Scanned | Candidates kept (round 1) | Picked → studied |
 |---|---|---|---|---|
-| Full loop | 4-6 across 3+ angles | 100-150 | 15-30 | 8-12 studied (gate: 6 from 3 designers) |
+| Full loop | `refs_site` on 3-4 shipped sites, plus 1-2 tags for gaps | 30-50 | 4-8 | 4-6 studied (gate: 4 from 3 designers/sites, 3 on-surface) |
 | Component or section | 2-3 | 40-80 | 10-15 | 6-8 |
 | Logo | 3-4 incl. subject world and type | 80-120 | 15-25 | 6-10 |
 | Polish | none | none | none | follow `DESIGN.md` |
@@ -66,7 +66,7 @@ Dribbble matches titles and tags. Nouns designers put in titles work; adjectives
 refs_pick({ picks: [
   { shot: "7",  why: "type-led hero at ~180px with no imagery: the 'loud' feel without a gradient" },
   { shot: "19", why: "only one using motion trails as structure, not decoration" },
-  { shot: "31", why: "outside the category: a transit poster whose grid could hold our schedule" } ] })
+  { shot: "31", why: "the only schedule page whose grid holds 40 rows without feeling dense" } ] })
 ```
 
 **View** each full size: `refs_view("7")`. Read it top to bottom; note where the eye lands.
@@ -89,7 +89,7 @@ refs_study({ shot: "7",
   type:    "condensed grotesk caps, display:body ~10:1, -2% tracking",
   color:   "#0E0E0E ground, one acid #D4FF3A on the CTA only (<3% of the surface)",
   density: "~25 words above the fold, 3 sections per screen-height",
-  detail:  "nav items numbered 01-04 in mono, sitting on the headline's baseline",
+  detail:  "nav links in the body face at 16px, sitting on the headline's baseline",
   take:    "the 10:1 type ratio and the single acid accent",
   leave:   "the stock 3D render; it chose no secondary colour at all, and we keep that refusal" })
 ```
@@ -116,7 +116,7 @@ Three more rules:
 ### 6. Spread: a board of options, not of clones
 
 - [ ] Studies come from 3+ queries and 3+ designers (aim for 5+), at most 3 per designer.
-- [ ] At least 2 come from outside the product's category.
+- [ ] Most studies ARE the thing being built, and at least 2 are shipped sites (`refs_site`).
 - [ ] At least 2 different grounds or colour postures, and 2 different type voices.
 - [ ] Each feel word has 2 contrasting readings among the candidates.
 - [ ] Below-the-fold sections, states or components are represented, not only heroes.

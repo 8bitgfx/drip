@@ -12,6 +12,7 @@ import { examplesDir, rulesDir, skillsDir } from "./paths.mjs";
 function topicFile(topic) {
   const t = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
   if (t === "loop" || t === "drip") return path.join(skillsDir, "drip", "guide.md");
+  if (t === "playbook") return path.join(skillsDir, "drip", "playbook.md");
   if (t.startsWith("rules/")) return path.join(rulesDir, `${t.slice(6)}.md`);
   if (t.startsWith("examples/")) return path.join(examplesDir, `${t.slice(9)}.md`);
   const [skill, ...rest] = t.split("/");
@@ -51,6 +52,7 @@ export function listGuides() {
       const topic = d === "drip" ? "loop" : d.replace(/^drip-/, "");
       const guide = path.join(skillsDir, d, "guide.md");
       if (fs.existsSync(guide)) add(topic, guide);
+      if (d === "drip" && fs.existsSync(path.join(skillsDir, d, "playbook.md"))) add("playbook", path.join(skillsDir, d, "playbook.md"));
       const ref = path.join(skillsDir, d, "reference");
       if (fs.existsSync(ref)) for (const f of fs.readdirSync(ref).filter((f) => f.endsWith(".md"))) add(`${topic}/${f.slice(0, -3)}`, path.join(ref, f));
     }

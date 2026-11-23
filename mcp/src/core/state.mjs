@@ -60,6 +60,12 @@ export function newTask({ title, size, surface, guides, mode = "design", packs =
   };
 }
 
+/** A landing page, portfolio or showcase: the playbook's page-scale numbers and gates apply. */
+export function isPersuade(task) {
+  if (!task) return true;
+  return ["landing", "other"].includes(task.surface) && !["logo", "refs", "board"].includes(task.mode);
+}
+
 /** Distinct designers among studied references. */
 export function studiedDesigners(task) {
   return new Set((task.refs.studied || []).map((s) => s.designer).filter(Boolean)).size;
@@ -89,16 +95,16 @@ export function missingBeforeUi(task, config) {
       const what = task.surface === "landing" ? "real landing pages, heroes and full-site shots" : task.surface === "component" ? "real components in real products" : "real app screens and flows";
       missing.push({
         need: "real examples",
-        how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects: refs_search with category "web-design" or "product-design", refs_tag "landing page" / "hero section" / "website" (now ${onSurfaceCount}/${g.minOnSurface})`,
+        how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects. Fastest and best: refs_site with 2-4 shipped sites in the category (measured type sizes); or refs_tag "landing page" / "hero section" (now ${onSurfaceCount}/${g.minOnSurface})`,
       });
     }
     if (studied < g.minRefsStudied || designers < g.minDesigners)
       missing.push({
         need: "references",
-        how: `study ${Math.max(0, g.minRefsStudied - studied)} more references from at least ${g.minDesigners} designers (now ${studied} studied, ${designers} designers): refs_search/refs_tag -> refs_pick -> refs_view -> refs_study`,
+        how: `study ${Math.max(0, g.minRefsStudied - studied)} more references from at least ${g.minDesigners} designers or sites (now ${studied} studied, ${designers}): refs_site for shipped sites, or refs_tag -> refs_view -> refs_study; batch them`,
       });
     if (g.requireDirection && !task.board?.chosen)
-      missing.push({ need: "direction", how: task.board ? "board_directions, board_tile, critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions, board_tile, critic review, board_open, board_choose" });
+      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions (2 first-viewport comps), critic review, board_open, board_choose" });
     if (g.requireCritic && task.board?.chosen && !lastCritique(task, "directions"))
       missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
   }
@@ -143,7 +149,8 @@ export function checklist(task, config) {
     lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);
     lines.push(`${tick(!!lastCritique(task, "directions"))} critic ranked the directions${lastCritique(task, "directions") ? `: ${lastCritique(task, "directions").summary}` : ""}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
-    lines.push(`${tick(task.system)} system written (DESIGN.md / tokens)`);
+    lines.push(`${tick(task.system)} system written (kit/base.css + DESIGN.md)`);
+    if (isPersuade(task)) lines.push(`${tick(!!task.fitcheck.heroPassedAt)} hero gate passed (fitcheck_shot hero: true, before the sections)`);
   }
   lines.push(`${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`);
   const fc = task.fitcheck;

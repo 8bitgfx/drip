@@ -5,6 +5,9 @@ import { listGuides, normalizeTopic, readGuide, subTopics } from "../core/guides
 import { checklist, loadState, missingBeforeUi, newTask, updateState } from "../core/state.mjs";
 import { text } from "../core/result.mjs";
 import { matchPacks } from "../core/packs.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { kitDir, projectDir } from "../core/paths.mjs";
 
 const SURFACE_WORDS = {
   landing: /\b(landing|marketing|homepage|home page|hero|website|site|pricing page|waitlist|portfolio|company)\b/i,
@@ -46,40 +49,49 @@ function guessMode(task) {
   return null;
 }
 
+const PERSUADE = (surface, mode) => ["landing", "other"].includes(surface) && !["logo", "refs", "board"].includes(mode);
+
+// What must be read before UI is written. Kept small on purpose: the playbook carries the numbers; deep guides are on demand.
 function requiredGuides(size, surface, task, mode, packs) {
-  const g = ["rules/hard-rules"];
+  const g = [];
   if (mode === "refs") g.push("refs");
-  else if (mode === "board") g.push("refs", "moodboard", "rules/ambition");
-  else if (size === "full") {
-    g.push("rules/ambition", "loop", "refs", "moodboard", "direction");
-    g.push(mode === "logo" ? "logo" : { landing: "landing", app: "app", mobile: "mobile", component: "components", brand: "logo", other: "layout" }[surface]);
-  } else {
+  else if (mode === "board") g.push("refs", "moodboard");
+  else if (mode === "logo") g.push("logo");
+  else if (PERSUADE(surface, mode)) g.push("playbook");
+  else if (size === "full") g.push("rules/hard-rules", { app: "app", mobile: "mobile", component: "components" }[surface] || "layout");
+  else {
     const topics = Object.entries(TOPIC_WORDS).filter(([, re]) => re.test(task)).map(([t]) => t);
-    g.push(...(topics.length ? topics.slice(0, 3) : ["polish"]));
+    g.push("rules/hard-rules", ...(topics.length ? topics.slice(0, 2) : ["polish"]));
   }
   for (const p of packs) g.push(`pack:${p}`);
   return [...new Set(g)];
 }
 
 export function nextStep(task, config) {
-  if (task.size === "full" && config.gates.requireBrief && !task.brief) return "NEXT: ask the intake questions (AskUserQuestion, up to 4, see INTAKE), then drip_brief with the answers.";
+  if (task.size === "full" && config.gates.requireBrief && !task.brief) return "NEXT: ask the intake questions (AskUserQuestion, up to 4, material first; see INTAKE), then drip_brief with the answers.";
   const missing = missingBeforeUi(task, config);
   if (missing.length) return `NEXT: ${missing[0].how}.`;
   if (task.mode === "refs") return "NEXT: summarise what the studied references have in common and where they differ (6-10 lines), then offer a moodboard.";
   if (task.mode === "board") return "NEXT: board_open, present the critic-ranked directions with your pick, ask the user to choose with buttons. Then drip_end.";
-  if (task.size === "full" && !task.system) return task.mode === "logo" ? "NEXT: drip_guide logo, then sketch 12-20 concepts and render them with logo_sheet." : "NEXT: write the system (DESIGN.md + tokens) from the chosen direction: drip_guide system, then drip_mark system.";
-  return "NEXT: build. Prefer a library component (components_find). Then fitcheck_shot, critic review of the build (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), fix, fitcheck_done.";
+  if (task.size === "full" && !task.system)
+    return task.mode === "logo"
+      ? "NEXT: sketch 12-20 concepts and render them with logo_sheet."
+      : PERSUADE(task.surface, task.mode)
+        ? "NEXT: drip_kit (copies kit/base.css), fill in faces and colours from the direction, write DESIGN.md (playbook P22), drip_mark system."
+        : "NEXT: write DESIGN.md + tokens from the chosen direction (drip_kit for the type roles and floor), then drip_mark system.";
+  if (PERSUADE(task.surface, task.mode) && task.size === "full" && !task.fitcheck?.heroPassedAt)
+    return "NEXT: plan the sections (playbook P23), then build the nav + hero ONLY and run fitcheck_shot({ url, hero: true }). No section before the hero gate passes.";
+  return "NEXT: build the sections in plan order. Then fitcheck_shot (the page gate), fix every blocker, the critic once (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), one confirming round, fitcheck_done.";
 }
 
-const INTAKE = `INTAKE (do this now, before any research): ask ONE round of up to 4 questions with AskUserQuestion. Make every option specific to this request, never generic.
-1. "What is it / what's it for?" only if unclear: 2-4 concrete readings of the request.
-2. "Who is it for and what should they feel/do?": 3-4 audience+goal options you infer.
-3. "Which feel?": 3-4 OPPOSED pairs turned into options, each a vivid one-liner (e.g. "Loud & playful — big type, saturated colour, motion" vs "Quiet & precise — monochrome, grids, restraint" vs "Editorial & crafted" vs "Raw & experimental"). Add "Surprise me (bold)".
-4. "Anything you love or hate?": common answers for this kind of work (e.g. "Love: brutalist sites", "Hate: dark mode", "No preference").
-Skip questions the request already answers. If the user said "just do it"/"decide for me", skip all and state assumptions.
-Then call drip_brief with the answers. Default ambition is BOLD: distinctive and memorable, never the safe default, unless the user asked for plain/conservative.`;
+const INTAKE = `INTAKE (do this now): read the project first, then ask ONE round of up to 4 questions with AskUserQuestion, options specific to this request (never generic), your recommendation first.
+1. MATERIAL (always): what can the page show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Nothing yet: leave labelled slots".
+2. The one action, or who it's for, only if unclear: 2-4 concrete readings.
+3. Feel: 3-4 OPPOSED options, each a vivid one-liner of what the first screen looks like. Add "Surprise me (bold)".
+4. Anything they love or hate (sites, colours, fonts) when it would change the direction.
+Skip what the request already answers. "Just do it" / "decide for me": skip all and state assumptions. Then drip_brief. Default ambition is BOLD unless they asked for plain.`;
 
-/** A concrete research plan: mostly real examples of the surface, then 1-2 outside-the-category angles. */
+/** A concrete research plan: shipped sites first (measured), Dribbble only for gaps. */
 function refPlan(task, surface, mode) {
   const subject =
     task
@@ -88,20 +100,21 @@ function refPlan(task, surface, mode) {
       .replace(/[^a-z0-9 ]+/g, " ")
       .replace(/\s+/g, " ")
       .trim() || "product";
-  const kind = /portfolio/i.test(task) ? "portfolio website" : surface === "landing" ? "landing page" : surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : mode === "logo" ? "logo" : "website";
   if (mode === "logo")
-    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark" (pages 1-3), refs_tag "${subject.split(" ")[0]} logo", refs_search "${subject} branding" category "branding", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
-  const cat = surface === "app" || surface === "mobile" ? "product-design" : "web-design";
+    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark", refs_tag "${subject.split(" ")[0]} logo", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
+  if (PERSUADE(surface, mode))
+    return (
+      `REFERENCE PLAN (fast, ~2 calls): refs_site with 3-4 SHIPPED sites in this category or a notch above it (${/portfolio/i.test(task) ? "studio, designer and artist portfolios you know are strong" : "the best product and brand sites in this space you know"}), ` +
+      "in one call; it measures their h1, h2 and body px. Then refs_study them all in one call. Only if a gap remains (a section type, a motion idea): refs_tag one Dribbble tag, refs_view 1-2, refs_study."
+    );
+  const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";
   return (
-    `REFERENCE PLAN (most studied refs must BE ${kind}s, the gate counts them):\n` +
-    `1. refs_search "${kind}" category "${cat}"  ·  2. refs_tag "${kind}" pages 1-3  ·  3. refs_tag "${surface === "landing" ? "hero section" : kind}"  ·  ` +
-    `4. refs_search "${subject} ${kind}" category "${cat}"  ·  5. refs_designer on 2 designers whose pages are strongest.\n` +
-    `Then ONE or TWO outside-the-category angles for ideas (posters, editorial, the subject's own world), never more than a third of what you study.\n` +
-    "Run searches one after another (they share a rate limit) and refer to shots by their tagged number (L3-7) or id."
+    `REFERENCE PLAN: refs_site on 1-2 shipped products with a strong ${kind} (real screens, measured), then refs_tag "${kind}" and refs_search "${subject} ${kind}" category "product-design"; ` +
+    "refs_view the 2-3 best in one call and refs_study them in one call. Refer to shots by their tagged number (L3-7)."
   );
 }
 
-const TALK =`HOW TO TALK TO THE USER (whole task): decisions first; 3-6 short lines per message; show (board link, screenshots, renders) instead of describing; one question at a time with buttons (AskUserQuestion); never paste tool output walls; at milestones say what changed and what's next in one line each.`;
+const TALK = `TALK: decisions first, 3-6 short lines per message; show (board link, screenshots) instead of describing; one question at a time with buttons; never paste tool output.`;
 
 export function register(server, ctx) {
   server.registerTool(
@@ -110,7 +123,7 @@ export function register(server, ctx) {
       title: "Start a design task",
       description:
         "Start a Drip design task (the user ran /drip:design or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. " +
-        "It decides the loop (full for new/redesigned UI, quick for tweaks), lists the guides you must read and returns the first one. " +
+        "It decides the loop (full for new/redesigned UI, quick for tweaks) and returns the one guide you need (the playbook for pages) in full, so no extra reads. " +
         "While the task is open, the plugin blocks writing UI files until its requirements are met; close it with drip_end.",
       inputSchema: {
         task: z.string().describe("What you are designing, in the user's words plus context. e.g. 'portfolio site for Claude', 'logo for a bakery called Crumb', 'polish the pricing cards'"),
@@ -128,9 +141,9 @@ export function register(server, ctx) {
       const pk = packs || matchPacks(task).map((p) => p.id);
       const guides = requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
-      const first = s === "full" && !["refs", "board"].includes(m) ? "loop" : guides[1] || "rules/hard-rules";
-      const body = readGuide(first);
-      if (body) t.guidesRead.push(first);
+      // Every required guide is short now, so all of them come inline: zero extra calls.
+      const bodies = guides.map((x) => [x, readGuide(x)]).filter(([, b]) => b);
+      for (const [x] of bodies) t.guidesRead.push(x);
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: new Date().toISOString(), endedBy: "new task" });
         st.task = t;
@@ -139,11 +152,37 @@ export function register(server, ctx) {
       return text(
         `Drip task started: mode ${m}, ${s} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.\n` +
           (m === "polish" ? "Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode \"design\".\n" : "") +
-          `\nREQUIRED GUIDES (read each with drip_guide; UI writes are blocked until then):\n${guides.map((x) => `- ${x}${x === first ? "  (included below)" : ""}`).join("\n")}\n\n` +
+          `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x]) => x).join(", ")}.\n\n` +
           (s === "full" && config.gates.requireBrief ? `${INTAKE}\n\n` : "") +
           (s === "full" ? `${refPlan(task, sf, m)}\n\n` : "") +
           `${TALK}\n\n${nextStep(t, config)}\n\n` +
-          (body ? `=================== GUIDE: ${first} ===================\n${body}` : ""),
+          bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
+      );
+    },
+  );
+
+  server.registerTool(
+    "drip_kit",
+    {
+      title: "Copy the base kit into the project",
+      description:
+        "Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, " +
+        "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" })",
+      inputSchema: {
+        out: z.string().optional().describe("Path in the project (default styles/drip-base.css, or src/styles/drip-base.css when src/ exists)"),
+        overwrite: z.boolean().optional(),
+      },
+    },
+    async ({ out, overwrite }) => {
+      const root = projectDir();
+      const rel = out || (fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css");
+      const dest = path.resolve(root, rel);
+      if (fs.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.copyFileSync(path.join(kitDir, "base.css"), dest);
+      return text(
+        `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +
+          "Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then DESIGN.md and drip_mark system.",
       );
     },
   );
@@ -186,8 +225,8 @@ export function register(server, ctx) {
     {
       title: "Read a Drip guide",
       description:
-        "Returns the full text of a design guide and records that you read it. Read every guide drip_start lists, and the guide of any craft before you do it " +
-        "(e.g. 'color' before picking colours, 'motion' before animating). Topics: loop, brief, refs, moodboard, direction, system, color, type, layout, landing, app, mobile, " +
+        "Returns the full text of a design guide (on demand: drip_start already gave you the one you need). Read a deep guide when a step needs it " +
+        "(e.g. 'motion' before a signature animation, 'landing/pricing', 'productshots'). Topics: playbook, loop, brief, refs, moodboard, direction, system, color, type, layout, landing, app, mobile, " +
         "components, interaction, motion, imagery, productshots, icons, copy, a11y, fitcheck, polish, logo, adapt, readme, rules/ambition, rules/communication, rules/hard-rules, rules/slop-tells, rules/per-surface, rules/licences, examples/portfolio, examples/logo, examples/adapt, examples/lazy-run, pack:<id>. " +
         "Sub-guides look like 'color/dark-mode'. Pass topic 'index' for the full list.",
       inputSchema: { topic: z.string().describe("Guide topic, e.g. 'color' or 'color/dark-mode' or 'rules/slop-tells' or 'index'") },

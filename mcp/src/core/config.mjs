@@ -18,13 +18,13 @@ export const DEFAULTS = {
     mode: "task",
     enforce: true,
     requireBrief: true,      // full loop: the user's answers recorded with drip_brief
-    minRefsStudied: 6,       // full loop: references studied with refs_study before UI is written
+    minRefsStudied: 4,       // full loop: references studied with refs_study before UI is written
     minDesigners: 3,         // ...from at least this many different designers
-    minOnSurface: 4,         // ...and at least this many must show the thing being built (real landing pages, app screens), not print or objects
-    minBoardItems: 6,        // items on the moodboard before directions can be formed
+    minOnSurface: 3,         // ...and at least this many must show the thing being built (real landing pages, app screens), not print or objects
+    minBoardItems: 4,        // items on the moodboard before directions can be formed
     requireDirection: true,  // a direction must be chosen before UI is written, full loop
     requireCritic: true,     // the drip:critic subagent ranks directions and must pass the build (full loop)
-    maxCriticRounds: 3,      // after this many build critiques, stop blocking and report what's left
+    maxCriticRounds: 2,      // after this many build critiques, stop blocking and report what's left
     requireFitcheck: true,   // Claude can't end its turn after UI changes without a fit check
   },
 

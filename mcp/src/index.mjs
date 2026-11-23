@@ -23,11 +23,11 @@ import * as critic from "./modules/critic/index.mjs";
 import * as logo from "./modules/logo/index.mjs";
 import * as packs from "./modules/packs/index.mjs";
 
-const VERSION = "0.3.2";
+const VERSION = "0.3.3";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
-Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it runs intake, tells you which guides to read (drip_guide) and what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
-Full loop: intake (AskUserQuestion -> drip_brief) -> refs (search/tag -> refs_pick -> refs_view -> refs_zoom -> refs_study) -> board_create -> board_directions -> board_tile -> critic (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> system -> build -> fitcheck_shot -> critic -> fitcheck_done -> drip_end.
+Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
+Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
 Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
 Lost? drip_status shows what is done and the exact next call. Examples: drip_guide examples/portfolio.`;
 

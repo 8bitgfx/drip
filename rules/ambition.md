@@ -26,7 +26,7 @@ people work in (then ambition shows as precision, not spectacle).
 - **Spend boldness in one place**: one signature move that owns the page, everything else disciplined.
 - **Commit every atom**: buttons, nav, footer, empty states all speak the direction's language.
 - **Scale up**: when in doubt, make the headline bigger, the colour field larger, the image fuller.
-- **Steal from outside the category**: a portfolio can borrow from exhibition posters, record sleeves, field guides, signage.
+- **Borrow ambition, never clothes**: a portfolio can take the confidence of a great museum or label site, but a page dressed as a poster, a book cover or a record sleeve is a picture of a world, not its website. References are shipped sites of the same kind (`refs_site`).
 - **Directions must differ in idea, not style**: at least one direction crosses the subject with a genre from another world ("unexpected pairing"), with one line on why it beats the safe one.
 - **Name it like a movement**: each direction gets a 1-2 word name and a 3-sentence manifesto before anything is drawn.
 

@@ -58,8 +58,15 @@ export function resolve(ref, source = "dribbble") {
   }
   const num = s.match(/^#?(\d{1,3})$/);
   if (num && db.last[+num[1] - 1]) return db.last[+num[1] - 1];
+  if (/^https?:\/\//i.test(s) || /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$)/i.test(s)) return siteKey(s);
   if (s.includes(":")) return s;
   return `${source}:${s.replace(/^#/, "")}`;
+}
+
+/** "https://www.linear.app/" -> "site:linear.app" (shipped sites studied with refs_site). */
+export function siteKey(url) {
+  const u = new URL(/^https?:/i.test(url) ? url : `https://${url}`);
+  return `site:${u.hostname.replace(/^www\./, "")}${u.pathname.replace(/\/+$/, "")}`;
 }
 
 export function lookup(key) {

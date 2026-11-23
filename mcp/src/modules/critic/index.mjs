@@ -10,12 +10,12 @@ import { projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
 import { capture, formatAudit, judgeAudit } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
-import { loadState, updateState } from "../../core/state.mjs";
+import { isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { loadBoard, saveBoard } from "../board/store.mjs";
 
 const KIND_BRIEF = {
   directions:
-    "You are judging 2-4 candidate DESIGN DIRECTIONS (style tiles) before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
+    "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Could it be any brand's hero? Is the h1 big enough (the Display role is ~127px at 1440) and does the picture slot show the subject's real thing at a real size? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
   build:
     "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it distinctive, crafted and finished, or a competent template? Name every place it looks amateur, generic or AI-made.",
   logo:
@@ -61,7 +61,7 @@ export function register(server, ctx) {
       description:
         "Prepares an independent review by the drip:critic subagent (Sonnet, no history, harsh). It renders the work to image files and returns the exact prompt to pass to the subagent: " +
         'Agent({ subagent_type: "drip:critic", description: "Critic review", prompt: <returned prompt> }). Pass the prompt unchanged; never add your own defence of the work. ' +
-        "kind: directions (uses the board's style tiles), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. " +
+        "kind: directions (uses the board's first-viewport comps), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. " +
         'Examples: critic_prepare({ kind: "directions" }) · critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) · critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })',
       inputSchema: {
         kind: z.enum(["directions", "build", "logo", "pack", "any"]),
@@ -79,9 +79,9 @@ export function register(server, ctx) {
 
       if (kind === "directions") {
         const board = task?.board?.id && loadBoard(task.board.id);
-        if (!board?.directions?.length) return text("No directions to judge. board_directions + board_tile first.", true);
+        if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
         const missing = board.directions.filter((d) => !d.tile || !fs.existsSync(d.tile));
-        if (missing.length) return text(`Render the style tiles first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
+        if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
         board.directions.forEach((d, i) => {
           files.push(d.tile);
           notes.push(`Direction ${i + 1} "${d.name}" (${files.length}): ${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} · ${d.adjectives.join(", ")} · palette ${d.palette.join(" ")} · type ${d.type}`);
@@ -94,7 +94,7 @@ export function register(server, ctx) {
           // The whole page, top to bottom, plus measured facts the critic must weigh.
           for (const s of config.fitcheck.sizes) {
             const r = await capture(t, { width: s.width, height: s.height, maxSlices: s.width < 600 ? 4 : 6, config });
-            const j = judgeAudit(r.audit);
+            const j = judgeAudit(r.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s.name}: ${formatAudit(r.audit, j)}`);
             r.slices.forEach((sl, i) => {
               const f = path.join(dir, `${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);

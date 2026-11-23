@@ -4,7 +4,7 @@ import { z } from "zod";
 import { fetchImage, contactSheet, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
-import { loadState, updateState } from "../../core/state.mjs";
+import { isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
 import { loadBoard } from "../board/store.mjs";
 import fs from "node:fs";
@@ -23,23 +23,27 @@ export function register(server, ctx) {
       description:
         "Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: " +
         "horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. " +
-        "Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. Example: fitcheck_shot({ url: \"http://localhost:3000\" })",
+        "Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. " +
+        "hero: true shoots only the first viewport and runs the hero gate (playbook P31): do it after building nav + hero, before any section. Example: fitcheck_shot({ url: \"http://localhost:3000\", hero: true })",
       inputSchema: {
         url: z.string().describe("e.g. http://localhost:3000/pricing"),
         sizes: z.array(z.object({ name: z.string(), width: z.number(), height: z.number() })).optional(),
         maxSlices: z.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
+        hero: z.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
+        app: z.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
       },
     },
-    safe(async ({ url, sizes, maxSlices }) => {
+    safe(async ({ url, sizes, maxSlices, hero, app }) => {
       const config = ctx.config();
+      const persuade = app === undefined ? isPersuade(loadState().task) : !app;
       const list = sizes || config.fitcheck.sizes;
       const dir = rendersDir(`fitcheck-${stamp()}`);
       const content = [];
       const audits = [];
       const files = [];
       for (const s of list) {
-        const r = await capture(url, { width: s.width, height: s.height, maxSlices: maxSlices || (s.width < 600 ? 4 : 5), config });
-        const j = judgeAudit(r.audit);
+        const r = await capture(url, { width: s.width, height: s.height, maxSlices: hero ? 1 : maxSlices || (s.width < 600 ? 4 : 5), config });
+        const j = judgeAudit(r.audit, { persuade, hero });
         audits.push({ size: s.name, width: s.width, audit: r.audit, ...j });
         content.push(textBlock(`${s.name} ${s.width}px · ${r.slices.length} of ${r.sliceCount} screens\n${formatAudit(r.audit, j)}`));
         for (const [i, sl] of r.slices.entries()) {
@@ -52,16 +56,22 @@ export function register(server, ctx) {
       const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
       updateState((st) => {
         if (st.task) {
+          st.task.fitcheck.url = url;
+          if (!blockers.length) st.task.fitcheck.heroPassedAt = new Date().toISOString();
+          if (hero) return; // a hero shot is not a fit check of the page
           st.task.fitcheck.shots += files.length;
           st.task.fitcheck.lastShotAt = new Date().toISOString();
-          st.task.fitcheck.url = url;
           st.task.fitcheck.blockers = blockers;
           st.task.fitcheck.files = files;
         }
       });
       content.unshift(
         textBlock(
-          `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n- ${blockers.join("\n- ")}\n\n` : "No measured blockers.\n\n"}` +
+          (hero
+            ? blockers.length
+              ? `HERO GATE FAILED (fix before writing any section):\n- ${blockers.join("\n- ")}\n\nRedo the hero bigger, then fitcheck_shot({ url, hero: true }) again.\n\n`
+              : "HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.\n\n"
+            : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n- ${blockers.join("\n- ")}\n\n` : "No measured blockers.\n\n"}`) +
             "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, " +
             "off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " +
             dir,

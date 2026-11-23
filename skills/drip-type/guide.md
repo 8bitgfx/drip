@@ -44,7 +44,7 @@ or an optical-size axis is often the best "pairing". Full method and alternative
 - **Do** make adjacent roles differ by at least 1.2x in size, or by size plus a weight step. 16 and 17px for two roles is noise.
 - **Don't** create a new size for one element. If a card title wants 19px, it is a title (20px) or body (16px).
 - **Do** use fluid `clamp()` for marketing display sizes only. Product UI stays fixed: a headline that shrinks in a sidebar looks broken, not responsive.
-- **Do** cap display text: about 72-96px on desktop for a hero h1, larger only for a single word or a poster direction.
+- **Do** set the hero h1 at the Display role: `clamp(3rem, 1.2rem + 7.5vw, 9rem)`, about 127px at 1440 and 48px at 390 (`kit/base.css`). Fewer words, not a smaller size.
 
 Full tables with line-height and tracking per step: `drip_guide type/scales`.
 

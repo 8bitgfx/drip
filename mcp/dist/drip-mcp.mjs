@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path27) {
-      let input2 = path27;
+    function removeDotSegments(path29) {
+      let input2 = path29;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path27) {
-      if (path27 === "" || path27[0] === "/") {
-        return removeDotSegments(path27);
+    function removeDotSegmentsRelative(path29) {
+      if (path29 === "" || path29[0] === "/") {
+        return removeDotSegments(path29);
       }
-      const segments = path27.split("/");
+      const segments = path29.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path27 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path27 && path27 !== "/" ? path27 : void 0;
+        const path29 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path29 && path29 !== "/" ? path29 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -7257,12 +7257,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f2;
     };
-    function addFormats(ajv, list, fs31, exportName) {
+    function addFormats(ajv, list, fs34, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f2 of list)
-        ajv.addFormat(f2, fs31[f2]);
+        ajv.addFormat(f2, fs34[f2]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -11032,7 +11032,7 @@ var require_gifframe = __commonJS({
 var require_gifutil = __commonJS({
   "node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
-    var fs31 = __require("fs");
+    var fs34 = __require("fs");
     var ImageQ = require_image_q();
     var BitmapImage2 = require_bitmapimage();
     var { GifFrame: GifFrame2 } = require_gifframe();
@@ -11147,14 +11147,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path27, frames, spec, encoder) {
+    exports.write = function(path29, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches = path27.match(/\.[a-zA-Z]+$/);
+      const matches = path29.match(/\.[a-zA-Z]+$/);
       if (matches !== null && INVALID_SUFFIXES.includes(matches[0].toLowerCase())) {
-        throw new Error(`GIF '${path27}' has an unexpected suffix`);
+        throw new Error(`GIF '${path29}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path27, gif2.buffer).then(() => {
+        return _writeBinary(path29, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -11226,9 +11226,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path27) {
+    function _readBinary(path29) {
       return new Promise((resolve2, reject) => {
-        fs31.readFile(path27, (err, buffer) => {
+        fs34.readFile(path29, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -11236,9 +11236,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path27, buffer) {
+    function _writeBinary(path29, buffer) {
       return new Promise((resolve2, reject) => {
-        fs31.writeFile(path27, buffer, (err) => {
+        fs34.writeFile(path29, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -13217,9 +13217,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path27) {
+        load: function load2(path29) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path27, true);
+          xhr.open("GET", path29, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -23646,11 +23646,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path27) {
-      path27 = String(path27);
-      let last = path27.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path29) {
+      path29 = String(path29);
+      let last = path29.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path27.length;
+      let hasPath = last.length < path29.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -25903,9 +25903,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path27) {
-        super(`Not a regular file: ${path27}`);
-        this.path = path27;
+      constructor(path29) {
+        super(`Not a regular file: ${path29}`);
+        this.path = path29;
         this.name = "NotRegularFileError";
       }
     };
@@ -25914,7 +25914,7 @@ var init_NotRegularFileError = __esm({
 
 // node_modules/strtok3/lib/FileTokenizer.js
 import { constants as constants2 } from "node:fs";
-import fs7, {} from "node:fs/promises";
+import fs8, {} from "node:fs/promises";
 var FileTokenizer;
 var init_FileTokenizer = __esm({
   "node_modules/strtok3/lib/FileTokenizer.js"() {
@@ -25933,7 +25933,7 @@ var init_FileTokenizer = __esm({
         getMaxBufferSize(options);
         throwIfAborted(options?.abortSignal);
         const flags = options?.regularFileOnly ? constants2.O_RDONLY | constants2.O_NONBLOCK : "r";
-        const fileHandle = await fs7.open(sourceFilePath, flags);
+        const fileHandle = await fs8.open(sourceFilePath, flags);
         try {
           const stat = await fileHandle.stat();
           if (options?.regularFileOnly && !stat.isFile()) {
@@ -30244,7 +30244,7 @@ __export(file_type_exports, {
 });
 import { ReadableStream as WebReadableStream } from "node:stream/web";
 import { pipeline, PassThrough, Readable } from "node:stream";
-import fs8 from "node:fs/promises";
+import fs9 from "node:fs/promises";
 import { constants as fileSystemConstants } from "node:fs";
 function isTokenizerStreamBoundsError(error62) {
   if (!(error62 instanceof RangeError) || error62.message !== "offset is out of bounds" || typeof error62.stack !== "string") {
@@ -30252,8 +30252,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path27, options) {
-  return new FileTypeParser2(options).fromFile(path27, options);
+async function fileTypeFromFile(path29, options) {
+  return new FileTypeParser2(options).fromFile(path29, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -30284,9 +30284,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path27) {
+      async fromFile(path29) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs8.open(path27, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs9.open(path29, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -30295,7 +30295,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path27,
+            path: path29,
             size: fileStat.size
           }
         });
@@ -37549,9 +37549,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path27, options) {
+      Path.fromSVG = function(path29, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path27, options);
+        return newPath.fromSVG(path29, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -42716,8 +42716,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path27) {
-        let _path = path27 || new path_default();
+      function getPathDefinition(glyph, path29) {
+        let _path = path29 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -42945,8 +42945,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path27 = this.getPath(x2, y2, fontSize, options, font);
-        path27.draw(ctx2);
+        const path29 = this.getPath(x2, y2, fontSize, options, font);
+        path29.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -42975,8 +42975,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path27 = this.path;
-        let commands = path27.commands;
+        const path29 = this.path;
+        let commands = path29.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -43123,9 +43123,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path27 = buildPath2(font.glyphs, glyph);
-            path27.unitsPerEm = font.unitsPerEm;
-            return path27;
+            const path29 = buildPath2(font.glyphs, glyph);
+            path29.unitsPerEm = font.unitsPerEm;
+            return path29;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -43140,9 +43140,9 @@ var require_opentype = __commonJS({
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path27 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path27.unitsPerEm = font.unitsPerEm;
-            return path27;
+            const path29 = parseCFFCharstring2(font, glyph, charstring, version2);
+            path29.unitsPerEm = font.unitsPerEm;
+            return path29;
           };
           return glyph;
         };
@@ -43609,12 +43609,12 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path27) {
+      function applyPaintType(font, path29) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path27.fill = null;
-          path27.stroke = "black";
-          path27.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path29.fill = null;
+          path29.stroke = "black";
+          path29.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
@@ -44377,16 +44377,16 @@ var require_opentype = __commonJS({
       }
       function glyphToOps(glyph, version2) {
         const ops = [];
-        const path27 = glyph.path;
+        const path29 = glyph.path;
         if (version2 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path27.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path29.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path27.commands[i2];
+          let cmd = path29.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -52394,8 +52394,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path27 = this.getPath(text2, x2, y2, fontSize, options);
-        path27.draw(ctx2);
+        const path29 = this.getPath(text2, x2, y2, fontSize, options);
+        path29.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -53154,8 +53154,8 @@ var require_opentype = __commonJS({
 });
 
 // src/index.mjs
-import fs30 from "node:fs";
-import path26 from "node:path";
+import fs33 from "node:fs";
+import path28 from "node:path";
 
 // node_modules/zod/v3/helpers/util.js
 var util;
@@ -53531,8 +53531,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path27, errorMaps, issueData } = params;
-  const fullPath = [...path27, ...issueData.path || []];
+  const { data, path: path29, errorMaps, issueData } = params;
+  const fullPath = [...path29, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -53647,11 +53647,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path27, key) {
+  constructor(parent, value, path29, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path27;
+    this._path = path29;
     this._key = key;
   }
   get path() {
@@ -57606,10 +57606,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path27) {
-  if (!path27)
+function getElementAtPath(obj, path29) {
+  if (!path29)
     return obj;
-  return path27.reduce((acc, key) => acc?.[key], obj);
+  return path29.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -57949,11 +57949,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path27, issues) {
+function prefixIssues(path29, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path27);
+    iss.path.unshift(path29);
     return iss;
   });
 }
@@ -58415,16 +58415,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path27 = []) => {
+  const processError = (error63, path29 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path27, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path29, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
       } else {
-        const fullpath = [...path27, ...issue2.path];
+        const fullpath = [...path29, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -58463,17 +58463,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path27 = []) => {
+  const processError = (error63, path29 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path27, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path29, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path27, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
       } else {
-        const fullpath = [...path27, ...issue2.path];
+        const fullpath = [...path29, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -58512,8 +58512,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path27 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path27) {
+  const path29 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path29) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -74064,11 +74064,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path27) {
-  if (path27.length === 0) {
+function getDotPath(path29) {
+  if (path29.length === 0) {
     return "object root";
   }
-  return path27.reduce((acc, seg, index) => {
+  return path29.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -76295,13 +76295,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path27 = ref.slice(1).split("/").filter(Boolean);
-  if (path27.length === 0) {
+  const path29 = ref.slice(1).split("/").filter(Boolean);
+  if (path29.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path27[0] === defsKey) {
-    const key = path27[1] === void 0 ? void 0 : decodeJSONPointerSegment(path27[1]);
+  if (path29[0] === defsKey) {
+    const key = path29[1] === void 0 ? void 0 : decodeJSONPointerSegment(path29[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -82580,6 +82580,7 @@ var skillsDir = path.join(pluginRoot, "skills");
 var rulesDir = path.join(pluginRoot, "rules");
 var dataDir = path.join(pluginRoot, "data");
 var examplesDir = path.join(pluginRoot, "examples");
+var kitDir = path.join(pluginRoot, "kit");
 function projectDir(cwd) {
   return cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
 }
@@ -82612,19 +82613,19 @@ var DEFAULTS = {
     enforce: true,
     requireBrief: true,
     // full loop: the user's answers recorded with drip_brief
-    minRefsStudied: 6,
+    minRefsStudied: 4,
     // full loop: references studied with refs_study before UI is written
     minDesigners: 3,
     // ...from at least this many different designers
-    minOnSurface: 4,
+    minOnSurface: 3,
     // ...and at least this many must show the thing being built (real landing pages, app screens), not print or objects
-    minBoardItems: 6,
+    minBoardItems: 4,
     // items on the moodboard before directions can be formed
     requireDirection: true,
     // a direction must be chosen before UI is written, full loop
     requireCritic: true,
     // the drip:critic subagent ranks directions and must pass the build (full loop)
-    maxCriticRounds: 3,
+    maxCriticRounds: 2,
     // after this many build critiques, stop blocking and report what's left
     requireFitcheck: true
     // Claude can't end its turn after UI changes without a fit check
@@ -82735,6 +82736,7 @@ function matchPacks(text2, cwd) {
 function topicFile(topic) {
   const t2 = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
   if (t2 === "loop" || t2 === "drip") return path4.join(skillsDir, "drip", "guide.md");
+  if (t2 === "playbook") return path4.join(skillsDir, "drip", "playbook.md");
   if (t2.startsWith("rules/")) return path4.join(rulesDir, `${t2.slice(6)}.md`);
   if (t2.startsWith("examples/")) return path4.join(examplesDir, `${t2.slice(9)}.md`);
   const [skill, ...rest] = t2.split("/");
@@ -82769,6 +82771,7 @@ function listGuides() {
       const topic = d === "drip" ? "loop" : d.replace(/^drip-/, "");
       const guide = path4.join(skillsDir, d, "guide.md");
       if (fs4.existsSync(guide)) add2(topic, guide);
+      if (d === "drip" && fs4.existsSync(path4.join(skillsDir, d, "playbook.md"))) add2("playbook", path4.join(skillsDir, d, "playbook.md"));
       const ref = path4.join(skillsDir, d, "reference");
       if (fs4.existsSync(ref)) for (const f2 of fs4.readdirSync(ref).filter((f3) => f3.endsWith(".md"))) add2(`${topic}/${f2.slice(0, -3)}`, path4.join(ref, f2));
     }
@@ -82842,6 +82845,10 @@ function newTask({ title, size, surface, guides, mode = "design", packs = [] }) 
     // reason, when the user asked to skip the process
   };
 }
+function isPersuade(task) {
+  if (!task) return true;
+  return ["landing", "other"].includes(task.surface) && !["logo", "refs", "board"].includes(task.mode);
+}
 function studiedDesigners(task) {
   return new Set((task.refs.studied || []).map((s2) => s2.designer).filter(Boolean)).size;
 }
@@ -82866,16 +82873,16 @@ function missingBeforeUi(task, config2) {
       const what = task.surface === "landing" ? "real landing pages, heroes and full-site shots" : task.surface === "component" ? "real components in real products" : "real app screens and flows";
       missing.push({
         need: "real examples",
-        how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects: refs_search with category "web-design" or "product-design", refs_tag "landing page" / "hero section" / "website" (now ${onSurfaceCount}/${g.minOnSurface})`
+        how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects. Fastest and best: refs_site with 2-4 shipped sites in the category (measured type sizes); or refs_tag "landing page" / "hero section" (now ${onSurfaceCount}/${g.minOnSurface})`
       });
     }
     if (studied < g.minRefsStudied || designers < g.minDesigners)
       missing.push({
         need: "references",
-        how: `study ${Math.max(0, g.minRefsStudied - studied)} more references from at least ${g.minDesigners} designers (now ${studied} studied, ${designers} designers): refs_search/refs_tag -> refs_pick -> refs_view -> refs_study`
+        how: `study ${Math.max(0, g.minRefsStudied - studied)} more references from at least ${g.minDesigners} designers or sites (now ${studied} studied, ${designers}): refs_site for shipped sites, or refs_tag -> refs_view -> refs_study; batch them`
       });
     if (g.requireDirection && !task.board?.chosen)
-      missing.push({ need: "direction", how: task.board ? "board_directions, board_tile, critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions, board_tile, critic review, board_open, board_choose" });
+      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions (2 first-viewport comps), critic review, board_open, board_choose" });
     if (g.requireCritic && task.board?.chosen && !lastCritique(task, "directions"))
       missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
   }
@@ -82901,7 +82908,8 @@ function checklist(task, config2) {
     lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);
     lines.push(`${tick(!!lastCritique(task, "directions"))} critic ranked the directions${lastCritique(task, "directions") ? `: ${lastCritique(task, "directions").summary}` : ""}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
-    lines.push(`${tick(task.system)} system written (DESIGN.md / tokens)`);
+    lines.push(`${tick(task.system)} system written (kit/base.css + DESIGN.md)`);
+    if (isPersuade(task)) lines.push(`${tick(!!task.fitcheck.heroPassedAt)} hero gate passed (fitcheck_shot hero: true, before the sections)`);
   }
   lines.push(`${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`);
   const fc = task.fitcheck;
@@ -82931,6 +82939,8 @@ function safe(handler) {
 }
 
 // src/modules/workflow.mjs
+import fs6 from "node:fs";
+import path6 from "node:path";
 var SURFACE_WORDS = {
   landing: /\b(landing|marketing|homepage|home page|hero|website|site|pricing page|waitlist|portfolio|company)\b/i,
   app: /\b(dashboard|admin|app|table|settings|crm|analytics|panel|console|inbox|editor|tool)\b/i,
@@ -82965,54 +82975,55 @@ function guessMode(task) {
   if (LOGO_WORDS.test(task)) return "logo";
   return null;
 }
+var PERSUADE = (surface, mode) => ["landing", "other"].includes(surface) && !["logo", "refs", "board"].includes(mode);
 function requiredGuides(size, surface, task, mode, packs) {
-  const g = ["rules/hard-rules"];
+  const g = [];
   if (mode === "refs") g.push("refs");
-  else if (mode === "board") g.push("refs", "moodboard", "rules/ambition");
-  else if (size === "full") {
-    g.push("rules/ambition", "loop", "refs", "moodboard", "direction");
-    g.push(mode === "logo" ? "logo" : { landing: "landing", app: "app", mobile: "mobile", component: "components", brand: "logo", other: "layout" }[surface]);
-  } else {
+  else if (mode === "board") g.push("refs", "moodboard");
+  else if (mode === "logo") g.push("logo");
+  else if (PERSUADE(surface, mode)) g.push("playbook");
+  else if (size === "full") g.push("rules/hard-rules", { app: "app", mobile: "mobile", component: "components" }[surface] || "layout");
+  else {
     const topics = Object.entries(TOPIC_WORDS).filter(([, re]) => re.test(task)).map(([t2]) => t2);
-    g.push(...topics.length ? topics.slice(0, 3) : ["polish"]);
+    g.push("rules/hard-rules", ...topics.length ? topics.slice(0, 2) : ["polish"]);
   }
   for (const p2 of packs) g.push(`pack:${p2}`);
   return [...new Set(g)];
 }
 function nextStep(task, config2) {
-  if (task.size === "full" && config2.gates.requireBrief && !task.brief) return "NEXT: ask the intake questions (AskUserQuestion, up to 4, see INTAKE), then drip_brief with the answers.";
+  if (task.size === "full" && config2.gates.requireBrief && !task.brief) return "NEXT: ask the intake questions (AskUserQuestion, up to 4, material first; see INTAKE), then drip_brief with the answers.";
   const missing = missingBeforeUi(task, config2);
   if (missing.length) return `NEXT: ${missing[0].how}.`;
   if (task.mode === "refs") return "NEXT: summarise what the studied references have in common and where they differ (6-10 lines), then offer a moodboard.";
   if (task.mode === "board") return "NEXT: board_open, present the critic-ranked directions with your pick, ask the user to choose with buttons. Then drip_end.";
-  if (task.size === "full" && !task.system) return task.mode === "logo" ? "NEXT: drip_guide logo, then sketch 12-20 concepts and render them with logo_sheet." : "NEXT: write the system (DESIGN.md + tokens) from the chosen direction: drip_guide system, then drip_mark system.";
-  return "NEXT: build. Prefer a library component (components_find). Then fitcheck_shot, critic review of the build (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), fix, fitcheck_done.";
+  if (task.size === "full" && !task.system)
+    return task.mode === "logo" ? "NEXT: sketch 12-20 concepts and render them with logo_sheet." : PERSUADE(task.surface, task.mode) ? "NEXT: drip_kit (copies kit/base.css), fill in faces and colours from the direction, write DESIGN.md (playbook P22), drip_mark system." : "NEXT: write DESIGN.md + tokens from the chosen direction (drip_kit for the type roles and floor), then drip_mark system.";
+  if (PERSUADE(task.surface, task.mode) && task.size === "full" && !task.fitcheck?.heroPassedAt)
+    return "NEXT: plan the sections (playbook P23), then build the nav + hero ONLY and run fitcheck_shot({ url, hero: true }). No section before the hero gate passes.";
+  return "NEXT: build the sections in plan order. Then fitcheck_shot (the page gate), fix every blocker, the critic once (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), one confirming round, fitcheck_done.";
 }
-var INTAKE = `INTAKE (do this now, before any research): ask ONE round of up to 4 questions with AskUserQuestion. Make every option specific to this request, never generic.
-1. "What is it / what's it for?" only if unclear: 2-4 concrete readings of the request.
-2. "Who is it for and what should they feel/do?": 3-4 audience+goal options you infer.
-3. "Which feel?": 3-4 OPPOSED pairs turned into options, each a vivid one-liner (e.g. "Loud & playful \u2014 big type, saturated colour, motion" vs "Quiet & precise \u2014 monochrome, grids, restraint" vs "Editorial & crafted" vs "Raw & experimental"). Add "Surprise me (bold)".
-4. "Anything you love or hate?": common answers for this kind of work (e.g. "Love: brutalist sites", "Hate: dark mode", "No preference").
-Skip questions the request already answers. If the user said "just do it"/"decide for me", skip all and state assumptions.
-Then call drip_brief with the answers. Default ambition is BOLD: distinctive and memorable, never the safe default, unless the user asked for plain/conservative.`;
+var INTAKE = `INTAKE (do this now): read the project first, then ask ONE round of up to 4 questions with AskUserQuestion, options specific to this request (never generic), your recommendation first.
+1. MATERIAL (always): what can the page show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Nothing yet: leave labelled slots".
+2. The one action, or who it's for, only if unclear: 2-4 concrete readings.
+3. Feel: 3-4 OPPOSED options, each a vivid one-liner of what the first screen looks like. Add "Surprise me (bold)".
+4. Anything they love or hate (sites, colours, fonts) when it would change the direction.
+Skip what the request already answers. "Just do it" / "decide for me": skip all and state assumptions. Then drip_brief. Default ambition is BOLD unless they asked for plain.`;
 function refPlan(task, surface, mode) {
   const subject = task.toLowerCase().replace(/\b(design|redesign|make|build|create|me|my|our|a|an|the|for|please|new|site|website|web|page|landing|homepage|portfolio|app|screen|logo|for an?)\b/g, " ").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim() || "product";
-  const kind = /portfolio/i.test(task) ? "portfolio website" : surface === "landing" ? "landing page" : surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : mode === "logo" ? "logo" : "website";
   if (mode === "logo")
-    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark" (pages 1-3), refs_tag "${subject.split(" ")[0]} logo", refs_search "${subject} branding" category "branding", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
-  const cat = surface === "app" || surface === "mobile" ? "product-design" : "web-design";
-  return `REFERENCE PLAN (most studied refs must BE ${kind}s, the gate counts them):
-1. refs_search "${kind}" category "${cat}"  \xB7  2. refs_tag "${kind}" pages 1-3  \xB7  3. refs_tag "${surface === "landing" ? "hero section" : kind}"  \xB7  4. refs_search "${subject} ${kind}" category "${cat}"  \xB7  5. refs_designer on 2 designers whose pages are strongest.
-Then ONE or TWO outside-the-category angles for ideas (posters, editorial, the subject's own world), never more than a third of what you study.
-Run searches one after another (they share a rate limit) and refer to shots by their tagged number (L3-7) or id.`;
+    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark", refs_tag "${subject.split(" ")[0]} logo", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
+  if (PERSUADE(surface, mode))
+    return `REFERENCE PLAN (fast, ~2 calls): refs_site with 3-4 SHIPPED sites in this category or a notch above it (${/portfolio/i.test(task) ? "studio, designer and artist portfolios you know are strong" : "the best product and brand sites in this space you know"}), in one call; it measures their h1, h2 and body px. Then refs_study them all in one call. Only if a gap remains (a section type, a motion idea): refs_tag one Dribbble tag, refs_view 1-2, refs_study.`;
+  const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";
+  return `REFERENCE PLAN: refs_site on 1-2 shipped products with a strong ${kind} (real screens, measured), then refs_tag "${kind}" and refs_search "${subject} ${kind}" category "product-design"; refs_view the 2-3 best in one call and refs_study them in one call. Refer to shots by their tagged number (L3-7).`;
 }
-var TALK = `HOW TO TALK TO THE USER (whole task): decisions first; 3-6 short lines per message; show (board link, screenshots, renders) instead of describing; one question at a time with buttons (AskUserQuestion); never paste tool output walls; at milestones say what changed and what's next in one line each.`;
+var TALK = `TALK: decisions first, 3-6 short lines per message; show (board link, screenshots) instead of describing; one question at a time with buttons; never paste tool output.`;
 function register(server2, ctx2) {
   server2.registerTool(
     "drip_start",
     {
       title: "Start a design task",
-      description: "Start a Drip design task (the user ran /drip:design or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. It decides the loop (full for new/redesigned UI, quick for tweaks), lists the guides you must read and returns the first one. While the task is open, the plugin blocks writing UI files until its requirements are met; close it with drip_end.",
+      description: "Start a Drip design task (the user ran /drip:design or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. It decides the loop (full for new/redesigned UI, quick for tweaks) and returns the one guide you need (the playbook for pages) in full, so no extra reads. While the task is open, the plugin blocks writing UI files until its requirements are met; close it with drip_end.",
       inputSchema: {
         task: external_exports.string().describe("What you are designing, in the user's words plus context. e.g. 'portfolio site for Claude', 'logo for a bakery called Crumb', 'polish the pricing cards'"),
         mode: external_exports.enum(["design", "logo", "refs", "board", "polish"]).optional().describe("design = new UI/redesign; logo = logo/wordmark/identity; refs = references only; board = moodboard only; polish = tweak existing UI. Omit to let Drip decide."),
@@ -83029,9 +83040,8 @@ function register(server2, ctx2) {
       const pk = packs || matchPacks(task).map((p2) => p2.id);
       const guides = requiredGuides(s2, sf, task, m, pk);
       const t2 = newTask({ title: task, size: s2, surface: sf, guides, mode: m, packs: pk });
-      const first = s2 === "full" && !["refs", "board"].includes(m) ? "loop" : guides[1] || "rules/hard-rules";
-      const body = readGuide(first);
-      if (body) t2.guidesRead.push(first);
+      const bodies = guides.map((x2) => [x2, readGuide(x2)]).filter(([, b]) => b);
+      for (const [x2] of bodies) t2.guidesRead.push(x2);
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: (/* @__PURE__ */ new Date()).toISOString(), endedBy: "new task" });
         st.task = t2;
@@ -83040,9 +83050,7 @@ function register(server2, ctx2) {
       return text(
         `Drip task started: mode ${m}, ${s2} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.
 ` + (m === "polish" ? `Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode "design".
-` : "") + `
-REQUIRED GUIDES (read each with drip_guide; UI writes are blocked until then):
-${guides.map((x2) => `- ${x2}${x2 === first ? "  (included below)" : ""}`).join("\n")}
+` : "") + `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x2]) => x2).join(", ")}.
 
 ` + (s2 === "full" && config2.gates.requireBrief ? `${INTAKE}
 
@@ -83052,8 +83060,30 @@ ${guides.map((x2) => `- ${x2}${x2 === first ? "  (included below)" : ""}`).join(
 
 ${nextStep(t2, config2)}
 
-` + (body ? `=================== GUIDE: ${first} ===================
-${body}` : "")
+` + bodies.map(([x2, b]) => `=================== GUIDE: ${x2} ===================
+${b}`).join("\n\n")
+      );
+    }
+  );
+  server2.registerTool(
+    "drip_kit",
+    {
+      title: "Copy the base kit into the project",
+      description: `Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: "src/styles/base.css" })`,
+      inputSchema: {
+        out: external_exports.string().optional().describe("Path in the project (default styles/drip-base.css, or src/styles/drip-base.css when src/ exists)"),
+        overwrite: external_exports.boolean().optional()
+      }
+    },
+    async ({ out, overwrite }) => {
+      const root = projectDir();
+      const rel = out || (fs6.existsSync(path6.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css");
+      const dest = path6.resolve(root, rel);
+      if (fs6.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
+      fs6.mkdirSync(path6.dirname(dest), { recursive: true });
+      fs6.copyFileSync(path6.join(kitDir, "base.css"), dest);
+      return text(
+        `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then DESIGN.md and drip_mark system.`
       );
     }
   );
@@ -83090,7 +83120,7 @@ ${body}` : "")
     "drip_guide",
     {
       title: "Read a Drip guide",
-      description: "Returns the full text of a design guide and records that you read it. Read every guide drip_start lists, and the guide of any craft before you do it (e.g. 'color' before picking colours, 'motion' before animating). Topics: loop, brief, refs, moodboard, direction, system, color, type, layout, landing, app, mobile, components, interaction, motion, imagery, productshots, icons, copy, a11y, fitcheck, polish, logo, adapt, readme, rules/ambition, rules/communication, rules/hard-rules, rules/slop-tells, rules/per-surface, rules/licences, examples/portfolio, examples/logo, examples/adapt, examples/lazy-run, pack:<id>. Sub-guides look like 'color/dark-mode'. Pass topic 'index' for the full list.",
+      description: "Returns the full text of a design guide (on demand: drip_start already gave you the one you need). Read a deep guide when a step needs it (e.g. 'motion' before a signature animation, 'landing/pricing', 'productshots'). Topics: playbook, loop, brief, refs, moodboard, direction, system, color, type, layout, landing, app, mobile, components, interaction, motion, imagery, productshots, icons, copy, a11y, fitcheck, polish, logo, adapt, readme, rules/ambition, rules/communication, rules/hard-rules, rules/slop-tells, rules/per-surface, rules/licences, examples/portfolio, examples/logo, examples/adapt, examples/lazy-run, pack:<id>. Sub-guides look like 'color/dark-mode'. Pass topic 'index' for the full list.",
       inputSchema: { topic: external_exports.string().describe("Guide topic, e.g. 'color' or 'color/dark-mode' or 'rules/slop-tells' or 'index'") }
     },
     async ({ topic }) => {
@@ -86512,10 +86542,10 @@ var methods4 = {
 var import_await_to_js = __toESM(require_await_to_js_umd(), 1);
 
 // node_modules/@jimp/file-ops/dist/esm/index.js
-import { promises as fs6 } from "fs";
+import { promises as fs7 } from "fs";
 import { existsSync } from "fs";
-var readFile = fs6.readFile;
-var writeFile = fs6.writeFile;
+var readFile = fs7.readFile;
+var writeFile = fs7.writeFile;
 
 // node_modules/@jimp/core/dist/esm/index.js
 var import_lite = __toESM(require_lite(), 1);
@@ -87122,9 +87152,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path27, options) {
-      const mimeType = import_lite.default.getType(path27);
-      await writeFile(path27, await this.getBuffer(mimeType, options));
+    async write(path29, options) {
+      const mimeType = import_lite.default.getType(path29);
+      await writeFile(path29, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -92017,65 +92047,68 @@ var Jimp = createJimp({
 });
 
 // src/modules/board/store.mjs
-import fs9 from "node:fs";
-import path6 from "node:path";
-var boardsDir = () => ensureDir(path6.join(ensureProjectDrip(), "boards"));
+import fs10 from "node:fs";
+import path7 from "node:path";
+var boardsDir = () => ensureDir(path7.join(ensureProjectDrip(), "boards"));
 function slug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "board";
 }
 function boardFile(id) {
-  return path6.join(boardsDir(), id, "board.json");
+  return path7.join(boardsDir(), id, "board.json");
 }
 function loadBoard(id) {
   try {
-    return JSON.parse(fs9.readFileSync(boardFile(id), "utf8"));
+    return JSON.parse(fs10.readFileSync(boardFile(id), "utf8"));
   } catch {
     return null;
   }
 }
 function saveBoard(board) {
-  ensureDir(path6.dirname(boardFile(board.id)));
+  ensureDir(path7.dirname(boardFile(board.id)));
   board.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
-  fs9.writeFileSync(boardFile(board.id), JSON.stringify(board, null, 2));
+  fs10.writeFileSync(boardFile(board.id), JSON.stringify(board, null, 2));
   return board;
 }
 function createBoard(name, brief) {
   let id = slug(name);
   let n2 = 2;
-  while (fs9.existsSync(path6.join(boardsDir(), id))) id = `${slug(name)}-${n2++}`;
+  while (fs10.existsSync(path7.join(boardsDir(), id))) id = `${slug(name)}-${n2++}`;
   return saveBoard({ id, name, brief, createdAt: (/* @__PURE__ */ new Date()).toISOString(), items: [], directions: [], chosen: null, feedback: [], feedbackReadAt: null });
 }
 function listBoards() {
-  return fs9.readdirSync(boardsDir()).map((id) => loadBoard(id)).filter(Boolean).sort((a2, b) => (b.updatedAt || "").localeCompare(a2.updatedAt || ""));
+  return fs10.readdirSync(boardsDir()).map((id) => loadBoard(id)).filter(Boolean).sort((a2, b) => (b.updatedAt || "").localeCompare(a2.updatedAt || ""));
 }
 function liveItems(board) {
   return board.items.filter((it) => !it.removed);
 }
 
+// src/core/images.mjs
+import fs12 from "node:fs";
+
 // src/core/http.mjs
 import crypto from "node:crypto";
-import fs10 from "node:fs";
-import path7 from "node:path";
-var cacheDir = path7.join(homeDripDir, "cache");
+import fs11 from "node:fs";
+import path8 from "node:path";
+var cacheDir = path8.join(homeDripDir, "cache");
 var lastHit = /* @__PURE__ */ new Map();
 var queues = /* @__PURE__ */ new Map();
 var DAY = 24 * 60 * 60 * 1e3;
 function cacheFile(key, ext) {
   const hash2 = crypto.createHash("sha1").update(key).digest("hex");
-  return path7.join(cacheDir, hash2.slice(0, 2), `${hash2}.${ext}`);
+  return path8.join(cacheDir, hash2.slice(0, 2), `${hash2}.${ext}`);
 }
 function readCache(file4, ttlMs) {
   try {
-    const st = fs10.statSync(file4);
+    const st = fs11.statSync(file4);
     if (Date.now() - st.mtimeMs > ttlMs) return null;
-    return fs10.readFileSync(file4);
+    return fs11.readFileSync(file4);
   } catch {
     return null;
   }
 }
 function writeCache(file4, buf) {
-  ensureDir(path7.dirname(file4));
-  fs10.writeFileSync(file4, buf);
+  ensureDir(path8.dirname(file4));
+  fs11.writeFileSync(file4, buf);
 }
 function throttle(host, delayMs, fn) {
   const prev = queues.get(host) || Promise.resolve();
@@ -92167,6 +92200,7 @@ function textBlock(text2) {
   return { type: "text", text: text2 };
 }
 async function fetchImage(url2, opts = {}) {
+  if (!/^https?:/i.test(url2)) return { buf: fs12.readFileSync(url2.replace(/^file:\/\/\/?/i, "")), mime: /\.png$/i.test(url2) ? "image/png" : "image/jpeg" };
   const { body, contentType } = await get(url2, { as: "buffer", ttlMs: 7 * 24 * 36e5, ...opts });
   const mime2 = contentType.split(";")[0] || "image/jpeg";
   return { buf: body, mime: mime2 };
@@ -92226,19 +92260,19 @@ async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap =
 }
 
 // src/core/seen.mjs
-import fs11 from "node:fs";
-import path8 from "node:path";
-var file2 = () => path8.join(ensureDir(path8.join(ensureProjectDrip(), "cache")), "seen.json");
+import fs13 from "node:fs";
+import path9 from "node:path";
+var file2 = () => path9.join(ensureDir(path9.join(ensureProjectDrip(), "cache")), "seen.json");
 function load() {
   try {
-    const db = JSON.parse(fs11.readFileSync(file2(), "utf8"));
+    const db = JSON.parse(fs13.readFileSync(file2(), "utf8"));
     return { items: {}, last: [], listings: {}, counter: 0, ...db };
   } catch {
     return { items: {}, last: [], listings: {}, counter: 0 };
   }
 }
 function save(db) {
-  fs11.writeFileSync(file2(), JSON.stringify(db));
+  fs13.writeFileSync(file2(), JSON.stringify(db));
 }
 function rememberListing(items, from = null) {
   const db = load();
@@ -92268,11 +92302,350 @@ function resolve(ref, source = "dribbble") {
   }
   const num = s2.match(/^#?(\d{1,3})$/);
   if (num && db.last[+num[1] - 1]) return db.last[+num[1] - 1];
+  if (/^https?:\/\//i.test(s2) || /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$)/i.test(s2)) return siteKey(s2);
   if (s2.includes(":")) return s2;
   return `${source}:${s2.replace(/^#/, "")}`;
 }
+function siteKey(url2) {
+  const u2 = new URL(/^https?:/i.test(url2) ? url2 : `https://${url2}`);
+  return `site:${u2.hostname.replace(/^www\./, "")}${u2.pathname.replace(/\/+$/, "")}`;
+}
 function lookup(key) {
   return load().items[key] || null;
+}
+
+// src/modules/refs/index.mjs
+import fs17 from "node:fs";
+import path13 from "node:path";
+
+// src/core/cdp.mjs
+import { spawn } from "node:child_process";
+import fs15 from "node:fs";
+import os3 from "node:os";
+import path11 from "node:path";
+
+// src/modules/fitcheck/chrome.mjs
+import { execFile } from "node:child_process";
+import fs14 from "node:fs";
+import os2 from "node:os";
+import path10 from "node:path";
+var CANDIDATES = {
+  win32: [
+    "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+    `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
+    "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+    "C:/Program Files/Microsoft/Edge/Application/msedge.exe"
+  ],
+  darwin: [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+  ],
+  linux: ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/usr/bin/microsoft-edge", "/snap/bin/chromium"]
+};
+function findChrome(config2) {
+  const configured = config2?.fitcheck?.chromePath || process.env.DRIP_CHROME;
+  if (configured && fs14.existsSync(configured)) return configured;
+  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs14.existsSync(p2)) || null;
+}
+function browserEnv() {
+  const env = { ...process.env };
+  for (const k of Object.keys(env)) if (k.toUpperCase() === "__COMPAT_LAYER") delete env[k];
+  return env;
+}
+async function screenshot(url2, { width = 1440, height = 900, dark = false, waitMs = 4e3, config: config2 } = {}) {
+  const chrome = findChrome(config2);
+  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
+  const dir = fs14.mkdtempSync(path10.join(os2.tmpdir(), "drip-shot-"));
+  const out = path10.join(dir, "shot.png");
+  const args = [
+    "--headless=new",
+    "--disable-gpu",
+    "--hide-scrollbars",
+    "--no-first-run",
+    "--no-default-browser-check",
+    `--user-data-dir=${path10.join(dir, "profile")}`,
+    `--window-size=${width},${height}`,
+    `--virtual-time-budget=${waitMs}`,
+    ...dark ? ["--force-dark-mode", "--blink-settings=preferredColorScheme=0"] : [],
+    `--screenshot=${out}`,
+    url2
+  ];
+  await new Promise(
+    (resolve2, reject) => execFile(chrome, args, { timeout: waitMs + 3e4, windowsHide: true, env: browserEnv() }, (err) => err && !fs14.existsSync(out) ? reject(err) : resolve2())
+  );
+  let last = -1;
+  for (let i2 = 0; i2 < 40; i2++) {
+    const size = fs14.existsSync(out) ? fs14.statSync(out).size : -1;
+    if (size > 0 && size === last) break;
+    last = size;
+    await new Promise((r2) => setTimeout(r2, 150));
+  }
+  if (!fs14.existsSync(out) || fs14.statSync(out).size === 0) throw new Error("Chrome did not produce a screenshot (is the page reachable?).");
+  const buf = fs14.readFileSync(out);
+  try {
+    fs14.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+  } catch {
+  }
+  return buf;
+}
+
+// src/core/cdp.mjs
+async function launch(config2) {
+  const chrome = findChrome(config2);
+  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
+  const profile = fs15.mkdtempSync(path11.join(os3.tmpdir(), "drip-cdp-"));
+  const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
+    env: browserEnv(),
+    windowsHide: true,
+    stdio: ["ignore", "ignore", "pipe"]
+  });
+  const wsUrl = await new Promise((resolve2, reject) => {
+    let buf = "";
+    const t2 = setTimeout(() => reject(new Error("Browser did not start (no DevTools endpoint).")), 2e4);
+    proc.stderr.on("data", (d) => {
+      buf += d;
+      const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
+      if (m) {
+        clearTimeout(t2);
+        resolve2(m[1]);
+      }
+    });
+    proc.on("exit", () => reject(new Error("Browser exited early.")));
+  });
+  const ws = new WebSocket(wsUrl);
+  await new Promise((r2, j) => {
+    ws.onopen = r2;
+    ws.onerror = () => j(new Error("Couldn't connect to the browser."));
+  });
+  let id = 0;
+  const waiting2 = /* @__PURE__ */ new Map();
+  const listeners = /* @__PURE__ */ new Set();
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(ev.data);
+    if (msg.id && waiting2.has(msg.id)) {
+      const { resolve: resolve2, reject } = waiting2.get(msg.id);
+      waiting2.delete(msg.id);
+      msg.error ? reject(new Error(msg.error.message)) : resolve2(msg.result);
+    } else for (const l2 of listeners) l2(msg);
+  };
+  const send = (method, params = {}, sessionId) => new Promise((resolve2, reject) => {
+    const mid = ++id;
+    waiting2.set(mid, { resolve: resolve2, reject });
+    ws.send(JSON.stringify({ id: mid, method, params, ...sessionId ? { sessionId } : {} }));
+  });
+  const close = async () => {
+    try {
+      await send("Browser.close");
+    } catch {
+    }
+    try {
+      ws.close();
+    } catch {
+    }
+    proc.kill();
+    setTimeout(() => {
+      try {
+        fs15.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      } catch {
+      }
+    }, 500).unref();
+  };
+  return { send, close, listeners };
+}
+var AUDIT = `(() => {
+  const vw = innerWidth, vh = innerHeight;
+  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
+  const textEls = [...document.querySelectorAll('body *')].filter((el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1) && visible(el));
+  const sizes = {}, families = {}, weights = {};
+  let small = 0, words = 0;
+  for (const el of textEls) {
+    const cs = getComputedStyle(el); const s = Math.round(parseFloat(cs.fontSize));
+    const n = [...el.childNodes].filter((x) => x.nodeType === 3).map((x) => x.textContent).join(' ').trim().split(/\\s+/).length;
+    sizes[s] = (sizes[s] || 0) + n; words += n;
+    const fam = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(); families[fam] = (families[fam] || 0) + n;
+    weights[cs.fontWeight] = (weights[cs.fontWeight] || 0) + n;
+    if (s < 14) small += n;
+  }
+  const doc = document.documentElement;
+  const overflowX = doc.scrollWidth > vw + 1;
+  const offenders = overflowX ? [...document.querySelectorAll('body *')].filter((el) => { const r = el.getBoundingClientRect(); return r.right > vw + 1 && r.width > 0 && visible(el); }).slice(0, 6).map((el) => (el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/)[0] : '') + ' ' + Math.round(el.getBoundingClientRect().right) + 'px')) : [];
+  // Empty bands: vertical stretches with no visible text, image or control.
+  const marks = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|SVG|CANVAS|VIDEO|PICTURE|BUTTON|INPUT|TEXTAREA|SELECT|IFRAME)$/i.test(el.tagName) || textEls.includes(el))).map((el) => { const r = el.getBoundingClientRect(); return [r.top + scrollY, r.bottom + scrollY]; }).sort((a, b) => a[0] - b[0]);
+  const gaps = []; let end = 0;
+  for (const [t, b] of marks) { if (t - end > vh * 0.6) gaps.push([Math.round(end), Math.round(t)]); end = Math.max(end, b); }
+  if (doc.scrollHeight - end > vh * 0.6) gaps.push([Math.round(end), doc.scrollHeight]);
+  const media = [...document.querySelectorAll('img, picture, video, canvas, svg')].filter((el) => { const r = el.getBoundingClientRect(); return visible(el) && r.width * r.height > 120 * 120; }).length;
+  const h1 = document.querySelector('h1'); const h1s = h1 ? Math.round(parseFloat(getComputedStyle(h1).fontSize)) : null;
+  const bodyP = [...document.querySelectorAll('p')].filter(visible).map((p) => Math.round(parseFloat(getComputedStyle(p).fontSize)));
+  const medianP = bodyP.length ? bodyP.sort((a, b) => a - b)[Math.floor(bodyP.length / 2)] : null;
+  const h2l = [...document.querySelectorAll('h2')].filter(visible).map((h) => Math.round(parseFloat(getComputedStyle(h).fontSize))).sort((a, b) => a - b);
+  const h2 = h2l.length ? h2l[Math.floor(h2l.length / 2)] : null;
+  // Pictures: media elements, elements with a background image, and anything marked data-visual (a built visual).
+  const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
+  // First viewport (the page is scrolled to the top here).
+  let bigPic = { w: 0, h: 0 };
+  for (const p of pics) { const h = Math.min(p.bottom, vh) - Math.max(p.top, 0); if (h > 0 && p.w * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(p.w), h: Math.round(h) }; }
+  let lowest = 0;
+  for (const [t, b] of marks) if (t < vh) lowest = Math.max(lowest, Math.min(b, vh));
+  for (const p of pics) if (p.top < vh) lowest = Math.max(lowest, Math.min(p.bottom, vh));
+  const actions = [...document.querySelectorAll('a, button, [role=button]')].filter((el) => { if (!visible(el)) return false; const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.top < vh && r.top > 0 && r.height >= 32 && (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(cs.borderTopWidth) > 0); }).length;
+  const hero = { h1w: h1 ? Math.round(h1.getBoundingClientRect().width) : 0, h1Visible: h1 ? h1.getBoundingClientRect().top < vh : false, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
+  // Sections below the first screen, and whether each shows a picture.
+  let secs = [...document.querySelectorAll('section')].filter(visible);
+  if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
+  secs = secs.filter((s) => !secs.some((o) => o !== s && o.contains(s)));
+  const sections = secs.map((s) => { const r = s.getBoundingClientRect(); const top = r.top + scrollY; const head = s.querySelector('h2, h3'); return { top: Math.round(top), h: Math.round(r.height), id: s.id || (head ? head.textContent.trim().slice(0, 30) : s.tagName.toLowerCase()), pic: pics.some((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160) }; }).filter((x) => x.top >= vh * 0.6);
+  // How empty each screen is: share of its height with no text, control or picture.
+  const spans = marks.concat(pics.map((p) => [p.top, p.bottom])).filter(([t, b]) => b - t < vh * 1.5).sort((a, b) => a[0] - b[0]);
+  const screens = [];
+  for (let y = 0; y + vh * 0.5 <= doc.scrollHeight; y += vh) {
+    const end = Math.min(y + vh, doc.scrollHeight); let covered = 0, cur = y;
+    for (const [t, b] of spans) { const s0 = Math.max(t, cur), s1 = Math.min(b, end); if (s1 > s0) { covered += s1 - s0; cur = s1; } }
+    screens.push(+(1 - covered / (end - y)).toFixed(2));
+  }
+  return { width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
+    fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
+    words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
+})()`;
+async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, config: config2 } = {}) {
+  const b = await launch(config2);
+  try {
+    const { targetId } = await b.send("Target.createTarget", { url: "about:blank" });
+    const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
+    const s2 = (m, p2) => b.send(m, p2, sessionId);
+    await s2("Page.enable");
+    await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+    if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
+    const loaded = new Promise((r2) => {
+      const l2 = (msg) => {
+        if (msg.method === "Page.loadEventFired" && msg.sessionId === sessionId) {
+          b.listeners.delete(l2);
+          r2();
+        }
+      };
+      b.listeners.add(l2);
+      setTimeout(r2, 15e3);
+    });
+    await s2("Page.navigate", { url: url2 });
+    await loaded;
+    await new Promise((r2) => setTimeout(r2, 1200));
+    await s2("Runtime.evaluate", { expression: "(async()=>{for(let y=0;y<document.documentElement.scrollHeight;y+=innerHeight){scrollTo(0,y);await new Promise(r=>setTimeout(r,120));}scrollTo(0,0);await new Promise(r=>setTimeout(r,300));})()", awaitPromise: true });
+    const { result } = await s2("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
+    const audit = result.value;
+    const total = Math.min(audit.height, 3e4);
+    const count = Math.max(1, Math.ceil(total / height));
+    const picks = count <= maxSlices ? [...Array(count).keys()] : maxSlices <= 1 ? [0] : [...Array(maxSlices).keys()].map((i2) => Math.round(i2 * (count - 1) / (maxSlices - 1)));
+    const slices = [];
+    for (const i2 of picks) {
+      const y2 = Math.min(i2 * height, Math.max(0, total - height));
+      const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: quality2, captureBeyondViewport: true, clip: { x: 0, y: y2, width, height: Math.min(height, total - y2), scale: 1 } });
+      slices.push({ y: y2, buf: Buffer.from(data, "base64") });
+    }
+    return { audit, slices, sliceCount: count };
+  } finally {
+    await b.close();
+  }
+}
+var displayPx = (vw) => Math.min(144, Math.max(48, 19.2 + 0.075 * vw));
+function judgeAudit(a2, { persuade = true, hero = false } = {}) {
+  const blockers = [];
+  const warnings = [];
+  const desk = a2.width >= 1e3;
+  const phone = a2.width < 600;
+  if (a2.overflowX) blockers.push(`horizontal overflow at ${a2.width}px: page is ${a2.scrollWidth}px wide (${a2.offenders.join(", ") || "unknown element"})`);
+  if (persuade && a2.hero) {
+    const want = Math.round(displayPx(a2.width));
+    if (!a2.h1) blockers.push("no h1: the hero needs its headline as the h1");
+    else if (a2.h1 < want * 0.85) blockers.push(`h1 is ${a2.h1}px; the Display token at ${a2.width}px is ~${want}px (kit/base.css --t-display). Go bigger, fewer words`);
+    if (a2.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
+    if (desk) {
+      const container = Math.min(a2.width - 128, 1312);
+      const picOk = a2.hero.pic.w >= container * 0.45 && a2.hero.pic.h >= (a2.vh || 900) * 0.6;
+      const typeOk = a2.hero.h1w >= container * 0.62;
+      if (!picOk && !typeOk) blockers.push(`hero is small: biggest picture ${a2.hero.pic.w}x${a2.hero.pic.h}px, h1 ${a2.hero.h1w}px wide. Needs a picture >= 6 columns and >= 60% of the screen tall, or an h1 spanning 8+ columns`);
+      if (!a2.hero.actions) warnings.push("no visible action (button or styled link) in the first viewport");
+    }
+    if (a2.hero.emptyBelow > 160) blockers.push(`${a2.hero.emptyBelow}px of nothing at the bottom of the first viewport (max 160). Make the content bigger, never the gap`);
+  }
+  if (hero) return { blockers, warnings };
+  const sizes = a2.fontSizes.filter(([, n2]) => n2 >= 2).length;
+  if (sizes > 7) blockers.push(`${sizes} different text sizes; the kit has 7 roles (kit/base.css). Map every size to a role`);
+  const fams = a2.families.filter(([, n2]) => n2 >= 3);
+  if (fams.length > (persuade ? 2 : 3)) blockers.push(`${fams.length} font families (${fams.map(([f2]) => f2).join(", ")}); one display face + one text face`);
+  if (a2.smallShare > (persuade ? 0.15 : 0.3)) blockers.push(`${Math.round(a2.smallShare * 100)}% of the words are under 14px; nothing but the legal line goes under the Small role (14px)`);
+  else if (a2.smallShare > 0.08) warnings.push(`${Math.round(a2.smallShare * 100)}% of words under 14px`);
+  if (persuade && a2.bodyText && a2.bodyText < (phone ? 16 : 17)) blockers.push(`typical paragraph is ${a2.bodyText}px; Body is ${phone ? 17 : 18}px (min ${phone ? 16 : 17})`);
+  else if (a2.bodyText && a2.bodyText < 14) warnings.push(`typical paragraph size ${a2.bodyText}px`);
+  const monoShare = a2.families.filter(([f2]) => /mono|courier|code/i.test(f2)).reduce((t2, [, n2]) => t2 + n2, 0) / Math.max(1, a2.words);
+  if (persuade && monoShare > 0.1) blockers.push(`${Math.round(monoShare * 100)}% of the text is monospace (max 10%): mono only inside code, measurements or tables, never labels, nav or body`);
+  else if (monoShare > 0.4) warnings.push(`${Math.round(monoShare * 100)}% of the text is monospace`);
+  if (persuade && desk && a2.h2 && a2.h2 < 40) blockers.push(`median h2 is ${a2.h2}px (min 40; the Section role is 56px)`);
+  if (persuade && a2.empty?.length) {
+    const bad = a2.empty.map((e2, i2) => [i2 + 1, e2]).filter(([, e2]) => e2 > 0.5);
+    if (bad.length) blockers.push(`screen(s) ${bad.map(([i2, e2]) => `${i2} (${Math.round(e2 * 100)}% empty)`).join(", ")}: more than half empty. Bigger content or a picture, never padding`);
+    else if (a2.empty.some((e2) => e2 > 0.4)) warnings.push(`some screens are over 40% empty: ${a2.empty.map((e2) => Math.round(e2 * 100) + "%").join(" ")}`);
+  }
+  if (persuade && a2.sections?.length) {
+    const bare = a2.sections.filter((s2) => !s2.pic);
+    const touching = a2.sections.some((s2, i2) => i2 > 0 && !s2.pic && !a2.sections[i2 - 1].pic);
+    if (touching) blockers.push(`two sections without a picture touch (${bare.map((s2) => `"${s2.id}"`).join(", ")}). Every section shows something: the work, the product, a photo, or a built visual marked data-visual`);
+    else if (bare.length) warnings.push(`sections without a picture: ${bare.map((s2) => `"${s2.id}"`).join(", ")}`);
+  }
+  const bigGaps = a2.gaps.filter(([t2, b]) => b - t2 > 900);
+  if (bigGaps.length) warnings.push(`${bigGaps.length} empty stretch(es) taller than a screen: ${bigGaps.map(([t2, b]) => `${t2}-${b}px`).join(", ")}`);
+  if (a2.media === 0) (persuade ? blockers : warnings).push("no images, video or illustration anywhere on the page");
+  return { blockers, warnings };
+}
+function formatAudit(a2, j) {
+  return `${a2.width}px: ${a2.screens} screens tall \xB7 text sizes ${a2.fontSizes.slice(0, 8).map(([s2, n2]) => `${s2}px\xD7${n2}`).join(" ")} \xB7 families ${a2.families.map(([f2, n2]) => `${f2}\xD7${n2}`).join(", ")} \xB7 ${Math.round(a2.smallShare * 100)}% words <14px \xB7 h1 ${a2.h1 ?? "-"}px \xB7 h2 ${a2.h2 ?? "-"}px \xB7 paragraphs ${a2.bodyText ?? "-"}px \xB7 media ${a2.media}` + (a2.hero ? `
+  first viewport: h1 ${a2.hero.h1w}px wide \xB7 biggest picture ${a2.hero.pic.w}x${a2.hero.pic.h}px \xB7 ${a2.hero.emptyBelow}px empty at the bottom \xB7 ${a2.hero.actions} action(s)` : "") + (a2.empty?.length > 1 ? `
+  empty per screen: ${a2.empty.map((e2) => Math.round(e2 * 100) + "%").join(" ")}` : "") + (a2.sections?.length ? ` \xB7 sections with a picture: ${a2.sections.filter((s2) => s2.pic).length}/${a2.sections.length}` : "") + (j.blockers.length ? `
+  BLOCKERS: ${j.blockers.join(" | ")}` : "") + (j.warnings.length ? `
+  warnings: ${j.warnings.join(" | ")}` : "");
+}
+
+// src/core/render.mjs
+import fs16 from "node:fs";
+import os4 from "node:os";
+import path12 from "node:path";
+import { pathToFileURL } from "node:url";
+function rendersDir(sub = "") {
+  return ensureDir(path12.join(ensureProjectDrip(), "renders", sub));
+}
+function stamp() {
+  return (/* @__PURE__ */ new Date()).toISOString().replace(/[-:T]/g, "").slice(0, 14);
+}
+async function renderUrl(url2, file4, { width = 1440, height = 900, dark = false, config: config2 } = {}) {
+  const png2 = await screenshot(url2, { width, height, dark, config: config2 });
+  ensureDir(path12.dirname(file4));
+  fs16.writeFileSync(file4, png2);
+  return png2;
+}
+async function renderHtml(html, file4, { width = 1200, height = 800, config: config2 } = {}) {
+  const dir = fs16.mkdtempSync(path12.join(os4.tmpdir(), "drip-render-"));
+  const page2 = path12.join(dir, "page.html");
+  const doc = /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`;
+  fs16.writeFileSync(page2, doc);
+  try {
+    return await renderUrl(pathToFileURL(page2).href, file4, { width, height, config: config2 });
+  } finally {
+    try {
+      fs16.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+    } catch {
+    }
+  }
+}
+async function renderSvg(svg, file4, { size = 1024, bg = "#ffffff", padding = 0.12, config: config2 } = {}) {
+  const inner = svg.replace(/<\?xml[^>]*>/, "");
+  const pad = Math.round(size * padding);
+  return renderHtml(
+    `<div style="width:${size}px;height:${size}px;background:${bg};display:grid;place-items:center;box-sizing:border-box;padding:${pad}px"><div style="width:100%;height:100%;display:grid;place-items:center">${inner.replace(/<svg/, '<svg style="width:100%;height:100%;display:block"')}</div></div>`,
+    file4,
+    { width: size, height: size, config: config2 }
+  );
 }
 
 // src/modules/refs/dribbble.mjs
@@ -92505,15 +92878,31 @@ function register2(server2, ctx2) {
   server2.registerTool(
     "refs_view",
     {
-      title: "Study a shot full size",
-      description: `Open one shot and study the ORIGINAL: title, designer, tags, palette, the designer's notes, and its images at full width. Long pages (landing pages, full-site shots) are split into readable sections so nothing is a squashed thumbnail. Look at the whole design top to bottom, then refs_study it. Example: refs_view({ shot: "L3-7" }) or refs_view({ shot: "27185355" })`,
+      title: "View the originals of 1-4 shots",
+      description: 'Open the ORIGINALS of 1-4 shots at once (viewing counts as picking): title, designer, tags, palette, notes, and the images at full width; long pages are split into readable top-to-bottom sections. Then refs_study them (several in one call). Example: refs_view({ shots: ["L3-7", "L3-12", "L4-2"] })',
       inputSchema: {
-        shot: external_exports.string().describe("Tagged number from a listing (e.g. 'L3-7'), a bare number for the latest listing, or a shot id"),
-        maxImages: external_exports.number().int().min(1).max(8).optional().describe("How many of its images (default 4)")
+        shots: external_exports.array(external_exports.string()).min(1).max(4).optional().describe("Tagged numbers (e.g. 'L3-7') or shot ids"),
+        shot: external_exports.string().optional().describe("A single shot (same as shots: [shot])"),
+        maxImages: external_exports.number().int().min(1).max(8).optional().describe("Images per shot (default: 4 for one shot, 2 each for several)")
       }
     },
-    safe(async ({ shot: shot2, maxImages = 4 }) => {
+    safe(async ({ shots, shot: shot2, maxImages }) => {
+      const list = shots?.length ? shots : shot2 ? [shot2] : [];
+      if (!list.length) return text('Pass shots: ["L3-7", \u2026] (or shot).', true);
+      const per = maxImages || (list.length === 1 ? 4 : 2);
+      const out = [];
+      for (const one of list) {
+        const r2 = await viewOne(one, per);
+        out.push(textBlock(r2.info), ...r2.imgs);
+      }
+      if (list.length > 1) out.push(textBlock(`NEXT: refs_study all ${list.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, \u2026] }).`));
+      return blocks(out);
+    })
+  );
+  async function viewOne(shot2, maxImages) {
+    {
       const key = resolve(shot2);
+      if (key.startsWith("site:")) return { info: `${shot2}: a shipped site; open it with refs_site (already counts as viewed once it has been).`, imgs: [] };
       const id = key.split(":")[1];
       let s2;
       let degraded = "";
@@ -92529,6 +92918,7 @@ function register2(server2, ctx2) {
       remember({ key, source: "dribbble", id: s2.id, title: s2.title, url: s2.url, image: s2.images[0] || lookup(key)?.image, images: s2.images, designer: s2.designer || lookup(key)?.designer, designerUrl: s2.designerUrl, tags: s2.tags, palette: s2.palette });
       updateState((st) => {
         if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
+        if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
       });
       const imgs = [];
       const fetched = await Promise.all(s2.images.slice(0, maxImages).map((url2) => fetchImage(fullUrl(url2, 1600)).then((r2) => r2.buf).catch(() => null)));
@@ -92556,9 +92946,65 @@ Images: ${s2.images.length} originals (showing ${imgs.length} pictures; tall pag
 ` + (s2.description ? `
 Designer's notes:
 ${s2.description.slice(0, 1500)}
-` : "") + `
-NEXT: study the whole design (every section above), then refs_study("${s2.id}", \u2026) with specific values. refs_zoom only if one small detail needs a closer look. More from this designer: refs_designer("${s2.designerUrl}"). Related: refs_tag on a tag above.${degraded}`;
-      return blocks([textBlock(info), ...imgs]);
+` : "") + `Study the whole design (every section), then refs_study with values. More from this designer: refs_designer("${s2.designerUrl}").${degraded}`;
+      return { info, imgs };
+    }
+  }
+  server2.registerTool(
+    "refs_site",
+    {
+      title: "Study shipped sites",
+      description: 'Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. The best references for a page: what strong studios actually ship, at real scale (Dribbble shots are concepts whose type sizes are fiction). Pick sites in the category and a notch above it. Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: ["https://linear.app", "https://www.figma.com"] })',
+      inputSchema: {
+        urls: external_exports.array(external_exports.string()).min(1).max(4),
+        screens: external_exports.number().int().min(1).max(4).optional().describe("Screens per site from the top (default 2)")
+      }
+    },
+    safe(async ({ urls, screens = 2 }) => {
+      const config2 = ctx2.config();
+      const dir = rendersDir(`sites-${stamp()}`);
+      const results = await Promise.all(
+        urls.map(async (raw) => {
+          const url2 = /^https?:/i.test(raw) ? raw : `https://${raw}`;
+          try {
+            const r2 = await capture(url2, { width: 1440, height: 900, maxSlices: screens, config: config2 });
+            const key = siteKey(url2);
+            const slug2 = key.slice(5).replace(/[^a-z0-9]+/gi, "-");
+            const files = r2.slices.map((sl, i2) => {
+              const f2 = path13.join(dir, `${slug2}-${i2 + 1}.jpg`);
+              fs17.writeFileSync(f2, sl.buf);
+              return f2;
+            });
+            const host = key.slice(5).split("/")[0];
+            remember({ key, source: "site", id: host, title: r2.audit.title || host, url: url2, image: files[0], images: files, designer: host, designerUrl: host, tags: ["website"], from: { category: "web-design" } });
+            updateState((st) => {
+              if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
+              if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
+            });
+            return { ok: true, url: url2, key, audit: r2.audit, slices: r2.slices, total: r2.sliceCount };
+          } catch (err) {
+            return { ok: false, url: url2, err: String(err.message || err) };
+          }
+        })
+      );
+      const out = [];
+      for (const r2 of results) {
+        if (!r2.ok) {
+          out.push(textBlock(`${r2.url}: could not open (${r2.err}).`));
+          continue;
+        }
+        out.push(textBlock(`=== ${r2.audit.title || r2.url} (${r2.key}) \xB7 ${r2.slices.length} of ${r2.total} screens
+${formatAudit(r2.audit, { blockers: [], warnings: [] })}`));
+        for (const sl of r2.slices) out.push(imageBlock(await toJpeg(sl.buf, 1440, 900, 82)));
+      }
+      const ok = results.filter((r2) => r2.ok);
+      if (ok.length)
+        out.push(
+          textBlock(
+            `NEXT: refs_study ${ok.length > 1 ? `all ${ok.length} in one call` : "it"} with the measured numbers (shot = ${ok.map((r2) => `"${r2.url}"`).join(", ")}): the hero's h1 px and column span, the picture's share of the first screen, what each section shows. Note what is bigger and emptier than you would dare.`
+          )
+        );
+      return blocks(out);
     })
   );
   server2.registerTool(
@@ -92657,30 +93103,40 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     "refs_study",
     {
       title: "Record what a reference teaches",
-      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Example: refs_study({ shot: "7", layout: "12-col, headline spans cols 1-9 at ~180px, image bleeds off right edge", type: "condensed grotesk caps, display:body ~10:1, tight -2% tracking", color: "#0E0E0E ground, one acid #D4FF3A accent on CTA only (<3%)", density: "~25 words above fold, 3 sections per screen-height", detail: "nav items numbered 01-04 in mono, aligned to the grid baseline", take: "the 10:1 type ratio and single acid accent", leave: "the stock 3D render" })',
+      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "12-col, headline spans cols 1-9 at ~180px, image bleeds off right edge", type: "condensed grotesk caps, display:body ~10:1", color: "#1B3BFF drenched ground, #F4F1EA ink, the CTA in ink", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, \u2026] })',
       inputSchema: {
-        shot: external_exports.string(),
-        layout: external_exports.string(),
-        type: external_exports.string(),
-        color: external_exports.string(),
-        density: external_exports.string(),
-        detail: external_exports.string().describe("ONE specific move worth stealing"),
-        take: external_exports.string().describe("What this reference lends the design"),
-        leave: external_exports.string().describe("What not to copy / Dribbble fiction"),
-        motion: external_exports.string().optional()
+        studies: external_exports.array(external_exports.object(STUDY_SHAPE)).min(1).max(8).optional(),
+        ...Object.fromEntries(Object.entries(STUDY_SHAPE).map(([k, v]) => [k, v.optional()]))
       }
     },
-    safe(async (n2) => {
+    safe(async (args) => {
+      const list = args.studies?.length ? args.studies : args.shot ? [args] : [];
+      if (!list.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave }, \u2026].", true);
+      const lines = [];
+      let bad = 0;
+      for (const n2 of list) {
+        const r2 = await studyOne(n2);
+        if (!r2.ok) bad++;
+        lines.push(`${r2.ok ? "\u2713" : "\u2717"} ${r2.msg}`);
+      }
+      const t2 = loadState().task;
+      const count = t2 ? `
+${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.designer)).size} designers (${t2.refs.studied.filter((x2) => x2.onSurface).length} real examples of the surface).` : "";
+      return text(lines.join("\n") + count, bad === list.length);
+    })
+  );
+  async function studyOne(n2) {
+    {
       const key = resolve(n2.shot);
       const item = lookup(key);
-      if (!item) return text("Unknown shot. Use a number from the last listing or an id.", true);
+      if (!item) return { ok: false, msg: `${n2.shot}: unknown shot. Use a tagged number (L3-7) or an id.` };
       const st0 = loadState();
-      if (st0.task && !st0.task.refs.viewed.includes(key)) return text(`Look at it first: refs_view("${n2.shot}") (and refs_zoom on its key detail). Studying from a thumbnail doesn't count.`, true);
+      if (st0.task && !st0.task.refs.viewed.includes(key)) return { ok: false, msg: `${n2.shot}: look at it first with refs_view. Studying from a thumbnail doesn't count.` };
       const fields = ["layout", "type", "color", "density", "detail", "take", "leave"];
       const weak = fields.filter((f2) => !n2[f2] || n2[f2].trim().length < 12 || VAGUE.test(n2[f2].trim()));
       const concrete = fields.filter((f2) => CONCRETE.test(n2[f2] || "")).length;
       if (weak.length || concrete < 3)
-        return text(`Too vague to count. ${weak.length ? `Rewrite: ${weak.join(", ")}. ` : ""}${concrete < 3 ? "Give at least 3 fields concrete values (sizes, ratios, hex, counts, named type classes). " : ""}Look again with refs_zoom if needed.`, true);
+        return { ok: false, msg: `${n2.shot}: too vague. ${weak.length ? `Rewrite: ${weak.join(", ")}. ` : ""}${concrete < 3 ? "Give at least 3 fields concrete values (sizes, ratios, hex, counts, named type classes)." : ""}` };
       const note = `${n2.take} \xB7 layout: ${n2.layout} \xB7 type: ${n2.type} \xB7 colour: ${n2.color} \xB7 density: ${n2.density} \xB7 detail: ${n2.detail} \xB7 leave: ${n2.leave}`;
       remember({ ...item, study: { ...n2, at: (/* @__PURE__ */ new Date()).toISOString() } });
       const st = updateState((s2) => {
@@ -92700,131 +93156,29 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
           boardNote = `Added to board "${board.name}".`;
         }
       }
-      const t2 = st.task;
-      const count = t2 ? `${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.designer)).size} designers.` : "";
-      return text(`Studied: ${item.title} \u2014 ${item.designer}. ${boardNote} ${count}`);
-    })
-  );
+      return { ok: true, msg: `${item.title} \u2014 ${item.designer}. ${boardNote}` };
+    }
+  }
 }
+var STUDY_SHAPE = {
+  shot: external_exports.string(),
+  layout: external_exports.string(),
+  type: external_exports.string(),
+  color: external_exports.string(),
+  density: external_exports.string(),
+  detail: external_exports.string().describe("ONE specific move worth stealing"),
+  take: external_exports.string().describe("What this reference lends the design"),
+  leave: external_exports.string().describe("What not to copy / Dribbble fiction"),
+  motion: external_exports.string().optional()
+};
 
 // src/modules/board/index.mjs
 var board_exports = {};
 __export(board_exports, {
   register: () => register3
 });
-import fs15 from "node:fs";
-import path11 from "node:path";
-
-// src/core/render.mjs
-import fs13 from "node:fs";
-import os3 from "node:os";
-import path10 from "node:path";
-import { pathToFileURL } from "node:url";
-
-// src/modules/fitcheck/chrome.mjs
-import { execFile } from "node:child_process";
-import fs12 from "node:fs";
-import os2 from "node:os";
-import path9 from "node:path";
-var CANDIDATES = {
-  win32: [
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-    "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
-    `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
-    "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-    "C:/Program Files/Microsoft/Edge/Application/msedge.exe"
-  ],
-  darwin: [
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
-  ],
-  linux: ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/usr/bin/microsoft-edge", "/snap/bin/chromium"]
-};
-function findChrome(config2) {
-  const configured = config2?.fitcheck?.chromePath || process.env.DRIP_CHROME;
-  if (configured && fs12.existsSync(configured)) return configured;
-  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs12.existsSync(p2)) || null;
-}
-function browserEnv() {
-  const env = { ...process.env };
-  for (const k of Object.keys(env)) if (k.toUpperCase() === "__COMPAT_LAYER") delete env[k];
-  return env;
-}
-async function screenshot(url2, { width = 1440, height = 900, dark = false, waitMs = 4e3, config: config2 } = {}) {
-  const chrome = findChrome(config2);
-  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
-  const dir = fs12.mkdtempSync(path9.join(os2.tmpdir(), "drip-shot-"));
-  const out = path9.join(dir, "shot.png");
-  const args = [
-    "--headless=new",
-    "--disable-gpu",
-    "--hide-scrollbars",
-    "--no-first-run",
-    "--no-default-browser-check",
-    `--user-data-dir=${path9.join(dir, "profile")}`,
-    `--window-size=${width},${height}`,
-    `--virtual-time-budget=${waitMs}`,
-    ...dark ? ["--force-dark-mode", "--blink-settings=preferredColorScheme=0"] : [],
-    `--screenshot=${out}`,
-    url2
-  ];
-  await new Promise(
-    (resolve2, reject) => execFile(chrome, args, { timeout: waitMs + 3e4, windowsHide: true, env: browserEnv() }, (err) => err && !fs12.existsSync(out) ? reject(err) : resolve2())
-  );
-  let last = -1;
-  for (let i2 = 0; i2 < 40; i2++) {
-    const size = fs12.existsSync(out) ? fs12.statSync(out).size : -1;
-    if (size > 0 && size === last) break;
-    last = size;
-    await new Promise((r2) => setTimeout(r2, 150));
-  }
-  if (!fs12.existsSync(out) || fs12.statSync(out).size === 0) throw new Error("Chrome did not produce a screenshot (is the page reachable?).");
-  const buf = fs12.readFileSync(out);
-  try {
-    fs12.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
-  } catch {
-  }
-  return buf;
-}
-
-// src/core/render.mjs
-function rendersDir(sub = "") {
-  return ensureDir(path10.join(ensureProjectDrip(), "renders", sub));
-}
-function stamp() {
-  return (/* @__PURE__ */ new Date()).toISOString().replace(/[-:T]/g, "").slice(0, 14);
-}
-async function renderUrl(url2, file4, { width = 1440, height = 900, dark = false, config: config2 } = {}) {
-  const png2 = await screenshot(url2, { width, height, dark, config: config2 });
-  ensureDir(path10.dirname(file4));
-  fs13.writeFileSync(file4, png2);
-  return png2;
-}
-async function renderHtml(html, file4, { width = 1200, height = 800, config: config2 } = {}) {
-  const dir = fs13.mkdtempSync(path10.join(os3.tmpdir(), "drip-render-"));
-  const page2 = path10.join(dir, "page.html");
-  const doc = /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`;
-  fs13.writeFileSync(page2, doc);
-  try {
-    return await renderUrl(pathToFileURL(page2).href, file4, { width, height, config: config2 });
-  } finally {
-    try {
-      fs13.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
-    } catch {
-    }
-  }
-}
-async function renderSvg(svg, file4, { size = 1024, bg = "#ffffff", padding = 0.12, config: config2 } = {}) {
-  const inner = svg.replace(/<\?xml[^>]*>/, "");
-  const pad = Math.round(size * padding);
-  return renderHtml(
-    `<div style="width:${size}px;height:${size}px;background:${bg};display:grid;place-items:center;box-sizing:border-box;padding:${pad}px"><div style="width:100%;height:100%;display:grid;place-items:center">${inner.replace(/<svg/, '<svg style="width:100%;height:100%;display:block"')}</div></div>`,
-    file4,
-    { width: size, height: size, config: config2 }
-  );
-}
+import fs19 from "node:fs";
+import path14 from "node:path";
 
 // src/modules/assets/color.mjs
 var clamp = (x2, a2 = 0, b = 1) => Math.min(b, Math.max(a2, x2));
@@ -92916,57 +93270,56 @@ function roles(palette2) {
   const onAccent = contrast("#FFFFFF", accent) >= contrast("#111111", accent) ? "#FFFFFF" : "#111111";
   return { ground, ink, accent, support: rest[0] || accent, onAccent, all: p2 };
 }
+var COMP = { width: 1440, height: 1e3 };
 function tileHtml(direction, { brand, headline, body, cta }) {
   const f2 = fonts(direction.type);
   const r2 = roles(direction.palette || []);
-  const gf2 = (fam) => `family=${encodeURIComponent(fam).replace(/%20/g, "+")}:wght@400;500;600;700;800`;
+  const layout = direction.layout || "split";
+  const gf2 = (fam) => `family=${encodeURIComponent(fam).replace(/%20/g, "+")}:wght@300;400;500;700;800`;
+  const picture = direction.picture || "the subject's strongest real thing";
+  const pic = `<figure class="pic"><span>Picture: ${esc2(picture)}</span></figure>`;
   return `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?${gf2(f2.display)}&${gf2(f2.text)}&display=block">
 <style>
 *{box-sizing:border-box}html,body{margin:0}
-body{width:1200px;height:760px;background:${r2.ground};color:${r2.ink};font-family:'${f2.text}',system-ui,sans-serif;display:grid;grid-template-columns:1fr 330px;overflow:hidden}
-main{padding:36px 48px;display:flex;flex-direction:column;gap:28px}
-nav{display:flex;align-items:center;justify-content:space-between;font-size:15px}
-nav b{font-family:'${f2.display}';font-size:22px;letter-spacing:-.01em}
-nav span{opacity:.75;margin-left:22px}
-h1{font-family:'${f2.display}';font-weight:700;font-size:68px;line-height:1.02;letter-spacing:-.025em;margin:18px 0 0;max-width:14ch}
-p{font-size:18px;line-height:1.55;max-width:46ch;margin:0;opacity:.82}
-.row{display:flex;gap:12px;align-items:center}
-.btn{padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px}
-.primary{background:${r2.accent};color:${r2.onAccent}}
-.ghost{border:1.5px solid ${r2.ink};color:${r2.ink}}
-.card{margin-top:auto;border:1px solid color-mix(in srgb, ${r2.ink} 18%, transparent);border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:center;max-width:520px}
-.card i{width:44px;height:44px;border-radius:10px;background:${r2.support};flex:none}
-.card small{opacity:.65;display:block;margin-top:2px}
-aside{background:color-mix(in srgb, ${r2.ink} 6%, ${r2.ground});padding:36px 28px;display:flex;flex-direction:column;gap:22px;border-left:1px solid color-mix(in srgb, ${r2.ink} 12%, transparent)}
-aside h2{font:600 13px/1 '${f2.text}';letter-spacing:.06em;text-transform:uppercase;opacity:.6;margin:0}
-.name{font-family:'${f2.display}';font-size:34px;font-weight:700;line-height:1.05;margin:0}
-.sw{display:grid;grid-template-columns:repeat(${Math.min(Math.max(r2.all.length, 3), 6)},1fr);gap:6px}
-.sw div{height:58px;border-radius:8px;border:1px solid color-mix(in srgb, ${r2.ink} 12%, transparent)}
-.sw span{display:block;font:500 10px/1.3 ui-monospace,monospace;opacity:.7;margin-top:4px}
-.spec{font-family:'${f2.display}';font-size:64px;line-height:1}
-.spec small{display:block;font:400 13px/1.4 '${f2.text}';opacity:.7;margin-top:6px}
-.adj{display:flex;flex-wrap:wrap;gap:6px}.adj span{border:1px solid color-mix(in srgb, ${r2.ink} 25%, transparent);border-radius:99px;padding:4px 10px;font-size:13px}
-</style></head><body>
-<main>
-  <nav><b>${esc2(brand)}</b><div><span>Work</span><span>About</span><span>Contact</span></div></nav>
-  <div><h1>${esc2(headline)}</h1></div>
-  <p>${esc2(body)}</p>
-  <div class="row"><span class="btn primary">${esc2(cta)}</span><span class="btn ghost">How it's made</span></div>
-  <div class="card"><i></i><div><b>${esc2(direction.name)}</b><small>${esc2(direction.summary).slice(0, 90)}</small></div></div>
-</main>
-<aside>
-  <h2>Direction</h2><p class="name">${esc2(direction.name)}</p>
-  <div class="adj">${(direction.adjectives || []).map((a2) => `<span>${esc2(a2)}</span>`).join("")}</div>
-  <h2>Palette</h2><div class="sw">${r2.all.slice(0, 6).map((c3) => `<div style="background:${c3}"></div>`).join("")}</div>
-  <div class="sw" style="margin-top:-18px">${r2.all.slice(0, 6).map((c3) => `<span>${c3}</span>`).join("")}</div>
-  <h2>Type</h2><div class="spec">Aa<small>${esc2(f2.display)} / ${esc2(f2.text)}</small></div>
-</aside>
+body{width:1440px;height:1000px;background:${r2.ground};color:${r2.ink};font-family:'${f2.text}',system-ui,sans-serif;overflow:hidden}
+.vp{height:900px;display:flex;flex-direction:column;padding:0 64px}
+nav{height:88px;display:flex;align-items:center;justify-content:space-between;font-size:16px}
+nav b{font-family:'${f2.display}';font-size:22px;font-weight:700}
+nav span{margin-left:32px}
+.act{background:${r2.accent};color:${r2.onAccent};padding:14px 24px;border-radius:999px;font-weight:600;font-size:17px;display:inline-block}
+.hero{flex:1;display:grid;gap:32px;padding-bottom:48px;align-items:end}
+.split .hero{grid-template-columns:repeat(12,1fr)}
+.split .copy{grid-column:1/7;align-self:end}
+.split .pic{grid-column:7/13;height:100%;min-height:600px}
+.bleed .vp{position:relative}
+.bleed .pic{position:absolute;inset:0;z-index:0;border-radius:0}
+.bleed .copy{position:relative;z-index:1}
+.type .pic{height:200px}
+h1{font-family:'${f2.display}';font-size:127px;line-height:.98;letter-spacing:-.035em;font-weight:${direction.weight || 700};margin:0 0 28px;max-width:${layout === "split" ? "8ch" : "11ch"};text-wrap:balance}
+.split h1{font-size:104px}
+p{font-size:21px;line-height:1.45;max-width:36ch;margin:0 0 32px}
+.pic{margin:0;border-radius:${direction.radius ?? 8}px;background:linear-gradient(135deg, ${r2.support}, color-mix(in srgb, ${r2.support} 55%, ${r2.ground}));display:flex;align-items:flex-end;padding:20px}
+.pic span{font-size:15px;background:${r2.ground};color:${r2.ink};padding:6px 10px;border-radius:4px;max-width:44ch}
+.spec{height:100px;display:flex;align-items:center;gap:28px;padding:0 64px;background:${r2.ink};color:${r2.ground};font-size:15px}
+.spec b{font-family:'${f2.display}';font-size:28px;font-weight:700;margin-right:12px}
+.sw{display:flex;gap:6px}.sw i{width:36px;height:36px;border-radius:6px;border:1px solid color-mix(in srgb, ${r2.ground} 30%, transparent)}
+</style></head><body class="${esc2(layout)}">
+<div class="vp">
+  ${layout === "bleed" ? pic : ""}
+  <nav style="position:relative;z-index:1"><b>${esc2(brand)}</b><div><span>Work</span><span>About</span><span>Contact</span></div></nav>
+  <div class="hero">
+    <div class="copy"><h1>${esc2(headline)}</h1><p>${esc2(body)}</p><span class="act">${esc2(cta)}</span></div>
+    ${layout === "split" ? pic : ""}
+  </div>
+  ${layout === "type" ? pic : ""}
+</div>
+<div class="spec"><b>${esc2(direction.name)}</b><div class="sw">${r2.all.slice(0, 6).map((c3) => `<i style="background:${c3}"></i>`).join("")}</div><span>${esc2(f2.display)} / ${esc2(f2.text)}</span><span>${esc2((direction.adjectives || []).join(" \xB7 "))}</span></div>
 </body></html>`;
 }
 
 // src/modules/board/render.mjs
-import fs14 from "node:fs";
+import fs18 from "node:fs";
 var esc3 = (s2) => String(s2 ?? "").replace(/[&<>"']/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c3]);
 async function imageSrc(item, inline) {
   if (!item.image) return null;
@@ -93009,7 +93362,7 @@ async function renderBoard(board, { mode = "live", inline = false } = {}) {
       ${d.type ? `<span class="type">${esc3(d.type)}</span>` : ""}
     </div>
   </header>
-  ${d.tile && fs14.existsSync(d.tile) ? `<img class="tile" alt="Style tile for ${esc3(d.name)}" src="data:image/png;base64,${fs14.readFileSync(d.tile).toString("base64")}">` : ""}
+  ${d.tile && fs18.existsSync(d.tile) ? `<img class="tile" alt="Style tile for ${esc3(d.name)}" src="data:image/png;base64,${fs18.readFileSync(d.tile).toString("base64")}">` : ""}
   ${d.critic ? `<p class="critic"><b>Critic:</b> ${esc3(d.critic)}</p>` : ""}
   <div class="grid">${cards.join("")}</div>
 </section>`);
@@ -93136,7 +93489,7 @@ function directionsGate(board, config2) {
   if (!task || task.skipped || !config2.gates.enforce || !config2.gates.requireCritic || !board.directions.length) return null;
   const rec = lastCritique(task, "directions");
   if (!rec || board.directionsAt && rec.at < board.directionsAt)
-    return `The critic hasn't ranked these directions yet. Run board_tile, then critic_prepare({ kind: "directions" }), launch the drip:critic subagent with the prompt it returns, and critic_record its verdict.`;
+    return `The critic hasn't ranked these directions yet. Render the comps (board_directions does), then critic_prepare({ kind: "directions" }), launch the drip:critic subagent with the prompt it returns, and critic_record its verdict.`;
   if (rec.verdict === "reject")
     return `The critic rejected this set ("${rec.summary}"). Rework the weak directions (or replace them with bolder ones), board_directions again, re-render tiles and get a new ranking.`;
   return null;
@@ -93151,7 +93504,7 @@ function register3(server2, ctx2) {
     "board_create",
     {
       title: "Create a moodboard",
-      description: "Start the moodboard for the current task. Every reference you studied with refs_study is added automatically (and later studies too). Then add colours/fonts/images with board_add, form directions (board_directions), render style tiles (board_tile), get the critic's ranking, board_open, board_choose.",
+      description: "Start the moodboard for the current task. Every reference you studied with refs_study is added automatically (and later studies too). Then add colours/fonts/images with board_add, form directions (board_directions), which renders each as a first-viewport comp, get the critic's ranking, board_open, board_choose.",
       inputSchema: { name: external_exports.string().describe("Short name, e.g. 'Claude portfolio'"), brief: external_exports.string().optional().describe("Defaults to the recorded brief") }
     },
     safe(async ({ name, brief }) => {
@@ -93169,54 +93522,59 @@ function register3(server2, ctx2) {
       saveBoard(board);
       syncTask(board);
       return text(`Board "${board.name}" created with ${imported} studied references.
-NEXT: add 3-6 colours and 2-4 fonts from what you studied (board_add), then board_directions (2-3 genuinely different, at least one daring).`);
+NEXT: board_directions: 2 directions that differ in idea, each with a thesis (manifesto), palette in role order, two faces, a real headline, a concrete picture and a layout. It renders their first-viewport comps. (board_add colours or fonts only if the board needs them to explain a direction.)`);
     })
   );
   server2.registerTool(
     "board_tile",
     {
-      title: "Render style tiles for the directions",
-      description: "Renders one style tile per direction: its palette, type pairing, a nav, a headline, body copy, buttons and a card, so the user (and the critic) sees each direction APPLIED, not just references. Run after board_directions; tiles are saved as files (for the critic) and shown on the board. Optional per-direction headline/sample copy makes them real.",
+      title: "Re-render the direction comps",
+      description: "Re-renders each direction's first-viewport comp (1440x900 at real sizes: the h1 at the Display token, the picture slot at its real size, plus a spec strip). board_directions already renders them; use this to change the copy or to pass your own comp HTML per direction when the template can't show the idea.",
       inputSchema: {
         board: external_exports.string().optional(),
         copy: external_exports.object({ brand: external_exports.string().optional(), headline: external_exports.string().optional(), body: external_exports.string().optional(), cta: external_exports.string().optional() }).optional().describe("Real copy for the tiles (defaults from the brief)"),
-        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string().describe("A full HTML document or fragment for this direction's tile (fonts via Google Fonts links)") })).optional().describe("Your own tile per direction when the template can't show the idea (e.g. a draggable paper stack). Rendered at the same 1200x760 so options stay at equal fidelity.")
+        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string().describe("A full HTML document or fragment for this direction's tile (fonts via Google Fonts links)") })).optional().describe("Your own comp per direction when the template can't show the idea. Rendered at 1440x1000 (900 viewport + 100 spec strip) so options stay at equal fidelity.")
       }
     },
     safe(async ({ board: bid, copy = {}, custom: custom2 = [] }) => {
       const board = activeBoard(bid);
       if (!board.directions.length) return text("No directions yet: board_directions first.", true);
+      return blocks(await renderTiles(board, copy, custom2));
+    })
+  );
+  async function renderTiles(board, copy = {}, custom2 = []) {
+    {
       const brief = loadState().task?.brief;
-      const dir = path11.join(path11.dirname(boardFile(board.id)), "tiles");
-      fs15.mkdirSync(dir, { recursive: true });
+      const dir = path14.join(path14.dirname(boardFile(board.id)), "tiles");
+      fs19.mkdirSync(dir, { recursive: true });
       const content = [];
       const files = [];
       for (const d of board.directions) {
-        const file4 = path11.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
+        const file4 = path14.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
         const own2 = custom2.find((c3) => c3.direction.toLowerCase() === d.name.toLowerCase());
         const png2 = await renderHtml(
           own2 ? own2.html : tileHtml(d, {
             brand: copy.brand || board.name,
-            headline: copy.headline || d.summary,
+            headline: copy.headline || d.headline || d.summary,
             body: copy.body || (brief ? `${brief.job[0].toUpperCase()}${brief.job.slice(1)}. Made for ${brief.audience}.` : d.adjectives.join(" \xB7 ")),
             cta: copy.cta || "See the work"
           }),
           file4,
-          { width: 1200, height: 760, config: ctx2.config() }
+          { width: COMP.width, height: COMP.height, config: ctx2.config() }
         );
         d.tile = file4;
         files.push(file4);
-        content.push(textBlock(`Tile: ${d.name} \u2014 ${d.adjectives.join(", ")} \xB7 ${d.type}`), imageBlock(await toJpeg(png2, 1200, 760)));
+        content.push(textBlock(`Comp: ${d.name} \u2014 ${d.adjectives.join(", ")} \xB7 ${d.type}`), imageBlock(await toJpeg(png2, 1200, 840)));
       }
       board.tilesAt = (/* @__PURE__ */ new Date()).toISOString();
       saveBoard(board);
-      content.unshift(textBlock(`Rendered ${files.length} style tiles:
+      content.unshift(textBlock(`Rendered ${files.length} first-viewport comps:
 ${files.join("\n")}
 
-NEXT: have the critic rank the directions: critic_prepare({ kind: "directions" }) -> Agent drip:critic -> critic_record. Rework or replace anything it rejects before board_open.`));
-      return blocks(content);
-    })
-  );
+Look first: could a comp be any brand's hero? Is the picture the subject's real thing? Then the critic ranks them: critic_prepare({ kind: "directions" }) -> Agent drip:critic -> critic_record. Rework anything it rejects before board_open.`));
+      return content;
+    }
+  }
   server2.registerTool(
     "board_add",
     {
@@ -93279,25 +93637,30 @@ NEXT: keep collecting (${n2}/${min} before directions).` : "\nNEXT: group the bo
     "board_directions",
     {
       title: "Group the board into directions",
-      description: "Cluster the board into 2-3 distinct design directions. Each: a memorable name, a one-line summary, 3 adjectives, a palette (hex), a type pairing, and the item numbers/keys that define it. Directions must be genuinely different (not the same look in two colours). Replaces previous directions.",
+      description: "Deal 2 (3 only when the brief truly forks) directions that differ in IDEA, each with its thesis, palette in role order (ground, ink, accent, support), two faces, and the hero it implies. Renders each as a first-viewport comp at 1440x900 with the real headline, sentence and action (playbook P8-P16). Replaces previous directions.",
       inputSchema: {
         directions: external_exports.array(
           external_exports.object({
             name: external_exports.string(),
             summary: external_exports.string(),
             adjectives: external_exports.array(external_exports.string()).min(2).max(4),
-            palette: external_exports.array(external_exports.string()).min(2).max(8).describe("Hex colours"),
-            type: external_exports.string().describe("Type pairing, e.g. 'Instrument Serif + Inter'"),
-            manifesto: external_exports.string().optional().describe("3 sentences: the idea, what it refuses, why it beats the safe option"),
-            pairing: external_exports.string().optional().describe("For the daring option: the unexpected genre it borrows from (e.g. 'exhibition posters')"),
+            palette: external_exports.array(external_exports.string()).min(2).max(8).describe("Hex colours in role order: ground, ink, accent, support\u2026"),
+            type: external_exports.string().describe("Display face + text face, e.g. 'Fraunces + S\xF6hne'. Never mono as a voice"),
+            manifesto: external_exports.string().optional().describe("The thesis: the idea this page owns and the category default it refuses, plus the physical scene (who, where, what light)"),
+            pairing: external_exports.string().optional().describe("What it borrows ambition or discipline from (a working web world), never a poster's clothes"),
+            headline: external_exports.string().optional().describe("The real headline for this direction's comp (8 words or fewer)"),
+            picture: external_exports.string().optional().describe("What the first screen shows, concretely: 'the six works as a full-bleed grid', 'the app's timeline view at 1:1'"),
+            layout: external_exports.enum(["split", "bleed", "type"]).optional().describe("split: copy 6 cols + picture 6 cols, full height; bleed: picture behind everything; type: the h1 spans the width, picture below"),
             items: external_exports.array(external_exports.string()).min(1).describe("Board item numbers (as shown on the board, '3') or keys")
           })
         ).min(2).max(4),
         criteria: external_exports.array(external_exports.string()).optional().describe("3-5 choice criteria from the brief, written BEFORE the tiles (thresholds or trade-offs)"),
+        copy: external_exports.object({ brand: external_exports.string().optional(), headline: external_exports.string().optional(), body: external_exports.string().optional(), cta: external_exports.string().optional() }).optional().describe("Real copy for the comps: brand, the sentence (body), the action (cta)"),
+        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string() })).optional().describe("Your own comp HTML per direction (rendered at 1440x1000)"),
         board: external_exports.string().optional()
       }
     },
-    safe(async ({ directions, criteria, board: bid }) => {
+    safe(async ({ directions, criteria, board: bid, copy, custom: custom2 }) => {
       const board = activeBoard(bid);
       const live = liveItems(board);
       const min = ctx2.config().gates.minBoardItems;
@@ -93309,8 +93672,9 @@ NEXT: keep collecting (${n2}/${min} before directions).` : "\nNEXT: group the bo
       board.directionsAt = (/* @__PURE__ */ new Date()).toISOString();
       saveBoard(board);
       syncTask(board);
-      return text(`${board.directions.length} directions saved: ${board.directions.map((d) => `"${d.name}" (${d.items.length} items)`).join(", ")}.
-NEXT: board_tile to render a style tile per direction, then the critic ranks them (critic_prepare kind "directions").`);
+      const tiles = await renderTiles(board, copy || {}, custom2 || []).catch((e2) => [textBlock(`(Tiles not rendered: ${e2.message}. Run board_tile.)`)]);
+      syncTask(board);
+      return blocks([textBlock(`${board.directions.length} directions saved: ${board.directions.map((d) => `"${d.name}" (${d.items.length} items)`).join(", ")}.`), ...tiles]);
     })
   );
   server2.registerTool(
@@ -93326,11 +93690,11 @@ NEXT: board_tile to render a style tile per direction, then the critic ranks the
       if (gate) return text(gate, true);
       const port2 = await ensureServer(ctx2.config().board.port);
       const url2 = `http://localhost:${port2}/b/${board.id}`;
-      const dir = path11.dirname(boardFile(board.id));
+      const dir = path14.dirname(boardFile(board.id));
       let file4 = null;
       if (stat) {
-        file4 = path11.join(dir, "board.html");
-        fs15.writeFileSync(file4, await renderBoard(board, { mode: "static", inline: true }));
+        file4 = path14.join(dir, "board.html");
+        fs19.writeFileSync(file4, await renderBoard(board, { mode: "static", inline: true }));
       }
       const content = [
         textBlock(
@@ -93400,16 +93764,14 @@ ${lines.join("\n")}`
       board.chosenReason = reason;
       saveBoard(board);
       syncTask(board);
-      const craft = loadState().task?.mode === "logo" ? ["type", "color"] : ["system", "type", "color", "layout", "copy"];
-      const st = updateState((s2) => {
-        if (s2.task) s2.task.requiredGuides = [.../* @__PURE__ */ new Set([...s2.task.requiredGuides, ...craft])];
-      });
-      const unread = (st.task?.requiredGuides || []).filter((g) => !st.task.guidesRead.includes(g));
+      const task = loadState().task;
+      const pb = readGuide("playbook") || "";
+      const buildHalf = task?.mode === "logo" ? "" : pb.slice(Math.max(0, pb.indexOf("## System")), pb.indexOf("## Talk") > 0 ? pb.indexOf("## Talk") : void 0);
       return text(
         `Direction locked: "${d.name}" \u2014 ${d.summary}
 Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7 Type: ${d.type}
 
-NEXT: read the craft guides now required before any UI file can be written: ${unread.map((g) => `drip_guide ${g}`).join(", ")}. Then choose the type for real (fonts_pair with the direction's adjectives, fonts_preview with the real headline; never a font because an example used it), write DESIGN.md + tokens (palette_generate / palette_check): a type scale of 4-6 sizes, body text 17-20px on marketing pages, no reading text under 14px, mono only for code or tiny labels. Then drip_mark system.`
+` + (task?.mode === "logo" ? "NEXT: refine the chosen concept in black first, then logo_test, then the critic." : "NEXT: drip_kit, then fill in the faces (fonts_pair / fonts_preview with the real headline) and colour roles (palette_check), write DESIGN.md, drip_mark system. Then plan the sections and build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook, again, because these numbers are the job:\n\n" + buildHalf)
       );
     })
   );
@@ -93429,20 +93791,20 @@ __export(components_exports, {
   loadCatalogue: () => loadCatalogue,
   register: () => register4
 });
-import fs16 from "node:fs";
-import path12 from "node:path";
+import fs20 from "node:fs";
+import path15 from "node:path";
 var WEEK = 7 * 24 * 36e5;
 var DIRECTORY = "https://ui.shadcn.com/r/registries.json";
 function loadCatalogue() {
   const read2 = (f2) => {
     try {
-      return JSON.parse(fs16.readFileSync(f2, "utf8"));
+      return JSON.parse(fs20.readFileSync(f2, "utf8"));
     } catch {
       return {};
     }
   };
-  const base = read2(path12.join(dataDir, "catalogue.json"));
-  const extra = read2(path12.join(projectDripDir(), "catalogue.json"));
+  const base = read2(path15.join(dataDir, "catalogue.json"));
+  const extra = read2(path15.join(projectDripDir(), "catalogue.json"));
   return { ...base, entries: [...base.entries || [], ...extra.entries || []] };
 }
 var words = (s2) => (s2 || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
@@ -93564,14 +93926,14 @@ __export(palette_exports2, {
 });
 
 // src/core/preview.mjs
-import fs17 from "node:fs";
-import os4 from "node:os";
-import path13 from "node:path";
+import fs21 from "node:fs";
+import os5 from "node:os";
+import path16 from "node:path";
 import { pathToFileURL as pathToFileURL2 } from "node:url";
 async function previewHtml(html, { width = 1200, height = 700, config: config2 } = {}) {
-  const dir = fs17.mkdtempSync(path13.join(os4.tmpdir(), "drip-preview-"));
-  const file4 = path13.join(dir, "preview.html");
-  fs17.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
+  const dir = fs21.mkdtempSync(path16.join(os5.tmpdir(), "drip-preview-"));
+  const file4 = path16.join(dir, "preview.html");
+  fs21.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
   try {
     const png2 = await screenshot(pathToFileURL2(file4).href, { width, height, waitMs: 2500, config: config2 });
     return imageBlock(await toJpeg(png2, width, height));
@@ -93579,7 +93941,7 @@ async function previewHtml(html, { width = 1200, height = 700, config: config2 }
     return null;
   } finally {
     try {
-      fs17.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      fs21.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
     } catch {
     }
   }
@@ -93718,8 +94080,8 @@ __export(gradient_exports, {
   meshGradient: () => meshGradient,
   register: () => register6
 });
-import fs18 from "node:fs";
-import path14 from "node:path";
+import fs22 from "node:fs";
+import path17 from "node:path";
 function rng(seed) {
   let s2 = seed >>> 0 || 1;
   return () => (s2 = s2 * 1664525 + 1013904223 >>> 0) / 4294967296;
@@ -93774,9 +94136,9 @@ function register6(server2, ctx2) {
       const g = meshGradient(args);
       let saved = "";
       if (args.out) {
-        const file4 = path14.resolve(projectDir(), args.out);
-        fs18.mkdirSync(path14.dirname(file4), { recursive: true });
-        fs18.writeFileSync(file4, g.svg);
+        const file4 = path17.resolve(projectDir(), args.out);
+        fs22.mkdirSync(path17.dirname(file4), { recursive: true });
+        fs22.writeFileSync(file4, g.svg);
         saved = `Saved SVG: ${file4}
 
 `;
@@ -93798,8 +94160,8 @@ var icons_exports = {};
 __export(icons_exports, {
   register: () => register7
 });
-import fs19 from "node:fs";
-import path15 from "node:path";
+import fs23 from "node:fs";
+import path18 from "node:path";
 var API = "https://api.iconify.design";
 function register7(server2, ctx2) {
   server2.registerTool(
@@ -93839,9 +94201,9 @@ Get SVG / install: icons_get. React: lucide-react / @phosphor-icons/react / @tab
         const [prefix, icon] = name.split(":");
         const { body } = await get(`${API}/${prefix}/${icon}.svg${size ? `?height=${size}` : ""}`, { ttlMs: 30 * 24 * 36e5 });
         if (dir) {
-          const target = path15.resolve(projectDir(), dir, `${icon}.svg`);
-          fs19.mkdirSync(path15.dirname(target), { recursive: true });
-          fs19.writeFileSync(target, body);
+          const target = path18.resolve(projectDir(), dir, `${icon}.svg`);
+          fs23.mkdirSync(path18.dirname(target), { recursive: true });
+          fs23.writeFileSync(target, body);
         }
         out.push(`${name}:
 ${body}`);
@@ -93858,12 +94220,12 @@ var fonts_exports = {};
 __export(fonts_exports, {
   register: () => register8
 });
-import fs20 from "node:fs";
-import path16 from "node:path";
+import fs24 from "node:fs";
+import path19 from "node:path";
 var LIST = "https://api.fontsource.org/v1/fonts";
 function pairs() {
   try {
-    return JSON.parse(fs20.readFileSync(path16.join(dataDir, "font-pairs.json"), "utf8")).pairs;
+    return JSON.parse(fs24.readFileSync(path19.join(dataDir, "font-pairs.json"), "utf8")).pairs;
   } catch {
     return [];
   }
@@ -93935,12 +94297,12 @@ var images_exports = {};
 __export(images_exports, {
   register: () => register9
 });
-import fs22 from "node:fs";
-import path18 from "node:path";
+import fs26 from "node:fs";
+import path21 from "node:path";
 
 // src/core/keys.mjs
-import fs21 from "node:fs";
-import path17 from "node:path";
+import fs25 from "node:fs";
+import path20 from "node:path";
 var KEY_ENV = {
   openai: ["OPENAI_API_KEY"],
   gemini: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
@@ -93948,10 +94310,10 @@ var KEY_ENV = {
   pexels: ["PEXELS_API_KEY"],
   openverse: ["OPENVERSE_TOKEN"]
 };
-var file3 = path17.join(homeDripDir, "keys.json");
+var file3 = path20.join(homeDripDir, "keys.json");
 function readFile2() {
   try {
-    return JSON.parse(fs21.readFileSync(file3, "utf8"));
+    return JSON.parse(fs25.readFileSync(file3, "utf8"));
   } catch {
     return {};
   }
@@ -93965,7 +94327,7 @@ function setKey(name, value) {
   const keys = readFile2();
   if (value) keys[name] = value.trim();
   else delete keys[name];
-  fs21.writeFileSync(file3, JSON.stringify(keys, null, 2), { mode: 384 });
+  fs25.writeFileSync(file3, JSON.stringify(keys, null, 2), { mode: 384 });
 }
 function keyStatus(names3) {
   const stored = readFile2();
@@ -93976,7 +94338,7 @@ function keyStatus(names3) {
 }
 function logUsage(entry) {
   ensureDir(homeDripDir);
-  fs21.appendFileSync(path17.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
+  fs25.appendFileSync(path20.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
 `);
 }
 
@@ -94050,13 +94412,13 @@ Save one with images_save (logs the credit). Add to the board with board_add (re
       const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : lookup(resolve(image2, "image"));
       if (!item?.image) return text("Unknown image. Use a number from the last images_search or a URL.", true);
       const { buf } = await fetchImage(item.image, { ttlMs: 0 });
-      const file4 = path18.resolve(projectDir(), dest);
-      fs22.mkdirSync(path18.dirname(file4), { recursive: true });
-      fs22.writeFileSync(file4, buf);
-      const log = path18.join(ensureProjectDrip(), "assets.json");
-      const list = fs22.existsSync(log) ? JSON.parse(fs22.readFileSync(log, "utf8")) : [];
+      const file4 = path21.resolve(projectDir(), dest);
+      fs26.mkdirSync(path21.dirname(file4), { recursive: true });
+      fs26.writeFileSync(file4, buf);
+      const log = path21.join(ensureProjectDrip(), "assets.json");
+      const list = fs26.existsSync(log) ? JSON.parse(fs26.readFileSync(log, "utf8")) : [];
       list.push({ file: dest, source: item.url, author: item.designer || null, license: item.license || "unknown \u2014 check before shipping", credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs22.writeFileSync(log, JSON.stringify(list, null, 2));
+      fs26.writeFileSync(log, JSON.stringify(list, null, 2));
       return text(`Saved ${dest} (${Math.round(buf.length / 1024)} KB). Licence: ${item.license || "UNKNOWN \u2014 confirm before shipping"}. Logged in .drip/assets.json.
 Serve it at the size it displays (srcset / next/image), with real alt text.`);
     })
@@ -94073,8 +94435,8 @@ var gen_exports = {};
 __export(gen_exports, {
   register: () => register11
 });
-import fs23 from "node:fs";
-import path19 from "node:path";
+import fs27 from "node:fs";
+import path22 from "node:path";
 import { pathToFileURL as pathToFileURL3 } from "node:url";
 
 // src/modules/gen/providers/gemini.mjs
@@ -94161,11 +94523,11 @@ async function openKeyPage(names3) {
 var BUILT_IN = [openai_default, gemini_default];
 async function providers() {
   const list = [...BUILT_IN];
-  const dir = path19.join(homeDripDir, "providers");
-  if (fs23.existsSync(dir))
-    for (const f2 of fs23.readdirSync(dir).filter((f3) => f3.endsWith(".mjs"))) {
+  const dir = path22.join(homeDripDir, "providers");
+  if (fs27.existsSync(dir))
+    for (const f2 of fs27.readdirSync(dir).filter((f3) => f3.endsWith(".mjs"))) {
       try {
-        const mod = await import(pathToFileURL3(path19.join(dir, f2)).href);
+        const mod = await import(pathToFileURL3(path22.join(dir, f2)).href);
         if (mod.default?.id && mod.default?.generate) list.push(mod.default);
       } catch {
       }
@@ -94201,14 +94563,14 @@ function register11(server2, ctx2) {
       }
       const refImgs = await Promise.all(refs.map((u2) => fetchImage(u2)));
       const imgs = await p2.generate({ prompt, aspect, model: model || config2.gen.providers?.[p2.id]?.model, refs: refImgs }, key);
-      const file4 = path19.resolve(projectDir(), out);
-      fs23.mkdirSync(path19.dirname(file4), { recursive: true });
-      fs23.writeFileSync(file4, imgs[0].buf);
+      const file4 = path22.resolve(projectDir(), out);
+      fs27.mkdirSync(path22.dirname(file4), { recursive: true });
+      fs27.writeFileSync(file4, imgs[0].buf);
       logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
-      const log = path19.join(ensureProjectDrip(), "assets.json");
-      const list = fs23.existsSync(log) ? JSON.parse(fs23.readFileSync(log, "utf8")) : [];
+      const log = path22.join(ensureProjectDrip(), "assets.json");
+      const list = fs27.existsSync(log) ? JSON.parse(fs27.readFileSync(log, "utf8")) : [];
       list.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs23.writeFileSync(log, JSON.stringify(list, null, 2));
+      fs27.writeFileSync(log, JSON.stringify(list, null, 2));
       return blocks([{ type: "text", text: `Saved ${out} via ${p2.label}. Judge it against the direction; if it misses, change one thing in the prompt and regenerate.` }, imageBlock(await toJpeg(imgs[0].buf, 1400, 1400))]);
     })
   );
@@ -94241,185 +94603,24 @@ var fitcheck_exports = {};
 __export(fitcheck_exports, {
   register: () => register12
 });
-import path22 from "node:path";
-import fs26 from "node:fs";
-
-// src/core/cdp.mjs
-import { spawn } from "node:child_process";
-import fs24 from "node:fs";
-import os5 from "node:os";
-import path20 from "node:path";
-async function launch(config2) {
-  const chrome = findChrome(config2);
-  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
-  const profile = fs24.mkdtempSync(path20.join(os5.tmpdir(), "drip-cdp-"));
-  const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
-    env: browserEnv(),
-    windowsHide: true,
-    stdio: ["ignore", "ignore", "pipe"]
-  });
-  const wsUrl = await new Promise((resolve2, reject) => {
-    let buf = "";
-    const t2 = setTimeout(() => reject(new Error("Browser did not start (no DevTools endpoint).")), 2e4);
-    proc.stderr.on("data", (d) => {
-      buf += d;
-      const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
-      if (m) {
-        clearTimeout(t2);
-        resolve2(m[1]);
-      }
-    });
-    proc.on("exit", () => reject(new Error("Browser exited early.")));
-  });
-  const ws = new WebSocket(wsUrl);
-  await new Promise((r2, j) => {
-    ws.onopen = r2;
-    ws.onerror = () => j(new Error("Couldn't connect to the browser."));
-  });
-  let id = 0;
-  const waiting2 = /* @__PURE__ */ new Map();
-  const listeners = /* @__PURE__ */ new Set();
-  ws.onmessage = (ev) => {
-    const msg = JSON.parse(ev.data);
-    if (msg.id && waiting2.has(msg.id)) {
-      const { resolve: resolve2, reject } = waiting2.get(msg.id);
-      waiting2.delete(msg.id);
-      msg.error ? reject(new Error(msg.error.message)) : resolve2(msg.result);
-    } else for (const l2 of listeners) l2(msg);
-  };
-  const send = (method, params = {}, sessionId) => new Promise((resolve2, reject) => {
-    const mid = ++id;
-    waiting2.set(mid, { resolve: resolve2, reject });
-    ws.send(JSON.stringify({ id: mid, method, params, ...sessionId ? { sessionId } : {} }));
-  });
-  const close = async () => {
-    try {
-      await send("Browser.close");
-    } catch {
-    }
-    try {
-      ws.close();
-    } catch {
-    }
-    proc.kill();
-    setTimeout(() => {
-      try {
-        fs24.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
-      } catch {
-      }
-    }, 500).unref();
-  };
-  return { send, close, listeners };
-}
-var AUDIT = `(() => {
-  const vw = innerWidth, vh = innerHeight;
-  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
-  const textEls = [...document.querySelectorAll('body *')].filter((el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1) && visible(el));
-  const sizes = {}, families = {}, weights = {};
-  let small = 0, words = 0;
-  for (const el of textEls) {
-    const cs = getComputedStyle(el); const s = Math.round(parseFloat(cs.fontSize));
-    const n = [...el.childNodes].filter((x) => x.nodeType === 3).map((x) => x.textContent).join(' ').trim().split(/\\s+/).length;
-    sizes[s] = (sizes[s] || 0) + n; words += n;
-    const fam = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(); families[fam] = (families[fam] || 0) + n;
-    weights[cs.fontWeight] = (weights[cs.fontWeight] || 0) + n;
-    if (s < 14) small += n;
-  }
-  const doc = document.documentElement;
-  const overflowX = doc.scrollWidth > vw + 1;
-  const offenders = overflowX ? [...document.querySelectorAll('body *')].filter((el) => { const r = el.getBoundingClientRect(); return r.right > vw + 1 && r.width > 0 && visible(el); }).slice(0, 6).map((el) => (el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/)[0] : '') + ' ' + Math.round(el.getBoundingClientRect().right) + 'px')) : [];
-  // Empty bands: vertical stretches with no visible text, image or control.
-  const marks = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|SVG|CANVAS|VIDEO|PICTURE|BUTTON|INPUT|TEXTAREA|SELECT|IFRAME)$/i.test(el.tagName) || textEls.includes(el))).map((el) => { const r = el.getBoundingClientRect(); return [r.top + scrollY, r.bottom + scrollY]; }).sort((a, b) => a[0] - b[0]);
-  const gaps = []; let end = 0;
-  for (const [t, b] of marks) { if (t - end > vh * 0.6) gaps.push([Math.round(end), Math.round(t)]); end = Math.max(end, b); }
-  if (doc.scrollHeight - end > vh * 0.6) gaps.push([Math.round(end), doc.scrollHeight]);
-  const media = [...document.querySelectorAll('img, picture, video, canvas, svg')].filter((el) => { const r = el.getBoundingClientRect(); return visible(el) && r.width * r.height > 120 * 120; }).length;
-  const h1 = document.querySelector('h1'); const h1s = h1 ? Math.round(parseFloat(getComputedStyle(h1).fontSize)) : null;
-  const bodyP = [...document.querySelectorAll('p')].filter(visible).map((p) => Math.round(parseFloat(getComputedStyle(p).fontSize)));
-  const medianP = bodyP.length ? bodyP.sort((a, b) => a - b)[Math.floor(bodyP.length / 2)] : null;
-  return { width: vw, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
-    fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
-    words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, bodyText: medianP, title: document.title };
-})()`;
-async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, config: config2 } = {}) {
-  const b = await launch(config2);
-  try {
-    const { targetId } = await b.send("Target.createTarget", { url: "about:blank" });
-    const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
-    const s2 = (m, p2) => b.send(m, p2, sessionId);
-    await s2("Page.enable");
-    await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
-    if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
-    const loaded = new Promise((r2) => {
-      const l2 = (msg) => {
-        if (msg.method === "Page.loadEventFired" && msg.sessionId === sessionId) {
-          b.listeners.delete(l2);
-          r2();
-        }
-      };
-      b.listeners.add(l2);
-      setTimeout(r2, 15e3);
-    });
-    await s2("Page.navigate", { url: url2 });
-    await loaded;
-    await new Promise((r2) => setTimeout(r2, 1200));
-    await s2("Runtime.evaluate", { expression: "(async()=>{for(let y=0;y<document.documentElement.scrollHeight;y+=innerHeight){scrollTo(0,y);await new Promise(r=>setTimeout(r,120));}scrollTo(0,0);await new Promise(r=>setTimeout(r,300));})()", awaitPromise: true });
-    const { result } = await s2("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
-    const audit = result.value;
-    const total = Math.min(audit.height, 3e4);
-    const count = Math.max(1, Math.ceil(total / height));
-    const picks = count <= maxSlices ? [...Array(count).keys()] : [...Array(maxSlices).keys()].map((i2) => Math.round(i2 * (count - 1) / (maxSlices - 1)));
-    const slices = [];
-    for (const i2 of picks) {
-      const y2 = Math.min(i2 * height, Math.max(0, total - height));
-      const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: quality2, captureBeyondViewport: true, clip: { x: 0, y: y2, width, height: Math.min(height, total - y2), scale: 1 } });
-      slices.push({ y: y2, buf: Buffer.from(data, "base64") });
-    }
-    return { audit, slices, sliceCount: count };
-  } finally {
-    await b.close();
-  }
-}
-function judgeAudit(a2, kind = "page") {
-  const blockers = [];
-  const warnings = [];
-  if (a2.overflowX) blockers.push(`horizontal overflow at ${a2.width}px: page is ${a2.scrollWidth}px wide (${a2.offenders.join(", ") || "unknown element"})`);
-  const sizes = a2.fontSizes.filter(([, n2]) => n2 >= 2).length;
-  if (sizes > 8) blockers.push(`${sizes} different text sizes; a type scale has 4-6 (drip_guide type)`);
-  else if (sizes > 6) warnings.push(`${sizes} text sizes; tighten to 4-6`);
-  const fams = a2.families.filter(([, n2]) => n2 >= 3);
-  if (fams.length > 3) blockers.push(`${fams.length} font families (${fams.map(([f2]) => f2).join(", ")}); use one pairing`);
-  if (a2.smallShare > 0.3) blockers.push(`${Math.round(a2.smallShare * 100)}% of the words are under 14px; body and UI text is too small`);
-  else if (a2.smallShare > 0.15) warnings.push(`${Math.round(a2.smallShare * 100)}% of words under 14px`);
-  if (a2.bodyText && a2.bodyText < (a2.width < 600 ? 16 : 16)) warnings.push(`typical paragraph size ${a2.bodyText}px; marketing body text reads best at 17-20px`);
-  const monoShare = a2.families.filter(([f2]) => /mono|courier|code/i.test(f2)).reduce((t2, [, n2]) => t2 + n2, 0) / Math.max(1, a2.words);
-  if (monoShare > 0.4) warnings.push(`${Math.round(monoShare * 100)}% of the text is monospace; mono for reading text is hard work and a default "developer" look`);
-  const bigGaps = a2.gaps.filter(([t2, b]) => b - t2 > 900);
-  if (bigGaps.length) warnings.push(`${bigGaps.length} empty stretch(es) taller than a screen: ${bigGaps.map(([t2, b]) => `${t2}-${b}px`).join(", ")}`);
-  if (kind === "page" && a2.media === 0) warnings.push("no images, video or illustration anywhere on the page");
-  return { blockers, warnings };
-}
-function formatAudit(a2, j) {
-  return `${a2.width}px: ${a2.screens} screens tall \xB7 text sizes ${a2.fontSizes.slice(0, 8).map(([s2, n2]) => `${s2}px\xD7${n2}`).join(" ")} \xB7 families ${a2.families.map(([f2, n2]) => `${f2}\xD7${n2}`).join(", ")} \xB7 ${Math.round(a2.smallShare * 100)}% words <14px \xB7 h1 ${a2.h1 ?? "-"}px \xB7 paragraphs ${a2.bodyText ?? "-"}px \xB7 media ${a2.media}` + (j.blockers.length ? `
-  BLOCKERS: ${j.blockers.join(" | ")}` : "") + (j.warnings.length ? `
-  warnings: ${j.warnings.join(" | ")}` : "");
-}
+import path24 from "node:path";
+import fs29 from "node:fs";
 
 // src/modules/fitcheck/lint.mjs
-import fs25 from "node:fs";
-import path21 from "node:path";
+import fs28 from "node:fs";
+import path23 from "node:path";
 function readRules(file4) {
   try {
-    return JSON.parse(fs25.readFileSync(file4, "utf8")).rules || [];
+    return JSON.parse(fs28.readFileSync(file4, "utf8")).rules || [];
   } catch {
     return [];
   }
 }
 function loadRules(cwd) {
-  const rules = [...readRules(path21.join(dataDir, "slop.json")), ...readRules(path21.join(projectDripDir(cwd), "slop.json"))];
+  const rules = [...readRules(path23.join(dataDir, "slop.json")), ...readRules(path23.join(projectDripDir(cwd), "slop.json"))];
   for (const id of loadState(cwd).task?.packs || []) {
     const dir = packDir(id, cwd);
-    if (dir) rules.push(...readRules(path21.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
+    if (dir) rules.push(...readRules(path23.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
   }
   return rules;
 }
@@ -94453,7 +94654,7 @@ function lintFiles(files, cwd) {
   for (const f2 of files) {
     let src;
     try {
-      src = fs25.readFileSync(f2, "utf8");
+      src = fs28.readFileSync(f2, "utf8");
     } catch {
       continue;
     }
@@ -94464,7 +94665,7 @@ function lintFiles(files, cwd) {
 function formatIssues(issues, cwd) {
   if (!issues.length) return "No slop or polish issues found by the static checks (that does not replace looking at it).";
   const order = { error: 0, warn: 1, info: 2 };
-  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path21.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
+  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path23.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
 }
 
 // src/modules/fitcheck/index.mjs
@@ -94474,29 +94675,32 @@ function register12(server2, ctx2) {
     "fitcheck_shot",
     {
       title: "Screenshot the result",
-      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. Example: fitcheck_shot({ url: "http://localhost:3000" })',
+      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. hero: true shoots only the first viewport and runs the hero gate (playbook P31): do it after building nav + hero, before any section. Example: fitcheck_shot({ url: "http://localhost:3000", hero: true })',
       inputSchema: {
         url: external_exports.string().describe("e.g. http://localhost:3000/pricing"),
         sizes: external_exports.array(external_exports.object({ name: external_exports.string(), width: external_exports.number(), height: external_exports.number() })).optional(),
-        maxSlices: external_exports.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly")
+        maxSlices: external_exports.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
+        hero: external_exports.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
+        app: external_exports.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface")
       }
     },
-    safe(async ({ url: url2, sizes, maxSlices }) => {
+    safe(async ({ url: url2, sizes, maxSlices, hero, app }) => {
       const config2 = ctx2.config();
+      const persuade = app === void 0 ? isPersuade(loadState().task) : !app;
       const list = sizes || config2.fitcheck.sizes;
       const dir = rendersDir(`fitcheck-${stamp()}`);
       const content = [];
       const audits = [];
       const files = [];
       for (const s2 of list) {
-        const r2 = await capture(url2, { width: s2.width, height: s2.height, maxSlices: maxSlices || (s2.width < 600 ? 4 : 5), config: config2 });
-        const j = judgeAudit(r2.audit);
+        const r2 = await capture(url2, { width: s2.width, height: s2.height, maxSlices: hero ? 1 : maxSlices || (s2.width < 600 ? 4 : 5), config: config2 });
+        const j = judgeAudit(r2.audit, { persuade, hero });
         audits.push({ size: s2.name, width: s2.width, audit: r2.audit, ...j });
         content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${r2.slices.length} of ${r2.sliceCount} screens
 ${formatAudit(r2.audit, j)}`));
         for (const [i2, sl] of r2.slices.entries()) {
-          const f2 = path22.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-          fs26.writeFileSync(f2, sl.buf);
+          const f2 = path24.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+          fs29.writeFileSync(f2, sl.buf);
           files.push(f2);
           content.push(imageBlock(s2.width < 600 ? sl.buf : await toJpeg(sl.buf, 1200, 900, 80)));
         }
@@ -94504,19 +94708,26 @@ ${formatAudit(r2.audit, j)}`));
       const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
       updateState((st) => {
         if (st.task) {
+          st.task.fitcheck.url = url2;
+          if (!blockers.length) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
+          if (hero) return;
           st.task.fitcheck.shots += files.length;
           st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
-          st.task.fitcheck.url = url2;
           st.task.fitcheck.blockers = blockers;
           st.task.fitcheck.files = files;
         }
       });
       content.unshift(
         textBlock(
-          `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):
+          (hero ? blockers.length ? `HERO GATE FAILED (fix before writing any section):
 - ${blockers.join("\n- ")}
 
-` : "No measured blockers.\n\n"}Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: ` + dir
+Redo the hero bigger, then fitcheck_shot({ url, hero: true }) again.
+
+` : "HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.\n\n" : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):
+- ${blockers.join("\n- ")}
+
+` : "No measured blockers.\n\n"}`) + "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " + dir
         )
       );
       return blocks(content);
@@ -94563,7 +94774,7 @@ ${items.map((it, i2) => `${i2 + 1}. ${it.note}`).join("\n")}`),
     safe(async ({ files }) => {
       const { task } = loadState();
       const root = projectDir();
-      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path22.resolve(root, f2));
+      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path24.resolve(root, f2));
       if (!list.length) return text("No files given and none recorded for this task.", true);
       const issues = lintFiles(list, root);
       updateState((st) => {
@@ -94614,10 +94825,10 @@ var critic_exports = {};
 __export(critic_exports, {
   register: () => register13
 });
-import fs27 from "node:fs";
-import path23 from "node:path";
+import fs30 from "node:fs";
+import path25 from "node:path";
 var KIND_BRIEF = {
-  directions: "You are judging 2-4 candidate DESIGN DIRECTIONS (style tiles) before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
+  directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Could it be any brand's hero? Is the h1 big enough (the Display role is ~127px at 1440) and does the picture slot show the subject's real thing at a real size? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it distinctive, crafted and finished, or a competent template? Name every place it looks amateur, generic or AI-made.",
   logo: "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a clich\xE9), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack: "You are judging a NICHE PACK: written guidance meant to make a designer excellent in one niche. Is it specific to the niche (real standards, real artists, real techniques, real numbers) or generic design advice with the niche's name pasted in? Name every generic or wrong statement and what's missing.",
@@ -94651,7 +94862,7 @@ function register13(server2, ctx2) {
     "critic_prepare",
     {
       title: "Prepare a critic review",
-      description: `Prepares an independent review by the drip:critic subagent (Sonnet, no history, harsh). It renders the work to image files and returns the exact prompt to pass to the subagent: Agent({ subagent_type: "drip:critic", description: "Critic review", prompt: <returned prompt> }). Pass the prompt unchanged; never add your own defence of the work. kind: directions (uses the board's style tiles), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. Examples: critic_prepare({ kind: "directions" }) \xB7 critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) \xB7 critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })`,
+      description: `Prepares an independent review by the drip:critic subagent (Sonnet, no history, harsh). It renders the work to image files and returns the exact prompt to pass to the subagent: Agent({ subagent_type: "drip:critic", description: "Critic review", prompt: <returned prompt> }). Pass the prompt unchanged; never add your own defence of the work. kind: directions (uses the board's first-viewport comps), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. Examples: critic_prepare({ kind: "directions" }) \xB7 critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) \xB7 critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })`,
       inputSchema: {
         kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
         targets: external_exports.array(external_exports.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id"),
@@ -94667,9 +94878,9 @@ function register13(server2, ctx2) {
       const measured = [];
       if (kind === "directions") {
         const board = task?.board?.id && loadBoard(task.board.id);
-        if (!board?.directions?.length) return text("No directions to judge. board_directions + board_tile first.", true);
-        const missing = board.directions.filter((d) => !d.tile || !fs27.existsSync(d.tile));
-        if (missing.length) return text(`Render the style tiles first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
+        if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
+        const missing = board.directions.filter((d) => !d.tile || !fs30.existsSync(d.tile));
+        if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
         board.directions.forEach((d, i2) => {
           files.push(d.tile);
           notes.push(`Direction ${i2 + 1} "${d.name}" (${files.length}): ${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} \xB7 ${d.adjectives.join(", ")} \xB7 palette ${d.palette.join(" ")} \xB7 type ${d.type}`);
@@ -94681,28 +94892,28 @@ function register13(server2, ctx2) {
         if (isUrl(t2)) {
           for (const s2 of config2.fitcheck.sizes) {
             const r2 = await capture(t2, { width: s2.width, height: s2.height, maxSlices: s2.width < 600 ? 4 : 6, config: config2 });
-            const j = judgeAudit(r2.audit);
+            const j = judgeAudit(r2.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
             r2.slices.forEach((sl, i2) => {
-              const f2 = path23.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-              fs27.writeFileSync(f2, sl.buf);
+              const f2 = path25.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs30.writeFileSync(f2, sl.buf);
               files.push(f2);
               notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
             });
           }
         } else {
-          const abs = path23.resolve(projectDir(), t2);
-          if (!fs27.existsSync(abs)) return text(`File not found: ${t2}`, true);
+          const abs = path25.resolve(projectDir(), t2);
+          if (!fs30.existsSync(abs)) return text(`File not found: ${t2}`, true);
           if (/\.svg$/i.test(abs)) {
-            const svg = fs27.readFileSync(abs, "utf8");
+            const svg = fs30.readFileSync(abs, "utf8");
             for (const [bg, label, size] of [["#FFFFFF", "light", 1024], ["#111111", "dark", 1024], ["#FFFFFF", "small 64px", 64], ["#FFFFFF", "tiny 24px", 24]]) {
-              const f2 = path23.join(dir, `${path23.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
+              const f2 = path25.join(dir, `${path25.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
               await renderSvg(svg, f2, { size, bg, config: config2 });
               files.push(f2);
               notes.push(`${t2} on ${label}`);
             }
           } else if (/\.html?$/i.test(abs)) {
-            const f2 = path23.join(dir, `${path23.basename(abs)}.png`);
+            const f2 = path25.join(dir, `${path25.basename(abs)}.png`);
             await renderUrl(`file:///${abs.replace(/\\/g, "/")}`, f2, { width: 1440, height: 900, config: config2 });
             files.push(f2);
             notes.push(`${t2} rendered`);
@@ -94821,17 +95032,17 @@ __export(logo_exports, {
   pathStats: () => pathStats,
   register: () => register14
 });
-import fs29 from "node:fs";
-import path25 from "node:path";
+import fs32 from "node:fs";
+import path27 from "node:path";
 
 // src/modules/logo/outline.mjs
 var import_opentype = __toESM(require_opentype(), 1);
-import fs28 from "node:fs";
-import path24 from "node:path";
+import fs31 from "node:fs";
+import path26 from "node:path";
 async function loadFont2(font, weight = 400, style = "normal") {
-  const local = path24.resolve(projectDir(), font);
-  if (/\.(ttf|otf|woff)$/i.test(font) && fs28.existsSync(local)) {
-    const b = fs28.readFileSync(local);
+  const local = path26.resolve(projectDir(), font);
+  if (/\.(ttf|otf|woff)$/i.test(font) && fs31.existsSync(local)) {
+    const b = fs31.readFileSync(local);
     return import_opentype.default.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
   }
   const id = font.trim().toLowerCase().replace(/\s+/g, "-");
@@ -94886,9 +95097,9 @@ function outline(font, text2, { size = 200, letterSpacing = 0, kerning = true } 
 var esc5 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
 function loadSvg(src) {
   if (/^\s*<svg/i.test(src)) return src;
-  const abs = path25.resolve(projectDir(), src);
-  if (!fs29.existsSync(abs)) throw new Error(`SVG not found: ${src}`);
-  return fs29.readFileSync(abs, "utf8");
+  const abs = path27.resolve(projectDir(), src);
+  if (!fs32.existsSync(abs)) throw new Error(`SVG not found: ${src}`);
+  return fs32.readFileSync(abs, "utf8");
 }
 var fit = (svg) => svg.replace(/<\?xml[^>]*>/, "").replace(/<svg/, '<svg style="width:100%;height:100%;display:block"');
 var LIGHT = /^(#f{3}|#f{6}|white|#fff[0-9a-f]{3}|#f[0-9a-f]f[0-9a-f]f[0-9a-f])$/i;
@@ -94933,14 +95144,14 @@ function register14(server2, ctx2) {
       const o2 = outline(f2, str, { size, letterSpacing });
       let saved = "";
       if (out) {
-        const abs = path25.resolve(projectDir(), out);
-        fs29.mkdirSync(path25.dirname(abs), { recursive: true });
-        fs29.writeFileSync(abs, o2.svg);
+        const abs = path27.resolve(projectDir(), out);
+        fs32.mkdirSync(path27.dirname(abs), { recursive: true });
+        fs32.writeFileSync(abs, o2.svg);
         saved = `Saved ${out}
 `;
       }
       const m = o2.metrics;
-      const file4 = path25.join(rendersDir("logo"), `outline-${stamp()}.png`);
+      const file4 = path27.join(rendersDir("logo"), `outline-${stamp()}.png`);
       const png2 = await renderHtml(
         `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o2.width}px;height:${o2.height}px">${o2.svg}
 <div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
@@ -94985,7 +95196,7 @@ Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to 
 .small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
 <h1>${esc5(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
       const rows = Math.ceil(svgs.length / cols);
-      const file4 = path25.join(rendersDir("logo"), `sheet-${stamp()}.png`);
+      const file4 = path27.join(rendersDir("logo"), `sheet-${stamp()}.png`);
       const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, config: ctx2.config() });
       return blocks([
         textBlock(`Concept sheet saved: ${file4}
@@ -95012,7 +95223,7 @@ Judge ideas first (one clear thought each, no clich\xE9s), then have the critic 
 <p class="label">Sizes 16 / 24 / 32 / 64 / 128 \u2014 light, dark, one colour, inverse, busy ground</p>
 ${strip2("#fff", svg)}${strip2(dark, svg)}${strip2("#fff", mono(svg, "#111", "#fff"))}${strip2("#111", mono(svg, "#fff", "#111"))}
 ${strip2("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
-      const file4 = path25.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
+      const file4 = path27.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
       const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, config: ctx2.config() });
       const stats = pathStats(svg);
       const hints = [];
@@ -95096,10 +95307,10 @@ Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack
 }
 
 // src/index.mjs
-var VERSION = "0.3.2";
+var VERSION = "0.3.3";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
-Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it runs intake, tells you which guides to read (drip_guide) and what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
-Full loop: intake (AskUserQuestion -> drip_brief) -> refs (search/tag -> refs_pick -> refs_view -> refs_zoom -> refs_study) -> board_create -> board_directions -> board_tile -> critic (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> system -> build -> fitcheck_shot -> critic -> fitcheck_done -> drip_end.
+Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
+Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
 Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
 Lost? drip_status shows what is done and the exact next call. Examples: drip_guide examples/portfolio.`;
 var ctx = { config: () => loadConfig() };
@@ -95123,16 +95334,16 @@ async function cli(argv) {
     process.exit(2);
   }
   const outIdx = rest.indexOf("--out");
-  const outDir = path26.resolve(outIdx >= 0 ? rest[outIdx + 1] : path26.join(projectDripDir(), "cli"));
+  const outDir = path28.resolve(outIdx >= 0 ? rest[outIdx + 1] : path28.join(projectDripDir(), "cli"));
   const args = external_exports.object(tool.meta.inputSchema || {}).parse(json2 ? JSON.parse(json2) : {});
   const res = await tool.handler(args, {});
   let n2 = 0;
   for (const c3 of res.content || []) {
     if (c3.type === "text") console.log(c3.text);
     if (c3.type === "image") {
-      fs30.mkdirSync(outDir, { recursive: true });
-      const file4 = path26.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
-      fs30.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs33.mkdirSync(outDir, { recursive: true });
+      const file4 = path28.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
+      fs33.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       console.log(`[image] ${file4}`);
     }
   }

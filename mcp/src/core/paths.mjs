@@ -26,6 +26,7 @@ export const skillsDir = path.join(pluginRoot, "skills");
 export const rulesDir = path.join(pluginRoot, "rules");
 export const dataDir = path.join(pluginRoot, "data");
 export const examplesDir = path.join(pluginRoot, "examples");
+export const kitDir = path.join(pluginRoot, "kit");
 
 export function projectDir(cwd) {
   return cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();

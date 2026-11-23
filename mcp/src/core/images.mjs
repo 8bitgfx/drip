@@ -1,5 +1,6 @@
 // Images for Claude: fetch, return as MCP image content, and build contact sheets
 // (a grid of numbered thumbnails, so Claude can scan many results in one look).
+import fs from "node:fs";
 import { Jimp } from "jimp";
 import { get } from "./http.mjs";
 
@@ -13,6 +14,8 @@ export function textBlock(text) {
 }
 
 export async function fetchImage(url, opts = {}) {
+  // Local files (site captures, renders) are read from disk.
+  if (!/^https?:/i.test(url)) return { buf: fs.readFileSync(url.replace(/^file:\/\/\/?/i, "")), mime: /\.png$/i.test(url) ? "image/png" : "image/jpeg" };
   const { body, contentType } = await get(url, { as: "buffer", ttlMs: 7 * 24 * 3600e3, ...opts });
   const mime = contentType.split(";")[0] || "image/jpeg";
   return { buf: body, mime };

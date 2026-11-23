@@ -4,43 +4,41 @@ description: Use when the user asks for Drip (/drip:design) or for a real design
 user-invocable: false
 ---
 
-# Drip: work like a real designer
+# Drip
 
-**0. Load the tools** (they're deferred). If `drip_start` isn't callable: ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_guide,mcp__plugin_drip_drip__drip_status`; load others the same way when a step needs them (ToolSearch `+drip refs`, `+drip board`, `+drip critic`, `+drip logo`). Nothing loads → tell the user to reconnect `plugin:drip:drip` in `/mcp`, and stop.
+**0. Load the tools** (they're deferred): ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide`. Load others when a step needs them (`+drip refs`, `+drip board`, `+drip critic`, `+drip fitcheck`, `+drip kit`, `+drip logo`). If nothing loads, tell the user to reconnect `plugin:drip:drip` in `/mcp`, and stop.
 
-**1. `drip_start`** with the request. It picks the mode (design · logo · refs · board · polish), the loop, the niche packs, the guides you must read, and tells you the next call. Then follow it. Lost: `drip_status`.
+**1. `drip_start`** with the request. It picks the mode (design · logo · refs · board · polish) and returns the one guide you need in full: the **playbook** for pages, the logo guide for logos. Read it once, properly; it is short because every line is load-bearing. Then follow its NEXT line. Lost? `drip_status`.
 
-## The loop (full)
-| # | Step | Do | Tools |
-|---|---|---|---|
-| 1 | **Intake** | ONE round of ≤ 4 clickable questions (AskUserQuestion), options specific to this request, your recommendation first. Read the project first; never ask what you can look up. | AskUserQuestion → `drip_brief` |
-| 2 | **References** | 3+ angles of search, scan sheets, **pick** the few that fit, **view the originals** (every section, full size) and **study** each (structured notes with values); zoom only for one detail. 6-12 studied, 3+ designers. | `refs_search` `refs_tag` `refs_related` `refs_designer` → `refs_pick` → `refs_view` → `refs_zoom` → `refs_study` |
-| 3 | **Directions** | Board auto-collects studies. 2-3 directions that differ in **idea**, each named like a movement with a manifesto; at least one daring. Render **style tiles**. | `board_create` `board_add` `board_directions` `board_tile` |
-| 4 | **Critic ranks** | Independent harsh review of the tiles. Rework anything it rejects BEFORE the user sees it. | `critic_prepare` → Agent `drip:critic` → `critic_record` |
-| 5 | **User chooses** | Board link + one line per direction with the critic's score + your pick and its risk; ask with buttons. Chosen = locked. | `board_open` → AskUserQuestion → `board_choose` |
-| 6 | **System** | DESIGN.md + tokens from the direction | `palette_generate` `palette_check` `fonts_pair` `fonts_preview` → `drip_mark system` |
-| 7 | **Build** | Proven components restyled; real copy and imagery; one signature move | `components_*` `icons_*` `images_*` `gen_image` `gradient_mesh` |
-| 8 | **Check** | Screenshots, self-critique, then the critic until PASS (max 3 rounds) | `fitcheck_shot` `fitcheck_compare` `fitcheck_lint` → critic → `fitcheck_done` |
-| 9 | **Hand-off** | Screenshots, critic verdict in its own words, what's left | `drip_end` |
+**The page loop** (about 25 calls):
+1. Intake: one AskUserQuestion round, material first → `drip_brief`.
+2. Look: `refs_site` on 3-4 shipped sites → `refs_study`, both batched.
+3. Directions: `board_create` → `board_directions` (2 first-viewport comps) → critic ranks → `board_open` → user picks → `board_choose`.
+4. System: `drip_kit` → DESIGN.md → `drip_mark system`.
+5. Hero first: nav + hero → `fitcheck_shot({ hero: true })`.
+6. Sections in plan order → `fitcheck_shot` (the page gate) → the critic once, plus one confirming round → `fitcheck_done` → `drip_end`.
 
-**Logo mode**: intake → refs → 8-12 one-sentence concepts → `logo_sheet` → critic ranks → refine top 2-3 in black first → `logo_test` → critic → user picks → lockups. Read `drip_guide logo`.
-**Polish mode** (quick): read the listed guides → change → `fitcheck_lint` (+ `fitcheck_shot`) → `fitcheck_done`.
-**Refs / board only**: stop after the summary / the board and offer the next step.
+**The critic.** `critic_prepare` returns a prompt. Launch `Agent({ subagent_type: "drip:critic", description: "Critic review", prompt })` with that prompt unchanged: no defence of the work, no context about effort. Record the verdict with `critic_record`, and show the user its words.
 
-## The critic
-`critic_prepare` renders the work to files and returns a prompt; launch `Agent({ subagent_type: "drip:critic", description: "Critic review", prompt })` **with that prompt unchanged**; no defence of the work, no context about effort. Record with `critic_record`, show the user its words. Self-critique before calling it; it's the independent second opinion, not a substitute for looking.
+**Never:**
+- the safe default (cream + terracotta + serif, neon on black, gradients, Inter, a hero + 3 cards) unless the user asked for plain;
+- invented facts;
+- `drip_skip` on your own.
 
-## Rules you must not break
-1. **Ambition is bold by default** (`drip_guide rules/ambition`). The safe default (cream + terracotta + serif, centred hero + 3 cards, neon-on-black, gradients, Inter) is a failure unless the user asked for plain.
-2. Read a craft's guide (`drip_guide <topic>`) before doing that craft. Skimming this file is not reading.
-3. Studying means looking at the original: pick, view it full size top to bottom, write values. A contact sheet is not research, and most studies must BE what you are building (real landing pages for a landing page).
-4. Options differ in idea, not palette. Equal fidelity, no strawmen.
-5. Follow an existing system unless it's a redesign; say so if you change it. Chosen = locked; never "improve" a user's pick without asking.
-6. Real content only: no lorem, fake stats, fake logos or placeholder boxes.
-7. Contrast passes (`palette_check`); every control has hover, press, focus-visible, disabled.
-8. Talk like `rules/communication`: decisions first, short, show don't tell, one question with buttons.
-9. Never call `drip_skip` on your own.
-
-Worked examples (read the one that matches before you start): `drip_guide examples/portfolio`, `examples/logo`, `examples/adapt`, `examples/lazy-run`.
-
-Craft guides: brief · refs · moodboard · direction · system · color · type · layout · landing · app · mobile · components · interaction · motion · imagery · productshots · icons · copy · a11y · fitcheck · polish · logo · adapt. Shared rules: `rules/ambition`, `rules/communication`, `rules/hard-rules`, `rules/slop-tells`, `rules/per-surface`, `rules/licences`.
+Deep guides are on demand (`drip_guide <topic>`):
+- type
+- color
+- layout
+- landing (its sections and pricing)
+- motion
+- imagery
+- productshots
+- icons
+- copy
+- app
+- mobile
+- components
+- a11y
+- logo
+- adapt
+- examples/portfolio

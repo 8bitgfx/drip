@@ -66,9 +66,27 @@ test("page audit: measured blockers for tiny text, too many sizes, overflow", as
   assert.ok(j.blockers.some((b) => /overflow/.test(b)));
   assert.ok(j.blockers.some((b) => /text sizes/.test(b)));
   assert.ok(j.blockers.some((b) => /under 14px/.test(b)));
-  assert.ok(j.warnings.some((w) => /monospace/.test(w)));
-  const good = { width: 1440, scrollWidth: 1440, overflowX: false, offenders: [], fontSizes: [[18, 400], [64, 20], [28, 40], [14, 30]], families: [["Söhne", 400], ["Tiempos", 90]], words: 490, smallShare: 0.06, gaps: [], media: 4, bodyText: 18 };
+  assert.ok(j.blockers.some((b) => /monospace/.test(b)));
+  assert.ok(j.blockers.some((b) => /paragraph is 12px/.test(b)));
+  // An app screen is judged more loosely: mono and small body are warnings, not blockers.
+  assert.ok(!judgeAudit(bad, { persuade: false }).blockers.some((b) => /monospace/.test(b)));
+  const hero = { h1w: 1100, h1Visible: true, pic: { w: 0, h: 0 }, emptyBelow: 80, actions: 1 };
+  const good = { width: 1440, vh: 900, scrollWidth: 1440, overflowX: false, offenders: [], fontSizes: [[18, 400], [127, 6], [56, 20], [26, 40], [14, 30]], families: [["Söhne", 400], ["Tiempos", 90]], words: 490, smallShare: 0.06, gaps: [], media: 4, bodyText: 18, h1: 127, h2: 56, hero, sections: [{ id: "a", pic: true }, { id: "b", pic: false }, { id: "c", pic: true }], empty: [0.1, 0.3, 0.2] };
   assert.deepEqual(judgeAudit(good).blockers, []);
+});
+
+test("hero gate: small h1, small picture and empty bottom block; page checks are skipped", async () => {
+  const { judgeAudit, displayPx } = await import("../src/core/cdp.mjs");
+  assert.ok(Math.abs(displayPx(1440) - 127) < 2 && Math.abs(displayPx(390) - 48.5) < 1);
+  const small = { width: 1440, vh: 900, overflowX: false, fontSizes: [[12, 900]], families: [["A", 9], ["B", 9], ["C", 9]], words: 900, smallShare: 0.9, gaps: [], media: 0, h1: 89, hero: { h1w: 500, h1Visible: true, pic: { w: 400, h: 300 }, emptyBelow: 300, actions: 1 } };
+  const j = judgeAudit(small, { hero: true });
+  assert.ok(j.blockers.some((b) => /h1 is 89px/.test(b)));
+  assert.ok(j.blockers.some((b) => /hero is small/.test(b)));
+  assert.ok(j.blockers.some((b) => /300px of nothing/.test(b)));
+  assert.ok(!j.blockers.some((b) => /under 14px|families/.test(b)));
+  const page = judgeAudit({ ...small, h1: 130, hero: { ...small.hero, pic: { w: 700, h: 700 }, emptyBelow: 40 }, sections: [{ id: "x", pic: false }, { id: "y", pic: false }], empty: [0.2, 0.7] });
+  assert.ok(page.blockers.some((b) => /two sections without a picture/.test(b)));
+  assert.ok(page.blockers.some((b) => /more than half empty/.test(b)));
 });
 
 test("gates: quick tasks need only guides; skip opens everything", () => {
