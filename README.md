@@ -8,8 +8,7 @@
 <h3 align="center">Give Claude drip.</h3>
 
 <p align="center">
-  A design director for Claude Code: real references, moodboards, design systems and fit checks,<br>
-  so your UI stops looking AI-made.
+  A design director for Claude Code: real references, moodboards, design systems and fit checks, so your UI stops looking AI-made.
 </p>
 
 <p align="center">
@@ -97,7 +96,7 @@ The craft skills (colour, type, layout, motion, copy, accessibility and the rest
 Agents skim instructions. Drip doesn't rely on them reading.
 
 ```mermaid
-flowchart LR
+flowchart TD
   A["/drip:start"] --> B["drip_guide<br/>records each read"]
   B --> C{"Claude writes<br/>a UI file"}
   C -- "guides, refs or direction missing" --> D["Blocked<br/>with the exact next call"]
