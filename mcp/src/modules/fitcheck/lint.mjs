@@ -2,7 +2,9 @@
 // No dependencies: the PostToolUse hook imports this file directly.
 import fs from "node:fs";
 import path from "node:path";
+import { packDir } from "../../core/packs.mjs";
 import { dataDir, projectDripDir } from "../../core/paths.mjs";
+import { loadState } from "../../core/state.mjs";
 
 function readRules(file) {
   try {
@@ -13,7 +15,13 @@ function readRules(file) {
 }
 
 export function loadRules(cwd) {
-  return [...readRules(path.join(dataDir, "slop.json")), ...readRules(path.join(projectDripDir(cwd), "slop.json"))];
+  const rules = [...readRules(path.join(dataDir, "slop.json")), ...readRules(path.join(projectDripDir(cwd), "slop.json"))];
+  // Niche packs in use add their own amateur tells.
+  for (const id of loadState(cwd).task?.packs || []) {
+    const dir = packDir(id, cwd);
+    if (dir) rules.push(...readRules(path.join(dir, "slop.json")).map((r) => ({ ...r, id: `${id}:${r.id}` })));
+  }
+  return rules;
 }
 
 /** Lint one file's text. Returns [{ id, severity, line, message, fix, count }]. */

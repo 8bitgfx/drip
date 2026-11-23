@@ -23,7 +23,7 @@ run(async () => {
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
         permissionDecision: "deny",
-        permissionDecisionReason: `[Drip] ${reason}\nUnsure what is next: drip_status. Tools not loaded: ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide. If the user wants out of the process, they can run /drip:skip (or call drip_skip quoting their words).`,
+        permissionDecisionReason: `[Drip] ${reason}\nUnsure what is next: drip_status. Tools not loaded: ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide. If the user wants out of the process, they can turn checks off in /drip:settings (or you call drip_skip quoting their words).`,
       },
     });
 

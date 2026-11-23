@@ -4,6 +4,7 @@ import { z } from "zod";
 import { listGuides, normalizeTopic, readGuide, subTopics } from "../core/guides.mjs";
 import { checklist, loadState, missingBeforeUi, newTask, updateState } from "../core/state.mjs";
 import { text } from "../core/result.mjs";
+import { matchPacks } from "../core/packs.mjs";
 
 const SURFACE_WORDS = {
   landing: /\b(landing|marketing|homepage|home page|hero|website|site|pricing page|waitlist|portfolio|company)\b/i,
@@ -34,24 +35,51 @@ function guess(task) {
   return { surface, size };
 }
 
-function requiredGuides(size, surface, task) {
-  const g = ["rules/hard-rules", "rules/slop-tells"];
-  if (size === "full") {
-    g.push("loop", "brief", "refs", "moodboard", "direction");
-    g.push({ landing: "landing", app: "app", mobile: "mobile", component: "components", other: "layout" }[surface]);
+const LOGO_WORDS = /\b(logo|logotype|wordmark|lettermark|monogram|brand mark|brandmark|icon for|app icon|identity|branding)\b/i;
+const REFS_ONLY = /\b(just|only)\b.{0,20}\b(refs|references|inspiration)\b|^\s*(find|show|get)\b.{0,30}\b(references|inspiration)\b/i;
+const BOARD_ONLY = /\b(just|only)\b.{0,20}\bmood ?board\b|^\s*(make|build|create)\b.{0,15}\bmood ?board\b/i;
+
+function guessMode(task) {
+  if (BOARD_ONLY.test(task)) return "board";
+  if (REFS_ONLY.test(task)) return "refs";
+  if (LOGO_WORDS.test(task)) return "logo";
+  return null;
+}
+
+function requiredGuides(size, surface, task, mode, packs) {
+  const g = ["rules/hard-rules"];
+  if (mode === "refs") g.push("refs");
+  else if (mode === "board") g.push("refs", "moodboard", "rules/ambition");
+  else if (size === "full") {
+    g.push("rules/ambition", "loop", "refs", "moodboard", "direction");
+    g.push(mode === "logo" ? "logo" : { landing: "landing", app: "app", mobile: "mobile", component: "components", brand: "logo", other: "layout" }[surface]);
   } else {
     const topics = Object.entries(TOPIC_WORDS).filter(([, re]) => re.test(task)).map(([t]) => t);
     g.push(...(topics.length ? topics.slice(0, 3) : ["polish"]));
   }
+  for (const p of packs) g.push(`pack:${p}`);
   return [...new Set(g)];
 }
 
-function nextStep(task, config) {
+export function nextStep(task, config) {
+  if (task.size === "full" && config.gates.requireBrief && !task.brief) return "NEXT: ask the intake questions (AskUserQuestion, up to 4, see INTAKE), then drip_brief with the answers.";
   const missing = missingBeforeUi(task, config);
   if (missing.length) return `NEXT: ${missing[0].how}.`;
-  if (task.size === "full" && !task.system) return "NEXT: write the system (DESIGN.md + tokens) from the chosen direction: drip_guide system, then drip_mark system.";
-  return "NEXT: build. Prefer a library component (components_find). After building, run fitcheck_shot and fitcheck_done before you finish.";
+  if (task.mode === "refs") return "NEXT: summarise what the studied references have in common and where they differ (6-10 lines), then offer a moodboard.";
+  if (task.mode === "board") return "NEXT: board_open, present the critic-ranked directions with your pick, ask the user to choose with buttons. Then drip_end.";
+  if (task.size === "full" && !task.system) return task.mode === "logo" ? "NEXT: drip_guide logo, then sketch 12-20 concepts and render them with logo_sheet." : "NEXT: write the system (DESIGN.md + tokens) from the chosen direction: drip_guide system, then drip_mark system.";
+  return "NEXT: build. Prefer a library component (components_find). Then fitcheck_shot, critic review of the build (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), fix, fitcheck_done.";
 }
+
+const INTAKE = `INTAKE (do this now, before any research): ask ONE round of up to 4 questions with AskUserQuestion. Make every option specific to this request, never generic.
+1. "What is it / what's it for?" only if unclear: 2-4 concrete readings of the request.
+2. "Who is it for and what should they feel/do?": 3-4 audience+goal options you infer.
+3. "Which feel?": 3-4 OPPOSED pairs turned into options, each a vivid one-liner (e.g. "Loud & playful — big type, saturated colour, motion" vs "Quiet & precise — monochrome, grids, restraint" vs "Editorial & crafted" vs "Raw & experimental"). Add "Surprise me (bold)".
+4. "Anything you love or hate?": common answers for this kind of work (e.g. "Love: brutalist sites", "Hate: dark mode", "No preference").
+Skip questions the request already answers. If the user said "just do it"/"decide for me", skip all and state assumptions.
+Then call drip_brief with the answers. Default ambition is BOLD: distinctive and memorable, never the safe default, unless the user asked for plain/conservative.`;
+
+const TALK = `HOW TO TALK TO THE USER (whole task): decisions first; 3-6 short lines per message; show (board link, screenshots, renders) instead of describing; one question at a time with buttons (AskUserQuestion); never paste tool output walls; at milestones say what changed and what's next in one line each.`;
 
 export function register(server, ctx) {
   server.registerTool(
@@ -59,36 +87,73 @@ export function register(server, ctx) {
     {
       title: "Start a design task",
       description:
-        "Start a Drip design task (the user ran /drip:start or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. " +
+        "Start a Drip design task (the user ran /drip:design or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. " +
         "It decides the loop (full for new/redesigned UI, quick for tweaks), lists the guides you must read and returns the first one. " +
         "While the task is open, the plugin blocks writing UI files until its requirements are met; close it with drip_end.",
       inputSchema: {
-        task: z.string().describe("What you are designing, in the user's words plus context. e.g. 'pricing page for a dev-tools SaaS, dark, technical audience'"),
-        size: z.enum(["full", "quick"]).optional().describe("full = new page/component/redesign (references, moodboard, direction). quick = tweak to existing UI. Omit to let Drip decide."),
-        surface: z.enum(["landing", "app", "mobile", "component", "other"]).optional(),
+        task: z.string().describe("What you are designing, in the user's words plus context. e.g. 'portfolio site for Claude', 'logo for a bakery called Crumb', 'polish the pricing cards'"),
+        mode: z.enum(["design", "logo", "refs", "board", "polish"]).optional().describe("design = new UI/redesign; logo = logo/wordmark/identity; refs = references only; board = moodboard only; polish = tweak existing UI. Omit to let Drip decide."),
+        size: z.enum(["full", "quick"]).optional().describe("Overrides the loop size. Omit normally."),
+        surface: z.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
+        packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
       },
     },
-    async ({ task, size, surface }) => {
+    async ({ task, mode, size, surface, packs }) => {
       const g = guess(task);
-      const s = size || g.size;
-      const sf = surface || g.surface;
-      const guides = requiredGuides(s, sf, task);
-      const t = newTask({ title: task, size: s, surface: sf, guides });
-      const first = s === "full" ? "loop" : guides[2] || "rules/hard-rules";
+      const m = mode || guessMode(task) || (g.size === "quick" ? "polish" : "design");
+      const s = size || (m === "polish" ? "quick" : "full");
+      const sf = surface || (m === "logo" ? "brand" : g.surface);
+      const pk = packs || matchPacks(task).map((p) => p.id);
+      const guides = requiredGuides(s, sf, task, m, pk);
+      const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
+      const first = s === "full" && !["refs", "board"].includes(m) ? "loop" : guides[1] || "rules/hard-rules";
       const body = readGuide(first);
       if (body) t.guidesRead.push(first);
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: new Date().toISOString(), endedBy: "new task" });
         st.task = t;
       });
+      const config = ctx.config();
       return text(
-        `Drip task started: ${s.toUpperCase()} loop, surface: ${sf}.\n` +
-          (s === "full"
-            ? "Full loop because this is new or redesigned UI. If it is really a small tweak, call drip_start again with size: \"quick\".\n"
-            : "Quick loop because this is a change to existing UI. If it is new UI or a redesign, call drip_start again with size: \"full\".\n") +
-          `\nREQUIRED GUIDES (the plugin blocks UI writes until each is read with drip_guide):\n${guides.map((x) => `- ${x}${x === first ? "  (included below)" : ""}`).join("\n")}\n\n` +
-          `${nextStep(t, ctx.config())}\n\n` +
+        `Drip task started: mode ${m}, ${s} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.\n` +
+          (m === "polish" ? "Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode \"design\".\n" : "") +
+          `\nREQUIRED GUIDES (read each with drip_guide; UI writes are blocked until then):\n${guides.map((x) => `- ${x}${x === first ? "  (included below)" : ""}`).join("\n")}\n\n` +
+          (s === "full" && config.gates.requireBrief ? `${INTAKE}\n\n` : "") +
+          `${TALK}\n\n${nextStep(t, config)}\n\n` +
           (body ? `=================== GUIDE: ${first} ===================\n${body}` : ""),
+      );
+    },
+  );
+
+  server.registerTool(
+    "drip_brief",
+    {
+      title: "Record the brief",
+      description:
+        "Record the user's answers to the intake questions (or your stated assumptions when they said 'decide for me'). Required before research on full loops. " +
+        "Example: drip_brief({ what: 'portfolio site for Claude', audience: 'developers and curious people meeting Claude', job: 'show what Claude makes and how it works', feel: ['loud & playful', 'crafted'], loves: ['kinetic type'], hates: ['corporate SaaS look'], ambition: 'bold' })",
+      inputSchema: {
+        what: z.string(),
+        audience: z.string(),
+        job: z.string().describe("What the visitor should do or feel"),
+        feel: z.array(z.string()).min(1).describe("The chosen feel words / options"),
+        loves: z.array(z.string()).optional(),
+        hates: z.array(z.string()).optional(),
+        ambition: z.enum(["bold", "balanced", "conservative"]).optional().describe("Default bold. Conservative ONLY if the user asked for plain / safe / corporate."),
+        constraints: z.string().optional(),
+        assumptions: z.string().optional().describe("What you assumed without asking"),
+      },
+    },
+    async (brief) => {
+      const b = { ...brief, ambition: brief.ambition || "bold", at: new Date().toISOString() };
+      const st = updateState((s) => {
+        if (s.task) s.task.brief = b;
+      });
+      if (!st.task) return text("No Drip task is active. Call drip_start first.", true);
+      return text(
+        `Brief recorded: ${b.what} · for ${b.audience} · feel: ${b.feel.join(", ")} · ambition: ${b.ambition}.\n` +
+          (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") +
+          `${nextStep(st.task, ctx.config())}`,
       );
     },
   );
@@ -100,7 +165,7 @@ export function register(server, ctx) {
       description:
         "Returns the full text of a design guide and records that you read it. Read every guide drip_start lists, and the guide of any craft before you do it " +
         "(e.g. 'color' before picking colours, 'motion' before animating). Topics: loop, brief, refs, moodboard, direction, system, color, type, layout, landing, app, mobile, " +
-        "components, interaction, motion, imagery, productshots, icons, copy, a11y, fitcheck, polish, rules/hard-rules, rules/slop-tells, rules/per-surface, rules/licences. " +
+        "components, interaction, motion, imagery, productshots, icons, copy, a11y, fitcheck, polish, logo, adapt, readme, rules/ambition, rules/communication, rules/hard-rules, rules/slop-tells, rules/per-surface, rules/licences, examples/portfolio, examples/logo, examples/adapt, examples/lazy-run, pack:<id>. " +
         "Sub-guides look like 'color/dark-mode'. Pass topic 'index' for the full list.",
       inputSchema: { topic: z.string().describe("Guide topic, e.g. 'color' or 'color/dark-mode' or 'rules/slop-tells' or 'index'") },
     },

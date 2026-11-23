@@ -38,7 +38,7 @@ Good imagery shows the real thing: the place, the food, the object, the hands at
 
 Say it once, plainly, then carry on with what you can do:
 
-> I can find licensed photos now. For generated images (hero art, illustration, renders) I need an image provider key. Run `/drip keys` or I can open the key page for you. Or send me your own photos and I will use those first.
+> I can find licensed photos now. For generated images (hero art, illustration, renders) I need an image provider key. Run `/drip:settings` and pick "Add API keys", or I can open the key page for you. Or send me your own photos and I will use those first.
 
 Then call `keys_open` only if the user says yes. Never block the page on a key: find, ask, or set the slot in type.
 

@@ -1,105 +1,106 @@
-# Brief questions: what to ask, how to ask, and when to stop asking
+# Brief questions: one round, four buttons, your answer first
 
-You get one message of questions, three at most. Spend them on the unknowns that change the build the most. Everything else you infer, state, and let the user correct. A user who has to answer a questionnaire before seeing anything stops trusting the process; a user who sees a confident reading of their request and can fix one line keeps going.
+You get one round of at most four questions, asked with AskUserQuestion. Spend them on the unknowns that change the build the most; infer, state and let the user correct everything else. Each question arrives with Drip's recommended answer as option 1, so a user who agrees with you finishes the intake in four clicks, and a user who doesn't can say so in "Other". A questionnaire before anything is shown loses people; a confident reading they can fix in one click keeps them.
 
 ## The rules
 
-1. **Scan first.** Never ask what the repo, the prompt or an earlier message already answers.
-2. **Three questions, one message, then wait.** Use the harness's structured question tool when there is one; otherwise ask in plain text and stop.
-3. **Assert, then invite correction.** "I'm reading this as a sign-up page for small accounting firms; correct me if it's for their clients" beats "Who is the audience?".
-4. **Product questions only.** Never ask for colours, fonts, CSS values, or "which style do you like?". Taste is decided on the board, against real references.
-5. **A second round only for a material gap** the answers exposed (a new audience, a missing constraint). Never a second round to confirm what you could assume.
-6. **Facts are never inferred.** You may assume an audience or a tone; you may not assume a price, a customer count, a quote or a logo. Those go to the "absent" list.
-7. **No one to answer?** (a headless run, a batch, "just go ahead"): do not ask. Write the assumptions block and continue.
+1. **Scan first.** Never ask what the repo, the prompt or an earlier message answers. Open the round with one line on what you found.
+2. **One round, four at most, then wait.** A second round only for a material gap an answer exposed (a new audience, a missing constraint), never to confirm what you could assume.
+3. **Recommendation first.** Option 1 is your pick, labelled "(Recommended)" with a reason of a few words. Word it so accepting it is the natural click.
+4. **Options specific to this request.** "Indie bike shops booking repairs" beats "Small businesses". Generic options are a sign you didn't read the request.
+5. **"Other" always open.** Never trap the user in your options.
+6. **Loves and hates, always.** It is the one place free text matters most: links, brands, "no dark mode".
+7. **Product and feel questions only.** Never ask for colours, fonts or CSS values in words; show them on the board.
+8. **Facts are never inferred.** You may assume an audience or a tone; you may not assume a price, a customer count, a quote or a logo. Those go to "absent".
+9. **No one to answer** (headless, batch, "just go ahead"): ask nothing; write the assumptions block and pass it to `drip_brief` as `assumptions`.
 
-## Pick the three: the question bank
+## Choosing the four
 
-Score each candidate: would two different answers produce two different builds? Ask only the top three.
-
-### Every mode
+Score each candidate: would two different answers produce two different builds? Ask the top four.
 
 | Question | Ask when | Skip when |
 |---|---|---|
-| Who reaches this, in what situation? | the prompt names no audience, or names a category ("businesses") | the repo's `PRODUCT.md` or README says |
-| What must they do here, and what counts as success? | the job could be two things (sign up vs. book a demo) | there is one obvious action |
-| What is true of this product that a competitor could not say? | the prompt is generic ("a landing page for my app") | the prompt already contains a distinctive fact |
-| What real material can the page show: screenshots, photos, numbers, a quote with a name, logos you may use? | always on Persuade, unless already supplied | Operate screens that show the product's own data |
-| What must not change? | the project has an existing look or the task is a redesign | greenfield |
+| What is it? | the request could mean two different surfaces | it's clear |
+| Who is it for, and what should they do? | the audience or the action could go two ways | `PRODUCT.md`, README or the prompt says |
+| Which feel? | almost always on a full loop | the brand or the user pinned the look |
+| Anything you love or hate? | always | never skip |
+| What real material can it show? | Persuade with no photos, numbers or quotes in the repo | the repo has them; Operate screens with their own data |
+| What must not change? | redesign of an existing look | greenfield |
 
-### Persuade
+When "material" or "what must not change" matters more than "what is it", swap it in. Four is the ceiling.
 
-- Who must act, and what should they believe first?
-- Which proof earns that belief (a demo, a price, a customer, a number someone gave you)?
-- Is there a hard launch date, campaign line or brand rule I must use?
+## Building the feel options
 
-### Operate
+Pick 3 options that sit at opposed poles of the four axes (tone, aesthetic density, audience relationship, sensory ambition), then add "Surprise me (bold)". Each option says what it looks like in one line.
 
-- What is the task, and how often is it done (once a quarter vs. 50 times a day)?
-- What data does the screen hold at minimum, typically, and at worst?
-- Which states matter most: first run, empty, error, permissions, bulk actions?
+| Surface | Option 1 (example recommendation) | Option 2 | Option 3 |
+|---|---|---|---|
+| Developer tool landing | "Editorial & exact: big type, a real diff as the hero, strict grid, no terminal costume (Recommended: devs get too much dark mono)" | "Loud & playful: saturated colour, kinetic type, one interactive demo" | "Quiet authority: paper-white, one accent, dense docs-like facts" |
+| Bakery site | "Warm & tactile: today's bake list set large like the chalkboard, daylight photos (Recommended: the bake list is the reason to visit)" | "Retro print: two-ink poster look, wood-type caps" | "Quiet luxury: photography-led, very few words" |
+| Analytics dashboard | "Precise instrument: dense, tabular, one signature chart (Recommended: it's used daily)" | "Calm companion: airy, guided, plain-language insights" | "Bold shell: a coloured rail, big headline numbers" |
+| Personal portfolio | "Loud & playful: huge kinetic type, saturated colour, one motion moment (Recommended: nobody screenshots a quiet portfolio)" | "Catalogue: the work as an index, big numbers, strict grid" | "Conversational: hand-made details, a voice like a letter" |
 
-### Read
+The recommendation leans away from what the audience already gets too much of.
 
-- What question does the reader arrive with?
-- What is the source material and how is it structured today?
-- How do readers move: search, a sidebar tree, linear chapters?
+## Example round (AskUserQuestion)
 
-### Experience
+Opening line: *"Next.js + Tailwind v4; your green `#0F7B5F` and the logo in `/public` stay. Four quick ones:"*
 
-- What leads: the work, a story, an interaction?
-- How should exploration unfold: scroll, a grid, a single object?
-- Which one moment must people remember?
+```
+1. Who is this for, and what should they do?
+   - Existing customers booking a repair slot on their phone (Recommended: your nav already says "Book")
+   - New customers comparing shops nearby
+   - Both, booking first
+2. Which feel?
+   - Workshop-honest: the repair board as the hero, real prices, big condensed type (Recommended)
+   - Friendly local: warm photos of the team, conversational copy
+   - Precise service: clean, fast, a booking widget and nothing else
+   - Surprise me (bold)
+3. What can the page show?
+   - Photos of the workshop I'll send (Recommended)
+   - Nothing yet: use labelled stand-ins
+   - Real prices from prices.json
+4. Anything you love or hate?
+   - Hate: stock photos of smiling mechanics
+   - Love: sites that show prices up front
+   - No preference
+```
 
-## The one-message format
-
-Lead with your reading of the request, then the questions, then the escape hatch.
-
-> I'm reading this as a **Persuade** page for **independent bike shops** whose job is to **book a repair slot**. I'll keep your existing Tailwind tokens and the logo in `/public`.
->
-> Three things before I start:
-> 1. **Material:** what can the page show? Photos of the workshop, real prices, a review with a name? Without photos I'll use labelled stand-ins you replace later. I never invent numbers or quotes.
-> 2. **What's true only of you?** For example same-day turnaround, a specific neighbourhood, a mechanic people ask for by name.
-> 3. **The action:** is it booking a slot online, or calling the shop?
->
-> Or say **go ahead** and I'll infer these and list what I picked.
-
-- Do: put material first on Persuade. It shapes the page more than any other answer.
-- Don't: offer a menu of styles ("minimal, bold or playful?"). That locks the direction before a single reference was studied.
+"Other" is always there; the user can type a link or a sentence on any of them.
 
 ## The assumptions block
 
-When you do not ask (or the user says "go ahead"), put this at the top of your next message and in the brief's `Assumed:` line. One line per inference, each one correctable.
+When you don't ask (or the user says "go ahead"), put this in your next message and pass it as `assumptions` to `drip_brief`. One line per inference, each correctable.
 
 ```
 Assumed (say the word and I'll change any of these):
-- Audience: independent bike shops' existing customers, on phones, booking between rides.
+- Audience: the shop's existing customers, on phones, booking between rides.
 - Job: book a repair slot online; success = a confirmed slot.
-- Mode: Persuade. Loop: full. Depth: new page inside the existing site.
+- Feel: workshop-honest, bold. Mode: Persuade. Loop: full.
 - Keep: Tailwind tokens in app/globals.css, the logo, the nav.
 - Absent: prices, reviews, opening hours (slots left for them, nothing invented).
 ```
 
+"Go ahead" covers the brief. It is not approval for paid generation, replacing a brand, or anything irreversible later; ask once when you get there.
+
 ## Worked examples
 
-**Sparse prompt: "make a landing page for my app".**
-Scan the repo: it is a habit tracker built with Expo and a Next.js marketing folder. Ask: (1) who it's for and the moment they open it, (2) what's true only of this tracker, (3) what you can show (App Store screenshots, a rating with a source). Assume the job is "download on iOS".
+**Sparse: "make a landing page for my app".** Scan: an Expo habit tracker with a Next.js marketing folder. Ask: (1) who and the moment they open it, with your inferred reading first, (2) feel, (3) what you can show (App Store screenshots, a rating with a source), (4) loves/hates. Assume the job is "download on iOS".
 
-**Precise prompt: "pricing page for Ledgerly, three tiers, monthly/annual toggle, our brand is the green in globals.css, for accounting firms of 5-50 people".**
-Audience, job, brand and structure are given. Ask nothing, or one question at most: "Are the tier prices final? I'll set the ones in `pricing.ts` and leave a slot for anything missing." Write the assumptions block and go.
+**Precise: "pricing page for Ledgerly, three tiers, monthly/annual toggle, our green in globals.css, for 5-50 person accounting firms".** Audience, job, brand and structure are given. Ask two: feel (with a recommendation that fits the existing brand) and loves/hates. Record the rest.
 
-**Operate prompt: "design the orders table for our admin".**
-Scan: shadcn, Tailwind, an existing `DataTable`. Ask: (1) how many orders a typical user sees and the worst case, (2) the three actions done most often on an order, (3) which states matter (refunds pending, failed payments). Never ask about the look: the admin's system already decides it.
+**Operate: "design the orders table for our admin".** Scan: shadcn, Tailwind, an existing `DataTable`. Ask: (1) typical and worst-case order count, (2) the three most frequent actions, (3) loves/hates (other admin tools they like). Skip feel: the admin's system decides it.
 
-**Redesign prompt: "our site looks generic, redesign it".**
-Use the redesign ask instead: (1) what must stay (brand, sections, a page, every word?), (2) what feels wrong, in your words, and what you want people to feel instead, (3) anything new to show. Offer depths in one line: polish (fix the tells), restyle (new system, same layout), full (new system and composition, same content and wiring).
+**Redesign: "our site looks generic, redesign it".** Ask: (1) depth (polish / restyle / full redesign, with your recommendation first), (2) what must stay, (3) feel, (4) what feels wrong now and what they love elsewhere.
 
 ## After the answers
 
-- Fold every answer into the brief. Quote the user's own words for the uniquely-true line and any binding phrase.
-- A user's answer that pins a look ("it must feel like a 1970s railway timetable") is a brief constraint: it wins over Drip's taste and over the slop list. Record it as a pin.
-- A product the user cites as an example ("like Linear") sets the **craft bar**, not the look. Note it as a reference to study, not a style to copy.
-- Answers that contradict the repo (they say "no dark mode", the code has a dark theme): name the conflict, say which side you will follow, and ask once.
+- Call `drip_brief` immediately. Quote the user's own words in `feel`, `loves` and `hates`.
+- An answer that pins a look ("it must feel like a 1970s railway timetable") is a constraint: it wins over Drip's taste and the slop list.
+- A product cited as an example ("like Linear") sets the **craft bar**, not the look. Study it as a reference; don't copy it.
+- If the user clicked your recommendation without reading, that's still their answer. If they typed "you pick" in Other, record it under `assumptions`, never as their taste.
+- Answers that contradict the repo: name the conflict, say which side you will follow, ask once.
 
 ## Sources
 
-Rewritten from **Impeccable** (Apache-2.0: discovery rounds of 2-3 questions, assert-and-correct, never ask for CSS or aesthetic lanes, the reference product sets the craft bar) and **Hallmark** (MIT: ask once, material first, "go ahead" as the opt-out, facts never inferred, the redesign ask).
+Rewritten from **Impeccable** (Apache-2.0: assert-and-correct, never ask for CSS or aesthetic lanes, the reference product sets the craft bar) and **Hallmark** (MIT: material first, "go ahead" as the opt-out, facts never inferred, the redesign ask). New in 0.3: **mattpocock/skills grilling** (MIT: ask the frontier, a recommended answer for every question, never ask what you can look up), **rampstackco/claude-skills creative-direction** (MIT: the four feel axes and the "too much of" rule), **julianoczkowski/designer-skills** (Apache-2.0: scan first, then ask), **buttonsprite/visual-direction-moodboard** (MIT: delegated picks are never recorded as the user's taste). Ideas only: **ziguishian/brand-design-skill** (no simulated consent).

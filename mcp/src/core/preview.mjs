@@ -17,6 +17,10 @@ export async function previewHtml(html, { width = 1200, height = 700, config } =
   } catch {
     return null;
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
+    try {
+      fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+    } catch {
+      /* locked temp dir on Windows; best-effort */
+    }
   }
 }

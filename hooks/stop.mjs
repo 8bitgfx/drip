@@ -21,9 +21,12 @@ run(async () => {
   }
   updateState((st) => st.task && (st.task.stopBlocks = blocks + 1), dir);
   const files = [...new Set(task.uiWrites.map((w) => w.file))].slice(-8).join(", ");
+  const fcDone = task.fitcheck?.doneAt && task.fitcheck.doneAt >= task.lastUiWriteAt;
   const how =
     task.size === "full"
-      ? "Run the page, call fitcheck_shot (phone + desktop), fitcheck_compare against the chosen direction, fix what you see, then fitcheck_done with honest scores."
+      ? fcDone
+        ? 'The critic hasn\'t passed the latest build. critic_prepare({ kind: "build", targets: [<page URL>] }) -> Agent drip:critic -> critic_record, fix what it says, repeat (max 3 rounds).'
+        : 'Run the page: fitcheck_shot (phone + desktop), fitcheck_compare, then the critic (critic_prepare kind "build" -> Agent drip:critic -> critic_record), fix, fitcheck_done.'
       : "Call fitcheck_lint on the changed files and look at the change (fitcheck_shot if the page runs), then fitcheck_done.";
   out({
     decision: "block",

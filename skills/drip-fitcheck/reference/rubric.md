@@ -153,6 +153,20 @@ verdict   fail (layout 3)
 
 Then call `fitcheck_done` with `scores` (all eight axes), `verdict` ("pass" only when every axis is 4+, otherwise "fail") and `fixes` (what you fixed, or what is still wrong). Set `acceptedByUser: true` only when the user said to ship with the remaining gaps.
 
+## Your scores and the critic's
+
+Your eight 1-5 scores are the self-critique: they decide whether the page is ready to be judged, not whether it ships. The drip:critic subagent scores its own axes 1-10 with weights (idea, conviction, fit, hierarchy and composition, craft, system, delivery) and gives the verdict that counts.
+
+| Your axis | Closest critic axis | Note |
+|---|---|---|
+| Hierarchy, Layout | Hierarchy & composition | the critic also asks whether the right thing is first |
+| Type, Color, Polish | Craft, System | the critic also checks one world top to bottom and no hybrid genre |
+| Imagery, Copy | Delivery, Fit | real content, phone, contrast, the client's hates |
+| Fidelity | Fit | brief and chosen direction |
+| (none) | Idea, Conviction | you can't grade your own idea fairly; that is the critic's job |
+
+When your scores say pass and the critic says REVISE, the critic wins. When the critic passes something you scored 3, fix your 3 anyway if it's cheap, and say so.
+
 ## Sources
 
-Adapted and rewritten from Impeccable (Apache-2.0) critique and critique-rubric references (honest scoring bands, heuristic checks, cognitive load and the four-option limit, design specificity), Hallmark (MIT) gates and pre-emit critique (score bands per axis, thin sections, contrast and accent footprint, mass and entry comparison), and Taste Skill (MIT) finish checklist.
+New in 0.3: the mapping to the critic's weighted axes follows **vip999611-ai/Design-review** (Apache-2.0, modified) and **Thecsiz/tastemaker** (MIT). Adapted and rewritten from Impeccable (Apache-2.0) critique and critique-rubric references (honest scoring bands, heuristic checks, cognitive load and the four-option limit, design specificity), Hallmark (MIT) gates and pre-emit critique (score bands per axis, thin sections, contrast and accent footprint, mass and entry comparison), and Taste Skill (MIT) finish checklist.

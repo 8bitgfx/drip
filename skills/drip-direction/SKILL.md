@@ -1,6 +1,6 @@
 ---
 name: drip-direction
-description: Use when choosing or committing to a look ("what style should this be", "make it distinctive", "it looks generic / AI-made / templated", "give me alternatives"), after a moodboard direction is chosen, and before writing tokens or UI. Covers the genres and styles catalogue, making alternatives that really differ, committing to a point of view, and scaling ambition to the surface mode. Part of Drip, between the moodboard and the system.
+description: Use when choosing or committing to a look ("what style should this be", "make it distinctive", "it looks generic / AI-made / templated", "give me alternatives"), after a moodboard direction is chosen, and before writing tokens or UI. Covers the genres catalogue with each genre's breaks_if tokens, the "Tasteful AI" anti-genre, making alternatives that really differ, committing to a point of view (bold by default), and scaling ambition to the surface mode. Part of Drip, between the moodboard and the system.
 user-invocable: false
 ---
 
@@ -22,9 +22,10 @@ one ground and ink, one type voice, one signature move, committed as far as the 
 7. Spend boldness in one place. Everything around the signature is quiet and exact.
 8. One world owns the page, top to bottom. A world that stops after the hero is a template with a good hero.
 9. Commit every atom: buttons, inputs, nav, links and tables are restyled in the world's vocabulary. A stock component inside a committed world is a lapse.
-10. Never land in an AI default when the brief leaves the look free: cream + high-contrast serif + terracotta; near-black + one neon; broadsheet hairlines + italic serif + tracked mono labels; flat saturated fills + black borders + hard offset shadows; the SaaS card kit; purple-to-blue gradients; a hue picked for the category (blue = finance, green = health).
-11. A brief- or brand-pinned look wins over all of the above. Push quality inside it instead.
-12. Run the three tests before the system step: category guess, competitor-name swap, thumbnail. Fail any: rework.
+10. Ambition is bold unless the brief says otherwise (`drip_guide rules/ambition`). "Tasteful AI" (cream + polite serif + terracotta + mono eyebrows) and its siblings (near-black + neon + glow; purple gradients + glass; Inter as the only voice) are a named anti-genre, never a direction unless the brief pins it. Same for a hue picked by category (blue = finance, green = health).
+11. One genre leads; no hybrids. Copy its `breaks_if` list into the contract and check the built CSS against it; a second genre may lend one named move only.
+12. The chosen direction is locked: sharpen it, never swap its idea, palette or type voice without asking. A brief- or brand-pinned look wins over all of the above.
+13. Run the tests before the system step: category guess, competitor swap, thumbnail, logo off, mirror, `breaks_if`, screenshot. Fail any: rework.
 
 ## Tools
 - `board_read` / `board_choose` — the chosen direction's card (name, palette, type, items) is your starting point.
@@ -37,6 +38,6 @@ one ground and ink, one type voice, one signature move, committed as far as the 
 ## Read deeper when
 | Situation | Call |
 |---|---|
-| Naming the genre, its signature moves and its slop risks | `drip_guide direction/genres` |
+| Naming the genre, its signature moves, slop risks and `breaks_if` list; the "Tasteful AI" anti-genre | `drip_guide direction/genres` |
 | Making alternatives that differ for real, or the work looks templated | `drip_guide direction/alternatives` |
 | Turning the direction into tokens and `DESIGN.md` | `drip_guide system` |

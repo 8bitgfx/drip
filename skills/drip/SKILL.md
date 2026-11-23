@@ -1,47 +1,46 @@
 ---
 name: drip
-description: Use when the user asks for Drip or for a real design process on UI work ("use drip", "/drip:start", "design this properly", "with references / a moodboard", "make it not look AI-made") — a new page, screen, site, dashboard, component or redesign in any frontend stack. Runs a real designer's loop (brief, references, moodboard, direction, system, assets, build, fit check) through the Drip MCP tools; while a Drip task is active its hooks enforce the loop.
+description: Use when the user asks for Drip (/drip:design) or for a real design process on visual work ("design this properly", "with references / a moodboard", "make it not look AI-made", "make me a logo") — a page, screen, site, dashboard, component, logo or redesign in any stack. Drip is the design director: intake questions, studied references, critic-ranked directions, a system, the build, and an independent harsh critic before hand-off. While a Drip task is open its hooks enforce the loop.
 user-invocable: false
 ---
 
 # Drip: work like a real designer
 
-**Step 0, load the tools.** Drip's tools are deferred. If `drip_start` is not already callable, load them in one call:
-ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide,mcp__plugin_drip_drip__drip_status` (load more `mcp__plugin_drip_drip__*` tools the same way as each step needs them, e.g. `+drip refs`). Only if that returns nothing is the server down: tell the user to run `/mcp` and reconnect `plugin:drip:drip`.
+**0. Load the tools** (they're deferred). If `drip_start` isn't callable: ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_guide,mcp__plugin_drip_drip__drip_status`; load others the same way when a step needs them (ToolSearch `+drip refs`, `+drip board`, `+drip critic`, `+drip logo`). Nothing loads → tell the user to reconnect `plugin:drip:drip` in `/mcp`, and stop.
 
-**Step 1: call `drip_start` with what you are designing.** It decides the loop (full or quick), lists the guides you must read, returns the first one, and tells you the next call. From then until `drip_end`, the plugin **blocks writing UI files** until the task's requirements are met, and **blocks ending your turn** after UI changes until a fit check is recorded. There is no shortcut: do the work.
+**1. `drip_start`** with the request. It picks the mode (design · logo · refs · board · polish), the loop, the niche packs, the guides you must read, and tells you the next call. Then follow it. Lost: `drip_status`.
 
-Lost at any point: `drip_status` (checklist + the exact next call).
+## The loop (full)
+| # | Step | Do | Tools |
+|---|---|---|---|
+| 1 | **Intake** | ONE round of ≤ 4 clickable questions (AskUserQuestion), options specific to this request, your recommendation first. Read the project first; never ask what you can look up. | AskUserQuestion → `drip_brief` |
+| 2 | **References** | 3+ angles of search, scan sheets, **pick** the few that fit, **view + zoom + study** each (structured notes with values). 6-12 studied, 3+ designers. | `refs_search` `refs_tag` `refs_related` `refs_designer` → `refs_pick` → `refs_view` → `refs_zoom` → `refs_study` |
+| 3 | **Directions** | Board auto-collects studies. 2-3 directions that differ in **idea**, each named like a movement with a manifesto; at least one daring. Render **style tiles**. | `board_create` `board_add` `board_directions` `board_tile` |
+| 4 | **Critic ranks** | Independent harsh review of the tiles. Rework anything it rejects BEFORE the user sees it. | `critic_prepare` → Agent `drip:critic` → `critic_record` |
+| 5 | **User chooses** | Board link + one line per direction with the critic's score + your pick and its risk; ask with buttons. Chosen = locked. | `board_open` → AskUserQuestion → `board_choose` |
+| 6 | **System** | DESIGN.md + tokens from the direction | `palette_generate` `palette_check` `fonts_pair` `fonts_preview` → `drip_mark system` |
+| 7 | **Build** | Proven components restyled; real copy and imagery; one signature move | `components_*` `icons_*` `images_*` `gen_image` `gradient_mesh` |
+| 8 | **Check** | Screenshots, self-critique, then the critic until PASS (max 3 rounds) | `fitcheck_shot` `fitcheck_compare` `fitcheck_lint` → critic → `fitcheck_done` |
+| 9 | **Hand-off** | Screenshots, critic verdict in its own words, what's left | `drip_end` |
 
-## The loop
+**Logo mode**: intake → refs → 8-12 one-sentence concepts → `logo_sheet` → critic ranks → refine top 2-3 in black first → `logo_test` → critic → user picks → lockups. Read `drip_guide logo`.
+**Polish mode** (quick): read the listed guides → change → `fitcheck_lint` (+ `fitcheck_shot`) → `fitcheck_done`.
+**Refs / board only**: stop after the summary / the board and offer the next step.
 
-| # | Step | Do | Tools | Guide |
-|---|---|---|---|---|
-| 1 | Brief | Who, job of the surface, feeling, constraints. Ask max 3 questions, else state assumptions. Read the project's existing tokens/components first. | — | `brief` |
-| 2 | References | 3+ searches, scan contact sheets, open 8-15 picks full size, note what each does well | `refs_search` `refs_related` `refs_tag` `refs_designer` `refs_view` | `refs` |
-| 3 | Moodboard | Add picks with specific notes, cluster into 2-3 real directions | `board_create` `board_add` `board_directions` | `moodboard` |
-| 4 | Direction | Show the board, user picks (or you pick with a reason when told to proceed) | `board_open` `board_read` `board_choose` | `direction` |
-| 5 | System | DESIGN.md + tokens: palette, type, spacing, radius, motion | `palette_generate` `palette_check` `fonts_pair` `fonts_preview` → `drip_mark system` | `system` `color` `type` `layout` |
-| 6 | Assets | One icon family, real imagery, gradients/texture | `icons_*` `images_search` `images_save` `gen_image` `gradient_mesh` | `icons` `imagery` |
-| 7 | Build | Proven components first, restyled to tokens | `components_find` `components_get` | `components` + surface guide |
-| 8 | Fit check | Screenshot, compare with the direction, score honestly, fix, repeat | `fitcheck_shot` `fitcheck_compare` `fitcheck_lint` `fitcheck_done` | `fitcheck` |
-| 9 | Polish | The invisible details | — | `polish` `interaction` `motion` |
-
-**Quick loop** (tweak to existing UI): `drip_start` with size `quick` → read the guides it lists → change → `fitcheck_lint` (+ `fitcheck_shot` if it runs) → `fitcheck_done`.
+## The critic
+`critic_prepare` renders the work to files and returns a prompt; launch `Agent({ subagent_type: "drip:critic", description: "Critic review", prompt })` **with that prompt unchanged**; no defence of the work, no context about effort. Record with `critic_record`, show the user its words. Self-critique before calling it; it's the independent second opinion, not a substitute for looking.
 
 ## Rules you must not break
-1. No UI before `drip_start`. No new page/component before references, a board and a chosen direction.
+1. **Ambition is bold by default** (`drip_guide rules/ambition`). The safe default (cream + terracotta + serif, centred hero + 3 cards, neon-on-black, gradients, Inter) is a failure unless the user asked for plain.
 2. Read a craft's guide (`drip_guide <topic>`) before doing that craft. Skimming this file is not reading.
-3. Follow the project's existing system (DESIGN.md / tokens) unless the task is a redesign — and say so if you change it.
-4. One accent colour, one type pairing, one icon family, one radius scale — unless the direction says otherwise.
-5. Real content: real copy, real product UI, real imagery. No lorem, no fake stats, no placeholder boxes.
-6. Prefer a proven component (`components_find`) over hand-rolling, then restyle it — never ship library defaults.
-7. Every colour pair passes contrast (`palette_check`); every interactive element has hover, press, focus-visible and disabled.
-8. Never ship without a fit check on a real screenshot at phone and desktop size.
-9. References are for studying, never for copying a design one-to-one.
-10. Never call `drip_skip` on your own; only when the user explicitly asks to skip the process.
+3. Studying means looking closely: pick, view full size, zoom into details, write values. A contact sheet is not research.
+4. Options differ in idea, not palette. Equal fidelity, no strawmen.
+5. Follow an existing system unless it's a redesign; say so if you change it. Chosen = locked; never "improve" a user's pick without asking.
+6. Real content only: no lorem, fake stats, fake logos or placeholder boxes.
+7. Contrast passes (`palette_check`); every control has hover, press, focus-visible, disabled.
+8. Talk like `rules/communication`: decisions first, short, show don't tell, one question with buttons.
+9. Never call `drip_skip` on your own.
 
-## The craft skills (each has a guide; the loop tells you when)
-`drip-brief` · `drip-refs` · `drip-moodboard` · `drip-direction` · `drip-system` · `drip-color` · `drip-type` · `drip-layout` · `drip-landing` · `drip-app` · `drip-mobile` · `drip-components` · `drip-interaction` · `drip-motion` · `drip-imagery` · `drip-productshots` · `drip-icons` · `drip-copy` · `drip-a11y` · `drip-fitcheck` · `drip-polish`
+Worked examples (read the one that matches before you start): `drip_guide examples/portfolio`, `examples/logo`, `examples/adapt`, `examples/lazy-run`.
 
-Shared rules: `drip_guide rules/hard-rules`, `rules/slop-tells`, `rules/per-surface`, `rules/licences`.
+Craft guides: brief · refs · moodboard · direction · system · color · type · layout · landing · app · mobile · components · interaction · motion · imagery · productshots · icons · copy · a11y · fitcheck · polish · logo · adapt. Shared rules: `rules/ambition`, `rules/communication`, `rules/hard-rules`, `rules/slop-tells`, `rules/per-surface`, `rules/licences`.

@@ -74,8 +74,11 @@ test("full task blocks until guides, references and direction are done", () => {
   assert.ok(deny(r));
   assert.match(r.hookSpecificOutput.permissionDecisionReason, /guides[\s\S]*references[\s\S]*direction/);
   task.guidesRead = ["rules/hard-rules", "loop"];
+  task.brief = { what: "pricing", audience: "devs", job: "pick a plan", feel: ["precise"], ambition: "bold" };
   task.refs.viewed = ["a", "b", "c", "d", "e", "f"].map((x) => `dribbble:${x}`);
+  task.refs.studied = task.refs.viewed.map((key, i) => ({ key, designer: `designer${i % 3}` }));
   task.board = { id: "b", items: 9, directions: 2, chosen: "Terminal Calm" };
+  task.critic.records.push({ kind: "directions", verdict: "pass", summary: "ok", at: new Date().toISOString() });
   saveState({ version: 1, task, history: [] }, p);
   assert.equal(runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: path.join(p, "src/Pricing.tsx"), content: "<div/>" } }, p), null);
 });
@@ -100,6 +103,11 @@ test("stop is blocked after UI changes until a fit check, then gives up after 3"
   assert.equal(runHook("stop.mjs", {}, p), null);
   const t2 = loadState(p).task;
   t2.fitcheck.doneAt = new Date(Date.now() + 1000).toISOString();
+  saveState({ version: 1, task: t2, history: [] }, p);
+  const r = runHook("stop.mjs", {}, p);
+  assert.equal(r?.decision, "block", "fit check alone isn't enough on a full loop: the critic must pass the build");
+  assert.match(r.reason, /critic/);
+  t2.critic.records.push({ kind: "build", verdict: "pass", summary: "ok", at: new Date(Date.now() + 2000).toISOString() });
   saveState({ version: 1, task: t2, history: [] }, p);
   assert.equal(runHook("stop.mjs", {}, p), null);
 });

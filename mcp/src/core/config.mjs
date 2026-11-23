@@ -7,19 +7,23 @@ import { homeDripDir, projectDripDir } from "./paths.mjs";
 
 export const DEFAULTS = {
   // Turn whole tool groups on or off.
-  modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true },
+  modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true, critic: true, logo: true, packs: true },
 
   // What the hooks enforce.
-  //   mode "task"   (default) Drip only acts while a Drip task is active (/drip:start or drip_start).
+  //   mode "task"   (default) Drip only acts while a Drip task is active (/drip:design or drip_start).
   //                 Without a task the hooks stay silent: no blocking, no nudges, no lint.
   //   mode "always" every UI write needs a Drip task (strict; for teams that want it on every change).
   //   enforce:false advisory only: the tools and guides work, nothing is blocked.
   gates: {
     mode: "task",
     enforce: true,
-    minRefsViewed: 6,        // shots opened full size (refs_view) before UI is written, full loop
-    minBoardItems: 8,        // items on the moodboard before a direction can be chosen
+    requireBrief: true,      // full loop: the user's answers recorded with drip_brief
+    minRefsStudied: 6,       // full loop: references studied with refs_study before UI is written
+    minDesigners: 3,         // ...from at least this many different designers
+    minBoardItems: 6,        // items on the moodboard before directions can be formed
     requireDirection: true,  // a direction must be chosen before UI is written, full loop
+    requireCritic: true,     // the drip:critic subagent ranks directions and must pass the build (full loop)
+    maxCriticRounds: 3,      // after this many build critiques, stop blocking and report what's left
     requireFitcheck: true,   // Claude can't end its turn after UI changes without a fit check
   },
 

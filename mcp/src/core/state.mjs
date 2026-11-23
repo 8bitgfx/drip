@@ -37,40 +37,72 @@ export function updateState(fn, cwd) {
   return out;
 }
 
-export function newTask({ title, size, surface, guides }) {
+export function newTask({ title, size, surface, guides, mode = "design", packs = [] }) {
   return {
     id: Date.now().toString(36),
     title,
     size, // "full" | "quick"
-    surface, // "landing" | "app" | "mobile" | "component" | "other"
+    mode, // "design" | "logo" | "refs" | "board" | "polish"
+    surface, // "landing" | "app" | "mobile" | "component" | "brand" | "other"
     startedAt: new Date().toISOString(),
     requiredGuides: guides,
     guidesRead: [],
-    refs: { searches: 0, seen: 0, viewed: [] },
-    board: null, // { id, items, directions, chosen }
+    packs, // niche pack ids in use
+    brief: null, // set by drip_brief
+    refs: { searches: 0, seen: 0, viewed: [], picked: [], studied: [] }, // studied: [{ key, designer, at }]
+    board: null, // { id, items, directions, chosen, critiquedAt }
     system: false,
     uiWrites: [], // [{ file, at }]
     lastUiWriteAt: null,
+    critic: { runs: [], records: [] }, // runs: timestamps of drip:critic subagent calls; records: verdicts
     fitcheck: { shots: 0, lastShotAt: null, lintAt: null, doneAt: null, score: null },
     skipped: null, // reason, when the user asked to skip the process
   };
+}
+
+/** Distinct designers among studied references. */
+export function studiedDesigners(task) {
+  return new Set((task.refs.studied || []).map((s) => s.designer).filter(Boolean)).size;
+}
+
+/** The latest critic verdict of a kind ("directions", "build", "logo", "pack", "any"). */
+export function lastCritique(task, kind) {
+  return [...(task?.critic?.records || [])].reverse().find((r) => r.kind === kind) || null;
 }
 
 /** Everything still missing before UI may be written. Empty list = allowed. */
 export function missingBeforeUi(task, config) {
   if (!task) return [{ need: "task", how: "call drip_start with what you are designing" }];
   if (task.skipped || !config.gates.enforce) return [];
+  const g = config.gates;
   const missing = [];
-  const unread = task.requiredGuides.filter((g) => !task.guidesRead.includes(g));
+  if (task.size === "full" && g.requireBrief && !task.brief)
+    missing.push({ need: "brief", how: "ask the user up to 4 clickable questions (AskUserQuestion), then record the answers with drip_brief" });
+  const unread = task.requiredGuides.filter((x) => !task.guidesRead.includes(x));
   if (unread.length) missing.push({ need: "guides", how: `call drip_guide for: ${unread.join(", ")}` });
   if (task.size === "full") {
-    const viewed = task.refs.viewed.length;
-    if (viewed < config.gates.minRefsViewed)
-      missing.push({ need: "references", how: `open ${config.gates.minRefsViewed - viewed} more references full size with refs_view (${viewed}/${config.gates.minRefsViewed}); find them with refs_search / refs_tag and refs_sheet` });
-    if (config.gates.requireDirection && !task.board?.chosen)
-      missing.push({ need: "direction", how: task.board ? "group the board with board_directions, then board_choose a direction" : "board_create, add your picks with board_add, then board_directions and board_choose" });
+    const studied = (task.refs.studied || []).length;
+    const designers = studiedDesigners(task);
+    if (studied < g.minRefsStudied || designers < g.minDesigners)
+      missing.push({
+        need: "references",
+        how: `study ${Math.max(0, g.minRefsStudied - studied)} more references from at least ${g.minDesigners} designers (now ${studied} studied, ${designers} designers): refs_search/refs_tag -> refs_pick -> refs_view -> refs_study`,
+      });
+    if (g.requireDirection && !task.board?.chosen)
+      missing.push({ need: "direction", how: task.board ? "board_directions, board_tile, critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions, board_tile, critic review, board_open, board_choose" });
+    if (g.requireCritic && task.board?.chosen && !lastCritique(task, "directions"))
+      missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
   }
   return missing;
+}
+
+/** True when the build changed after the last passing critic verdict (full loop only). */
+export function needsCritic(task, config) {
+  if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
+  const rec = lastCritique(task, "build");
+  const rounds = (task.critic?.records || []).filter((r) => r.kind === "build").length;
+  if (rounds >= config.gates.maxCriticRounds) return false; // never loop forever; the hand-off lists what's left
+  return !rec || rec.at < task.lastUiWriteAt || rec.verdict !== "pass";
 }
 
 /** True when UI changed after the last fit check (so Claude must not end its turn yet). */
@@ -78,7 +110,7 @@ export function needsFitcheck(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireFitcheck) return false;
   if (!task.lastUiWriteAt) return false;
   const last = task.size === "full" ? task.fitcheck.doneAt : task.fitcheck.doneAt || task.fitcheck.lintAt;
-  return !last || last < task.lastUiWriteAt;
+  return !last || last < task.lastUiWriteAt || needsCritic(task, config);
 }
 
 export function isUiFile(file, cwd) {
@@ -92,16 +124,24 @@ export function isUiFile(file, cwd) {
 export function checklist(task, config) {
   if (!task) return "No Drip task is active. Call drip_start first.";
   const tick = (ok) => (ok ? "[x]" : "[ ]");
-  const lines = [`Task: ${task.title}  (${task.size} loop, ${task.surface})${task.skipped ? `  SKIPPED: ${task.skipped}` : ""}`];
-  for (const g of task.requiredGuides) lines.push(`${tick(task.guidesRead.includes(g))} guide: ${g}`);
+  const g = config.gates;
+  const lines = [`Task: ${task.title}  (${task.mode || "design"}, ${task.size} loop, ${task.surface})${task.packs?.length ? `  packs: ${task.packs.join(", ")}` : ""}${task.skipped ? `  SKIPPED: ${task.skipped}` : ""}`];
+  if (task.size === "full") lines.push(`${tick(!!task.brief)} brief${task.brief ? `: ${task.brief.what} · ambition ${task.brief.ambition}` : " (ask up to 4 clickable questions, then drip_brief)"}`);
+  for (const x of task.requiredGuides) lines.push(`${tick(task.guidesRead.includes(x))} guide: ${x}`);
   if (task.size === "full") {
-    lines.push(`${tick(task.refs.viewed.length >= config.gates.minRefsViewed)} references studied full size: ${task.refs.viewed.length}/${config.gates.minRefsViewed} (searched ${task.refs.searches}, scanned ${task.refs.seen})`);
-    lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items` : ""}`);
+    const st = (task.refs.studied || []).length;
+    lines.push(`${tick(st >= g.minRefsStudied && studiedDesigners(task) >= g.minDesigners)} references studied: ${st}/${g.minRefsStudied} from ${studiedDesigners(task)}/${g.minDesigners} designers (picked ${(task.refs.picked || []).length}, viewed ${task.refs.viewed.length}, scanned ${task.refs.seen}, searches ${task.refs.searches})`);
+    lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);
+    lines.push(`${tick(!!lastCritique(task, "directions"))} critic ranked the directions${lastCritique(task, "directions") ? `: ${lastCritique(task, "directions").summary}` : ""}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
     lines.push(`${tick(task.system)} system written (DESIGN.md / tokens)`);
   }
-  lines.push(`${tick(task.uiWrites.length > 0)} UI built (${task.uiWrites.length} writes)`);
+  lines.push(`${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`);
   const fc = task.fitcheck;
-  lines.push(`${tick(!needsFitcheck(task, config) && (fc.doneAt || fc.lintAt))} fit check after the last change (shots ${fc.shots}${fc.score ? `, score ${fc.score}` : ""})`);
+  lines.push(`${tick(!!fc.doneAt && !(task.lastUiWriteAt && fc.doneAt < task.lastUiWriteAt))} fit check after the last change (shots ${fc.shots}${fc.score ? `, score ${fc.score}` : ""})`);
+  if (task.size === "full") {
+    const b = lastCritique(task, "build");
+    lines.push(`${tick(!needsCritic(task, config) && !!b)} critic passed the build${b ? `: ${b.verdict} (${b.summary})` : ""}`);
+  }
   return lines.join("\n");
 }

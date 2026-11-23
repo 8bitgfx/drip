@@ -49,6 +49,7 @@ Some galleries change address or access rules. If one does not load or asks for 
    - `source`: where the image came from and that it is a reference only, e.g. `"Land-book screenshot of example.com; reference only, not for use"`.
    - `note`: the six-field note, same standard as a shot.
 5. **Count them in the spread**: shipped sites and apps satisfy "at least 2 shipped products" for Operate and Read surfaces.
+6. **They don't count toward the gate.** `refs_pick`, `refs_zoom` and `refs_study` work on shots from a Drip listing, so the 6 studies from 3 designers still come from `refs_search` / `refs_tag` / `refs_designer`. Sites from this list are evidence on top, labelled with their attribution (`Candidate`, `Agent Pick` or `User Selected`) like any other item.
 
 ## Browser rules
 

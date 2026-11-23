@@ -6,23 +6,32 @@
 // Claude reads them through drip_guide, which records the read, so the hooks know it happened.
 import fs from "node:fs";
 import path from "node:path";
-import { rulesDir, skillsDir } from "./paths.mjs";
+import { readPackFile } from "./packs.mjs";
+import { examplesDir, rulesDir, skillsDir } from "./paths.mjs";
 
 function topicFile(topic) {
   const t = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
   if (t === "loop" || t === "drip") return path.join(skillsDir, "drip", "guide.md");
   if (t.startsWith("rules/")) return path.join(rulesDir, `${t.slice(6)}.md`);
+  if (t.startsWith("examples/")) return path.join(examplesDir, `${t.slice(9)}.md`);
   const [skill, ...rest] = t.split("/");
   const dir = path.join(skillsDir, `drip-${skill}`);
   return rest.length ? path.join(dir, "reference", `${rest.join("/")}.md`) : path.join(dir, "guide.md");
 }
 
 export function normalizeTopic(topic) {
+  if (/^pack:/.test(topic.trim())) return topic.trim();
   const t = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
   return t === "drip" ? "loop" : t;
 }
 
 export function readGuide(topic) {
+  // Niche packs: "pack:<id>" (its guide.md) or "pack:<id>/<file>" (genres, artists, critic, queries…)
+  const pk = topic.trim().match(/^pack:([a-z0-9-]+)(?:\/([a-z-]+))?$/);
+  if (pk) {
+    const file = pk[2] ? (pk[2].includes(".") ? pk[2] : `${pk[2]}.md`) : "guide.md";
+    return readPackFile(pk[1], file);
+  }
   const file = topicFile(topic);
   if (!fs.existsSync(file)) return null;
   return fs.readFileSync(file, "utf8");
@@ -35,6 +44,7 @@ export function listGuides() {
     const first = fs.readFileSync(file, "utf8").split("\n").find((l) => l.startsWith("# ")) || "";
     out.push({ topic, title: first.replace(/^#\s*/, "") });
   };
+  if (fs.existsSync(examplesDir)) for (const f of fs.readdirSync(examplesDir).filter((f) => f.endsWith(".md"))) add(`examples/${f.slice(0, -3)}`, path.join(examplesDir, f));
   if (fs.existsSync(rulesDir)) for (const f of fs.readdirSync(rulesDir).filter((f) => f.endsWith(".md"))) add(`rules/${f.slice(0, -3)}`, path.join(rulesDir, f));
   if (fs.existsSync(skillsDir))
     for (const d of fs.readdirSync(skillsDir)) {

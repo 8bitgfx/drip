@@ -5,7 +5,9 @@ import { z } from "zod";
 import { imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { lookup, resolve } from "../../core/seen.mjs";
-import { loadState, updateState } from "../../core/state.mjs";
+import { lastCritique, loadState, updateState } from "../../core/state.mjs";
+import { renderHtml } from "../../core/render.mjs";
+import { tileHtml } from "./tile.mjs";
 import { screenshot } from "../fitcheck/chrome.mjs";
 import { renderBoard } from "./render.mjs";
 import { ensureServer } from "./server.mjs";
@@ -16,6 +18,18 @@ function activeBoard(id) {
   const board = bid && loadBoard(bid);
   if (!board) throw new Error("No moodboard yet. Call board_create first.");
   return board;
+}
+
+/** Directions may be shown/chosen only after the critic ranked the current set and didn't reject it. */
+function directionsGate(board, config) {
+  const task = loadState().task;
+  if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || !board.directions.length) return null;
+  const rec = lastCritique(task, "directions");
+  if (!rec || (board.directionsAt && rec.at < board.directionsAt))
+    return "The critic hasn't ranked these directions yet. Run board_tile, then critic_prepare({ kind: \"directions\" }), launch the drip:critic subagent with the prompt it returns, and critic_record its verdict.";
+  if (rec.verdict === "reject")
+    return `The critic rejected this set ("${rec.summary}"). Rework the weak directions (or replace them with bolder ones), board_directions again, re-render tiles and get a new ranking.`;
+  return null;
 }
 
 function syncTask(board) {
@@ -29,13 +43,69 @@ export function register(server, ctx) {
     "board_create",
     {
       title: "Create a moodboard",
-      description: "Start a moodboard for the current task. Then board_add every reference you studied (with why), group them with board_directions, show it with board_open and let the user react, then board_choose.",
-      inputSchema: { name: z.string().describe("Short name, e.g. 'Acme pricing page'"), brief: z.string().describe("One or two sentences: who it is for, what it must feel like, constraints") },
+      description:
+        "Start the moodboard for the current task. Every reference you studied with refs_study is added automatically (and later studies too). " +
+        "Then add colours/fonts/images with board_add, form directions (board_directions), render style tiles (board_tile), get the critic's ranking, board_open, board_choose.",
+      inputSchema: { name: z.string().describe("Short name, e.g. 'Claude portfolio'"), brief: z.string().optional().describe("Defaults to the recorded brief") },
     },
     safe(async ({ name, brief }) => {
-      const board = createBoard(name, brief);
+      const task = loadState().task;
+      const b = task?.brief;
+      const board = createBoard(name, brief || (b ? `${b.what} — for ${b.audience}. Feel: ${b.feel.join(", ")}. Ambition: ${b.ambition}.` : ""));
+      let imported = 0;
+      for (const s of task?.refs?.studied || []) {
+        const item = lookup(s.key);
+        if (!item?.study) continue;
+        const n = item.study;
+        board.items.push({ ...item, kind: "shot", note: `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · detail: ${n.detail}`, addedAt: new Date().toISOString() });
+        imported++;
+      }
+      saveBoard(board);
       syncTask(board);
-      return text(`Board "${board.name}" created (id ${board.id}).\nNEXT: board_add the references you studied, each with a specific note on what to take from it. Read drip_guide moodboard if you have not.`);
+      return text(`Board "${board.name}" created with ${imported} studied references.\nNEXT: add 3-6 colours and 2-4 fonts from what you studied (board_add), then board_directions (2-3 genuinely different, at least one daring).`);
+    }),
+  );
+
+  server.registerTool(
+    "board_tile",
+    {
+      title: "Render style tiles for the directions",
+      description:
+        "Renders one style tile per direction: its palette, type pairing, a nav, a headline, body copy, buttons and a card, so the user (and the critic) sees each direction APPLIED, not just references. " +
+        "Run after board_directions; tiles are saved as files (for the critic) and shown on the board. Optional per-direction headline/sample copy makes them real.",
+      inputSchema: {
+        board: z.string().optional(),
+        copy: z.object({ brand: z.string().optional(), headline: z.string().optional(), body: z.string().optional(), cta: z.string().optional() }).optional().describe("Real copy for the tiles (defaults from the brief)"),
+      },
+    },
+    safe(async ({ board: bid, copy = {} }) => {
+      const board = activeBoard(bid);
+      if (!board.directions.length) return text("No directions yet: board_directions first.", true);
+      const brief = loadState().task?.brief;
+      const dir = path.join(path.dirname(boardFile(board.id)), "tiles");
+      fs.mkdirSync(dir, { recursive: true });
+      const content = [];
+      const files = [];
+      for (const d of board.directions) {
+        const file = path.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
+        const png = await renderHtml(
+          tileHtml(d, {
+            brand: copy.brand || board.name,
+            headline: copy.headline || d.summary,
+            body: copy.body || (brief ? `${brief.job[0].toUpperCase()}${brief.job.slice(1)}. Made for ${brief.audience}.` : d.adjectives.join(" · ")),
+            cta: copy.cta || "See the work",
+          }),
+          file,
+          { width: 1200, height: 760, config: ctx.config() },
+        );
+        d.tile = file;
+        files.push(file);
+        content.push(textBlock(`Tile: ${d.name} — ${d.adjectives.join(", ")} · ${d.type}`), imageBlock(await toJpeg(png, 1200, 760)));
+      }
+      board.tilesAt = new Date().toISOString();
+      saveBoard(board);
+      content.unshift(textBlock(`Rendered ${files.length} style tiles:\n${files.join("\n")}\n\nNEXT: have the critic rank the directions: critic_prepare({ kind: "directions" }) -> Agent drip:critic -> critic_record. Rework or replace anything it rejects before board_open.`));
+      return blocks(content);
     }),
   );
 
@@ -117,25 +187,30 @@ export function register(server, ctx) {
               adjectives: z.array(z.string()).min(2).max(4),
               palette: z.array(z.string()).min(2).max(8).describe("Hex colours"),
               type: z.string().describe("Type pairing, e.g. 'Instrument Serif + Inter'"),
+              manifesto: z.string().optional().describe("3 sentences: the idea, what it refuses, why it beats the safe option"),
+              pairing: z.string().optional().describe("For the daring option: the unexpected genre it borrows from (e.g. 'exhibition posters')"),
               items: z.array(z.string()).min(1).describe("Board item numbers (as shown on the board, '3') or keys"),
             }),
           )
           .min(2)
           .max(4),
+        criteria: z.array(z.string()).optional().describe("3-5 choice criteria from the brief, written BEFORE the tiles (thresholds or trade-offs)"),
         board: z.string().optional(),
       },
     },
-    safe(async ({ directions, board: bid }) => {
+    safe(async ({ directions, criteria, board: bid }) => {
       const board = activeBoard(bid);
       const live = liveItems(board);
       const min = ctx.config().gates.minBoardItems;
       if (live.length < min) return text(`The board has ${live.length} items; collect at least ${min} studied references before forming directions.`, true);
       const keyOf = (r) => (/^\d+$/.test(r) && live[+r - 1] ? live[+r - 1].key : r);
       board.directions = directions.map((d) => ({ ...d, items: d.items.map(keyOf).filter((k) => live.some((it) => it.key === k)) }));
+      if (criteria) board.criteria = criteria;
       board.chosen = null;
+      board.directionsAt = new Date().toISOString();
       saveBoard(board);
       syncTask(board);
-      return text(`${board.directions.length} directions saved: ${board.directions.map((d) => `"${d.name}" (${d.items.length} items)`).join(", ")}.\nNEXT: board_open to show the user, ask which direction (or let them react on the board), then board_choose.`);
+      return text(`${board.directions.length} directions saved: ${board.directions.map((d) => `"${d.name}" (${d.items.length} items)`).join(", ")}.\nNEXT: board_tile to render a style tile per direction, then the critic ranks them (critic_prepare kind "directions").`);
     }),
   );
 
@@ -150,6 +225,8 @@ export function register(server, ctx) {
     },
     safe(async ({ board: bid, static: stat = true }) => {
       const board = activeBoard(bid);
+      const gate = directionsGate(board, ctx.config());
+      if (gate) return text(gate, true);
       const port = await ensureServer(ctx.config().board.port);
       const url = `http://localhost:${port}/b/${board.id}`;
       const dir = path.dirname(boardFile(board.id));
@@ -217,6 +294,8 @@ export function register(server, ctx) {
     },
     safe(async ({ direction, reason, board: bid }) => {
       const board = activeBoard(bid);
+      const gate = directionsGate(board, ctx.config());
+      if (gate) return text(gate, true);
       const d = board.directions.find((x) => x.name.toLowerCase() === direction.toLowerCase());
       if (!d) return text(`No direction "${direction}". Directions: ${board.directions.map((x) => x.name).join(", ") || "none yet (board_directions)"}`, true);
       board.chosen = d.name;

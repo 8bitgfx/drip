@@ -1,43 +1,45 @@
 ---
 name: drip-moodboard
-description: Use when building a moodboard or presenting visual directions ("make a moodboard", "show me some directions", "what could this look like", step 4-5 of the Drip loop), including standalone requests with no build attached. Covers collecting references with specific notes, clustering them into 2-4 genuinely different directions, publishing the board, reading the user's reactions and locking a choice. Part of Drip.
+description: Use when building a moodboard or presenting visual directions ("make a moodboard", "show me some directions", "what could this look like", steps 3-5 of the Drip loop, or /drip:design in board mode). Covers the board (studies are added automatically), choice criteria written first, 2-3 directions named like movements with a manifesto that differ in idea, style tiles at equal fidelity, the critic's ranking before the user sees anything, presenting with buttons, and locking the choice. Part of Drip.
 user-invocable: false
 ---
 
 # Moodboard (Drip)
 
 **Before you do anything: call `drip_guide` with topic `moodboard`.** It returns the full guide and records the read;
-during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
+during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`; load the board and critic tools with ToolSearch `+drip board` and `+drip critic`.
 
-A board is a decision tool, not a collage. It turns studied references into 2-4 named directions the user
-can compare in one look and choose between, so the build starts from a choice instead of a default.
+A board is a decision tool, not a collage. It turns studied references into 2-3 directions the user can
+compare in one look: each a named idea with a manifesto, rendered as a style tile, ranked by an
+independent critic, with Drip's pick and its risk. The user chooses with one click; the choice is locked.
 
 ## Rules you must not break
-1. A board needs a brief. Standalone request? Write a 3-line brief first (audience, job, mode) and pass it to `board_create`.
-2. Every item has a note a builder could act on: what to take, with values ("condensed caps ~120px over 17px body"). `board_add` rejects vague notes.
-3. Collect 8-20 items before clustering: 6-12 studied shots, 3-8 colours as `#hex`, 2-4 fonts, images with their `source`. The gate needs 8.
-4. Make 2-4 directions (3 is the default). Each differs from every other on at least 3 of the 6 axes: ground, type voice, colour posture, density, shape language, energy.
-5. "The same look in two colours" is one direction. Merge it and find a real alternative.
-6. Name directions with a concrete noun from the subject's world ("Timetable", "Darkroom", "Seed packet"), never a mood word ("Modern", "Bold", "Clean").
-7. Each direction has: a one-sentence thesis, 3 adjectives that each rule something out, 4-6 hex colours in role order (ground, ink, accent, support), a type pairing of real, available faces, and 3+ items.
-8. Never let an unexamined AI default be a direction: cream + serif + terracotta, near-black + one neon, purple-blue gradients, the SaaS card kit. Allowed only when the brief pins it.
-9. Publish to share: `board_open`, then publish its `board.html` as an artifact if an Artifact/publish tool exists; otherwise give the live localhost link. Plus one line per direction.
-10. Lead with the direction you would fight for and its honest risk. Ask one question. Then `board_read` before deciding.
-11. `board_choose` with a reason tied to the brief (audience, job, mode), never "it looks best". Choose alone only when the user told you to.
+1. A board needs a brief (`drip_brief`). Studies from `refs_study` are already on it; add 3-8 colours and 2-4 fonts with `board_add`, each with a note that has a value.
+2. **Write 3-5 choice criteria before forming any direction**, each a threshold (must pass) or a trade-off (more is better), each able to fail a direction.
+3. 2-3 directions (4 only if the user asked for range). They **differ in idea**: what the page leads with, its metaphor, its structure. A palette or font swap is the same idea rendered twice.
+4. Each direction is named like a movement (1-2 words: "Live Wire", "Door Counter") with a **3-sentence manifesto** in `summary`: the idea; how it looks and moves; what it refuses. Never a mood word ("Modern", "Bold", "Clean").
+5. **At least one unexpected pairing**: the subject crossed with a genre from another world, with one line on why it beats the safe version.
+6. No AI default as a direction unless the brief pins it (cream + serif + terracotta, neon on black, purple gradients, the SaaS card kit). Ambition is bold.
+7. `board_tile` renders every direction at **equal fidelity** with real copy from the brief. No strawman option you wouldn't build.
+8. **The critic ranks before the user sees anything**: `critic_prepare({ kind: "directions", context: <criteria> })` → Agent `drip:critic` with the prompt unchanged → `critic_record` with `perDirection`. A REJECT blocks `board_open` and `board_choose`.
+9. Rework rejected or "same idea twice" directions with a new idea, not a recolour; re-tile; re-run the critic.
+10. Present per `rules/communication`: the link, one line per direction with the critic's score and words, your pick and its risk, then one AskUserQuestion with your pick first.
+11. `board_choose` with the user's words in the reason. Chosen = locked. Record why the others lost and what would bring them back; never graft losers onto the winner.
 
 ## Tools
-- `board_create` — start the board with a name and the brief.
-- `board_add` — add shots (listing number or id), image URLs (with `source`), `#hex` colours and font names, each with a note.
-- `board_directions` — save 2-4 directions (name, summary, adjectives, palette, type, items). Replaces earlier ones.
-- `board_open` — live link, shareable self-contained `board.html`, and a preview screenshot.
-- `board_read` — the user's stars, removals and notes (or feedback they pasted from the static board).
-- `board_choose` — lock the direction with its reason; unlocks building.
-- `board_list` — earlier boards in this project.
-- `palette_from_image`, `palette_check`, `fonts_pair`, `fonts_preview` — build and verify each direction's palette and type.
+- `board_create` — start the board; imports every study so far.
+- `board_add` — colours (`#hex`), fonts, images (with `source`), extra shots, each with a specific note.
+- `board_directions` — save 2-4 directions (name, summary = manifesto, adjectives, palette, type, items). Replaces the set.
+- `board_tile` — one style tile per direction: nav, headline, body, buttons, card, palette, type. Pass real `copy`.
+- `critic_prepare` (kind `directions`) → Agent `drip:critic` → `critic_record` (with `perDirection`) — the ranking shown on the board.
+- `board_open` — live link, shareable `board.html`, preview screenshot. Blocked until the critic ranked and didn't reject.
+- `board_read` — the user's stars, removals and notes (or pasted feedback).
+- `board_choose` — lock the direction with its reason; unlocks the system step.
+- `palette_check`, `fonts_pair`, `fonts_preview` — verify each direction's palette and type before tiling.
 
 ## Read deeper when
 | Situation | Call |
 |---|---|
-| Clustering items, testing that directions really differ, writing direction cards | `drip_guide moodboard/directions` |
-| Publishing the board, writing the message, reading reactions, revising | `drip_guide moodboard/presenting` |
-| Turning the chosen direction into a full visual world | `drip_guide direction` |
+| Criteria, forming directions that differ in idea, manifestos, pairings, tiles, reworking | `drip_guide moodboard/directions` |
+| The critic's ranking, publishing, the message, buttons, reading reactions, locking | `drip_guide moodboard/presenting` |
+| Naming the genre and its `breaks_if` list, turning the choice into a world | `drip_guide direction` |

@@ -6,7 +6,7 @@ drip/
   (plugin.json → mcpServers)  starts the MCP server: node mcp/dist/drip-mcp.mjs (inline, so no project .mcp.json is created)
   skills/              22 skills: drip (director) + drip-<craft>; each SKILL.md + guide.md + reference/
   rules/               shared rules served as drip_guide rules/<x>
-  commands/            /drip:start, /drip:refs, /drip:board, /drip:fitcheck, …
+  commands/            /drip:design, /drip:critic, /drip:adapt, /drip:settings
   hooks/               hooks.json + Node scripts (gate, recorder + lint, stop guard, prompt nudge)
   data/                catalogue.json, font-pairs.json, slop.json
   mcp/
@@ -32,7 +32,7 @@ drip/
 2. **Guides through a tool.** `drip_guide` returns a guide and records the read. Skill files hold only the
    first-screen rules; the depth lives behind the tool call, so "I read the skill" can be checked.
 0. **Opt-in.** With `gates.mode: "task"` (default) every hook is silent unless a Drip task is open
-   (`/drip:start` → `drip_start` … `drip_end`). `"always"` makes the gate apply to every UI write.
+   (`/drip:design` → `drip_start` … `drip_end`). `"always"` makes the gate apply to every UI write.
 3. **Gates in hooks.** `hooks/pre-write.mjs` runs before Write/Edit. For UI files it computes what is missing
    (`missingBeforeUi` in `core/state.mjs`) and denies with the exact next call. Logic-only edits pass.
 4. **Recording + lint.** `hooks/post-write.mjs` records UI writes and lints the file (rules in `data/slop.json`),

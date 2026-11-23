@@ -2,6 +2,7 @@
 //   mode "live":   served by the local board server; star / remove / note go straight back to Claude (board_read).
 //   mode "static": a file to publish anywhere (e.g. a Claude artifact). Images are inlined; feedback is
 //                  kept in the page and copied as text for the user to paste back.
+import fs from "node:fs";
 import { fetchImage } from "../../core/images.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
 import { liveItems } from "./store.mjs";
@@ -51,13 +52,15 @@ export async function renderBoard(board, { mode = "live", inline = false } = {})
     const cards = await Promise.all(its.map((it) => card(it, numbers.get(it.key), inline)));
     sections.push(`<section class="direction${board.chosen === d.name ? " chosen" : ""}">
   <header>
-    <div><h2>${esc(d.name)}${board.chosen === d.name ? ' <span class="pill">chosen</span>' : ""}</h2><p>${esc(d.summary)}</p></div>
+    <div><h2>${esc(d.name)}${board.chosen === d.name ? ' <span class="pill">chosen</span>' : ""}</h2><p>${esc(d.summary)}</p>${d.manifesto ? `<p class="manifesto">${esc(d.manifesto)}</p>` : ""}${d.pairing ? `<p class="manifesto">Unexpected pairing: ${esc(d.pairing)}</p>` : ""}</div>
     <div class="meta">
       ${(d.adjectives || []).map((a) => `<span class="chip">${esc(a)}</span>`).join("")}
       <div class="pal">${(d.palette || []).map((c) => `<i style="background:${esc(c)}" title="${esc(c)}"></i>`).join("")}</div>
       ${d.type ? `<span class="type">${esc(d.type)}</span>` : ""}
     </div>
   </header>
+  ${d.tile && fs.existsSync(d.tile) ? `<img class="tile" alt="Style tile for ${esc(d.name)}" src="data:image/png;base64,${fs.readFileSync(d.tile).toString("base64")}">` : ""}
+  ${d.critic ? `<p class="critic"><b>Critic:</b> ${esc(d.critic)}</p>` : ""}
   <div class="grid">${cards.join("")}</div>
 </section>`);
   }
@@ -88,6 +91,9 @@ main{padding:8px clamp(16px,4vw,48px) 80px;max-width:1600px;margin:auto}
 .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.chip{border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:13px}
 .pal{display:flex}.pal i{width:22px;height:22px;border-radius:50%;border:2px solid var(--bg);margin-left:-6px}.type{font-size:13px;color:var(--muted)}
 .grid{columns:4 280px;column-gap:16px}
+.manifesto{font-style:italic;max-width:70ch}.criteria{margin-top:10px;font-size:14px}
+.tile{display:block;width:100%;max-width:1200px;height:auto;border-radius:14px;border:1px solid var(--line);margin:0 0 16px}
+.critic{margin:0 0 16px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--card);border-radius:0 10px 10px 0;max-width:80ch;font-size:14px}
 .item{break-inside:avoid;margin:0 0 16px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .item.starred{outline:2px solid var(--accent)}
 .media{position:relative}.media img{display:block;width:100%;height:auto}
@@ -102,7 +108,7 @@ figcaption{padding:10px 12px 12px}.title{color:var(--ink);font-weight:600;text-d
 .fb{position:fixed;right:16px;bottom:16px;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;font-size:14px;display:none;gap:10px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.2)}
 .fb button{all:unset;cursor:pointer;background:var(--accent);color:#fff;border-radius:8px;padding:4px 10px}
 </style></head><body>
-<div class="top"><small>Moodboard · ${items.length} references${board.directions.length ? ` · ${board.directions.length} directions` : ""}</small><h1>${esc(board.name)}</h1><p>${esc(board.brief || "")}</p></div>
+<div class="top"><small>Moodboard · ${items.length} references${board.directions.length ? ` · ${board.directions.length} directions` : ""}</small><h1>${esc(board.name)}</h1><p>${esc(board.brief || "")}</p>${board.criteria?.length ? `<p class="criteria"><b>Choosing by:</b> ${board.criteria.map(esc).join(" · ")}</p>` : ""}</div>
 <main>${sections.join("\n")}</main>
 <div class="fb" id="fb"><span id="fbtext"></span><button id="fbcopy">Copy feedback for Claude</button></div>
 <script>

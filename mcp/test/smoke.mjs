@@ -12,6 +12,9 @@ const offline = process.argv.includes("--offline");
 const project = fs.mkdtempSync(path.join(os.tmpdir(), "drip-smoke-"));
 const outDir = process.env.DRIP_SMOKE_OUT || path.join(project, "_out");
 fs.mkdirSync(outDir, { recursive: true });
+// This test covers tools, not the critic gate (smoke-03 covers that): switch it off for this project.
+fs.mkdirSync(path.join(project, ".drip"), { recursive: true });
+fs.writeFileSync(path.join(project, ".drip", "config.json"), JSON.stringify({ gates: { requireCritic: false } }));
 
 const transport = new StdioClientTransport({
   command: process.execPath,
@@ -45,7 +48,7 @@ const tools = (await client.listTools()).tools.map((t) => t.name);
 console.log(`${tools.length} tools: ${tools.join(", ")}\n`);
 
 await call("drip_status");
-await call("drip_start", { task: "new pricing page for a developer tools SaaS, dark and technical" }, (r) => /FULL loop/.test(r.content[0].text));
+await call("drip_start", { task: "new pricing page for a developer tools SaaS, dark and technical" }, (r) => /full loop/.test(r.content[0].text));
 await call("drip_guide", { topic: "rules/hard-rules" }, () => true);
 await call("palette_generate", { accent: "#E8452C" });
 await call("palette_check", { pairs: [{ fg: "#9CA3AF", bg: "#FFFFFF", label: "grey on white" }] }, (r) => /FAIL|AA/.test(r.content[0].text));

@@ -26,7 +26,7 @@ Project wins over personal, personal wins over the defaults (`mcp/src/core/confi
 }
 ```
 
-- `gates.mode`: `"task"` (default) means Drip only acts while a Drip task is open (`/drip:start` … `drip_end`); with no task the hooks are silent. `"always"` means every UI write needs a Drip task, and design prompts get a reminder (strict, for teams).
+- `gates.mode`: `"task"` (default) means Drip only acts while a Drip task is open (`/drip:design` … `drip_end`); with no task the hooks are silent. `"always"` means every UI write needs a Drip task, and design prompts get a reminder (strict, for teams).
 - `gates.enforce: false` makes Drip advisory: no blocking, the guides and tools still work.
 - Lower `minRefsViewed` for small teams that iterate fast; raise it for big launches.
 - `modules` turns tool groups off (fewer tools in Claude's context).
@@ -55,7 +55,7 @@ Same shape as `data/catalogue.json` `entries`. Add an internal component registr
 
 ## Your own image provider: `~/.drip/providers/<id>.mjs`
 
-Copy `mcp/src/modules/gen/providers/_template.mjs.txt`, fill in `generate()`, add its key with `/drip:keys`.
+Copy `mcp/src/modules/gen/providers/_template.mjs.txt`, fill in `generate()`, add its key with `/drip:settings`.
 Or ask Claude: "add a Drip image provider for <service>" and point it at the template.
 
 ## Editing the guides

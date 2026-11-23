@@ -17,6 +17,21 @@ here with its notice; where it does not, Drip only paraphrases ideas (no copied 
 | [frontend-design](https://github.com/anthropics/skills) | Anthropic | Apache-2.0 | Aesthetic direction, typography that avoids templated defaults |
 | [Web Interface Guidelines](https://github.com/vercel-labs/agent-skills) | Vercel | not stated | Inspiration only (paraphrased): accessibility and interaction checklist |
 | animate / choreograph / animation-performance / mobile-native skills | — | not stated | Inspiration only (paraphrased): motion decisions, choreography, frame budget, mobile web feel |
+| [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill) | Kaan Kiziltug | MIT | Logo process: concepts, black-first construction, AI-failure tests, fatal flaws (its trademarked logo library is NOT used) |
+| [logo-designer-skill](https://github.com/neonwatty/logo-designer-skill) | neonwatty | MIT | Parallel concept agents for real divergence |
+| [claude-skills](https://github.com/rampstackco/claude-skills) | rampstack | MIT | Category conventions and clichés, creative-direction axes |
+| [Design-review-skill](https://github.com/vip999611-ai/Design-review-skill) | vip999611-ai | Apache-2.0 | Critic method: three passes, panel, severities, caps (modified) |
+| [tastemaker](https://github.com/thecsiz/tastemaker) | thecsiz | MIT (+ CC-BY-4.0 knowledge base) | Conviction, contextual ceiling, the dogma test |
+| [designer-skills](https://github.com/Owl-Listener/designer-skills) | Owl-Listener | MIT | Options differ in idea, equal fidelity, choice criteria |
+| [canvas-design](https://github.com/anthropics/skills) | Anthropic | Apache-2.0 | Directions as movements with a manifesto |
+| [frontend-design anchors](https://github.com/Ilm-Alan/frontend-design) | Ilm-Alan | MIT | Unexpected pairings, `breaks_if` lists per genre |
+| [visual-direction-moodboard](https://github.com/buttonsprite/visual-direction-moodboard) | buttonsprite | MIT | Moodboard attribution and comparison width |
+| [grilling](https://github.com/mattpocock/skills) | Matt Pocock | MIT | Intake: recommended answers, never ask what you can look up |
+| [designer-skills](https://github.com/julianoczkowski/designer-skills) | Julian Oczkowski | Apache-2.0 | Design brief intake |
+| [dashboard-design-skill](https://github.com/abdiraimov-otabek/dashboard-design-skill) | abdiraimov-otabek | MIT | The niche-pack skeleton for `/drip:adapt` |
+| brand-design (ziguishian), taste (senlindesign), taste (jaytel0), critique-design (guoyuhan1220) | — | not stated | Ideas only: locked choices, no simulated consent, unearned-praise checks |
+
+Full research notes: [docs/research/public-skills-2026-11.md](docs/research/public-skills-2026-11.md).
 
 Component libraries, icon sets, fonts and reference sites listed in `data/catalogue.json` belong to
 their authors; Drip links to them and never redistributes them.
@@ -35,5 +50,11 @@ Stageshow — Copyright (c) 2026 Benji Taylor. All under the MIT License:
 > and this permission notice shall be included in all copies or substantial portions of the Software.
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
-Impeccable and frontend-design are licensed under the Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+logo-design-skill — Copyright (c) Kaan Kiziltug. logo-designer-skill — Copyright (c) neonwatty. claude-skills — Copyright (c) rampstack.
+tastemaker — Copyright (c) thecsiz. designer-skills — Copyright (c) Owl-Listener. frontend-design — Copyright (c) Ilm-Alan.
+visual-direction-moodboard — Copyright (c) buttonsprite. skills — Copyright (c) Matt Pocock. dashboard-design-skill — Copyright (c) abdiraimov-otabek.
+All under the MIT License (text above). Tastemaker's knowledge base is CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+
+Impeccable, frontend-design, canvas-design (Anthropic), Design-review-skill (vip999611-ai) and designer-skills (Julian Oczkowski)
+are licensed under the Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0). Drip's texts derived from them are modified.
 Drip's guides contain modified, rewritten adaptations of their ideas.

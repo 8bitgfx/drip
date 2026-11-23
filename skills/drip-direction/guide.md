@@ -7,7 +7,7 @@ A strong direction is specific enough that you could recognise the product with 
 ## The procedure
 
 1. **Load the choice.** `board_read` shows the chosen direction's card: name, summary, adjectives, palette, type, items. Reopen its 2-3 anchor shots with `refs_view`.
-2. **Name the genre** (`drip_guide direction/genres`). Note its signature moves and its slop risk. A direction may blend two genres only if one clearly dominates (about 70/30).
+2. **Name the genre** (`drip_guide direction/genres`). Note its signature moves, its slop risk and its **`breaks_if` list**. One genre leads; a second may lend one named move only, never its tokens. Check it isn't the anti-genre ("Tasteful AI" or its siblings) unless the brief pinned it.
 3. **Write the thesis.** One sentence: the idea this surface owns, and the category default it refuses. "The schedule is the hero, set like an airport departure board; no marketing hero, no product screenshot in a browser frame."
 4. **Write the scene** (from the brief) and let it decide light or dark.
 5. **Set the colour posture** (section 3), then refine the card's palette: `palette_from_image` on the anchor if the card's hexes are rough, `palette_check` every text pair.
@@ -21,6 +21,16 @@ A strong direction is specific enough that you could recognise the product with 
 ---
 
 ## The craft
+
+### 0. Ambition: bold unless asked
+
+The brief's `ambition` is `bold` unless the user asked for plain, safe or corporate. Bold means the page passes the screenshot test (someone would send it to a friend) and the one-risk test (you can name the decision a cautious designer wouldn't make). It does not mean loud everywhere: on Operate and Read, bold is precision and one signature move. `balanced` keeps one signature move and makes the rest familiar; `conservative` is the category standard done perfectly. Full rules: `drip_guide rules/ambition`.
+
+The direction you commit to is the one the user chose on the board. It is **locked**: this step sharpens it, it never swaps its idea, palette or type voice for something you like better. If it can't carry the content, ask.
+
+### The anti-genre
+
+"Tasteful AI" (cream or beige ground, terracotta accent, a polite serif with an italic word, tracked mono eyebrows, hairlines, centred hero, three cards) is what models make when nobody decided anything. Its siblings: near-black with one neon and glow; purple-blue gradients with glass; Inter as the only voice. Drip treats them as a named anti-genre: never a direction unless the brief pins it, and the critic caps Idea and Conviction at 4/10 when it finds one. Details and tokens: `drip_guide direction/genres`.
 
 ### 1. Ambition by mode
 
@@ -108,7 +118,7 @@ Fade-and-rise on every section is the generated default; one orchestrated moment
 
 ### 8. The direction contract
 
-About 150 words, six blocks. It goes at the top of `DESIGN.md` under `## Direction`. Never into code comments, markup or anything shipped to the browser.
+About 150 words, seven blocks (the last is the genre's `breaks_if` list). It goes at the top of `DESIGN.md` under `## Direction`. Never into code comments, markup or anything shipped to the browser.
 
 ```
 ## Direction: Door counter
@@ -118,6 +128,7 @@ STORY: A climber sees how busy it is now and over the next 3 hours, picks a slot
 FIRST VIEWPORT: The number at ~30vw left, a 3-hour forecast bar to its right, the next 4 open slots as buttons under it; nav: wordmark left, "Book" right.
 SIGNATURE: The door counter, updating live, with today's curve behind it.
 REFUSES: Marketing hero, stock photography, glass cards, gradient glows.
+BREAKS IF (Swiss / instrument): warm paper ground · serif display · grain · centred type · drop shadows · radius over 4px · gradients.
 ```
 
 If a block reads like a mood, the direction is not decided yet. The fit check (`drip_guide fitcheck`) audits the build against this contract.
@@ -131,6 +142,8 @@ If a block reads like a mood, the direction is not decided yet. The fit check (`
 | Thumbnail | At 200px wide, is it distinct from the category's top 3 sites? | it blends in |
 | Logo off | With the logo and copy removed, is the world still recognisable? | it is generic |
 | Mirror | Would a neighbouring brief in the same category get this exact combination? | yes: change one major decision and say which |
+| Breaks if | Does the plan (and later the CSS) contain any token from the genre's `breaks_if` list? | yes, without a one-line reason in `DESIGN.md` |
+| Screenshot | Would someone screenshot this and send it to a friend? (bold briefs) | no |
 
 ---
 
@@ -149,28 +162,31 @@ If a block reads like a mood, the direction is not decided yet. The fit check (`
 | A different direction per section | One world; vary density and scale inside it |
 | Inter (or Geist) as the display face by default | A display face with a point of view, or set the workhorse at a scale and weight that has one |
 | Glass cards on a gradient | Solid surfaces; glass only for one element over media, if at all |
+| "Swiss with a Brutalist edge": two genres half-committed | One genre; borrow one named move at most |
+| The chosen direction quietly softened during the system step | It's locked; ask before changing its idea, palette or type |
 
 ---
 
 ## Done when
 
 - [ ] The thesis names what leads and what default it refuses.
-- [ ] The genre is named and its slop risk addressed.
+- [ ] The genre is named, its slop risk addressed, and its `breaks_if` list is in the contract.
+- [ ] It isn't the "Tasteful AI" anti-genre (or a sibling) unless the brief pinned it; ambition matches the brief.
 - [ ] Light or dark is justified by the scene.
 - [ ] A colour posture is set, every text pair passes `palette_check`.
 - [ ] Two families at most, chosen with a reason, previewed with real words.
 - [ ] The signature is named and sits in the first viewport sketch.
 - [ ] Shape, depth and motion stances are each one line.
-- [ ] The six-block contract is written into `DESIGN.md`.
-- [ ] All five tests pass.
+- [ ] The seven-block contract is written into `DESIGN.md`.
+- [ ] All seven tests pass.
 
 ---
 
 ## Reference files
 
-- `direction/genres` — 19 genres and styles: what each is, signature moves with values, type and colour, when to use, slop risks and fixes.
+- `direction/genres` — the "Tasteful AI" anti-genre and 19 genres: what each is, signature moves with values, type and colour, when to use, slop risks and fixes, and a `breaks_if` list each.
 - `direction/alternatives` — deriving candidates from the subject's world, making alternatives differ, template skeletons to refuse, worked example with sketches.
 
 ## Sources
 
-Adapted and rewritten from: **Impeccable** (Apache-2.0): modes and how far the world reaches, colour strategies by coverage, light/dark from a physical scene, faces chosen like objects and the saturated-font list, the AI-look calibration, the direction contract, the first viewport as a thesis, prove-don't-claim, commit every atom, the familiar option. **Hallmark** (MIT): genres and what each allows and refuses, postures, the signature, the mirror test, the spent looks, one radius per nesting level. **Taste Skill** (MIT): one system per page, one object never carries the page, real product UI over generic dashboards, no violet by reflex. **UI UX Pro Max** (MIT): style catalogue attributes. Inspired by Anthropic's **frontend-design** (paraphrased): spend boldness in one place and remove one accessory; review a plan against what you would make for any similar brief.
+Adapted and rewritten from: **Impeccable** (Apache-2.0): modes and how far the world reaches, colour strategies by coverage, light/dark from a physical scene, faces chosen like objects and the saturated-font list, the AI-look calibration, the direction contract, the first viewport as a thesis, prove-don't-claim, commit every atom, the familiar option. **Hallmark** (MIT): genres and what each allows and refuses, postures, the signature, the mirror test, the spent looks, one radius per nesting level. **Taste Skill** (MIT): one system per page, one object never carries the page, real product UI over generic dashboards, no violet by reflex. **UI UX Pro Max** (MIT): style catalogue attributes. Inspired by Anthropic's **frontend-design** (paraphrased): spend boldness in one place and remove one accessory; review a plan against what you would make for any similar brief. New in 0.3: **Ilm-Alan/frontend-design** (MIT: `breaks_if` token fences per genre, hybrid resistance), **Thecsiz/tastemaker** (MIT: conviction, the contextual ceiling, never grade down committed expressive work). Ideas only (no licence, paraphrased): **ziguishian/brand-design-skill** (the chosen option is the locked source of truth).
