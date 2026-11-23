@@ -11,7 +11,7 @@ import * as assets from "./modules/assets/index.mjs";
 import * as gen from "./modules/gen/index.mjs";
 import * as fitcheck from "./modules/fitcheck/index.mjs";
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:start) or for a proper design process; it tells you which guides to read (drip_guide) and what to do next. While a Drip task is active, the plugin blocks UI file writes until the task's requirements are met and blocks ending the turn until a fit check. The other tools (references, palettes, fonts, icons, components…) are fine to use any time.

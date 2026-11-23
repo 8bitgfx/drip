@@ -252,7 +252,7 @@ drip/                         (one GitHub repo, MIT)
   .claude-plugin/plugin.json   plugin manifest: skills, MCP server, hooks, commands
   skills/drip/ + skills/drip-*/   the 21 skills (section 3), each SKILL.md + reference/
   rules/                          shared rules
-  .mcp.json                       our server + the chosen existing MCPs
+
   commands/                    /drip, /drip refs, /drip board, /drip critique, /drip keys
   hooks/                       hooks.json + small node scripts
   mcp/                         TypeScript MCP server (stdio)

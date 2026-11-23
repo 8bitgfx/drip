@@ -3,7 +3,7 @@
 ```
 drip/
   .claude-plugin/      plugin.json (manifest), marketplace.json (install source)
-  .mcp.json            starts the MCP server: node mcp/dist/drip-mcp.mjs
+  (plugin.json → mcpServers)  starts the MCP server: node mcp/dist/drip-mcp.mjs (inline, so no project .mcp.json is created)
   skills/              22 skills: drip (director) + drip-<craft>; each SKILL.md + guide.md + reference/
   rules/               shared rules served as drip_guide rules/<x>
   commands/            /drip:start, /drip:refs, /drip:board, /drip:fitcheck, …
