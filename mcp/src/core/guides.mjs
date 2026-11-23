@@ -1,0 +1,57 @@
+// Guides are the deep instructions. They live as Markdown in the plugin:
+//   skills/drip-<topic>/guide.md            -> topic "<topic>"          (e.g. "color")
+//   skills/drip-<topic>/reference/<x>.md    -> topic "<topic>/<x>"      (e.g. "color/dark-mode")
+//   skills/drip/guide.md                    -> topic "loop"
+//   rules/<x>.md                            -> topic "rules/<x>"        (e.g. "rules/slop-tells")
+// Claude reads them through drip_guide, which records the read, so the hooks know it happened.
+import fs from "node:fs";
+import path from "node:path";
+import { rulesDir, skillsDir } from "./paths.mjs";
+
+function topicFile(topic) {
+  const t = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
+  if (t === "loop" || t === "drip") return path.join(skillsDir, "drip", "guide.md");
+  if (t.startsWith("rules/")) return path.join(rulesDir, `${t.slice(6)}.md`);
+  const [skill, ...rest] = t.split("/");
+  const dir = path.join(skillsDir, `drip-${skill}`);
+  return rest.length ? path.join(dir, "reference", `${rest.join("/")}.md`) : path.join(dir, "guide.md");
+}
+
+export function normalizeTopic(topic) {
+  const t = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
+  return t === "drip" ? "loop" : t;
+}
+
+export function readGuide(topic) {
+  const file = topicFile(topic);
+  if (!fs.existsSync(file)) return null;
+  return fs.readFileSync(file, "utf8");
+}
+
+/** Every topic that exists, with its first heading, for the index. */
+export function listGuides() {
+  const out = [];
+  const add = (topic, file) => {
+    const first = fs.readFileSync(file, "utf8").split("\n").find((l) => l.startsWith("# ")) || "";
+    out.push({ topic, title: first.replace(/^#\s*/, "") });
+  };
+  if (fs.existsSync(rulesDir)) for (const f of fs.readdirSync(rulesDir).filter((f) => f.endsWith(".md"))) add(`rules/${f.slice(0, -3)}`, path.join(rulesDir, f));
+  if (fs.existsSync(skillsDir))
+    for (const d of fs.readdirSync(skillsDir)) {
+      const topic = d === "drip" ? "loop" : d.replace(/^drip-/, "");
+      const guide = path.join(skillsDir, d, "guide.md");
+      if (fs.existsSync(guide)) add(topic, guide);
+      const ref = path.join(skillsDir, d, "reference");
+      if (fs.existsSync(ref)) for (const f of fs.readdirSync(ref).filter((f) => f.endsWith(".md"))) add(`${topic}/${f.slice(0, -3)}`, path.join(ref, f));
+    }
+  return out;
+}
+
+/** Sub-topics of a topic (its reference files), to point Claude at the deeper reads. */
+export function subTopics(topic) {
+  const t = normalizeTopic(topic);
+  if (t.includes("/")) return [];
+  const dir = path.join(skillsDir, t === "loop" ? "drip" : `drip-${t}`, "reference");
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter((f) => f.endsWith(".md")).map((f) => `${t}/${f.slice(0, -3)}`);
+}

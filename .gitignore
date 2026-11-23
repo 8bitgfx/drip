@@ -1,0 +1,6 @@
+node_modules/
+.drip/
+*.log
+.DS_Store
+Thumbs.db
+# the bundle IS committed (mcp/dist) so the plugin runs without npm install

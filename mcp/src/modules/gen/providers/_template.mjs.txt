@@ -1,0 +1,20 @@
+// Template for a custom image provider. Copy to ~/.drip/providers/<id>.mjs (it is loaded at start),
+// fill in generate(), and add the key with keys_open (name = the `key` below).
+// Ask Claude: "add a Drip image provider for <service>" and point it at this file.
+
+export default {
+  id: "myprovider",            // what users pass as provider
+  label: "My Provider",
+  key: "myprovider",           // key name in ~/.drip/keys.json (or env MYPROVIDER_API_KEY)
+  async generate({ prompt, aspect, model, refs }, key) {
+    // aspect: "landscape" | "portrait" | "square"; refs: [{ buf, mime }] reference images (optional)
+    const res = await fetch("https://api.example.com/v1/images", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body: JSON.stringify({ prompt, aspect_ratio: aspect, model }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+    const json = await res.json();
+    return [{ buf: Buffer.from(json.image_base64, "base64"), mime: "image/png" }];
+  },
+};

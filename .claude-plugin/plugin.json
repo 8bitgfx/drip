@@ -1,0 +1,23 @@
+{
+  "name": "drip",
+  "displayName": "Drip",
+  "version": "0.1.0",
+  "description": "Give Claude drip: a real designer's process for coding agents. References from Dribbble, moodboards, directions, design systems, components, icons, fonts, palettes, gradients, image generation and fit checks, enforced by hooks so the work actually gets done.",
+  "author": { "name": "Drip contributors" },
+  "license": "MIT",
+  "keywords": ["design", "ui", "ux", "frontend", "moodboard", "dribbble", "design-system", "taste", "anti-slop"],
+  "network": {
+    "hosts": [
+      "dribbble.com", "cdn.dribbble.com",
+      "api.iconify.design", "api.fontsource.org", "fonts.googleapis.com", "fonts.gstatic.com",
+      "commons.wikimedia.org", "upload.wikimedia.org", "api.openverse.org",
+      "api.unsplash.com", "images.unsplash.com", "api.pexels.com", "images.pexels.com",
+      "api.openai.com", "generativelanguage.googleapis.com",
+      "ui.shadcn.com", "coss.com", "www.kibo-ui.com", "magicui.design", "ui.aceternity.com", "reactbits.dev",
+      "motion-primitives.com", "animate-ui.com", "www.cult-ui.com"
+    ]
+  },
+  "skills": ["./skills/"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

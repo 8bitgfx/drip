@@ -1,0 +1,25 @@
+{
+  "name": "drip-mcp",
+  "version": "0.1.0",
+  "description": "Drip's MCP server: design references, moodboards, components, assets, image generation and fit checks for coding agents.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/drip-mcp.mjs",
+  "bin": { "drip-mcp": "dist/drip-mcp.mjs" },
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node src/index.mjs",
+    "test": "node --test test/*.test.mjs",
+    "smoke": "node test/smoke.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "jimp": "^1.7.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
