@@ -7,6 +7,7 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first, then [docs/SKILL_FORMAT
 - **Server**: plain ESM JavaScript in `mcp/src`. Files under `mcp/src/core` that hooks import (`paths`, `config`, `state`) and `modules/fitcheck/lint.mjs` must stay dependency-free.
 - **Always lint, rebuild and test** after server changes: `cd mcp && npm run check` (lint + build + tests, the same as CI in `.github/workflows/ci.yml`; CI also fails when the committed `mcp/dist` bundle is stale). Run `npm run smoke` for network paths (it calls Dribbble, Iconify, Fontsource, registries; it never calls paid APIs).
 - **Commit `mcp/dist/drip-mcp.mjs`**: users run the plugin without `npm install`.
+- **Brand and README art live on the `brand` branch** (logo sources, renders, `assets/readme/*.png`); the README loads them by raw URL. Keep `main` free of them; only `.claude-plugin/icon.png` stays here.
 - **Licences**: guides adapt MIT/Apache sources in our own words with credit (CREDITS.md); paraphrase-only for sources without a reuse licence. Never commit third-party assets.
 - **Be polite to Dribbble**: keep requests throttled and cached (`core/http.mjs`); never add bulk downloading.
 - **Data files** (`data/*.json`) are the place for catalogue entries, font pairings and slop rules; keep `price`/`license` as "check" unless verified.
