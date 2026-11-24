@@ -29,7 +29,7 @@ Ask a coding agent for a landing page and you get the same one every time. Drip 
   <img alt="The toolbox: 3,700+ components from shadcn/ui, Magic UI, Aceternity, React Bits and more; 200k icons; every open font; palettes checked for contrast; logo tools with favicons and app icons." src="https://raw.githubusercontent.com/8bitgfx/drip/brand/assets/readme/tools-light.png" width="830">
 </picture>
 
-Also: references from Dribbble, Awwwards, Godly and more, licensed photos, a [Studio](docs/STUDIO.md) for original art and shader backgrounds, and image generation with your own OpenAI or Gemini key. No key is required.
+Also: references from Dribbble, Awwwards, Godly and more, licensed photos, a [Studio](docs/STUDIO.md) for original art, shader backgrounds and mockups on real device models, and image generation with your own OpenAI or Gemini key. No key is required.
 
 ## Built for agents
 

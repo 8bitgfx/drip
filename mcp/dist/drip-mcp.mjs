@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path72) {
-      let input2 = path72;
+    function removeDotSegments(path73) {
+      let input2 = path73;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path72) {
-      if (path72 === "" || path72[0] === "/") {
-        return removeDotSegments(path72);
+    function removeDotSegmentsRelative(path73) {
+      if (path73 === "" || path73[0] === "/") {
+        return removeDotSegments(path73);
       }
-      const segments = path72.split("/");
+      const segments = path73.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path72 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path72 && path72 !== "/" ? path72 : void 0;
+        const path73 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path73 && path73 !== "/" ? path73 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -7257,12 +7257,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f3;
     };
-    function addFormats(ajv, list4, fs74, exportName) {
+    function addFormats(ajv, list4, fs75, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f3 of list4)
-        ajv.addFormat(f3, fs74[f3]);
+        ajv.addFormat(f3, fs75[f3]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -11548,7 +11548,7 @@ var require_gifframe = __commonJS({
 var require_gifutil = __commonJS({
   "node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
-    var fs74 = __require("fs");
+    var fs75 = __require("fs");
     var ImageQ = require_image_q();
     var BitmapImage2 = require_bitmapimage();
     var { GifFrame: GifFrame2 } = require_gifframe();
@@ -11663,14 +11663,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path72, frames, spec, encoder) {
+    exports.write = function(path73, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches2 = path72.match(/\.[a-zA-Z]+$/);
+      const matches2 = path73.match(/\.[a-zA-Z]+$/);
       if (matches2 !== null && INVALID_SUFFIXES.includes(matches2[0].toLowerCase())) {
-        throw new Error(`GIF '${path72}' has an unexpected suffix`);
+        throw new Error(`GIF '${path73}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path72, gif2.buffer).then(() => {
+        return _writeBinary(path73, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -11742,9 +11742,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path72) {
+    function _readBinary(path73) {
       return new Promise((resolve2, reject) => {
-        fs74.readFile(path72, (err, buffer) => {
+        fs75.readFile(path73, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -11752,9 +11752,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path72, buffer) {
+    function _writeBinary(path73, buffer) {
       return new Promise((resolve2, reject) => {
-        fs74.writeFile(path72, buffer, (err) => {
+        fs75.writeFile(path73, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -13733,9 +13733,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path72) {
+        load: function load2(path73) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path72, true);
+          xhr.open("GET", path73, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -24162,11 +24162,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path72) {
-      path72 = String(path72);
-      let last = path72.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path73) {
+      path73 = String(path73);
+      let last = path73.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path72.length;
+      let hasPath = last.length < path73.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -26419,9 +26419,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path72) {
-        super(`Not a regular file: ${path72}`);
-        this.path = path72;
+      constructor(path73) {
+        super(`Not a regular file: ${path73}`);
+        this.path = path73;
         this.name = "NotRegularFileError";
       }
     };
@@ -30883,8 +30883,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path72, options) {
-  return new FileTypeParser2(options).fromFile(path72, options);
+async function fileTypeFromFile(path73, options) {
+  return new FileTypeParser2(options).fromFile(path73, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -30915,9 +30915,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path72) {
+      async fromFile(path73) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs21.open(path72, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs21.open(path73, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -30926,7 +30926,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path72,
+            path: path73,
             size: fileStat.size
           }
         });
@@ -38371,9 +38371,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path72, options) {
+      Path.fromSVG = function(path73, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path72, options);
+        return newPath.fromSVG(path73, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -43538,8 +43538,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path72) {
-        let _path = path72 || new path_default();
+      function getPathDefinition(glyph, path73) {
+        let _path = path73 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -43767,8 +43767,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path72 = this.getPath(x2, y2, fontSize, options, font);
-        path72.draw(ctx2);
+        const path73 = this.getPath(x2, y2, fontSize, options, font);
+        path73.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -43797,8 +43797,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path72 = this.path;
-        let commands = path72.commands;
+        const path73 = this.path;
+        let commands = path73.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -43945,9 +43945,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path72 = buildPath2(font.glyphs, glyph);
-            path72.unitsPerEm = font.unitsPerEm;
-            return path72;
+            const path73 = buildPath2(font.glyphs, glyph);
+            path73.unitsPerEm = font.unitsPerEm;
+            return path73;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -43962,9 +43962,9 @@ var require_opentype = __commonJS({
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path72 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path72.unitsPerEm = font.unitsPerEm;
-            return path72;
+            const path73 = parseCFFCharstring2(font, glyph, charstring, version2);
+            path73.unitsPerEm = font.unitsPerEm;
+            return path73;
           };
           return glyph;
         };
@@ -44431,12 +44431,12 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path72) {
+      function applyPaintType(font, path73) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path72.fill = null;
-          path72.stroke = "black";
-          path72.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path73.fill = null;
+          path73.stroke = "black";
+          path73.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
@@ -45199,16 +45199,16 @@ var require_opentype = __commonJS({
       }
       function glyphToOps(glyph, version2) {
         const ops = [];
-        const path72 = glyph.path;
+        const path73 = glyph.path;
         if (version2 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path72.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path73.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path72.commands[i2];
+          let cmd = path73.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -53216,8 +53216,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path72 = this.getPath(text2, x2, y2, fontSize, options);
-        path72.draw(ctx2);
+        const path73 = this.getPath(text2, x2, y2, fontSize, options);
+        path73.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -55239,7 +55239,7 @@ async function QuickJSRaw(moduleArg = {}) {
     throw d;
   }, v = import.meta.url;
   if (n3) {
-    var fs74 = require2("node:fs");
+    var fs75 = require2("node:fs");
     v.startsWith("file:") && require2("node:path").dirname(require2("node:url").fileURLToPath(v)), 1 < process.argv.length && (t2 = process.argv[1].replace(/\\/g, "/")), process.argv.slice(2), u2 = (b, d) => {
       throw process.exitCode = b, d;
     };
@@ -58013,8 +58013,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path72, errorMaps, issueData } = params;
-  const fullPath = [...path72, ...issueData.path || []];
+  const { data, path: path73, errorMaps, issueData } = params;
+  const fullPath = [...path73, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -58129,11 +58129,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path72, key) {
+  constructor(parent, value, path73, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path72;
+    this._path = path73;
     this._key = key;
   }
   get path() {
@@ -62088,10 +62088,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path72) {
-  if (!path72)
+function getElementAtPath(obj, path73) {
+  if (!path73)
     return obj;
-  return path72.reduce((acc, key) => acc?.[key], obj);
+  return path73.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -62431,11 +62431,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path72, issues) {
+function prefixIssues(path73, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path72);
+    iss.path.unshift(path73);
     return iss;
   });
 }
@@ -62897,16 +62897,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path72 = []) => {
+  const processError = (error63, path73 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path72, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path73, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path72, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path73, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path72, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path73, ...issue2.path]);
       } else {
-        const fullpath = [...path72, ...issue2.path];
+        const fullpath = [...path73, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -62945,17 +62945,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path72 = []) => {
+  const processError = (error63, path73 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path72, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path73, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path72, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path73, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path72, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path73, ...issue2.path]);
       } else {
-        const fullpath = [...path72, ...issue2.path];
+        const fullpath = [...path73, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -62994,8 +62994,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path72 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path72) {
+  const path73 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path73) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -78315,7 +78315,7 @@ function visit(schema, fnOrHandlers) {
     return h ? h(node2, rewritten) : node2;
   };
   const cache3 = /* @__PURE__ */ new Map();
-  function run2(s2) {
+  function run3(s2) {
     const cached2 = cache3.get(s2);
     if (cached2 === RESOLVING) {
       return new $ZodLazy({
@@ -78341,21 +78341,21 @@ function visit(schema, fnOrHandlers) {
         let changed = false;
         const newShape = {};
         for (const k of keys) {
-          const mapped = run2(oldShape[k]);
+          const mapped = run3(oldShape[k]);
           if (mapped !== oldShape[k])
             changed = true;
           newShape[k] = mapped;
         }
         let newCatchall = def.catchall;
         if (def.catchall) {
-          newCatchall = run2(def.catchall);
+          newCatchall = run3(def.catchall);
           if (newCatchall !== def.catchall)
             changed = true;
         }
         return changed ? clone(s2, { ...def, shape: newShape, catchall: newCatchall }) : s2;
       }
       case "array": {
-        const mapped = run2(def.element);
+        const mapped = run3(def.element);
         return mapped === def.element ? s2 : clone(s2, { ...def, element: mapped });
       }
       case "tuple": {
@@ -78363,14 +78363,14 @@ function visit(schema, fnOrHandlers) {
         let changed = false;
         const newItems = [];
         for (const item of oldItems) {
-          const mapped = run2(item);
+          const mapped = run3(item);
           if (mapped !== item)
             changed = true;
           newItems.push(mapped);
         }
         let newRest = def.rest;
         if (def.rest) {
-          newRest = run2(def.rest);
+          newRest = run3(def.rest);
           if (newRest !== def.rest)
             changed = true;
         }
@@ -78378,12 +78378,12 @@ function visit(schema, fnOrHandlers) {
       }
       case "record":
       case "map": {
-        const newKey = run2(def.keyType);
-        const newVal = run2(def.valueType);
+        const newKey = run3(def.keyType);
+        const newVal = run3(def.valueType);
         return newKey === def.keyType && newVal === def.valueType ? s2 : clone(s2, { ...def, keyType: newKey, valueType: newVal });
       }
       case "set": {
-        const newVal = run2(def.valueType);
+        const newVal = run3(def.valueType);
         return newVal === def.valueType ? s2 : clone(s2, { ...def, valueType: newVal });
       }
       case "union": {
@@ -78391,7 +78391,7 @@ function visit(schema, fnOrHandlers) {
         let changed = false;
         const newOptions = [];
         for (const opt of oldOptions) {
-          const mapped = run2(opt);
+          const mapped = run3(opt);
           if (mapped !== opt)
             changed = true;
           newOptions.push(mapped);
@@ -78399,8 +78399,8 @@ function visit(schema, fnOrHandlers) {
         return changed ? clone(s2, { ...def, options: newOptions }) : s2;
       }
       case "intersection": {
-        const newLeft = run2(def.left);
-        const newRight = run2(def.right);
+        const newLeft = run3(def.left);
+        const newRight = run3(def.right);
         return newLeft === def.left && newRight === def.right ? s2 : clone(s2, { ...def, left: newLeft, right: newRight });
       }
       case "optional":
@@ -78412,23 +78412,23 @@ function visit(schema, fnOrHandlers) {
       case "nonoptional":
       case "promise":
       case "success": {
-        const newInner = run2(def.innerType);
+        const newInner = run3(def.innerType);
         return newInner === def.innerType ? s2 : clone(s2, { ...def, innerType: newInner });
       }
       case "pipe": {
-        const newIn = run2(def.in);
-        const newOut = run2(def.out);
+        const newIn = run3(def.in);
+        const newOut = run3(def.out);
         return newIn === def.in && newOut === def.out ? s2 : clone(s2, { ...def, in: newIn, out: newOut });
       }
       case "function": {
-        const newInput = run2(def.input);
-        const newOutput = run2(def.output);
+        const newInput = run3(def.input);
+        const newOutput = run3(def.output);
         return newInput === def.input && newOutput === def.output ? s2 : clone(s2, { ...def, input: newInput, output: newOutput });
       }
       case "lazy": {
         const original = def.getter;
         const { _cachedInner, ...rest } = def;
-        return clone(s2, { ...rest, getter: () => run2(original()) });
+        return clone(s2, { ...rest, getter: () => run3(original()) });
       }
       // A leaf by choice: `parts` are regex fragments, not data positions.
       case "template_literal":
@@ -78459,7 +78459,7 @@ function visit(schema, fnOrHandlers) {
       }
     }
   }
-  return run2(schema);
+  return run3(schema);
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
@@ -78546,11 +78546,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path72) {
-  if (path72.length === 0) {
+function getDotPath(path73) {
+  if (path73.length === 0) {
     return "object root";
   }
-  return path72.reduce((acc, seg, index) => {
+  return path73.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -80777,13 +80777,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path72 = ref.slice(1).split("/").filter(Boolean);
-  if (path72.length === 0) {
+  const path73 = ref.slice(1).split("/").filter(Boolean);
+  if (path73.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path72[0] === defsKey) {
-    const key = path72[1] === void 0 ? void 0 : decodeJSONPointerSegment(path72[1]);
+  if (path73[0] === defsKey) {
+    const key = path73[1] === void 0 ? void 0 : decodeJSONPointerSegment(path73[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -93907,9 +93907,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path72, options) {
-      const mimeType = import_lite.default.getType(path72);
-      await writeFile(path72, await this.getBuffer(mimeType, options));
+    async write(path73, options) {
+      const mimeType = import_lite.default.getType(path73);
+      await writeFile(path73, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -98872,8 +98872,8 @@ async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as 
     if (hit) return { body: decode5(hit, as), contentType: meta3?.toString() || "", cached: true };
   }
   const host = new URL(url2).host;
-  const run2 = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
-  return run2(async () => {
+  const run3 = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
+  return run3(async () => {
     let res;
     for (let attempt = 0; ; attempt++) {
       res = await fetch(url2, { headers: headers2, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
@@ -99102,6 +99102,50 @@ var AUDIT = `(() => {
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
 })()`;
+var COVERED = `(async () => {
+  const st = document.createElement('style'); st.textContent = '* { pointer-events: auto !important; }'; document.head.appendChild(st);
+  const name = (el) => (el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.classList.length ? '.' + [...el.classList].slice(0, 2).join('.') : ''));
+  const out = []; const seen = new Set(); let checks = 0;
+  const h = document.documentElement.scrollHeight; const vh = innerHeight;
+  for (let y = 0; y < h && y < vh * 14 && out.length < 10; y += vh) {
+    scrollTo(0, y); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = walker.nextNode()) && checks < 4000 && out.length < 10) {
+      const t = n.textContent.trim(); if (t.length < 2 || seen.has(n)) continue;
+      const el = n.parentElement; if (!el) continue;
+      const cs0 = getComputedStyle(el); if (cs0.visibility === 'hidden' || +cs0.opacity < 0.1) continue;
+      const range = document.createRange(); range.selectNodeContents(n);
+      for (const r of [...range.getClientRects()].slice(0, 4)) {
+        if (r.width < 6 || r.height < 6 || r.bottom < 0 || r.top > vh) continue;
+        checks++;
+        let hits = 0, by = null;
+        for (let f = 0.04; f < 1; f += 0.08) {
+          const x = r.left + r.width * f, yy = r.top + r.height * 0.5;
+          if (x < 0 || yy < 0 || x >= innerWidth || yy >= vh) continue;
+          const top = document.elementFromPoint(x, yy);
+          if (!top || top === el || el.contains(top) || top.contains(el)) continue;
+          const cs = getComputedStyle(top);
+          if (+cs.opacity < 0.35 || cs.visibility === 'hidden') continue;
+          let pinned = false; for (let a = top; a && a !== document.body; a = a.parentElement) { const p = getComputedStyle(a).position; if (p === 'fixed' || p === 'sticky') { pinned = true; break; } }
+          if (pinned) continue; // a sticky header over text while scrolling is not a layout fault
+          if (cs.display === 'inline' || cs.mixBlendMode !== 'normal') continue; // text runs and blend-mode effect layers
+          if ([...top.childNodes].some((c) => c.nodeType === 3 && c.textContent.trim())) continue; // text over text: layered type, cards in a product shot
+          const tr = top.getBoundingClientRect(); if (tr.width * tr.height > innerWidth * vh * 0.5) continue; // a screen-sized texture or grain overlay
+          const solid = (() => { const m = cs.backgroundColor.match(/[0-9.]+/g); return m && (m.length < 4 || +m[3] >= 0.5); })();
+          if (!(solid || /url[(]/.test(cs.backgroundImage) || /^(IMG|SVG|PATH|CANVAS|VIDEO|PICTURE)$/i.test(top.tagName))) continue; // outlines, shines and gradients don't hide words
+          let lca = top.parentElement; while (lca && !lca.contains(el)) lca = lca.parentElement;
+          if (lca && lca !== document.body) { const lr = lca.getBoundingClientRect(); if (lr.width * lr.height < innerWidth * vh * 0.25) continue; } // layering inside one card or illustration
+          if (top.closest('[aria-hidden=true]') && el.closest('[aria-hidden=true]') === top.closest('[aria-hidden=true]')) continue; // both inside one illustration
+          hits++; by = top;
+        }
+        if (hits >= 1) { seen.add(n); out.push({ text: t.slice(0, 48), by: name(by), image: /^(IMG|PICTURE|VIDEO)$/i.test(by.tagName) || /url[(]/.test(getComputedStyle(by).backgroundImage), y: Math.round(r.top + scrollY) }); break; }
+      }
+    }
+  }
+  scrollTo(0, 0); st.remove();
+  return out;
+})()`;
 async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, scale = 1, idle = false, brand = false, config: config2 } = {}) {
   return withTab(config2, async (tab) => {
     const { s: s2 } = tab;
@@ -99110,6 +99154,7 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
     await settle2(s2, 800);
     const { result } = await s2("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
     const audit = result.value;
+    audit.covered = (await s2("Runtime.evaluate", { expression: COVERED, awaitPromise: true, returnByValue: true })).result?.value || [];
     if (brand) audit.brand = (await s2("Runtime.evaluate", { expression: BRAND, returnByValue: true })).result.value;
     const total = Math.min(audit.height, 3e4);
     const count = Math.max(1, Math.ceil(total / height));
@@ -99130,6 +99175,11 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   const desk = a2.width >= 1e3;
   const phone = a2.width < 600;
   if (phone && a2.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
+  const shapes = (a2.covered || []).filter((c3) => !c3.image);
+  const pics = (a2.covered || []).filter((c3) => c3.image);
+  if (pics.length) warnings.push(`images over text: ${pics.slice(0, 3).map((c3) => `"${c3.text}" under ${c3.by}`).join("; ")}. Fine in a deliberate collage; check the words still read`);
+  if (shapes.length)
+    blockers.push(`text covered by a shape: ${shapes.slice(0, 4).map((c3) => `"${c3.text}" under ${c3.by} (y ${c3.y})`).join("; ")}. Decoration that crosses content goes behind it, makes room for it, or the content moves; something drawn over words needs a reason and real depth (shadow, highlight, edge), never a flat shape pasted on top`);
   if (a2.overflowX) blockers.push(`horizontal overflow at ${a2.width}px: page is ${a2.scrollWidth}px wide (${a2.offenders.join(", ") || "unknown element"})`);
   if (persuade && a2.hero) {
     const want = Math.round(displayPx(a2.width));
@@ -105609,14 +105659,14 @@ function installLib() {
       if (!vis) continue;
       if (t2) {
         const words3 = t2.split(" ").length;
-        const fs74 = round(parseFloat(cs.fontSize));
-        const tk = `${fs74}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
-        const e2 = typeMap.get(tk) || { px: fs74, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs74, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs74, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
+        const fs75 = round(parseFloat(cs.fontSize));
+        const tk = `${fs75}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
+        const e2 = typeMap.get(tk) || { px: fs75, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs75, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs75, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
         e2.count += words3;
         typeMap.set(tk, e2);
         const tc = rgba(cs.color);
         addColor(tc, "text", words3);
-        heads.push({ text: t2.slice(0, 50), size: fs74, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
+        heads.push({ text: t2.slice(0, 50), size: fs75, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
       }
       const bg = rgba(cs.backgroundColor);
       if (bg[3] > 0.1) addColor(bg, "background", Math.max(1, Math.min(60, Math.round(r2.width * r2.height / 4e3))));
@@ -108302,7 +108352,7 @@ Also: Dribbble (refs_search, refs_tag, refs_feed, refs_designer) and any shipped
 // src/modules/studio/index.mjs
 var studio_exports = {};
 __export(studio_exports, {
-  register: () => register32
+  register: () => register33
 });
 
 // src/modules/studio/art-tool.mjs
@@ -108768,13 +108818,13 @@ function dither(ctx2, p2) {
   const rows = Math.ceil(height / cell);
   const d = [];
   for (let j = 0; j < rows; j++) {
-    let run2 = -1;
+    let run3 = -1;
     for (let i2 = 0; i2 <= cols; i2++) {
       const on = i2 < cols && f3((i2 + 0.5) * cell, (j + 0.5) * cell) + bias > (BAYER[j % 8 * 8 + i2 % 8] + 0.5) / 64;
-      if (on && run2 < 0) run2 = i2;
-      if (!on && run2 >= 0) {
-        d.push(`M${num(run2 * cell)} ${num(j * cell)}h${num((i2 - run2) * cell)}v${num(cell)}h${num(-(i2 - run2) * cell)}z`);
-        run2 = -1;
+      if (on && run3 < 0) run3 = i2;
+      if (!on && run3 >= 0) {
+        d.push(`M${num(run3 * cell)} ${num(j * cell)}h${num((i2 - run3) * cell)}v${num(cell)}h${num(-(i2 - run3) * cell)}z`);
+        run3 = -1;
       }
     }
   }
@@ -109413,14 +109463,16 @@ __export(scene_exports, {
   prepareScene: () => prepareScene,
   register: () => register28,
   renderScene: () => renderScene,
+  resolveModel: () => resolveModel,
   scenePage: () => scenePage,
   sceneSchema: () => sceneSchema
 });
 import fs67 from "node:fs";
 import path65 from "node:path";
-import { pathToFileURL as pathToFileURL7 } from "node:url";
 init_browser();
 init_imaging();
+init_paths();
+init_serve();
 
 // src/modules/studio/webp.mjs
 var u24 = (n3) => Buffer.from([n3 & 255, n3 >> 8 & 255, n3 >> 16 & 255]);
@@ -109495,8 +109547,10 @@ var materialSchema = external_exports.object({
   repeat: external_exports.tuple([external_exports.number(), external_exports.number()]).optional()
 });
 var objectSchema = external_exports.object({
-  type: external_exports.enum(["phone", "laptop", "box", "cylinder", "bottle", "sphere", "card", "plane"]),
-  size: external_exports.array(external_exports.number().positive()).min(1).max(3).optional().describe("phone/laptop/box/card/plane: [w, h, d]; cylinder/bottle/sphere: [radius, height]"),
+  type: external_exports.enum(["model", "phone", "laptop", "box", "cylinder", "bottle", "sphere", "card", "plane"]).describe("model = a real glTF model (src); the others are simple built-in shapes"),
+  src: external_exports.string().optional().describe("model: a .glb/.gltf file, a folder from assets_3d_save, or polyhaven:<id> (CC0, downloaded and cached)"),
+  label: external_exports.object({ mesh: external_exports.string().describe("Part of the model to put the image on (a mesh or material name, or part of one; the result lists them)"), image: external_exports.string(), fit: external_exports.enum(["cover", "contain"]).optional(), roughness: external_exports.number().min(0).max(1).optional() }).optional().describe("model: your artwork on one part (a label, a screen, a lid)"),
+  size: external_exports.array(external_exports.number().positive()).min(1).max(3).optional().describe("model: [height] (scaled to it); phone/laptop/box/card/plane: [w, h, d]; cylinder/bottle/sphere: [radius, height]"),
   position: vec3.optional(),
   rotation: vec3.optional().describe("Degrees"),
   material: materialSchema.optional(),
@@ -109556,6 +109610,39 @@ function findPbrMaps(folder) {
   }
   return out;
 }
+async function resolveModel(src) {
+  const ph = /^polyhaven:([\w-]+)$/i.exec(src);
+  if (ph) {
+    const id = ph[1];
+    const dir = path65.join(homeDripDir, "cache", "models", id);
+    const main = path65.join(dir, `${id}.gltf`);
+    if (fs67.existsSync(main)) return main;
+    const r2 = await fetch(`https://api.polyhaven.com/files/${id}`, { headers: { "user-agent": "drip" } });
+    if (!r2.ok) throw new Error(`Poly Haven has no model "${id}" (assets_3d_search lists them)`);
+    const g = (await r2.json()).gltf;
+    const pick4 = g?.["2k"]?.gltf || g?.["1k"]?.gltf;
+    if (!pick4) throw new Error(`Poly Haven "${id}" has no glTF download`);
+    const put = async (url2, rel3) => {
+      const target = path65.join(dir, rel3);
+      fs67.mkdirSync(path65.dirname(target), { recursive: true });
+      const res = await fetch(url2, { headers: { "user-agent": "drip" } });
+      if (!res.ok) throw new Error(`Download failed: ${url2}`);
+      fs67.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
+    };
+    for (const [rel3, f3] of Object.entries(pick4.include || {})) await put(f3.url, rel3);
+    await put(pick4.url, `${id}.gltf`);
+    fs67.writeFileSync(path65.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
+    return main;
+  }
+  const abs2 = projectPath(src);
+  if (!fs67.existsSync(abs2)) throw new Error(`Model not found: ${src}`);
+  if (fs67.statSync(abs2).isDirectory()) {
+    const f3 = fs67.readdirSync(abs2).find((n3) => /\.(glb|gltf)$/i.test(n3));
+    if (!f3) throw new Error(`No .glb or .gltf in ${src}`);
+    return path65.join(abs2, f3);
+  }
+  return abs2;
+}
 async function prepareScene(spec) {
   const scene = structuredClone(spec);
   for (const o2 of scene.objects) {
@@ -109563,6 +109650,13 @@ async function prepareScene(spec) {
     if (m.pbrFolder) Object.assign(m, Object.fromEntries(Object.entries(findPbrMaps(m.pbrFolder)).filter(([k]) => !m[k])));
     for (const k of ["map", "normalMap", "roughnessMap", "aoMap"]) if (m[k]) m[k] = await inlineImage(m[k], 2048);
     if (o2.decal) o2.decal = { ...o2.decal, image: await inlineImage(o2.decal.image, 2048) };
+    if (o2.type === "model") {
+      if (!o2.src) throw new Error("A model object needs src: a .glb/.gltf file, a folder from assets_3d_save, or polyhaven:<id>.");
+      const file4 = await resolveModel(o2.src);
+      o2.modelDir = path65.dirname(file4);
+      o2.modelFile = path65.basename(file4);
+      if (o2.label) o2.label = { ...o2.label, image: await inlineImage(o2.label.image, 2048) };
+    }
   }
   const env = scene.environment;
   if (env?.hdri) {
@@ -109574,6 +109668,7 @@ var PAGE_SCRIPT2 = `
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 const S = window.__SCENE;
 const W = S.width || 1600, H = S.height || 1000;
@@ -109628,7 +109723,36 @@ window.__ready = (async () => {
       for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / h + 0.5); return g; };
     const mesh = (geo, mat) => { const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true; return m; };
 
+    const meshNames = [];
+    const buildModel = async (o) => {
+      const gltf = await new GLTFLoader().loadAsync(o.modelUrl);
+      const m = gltf.scene;
+      const b = new THREE.Box3().setFromObject(m), size = b.getSize(new THREE.Vector3());
+      const target = (o.size && o.size[0]) || 1.2;
+      m.scale.setScalar(target / Math.max(size.y, 1e-6));
+      const want = o.label ? o.label.mesh.toLowerCase() : null;
+      let labelled = 0;
+      for (const mesh of (() => { const l = []; m.traverse((n) => { if (n.isMesh) l.push(n); }); return l; })()) {
+        mesh.castShadow = true; mesh.receiveShadow = true;
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        meshNames.push(mesh.name + (mats[0] && mats[0].name ? " (" + mats[0].name + ")" : ""));
+        if (want && (mesh.name.toLowerCase().includes(want) || mats.some((x) => (x.name || "").toLowerCase().includes(want)))) {
+          const geo = mesh.geometry; geo.computeBoundingBox(); const bb = geo.boundingBox.getSize(new THREE.Vector3());
+          const dims = [bb.x, bb.y, bb.z].sort((p, q) => q - p);
+          const t = await decalTexture({ image: o.label.image, fit: o.label.fit || "cover", background: "#ffffff" }, dims[0] / Math.max(dims[1], 1e-6));
+          t.flipY = false;
+          mesh.material = new THREE.MeshPhysicalMaterial({ map: t, roughness: o.label.roughness ?? 0.42, metalness: 0, clearcoat: 0.25, clearcoatRoughness: 0.2 });
+          labelled++;
+        }
+      }
+      if (want && !labelled) throw new Error('No part of the model matches label.mesh "' + o.label.mesh + '". Parts: ' + meshNames.slice(0, 40).join(", "));
+      const g = new THREE.Group(); g.add(m);
+      const p = o.position || [0, 0, 0], r = o.rotation || [0, 0, 0];
+      g.position.set(p[0], p[1], p[2]); g.rotation.set(rad(r[0]), rad(r[1]), rad(r[2]));
+      return g;
+    };
     const build = async (o) => {
+      if (o.type === "model") return buildModel(o);
       const g = new THREE.Group(); const sz = o.size || [];
       const mat = await material(o.material);
       const screenMat = async (aspect) => o.decal ? new THREE.MeshBasicMaterial({ map: await decalTexture(o.decal, aspect), toneMapped: false }) : new THREE.MeshBasicMaterial({ color: 0x0a0a0c, toneMapped: false });
@@ -109740,7 +109864,7 @@ window.__ready = (async () => {
     const dist = cam.distance || (sphere.radius / Math.sin(Math.min(vfov, hfov) / 2)) * 0.92;
     const place = (az) => { const a = rad(az), e = rad(cam.elevation ?? 10); camera.position.set(target.x + dist * Math.cos(e) * Math.sin(a), target.y + dist * Math.sin(e), target.z + dist * Math.cos(e) * Math.cos(a)); camera.lookAt(target); };
     window.__render = (az, mime) => { place(az === undefined ? (cam.azimuth || 0) : az); renderer.render(scene, camera); return renderer.domElement.toDataURL(mime || "image/png", 0.9); };
-    window.__info = { radius: sphere.radius, distance: dist, renderer: (renderer.getContext().getExtension("WEBGL_debug_renderer_info") ? renderer.getContext().getParameter(renderer.getContext().getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL) : "webgl") };
+    window.__info = { meshes: meshNames.slice(0, 60), radius: sphere.radius, distance: dist, renderer: (renderer.getContext().getExtension("WEBGL_debug_renderer_info") ? renderer.getContext().getParameter(renderer.getContext().getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL) : "webgl") };
     return true;
   } catch (e) { window.__error = String((e && e.message) || e); return false; }
 })();
@@ -109760,11 +109884,18 @@ async function renderScene(spec, { turntable, config: config2, timeout = 6e4 } =
   const height = prepared.height || 1e3;
   const dir = tempDir("drip-scene-");
   const file4 = path65.join(dir, "scene.html");
+  prepared.objects.forEach((o2, i2) => {
+    if (o2.type !== "model") return;
+    const to2 = path65.join(dir, "models", String(i2));
+    fs67.cpSync(o2.modelDir, to2, { recursive: true });
+    o2.modelUrl = `models/${i2}/${encodeURIComponent(o2.modelFile)}`;
+    delete o2.modelDir;
+  });
   fs67.writeFileSync(file4, scenePage(prepared));
   const toBuf = (u2) => Buffer.from(u2.split(",")[1], "base64");
   try {
     return await withTab(config2, async (tab) => {
-      await openPage(tab, pathToFileURL7(file4).href, { width, height, settleMs: 200, timeout });
+      await openPage(tab, await toUrl(file4), { width, height, settleMs: 200, timeout });
       const ok = await tab.s("Runtime.evaluate", { expression: "window.__ready", awaitPromise: true, returnByValue: true });
       if (!ok.result.value) {
         const { result } = await tab.s("Runtime.evaluate", { expression: "window.__error || 'unknown error'", returnByValue: true });
@@ -109790,7 +109921,7 @@ function register28(server2, ctx2) {
     "scene_render",
     {
       title: "Render a 3D mockup or product scene",
-      description: 'Renders a three.js scene in headless Chrome: device and packaging mockups with your screenshot or artwork on the screen / front / label, simple product forms, camera, lights, PBR materials, an optional Poly Haven HDRI (see assets_3d_search), a turntable. PNG (transparent background possible) or WebP, plus the scene JSON. Quick start: mockup + image (phone, laptop, box, can, bottle, card, poster). Full control: scene (objects, materials, camera azimuth/elevation/fov, lights studio|soft|dramatic, environment.hdri, render.exposure); the result returns the full scene so you can change one value and render again. The decal image is your real screenshot (fitcheck_shot output, a project image): never an invented UI. Software WebGL is slower than a GPU but gives the same picture; three.js loads from a pinned jsDelivr URL (internet needed the first time). Example: scene_render({ mockup: "phone", image: "public/shots/home-mobile.png", background: "#e9e6df", out: "public/img/phone-mockup.webp" })',
+      description: 'Renders a three.js scene in headless Chrome with REAL glTF models: objects of type "model" with src (your .glb/.gltf, a folder from assets_3d_save, or polyhaven:<id>, CC0), scaled to a height, your artwork on one part with label { mesh, image } (the result lists the parts). HDRI lighting (environment.hdri), PBR materials, camera, a turntable; PNG (transparent background possible) or WebP, plus the scene JSON. For phones and displays use mockup_render (real device models): the built-in phone/laptop/box/can/bottle shapes here are rough placeholders, never final art. Quick start with placeholders: mockup + image (phone, laptop, box, can, bottle, card, poster). Full control: scene (objects, materials, camera azimuth/elevation/fov, lights studio|soft|dramatic, environment.hdri, render.exposure); the result returns the full scene so you can change one value and render again. The decal image is your real screenshot (fitcheck_shot output, a project image): never an invented UI. Software WebGL is slower than a GPU but gives the same picture; three.js loads from a pinned jsDelivr URL (internet needed the first time). Example: scene_render({ mockup: "phone", image: "public/shots/home-mobile.png", background: "#e9e6df", out: "public/img/phone-mockup.webp" })',
       inputSchema: {
         mockup: external_exports.enum(MOCKUPS).optional().describe("A ready-made scene around one image"),
         image: external_exports.string().optional().describe("The screenshot or artwork (project path or URL) for the mockup"),
@@ -109829,7 +109960,8 @@ function register28(server2, ctx2) {
       const flat = await toJpeg(r2.still, 1280, 900, 85);
       const content = [
         textBlock(
-          `Scene ${r2.width}x${r2.height} rendered in ${seconds}s (${r2.info?.renderer || "webgl"}), camera ${JSON.stringify(spec.camera || {})}.${files.length ? `
+          `Scene ${r2.width}x${r2.height} rendered in ${seconds}s (${r2.info?.renderer || "webgl"}), camera ${JSON.stringify(spec.camera || {})}.${r2.info?.meshes?.length ? `
+Model parts (for label.mesh): ${r2.info.meshes.join(", ")}` : ""}${files.length ? `
 Saved: ${files.map((f3) => `${f3.rel} (${f3.kb} KB)`).join(", ")}.` : ""}
 Scene (edit and pass back as scene): ${JSON.stringify({ ...spec, objects: spec.objects.map((o2) => ({ ...o2, decal: o2.decal && { ...o2.decal, image: o2.decal.image.slice(0, 80) } })) })}`
         ),
@@ -110257,7 +110389,7 @@ function register29(server2, ctx2) {
     "blender_render",
     {
       title: "Render a scene with Blender (optional)",
-      description: `Renders the same scene JSON as scene_render with Blender's Cycles path tracer (soft studio lights, an HDRI world, real shadows) for hero-quality stills. Needs Blender installed (found on PATH, Program Files, /Applications, /usr/bin, or DRIP_BLENDER); without it the tool says how to get it and scene_render still works. Runs headless in the background, CPU, 48 samples by default (a few seconds to a few minutes). Differences from scene_render: label decals wrap the full cylinder, bottles and phones are simpler shapes. Example: blender_render({ mockup: "bottle", image: "public/img/label.png", environment: { hdri: "studio_small_09" }, samples: 64, out: "public/img/bottle.png" })`,
+      description: `Renders the same scene JSON as scene_render with Blender's Cycles path tracer (soft studio lights, an HDRI world, real shadows) when the user wants Blender's renderer. It draws the built-in shapes only (no glTF models): for devices use mockup_render, for products scene_render with a real model. Needs Blender installed (found on PATH, Program Files, /Applications, /usr/bin, or DRIP_BLENDER); without it the tool says how to get it and scene_render still works. Runs headless in the background, CPU, 48 samples by default (a few seconds to a few minutes). Differences from scene_render: label decals wrap the full cylinder, bottles and phones are simpler shapes. Example: blender_render({ mockup: "bottle", image: "public/img/label.png", environment: { hdri: "studio_small_09" }, samples: 64, out: "public/img/bottle.png" })`,
       inputSchema: {
         mockup: external_exports.enum(MOCKUPS).optional(),
         image: external_exports.string().optional(),
@@ -110321,15 +110453,296 @@ Saved: ${files.map((f3) => `${f3.rel} (${f3.kb} KB)`).join(", ")}.` : ""}`), ima
   );
 }
 
+// src/modules/studio/mockup.mjs
+var mockup_exports = {};
+__export(mockup_exports, {
+  MOCKSTUDIO: () => MOCKSTUDIO,
+  buildDocument: () => buildDocument,
+  diffPatch: () => diffPatch,
+  installMockstudio: () => installMockstudio,
+  mergePatch: () => mergePatch,
+  mockstudioDir: () => mockstudioDir,
+  mockstudioReady: () => mockstudioReady,
+  register: () => register30
+});
+import { execFile as execFile5 } from "node:child_process";
+import fs70 from "node:fs";
+import path68 from "node:path";
+init_browser();
+init_serve();
+
+// src/core/vendor.mjs
+import { execFile as execFile4 } from "node:child_process";
+import fs69 from "node:fs";
+import path67 from "node:path";
+import { createRequire } from "node:module";
+init_paths();
+var VENDOR_DEPS = {
+  "axe-core": "axe-core",
+  svgo: "svgo",
+  resvg: "@resvg/resvg-js",
+  "ts-morph": "ts-morph",
+  fontkit: "fontkit"
+};
+var vendorDir = () => path67.join(process.env.DRIP_HOME || homeDripDir, "vendor");
+function vendorResolve(name) {
+  const pkg = VENDOR_DEPS[name] || name;
+  const dir = vendorDir();
+  if (!fs69.existsSync(path67.join(dir, "node_modules", pkg))) return null;
+  try {
+    return createRequire(path67.join(dir, "package.json")).resolve(pkg);
+  } catch {
+    try {
+      const pj = JSON.parse(fs69.readFileSync(path67.join(dir, "node_modules", pkg, "package.json"), "utf8"));
+      const main = typeof pj.exports === "string" ? pj.exports : pj.exports?.["."]?.import || pj.exports?.["."]?.default || pj.module || pj.main || "index.js";
+      return path67.join(dir, "node_modules", pkg, typeof main === "string" ? main : "index.js");
+    } catch {
+      return null;
+    }
+  }
+}
+function npmCommand() {
+  const bin = path67.dirname(process.execPath);
+  for (const p2 of [path67.join(bin, "node_modules", "npm", "bin", "npm-cli.js"), path67.join(bin, "..", "lib", "node_modules", "npm", "bin", "npm-cli.js")]) {
+    if (fs69.existsSync(p2)) return { file: process.execPath, pre: [p2], shell: false };
+  }
+  return { file: process.platform === "win32" ? "npm.cmd" : "npm", pre: [], shell: process.platform === "win32" };
+}
+function installVendor(name) {
+  const pkg = VENDOR_DEPS[name];
+  if (!pkg) return Promise.reject(new Error(`Unknown optional dependency "${name}". Available: ${Object.keys(VENDOR_DEPS).join(", ")}, mockstudio.`));
+  const dir = vendorDir();
+  fs69.mkdirSync(dir, { recursive: true });
+  const pj = path67.join(dir, "package.json");
+  if (!fs69.existsSync(pj)) fs69.writeFileSync(pj, JSON.stringify({ name: "drip-vendor", private: true, description: "Optional dependencies installed by drip doctor --install" }, null, 2));
+  const cmd = npmCommand();
+  return new Promise((resolve2, reject) => {
+    execFile4(cmd.file, [...cmd.pre, "install", "--prefix", dir, "--no-audit", "--no-fund", pkg], { shell: cmd.shell, timeout: 3e5, windowsHide: true, maxBuffer: 8 * 1024 * 1024 }, (err, stdout, stderr) => {
+      if (err) reject(new Error(`npm install ${pkg} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`));
+      else resolve2({ name, package: pkg, dir });
+    });
+  });
+}
+
+// src/modules/studio/mockup.mjs
+var MOCKSTUDIO = {
+  repo: "https://github.com/lenxism/mockstudio",
+  sha: "98bf0ebf513aaa075bd4ba17a79afd924c3342a2",
+  pnpm: "pnpm@9.15.0",
+  devices: ["iphone-17-pro", "studio-display"],
+  looks: ["studio", "hero", "cinematic", "retro", "noir", "clean"],
+  cameras: ["head-on", "three-quarter", "hero", "top-down", "wide"],
+  motions: ["orbit", "dolly-in", "reveal", "drift"],
+  environments: ["studio", "daylight", "city", "neon", "sunset", "warm"],
+  aspects: ["16:9", "9:16", "1:1", "4:5", "3:2", "4:3", "match-frame"]
+};
+var SCREEN = { "iphone-17-pro": { width: 402, height: 874, scale: 3 }, "studio-display": { width: 1600, height: 900, scale: 2 }, slab: { width: 1440, height: 900, scale: 2 } };
+var mockstudioDir = () => path68.join(vendorDir(), "mockstudio");
+var presetsDir = () => path68.join(mockstudioDir(), "drip-presets");
+var mockstudioReady = () => fs70.existsSync(path68.join(mockstudioDir(), "dist", "index.html")) && fs70.existsSync(path68.join(presetsDir(), "look.studio.json"));
+function run2(file4, args, opts = {}) {
+  return new Promise((resolve2, reject) => {
+    execFile5(
+      file4,
+      args,
+      { timeout: 9e5, windowsHide: true, maxBuffer: 32 * 1024 * 1024, ...opts },
+      (err, stdout, stderr) => err ? reject(new Error(`${path68.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
+    );
+  });
+}
+function npx() {
+  const bin = path68.dirname(process.execPath);
+  for (const p2 of [path68.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path68.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs70.existsSync(p2)) return [process.execPath, [p2]];
+  return [process.platform === "win32" ? "npx.cmd" : "npx", []];
+}
+function diffPatch(base, next) {
+  const out = {};
+  for (const k of Object.keys(next)) {
+    const a2 = base?.[k];
+    const b = next[k];
+    if (b && typeof b === "object" && !Array.isArray(b) && a2 && typeof a2 === "object" && !Array.isArray(a2)) {
+      const d = diffPatch(a2, b);
+      if (Object.keys(d).length) out[k] = d;
+    } else if (JSON.stringify(a2) !== JSON.stringify(b)) out[k] = b;
+  }
+  for (const k of Object.keys(base || {})) if (!(k in next)) out[k] = null;
+  return out;
+}
+function mergePatch(target, patch) {
+  if (!patch || typeof patch !== "object" || Array.isArray(patch)) return patch;
+  const out = target && typeof target === "object" && !Array.isArray(target) ? { ...target } : {};
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === null) delete out[k];
+    else out[k] = mergePatch(out[k], v);
+  }
+  return out;
+}
+async function installMockstudio(log2 = () => {
+}) {
+  const dir = mockstudioDir();
+  fs70.mkdirSync(path68.dirname(dir), { recursive: true });
+  if (!fs70.existsSync(path68.join(dir, ".git"))) {
+    log2(`Cloning MockStudio ${MOCKSTUDIO.sha.slice(0, 7)} ...`);
+    await run2("git", ["clone", "--filter=blob:none", "--quiet", MOCKSTUDIO.repo, dir]);
+  }
+  await run2("git", ["-C", dir, "fetch", "--quiet", "origin", MOCKSTUDIO.sha]).catch(() => {
+  });
+  await run2("git", ["-C", dir, "checkout", "--quiet", "--force", MOCKSTUDIO.sha]);
+  const [npxFile, npxPre] = npx();
+  const env = { ...process.env, PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1", CI: "1" };
+  log2("Installing its build dependencies (temporary) ...");
+  await run2(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "install", "--frozen-lockfile"], { cwd: dir, env });
+  log2("Building the static site ...");
+  await run2(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "build"], { cwd: dir, env });
+  log2("Saving the Look / Camera / Motion presets ...");
+  const pd = presetsDir();
+  fs70.mkdirSync(pd, { recursive: true });
+  const cli = path68.join(dir, "bin", "mockstudio.mjs");
+  const compose = async (args, name) => {
+    const out = path68.join(pd, `${name}.json`);
+    await run2(process.execPath, [cli, "compose", ...args, "--out", out], { cwd: dir, env });
+    return JSON.parse(fs70.readFileSync(out, "utf8"));
+  };
+  const base = await compose(["--default"], "default");
+  for (const l2 of MOCKSTUDIO.looks) await compose(["--look", l2], `look.${l2}`);
+  for (const c3 of MOCKSTUDIO.cameras) fs70.writeFileSync(path68.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
+  for (const m of MOCKSTUDIO.motions) fs70.writeFileSync(path68.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
+  fs70.rmSync(path68.join(pd, "tmp.json"), { force: true });
+  log2("Removing the build dependencies (the built site is all Drip needs) ...");
+  fs70.rmSync(path68.join(dir, "node_modules"), { recursive: true, force: true });
+  return { dir, ok: mockstudioReady() };
+}
+var ASPECT = { "16:9": 16 / 9, "9:16": 9 / 16, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "4:3": 4 / 3 };
+function buildDocument(o2, presets = (n3) => JSON.parse(fs70.readFileSync(path68.join(presetsDir(), `${n3}.json`), "utf8"))) {
+  let doc = presets(`look.${o2.look || "studio"}`);
+  if (o2.camera) doc = mergePatch(doc, presets(`camera.${o2.camera}`));
+  if (o2.motion) doc = mergePatch(doc, presets(`motion.${o2.motion}`));
+  const device = o2.device || "iphone-17-pro";
+  const p2 = { frame: device === "slab" ? { kind: "slab", slab: { ...o2.slabMaterial ? { material: o2.slabMaterial } : {} } } : { kind: "device", device: { model: device } }, artboard: { aspect: o2.aspect || (device === "studio-display" ? "16:9" : "4:5") } };
+  if (o2.finish) p2.image = { finish: o2.finish };
+  const bg = o2.background;
+  if (bg) p2.stage = { background: bg === "transparent" ? { kind: "transparent" } : typeof bg === "string" ? { kind: "solid", solid: bg } : { kind: "gradient", gradient: { from: bg.from, to: bg.to, shape: bg.shape || "radial", angle: bg.angle ?? 0 } } };
+  if (o2.environment) p2.stage = { ...p2.stage || {}, environment: { id: o2.environment, ...o2.light !== void 0 ? { intensity: o2.light } : {} } };
+  doc = mergePatch(doc, p2);
+  if (o2.patch) doc = mergePatch(doc, o2.patch);
+  return doc;
+}
+function credits(device) {
+  const lines = [`Rendered with MockStudio (Apache-2.0) ${MOCKSTUDIO.repo}`];
+  if (device === "slab") return lines;
+  try {
+    const notice = fs70.readFileSync(path68.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
+    const row = notice.split(/\r?\n/).find((l2) => l2.startsWith("|") && l2.split("|")[1]?.trim() === device);
+    const [, , , title, author, license, source] = row.split("|").map((c3) => c3.trim());
+    lines.push(`3D model: "${title}" by ${author}, ${license}, ${source}`);
+  } catch {
+    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path68.join(mockstudioDir(), "public", "models", "NOTICE")})`);
+  }
+  return lines;
+}
+async function screenBytes(image2, device, config2) {
+  if (/\.html?$/i.test(image2)) {
+    const s2 = SCREEN[device] || SCREEN.slab;
+    const { buf: buf2 } = await shoot(await toUrl(projectPath(image2)), { width: s2.width, height: s2.height, scale: s2.scale, transparent: false, dark: false, fullPage: false, config: config2 });
+    return { buf: buf2, mime: "image/png", name: "screen.png" };
+  }
+  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs70.readFileSync(projectPath(image2));
+  const ext = path68.extname(image2.split("?")[0]).toLowerCase();
+  return { buf, mime: ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".webp" ? "image/webp" : "image/png", name: `screen${ext || ".png"}` };
+}
+function register30(server2, ctx2) {
+  server2.registerTool(
+    "mockup_render",
+    {
+      title: "Render a device mockup (real models)",
+      description: 'The tool for device mockups: your screenshot (or an HTML screen, rendered for you at the device\'s size) on a REAL device model (iPhone 17 Pro, Studio Display) or a clean slab frame, conformed to the real screen (rounded corners, Dynamic Island), lit by an HDRI studio with colour-true tone mapping, in a curated look (studio, hero, cinematic, retro, noir, clean) and camera (head-on, three-quarter, hero, top-down, wide). Use this instead of building devices from shapes or HTML. Stills (png/jpg/webp) or a short clip with motion (orbit, dolly-in, reveal, drift \u2192 .mp4/.webm). The model credit is written next to the file. Needs MockStudio once: `drip doctor --install mockstudio` (a few minutes). Example: mockup_render({ image: "shots/home.png", device: "iphone-17-pro", look: "hero", camera: "three-quarter", background: "#0D0E12", aspect: "4:5", out: "public/img/phone.png" })',
+      inputSchema: {
+        image: external_exports.string().describe("Screenshot (project path or URL), or an .html file rendered at the device's screen size"),
+        device: external_exports.enum([...MOCKSTUDIO.devices, "slab"]).optional().describe("Default iphone-17-pro"),
+        look: external_exports.enum(MOCKSTUDIO.looks).optional(),
+        camera: external_exports.enum(MOCKSTUDIO.cameras).optional(),
+        motion: external_exports.enum(MOCKSTUDIO.motions).optional().describe("A camera move; with an .mp4/.webm out it renders a clip"),
+        aspect: external_exports.enum(MOCKSTUDIO.aspects).optional().describe("Output frame (default 4:5 for a phone, 16:9 for a display)"),
+        background: external_exports.union([external_exports.string(), external_exports.object({ from: external_exports.string(), to: external_exports.string(), shape: external_exports.enum(["linear", "radial"]).optional(), angle: external_exports.number().optional() })]).optional().describe("#hex, transparent, or a gradient"),
+        environment: external_exports.enum(MOCKSTUDIO.environments).optional().describe("HDRI lighting"),
+        light: external_exports.number().min(0).max(4).optional().describe("Environment intensity (default from the look)"),
+        finish: external_exports.enum(["glass", "flat"]).optional().describe("Screen finish: glass reflects the studio, flat shows the pixels exactly"),
+        slabMaterial: external_exports.enum(["matte-black", "space-gray", "silver", "glass"]).optional(),
+        width: external_exports.number().int().min(400).max(4096).optional().describe("Output width in px (default 1600)"),
+        seconds: external_exports.number().min(1).max(20).optional().describe("Clip length (motion only)"),
+        patch: external_exports.record(external_exports.string(), external_exports.any()).optional().describe("Advanced: a JSON merge patch on MockStudio's Scene Document (effects, camera tilt, bloom, grain\u2026)"),
+        out: external_exports.string().describe("File to write: .png, .jpg, .webp, .mp4 or .webm")
+      }
+    },
+    safe(async (o2) => {
+      if (!mockstudioReady()) return text("MockStudio isn't installed yet. Run `drip doctor --install mockstudio` once (it clones a pinned version into ~/.drip/vendor and builds it; a few minutes), then call mockup_render again.", true);
+      const config2 = ctx2.config();
+      const device = o2.device || "iphone-17-pro";
+      const ext = path68.extname(o2.out).toLowerCase().slice(1);
+      const video = ["mp4", "webm"].includes(ext);
+      if (video && !o2.motion) return text("A clip needs a motion (orbit, dolly-in, reveal, drift).", true);
+      const doc = buildDocument(o2);
+      if (video && o2.seconds && doc.animation) doc.animation.duration = o2.seconds;
+      const screen2 = await screenBytes(o2.image, device, config2);
+      const W = o2.width || 1600;
+      const aspect = ASPECT[doc.artboard?.aspect] || (device === "iphone-17-pro" ? 9 / 19.5 : 16 / 10);
+      const H = Math.round(W / aspect / 2) * 2;
+      const base = await serveDir(path68.join(mockstudioDir(), "dist"));
+      const t0 = Date.now();
+      const b64 = await withTab(config2, async (tab) => {
+        await openPage(tab, `${base}/?render`, { width: 1280, height: 900, settleMs: 100 });
+        const expr = `(async () => {
+          for (let i = 0; i < 300 && !window.__mockstudio; i++) await new Promise((r) => setTimeout(r, 50));
+          const b = window.__mockstudio;
+          if (!b) throw new Error("MockStudio's render page did not start");
+          const loaded = b.loadDocument(${JSON.stringify(JSON.stringify(doc))});
+          if (loaded.recovered) throw new Error("MockStudio rejected the scene (check patch): it fell back to defaults");
+          const bytes = Uint8Array.from(atob(${JSON.stringify(screen2.buf.toString("base64"))}), (c) => c.charCodeAt(0));
+          await b.bindSourceMediaBytes({ data: bytes.buffer, name: ${JSON.stringify(screen2.name)}, mimeType: ${JSON.stringify(screen2.mime)} });
+          await b.whenReady();
+          // whenReady() resolves before the device model and the HDRI have loaded: wait until nothing new has loaded for 700 ms.
+          let last = -1, stable = 0;
+          for (let i = 0; i < 150 && stable < 7; i++) {
+            await new Promise((r) => setTimeout(r, 100));
+            const n = performance.getEntriesByType("resource").filter((e) => e.responseEnd > 0).length;
+            stable = n === last ? stable + 1 : 0;
+            last = n;
+          }
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          const req = ${video} ? { kind: "video", width: ${W}, height: ${H}, fps: 30, format: ${JSON.stringify(ext)} } : { kind: "image", width: ${W}, height: ${H}, format: ${JSON.stringify(ext === "jpg" ? "jpeg" : ext)}, transparent: ${o2.background === "transparent"} };
+          const res = await b.capture(req);
+          const u8 = new Uint8Array(res.data);
+          let s = "";
+          for (let i = 0; i < u8.length; i += 32768) s += String.fromCharCode(...u8.subarray(i, i + 32768));
+          return btoa(s);
+        })()`;
+        const { result, exceptionDetails } = await tab.s("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true, timeout: 6e5 });
+        if (exceptionDetails) throw new Error(exceptionDetails.exception?.description?.split("\n")[0] || exceptionDetails.text);
+        return result.value;
+      });
+      const buf = Buffer.from(b64, "base64");
+      const file4 = saveFile(o2.out, buf);
+      const credit = credits(device);
+      saveFile(o2.out.replace(/\.[a-z0-9]+$/i, ".credits.txt"), `${credit.join("\n")}
+`);
+      saveFile(o2.out.replace(/\.[a-z0-9]+$/i, ".mock.json"), JSON.stringify(doc, null, 2));
+      const head = `${video ? "Clip" : "Mockup"} ${W}x${H} (${device}, ${o2.look || "studio"} look${o2.camera ? `, ${o2.camera} camera` : ""}${o2.motion ? `, ${o2.motion}` : ""}) in ${((Date.now() - t0) / 1e3).toFixed(1)}s: ${file4.rel} (${file4.kb} KB)
+Credit (keep it with the image): ${credit.slice(1).join("; ") || "none needed"}
+Scene saved as .mock.json next to it: change one thing with patch and render again.`;
+      return video ? text(head) : blocks([textBlock(head), imageBlock(await toJpeg(buf, 1200, 1200, 82))]);
+    })
+  );
+}
+
 // src/modules/studio/motion.mjs
 var motion_exports = {};
 __export(motion_exports, {
   captureFrames: () => captureFrames,
   naturalDuration: () => naturalDuration,
-  register: () => register30
+  register: () => register31
 });
-import fs69 from "node:fs";
-import path67 from "node:path";
+import fs71 from "node:fs";
+import path69 from "node:path";
 init_browser();
 init_serve();
 init_paths();
@@ -110382,7 +110795,7 @@ async function runStep2(tab, step) {
   }
   await wait(30);
 }
-function register30(server2, ctx2) {
+function register31(server2, ctx2) {
   server2.registerTool(
     "motion_render",
     {
@@ -110443,9 +110856,9 @@ function register30(server2, ctx2) {
         files.push(saveFile(out, animatedWebp(frames.map((f3) => f3.buf), { fps: realFps })));
         if (keepFrames) {
           const dir = abs2.replace(/\.webp$/i, "-frames");
-          fs69.mkdirSync(dir, { recursive: true });
-          frames.forEach((f3, i2) => fs69.writeFileSync(path67.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
-          files.push({ rel: path67.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
+          fs71.mkdirSync(dir, { recursive: true });
+          frames.forEach((f3, i2) => fs71.writeFileSync(path69.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
+          files.push({ rel: path69.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
         }
       }
       const pick4 = Array.from({ length: Math.min(8, frames.length) }, (_, i2) => frames[Math.round(i2 * (frames.length - 1) / Math.max(1, Math.min(8, frames.length) - 1))]);
@@ -110479,16 +110892,16 @@ __export(shader_exports, {
   PRESET_NAMES: () => PRESET_NAMES,
   SHADERS_URL: () => SHADERS_URL,
   SHADERS_VERSION: () => SHADERS_VERSION,
-  register: () => register31,
+  register: () => register32,
   resolveParams: () => resolveParams,
   shaderPage: () => shaderPage,
   snippets: () => snippets
 });
-import path68 from "node:path";
+import path70 from "node:path";
 init_browser();
 init_imaging();
-import fs70 from "node:fs";
-import { pathToFileURL as pathToFileURL8 } from "node:url";
+import fs72 from "node:fs";
+import { pathToFileURL as pathToFileURL7 } from "node:url";
 var SHADERS_VERSION = "0.0.80";
 var SHADERS_URL = `https://cdn.jsdelivr.net/npm/@paper-design/shaders@${SHADERS_VERSION}/+esm`;
 var SIZING_KEYS = ["fit", "scale", "rotation", "offsetX", "offsetY", "originX", "originY", "worldWidth", "worldHeight"];
@@ -110581,7 +110994,7 @@ import { ShaderMount, ${def.fragment}, getShaderColorFromString, ShaderFitOption
 new ShaderMount(document.querySelector("#hero"), ${def.fragment}, uniforms, undefined, ${p2.speed ?? 1});`;
   return { react, vanilla };
 }
-function register31(server2, ctx2) {
+function register32(server2, ctx2) {
   registerViewer(server2);
   server2.registerTool(
     "shader_hero",
@@ -110604,11 +111017,11 @@ function register31(server2, ctx2) {
       const { preset, params = {}, width = 1600, height = 900, time: time3 = 2, frames = 0, duration: duration3 = 3, out } = args;
       const html = shaderPage(preset, params, { width, height });
       const dir = tempDir("drip-shader-");
-      const file4 = path68.join(dir, "shader.html");
-      fs70.writeFileSync(file4, html);
+      const file4 = path70.join(dir, "shader.html");
+      fs72.writeFileSync(file4, html);
       try {
         const shot3 = await withTab(ctx2.config(), async (tab) => {
-          await openPage(tab, pathToFileURL8(file4).href, { width, height, settleMs: 200, timeout: 2e4 });
+          await openPage(tab, pathToFileURL7(file4).href, { width, height, settleMs: 200, timeout: 2e4 });
           const ok = await tab.s("Runtime.evaluate", { expression: "window.__ready", awaitPromise: true, returnByValue: true });
           if (!ok.result.value) {
             const { result: result2 } = await tab.s("Runtime.evaluate", { expression: "window.__error || 'unknown error'", returnByValue: true });
@@ -110626,7 +111039,7 @@ function register31(server2, ctx2) {
         const snip = snippets(preset, params);
         const files = [];
         if (out) {
-          const ext = path68.extname(out).slice(1).toLowerCase();
+          const ext = path70.extname(out).slice(1).toLowerCase();
           if (!["webp", "png", "jpg", "jpeg"].includes(ext)) throw new Error("out must end in .webp, .png or .jpg");
           const still = ext === "png" ? shot3.png : processImage(shot3.png, { outputs: [{ name: "", width, format: ext === "webp" ? "webp" : "jpeg" }], focus: { x: 0.5, y: 0.5 }, maxKB: 500, config: ctx2.config() }).then((r2) => r2.files[0].buf);
           files.push(saveFile(out, await still));
@@ -110669,8 +111082,8 @@ Library: @paper-design/shaders ${SHADERS_VERSION} (Apache-2.0).`
 }
 
 // src/modules/studio/index.mjs
-function register32(server2, ctx2) {
-  for (const m of [art_tool_exports, shader_exports, scene_exports, assets3d_exports, blender_exports, motion_exports]) m.register(server2, ctx2);
+function register33(server2, ctx2) {
+  for (const m of [mockup_exports, art_tool_exports, shader_exports, scene_exports, assets3d_exports, blender_exports, motion_exports]) m.register(server2, ctx2);
 }
 
 // src/core/registry.mjs
@@ -110700,80 +111113,26 @@ function collectTools() {
 }
 
 // src/core/cli.mjs
-import fs73 from "node:fs";
-import path71 from "node:path";
-import { fileURLToPath as fileURLToPath2, pathToFileURL as pathToFileURL9 } from "node:url";
+import fs74 from "node:fs";
+import path72 from "node:path";
+import { fileURLToPath as fileURLToPath2, pathToFileURL as pathToFileURL8 } from "node:url";
 init_paths();
 
 // src/core/doctor.mjs
 init_browser();
-import fs72 from "node:fs";
+import fs73 from "node:fs";
 import os11 from "node:os";
-import path70 from "node:path";
+import path71 from "node:path";
 init_paths();
-
-// src/core/vendor.mjs
-import { execFile as execFile4 } from "node:child_process";
-import fs71 from "node:fs";
-import path69 from "node:path";
-import { createRequire } from "node:module";
-init_paths();
-var VENDOR_DEPS = {
-  "axe-core": "axe-core",
-  svgo: "svgo",
-  resvg: "@resvg/resvg-js",
-  "ts-morph": "ts-morph",
-  fontkit: "fontkit"
-};
-var vendorDir = () => path69.join(process.env.DRIP_HOME || homeDripDir, "vendor");
-function vendorResolve(name) {
-  const pkg = VENDOR_DEPS[name] || name;
-  const dir = vendorDir();
-  if (!fs71.existsSync(path69.join(dir, "node_modules", pkg))) return null;
-  try {
-    return createRequire(path69.join(dir, "package.json")).resolve(pkg);
-  } catch {
-    try {
-      const pj = JSON.parse(fs71.readFileSync(path69.join(dir, "node_modules", pkg, "package.json"), "utf8"));
-      const main = typeof pj.exports === "string" ? pj.exports : pj.exports?.["."]?.import || pj.exports?.["."]?.default || pj.module || pj.main || "index.js";
-      return path69.join(dir, "node_modules", pkg, typeof main === "string" ? main : "index.js");
-    } catch {
-      return null;
-    }
-  }
-}
-function npmCommand() {
-  const bin = path69.dirname(process.execPath);
-  for (const p2 of [path69.join(bin, "node_modules", "npm", "bin", "npm-cli.js"), path69.join(bin, "..", "lib", "node_modules", "npm", "bin", "npm-cli.js")]) {
-    if (fs71.existsSync(p2)) return { file: process.execPath, pre: [p2], shell: false };
-  }
-  return { file: process.platform === "win32" ? "npm.cmd" : "npm", pre: [], shell: process.platform === "win32" };
-}
-function installVendor(name) {
-  const pkg = VENDOR_DEPS[name];
-  if (!pkg) return Promise.reject(new Error(`Unknown optional dependency "${name}". Available: ${Object.keys(VENDOR_DEPS).join(", ")}.`));
-  const dir = vendorDir();
-  fs71.mkdirSync(dir, { recursive: true });
-  const pj = path69.join(dir, "package.json");
-  if (!fs71.existsSync(pj)) fs71.writeFileSync(pj, JSON.stringify({ name: "drip-vendor", private: true, description: "Optional dependencies installed by drip doctor --install" }, null, 2));
-  const cmd = npmCommand();
-  return new Promise((resolve2, reject) => {
-    execFile4(cmd.file, [...cmd.pre, "install", "--prefix", dir, "--no-audit", "--no-fund", pkg], { shell: cmd.shell, timeout: 3e5, windowsHide: true, maxBuffer: 8 * 1024 * 1024 }, (err, stdout, stderr) => {
-      if (err) reject(new Error(`npm install ${pkg} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`));
-      else resolve2({ name, package: pkg, dir });
-    });
-  });
-}
-
-// src/core/doctor.mjs
+var vendor0 = () => path71.join(process.env.DRIP_HOME || path71.join(os11.homedir(), ".drip"), "vendor");
 function onPath(names3) {
   const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
-  for (const dir of (process.env.PATH || "").split(path70.delimiter).filter(Boolean)) {
+  for (const dir of (process.env.PATH || "").split(path71.delimiter).filter(Boolean)) {
     for (const n3 of names3) {
       for (const e2 of exts) {
-        const f3 = path70.join(dir, n3 + e2);
+        const f3 = path71.join(dir, n3 + e2);
         try {
-          if (fs72.statSync(f3).isFile()) return f3;
+          if (fs73.statSync(f3).isFile()) return f3;
         } catch {
         }
       }
@@ -110787,18 +111146,18 @@ function findBlender2() {
   const found = [];
   const scan2 = (base, rel3) => {
     try {
-      for (const d of fs72.readdirSync(base)) found.push(path70.join(base, d, rel3));
+      for (const d of fs73.readdirSync(base)) found.push(path71.join(base, d, rel3));
     } catch {
     }
   };
   if (process.platform === "win32") {
-    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path70.join(pf, "Blender Foundation"), "blender.exe");
+    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path71.join(pf, "Blender Foundation"), "blender.exe");
   } else if (process.platform === "darwin") {
     found.push("/Applications/Blender.app/Contents/MacOS/Blender");
   } else {
-    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path70.join(os11.homedir(), "blender", "blender"));
+    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path71.join(os11.homedir(), "blender", "blender"));
   }
-  return found.find((f3) => fs72.existsSync(f3)) || null;
+  return found.find((f3) => fs73.existsSync(f3)) || null;
 }
 var check2 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
 async function runDoctor({ hostsDoctor } = {}) {
@@ -110811,6 +111170,8 @@ async function runDoctor({ hostsDoctor } = {}) {
   const blender = findBlender2();
   checks.push(blender ? check2("blender", "Blender (optional)", "ok", blender) : check2("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Install Blender and put it on PATH."));
   const uvx = onPath(["uvx"]);
+  const ms = path71.join(vendor0(), "mockstudio", "dist", "index.html");
+  checks.push(fs73.existsSync(ms) ? check2("mockstudio", "MockStudio (device mockups)", "ok", path71.dirname(path71.dirname(ms))) : check2("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --install mockstudio"));
   checks.push(uvx ? check2("uvx", "uvx (optional)", "ok", uvx) : check2("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
   const vendor = vendorDir();
   const installed = Object.keys(VENDOR_DEPS).filter((n3) => vendorResolve(n3));
@@ -110821,15 +111182,15 @@ async function runDoctor({ hostsDoctor } = {}) {
   checks.push(check2("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
   const proj = projectDir();
   const dripDir = projectDripDir();
-  const hasDrip = fs72.existsSync(dripDir);
+  const hasDrip = fs73.existsSync(dripDir);
   checks.push(check2("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
-  checks.push(check2("plugin", "Plugin root", fs72.existsSync(path70.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
+  checks.push(check2("plugin", "Plugin root", fs73.existsSync(path71.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
   checks.push(check2("home", "User folder", "ok", homeDripDir));
   let state = "no task";
   try {
-    const f3 = path70.join(dripDir, "state.json");
-    if (fs72.existsSync(f3)) {
-      const raw = JSON.parse(fs72.readFileSync(f3, "utf8"));
+    const f3 = path71.join(dripDir, "state.json");
+    if (fs73.existsSync(f3)) {
+      const raw = JSON.parse(fs73.readFileSync(f3, "utf8"));
       const n3 = Object.keys(raw.tasks || (raw.task ? { x: 1 } : {})).length;
       state = `${n3} open task${n3 === 1 ? "" : "s"}`;
     }
@@ -110916,14 +111277,14 @@ var PREREQ = /(Chrome\/Edge not found|not installed|isn't installed|no API key|A
 function bound2(text2, flags, name, outDir) {
   const max = flags["max-chars"] ? Number(flags["max-chars"]) : flags.__legacy ? Infinity : DEFAULT_MAX_CHARS;
   if (!(text2.length > max)) return { text: text2 };
-  fs73.mkdirSync(outDir, { recursive: true });
-  const file4 = path71.join(outDir, `${name}-${Date.now()}.txt`);
-  fs73.writeFileSync(file4, text2);
+  fs74.mkdirSync(outDir, { recursive: true });
+  const file4 = path72.join(outDir, `${name}-${Date.now()}.txt`);
+  fs74.writeFileSync(file4, text2);
   return { text: `${text2.slice(0, max)}
 [output cut at ${max} of ${text2.length} characters; full text: ${file4}]`, textFile: file4 };
 }
 function outDirFor(flags) {
-  return path71.resolve(flags.out || path71.join(projectDripDir(), "cli"));
+  return path72.resolve(flags.out || path72.join(projectDripDir(), "cli"));
 }
 async function invokeTool(name, args, flags = {}) {
   const tools = collectTools();
@@ -110947,9 +111308,9 @@ async function invokeTool(name, args, flags = {}) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs73.mkdirSync(outDir, { recursive: true });
-      const file4 = path71.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs73.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs74.mkdirSync(outDir, { recursive: true });
+      const file4 = path72.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs74.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       images.push(file4);
     }
   }
@@ -110965,7 +111326,7 @@ async function readInput(flags, pos) {
   if (flags.input !== void 0 && flags.input !== "-") raw = flags.input;
   else if (flags["input-file"]) {
     try {
-      raw = fs73.readFileSync(path71.resolve(flags["input-file"]), "utf8");
+      raw = fs74.readFileSync(path72.resolve(flags["input-file"]), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --input-file: ${e2.message}`);
     }
@@ -110984,9 +111345,9 @@ async function readInput(flags, pos) {
   }
 }
 async function loadHosts() {
-  const here2 = path71.dirname(fileURLToPath2(import.meta.url));
-  for (const f3 of [path71.resolve(here2, "..", "hosts", "index.mjs"), path71.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
-    if (fs73.existsSync(f3)) return import(pathToFileURL9(f3).href);
+  const here2 = path72.dirname(fileURLToPath2(import.meta.url));
+  for (const f3 of [path72.resolve(here2, "..", "hosts", "index.mjs"), path72.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
+    if (fs74.existsSync(f3)) return import(pathToFileURL8(f3).href);
   }
   return null;
 }
@@ -111031,6 +111392,10 @@ async function cmdDoctor(flags) {
   if (flags.install) {
     try {
       log(`Installing ${flags.install} into ~/.drip/vendor ...`);
+      if (flags.install === "mockstudio") {
+        const m = await installMockstudio(log);
+        return finish({ ok: m.ok, tool: "doctor", text: m.ok ? `MockStudio is ready in ${m.dir}. mockup_render can use it now.` : "MockStudio installed but its build is missing.", images: [] }, flags);
+      }
       const r3 = await installVendor(flags.install);
       return finish({ ok: true, tool: "doctor", text: `Installed ${r3.package} in ${r3.dir}.`, images: [] }, flags);
     } catch (e2) {
@@ -111082,11 +111447,11 @@ function basicProject() {
   const root = projectDir();
   const lines = [`Project: ${root}`];
   const drip = projectDripDir();
-  lines.push(fs73.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
-  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs73.existsSync(path71.join(root, f3))) lines.push(`Design doc: ${f3}`);
+  lines.push(fs74.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
+  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs74.existsSync(path72.join(root, f3))) lines.push(`Design doc: ${f3}`);
   try {
-    const boards = path71.join(drip, "boards");
-    const ids = fs73.existsSync(boards) ? fs73.readdirSync(boards).filter((d) => fs73.existsSync(path71.join(boards, d, "board.json"))) : [];
+    const boards = path72.join(drip, "boards");
+    const ids = fs74.existsSync(boards) ? fs74.readdirSync(boards).filter((d) => fs74.existsSync(path72.join(boards, d, "board.json"))) : [];
     lines.push(ids.length ? `Boards: ${ids.join(", ")}` : "Boards: none");
   } catch {
     lines.push("Boards: unreadable");
@@ -111097,8 +111462,8 @@ function basicProject() {
   } catch {
     lines.push("Task: state unreadable");
   }
-  const cfg = path71.join(drip, "config.json");
-  lines.push(fs73.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
+  const cfg = path72.join(drip, "config.json");
+  lines.push(fs74.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
   return lines.join("\n");
 }
 async function cmdProject(pos, flags) {
@@ -111138,12 +111503,12 @@ async function cmdRun(flags) {
   let code;
   if (flags.file) {
     try {
-      code = fs73.readFileSync(path71.resolve(flags.file), "utf8");
+      code = fs74.readFileSync(path72.resolve(flags.file), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --file: ${e2.message}`);
     }
   } else code = flags.code;
-  const r2 = await executeCode(code, { outDir: flags.out ? path71.resolve(flags.out) : void 0 });
+  const r2 = await executeCode(code, { outDir: flags.out ? path72.resolve(flags.out) : void 0 });
   const lines = [];
   if (r2.logs.length) lines.push(...r2.logs);
   if (r2.ok) lines.push(r2.value === void 0 ? "(no return value)" : JSON.stringify(r2.value, null, 2));
@@ -111168,7 +111533,7 @@ async function cmdHosts(sub, pos, flags) {
   }
   const agent = flags.agent;
   if (!agent) throw new UsageError(`Usage: drip ${sub} --agent <host> [--dry-run]. Hosts: drip hosts`);
-  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path71.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
+  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path72.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
   const fn = hosts[sub];
   if (typeof fn !== "function") return finish(failure2(sub, EXIT.PREREQ, "not_available", `${sub} is not available in this build.`), flags);
   try {
@@ -111179,8 +111544,8 @@ async function cmdHosts(sub, pos, flags) {
 }
 function applyGlobals(flags) {
   if (flags.project) {
-    const p2 = path71.resolve(flags.project);
-    if (!fs73.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
+    const p2 = path72.resolve(flags.project);
+    if (!fs74.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
     process.env.DRIP_PROJECT_DIR = p2;
   }
   let session = flags.session;
@@ -111266,7 +111631,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.5.2";
+var VERSION = "0.6.0";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.

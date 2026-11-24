@@ -62,6 +62,54 @@ const AUDIT = `(() => {
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
 })()`;
 
+// Text something else is drawn over (decoration, a sticker, paint, a badge): the browser is asked what is on top at
+// points along each line of text, a screen at a time. pointer-events are forced on while it looks, because decoration is
+// usually pointer-events: none. Written without backslashes or template placeholders: it is embedded as text.
+const COVERED = `(async () => {
+  const st = document.createElement('style'); st.textContent = '* { pointer-events: auto !important; }'; document.head.appendChild(st);
+  const name = (el) => (el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.classList.length ? '.' + [...el.classList].slice(0, 2).join('.') : ''));
+  const out = []; const seen = new Set(); let checks = 0;
+  const h = document.documentElement.scrollHeight; const vh = innerHeight;
+  for (let y = 0; y < h && y < vh * 14 && out.length < 10; y += vh) {
+    scrollTo(0, y); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = walker.nextNode()) && checks < 4000 && out.length < 10) {
+      const t = n.textContent.trim(); if (t.length < 2 || seen.has(n)) continue;
+      const el = n.parentElement; if (!el) continue;
+      const cs0 = getComputedStyle(el); if (cs0.visibility === 'hidden' || +cs0.opacity < 0.1) continue;
+      const range = document.createRange(); range.selectNodeContents(n);
+      for (const r of [...range.getClientRects()].slice(0, 4)) {
+        if (r.width < 6 || r.height < 6 || r.bottom < 0 || r.top > vh) continue;
+        checks++;
+        let hits = 0, by = null;
+        for (let f = 0.04; f < 1; f += 0.08) {
+          const x = r.left + r.width * f, yy = r.top + r.height * 0.5;
+          if (x < 0 || yy < 0 || x >= innerWidth || yy >= vh) continue;
+          const top = document.elementFromPoint(x, yy);
+          if (!top || top === el || el.contains(top) || top.contains(el)) continue;
+          const cs = getComputedStyle(top);
+          if (+cs.opacity < 0.35 || cs.visibility === 'hidden') continue;
+          let pinned = false; for (let a = top; a && a !== document.body; a = a.parentElement) { const p = getComputedStyle(a).position; if (p === 'fixed' || p === 'sticky') { pinned = true; break; } }
+          if (pinned) continue; // a sticky header over text while scrolling is not a layout fault
+          if (cs.display === 'inline' || cs.mixBlendMode !== 'normal') continue; // text runs and blend-mode effect layers
+          if ([...top.childNodes].some((c) => c.nodeType === 3 && c.textContent.trim())) continue; // text over text: layered type, cards in a product shot
+          const tr = top.getBoundingClientRect(); if (tr.width * tr.height > innerWidth * vh * 0.5) continue; // a screen-sized texture or grain overlay
+          const solid = (() => { const m = cs.backgroundColor.match(/[0-9.]+/g); return m && (m.length < 4 || +m[3] >= 0.5); })();
+          if (!(solid || /url[(]/.test(cs.backgroundImage) || /^(IMG|SVG|PATH|CANVAS|VIDEO|PICTURE)$/i.test(top.tagName))) continue; // outlines, shines and gradients don't hide words
+          let lca = top.parentElement; while (lca && !lca.contains(el)) lca = lca.parentElement;
+          if (lca && lca !== document.body) { const lr = lca.getBoundingClientRect(); if (lr.width * lr.height < innerWidth * vh * 0.25) continue; } // layering inside one card or illustration
+          if (top.closest('[aria-hidden=true]') && el.closest('[aria-hidden=true]') === top.closest('[aria-hidden=true]')) continue; // both inside one illustration
+          hits++; by = top;
+        }
+        if (hits >= 1) { seen.add(n); out.push({ text: t.slice(0, 48), by: name(by), image: /^(IMG|PICTURE|VIDEO)$/i.test(by.tagName) || /url[(]/.test(getComputedStyle(by).backgroundImage), y: Math.round(r.top + scrollY) }); break; }
+      }
+    }
+  }
+  scrollTo(0, 0); st.remove();
+  return out;
+})()`;
+
 /**
  * Open `url` at `width` x `height`, return { audit, slices: [Buffer jpeg…] } where slices cover the whole page,
  * one viewport each (max `maxSlices`, evenly spaced if the page is longer).
@@ -75,6 +123,7 @@ export async function capture(url, { width = 1440, height = 900, maxSlices = 6, 
     await settle(s, 800);
     const { result } = await s("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
     const audit = result.value;
+    audit.covered = (await s("Runtime.evaluate", { expression: COVERED, awaitPromise: true, returnByValue: true })).result?.value || [];
     if (brand) audit.brand = (await s("Runtime.evaluate", { expression: BRAND, returnByValue: true })).result.value;
     const total = Math.min(audit.height, 30000);
     const count = Math.max(1, Math.ceil(total / height));
@@ -102,6 +151,11 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   const desk = a.width >= 1000;
   const phone = a.width < 600;
   if (phone && a.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
+  const shapes = (a.covered || []).filter((c) => !c.image);
+  const pics = (a.covered || []).filter((c) => c.image);
+  if (pics.length) warnings.push(`images over text: ${pics.slice(0, 3).map((c) => `"${c.text}" under ${c.by}`).join("; ")}. Fine in a deliberate collage; check the words still read`);
+  if (shapes.length)
+    blockers.push(`text covered by a shape: ${shapes.slice(0, 4).map((c) => `"${c.text}" under ${c.by} (y ${c.y})`).join("; ")}. Decoration that crosses content goes behind it, makes room for it, or the content moves; something drawn over words needs a reason and real depth (shadow, highlight, edge), never a flat shape pasted on top`);
   if (a.overflowX) blockers.push(`horizontal overflow at ${a.width}px: page is ${a.scrollWidth}px wide (${a.offenders.join(", ") || "unknown element"})`);
   // ---- hero gate (playbook P31): runs on every shot of a Persuade page ----
   if (persuade && a.hero) {

@@ -121,12 +121,13 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 
 ## Never
 33. Eyebrows or kickers; tracked-caps labels; 01/02/03 numbering unless it's a real sequence; middle-dot meta strings; arrows glued to link text; decorative status dots.
-34. Gradient text; an accented word in a head; glass or glow as decoration; purple-blue gradients; a card inside a card; three equal icon cards; the big-number-small-label hero; emoji or unicode as icons.
+34. Gradient text; an accented word in a head; glass or glow as decoration; purple-blue gradients; a card inside a card; three equal icon cards; the big-number-small-label hero; emoji or unicode as icons. Decoration pasted over content: a shape (paint, sticker, blob) that crosses words must go behind them, make the content move, or carry real depth (shadow, highlight, the edge it wraps around); a flat shape over text is blocked. Devices and objects built from boxes and cylinders: phones and displays come from `mockup_render`, objects from a real model in `scene_render`.
 35. Invented stats, logos, testimonials or user counts; "Unlock / Elevate / Seamless"; "Learn more" or "Get started" as the only label.
 36. Fade-up on every section; parallax on text; scroll-jacking; a marquee by reflex.
 
 ## Finish
 37. `fitcheck_shot({ url })` shoots the whole page at 1440 and 390 and runs the page gate. It blocks on any of these:
+    - text covered by a shape drawn over it;
     - more than 7 sizes or 2 families;
     - more than 10% mono;
     - body under 17px on desktop or 16px on phone;

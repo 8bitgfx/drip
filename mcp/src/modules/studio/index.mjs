@@ -3,10 +3,11 @@
 import * as art from "./art-tool.mjs";
 import * as assets3d from "./assets3d.mjs";
 import * as blender from "./blender.mjs";
+import * as mockup from "./mockup.mjs";
 import * as motion from "./motion.mjs";
 import * as scene from "./scene.mjs";
 import * as shader from "./shader.mjs";
 
 export function register(server, ctx) {
-  for (const m of [art, shader, scene, assets3d, blender, motion]) m.register(server, ctx);
+  for (const m of [mockup, art, shader, scene, assets3d, blender, motion]) m.register(server, ctx);
 }

@@ -9,9 +9,10 @@ A good product shot is a miniature of the real product, framed like a photograph
 3. **Pick the layout** from the table below before building the screen; the crop decides how big type must be and what must exist past the edge.
 4. **Choose the look and fidelity.** Map the product's real tokens (colours, radius, type, icons) when you have them. Fidelity: *minimal* (all bars), *standard* (real words where they carry meaning, bars elsewhere; the default), *realistic* (real content everywhere; for full-width heroes and named real products).
 5. **Build the screen** at real size from real parts: the project's own components first, then `components_find`. Count the real strings: usually 3 to 7. Fit every control's text before anything moves.
-6. **Frame it:** crop, gutter, satellite, shadow, ground. Screenshot the still with `fitcheck_shot` at the shown width and at the phone width; compare with the references (`fitcheck_compare`). Fix framing before motion.
-7. **Animate** only if the brief wants motion (`productshots/animated-demos`): set the poster first, then the beats.
-8. **Verify** with the checklist below, then `fitcheck_done`.
+6. **On a device, use real hardware:** `mockup_render` puts the screen you built (an .html file or its screenshot) on a real iPhone or Studio Display model, or a clean slab, with studio light and a look; never draw a device frame from boxes in HTML or 3D primitives.
+7. **Frame it:** crop, gutter, satellite, shadow, ground. Screenshot the still with `fitcheck_shot` at the shown width and at the phone width; compare with the references (`fitcheck_compare`). Fix framing before motion.
+8. **Animate** only if the brief wants motion (`productshots/animated-demos`): set the poster first, then the beats.
+9. **Verify** with the checklist below, then `fitcheck_done`.
 
 ## The craft
 

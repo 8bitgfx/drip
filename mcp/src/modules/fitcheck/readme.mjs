@@ -17,7 +17,7 @@ import { updateState } from "../../core/state.mjs";
 
 const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp", ".svg": "image/svg+xml", ".avif": "image/avif" };
 
-async function shoot(url, { width, height, scale, transparent, dark, fullPage, config }) {
+export async function shoot(url, { width, height, scale, transparent, dark, fullPage, config }) {
   return withTab(config, async (tab) => {
     const { s } = tab;
     await openPage(tab, url, { width, height, dark, settleMs: 400 });

@@ -13,6 +13,7 @@ import { collectTools } from "./registry.mjs";
 import { bindSession, loadState, setIdentity } from "./state.mjs";
 import { formatDoctor, runDoctor } from "./doctor.mjs";
 import { installVendor } from "./vendor.mjs";
+import { installMockstudio } from "../modules/studio/mockup.mjs";
 import { executeCode } from "./codemode/execute.mjs";
 import { toolSignature } from "./codemode/signatures.mjs";
 
@@ -206,6 +207,10 @@ async function cmdDoctor(flags) {
   if (flags.install) {
     try {
       log(`Installing ${flags.install} into ~/.drip/vendor ...`);
+      if (flags.install === "mockstudio") {
+        const m = await installMockstudio(log);
+        return finish({ ok: m.ok, tool: "doctor", text: m.ok ? `MockStudio is ready in ${m.dir}. mockup_render can use it now.` : "MockStudio installed but its build is missing.", images: [] }, flags);
+      }
       const r = await installVendor(flags.install);
       return finish({ ok: true, tool: "doctor", text: `Installed ${r.package} in ${r.dir}.`, images: [] }, flags);
     } catch (e) {

@@ -57,7 +57,7 @@ function npmCommand() {
 /** Install one allowlisted optional dependency into ~/.drip/vendor. */
 export function installVendor(name) {
   const pkg = VENDOR_DEPS[name];
-  if (!pkg) return Promise.reject(new Error(`Unknown optional dependency "${name}". Available: ${Object.keys(VENDOR_DEPS).join(", ")}.`));
+  if (!pkg) return Promise.reject(new Error(`Unknown optional dependency "${name}". Available: ${Object.keys(VENDOR_DEPS).join(", ")}, mockstudio.`));
   const dir = vendorDir();
   fs.mkdirSync(dir, { recursive: true });
   const pj = path.join(dir, "package.json");

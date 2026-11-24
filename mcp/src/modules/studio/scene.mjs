@@ -4,7 +4,6 @@
 // The scene is plain JSON: the tool returns it so you can change one thing and render again.
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { openPage, withTab } from "../../core/browser.mjs";
 import { contactSheet, fetchImage, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
@@ -12,6 +11,8 @@ import { processImage } from "../../core/imaging.mjs";
 import { safe } from "../../core/result.mjs";
 import { hdrBuffer } from "./assets3d.mjs";
 import { cleanDir, projectPath, saveFile, tempDir } from "./raster.mjs";
+import { homeDripDir } from "../../core/paths.mjs";
+import { toUrl } from "../../core/serve.mjs";
 import { dataUrl, registerViewer, studioResult, studioToolMeta } from "./viewer.mjs";
 import { animatedWebp } from "./webp.mjs";
 
@@ -35,8 +36,10 @@ const materialSchema = z.object({
 });
 
 const objectSchema = z.object({
-  type: z.enum(["phone", "laptop", "box", "cylinder", "bottle", "sphere", "card", "plane"]),
-  size: z.array(z.number().positive()).min(1).max(3).optional().describe("phone/laptop/box/card/plane: [w, h, d]; cylinder/bottle/sphere: [radius, height]"),
+  type: z.enum(["model", "phone", "laptop", "box", "cylinder", "bottle", "sphere", "card", "plane"]).describe("model = a real glTF model (src); the others are simple built-in shapes"),
+  src: z.string().optional().describe("model: a .glb/.gltf file, a folder from assets_3d_save, or polyhaven:<id> (CC0, downloaded and cached)"),
+  label: z.object({ mesh: z.string().describe("Part of the model to put the image on (a mesh or material name, or part of one; the result lists them)"), image: z.string(), fit: z.enum(["cover", "contain"]).optional(), roughness: z.number().min(0).max(1).optional() }).optional().describe("model: your artwork on one part (a label, a screen, a lid)"),
+  size: z.array(z.number().positive()).min(1).max(3).optional().describe("model: [height] (scaled to it); phone/laptop/box/card/plane: [w, h, d]; cylinder/bottle/sphere: [radius, height]"),
   position: vec3.optional(),
   rotation: vec3.optional().describe("Degrees"),
   material: materialSchema.optional(),
@@ -111,6 +114,41 @@ export function findPbrMaps(folder) {
 }
 
 /** Everything the page needs as plain data: images as data URLs, the HDRI as base64. */
+/** A model file on disk: a project .glb/.gltf, the first one in a folder, or a Poly Haven model (CC0) cached in ~/.drip/cache/models. */
+export async function resolveModel(src) {
+  const ph = /^polyhaven:([\w-]+)$/i.exec(src);
+  if (ph) {
+    const id = ph[1];
+    const dir = path.join(homeDripDir, "cache", "models", id);
+    const main = path.join(dir, `${id}.gltf`);
+    if (fs.existsSync(main)) return main;
+    const r = await fetch(`https://api.polyhaven.com/files/${id}`, { headers: { "user-agent": "drip" } });
+    if (!r.ok) throw new Error(`Poly Haven has no model "${id}" (assets_3d_search lists them)`);
+    const g = (await r.json()).gltf;
+    const pick = g?.["2k"]?.gltf || g?.["1k"]?.gltf;
+    if (!pick) throw new Error(`Poly Haven "${id}" has no glTF download`);
+    const put = async (url, rel) => {
+      const target = path.join(dir, rel);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      const res = await fetch(url, { headers: { "user-agent": "drip" } });
+      if (!res.ok) throw new Error(`Download failed: ${url}`);
+      fs.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
+    };
+    for (const [rel, f] of Object.entries(pick.include || {})) await put(f.url, rel);
+    await put(pick.url, `${id}.gltf`);
+    fs.writeFileSync(path.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
+    return main;
+  }
+  const abs = projectPath(src);
+  if (!fs.existsSync(abs)) throw new Error(`Model not found: ${src}`);
+  if (fs.statSync(abs).isDirectory()) {
+    const f = fs.readdirSync(abs).find((n) => /\.(glb|gltf)$/i.test(n));
+    if (!f) throw new Error(`No .glb or .gltf in ${src}`);
+    return path.join(abs, f);
+  }
+  return abs;
+}
+
 export async function prepareScene(spec) {
   const scene = structuredClone(spec);
   for (const o of scene.objects) {
@@ -118,6 +156,13 @@ export async function prepareScene(spec) {
     if (m.pbrFolder) Object.assign(m, Object.fromEntries(Object.entries(findPbrMaps(m.pbrFolder)).filter(([k]) => !m[k])));
     for (const k of ["map", "normalMap", "roughnessMap", "aoMap"]) if (m[k]) m[k] = await inlineImage(m[k], 2048);
     if (o.decal) o.decal = { ...o.decal, image: await inlineImage(o.decal.image, 2048) };
+    if (o.type === "model") {
+      if (!o.src) throw new Error("A model object needs src: a .glb/.gltf file, a folder from assets_3d_save, or polyhaven:<id>.");
+      const file = await resolveModel(o.src);
+      o.modelDir = path.dirname(file);
+      o.modelFile = path.basename(file);
+      if (o.label) o.label = { ...o.label, image: await inlineImage(o.label.image, 2048) };
+    }
   }
   const env = scene.environment;
   if (env?.hdri) {
@@ -133,6 +178,7 @@ const PAGE_SCRIPT = `
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 const S = window.__SCENE;
 const W = S.width || 1600, H = S.height || 1000;
@@ -187,7 +233,36 @@ window.__ready = (async () => {
       for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / h + 0.5); return g; };
     const mesh = (geo, mat) => { const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true; return m; };
 
+    const meshNames = [];
+    const buildModel = async (o) => {
+      const gltf = await new GLTFLoader().loadAsync(o.modelUrl);
+      const m = gltf.scene;
+      const b = new THREE.Box3().setFromObject(m), size = b.getSize(new THREE.Vector3());
+      const target = (o.size && o.size[0]) || 1.2;
+      m.scale.setScalar(target / Math.max(size.y, 1e-6));
+      const want = o.label ? o.label.mesh.toLowerCase() : null;
+      let labelled = 0;
+      for (const mesh of (() => { const l = []; m.traverse((n) => { if (n.isMesh) l.push(n); }); return l; })()) {
+        mesh.castShadow = true; mesh.receiveShadow = true;
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        meshNames.push(mesh.name + (mats[0] && mats[0].name ? " (" + mats[0].name + ")" : ""));
+        if (want && (mesh.name.toLowerCase().includes(want) || mats.some((x) => (x.name || "").toLowerCase().includes(want)))) {
+          const geo = mesh.geometry; geo.computeBoundingBox(); const bb = geo.boundingBox.getSize(new THREE.Vector3());
+          const dims = [bb.x, bb.y, bb.z].sort((p, q) => q - p);
+          const t = await decalTexture({ image: o.label.image, fit: o.label.fit || "cover", background: "#ffffff" }, dims[0] / Math.max(dims[1], 1e-6));
+          t.flipY = false;
+          mesh.material = new THREE.MeshPhysicalMaterial({ map: t, roughness: o.label.roughness ?? 0.42, metalness: 0, clearcoat: 0.25, clearcoatRoughness: 0.2 });
+          labelled++;
+        }
+      }
+      if (want && !labelled) throw new Error('No part of the model matches label.mesh "' + o.label.mesh + '". Parts: ' + meshNames.slice(0, 40).join(", "));
+      const g = new THREE.Group(); g.add(m);
+      const p = o.position || [0, 0, 0], r = o.rotation || [0, 0, 0];
+      g.position.set(p[0], p[1], p[2]); g.rotation.set(rad(r[0]), rad(r[1]), rad(r[2]));
+      return g;
+    };
     const build = async (o) => {
+      if (o.type === "model") return buildModel(o);
       const g = new THREE.Group(); const sz = o.size || [];
       const mat = await material(o.material);
       const screenMat = async (aspect) => o.decal ? new THREE.MeshBasicMaterial({ map: await decalTexture(o.decal, aspect), toneMapped: false }) : new THREE.MeshBasicMaterial({ color: 0x0a0a0c, toneMapped: false });
@@ -299,7 +374,7 @@ window.__ready = (async () => {
     const dist = cam.distance || (sphere.radius / Math.sin(Math.min(vfov, hfov) / 2)) * 0.92;
     const place = (az) => { const a = rad(az), e = rad(cam.elevation ?? 10); camera.position.set(target.x + dist * Math.cos(e) * Math.sin(a), target.y + dist * Math.sin(e), target.z + dist * Math.cos(e) * Math.cos(a)); camera.lookAt(target); };
     window.__render = (az, mime) => { place(az === undefined ? (cam.azimuth || 0) : az); renderer.render(scene, camera); return renderer.domElement.toDataURL(mime || "image/png", 0.9); };
-    window.__info = { radius: sphere.radius, distance: dist, renderer: (renderer.getContext().getExtension("WEBGL_debug_renderer_info") ? renderer.getContext().getParameter(renderer.getContext().getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL) : "webgl") };
+    window.__info = { meshes: meshNames.slice(0, 60), radius: sphere.radius, distance: dist, renderer: (renderer.getContext().getExtension("WEBGL_debug_renderer_info") ? renderer.getContext().getParameter(renderer.getContext().getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL) : "webgl") };
     return true;
   } catch (e) { window.__error = String((e && e.message) || e); return false; }
 })();
@@ -323,11 +398,18 @@ export async function renderScene(spec, { turntable, config, timeout = 60000 } =
   const height = prepared.height || 1000;
   const dir = tempDir("drip-scene-");
   const file = path.join(dir, "scene.html");
+  prepared.objects.forEach((o, i) => {
+    if (o.type !== "model") return;
+    const to = path.join(dir, "models", String(i));
+    fs.cpSync(o.modelDir, to, { recursive: true });
+    o.modelUrl = `models/${i}/${encodeURIComponent(o.modelFile)}`;
+    delete o.modelDir;
+  });
   fs.writeFileSync(file, scenePage(prepared));
   const toBuf = (u) => Buffer.from(u.split(",")[1], "base64");
   try {
     return await withTab(config, async (tab) => {
-      await openPage(tab, pathToFileURL(file).href, { width, height, settleMs: 200, timeout });
+      await openPage(tab, await toUrl(file), { width, height, settleMs: 200, timeout });
       const ok = await tab.s("Runtime.evaluate", { expression: "window.__ready", awaitPromise: true, returnByValue: true });
       if (!ok.result.value) {
         const { result } = await tab.s("Runtime.evaluate", { expression: "window.__error || 'unknown error'", returnByValue: true });
@@ -355,8 +437,10 @@ export function register(server, ctx) {
     {
       title: "Render a 3D mockup or product scene",
       description:
-        "Renders a three.js scene in headless Chrome: device and packaging mockups with your screenshot or artwork on the screen / front / label, simple product forms, camera, lights, PBR materials, an optional Poly Haven HDRI (see assets_3d_search), a turntable. PNG (transparent background possible) or WebP, plus the scene JSON. " +
-        "Quick start: mockup + image (phone, laptop, box, can, bottle, card, poster). Full control: scene (objects, materials, camera azimuth/elevation/fov, lights studio|soft|dramatic, environment.hdri, render.exposure); the result returns the full scene so you can change one value and render again. " +
+        "Renders a three.js scene in headless Chrome with REAL glTF models: objects of type \"model\" with src (your .glb/.gltf, a folder from assets_3d_save, or polyhaven:<id>, CC0), scaled to a height, your artwork on one part with label { mesh, image } (the result lists the parts). " +
+        "HDRI lighting (environment.hdri), PBR materials, camera, a turntable; PNG (transparent background possible) or WebP, plus the scene JSON. " +
+        "For phones and displays use mockup_render (real device models): the built-in phone/laptop/box/can/bottle shapes here are rough placeholders, never final art. " +
+        "Quick start with placeholders: mockup + image (phone, laptop, box, can, bottle, card, poster). Full control: scene (objects, materials, camera azimuth/elevation/fov, lights studio|soft|dramatic, environment.hdri, render.exposure); the result returns the full scene so you can change one value and render again. " +
         "The decal image is your real screenshot (fitcheck_shot output, a project image): never an invented UI. Software WebGL is slower than a GPU but gives the same picture; three.js loads from a pinned jsDelivr URL (internet needed the first time). " +
         'Example: scene_render({ mockup: "phone", image: "public/shots/home-mobile.png", background: "#e9e6df", out: "public/img/phone-mockup.webp" })',
       inputSchema: {
@@ -397,7 +481,7 @@ export function register(server, ctx) {
       const flat = await toJpeg(r.still, 1280, 900, 85);
       const content = [
         textBlock(
-          `Scene ${r.width}x${r.height} rendered in ${seconds}s (${r.info?.renderer || "webgl"}), camera ${JSON.stringify(spec.camera || {})}.${files.length ? `\nSaved: ${files.map((f) => `${f.rel} (${f.kb} KB)`).join(", ")}.` : ""}\n` +
+          `Scene ${r.width}x${r.height} rendered in ${seconds}s (${r.info?.renderer || "webgl"}), camera ${JSON.stringify(spec.camera || {})}.${r.info?.meshes?.length ? `\nModel parts (for label.mesh): ${r.info.meshes.join(", ")}` : ""}${files.length ? `\nSaved: ${files.map((f) => `${f.rel} (${f.kb} KB)`).join(", ")}.` : ""}\n` +
             `Scene (edit and pass back as scene): ${JSON.stringify({ ...spec, objects: spec.objects.map((o) => ({ ...o, decal: o.decal && { ...o.decal, image: o.decal.image.slice(0, 80) } })) })}`,
         ),
         imageBlock(flat),

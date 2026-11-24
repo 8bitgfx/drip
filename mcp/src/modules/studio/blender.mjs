@@ -431,7 +431,7 @@ export function register(server, ctx) {
     {
       title: "Render a scene with Blender (optional)",
       description:
-        "Renders the same scene JSON as scene_render with Blender's Cycles path tracer (soft studio lights, an HDRI world, real shadows) for hero-quality stills. Needs Blender installed (found on PATH, Program Files, /Applications, /usr/bin, or DRIP_BLENDER); without it the tool says how to get it and scene_render still works. " +
+        "Renders the same scene JSON as scene_render with Blender's Cycles path tracer (soft studio lights, an HDRI world, real shadows) when the user wants Blender's renderer. It draws the built-in shapes only (no glTF models): for devices use mockup_render, for products scene_render with a real model. Needs Blender installed (found on PATH, Program Files, /Applications, /usr/bin, or DRIP_BLENDER); without it the tool says how to get it and scene_render still works. " +
         "Runs headless in the background, CPU, 48 samples by default (a few seconds to a few minutes). Differences from scene_render: label decals wrap the full cylinder, bottles and phones are simpler shapes. " +
         'Example: blender_render({ mockup: "bottle", image: "public/img/label.png", environment: { hdri: "studio_small_09" }, samples: 64, out: "public/img/bottle.png" })',
       inputSchema: {

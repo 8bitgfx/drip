@@ -11,6 +11,8 @@ import { executeCode } from "./codemode/execute.mjs";
 import { VENDOR_DEPS, vendorDir, vendorResolve } from "./vendor.mjs";
 
 /** First executable called one of `names` on PATH, or null. */
+const vendor0 = () => path.join(process.env.DRIP_HOME || path.join(os.homedir(), ".drip"), "vendor");
+
 export function onPath(names) {
   const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
   for (const dir of (process.env.PATH || "").split(path.delimiter).filter(Boolean)) {
@@ -65,6 +67,8 @@ export async function runDoctor({ hostsDoctor } = {}) {
   checks.push(blender ? check("blender", "Blender (optional)", "ok", blender) : check("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Install Blender and put it on PATH."));
 
   const uvx = onPath(["uvx"]);
+  const ms = path.join(vendor0(), "mockstudio", "dist", "index.html");
+  checks.push(fs.existsSync(ms) ? check("mockstudio", "MockStudio (device mockups)", "ok", path.dirname(path.dirname(ms))) : check("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --install mockstudio"));
   checks.push(uvx ? check("uvx", "uvx (optional)", "ok", uvx) : check("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
 
   const vendor = vendorDir();

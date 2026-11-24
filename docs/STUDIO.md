@@ -12,7 +12,8 @@ No service, account, key or hosted anything is involved.
 |---|---|
 | `art_generate` | Seeded procedural SVG artwork from a layer stack (flow, contours, blobs, truchet, halftone, dither, isometric, grain); `.svg` + `.webp`/`.png` + `.art.json` spec |
 | `shader_hero` | Paper Shaders preset in headless Chrome: still WebP, frame loop, animated WebP, React / vanilla snippet |
-| `scene_render` | three.js mockups and product scenes (decal from your image, PBR, HDRI, turntable); PNG/WebP + `.scene.json` |
+| `mockup_render` | real device mockups through MockStudio (iPhone 17 Pro, Studio Display, slab): screenshot fitted to the real screen, HDRI studio, looks, camera moves, stills and clips; credit file + `.mock.json` |
+| `scene_render` | three.js scenes with real glTF models (`type: "model"`: your .glb, a Poly Haven CC0 model) and your artwork on one part; built-in shapes as placeholders; PBR, HDRI, turntable; PNG/WebP + `.scene.json` |
 | `assets_3d_search`, `assets_3d_save` | Poly Haven and ambientCG HDRIs, PBR sets, models; saved with provenance |
 | `blender_render` | The same scene JSON through Blender (Cycles), when Blender is installed |
 | `motion_render` | Record a page's CSS / Web Animations / script motion: timings, frame strip, animated WebP |
@@ -64,6 +65,21 @@ Output sizes at 1600x900 are 5 to 150 KB of SVG. Rendering a 1600x900 raster tak
 
 The page (`shaderPage()`) imports `@paper-design/shaders@0.0.80/+esm`, builds the uniforms from the preset's parameters (colours through `getShaderColorFromString`, enum names through the library's tables, a noise texture where the shader needs one) and mounts a `ShaderMount` with `speed: 0`; `window.__seek(ms)` sets the frame, so stills and loops are deterministic. Unknown parameter names are rejected with the list of valid ones. Software WebGL works (here: ANGLE/WARP); a 1200x675 still plus a 6-frame loop took about 6 s including the browser start.
 
+## mockup_render (MockStudio)
+
+[MockStudio](https://github.com/lenxism/mockstudio) (Apache-2.0, React Three Fiber) renders an image on real device models (CC-BY, credited)
+with HDRI staging and Khronos PBR Neutral tone mapping. `drip doctor --install mockstudio` clones a pinned commit into
+`~/.drip/vendor/mockstudio`, builds its static site, saves its Look / Camera / Motion presets as JSON (`drip-presets/`),
+and deletes the build dependencies (about 60 MB stays).
+
+Rendering does not use MockStudio's CLI. Its headless capture fires before the device model and the HDRI have loaded, so its
+own soft goldens show black devices. Drip serves the built site, drives the page's `window.__mockstudio` bridge
+(`loadDocument`, `bindSourceMediaBytes`, `whenReady`, `capture`) in the shared browser, and waits until no new resource has
+loaded for 700 ms before capturing. A phone render takes 5 to 8 seconds.
+
+Each render writes `<out>.credits.txt` (MockStudio, plus the model's author, licence and source from its NOTICE) and
+`<out>.mock.json` (the full Scene Document, to change one value and render again through `patch`).
+
 ## scene_render
 
 The scene is plain JSON (`sceneSchema` in `scene.mjs`, zod). Objects: phone, laptop, box, cylinder, bottle, sphere, card, plane. Images (decals, maps) and the HDRI are inlined by Node (`prepareScene`), so the page needs no file access; project paths outside the project are refused.
@@ -79,7 +95,7 @@ Poly Haven (`api.polyhaven.com`: assets, files, info) and ambientCG (`ambientcg.
 
 `findBlender()` looks at `DRIP_BLENDER`, `.drip/config.json` `blender.path`, PATH, `Program Files\Blender Foundation\Blender *` (newest first), `%LOCALAPPDATA%\Programs`, Steam, `/Applications/Blender.app`, `/usr/bin`, `/snap/bin`, `/opt/blender*`. Without it the tool says where to get Blender; nothing is installed.
 It writes `spec.json` and `render.py` to a temp folder and runs `blender -b --factory-startup -noaudio --python render.py -- spec.json out.png` (Cycles, CPU, denoised, transparent film, shadow catcher; the background colour is composited in Node). Verified here against Blender 5.1: a 640x640, 16-sample bottle took 11 s.
-Differences from `scene_render`: labels wrap the full cylinder; bottles and phones are simpler shapes (a screw-lathe bottle, a bevelled slab).
+It draws only the built-in shapes (no glTF models), so it is for users who ask for Blender. Devices go through `mockup_render`, real objects through `scene_render` with a model.
 
 ## motion_render
 
