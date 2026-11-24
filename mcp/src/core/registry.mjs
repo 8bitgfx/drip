@@ -17,11 +17,12 @@ import * as patterns from "../modules/patterns/index.mjs";
 import * as project from "../modules/project/index.mjs";
 import * as inspire from "../modules/inspire/index.mjs";
 import * as studio from "../modules/studio/index.mjs";
+import * as swarm from "../modules/swarm/index.mjs";
 
 export const ctx = { config: () => loadConfig() };
 
 // Order matters only for listings. A module can be turned off in .drip/config.json ("modules": { "<name>": false }).
-export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio };
+export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm };
 
 export function registerAll(server, c = ctx) {
   workflow.register(server, c);

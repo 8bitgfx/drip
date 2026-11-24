@@ -11,7 +11,8 @@ drip hosts                                   # list hosts and their state
 drip install --agent codex [--dry-run]       # codex | cursor | opencode | claude-desktop | chatgpt
 drip uninstall --agent codex                 # removes only what install added
 drip doctor                                  # includes one line per host
-drip hosts doctor codex                      # one host in detail
+drip hosts doctor codex                      # one host in detail (the host's files plus the machine checks of drip doctor)
+drip doctor --fix --yes                      # installs MockStudio, axe-core, svgo (never Chrome, Edge or Blender)
 ```
 
 `install` points the host at this checkout (or at the installed plugin folder) with absolute paths, makes a backup of every file it changes (`<file>.drip-backup-<time>`), never overwrites a file it cannot parse, never replaces an entry it did not write (a user's own server called `drip` is left alone and reported), and records what it did in `~/.drip/hosts/<host>.json` so `uninstall` removes exactly that. It needs `mcp/dist/drip-mcp.mjs` (`cd mcp && npm ci && npm run build`). Programmatic API: `mcp/src/hosts/index.mjs` (`install`, `uninstall`, `listHosts`, `doctor`; `home` and `env` are injectable).
@@ -48,6 +49,17 @@ drip hosts doctor codex                      # one host in detail
 12. See "Web hosts".
 
 Where a host has no write or stop hook, or no subagent, Drip says so in the installed rule file and in the install output. It never presents self-review as the independent critic: on hosts without a subagent the critic gate is unsupported, and a full workflow that requires it is unsupported there.
+
+## Setup and doctor on every host
+- `drip install --agent <host>` first runs the full `drip doctor` checks. A missing Chrome or Edge (every screenshot, fit check and preview needs one) stops the install with exit 3 and the exact fix: install Chrome or Edge, or set `DRIP_CHROME` / `fitcheck.chromePath`. `--dry-run` only warns. Drip never installs Chrome, Edge or Blender.
+- `drip hosts doctor <host>` and `drip doctor` add the same machine checks (Node, Chrome/Edge, optional pieces, project, Code Mode) to the host's own lines, so "ready" means the first visual step will work.
+- `drip_start` mentions what is missing once per machine (cached in `~/.drip/setup.json`); `drip doctor --fix --yes` installs the optional pieces.
+
+## Swarm Mode without subagents
+Swarm Mode (docs/SWARM.md) needs a host that launches Drip's named subagents (`drip:scout`, `drip:builder`, `drip:checker`, with a model per agent). Claude Code and the Cowork plugin do. The other hosts here only get the critic agent, so on them:
+- `swarmInstructions` says "work the single-agent loop": the same gates and tools, you scout, build and check yourself, in the same order.
+- `scout_prepare`, `build_prepare` and `checker_prepare` still work as written briefs. Where a host has its own subagents you may launch them with those prompts by hand; Drip does not install or claim them.
+- Nothing is lost except the cost saving. The host is detected from `DRIP_HOST` (set by every adapter; unset means Claude Code).
 
 ## What each adapter does
 

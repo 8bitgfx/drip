@@ -54,26 +54,30 @@ export function findBlender() {
 
 const check = (id, label, status, detail, fix) => ({ id, label, status, detail, ...(fix ? { fix } : {}) });
 
-export async function runDoctor({ hostsDoctor } = {}) {
+const CHROME_GET = "Install Google Chrome (google.com/chrome) or Microsoft Edge (microsoft.com/edge), or point Drip at one: set DRIP_CHROME or fitcheck.chromePath in .drip/config.json.";
+const BLENDER_GET = "download it from blender.org/download and put it on PATH.";
+
+/** `config` and `chrome` can be injected (tests); otherwise they are looked up. */
+export async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   const checks = [];
   const major = Number(process.versions.node.split(".")[0]);
   checks.push(major >= 22 ? check("node", "Node.js", "ok", `v${process.versions.node}`) : check("node", "Node.js", "fail", `v${process.versions.node} (Drip needs 22 or newer)`, "Install Node 22+ from nodejs.org."));
 
-  const config = loadConfig();
-  const chrome = findChrome(config);
-  checks.push(chrome ? check("chrome", "Chrome / Edge", "ok", chrome) : check("chrome", "Chrome / Edge", "fail", "not found (screenshots, fit checks and previews need it)", "Install Chrome or Edge, or set DRIP_CHROME or fitcheck.chromePath in .drip/config.json."));
+  const config = cfg || loadConfig();
+  const chrome = chromeIn === undefined ? findChrome(config) : chromeIn;
+  checks.push(chrome ? check("chrome", "Chrome / Edge", "ok", chrome) : check("chrome", "Chrome / Edge", "fail", "not found (screenshots, fit checks and previews need it)", CHROME_GET));
 
   const blender = findBlender();
-  checks.push(blender ? check("blender", "Blender (optional)", "ok", blender) : check("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Install Blender and put it on PATH."));
+  checks.push(blender ? check("blender", "Blender (optional)", "ok", blender) : check("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
 
   const uvx = onPath(["uvx"]);
   const ms = path.join(vendor0(), "mockstudio", "dist", "index.html");
-  checks.push(fs.existsSync(ms) ? check("mockstudio", "MockStudio (device mockups)", "ok", path.dirname(path.dirname(ms))) : check("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --install mockstudio"));
+  checks.push(fs.existsSync(ms) ? check("mockstudio", "MockStudio (device mockups)", "ok", path.dirname(path.dirname(ms))) : check("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
   checks.push(uvx ? check("uvx", "uvx (optional)", "ok", uvx) : check("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
 
   const vendor = vendorDir();
   const installed = Object.keys(VENDOR_DEPS).filter((n) => vendorResolve(n));
-  checks.push(check("vendor", "Optional dependencies", "info", `${installed.length ? installed.join(", ") : "none installed"} (in ${vendor})`, `Available: ${Object.keys(VENDOR_DEPS).join(", ")}. Install one with: drip doctor --install <name>`));
+  checks.push(check("vendor", "Optional dependencies", "info", `${installed.length ? installed.join(", ") : "none installed"} (in ${vendor})`, `Available: ${Object.keys(VENDOR_DEPS).join(", ")}. Install the recommended ones with: drip doctor --fix --yes; any one with: drip doctor --install <name>`));
 
   const names = Object.keys(KEY_ENV);
   const keys = keyStatus(names);
@@ -127,4 +131,128 @@ export function formatDoctor(r) {
   }
   lines.push("", r.summary);
   return lines.join("\n");
+}
+
+// ---- first-use setup: what is missing on this machine, and the fix with consent ----
+
+/** The optional pieces `drip doctor --fix` installs (npm packages into ~/.drip/vendor, plus MockStudio). */
+export const FIX_VENDOR = ["axe-core", "svgo"];
+
+const mockstudioReady = () => fs.existsSync(path.join(vendor0(), "mockstudio", "dist", "index.html"));
+
+/** What is missing here: [{ id, what, fix, installable }] (Chrome and Blender are only explained, never installed). */
+export function missingPieces({ config, chrome: chromeIn } = {}) {
+  const out = [];
+  const chrome = chromeIn === undefined ? findChrome(config || loadConfig()) : chromeIn;
+  if (!chrome) out.push({ id: "chrome", what: "Chrome or Edge (screenshots, fit checks and previews need it)", fix: CHROME_GET, installable: false });
+  const gone = FIX_VENDOR.filter((n) => !vendorResolve(n));
+  if (gone.length) out.push({ id: "vendor", what: `${gone.join(" and ")} (accessibility and SVG checks)`, fix: "drip doctor --fix --yes", installable: true, names: gone });
+  if (!mockstudioReady()) out.push({ id: "mockstudio", what: "MockStudio (device mockups)", fix: "drip doctor --fix --yes", installable: true });
+  return out;
+}
+
+const setupFile = () => path.join(process.env.DRIP_HOME || homeDripDir, "setup.json");
+
+function readSetup() {
+  try {
+    return JSON.parse(fs.readFileSync(setupFile(), "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * One to three lines on what is missing on this machine, for drip_start to show. Shown once per machine for a given
+ * set of missing pieces (cached in ~/.drip/setup.json); an empty string when nothing is missing or it was already shown.
+ */
+export function setupNotes(config, { chrome, force = false } = {}) {
+  const missing = missingPieces({ config, chrome });
+  const key = missing.map((m) => m.id).sort().join(",");
+  const prev = readSetup();
+  if (!force && prev.shown === key) return "";
+  try {
+    fs.mkdirSync(path.dirname(setupFile()), { recursive: true });
+    fs.writeFileSync(setupFile(), JSON.stringify({ shown: key, at: new Date().toISOString(), missing: missing.map((m) => m.id) }, null, 2));
+  } catch {
+    /* read-only home: the note just shows again next time */
+  }
+  if (!missing.length) return "";
+  const lines = [`SETUP: ${missing.length === 1 ? "one thing is" : `${missing.length} things are`} missing on this machine.`];
+  const chromeGone = missing.find((m) => m.id === "chrome");
+  if (chromeGone) lines.push(`- ${chromeGone.what}: ${chromeGone.fix} Do this before the first visual step.`);
+  const rest = missing.filter((m) => m.id !== "chrome");
+  if (rest.length) lines.push(`- Optional: ${rest.map((m) => m.what).join("; ")}. Run "drip doctor --fix --yes" (installs them; ask the user first).`);
+  return lines.slice(0, 3).join("\n");
+}
+
+/**
+ * `drip doctor --fix`. Without `confirm` it only says what it would install. With it, installs MockStudio and the npm
+ * vendor packages that are missing. Never installs Chrome, Edge or Blender: it says where to get them.
+ * `installers` ({ vendor, mockstudio }) can be injected for tests.
+ */
+export async function doctorFix({ confirm = false, config, chrome, log = () => {}, installers } = {}) {
+  const missing = missingPieces({ config, chrome });
+  const inst = installers || {};
+  const installVendorFn = inst.vendor || (await import("./vendor.mjs")).installVendor;
+  const installMockFn = inst.mockstudio || (await import("../modules/studio/mockup.mjs")).installMockstudio;
+  const manual = missing.filter((m) => !m.installable).map((m) => `${m.what}: ${m.fix}`);
+  const blender = findBlender() ? [] : [`Blender (optional): ${BLENDER_GET}`];
+  const todo = [];
+  for (const m of missing) {
+    if (m.id === "vendor") for (const n of m.names) todo.push(`npm package ${n} into ${vendorDir()}`);
+    if (m.id === "mockstudio") todo.push("MockStudio into ~/.drip/vendor (git clone and build, a few minutes)");
+  }
+  if (!confirm) return { ok: true, confirmed: false, installed: [], failed: [], todo, manual: [...manual, ...blender] };
+  const installed = [];
+  const failed = [];
+  for (const m of missing) {
+    if (m.id === "vendor") {
+      for (const n of m.names) {
+        try {
+          log(`Installing ${n} ...`);
+          await installVendorFn(n);
+          installed.push(n);
+        } catch (e) {
+          failed.push(`${n}: ${e.message}`);
+        }
+      }
+    } else if (m.id === "mockstudio") {
+      try {
+        log("Installing MockStudio ...");
+        const r = await installMockFn(log);
+        if (r && r.ok === false) failed.push("mockstudio: installed but its build is missing");
+        else installed.push("mockstudio");
+      } catch (e) {
+        failed.push(`mockstudio: ${e.message}`);
+      }
+    }
+  }
+  return { ok: failed.length === 0, confirmed: true, installed, failed, todo, manual: [...manual, ...blender] };
+}
+
+export function formatFix(r) {
+  const lines = [];
+  if (!r.confirmed) {
+    lines.push(r.todo.length ? `Drip would install:\n${r.todo.map((t) => `  - ${t}`).join("\n")}\nRun again with --yes to do it: drip doctor --fix --yes` : "Nothing for Drip to install.");
+  } else {
+    if (r.installed.length) lines.push(`Installed: ${r.installed.join(", ")}.`);
+    if (r.failed.length) lines.push(`Failed:\n${r.failed.map((t) => `  - ${t}`).join("\n")}`);
+    if (!r.installed.length && !r.failed.length) lines.push("Nothing for Drip to install.");
+  }
+  if (r.manual.length) lines.push(`Install these yourself (Drip never installs them):\n${r.manual.map((t) => `  - ${t}`).join("\n")}`);
+  return lines.join("\n");
+}
+
+/**
+ * Before `drip install --agent X`: the full doctor checks. Returns { ok, failures, text }; each failure names its fix.
+ * A missing Chrome/Edge is a failure, not a hint: every visual step needs it.
+ */
+export async function installPreflight({ config, chrome } = {}) {
+  const r = await runDoctor({ config, chrome });
+  const failures = r.checks.filter((c) => c.status === "fail");
+  const warns = r.checks.filter((c) => c.status === "warn");
+  const lines = [];
+  for (const c of failures) lines.push(`${c.label} missing or broken: ${c.detail}\n  fix: ${c.fix || "see drip doctor"}`);
+  for (const c of warns) lines.push(`warning: ${c.label}: ${c.detail}${c.fix ? ` (fix: ${c.fix})` : ""}`);
+  return { ok: failures.length === 0, failures, checks: r.checks, text: lines.join("\n") };
 }

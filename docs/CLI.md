@@ -14,6 +14,7 @@ The old forms still work unchanged: `drip-mcp list` and `drip-mcp <tool> '<json>
 | Command | What it does |
 |---|---|
 | `drip doctor [--json]` | Checks Node (22+), Chrome/Edge, Blender, uvx, optional dependencies, which API keys are set (names only, never values), plugin and project folders, `.drip` task state, the tool registry and the Code Mode sandbox. Host installers add their own lines when present. Exit 3 if something required is missing. |
+| `drip doctor --fix [--yes]` | Lists what is missing and optional (MockStudio, axe-core, svgo); with `--yes` installs it into `~/.drip/vendor`. Never installs Chrome, Edge or Blender: it prints where to get them. |
 | `drip doctor --install <dep>` | Installs one optional dependency into `~/.drip/vendor` (`axe-core`, `svgo`, `resvg`, `ts-morph`, `fontkit`). Code that wants one calls `vendorImport(name)` from `core/vendor.mjs`; it gets `null` when the dependency is absent and says how to enable it. |
 | `drip tools list [--json]` | Every tool: name, module, description. |
 | `drip tools schema <name>` | The tool's input as JSON Schema (draft 2020-12), generated from the same zod definition MCP uses. |
@@ -23,7 +24,7 @@ The old forms still work unchanged: `drip-mcp list` and `drip-mcp <tool> '<json>
 | `drip components index\|audit [--changed] [--json]` | Calls `components_index` / `components_audit` when registered; otherwise "not available in this build" (exit 3). |
 | `drip check [--changed\|--full] [--json]` | Calls `drip_check` when registered, otherwise runs `fitcheck_lint` only and says so on stderr. |
 | `drip run --file workflow.js [--json]` | Runs a Code Mode script (see [CODEMODE.md](CODEMODE.md)). |
-| `drip install\|uninstall --agent <codex\|cursor\|opencode\|claude-desktop\|chatgpt> [--dry-run]`, `drip hosts [--json]`, `drip hosts doctor <host>` | Host installers. They load `mcp/src/hosts/index.mjs` (`install`, `uninstall`, `listHosts`, `doctor`); without it these commands say so and exit 3. |
+| `drip install\|uninstall --agent <codex\|cursor\|opencode\|claude-desktop\|chatgpt> [--dry-run]`, `drip hosts [--json]`, `drip hosts doctor <host>` | Host installers. `install` first runs the full doctor checks and stops with exit 3 and the fix when Chrome/Edge is missing (`--dry-run` only warns); `hosts doctor` adds the machine checks to the host's own. They load `mcp/src/hosts/index.mjs` (`install`, `uninstall`, `listHosts`, `doctor`); without it these commands say so and exit 3. |
 | `drip help`, `drip <tool> --help` | Help generated from the registry. |
 
 ## Global options
