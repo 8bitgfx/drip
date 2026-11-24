@@ -73,5 +73,7 @@ Drip is a design-process toolset on this machine: the \`drip_*\`, \`refs_*\`, \`
 - Independent review: where Drip says "Agent drip:critic", ${t.callCritic}. Give it only what \`critic_prepare\` returns, then pass its verdict to \`critic_record\`. Do not review your own work in its place.
 - ${SERVER_NOTE}
 - Ask the user the intake questions in chat, material first, then record the answers with \`drip_brief\`.
+- Many calls in a row? Code Mode: \`drip_search\` finds tool signatures, \`drip_execute\` runs one sandboxed script that calls them.
+- Search the project's own components first (\`components_local_find\`), and run \`drip_check\` before hand-off.
 `;
 }

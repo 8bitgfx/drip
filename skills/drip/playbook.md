@@ -137,6 +137,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
     - sideways scroll.
 
     Read each screen: is something on it big enough to be its reason? Squint: does each section have a shape, and does the page have a rhythm of heavy and light? Fix every miss.
+37b. `drip_check({ changed: true })`: the project's own lint, types and tests, the slop lint and the reuse audit on what changed. Fix every fail.
 38. The critic runs once on the full page in fresh context (`critic_prepare kind "build"`). Fix every S0 and S1, then do one confirming round. Then `fitcheck_done`.
 39. Hand off (`drip_end`):
     - desktop and phone screenshots;

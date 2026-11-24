@@ -6,7 +6,7 @@ user-invocable: false
 
 # Drip
 
-**0. Load the tools** (they're deferred): ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide`. Load others when a step needs them (`+drip refs`, `+drip board`, `+drip critic`, `+drip fitcheck`, `+drip kit`, `+drip logo`). If nothing loads, tell the user to reconnect `plugin:drip:drip` in `/mcp`, and stop.
+**0. Load the tools** (they're deferred): ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide`. Load others when a step needs them (`+drip refs`, `+drip board`, `+drip critic`, `+drip fitcheck`, `+drip kit`, `+drip logo`, `+drip execute` for Code Mode). If nothing loads, tell the user to reconnect `plugin:drip:drip` in `/mcp`, and stop.
 
 **1. `drip_start`** with the request. It picks the mode (design · logo · refs · board · polish) and returns the one guide you need in full: the **playbook** for pages, the logo guide for logos. Read it once, properly; it is short because every line is load-bearing. Then follow its NEXT line. Lost? `drip_status`.
 
@@ -19,6 +19,11 @@ user-invocable: false
 6. Sections in plan order → `fitcheck_shot` (the page gate) → the critic once, plus one confirming round → `fitcheck_done` → `drip_end`.
 
 **Tools that save time** (load with `+drip <name>` when needed):
+- **Code Mode:** `drip_search` returns tool signatures; `drip_execute` runs one sandboxed script of `await drip.<tool>(args)` calls. Use it whenever you'd make 5+ calls in a row (compare palettes and font pairs, study several sites, check several pages) and return only what matters.
+- `components_local_find` / `components_plan`: the project's own components before new ones (a gate asks for it when the project has components). `drip_check({ changed: true })`: the project's lint, types and tests plus the slop lint, before `fitcheck_done`.
+- `pattern_study` → build → `pattern_compare`: when the user points at a component or page to match (measured spec, pixel diff, axe).
+- `art_generate`, `shader_hero`, `scene_render`: original art and backgrounds instead of stock. `refs_gallery`: Awwwards, Godly, One Page Love and more beside Dribbble.
+- `feedback_record`: every reaction the user gives, so the project's memory learns it.
 - `drip_serve` / a local `.html` path in `fitcheck_shot`: no dev server needed.
 - `fitcheck_shot({ steps })`: interactions (drag, click, type, key) captured as states for you and the critic.
 - `drip_compare`: before / after, build vs comp, us vs competitors, on one sheet.
@@ -49,4 +54,8 @@ Deep guides are on demand (`drip_guide <topic>`):
 - a11y
 - logo
 - adapt
+- patterns (match a reference)
+- studio (original art)
+- moodboard (project memory)
+- readme
 - examples/portfolio

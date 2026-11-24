@@ -110936,6 +110936,13 @@ var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
 Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
+Beyond the loop:
+- Memory: drip_start loads the project's approved direction and learned rules; record the user's reactions with feedback_record.
+- Reuse: search the project's own components first (components_local_find, components_plan for a page).
+- Match something the user points at: pattern_study, build your own, then pattern_compare.
+- Original art: art_generate, shader_hero, scene_render.
+- Code Mode: when you would make many calls in a row (palettes x fonts, refs across sites, checks across pages), drip_search finds tool signatures and drip_execute runs one sandboxed script that calls them.
+- Before hand-off: drip_check({ changed: true }) runs the project's lint, types and tests plus the slop lint.
 Lost? drip_status shows what is done and the exact next call. Examples: drip_guide examples/portfolio.`;
 if (process.argv.length > 2) {
   process.exitCode = await runCli2(process.argv.slice(2), { version: VERSION });
