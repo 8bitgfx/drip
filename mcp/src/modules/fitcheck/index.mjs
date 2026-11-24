@@ -5,7 +5,7 @@ import { fetchImage, contactSheet, imageBlock, textBlock } from "../../core/imag
 import { projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { isPersuade, loadState, reconcileWorkspace, updateState } from "../../core/state.mjs";
-import { artifactRev } from "../../core/evidence.mjs";
+import { artifactRev, markShot } from "../../core/evidence.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
 import { loadBoard } from "../board/store.mjs";
 import fs from "node:fs";
@@ -32,12 +32,18 @@ export function register(server, ctx) {
         "Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: " +
         "horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. " +
         "Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. url can be a dev-server URL or a local .html file / folder (served for you on a free port; no dev server needed). " +
-        "hero: true shoots only the first viewport and runs the hero gate (playbook P31): do it after building nav + hero, before any section. Example: fitcheck_shot({ url: \"http://localhost:3000\", hero: true })",
+        "Every section of a long page appears in at least one slice (more than maxSlices if the page has that many sections). " +
+        "hero: true shoots only the first viewport and runs the hero gate (playbook P31): the h1 and the primary action must sit fully inside it and nothing may be cut off at the edges; do it after building nav + hero, before any section. " +
+        "numbersOnly: true returns the measured blockers and numbers with NO images (cheap re-checks after a fix; it never records a pass: the verdict still needs one real shot). " +
+        "section: \"<css selector>\" shoots just that section (phone and desktop) instead of the page. " +
+        "Example: fitcheck_shot({ url: \"http://localhost:3000\", hero: true }) or fitcheck_shot({ url, numbersOnly: true }) or fitcheck_shot({ url, section: \"#pricing\" })",
       inputSchema: {
         url: z.string().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
         sizes: z.array(z.object({ name: z.string(), width: z.number(), height: z.number() })).optional(),
         maxSlices: z.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
         hero: z.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
+        numbersOnly: z.boolean().optional().describe("Measured blockers and numbers only, no images. Does not count as the fit check (shoot once with images before fitcheck_done)"),
+        section: z.string().optional().describe('CSS selector of one section to shoot at both sizes (e.g. "#pricing", "main > section:nth-of-type(3)")'),
         steps: z
           .array(STEP)
           .max(12)
@@ -48,7 +54,7 @@ export function register(server, ctx) {
         app: z.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
       },
     },
-    safe(async ({ url: target, sizes, maxSlices, hero, app, steps }) => {
+    safe(async ({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section }) => {
       const config = ctx.config();
       const url = await toUrl(target);
       const persuade = app === undefined ? isPersuade(loadState().task) : !app;
@@ -57,12 +63,13 @@ export function register(server, ctx) {
       const content = [];
       const audits = [];
       const files = [];
-      const caps = await Promise.all(list.map((s) => capture(url, { width: s.width, height: s.height, maxSlices: hero ? 1 : maxSlices || (s.width < 600 ? 4 : 5), scale: s.width > 1200 ? 1200 / s.width : 1, config })));
+      const caps = await Promise.all(list.map((s) => capture(url, { width: s.width, height: s.height, maxSlices: hero ? 1 : section ? 3 : maxSlices || (s.width < 600 ? 4 : 5), scale: s.width > 1200 ? 1200 / s.width : 1, shots: !numbersOnly, section: section || null, config })));
+      if (section && caps.every((c) => c.audit?.section?.missing)) return text(`No element matches ${section} on ${url}. Check the selector (an id, class or \"main > section:nth-of-type(2)\").`, true);
       for (const [k, s] of list.entries()) {
         const r = caps[k];
         const j = judgeAudit(r.audit, { persuade, hero });
         audits.push({ size: s.name, width: s.width, audit: r.audit, ...j });
-        content.push(textBlock(`${s.name} ${s.width}px · ${r.slices.length} of ${r.sliceCount} screens\n${formatAudit(r.audit, j)}`));
+        content.push(textBlock(`${s.name} ${s.width}px · ${numbersOnly ? "numbers only" : section ? `section ${section} (${r.audit.section?.missing ? "not found" : `y ${r.audit.section?.top}, ${r.audit.section?.h}px tall`})` : `${r.slices.length} of ${r.sliceCount} screens${r.audit.sliceYs ? ` at y ${r.audit.sliceYs.join(", ")}` : ""}`}\n${formatAudit(r.audit, j)}`));
         for (const [i, sl] of r.slices.entries()) {
           const f = path.join(dir, `${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);
           fs.writeFileSync(f, sl.buf);
@@ -70,20 +77,27 @@ export function register(server, ctx) {
           content.push(imageBlock(sl.buf));
         }
       }
-      if (steps?.length && !hero) {
+      if (steps?.length && !hero && !numbersOnly && !section) {
         const desk = list.find((s) => s.width >= 1000) || list.at(-1);
         const states = await captureStates(url, steps, { width: desk.width, height: desk.height, config });
         for (const [i, st] of states.entries()) {
+          content.push(textBlock(`State ${i + 1}: ${st.label}${st.error ? ` · STEP FAILED: ${st.error}` : ""}`));
+          if (!st.buf?.length) continue;
           const f = path.join(dir, `state-${String(i + 1).padStart(2, "0")}.jpg`);
           fs.writeFileSync(f, st.buf);
           files.push(f);
-          content.push(textBlock(`State ${i + 1}: ${st.label}${st.error ? ` · STEP FAILED: ${st.error}` : ""}`), imageBlock(st.buf));
+          content.push(imageBlock(st.buf));
         }
       }
       const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
       updateState((st) => {
         if (st.task) {
           st.task.fitcheck.url = url;
+          if (numbersOnly || section) {
+            // Cheap re-checks: reported, never recorded as the fit check (no pictures looked at / only part of the page).
+            st.task.fitcheck.numbersAt = new Date().toISOString();
+            return;
+          }
           if (hero && !blockers.length) st.task.fitcheck.heroPassedAt = new Date().toISOString(); // only fitcheck_shot hero: true passes the hero gate
           if (hero) return; // a hero shot is not a fit check of the page
           st.task.fitcheck.shots += files.length;
@@ -93,18 +107,25 @@ export function register(server, ctx) {
           st.task.fitcheck.files = files;
         }
       });
-      content.unshift(
-        textBlock(
-          (hero
-            ? blockers.length
-              ? `HERO GATE FAILED (fix before writing any section):\n- ${blockers.join("\n- ")}\n\nRedo the hero bigger, then fitcheck_shot({ url, hero: true }) again.\n\n`
-              : "HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.\n\n"
-            : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n- ${blockers.join("\n- ")}\n\n` : "No measured blockers.\n\n"}`) +
-            "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, " +
-            "off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " +
-            dir,
-        ),
-      );
+      if (!hero && !numbersOnly && !section) markShot(loadState().task); // what the pictures showed: files with these contents are not "unseen" later
+      const list2 = blockers.map((b) => `- ${b}`).join("\n");
+      let head;
+      if (numbersOnly)
+        head = `${blockers.length ? `MEASURED BLOCKERS (numbers only, no images):\n${list2}` : "No measured blockers (numbers only)."}\n\nThis is not the fit check: it has no pictures. Fix, re-run numbersOnly as needed, then shoot once with images before fitcheck_done.`;
+      else if (section)
+        head = `Section ${section} at both sizes (the page-wide numbers are in the text below${blockers.length ? `; ${blockers.length} blocker(s)` : ""}). Look at it, fix, and shoot the whole page once more before fitcheck_done.`;
+      else {
+        const judge =
+          "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, " +
+          "off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " +
+          dir;
+        head = hero
+          ? blockers.length
+            ? `HERO GATE FAILED (fix before writing any section):\n${list2}\n\nRedo the hero bigger and fully inside the first screen, then fitcheck_shot({ url, hero: true }) again.\n\n${judge}`
+            : `HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.\n\n${judge}`
+          : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n${list2}` : "No measured blockers."}\n\n${judge}`;
+      }
+      content.unshift(textBlock(head));
       return blocks(content);
     }),
   );
@@ -113,7 +134,7 @@ export function register(server, ctx) {
     "fitcheck_compare",
     {
       title: "Compare with the chosen direction",
-      description: "Puts the latest screenshot of the page next to the chosen moodboard direction, so you can see whether the build actually matches what was agreed.",
+      description: "Puts a screenshot of the page next to the CHOSEN direction's comp (the first-viewport comp the user picked), in one picture, so you can see whether the build actually matches what was agreed. Falls back to the direction's reference shots when no comp was rendered.",
       inputSchema: { url: z.string().optional().describe("Page to shoot; defaults to the last fitcheck_shot URL") },
     },
     safe(async ({ url }) => {
@@ -124,15 +145,27 @@ export function register(server, ctx) {
       const dir = board?.directions.find((d) => d.name === board.chosen);
       const content = [];
       const shot = await screenshot(target, { width: 1440, height: 900, format: "jpeg", quality: 80, config: ctx.config() });
-      content.push(textBlock(`The build (${target}):`), imageBlock(shot));
-      if (dir) {
-        const items = dir.items.map((k) => board.items.find((it) => it.key === k)).filter((it) => it?.image);
-        const bufs = await Promise.all(items.slice(0, 9).map((it) => fetchImage(it.source === "dribbble" ? thumbUrl(it.image, 480, 360) : it.image).then((r) => r.buf).catch(() => Buffer.alloc(0))));
+      const tile = dir?.tile && fs.existsSync(dir.tile) ? fs.readFileSync(dir.tile) : null;
+      if (dir && tile) {
+        // The chosen direction's own comp (what the user picked) beside the build, at the same size: one picture.
+        const sheet = await contactSheet([shot, tile], { cols: 2, tileW: 720, tileH: 450, fit: "contain", gap: 12 });
         content.push(
-          textBlock(`The direction "${dir.name}": ${dir.summary}\nAdjectives: ${dir.adjectives.join(", ")} · Palette: ${dir.palette.join(" ")} · Type: ${dir.type}\nNotes:\n${items.map((it, i) => `${i + 1}. ${it.note}`).join("\n")}`),
-          imageBlock(await contactSheet(bufs, { cols: 3, tileW: 480, tileH: 360 })),
+          textBlock(`LEFT (1) the build (${target}) · RIGHT (2) the chosen direction "${dir.name}", its comp: ${dir.summary}
+Adjectives: ${dir.adjectives.join(", ")} · Palette: ${dir.palette.join(" ")} · Type: ${dir.type}`),
+          imageBlock(sheet),
         );
-      } else content.push(textBlock("No chosen direction on record (quick loop or no board). Compare against DESIGN.md instead."));
+      } else {
+        content.push(textBlock(`The build (${target}):`), imageBlock(shot));
+        if (dir) {
+          // No rendered comp on record: the direction's reference shots are all there is to compare with.
+          const items = dir.items.map((k) => board.items.find((it) => it.key === k)).filter((it) => it?.image);
+          const bufs = await Promise.all(items.slice(0, 9).map((it) => fetchImage(it.source === "dribbble" ? thumbUrl(it.image, 480, 360) : it.image).then((r) => r.buf).catch(() => Buffer.alloc(0))));
+          content.push(
+            textBlock(`No rendered comp for "${dir.name}" (board_directions renders them), so here are its references: ${dir.summary}\nAdjectives: ${dir.adjectives.join(", ")} · Palette: ${dir.palette.join(" ")} · Type: ${dir.type}\nNotes:\n${items.map((it, i) => `${i + 1}. ${it.note}`).join("\n")}`),
+            imageBlock(await contactSheet(bufs, { cols: 3, tileW: 480, tileH: 360 })),
+          );
+        } else content.push(textBlock("No chosen direction on record (quick loop or no board). Compare against DESIGN.md instead."));
+      }
       content.push(textBlock("Does the build carry the direction's adjectives, palette discipline, type and density? Name each gap and fix it."));
       return blocks(content);
     }),
@@ -183,7 +216,8 @@ export function register(server, ctx) {
       reconcileWorkspace(); // UI edits no hook saw (shell, other tools) count as changes after the shot
       const { task: t0 } = loadState();
       if (t0 && !t0.fitcheck?.lastShotAt) return text("Shoot the page first: fitcheck_shot({ url }). A fit check needs the measured, full-page capture.", true);
-      if (t0 && t0.lastUiWriteAt && t0.fitcheck.lastShotAt < t0.lastUiWriteAt) return text("The UI changed after the last fitcheck_shot. Shoot it again so the verdict is about the current page.", true);
+      // Write times only matter when the content differs: a script that rewrote the same bytes after the shot changed nothing.
+      if (t0 && t0.lastUiWriteAt && t0.fitcheck.lastShotAt < t0.lastUiWriteAt && !(t0.fitcheck.shotRev && t0.fitcheck.shotRev === artifactRev(t0))) return text("The UI changed after the last fitcheck_shot. Shoot it again so the verdict is about the current page.", true);
       if (t0 && t0.fitcheck.shotRev && t0.fitcheck.shotRev !== artifactRev(t0)) return text("The files, DESIGN.md or direction changed after the last fitcheck_shot (the evidence belongs to an earlier version). Shoot it again so the verdict is about what exists now.", true);
       const blockers = t0?.fitcheck?.blockers || [];
       if (verdict === "pass" && blockers.length && !acceptedByUser)
