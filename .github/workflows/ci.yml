@@ -17,6 +17,7 @@ jobs:
   check:
     name: lint, build, test (${{ matrix.os }}, node ${{ matrix.node }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -57,6 +58,7 @@ jobs:
   plugin:
     name: plugin manifest and skills
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
       - name: Manifests parse and versions agree
