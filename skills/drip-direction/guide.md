@@ -152,7 +152,7 @@ If a block reads like a mood, the direction is not decided yet. The fit check (`
 | Tell | Fix |
 |---|---|
 | Cream ground, serif display, terracotta accent on a brief that never asked for it | Pick the ground and accent from the subject's actual materials |
-| Near-black, one neon, glowing edges | Dark only if the scene is dark; no glow; accent from the subject |
+| Near-black, one neon, glowing edges, nothing real on screen | Dark with the real product or photos on it; a quiet monochrome light is fine, neon halos are not; accent from the subject |
 | Hairlines, italic serif display, tiny tracked mono labels everywhere | Keep rules where content is tabular; labels in the body face, sentence case |
 | Flat fills, thick black borders, hard shadows by reflex | Only for a loud brand; shadow on interactive elements only |
 | Centred headline over three equal cards; split hero with a badge row | Structure from the content's own form (a list, a table, a timeline, the product) |

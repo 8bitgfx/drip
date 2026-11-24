@@ -42,7 +42,7 @@ static ones are also checked by `fitcheck_lint` (data/slop.json).
 28. Sparkles icon for anything "AI". → An icon that means something here.
 29. Decorative icons on every list item and card. → Icons only where they help scanning.
 30. Status dots and "New" badges sprinkled for decoration. → Only on real status.
-31. Glassmorphism (backdrop blur) on many layers. → One glass layer at most, where content scrolls under it.
+31. Glassmorphism (backdrop blur) on many layers. → Glass is fine as one deliberate layer where content passes under it (a nav, a panel over a photo); the tell is blur on every card.
 32. Heavy drop shadows on everything (`shadow-2xl`). → Subtle, consistent elevation from one light source.
 33. Mixed corner radii with no system. → 2-3 radii; nested = outer − padding.
 34. Library defaults untouched (stock shadcn look). → Restyle to tokens.

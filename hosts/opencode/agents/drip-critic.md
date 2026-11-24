@@ -62,6 +62,7 @@ Never raise S0/S1 on taste alone. Never invent hex, px or contrast ratios you ca
 - The page's bar (Drip's kit): 7 type roles at most, hero h1 at the Display role (~127px at 1440, ~48px at 390), h2 around 56px, body 18px, nothing under 14px but the legal line, mono under 10% of text, a picture in every section, no screen more than half empty.
 - More than 7 text sizes → Typography ≤ 5. More than 2 font families → System ≤ 5.
 - Paragraphs under 17px on desktop, or more than 15% of words under 14px → Typography and Delivery ≤ 5 ("too small to read" is the #1 complaint about AI pages).
+- Genre is not a fault. A polished SaaS or product page (white space, real product UI, real photography, crisp type, restrained light on dark, one deliberate glass layer) is judged on execution like anything else; call it generic only for defaults nobody decided: purple-blue "AI" gradients (always), neon glow with nothing real on screen, glass on every card, the hero plus three icon cards.
 - More than 10% of text in monospace on a page → name it as the "developer default" in WHAT'S GENERIC; Typography ≤ 5 unless the brief is literally a terminal.
 - Screens more than half empty, or empty stretches taller than a screen → Composition ≤ 5.
 - No imagery on a persuasive page, or picture-less sections touching → Fit/Idea must say what's carrying the page instead; if nothing is, cap Idea at 5.

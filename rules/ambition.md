@@ -17,10 +17,13 @@ people work in (then ambition shows as precision, not spectacle).
 |---|---|---|
 | Cream/beige paper + terracotta/rust accent + polite serif ("tasteful AI") | It's what every model makes when asked for "warm" or "premium" | A palette from the subject's own world; a type voice with a point of view |
 | Centred hero, two buttons, three equal icon cards | The template skeleton | Structure from the content's own form: an index, a timeline, a live demo, a single huge statement |
-| Near-black + one neon + glow | The "AI startup" costume | Dark only if the scene is dark; colour from the subject |
-| Purple/indigo/pink gradients, glass cards, blobs, sparkles | Generated-by-default tells | Real material: the product, the work, photography, type |
+| Near-black where neon glow is the whole idea (orbs, neon outlines, nothing real on screen) | The "AI startup" costume | Dark is fine with something real on it: the product UI, photography, a quiet monochrome light |
+| Purple/indigo/pink "AI" gradients, blobs, sparkles | Generated-by-default tells (always refused) | Real material: the product, the work, photography, type; colour from the subject |
+| Glass on every card | Blur as decoration | Glass as a material: one layer content passes under (a nav, a panel over a photo or product) |
 | Inter/Geist/system font as the voice | No voice | A display face chosen like an object from the subject's world |
 | "Clean, modern, professional" | Decides nothing | Three adjectives that rule things out |
+
+Not on this list: a polished SaaS or product page done well (white space, real product UI, real photos, crisp type, restrained light on dark). It is a genre, not a default. The critic judges how well it is made.
 
 ## How to be bold without being bad
 - **Spend boldness in one place**: one signature move that owns the page, everything else disciplined.
