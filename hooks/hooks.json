@@ -29,6 +29,15 @@
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-write.mjs\""
           }
         ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-start.mjs\""
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -66,6 +75,16 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/stop.mjs\""
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-stop.mjs\""
           }
         ]
       }

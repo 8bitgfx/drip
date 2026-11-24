@@ -8,7 +8,7 @@ import { contactSheet, fetchImage, imageBlock, textBlock } from "../../core/imag
 import { blocks, safe, text } from "../../core/result.mjs";
 import { rememberListing } from "../../core/seen.mjs";
 import { updateState } from "../../core/state.mjs";
-import { subjectWords } from "./contract.mjs";
+import { mixNote, subjectWords } from "./contract.mjs";
 import { allProviders, getProvider, NOT_USABLE } from "./providers/index.mjs";
 import { token as arenaToken } from "./providers/arena.mjs";
 import { loadEntries, rankEntries } from "./rank.mjs";
@@ -150,6 +150,7 @@ Problems: ${notes.join(" · ")}` : ""}`, true);
           head +
             lines.join("\n") +
             (asked && query !== asked.trim().toLowerCase() ? `\nSearched the subject words "${query}" (from "${asked}").` : "") +
+            (mixNote(asked, "refs_gallery") ? `\n${mixNote(asked, "refs_gallery")}` : "") +
             (dropped ? `\nLeft out ${dropped} unrelated latest posts from sources that found no match.` : "") +
             (thin ? `\nFew matches: also try one broader category word, or Dribbble refs_search("${query} landing page").` : "") +
             (feedNote.length ? `\nNote: ${feedNote.join(", ")} ha${feedNote.length > 1 ? "ve" : "s"} no text search: matched by title and tags.` : "") +

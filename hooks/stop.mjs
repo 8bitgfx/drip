@@ -1,7 +1,7 @@
 // Stop: Claude may not end its turn after changing UI until a fit check was recorded
 // (full loop: fitcheck_shot + fitcheck_done; quick loop: fitcheck_done or at least fitcheck_lint).
 // Gives up after 3 blocks in a row so a session can never get stuck.
-import { allow, evidenceStale, loadConfig, loadState, needsFitcheck, out, readInput, reconcileWorkspace, run, updateState } from "./lib.mjs";
+import { agentsRunning, allow, evidenceStale, loadConfig, loadState, needsFitcheck, out, readInput, reconcileWorkspace, run, updateState } from "./lib.mjs";
 
 const MAX_BLOCKS = 3;
 
@@ -16,6 +16,9 @@ run(async () => {
     if (task?.stopBlocks) updateState((st) => st.task && (st.task.stopBlocks = 0), dir);
     return allow();
   }
+  // The critic (or any subagent) is still running in the background: the agent is waiting for it, not skipping the check.
+  // Don't block and don't count it; the Stop after it finishes is judged as usual (a subagent that never reports expires after 10 minutes).
+  if (agentsRunning(task).length) return allow();
   const blocks = task.stopBlocks || 0;
   if (blocks >= MAX_BLOCKS) {
     updateState((st) => st.task && (st.task.stopBlocks = 0), dir);

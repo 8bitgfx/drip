@@ -139,6 +139,7 @@ export function workspaceDiff(task, cwd) {
   const unseen = [];
   for (const [rel, h] of Object.entries(now)) {
     if (snap.files[rel] === h) continue;
+    if (snap.shot && snap.shot.files[rel] === h) continue; // a shot showed exactly this content
     let mtime = Date.now();
     try {
       mtime = fs.statSync(path.resolve(root, rel)).mtimeMs;
@@ -147,8 +148,37 @@ export function workspaceDiff(task, cwd) {
     }
     unseen.push({ file: rel, status: rel in snap.files ? "changed" : "new", mtime });
   }
-  for (const rel of Object.keys(snap.files)) if (!(rel in now)) unseen.push({ file: rel, status: "deleted", mtime: Date.now() });
+  for (const rel of Object.keys(snap.files)) if (!(rel in now) && !(snap.shot && !(rel in snap.shot.files))) unseen.push({ file: rel, status: "deleted", mtime: Date.now() });
   return { unseen, snapshotAt: snap.at };
+}
+
+/**
+ * A fit-check shot looked at these UI files: remember their content hashes (next to the drip_start snapshot). A file whose
+ * content still matches what a shot showed is not "unseen" later, however it got written (a build script, a formatter).
+ */
+export function markShot(task, cwd) {
+  if (!task) return;
+  const root = projectDir(cwd);
+  const snap = readSnapshot(task.id, cwd) || { task: task.id, at: new Date().toISOString(), files: {} };
+  const files = {};
+  for (const rel of uiFilesIn(root, loadConfig(cwd))) files[rel] = hashFile(path.resolve(root, rel));
+  snap.shot = { at: new Date().toISOString(), files };
+  writeAtomic(snapshotFile(task.id, cwd), snap);
+}
+
+/** The hash a file had when the last shot was taken (null when there was no shot or the file did not exist). */
+export function shotHash(task, rel, cwd) {
+  const snap = task ? readSnapshot(task.id, cwd) : null;
+  return snap?.shot?.files?.[rel.split(path.sep).join("/")] ?? null;
+}
+
+/**
+ * The UI files a check should lint: every UI file in the project the lint rules apply to, from disk, so a root index.html
+ * a script wrote (untracked, never in the code index) is included. Project-relative POSIX paths.
+ */
+export function lintableUiFiles(cwd, extra = []) {
+  const root = projectDir(cwd);
+  return [...new Set([...uiFilesIn(root, loadConfig(cwd)), ...extra])];
 }
 
 /** Accept the current state as known (after the unseen edits were folded into the task). */

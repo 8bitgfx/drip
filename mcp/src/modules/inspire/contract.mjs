@@ -114,6 +114,29 @@ export function subjectWords(query, max = 3) {
     .slice(0, max);
 }
 
+// Words for a LOOK (colour, mood, finish), as opposed to the subject of a search.
+const STYLE_WORDS = new Set("red blue green yellow orange purple pink black white gray grey brown beige cream teal gold silver neon pastel colorful colourful bold playful minimal minimalist dark light brutalist brutalism editorial retro vintage elegant luxury luxurious modern clean vibrant moody gradient glass glassmorphism flat 3d futuristic cute quirky quiet loud warm cool sleek gritty organic geometric monochrome".split(" "));
+
+/** A query that mixes look words with a subject ("bold dark fintech"): { style, subject }, else null. */
+export function mixedQuery(query) {
+  const words = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const style = words.filter((w) => STYLE_WORDS.has(w));
+  const subject = words.filter((w) => w.length > 1 && !STYLE_WORDS.has(w) && !NOT_SUBJECT.has(w));
+  return style.length && subject.length ? { style, subject } : null;
+}
+
+/** The note refs_search and refs_gallery add when a query mixes a look with a subject; "" when it doesn't. */
+export function mixNote(query, tool = "refs_search") {
+  const m = mixedQuery(query);
+  if (!m) return "";
+  const look = m.style.join(" ");
+  const subject = m.subject.slice(0, 3).join(" ");
+  return (
+    `MIXED QUERY: "${look}" is a LOOK and "${subject}" is a SUBJECT; mixed in one search they match neither well (you get the subject in a random look, or the look on random subjects). ` +
+    `Run two searches instead: ${tool}("${subject}") for the same kind of product or page (study it with role page or competitor), and ${tool}("${look}") for the look (role style).`
+  );
+}
+
 /**
  * For providers without a text search (a latest-items feed): rank by how many query words hit the
  * title/tags, keep matches first. Items that match nothing stay behind them, flagged `feed: true`.

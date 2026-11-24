@@ -8,11 +8,23 @@ import { openPage, settle, withTab } from "./browser.mjs";
 const AUDIT = `(() => {
   const vw = innerWidth, vh = innerHeight;
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
+  // Rendered size: the computed font-size times the scale it is drawn at (an SVG text under a viewBox, a CSS transform), never the attribute.
+  const tcache = new Map();
+  const scaleOf = (el) => {
+    if (el instanceof SVGElement) { const m = el.getScreenCTM ? el.getScreenCTM() : null; return m ? (Math.hypot(m.a, m.b) || 1) : 1; }
+    let k = 1;
+    for (let a = el; a && a.nodeType === 1; a = a.parentElement) {
+      if (!tcache.has(a)) { let f = 1; const t = getComputedStyle(a).transform; if (t && t !== 'none') { try { const m = new DOMMatrix(t); f = Math.hypot(m.a, m.b) || 1; } catch (e) { f = 1; } } tcache.set(a, f); }
+      k *= tcache.get(a);
+    }
+    return k;
+  };
+  const rpx = (el, cs) => parseFloat((cs || getComputedStyle(el)).fontSize) * scaleOf(el);
   const textEls = [...document.querySelectorAll('body *')].filter((el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1) && visible(el));
   const sizes = {}, families = {}, weights = {};
   let small = 0, words = 0;
   for (const el of textEls) {
-    const cs = getComputedStyle(el); const s = Math.round(parseFloat(cs.fontSize));
+    const cs = getComputedStyle(el); const s = Math.round(rpx(el, cs));
     const n = [...el.childNodes].filter((x) => x.nodeType === 3).map((x) => x.textContent).join(' ').trim().split(/\\s+/).length;
     sizes[s] = (sizes[s] || 0) + n; words += n;
     const fam = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(); families[fam] = (families[fam] || 0) + n;
@@ -28,10 +40,10 @@ const AUDIT = `(() => {
   for (const [t, b] of marks) { if (t - end > vh * 0.6) gaps.push([Math.round(end), Math.round(t)]); end = Math.max(end, b); }
   if (doc.scrollHeight - end > vh * 0.6) gaps.push([Math.round(end), doc.scrollHeight]);
   const media = [...document.querySelectorAll('img, picture, video, canvas, svg')].filter((el) => { const r = el.getBoundingClientRect(); return visible(el) && r.width * r.height > 120 * 120; }).length;
-  const h1 = document.querySelector('h1'); const h1s = h1 ? Math.round(parseFloat(getComputedStyle(h1).fontSize)) : null;
-  const bodyP = [...document.querySelectorAll('p')].filter(visible).map((p) => Math.round(parseFloat(getComputedStyle(p).fontSize)));
+  const h1 = document.querySelector('h1'); const h1s = h1 ? Math.round(rpx(h1)) : null;
+  const bodyP = [...document.querySelectorAll('p')].filter(visible).map((p) => Math.round(rpx(p)));
   const medianP = bodyP.length ? bodyP.sort((a, b) => a - b)[Math.floor(bodyP.length / 2)] : null;
-  const h2l = [...document.querySelectorAll('h2')].filter(visible).map((h) => Math.round(parseFloat(getComputedStyle(h).fontSize))).sort((a, b) => a - b);
+  const h2l = [...document.querySelectorAll('h2')].filter(visible).map((h) => Math.round(rpx(h))).sort((a, b) => a - b);
   const h2 = h2l.length ? h2l[Math.floor(h2l.length / 2)] : null;
   // Pictures: media elements, elements with a background image, and anything marked data-visual (a built visual).
   const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
@@ -42,12 +54,44 @@ const AUDIT = `(() => {
   for (const [t, b] of marks) if (t < vh) lowest = Math.max(lowest, Math.min(b, vh));
   for (const p of pics) if (p.top < vh) lowest = Math.max(lowest, Math.min(p.bottom, vh));
   const actions = [...document.querySelectorAll('a, button, [role=button]')].filter((el) => { if (!visible(el)) return false; const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.top < vh && r.top > 0 && r.height >= 32 && (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(cs.borderTopWidth) > 0); }).length;
-  const hero = { h1w: h1 ? Math.round(h1.getBoundingClientRect().width) : 0, h1Visible: h1 ? h1.getBoundingClientRect().top < vh : false, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
+  // Real boxes for the hero gate: the h1 and the primary action fully inside the first viewport, nothing cut off at the left or right edge.
+  const box = (r) => ({ top: Math.round(r.top), left: Math.round(r.left), right: Math.round(r.right), bottom: Math.round(r.bottom) });
+  const inside = (r) => r.top >= -1 && r.left >= -1 && r.right <= vw + 1 && r.bottom <= vh + 1;
+  const buttonish = (el) => { if (!visible(el) || el.closest('header, nav')) return false; const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.height >= 32 && (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(cs.borderTopWidth) > 0); };
+  const h1r = h1 ? h1.getBoundingClientRect() : null;
+  const primary = h1 ? ([...document.querySelectorAll('a, button, [role=button]')].find((el) => (h1.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) && !h1.contains(el) && el.getBoundingClientRect().top < h1r.bottom + 560 && buttonish(el)) || null) : null;
+  const nameOf = (el) => el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(' ')[0] : '');
+  const clipBounds = (el) => {
+    let left = 0, right = overflowX ? Infinity : vw, ok = true;
+    for (let a = el.parentElement; a && a !== document.body && a !== doc; a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      if (cs.overflowX === 'hidden' || cs.overflowX === 'clip') { if (cs.textOverflow === 'ellipsis') ok = false; const r = a.getBoundingClientRect(); left = Math.max(left, r.left); right = Math.min(right, r.right); }
+    }
+    return { left, right, ok };
+  };
+  const clipped = [];
+  const edgeEls = [...new Set([...textEls, ...document.querySelectorAll('a, button, input, select, textarea, [role=button]')])].filter((el) => visible(el) && !el.closest('[data-bleed], [aria-hidden=true]'));
+  for (const el of edgeEls) {
+    const rects = [];
+    if (el.matches('a, button, input, select, textarea, [role=button]')) rects.push(el.getBoundingClientRect());
+    else { const rg = document.createRange(); for (const n of el.childNodes) if (n.nodeType === 3 && n.textContent.trim().length > 1) { rg.selectNodeContents(n); for (const q of rg.getClientRects()) rects.push(q); } }
+    const cb = clipBounds(el); if (!cb.ok) continue;
+    for (const r of rects) {
+      if (r.width < 4 || r.top >= vh || r.bottom <= 0) continue;
+      if (r.right <= cb.left + 1 || r.left >= cb.right - 1) continue;
+      const l = Math.max(0, cb.left - r.left), rt = Math.max(0, r.right - cb.right);
+      if (l > 2 || rt > 2) { clipped.push({ el: nameOf(el), text: (el.innerText || el.value || el.textContent || '').trim().slice(0, 30), side: l > rt ? 'left' : 'right', px: Math.round(Math.max(l, rt)) }); break; }
+    }
+    if (clipped.length >= 6) break;
+  }
+  const hero = { h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
   // Sections below the first screen, and whether each shows a picture.
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
   secs = secs.filter((s) => !secs.some((o) => o !== s && o.contains(s)));
   const sections = secs.map((s) => { const r = s.getBoundingClientRect(); const top = r.top + scrollY; const head = s.querySelector('h2, h3'); return { top: Math.round(top), h: Math.round(r.height), id: s.id || (head ? head.textContent.trim().slice(0, 30) : s.tagName.toLowerCase()), pic: pics.some((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160) }; }).filter((x) => x.top >= vh * 0.6);
+  const feet = [...document.querySelectorAll('footer')].filter((f) => visible(f) && f.getBoundingClientRect().height > 100 && !secs.some((o) => o.contains(f) || f.contains(o)));
+  const sectionBoxes = secs.concat(feet).map((e) => { const r = e.getBoundingClientRect(); return { top: Math.round(r.top + scrollY), h: Math.round(r.height) }; }).filter((b) => b.h > 40).sort((a, b) => a.top - b.top);
   // How empty each screen is: share of its height with no text, control or picture.
   const spans = marks.concat(pics.map((p) => [p.top, p.bottom])).filter(([t, b]) => b - t < vh * 1.5).sort((a, b) => a[0] - b[0]);
   const screens = [];
@@ -59,37 +103,103 @@ const AUDIT = `(() => {
   const skeletons = [...document.querySelectorAll('[class*="skeleton" i], [class*="shimmer" i], [class*="placeholder" i]:not(input):not(textarea), [aria-busy="true"], [class*="spinner" i], [class*="loading" i]')].filter(visible).length;
   return { skeletons, viewportMeta: !!document.querySelector('meta[name=viewport]'), width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
-    words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
+    words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, sectionBoxes, empty: screens, title: document.title };
 })()`;
 
-// Before anything is measured or shot: refuse bot checks, and clear consent banners and pop-ups so the page is what's
-// photographed, not a cookie dialog. Clicks a reject/accept/close control inside a consent or modal container, then
-// hides what still covers most of the screen from a fixed layer. Embedded as text: no backslashes, no placeholders.
-const CLEAR_OVERLAYS = `(async () => {
-  const txt = (document.title + ' ' + (document.body ? document.body.innerText.slice(0, 600) : '')).toLowerCase();
-  if (/just a moment|performing security verification|verify you are human|attention required|checking your browser|access denied|are you a robot|captcha/.test(txt)) return { blocked: document.title || 'bot check' };
-  const words = /^(reject all|reject|decline|decline all|deny|necessary only|only necessary|essential only|no thanks|no, thanks|not now|close|dismiss|got it|ok|okay|accept|accept all|i agree|agree|allow all|continue)$/i;
-  const box = (el) => el.closest('[id*=cookie i],[class*=cookie i],[id*=consent i],[class*=consent i],[id*=gdpr i],[class*=gdpr i],[class*=banner i],[role=dialog],[aria-modal=true],[class*=modal i],[class*=popup i],[id*=onetrust i],[class*=cmp i]');
-  let clicked = 0;
-  for (let round = 0; round < 2; round++) {
-    const btns = [...document.querySelectorAll('button, [role=button], a')].filter((b) => words.test((b.innerText || b.getAttribute('aria-label') || '').trim()) && box(b));
-    const pick = btns.find((b) => /reject|decline|deny|necessary|essential|no thanks|not now|close|dismiss/i.test(b.innerText || b.getAttribute('aria-label') || '')) || btns[0];
-    if (!pick) break;
-    pick.click(); clicked++;
-    await new Promise((r) => setTimeout(r, 400));
-  }
-  let hidden = 0;
-  for (const el of document.querySelectorAll('body *')) {
-    const cs = getComputedStyle(el);
-    if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
-    const r = el.getBoundingClientRect();
-    const covers = r.width * r.height > innerWidth * innerHeight * 0.3;
-    const consent = box(el) && !el.closest('header, nav');
-    if ((covers && +cs.zIndex > 10 && !el.closest('header, nav')) || (consent && r.height < innerHeight * 0.6 && r.top > innerHeight * 0.4)) { el.style.setProperty('display', 'none', 'important'); hidden++; }
-  }
-  document.documentElement.style.overflow = ''; document.body && (document.body.style.overflow = '');
-  return { clicked, hidden };
-})()`;
+// Before anything is measured or shot: refuse bot checks, then clear what covers the page so the page is what's
+// photographed: cookie walls and consent banners, country / region / "ship to" pickers, newsletter modals, and the scroll
+// lock they leave behind. Overlays are found by what they SAY and how they are placed (fixed, sticky, a dialog, a bar along
+// the top or bottom edge), never by class names alone. A reject / close / stay control inside is clicked first (reject
+// beats close beats accept, and anything that opens a picker or navigates is never clicked); what still shows is hidden.
+// Embedded as text: no backslashes, no placeholders (strings are joined with +).
+const OVERLAY_FINDER =
+  "const WS = new RegExp('[' + String.fromCharCode(9, 10, 13, 160) + ' ]+', 'g');" +
+  "const norm = (s) => String(s || '').replace(WS, ' ').trim().toLowerCase();" +
+  "const CONSENT = /cookie|consent|gdpr|ccpa|tracking|privacy (choices|settings|preferences|notice)|we use (cookies|technolog)|your (privacy|data) |personali[sz]e your|manage (preferences|settings|choices)|accept (all|only|necessary|functional|essential)|reject all|opt out/;" +
+  "const GEO = /(choose|select|change|confirm|pick|set) (your |a |the |another )?(country|region|location|language|store|market|site)|ship(s|ping)? to|countries we ship|you('| a)re (viewing|visiting|browsing|shopping)|visiting from|which (country|region)|deliver(y|ing)? to|looks like you('| a)re|(country|region)[ /](selector|picker)|stay on this (site|page)|go to (the )?(us|uk|eu|local) (site|store)/;" +
+  "const PROMO = /subscribe|newsletter|sign up|join (our|the)|[0-9]+% off|get [0-9]+%|discount code|before you go|download (the |our )?app|allow notifications|turn on notifications/;" +
+  "const FRAME = /consent|cookie|privacy|cmp|didomi|onetrust|trustarc|usercentrics|cookiebot|sourcepoint|sp_message|quantcast|iubenda|osano/;" +
+  "const shown = (el) => { const cs = getComputedStyle(el); const r = el.getBoundingClientRect(); return r.width > 4 && r.height > 4 && cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.05 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };" +
+  "const dialogish = (el) => el.matches('dialog[open], [role=dialog], [role=alertdialog], [aria-modal=true]');" +
+  "const placed = (el) => { const cs = getComputedStyle(el); return cs.position === 'fixed' || cs.position === 'sticky' || (cs.position === 'absolute' && (+cs.zIndex || 0) >= 50) || dialogish(el); };" +
+  "const hasControl = (el) => !!el.querySelector('button, [role=button], a, input[type=button], input[type=submit], [tabindex]');" +
+  "const barish = (el) => { const r = el.getBoundingClientRect(); return r.height < 170 && r.width > innerWidth * 0.55 && (r.top < 200 || r.bottom > innerHeight - 200); };" +
+  "const isPage = (el) => el.matches('html, body, main, header, nav, footer, form, article') || !!el.querySelector('nav, [role=navigation], main, h1');" +
+  "const kind = (t, el) => (CONSENT.test(t) ? 'consent' : GEO.test(t) ? 'country' : (dialogish(el) || placed(el)) && PROMO.test(t) ? 'popup' : null);" +
+  "const findOverlays = () => {" +
+  "  const all = [];" +
+  "  for (const el of document.body ? document.body.querySelectorAll('*') : []) {" +
+  "    if (isPage(el) || !shown(el)) continue;" +
+  "    if (el.tagName === 'IFRAME') { if (placed(el) && FRAME.test(norm((el.src || '') + ' ' + el.id + ' ' + el.className + ' ' + (el.title || '')))) all.push({ el, why: 'consent', text: 'consent frame' }); continue; }" +
+  "    if (!(placed(el) || barish(el))) continue;" +
+  "    const t = norm(el.innerText).slice(0, 1600);" +
+  "    if (t.length < 12 || t.length > 1400 || !hasControl(el)) continue;" +
+  "    const why = kind(t, el);" +
+  "    if (why) all.push({ el, why, text: t.slice(0, 90) });" +
+  "  }" +
+  "  return all.filter((a) => !all.some((b) => b !== a && b.el.contains(a.el)));" +
+  "};";
+
+const CLEAR_OVERLAYS =
+  "(async () => {" +
+  "const txt = (document.title + ' ' + (document.body ? document.body.innerText.slice(0, 600) : '')).toLowerCase();" +
+  "if (/just a moment|performing security verification|verify you are human|attention required|checking your browser|access denied|are you a robot|captcha/.test(txt)) return { blocked: document.title || 'bot check' };" +
+  OVERLAY_FINDER +
+  "const REJECT = /^(reject|decline|deny|refuse|disagree|opt out)|(reject|decline|deny|refuse) (all|non)|(only|just) (necessary|essential|functional|required)|(necessary|essential|functional|required) only|accept (only )?(necessary|essential|functional|required)|strictly necessary|continue without|no,? ?thanks|no thank you|not now|maybe later|^(later|skip|no)$|(stay|keep) (on|here|shopping|browsing)|continue (on|to|with) (this|the|our|current)/;" +
+  "const CLOSE = /^(x|close|dismiss|cancel|got it|hide)$|close|dismiss/;" +
+  "const ACCEPT = /^(accept|allow|agree|ok|okay|got it|i agree|i accept|accept all|allow all|yes|understood|i understand|continue)( |$)/;" +
+  "const label = (b) => norm(b.innerText || b.getAttribute('aria-label') || b.title || b.value || '').slice(0, 60);" +
+  "const meta = (b) => norm((b.getAttribute('aria-label') || '') + ' ' + (b.title || '') + ' ' + b.id + ' ' + (typeof b.className === 'string' ? b.className : ''));" +
+  "const score = (b, why) => {" +
+  "  const l = label(b); const m = meta(b);" +
+  "  if (!l && !m) return 0;" +
+  "  const a = b.tagName === 'A' ? (b.getAttribute('href') || '') : '';" +
+  "  if (a && a.charAt(0) !== '#' && !/^javascript/i.test(a)) return 0;" +
+  "  if (REJECT.test(l)) return 10;" +
+  "  if (l === 'x' || l === String.fromCharCode(215) || l === String.fromCharCode(10005) || l === String.fromCharCode(10006) || CLOSE.test(l) || (!l && CLOSE.test(m)) || (l.length < 3 && CLOSE.test(m))) return 8;" +
+  "  if (why !== 'country' && ACCEPT.test(l)) return 3;" +
+  "  return 0;" +
+  "};" +
+  "const texts = []; let clicked = 0; const seen = new Set();" +
+  "for (let round = 0; round < 4; round++) {" +
+  "  let did = false;" +
+  "  for (const o of findOverlays()) {" +
+  "    const btns = [...o.el.querySelectorAll('button, [role=button], a, input[type=button], input[type=submit], [tabindex]')].filter((b) => !seen.has(b) && shown(b));" +
+  "    let best = null, bs = 0;" +
+  "    for (const b of btns) { const sc = score(b, o.why); if (sc > bs) { bs = sc; best = b; } }" +
+  "    if (!best) continue;" +
+  "    seen.add(best); best.click(); clicked++; did = true; texts.push(o.why + ': ' + o.text);" +
+  "    await new Promise((r) => setTimeout(r, 450));" +
+  "  }" +
+  "  if (!did) break;" +
+  "}" +
+  "let hidden = 0;" +
+  "const hide = (el) => { el.style.setProperty('display', 'none', 'important'); hidden++; };" +
+  "for (const o of findOverlays()) { hide(o.el); texts.push('hid ' + o.why + ': ' + o.text); }" +
+  // Full-screen masks and splash layers that carry no page content, and consent frames that are still drawn.
+  "for (const el of document.body ? document.body.querySelectorAll('*') : []) {" +
+  "  if (!shown(el) || el.matches('header, nav') || el.closest('header, nav') || isPage(el)) continue;" +
+  "  const cs = getComputedStyle(el);" +
+  "  if (!(cs.position === 'fixed' || (cs.position === 'absolute' && (+cs.zIndex || 0) >= 100))) continue;" +
+  "  const r = el.getBoundingClientRect();" +
+  "  const covers = r.width * r.height > innerWidth * innerHeight * 0.3;" +
+  "  const words = norm(el.innerText).length;" +
+  "  if (covers && +cs.zIndex > 10 && words < 600 && !el.querySelector('video, canvas, h1, h2')) { hide(el); texts.push('hid cover'); }" +
+  "}" +
+  // Scroll lock: what the overlay left behind (overflow hidden on the page, a body pinned with position fixed).
+  "let unlocked = false;" +
+  "for (const el of [document.documentElement, document.body]) {" +
+  "  if (!el) continue;" +
+  "  const cs = getComputedStyle(el);" +
+  "  if (cs.overflowY === 'hidden' || cs.overflowY === 'clip') { el.style.setProperty('overflow-y', 'auto', 'important'); unlocked = true; }" +
+  "  if (el === document.body && cs.position === 'fixed') { el.style.setProperty('position', 'static', 'important'); el.style.setProperty('top', 'auto', 'important'); unlocked = true; }" +
+  "  if (cs.touchAction === 'none') el.style.setProperty('touch-action', 'auto', 'important');" +
+  "}" +
+  "return { clicked, hidden, unlocked, texts: texts.slice(0, 6) };" +
+  "})()";
+
+// What still covers the first screen after clearing (the test and the audit read it): overlay text in a placed layer.
+export const OVERLAY_PROBE = "(() => {" + OVERLAY_FINDER + "return findOverlays().map((o) => o.why + ': ' + o.text);" + "})()";
 
 // Type that can't be read, measured: a fake (synthesized) bold because the face lacks that weight, a web font that never
 // loaded, tracking tight enough that letters touch, line-height tight enough that lines touch. Embedded as text.
@@ -180,29 +290,88 @@ export async function typeIssues(url, { width = 1440, height = 900, config } = {
   });
 }
 
-export async function capture(url, { width = 1440, height = 900, maxSlices = 6, quality = 78, scale = 1, idle = false, brand = false, config } = {}) {
+/**
+ * Which page offsets (y, px from the top) to shoot, in order. A page of at most `maxSlices` screens is shot whole, one
+ * viewport after another. A longer page is sampled so EVERY top-level section (`sections`: [{ top, h }]) shows at least
+ * once (at least a third of a viewport, or all of a shorter section), then the slices left in the budget are spent on the
+ * biggest gaps; the budget grows past `maxSlices` only as far as covering the sections needs (never past `hardMax`).
+ * Without section boxes the shots are evenly spaced, as before. critic_prepare and fitcheck_shot get this through capture().
+ */
+export function sectionSlices({ total, height, sections = [], maxSlices = 6, hardMax = 10 }) {
+  const count = Math.max(1, Math.ceil(total / height));
+  const maxY = Math.max(0, total - height);
+  const at = (i) => Math.min(i * height, maxY);
+  if (maxSlices <= 1) return [0];
+  if (count <= maxSlices) return [...Array(count).keys()].map(at);
+  const boxes = sections.filter((x) => x && x.h > 0).sort((p, q) => p.top - q.top);
+  if (boxes.length < 2) return [...Array(maxSlices).keys()].map((i) => at(Math.round((i * (count - 1)) / (maxSlices - 1))));
+  const seen = (y, x) => Math.min(x.top + x.h, y + height) - Math.max(x.top, y) >= Math.min(x.h, Math.round(height * 0.3));
+  let ys = [0];
+  for (const x of boxes) if (!ys.some((y) => seen(y, x))) ys.push(Math.min(maxY, Math.max(0, x.top - 16)));
+  const cap = Math.max(maxSlices, hardMax);
+  if (ys.length > cap) ys = Array.from({ length: cap }, (_, i) => ys[Math.round((i * (ys.length - 1)) / (cap - 1))]);
+  ys = [...new Set(ys)].sort((p, q) => p - q);
+  while (ys.length < maxSlices) {
+    let best = -1, room = height * 0.2;
+    for (let i = 0; i < ys.length; i++) {
+      const unseen = (i + 1 < ys.length ? ys[i + 1] : total) - (ys[i] + height);
+      if (unseen > room) { room = unseen; best = i; }
+    }
+    if (best < 0) break;
+    const before = ys.length;
+    ys.push(Math.min(maxY, ys[best] + height));
+    ys = [...new Set(ys)].sort((p, q) => p - q);
+    if (ys.length === before) break;
+  }
+  return ys;
+}
+
+/**
+ * Open `url` at `width` x `height`, return { audit, slices: [{ y, buf }…], sliceCount }.
+ * slicing "sections" (default): see sectionSlices; "top": the first `maxSlices` screens in order (screen 2 starts one viewport
+ * down: what a reference study wants). shots: false returns the audit only (no pictures). section: a CSS selector: shoot just
+ * that element (up to `maxSlices` viewport-high pieces) instead of the page; audit.section says where it is.
+ */
+export async function capture(url, { width = 1440, height = 900, maxSlices = 6, quality = 78, scale = 1, idle = false, brand = false, slicing = "sections", shots = true, section = null, config } = {}) {
   return withTab(config, async (tab) => {
     const { s } = tab;
+    const run = async (expression, awaitPromise = false) => (await s("Runtime.evaluate", { expression, awaitPromise, returnByValue: true })).result?.value;
     await openPage(tab, url, { width, height, idle });
-    const cleared = (await s("Runtime.evaluate", { expression: CLEAR_OVERLAYS, awaitPromise: true, returnByValue: true })).result?.value || {};
+    const cleared = (await run(CLEAR_OVERLAYS, true)) || {};
     if (cleared.blocked) return { audit: { blocked: cleared.blocked, height: height }, slices: [], sliceCount: 0, blocked: cleared.blocked };
     // Scroll through once so lazy content and scroll-triggered reveals render, then back to the top.
     await s("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
     await settle(s, 800);
-    const { result } = await s("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
+    // Banners and consent walls that come in late or on scroll: clear once more now that the page has loaded.
+    const again = (await run(CLEAR_OVERLAYS, true)) || {};
+    if (again.clicked || again.hidden) await settle(s, 400);
+    const result = { value: await run(AUDIT) };
     const audit = result.value;
-    audit.covered = (await s("Runtime.evaluate", { expression: COVERED, awaitPromise: true, returnByValue: true })).result?.value || [];
-    audit.type = (await s("Runtime.evaluate", { expression: TYPE_CHECK, returnByValue: true })).result?.value || [];
-    if (brand) audit.brand = (await s("Runtime.evaluate", { expression: BRAND, returnByValue: true })).result.value;
+    audit.cleared = { clicked: (cleared.clicked || 0) + (again.clicked || 0), hidden: (cleared.hidden || 0) + (again.hidden || 0), unlocked: !!(cleared.unlocked || again.unlocked), texts: [...(cleared.texts || []), ...(again.texts || [])].slice(0, 6) };
+    audit.overlayLeft = (await run(OVERLAY_PROBE)) || [];
+    audit.covered = (await run(COVERED, true)) || [];
+    audit.type = (await run(TYPE_CHECK)) || [];
+    if (brand) audit.brand = await run(BRAND);
+    // The audit scrolled the page and came back: let headers that hide on scroll slide back before anything is shot.
+    if (shots) await new Promise((r) => setTimeout(r, 450));
     const total = Math.min(audit.height, 30000);
     const count = Math.max(1, Math.ceil(total / height));
-    const picks = count <= maxSlices ? [...Array(count).keys()] : maxSlices <= 1 ? [0] : [...Array(maxSlices).keys()].map((i) => Math.round((i * (count - 1)) / (maxSlices - 1)));
-    const slices = [];
-    for (const i of picks) {
-      const y = Math.min(i * height, Math.max(0, total - height));
-      const { data } = await s("Page.captureScreenshot", { format: "jpeg", quality, captureBeyondViewport: true, clip: { x: 0, y, width, height: Math.min(height, total - y), scale } });
-      slices.push({ y, buf: Buffer.from(data, "base64") });
+    const maxY = Math.max(0, total - height);
+    const shoot = async (y, h) => {
+      const { data } = await s("Page.captureScreenshot", { format: "jpeg", quality, captureBeyondViewport: true, clip: { x: 0, y, width, height: Math.max(1, Math.min(h, total - y)), scale } });
+      return { y, buf: Buffer.from(data, "base64") };
+    };
+    if (section) {
+      const box = await run("(() => { const el = document.querySelector(" + JSON.stringify(section) + "); if (!el) return null; const r = el.getBoundingClientRect(); return { top: Math.round(r.top + scrollY), h: Math.round(r.height) }; })()");
+      audit.section = box ? { selector: section, ...box } : { selector: section, missing: true };
+      const slices = [];
+      if (box && shots) for (let y = box.top, k = 0; y < box.top + box.h && k < Math.max(1, maxSlices); y += height, k++) slices.push(await shoot(y, Math.min(height, box.top + box.h - y)));
+      return { audit, slices, sliceCount: box ? Math.max(1, Math.ceil(box.h / height)) : 0 };
     }
+    const ys = slicing === "top" ? [...Array(Math.min(count, Math.max(1, maxSlices))).keys()].map((i) => Math.min(i * height, maxY)) : sectionSlices({ total, height, sections: audit.sectionBoxes || [], maxSlices });
+    const slices = [];
+    if (shots) for (const y of ys) slices.push(await shoot(y, height));
+    audit.sliceYs = ys;
     return { audit, slices, sliceCount: count };
   });
 }
@@ -239,6 +408,16 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
       else if (!bigPicture && a.h1 < want * 0.85) warnings.push(`h1 ${a.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
     }
     if (a.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
+    else if (a.h1 && a.hero.h1Box && a.hero.h1Inside === false) {
+      const b = a.hero.h1Box;
+      blockers.push(`the h1's box (top ${b.top}, bottom ${b.bottom}, left ${b.left}, right ${b.right}px) is not fully inside the first viewport (${a.width}x${a.vh || 900}): it must start below the top edge and end above the fold, and sit between the side edges`);
+    }
+    if (a.hero.cta && a.hero.cta.inside === false) {
+      const b = a.hero.cta.box;
+      blockers.push(`the primary action "${a.hero.cta.text}" (top ${b.top}, bottom ${b.bottom}, left ${b.left}, right ${b.right}px) is not fully inside the first viewport (${a.width}x${a.vh || 900}): the first screen needs the headline AND the way in`);
+    }
+    if (a.hero.clipped?.length)
+      blockers.push(`text or controls cut off at the ${a.hero.clipped.length > 1 ? "edges" : "edge"}: ${a.hero.clipped.slice(0, 4).map((c) => `"${c.text}" (${c.el}) ${c.px}px past the ${c.side} edge`).join("; ")}. Pull it inside the margin, or mark an intentional bleed with data-bleed`);
     if (desk) {
       const container = Math.min(a.width - 128, 1312);
       const picOk = a.hero.pic.w >= container * 0.45 && a.hero.pic.h >= (a.vh || 900) * 0.6;
@@ -284,9 +463,11 @@ export function formatAudit(a, j) {
   return (
     `${a.width}px: ${a.screens} screens tall · text sizes ${a.fontSizes.slice(0, 8).map(([s, n]) => `${s}px×${n}`).join(" ")} · families ${a.families.map(([f, n]) => `${f}×${n}`).join(", ")} · ` +
     `${Math.round(a.smallShare * 100)}% words <14px · h1 ${a.h1 ?? "-"}px · h2 ${a.h2 ?? "-"}px · paragraphs ${a.bodyText ?? "-"}px · media ${a.media}` +
-    (a.hero ? `\n  first viewport: h1 ${a.hero.h1w}px wide · biggest picture ${a.hero.pic.w}x${a.hero.pic.h}px · ${a.hero.emptyBelow}px empty at the bottom · ${a.hero.actions} action(s)` : "") +
+    (a.hero ? `\n  first viewport: h1 ${a.hero.h1w}px wide${a.hero.h1Box ? ` (y ${a.hero.h1Box.top}-${a.hero.h1Box.bottom})` : ""} · biggest picture ${a.hero.pic.w}x${a.hero.pic.h}px · ${a.hero.emptyBelow}px empty at the bottom · ${a.hero.actions} action(s)${a.hero.cta ? ` · primary action "${a.hero.cta.text}" y ${a.hero.cta.box.top}-${a.hero.cta.box.bottom}` : ""}` : "") +
     (a.empty?.length > 1 ? `\n  empty per screen: ${a.empty.map((e) => Math.round(e * 100) + "%").join(" ")}` : "") +
     (a.sections?.length ? ` · sections with a picture: ${a.sections.filter((s) => s.pic).length}/${a.sections.length}` : "") +
+    (a.cleared && (a.cleared.clicked || a.cleared.hidden) ? `\n  cleared before shooting: ${a.cleared.clicked} click(s), ${a.cleared.hidden} layer(s) hidden${a.cleared.unlocked ? ", scroll unlocked" : ""} (${(a.cleared.texts || []).slice(0, 3).join(" | ")})` : "") +
+    (a.overlayLeft?.length ? `\n  STILL COVERING the first screen: ${a.overlayLeft.slice(0, 3).join(" | ")}` : "") +
     (a.skeletons > 2 ? `\n  LOADING STATE? ${a.skeletons} skeleton/spinner elements visible` : "") +
     (j.blockers.length ? `\n  BLOCKERS: ${j.blockers.join(" | ")}` : "") +
     (j.warnings.length ? `\n  warnings: ${j.warnings.join(" | ")}` : "")
@@ -331,12 +512,13 @@ export function formatBrand(b) {
 
 /** One interaction step for fitcheck_shot / critic_prepare. */
 export const STEP = z.object({
-  do: z.enum(["click", "hover", "drag", "type", "key", "scroll", "wait", "shot"]),
+  do: z.enum(["click", "hover", "drag", "type", "key", "scroll", "wait", "shot", "hold"]),
   selector: z.string().optional().describe("CSS selector of the element to act on"),
   to: z.union([z.string(), z.object({ x: z.number(), y: z.number() })]).optional().describe("drag: a selector to drop on, or an offset {x, y} in px from the start"),
   text: z.string().optional().describe("type: the text; key: a key name (Enter, Escape, Tab, ArrowDown)"),
   y: z.number().optional().describe("scroll: page y in px"),
   ms: z.number().optional().describe("wait: milliseconds (max 5000)"),
+  hold: z.object({ selector: z.string(), ms: z.number().optional() }).optional().describe('hold: press and hold the mouse on selector for ms (default 800, max 5000), screenshot WHILE it is held (the :active / hold-to-confirm state), then release. e.g. { do: "hold", hold: { selector: ".confirm", ms: 1200 }, label: "mid-hold" }'),
   label: z.string().optional().describe("What this state shows, for the critic"),
   shot: z.boolean().optional().describe("Screenshot after this step (default true; false to chain steps)"),
 });
@@ -363,6 +545,30 @@ export async function captureStates(url, steps, { width = 1440, height = 900, qu
     const out = [];
     for (const [i, st] of steps.slice(0, 12).entries()) {
       let error = null;
+      if (st.do === "hold") {
+        // Pointer down, wait, capture while it is still down, release.
+        let buf = null;
+        let down = null;
+        try {
+          const h = st.hold || { selector: st.selector, ms: st.ms };
+          if (!h.selector) throw new Error("hold needs hold.selector");
+          down = await center(h.selector);
+          await mouse("mouseMoved", down.x, down.y, { buttons: 0 });
+          await mouse("mousePressed", down.x, down.y, { clickCount: 1, buttons: 1 });
+          await new Promise((r) => setTimeout(r, Math.min(5000, Math.max(0, h.ms ?? 800))));
+          if (st.shot !== false) {
+            const { data } = await s("Page.captureScreenshot", { format: "jpeg", quality, clip: { x: 0, y: 0, width, height, scale: width > 1200 ? 1200 / width : 1 } });
+            buf = Buffer.from(data, "base64");
+          }
+        } catch (e) {
+          error = e.message;
+        } finally {
+          if (down) await mouse("mouseReleased", down.x, down.y, { clickCount: 1, buttons: 0 }).catch(() => {});
+        }
+        if (buf) out.push({ label: st.label || `${i + 1}. hold ${st.hold?.selector || st.selector || ""}`, buf, error });
+        else if (error) out.push({ label: st.label || `${i + 1}. hold`, buf: Buffer.alloc(0), error });
+        continue;
+      }
       try {
         if (st.do === "click" || st.do === "hover") {
           const p = await center(st.selector);
@@ -434,6 +640,13 @@ export async function runStep(s, st) {
       await mouse("mousePressed", p.x, p.y, { clickCount: 1, buttons: 1 });
       await mouse("mouseReleased", p.x, p.y, { clickCount: 1, buttons: 0 });
     } else if (kind === "press") await mouse("mousePressed", p.x, p.y, { clickCount: 1, buttons: 1 });
+  } else if (kind === "hold") {
+    const h = st.hold || { selector: st.selector, ms: st.ms };
+    const p = await center(h.selector);
+    await mouse("mouseMoved", p.x, p.y, { buttons: 0 });
+    await mouse("mousePressed", p.x, p.y, { clickCount: 1, buttons: 1 });
+    await new Promise((r) => setTimeout(r, Math.min(5000, Math.max(0, h.ms ?? 800))));
+    await mouse("mouseReleased", p.x, p.y, { clickCount: 1, buttons: 0 });
   } else if (kind === "release") {
     const p = st.selector ? await center(st.selector) : { x: 0, y: 0 };
     await mouse("mouseReleased", p.x, p.y, { clickCount: 1, buttons: 0 });

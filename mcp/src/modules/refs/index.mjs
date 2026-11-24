@@ -13,6 +13,7 @@ import { capture, formatAudit, formatBrand } from "../../core/cdp.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import * as dribbble from "./dribbble.mjs";
+import { mixNote } from "../inspire/contract.mjs";
 
 const NEXT_STUDY =
   "NEXT: the sheet is only for choosing. refs_pick the 2-5 that solve THIS brief best (use the tagged numbers, e.g. \"L3-7\"; one reason each), " +
@@ -71,6 +72,7 @@ async function listingResult(kind, params, ctx, label) {
     textBlock(
       `Listing ${tag}: ${label} — page ${params.page || 1}, ${items.length} shots (${url}). Sheet numbers = ${tag}-<n>.\n` +
         (lowDropped ? `Left out ${lowDropped} shots with under ${minLikes} likes (minLikes: 0 shows them).\n` : "") +
+        (kind === "search" && mixNote(params.query) ? `${mixNote(params.query)}\n` : "") +
         `${lines.join("\n")}\n\n` +
         (capped ? "Note: logged-out keyword search stops after about 2 pages. Go deeper with refs_tag / refs_feed / refs_designer.\n" : `More: same call with page ${(params.page || 1) + 1}.\n`) +
         NEXT_STUDY,
@@ -266,7 +268,7 @@ export function register(server, ctx) {
             // Shipped sites don't change within a session: repeat calls are instant.
             const memo = `${url}|${screens}`;
             const hit = SITE_MEMO.get(memo);
-            const r = hit && Date.now() - hit.at < 30 * 60000 ? hit.r : await capture(url, { width: 1440, height: 900, maxSlices: screens, idle: true, brand: true, config });
+            const r = hit && Date.now() - hit.at < 30 * 60000 ? hit.r : await capture(url, { width: 1440, height: 900, maxSlices: screens, idle: true, brand: true, slicing: "top", config });
             if (r.blocked) throw new Error(`${url} answered with a bot check ("${r.blocked}"), not the page: it can't be a reference. Pick another site.`);
             SITE_MEMO.set(memo, { r, at: Date.now() });
             const key = siteKey(url);
@@ -475,7 +477,9 @@ export function register(server, ctx) {
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.refs.studied = (s.task.refs.studied || []).filter((x) => x.key !== key);
-        s.task.refs.studied.push({ key, role: n.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: new Date().toISOString() });
+        // terms: what the reference is about (title, address, notes), so the competitor gate can tell whether it is the same product type.
+        const terms = [item.title, item.url, item.designer, n.take, n.layout].filter(Boolean).join(" ").slice(0, 600);
+        s.task.refs.studied.push({ key, role: n.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, at: new Date().toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;

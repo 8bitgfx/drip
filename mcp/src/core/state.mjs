@@ -198,6 +198,58 @@ export function studiedDesigners(task) {
   return new Set((task.refs.studied || []).map((s) => s.designer).filter(Boolean)).size;
 }
 
+// Words that say what a task or a reference is, not what the product IS.
+const NOT_TYPE = new Set("a an and the for with of to in on at by from that which who sells selling my our your their its new modern clean beautiful nice cool bold simple minimal great best design designs designed redesign redesigned make build create improve update refresh rework revamp landing page pages website websites site web homepage home main screen screens view ui ux app hero section sections layout template theme product products brand company startup business online store shop official".split(" "));
+const stem = (w) => w.replace(/(ing|ies|es|s)$/, "");
+const wordsOf = (text) => [...new Set(String(text || "").toLowerCase().replace(/https?:[^ ]+/g, " ").split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !NOT_TYPE.has(w)).map(stem).filter((w) => w.length > 2))];
+
+/** What the product IS, as words: from the task title and the brief ("walking trainer", "baby stroller"). */
+export function productTypeWords(task) {
+  return wordsOf(`${task?.title || ""} ${task?.brief?.what || ""}`).slice(0, 8);
+}
+
+/** Does any competitor study share a word with the product type (in its title, address or notes)? Null when the type is unknown. */
+export function competitorsShareType(task) {
+  const type = productTypeWords(task);
+  if (!type.length) return null;
+  const comps = (task.refs?.studied || []).filter((x) => x.role === "competitor");
+  if (!comps.length) return false;
+  return comps.some((x) => wordsOf(x.terms).some((w) => type.includes(w)));
+}
+
+/** The directions a directions verdict asked to rework or cut (names), else the lowest scored. */
+export function reworkNames(rec) {
+  const per = rec?.perDirection || [];
+  const named = per.filter((d) => d.verdict === "rework" || d.verdict === "cut").map((d) => `"${d.name}"`);
+  if (named.length) return named.join(", ");
+  const low = [...per].sort((a, b) => a.score - b.score).slice(0, 1).map((d) => `"${d.name}"`);
+  return low.join(", ");
+}
+
+const AGENT_TTL_MS = 10 * 60000;
+
+/** Subagents (the critic, a scout, a builder...) launched and not yet finished, newest launch in the last ten minutes. */
+export function agentsRunning(task, now = Date.now()) {
+  return (task?.agents || []).filter((a) => now - Date.parse(a.at) < AGENT_TTL_MS);
+}
+
+/** A hook saw the Agent tool start a subagent of `type`. */
+export function agentStarted(type, cwd) {
+  updateState((st) => {
+    if (!st.task) return;
+    st.task.agents = [...agentsRunning(st.task), { type: String(type || "agent"), at: new Date().toISOString() }].slice(-12);
+  }, cwd);
+}
+
+/** The subagent finished (SubagentStop, or the Agent tool returning for a foreground run). Without a type, the oldest goes. */
+export function agentFinished(type, cwd) {
+  updateState((st) => {
+    if (!st.task?.agents?.length) return;
+    const i = type ? st.task.agents.findIndex((a) => a.type === type) : 0;
+    st.task.agents = st.task.agents.filter((_, k) => k !== (i < 0 ? 0 : i));
+  }, cwd);
+}
+
 /** The latest critic verdict of a kind ("directions", "build", "logo", "pack", "any"). */
 export function lastCritique(task, kind) {
   return [...(task?.critic?.records || [])].reverse().find((r) => r.kind === kind) || null;
@@ -233,8 +285,18 @@ export function missingBeforeUi(task, config) {
     if (pageWork || task.surface === "readme") {
       if (roles.style < need.style)
         missing.push({ need: "style references", how: `study ${need.style - roles.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("brutalist", "playful 3d", "editorial dark"), never mixed with the subject (now ${roles.style}/${need.style})` });
-      if (roles.competitor < need.competitor && task.surface !== "readme")
-        missing.push({ need: "competitor references", how: `study ${need.competitor - roles.competitor} similar product(s) (role "competitor"): name the 3-4 products people compare this with and refs_site their shipped sites (now ${roles.competitor}/${need.competitor})` });
+      if (roles.competitor < need.competitor && task.surface !== "readme") {
+        const type = productTypeWords(task).slice(0, 3).join(" ");
+        const sameType = competitorsShareType(task) === false;
+        missing.push({
+          need: "competitor references",
+          how:
+            `study ${need.competitor - roles.competitor} similar product(s) (role "competitor"): name the 3-4 products people compare this with and refs_site their shipped sites (now ${roles.competitor}/${need.competitor})` +
+            (sameType
+              ? `. None of your competitors is the SAME product type${type ? ` ("${type}")` : ""}: add a same-product-type rival, a shipped site selling the same kind of thing to the same people. Name three real rivals plus the best-designed similar product (search the web if you don't know them), not a famous brand from another category`
+              : ""),
+        });
+      }
       if (roles.page < need.page)
         missing.push({ need: "page references", how: `study ${need.page - roles.page} more of the SAME kind of page you're making (role "page"): refs_search("<subject> ${task.surface === "app" ? "dashboard" : task.surface === "mobile" ? "app" : "landing page"}"), refs_tag "${task.surface === "app" ? "web app" : "landing page"}", or shipped pages of that type (now ${roles.page}/${need.page})` });
     }
@@ -246,7 +308,14 @@ export function missingBeforeUi(task, config) {
     const adoptedStale = task.board?.adopted && task.board.adopted.styleRevision !== currentStyleRevision(task);
     if (adoptedStale)
       missing.push({ need: "direction", how: `the project's approved direction changed since this task adopted it (${task.board.adopted.direction} -> ${currentStyleRevision(task) || "none"}): board_attach({ adopt: true }) again, or board_choose a direction of this task's own` });
-    else if (g.requireDirection && !task.board?.chosen)
+    else if (g.requireDirection && !task.board?.chosen && lastCritique(task, "directions") && lastCritique(task, "directions").verdict !== "pass") {
+      const dc = lastCritique(task, "directions");
+      const names = reworkNames(dc);
+      missing.push({
+        need: "direction",
+        how: `the critic said ${dc.verdict.toUpperCase()} on the directions (${String(dc.summary || "").slice(0, 160)}). Rework ${names || "the weak directions"}${dc.fixes?.length ? ` (${String(dc.fixes[0]).slice(0, 140)})` : ""}${dc.verdict === "reject" ? " into genuinely different ideas, not recolours" : ""}, then board_directions again with the reworked set, critic review again (critic_prepare kind 'directions' -> Agent drip:critic -> critic_record), board_open, board_choose`,
+      });
+    } else if (g.requireDirection && !task.board?.chosen)
       missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions (2 first-viewport comps), critic review, board_open, board_choose" });
     if (g.requireComponentSearch !== false && pageWork && task.components?.count > 0 && !task.components.search)
       missing.push({ need: "reuse", how: `this project already has ${task.components.count} components: components_local_find for what you're about to build (and components_plan for a page) before writing new ones` });
@@ -262,7 +331,9 @@ export function needsCritic(task, config) {
   const rec = lastCritique(task, "build");
   if (rec?.rev && rec.rev !== artifactRev(task)) return !(isCriticCapped(task, config)); // reviewed something else: stale
   if (isCriticCapped(task, config)) return false; // never loop forever; the hand-off lists what's left
-  return !rec || rec.at < task.lastUiWriteAt || rec.verdict !== "pass";
+  // A verdict about exactly these files stays good however recently they were written (a script that rewrote the same bytes).
+  const sameFiles = !!rec?.rev && rec.rev === artifactRev(task);
+  return !rec || (!sameFiles && rec.at < task.lastUiWriteAt) || rec.verdict !== "pass";
 }
 
 function isCriticCapped(task, config) {
@@ -289,6 +360,7 @@ export function needsFitcheck(task, config) {
   if (!task.lastUiWriteAt) return false;
   const last = task.size === "full" ? task.fitcheck.doneAt : task.fitcheck.doneAt || task.fitcheck.lintAt;
   if (task.fitcheck.doneRev && task.fitcheck.doneRev !== artifactRev(task)) return true; // checked a different version
+  if (task.fitcheck.doneRev) return needsCritic(task, config); // the same files the passing check saw: nothing to redo, whatever their write times
   return !last || last < task.lastUiWriteAt || needsCritic(task, config);
 }
 
@@ -313,11 +385,12 @@ export function checklist(task, config) {
     const st = (task.refs.studied || []).length;
     const rc = { style: 0, competitor: 0, page: 0 };
     for (const x of task.refs.studied || []) { const r = x.role || (String(x.key).startsWith("site:") ? "page" : "style"); if (r in rc) rc[r]++; }
-    lines.push(`${tick(rc.style >= (g.minStyle ?? 2) && rc.competitor >= (g.minCompetitors ?? 2) && rc.page >= (g.minPage ?? 2))} references by role: style ${rc.style}/${g.minStyle ?? 2} · competitors ${rc.competitor}/${g.minCompetitors ?? 2} · same page ${rc.page}/${g.minPage ?? 2}`);
+    lines.push(`${tick(rc.style >= (g.minStyle ?? 2) && rc.competitor >= (g.minCompetitors ?? 2) && rc.page >= (g.minPage ?? 2))} references by role: style ${rc.style}/${g.minStyle ?? 2} · competitors ${rc.competitor}/${g.minCompetitors ?? 2} · same page ${rc.page}/${g.minPage ?? 2}${rc.competitor > 0 && competitorsShareType(task) === false && task.surface !== "readme" ? ` · none of the competitors is the same product type as "${productTypeWords(task).slice(0, 3).join(" ")}": add a same-type rival` : ""}`);
     lines.push(`${tick(st >= g.minRefsStudied && studiedDesigners(task) >= g.minDesigners)} references studied: ${st}/${g.minRefsStudied} from ${studiedDesigners(task)}/${g.minDesigners} designers (picked ${(task.refs.picked || []).length}, viewed ${task.refs.viewed.length}, scanned ${task.refs.seen}, searches ${task.refs.searches})`);
     if (task.components?.count) lines.push(`${tick(!!task.components.search)} searched the project's own ${task.components.count} components first (components_local_find)`);
     lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);
-    lines.push(`${tick(!!lastCritique(task, "directions"))} critic ranked the directions${lastCritique(task, "directions") ? `: ${lastCritique(task, "directions").summary}` : ""}`);
+    const dc = lastCritique(task, "directions");
+    lines.push(`${tick(dc?.verdict === "pass")} critic ranked the directions${dc ? `: ${dc.verdict.toUpperCase()} (${dc.summary})${dc.verdict === "pass" ? "" : ` NOT PASSED: rework ${reworkNames(dc) || "the weak directions"}`}` : ""}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
     lines.push(`${tick(task.system)} system written (kit/base.css + DESIGN.md)`);
     if (isPersuade(task)) lines.push(`${tick(!!task.fitcheck.heroPassedAt)} hero gate passed (fitcheck_shot hero: true, before the sections)`);
@@ -327,7 +400,7 @@ export function checklist(task, config) {
   lines.push(`${tick(!!fc.doneAt && !(task.lastUiWriteAt && fc.doneAt < task.lastUiWriteAt))} fit check after the last change (shots ${fc.shots}${fc.score ? `, score ${fc.score}` : ""})`);
   if (task.size === "full") {
     const b = lastCritique(task, "build");
-    lines.push(`${tick(!needsCritic(task, config) && !!b)} critic passed the build${b ? `: ${b.verdict} (${b.summary})` : ""}`);
+    lines.push(`${tick(!needsCritic(task, config) && b?.verdict === "pass")} critic passed the build${b ? `: ${b.verdict.toUpperCase()} (${b.summary})${b.verdict !== "pass" && !needsCritic(task, config) ? " (round limit reached: the hand-off lists what is left)" : ""}` : ""}`);
   }
   return lines.join("\n");
 }

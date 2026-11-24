@@ -3,6 +3,7 @@
 import { decode, hostOf, makeItem, slugify } from "../contract.mjs";
 
 export const ENDPOINT = "https://api.onepagelove.com/mcp";
+export const MAX_LIMIT = 10; // search_inspiration and search_sections answer "too_big, maximum 10" above this
 
 const COLORS = ["dark", "colorful", "blue", "white", "grey", "green", "red", "black", "brown", "orange", "purple", "pink", "yellow", "beige", "pastel", "gold", "monochrome", "teal", "lime"];
 const GENRES = { saas: "saas", portfolio: "portfolio", landing: "landing-page", app: "app", startup: "startup", finance: "finance", fintech: "finance", restaurant: "restaurant", game: "game", gaming: "game", agency: "service", ecommerce: "e-commerce", shop: "e-commerce", photography: "photography", event: "event", music: "music-related" };
@@ -93,7 +94,7 @@ export const onepagelove = {
   status: "works",
   async search(query, { kind = "site", limit = 12, config }) {
     const opts = { userAgent: config?.refs?.userAgent };
-    const lim = Math.min(limit, 24);
+    const lim = Math.min(limit, MAX_LIMIT); // the endpoint rejects more than 10 (too_big, maximum 10)
     if (kind === "section") return parseOpl(await callTool("search_sections", { section_type: sectionType(query), ...pick(toFilters(query), ["color", "genre"]), limit: lim, image_mode: "markdown" }, opts), "section");
     const f = toFilters(query);
     return parseOpl(await callTool("search_inspiration", { ...f, ...(f.query ? {} : { query: undefined }), limit: lim, image_mode: "markdown" }, opts), "site");
