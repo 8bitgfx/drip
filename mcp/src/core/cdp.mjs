@@ -89,7 +89,7 @@ const AUDIT = `(() => {
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
   secs = secs.filter((s) => !secs.some((o) => o !== s && o.contains(s)));
-  const sections = secs.map((s) => { const r = s.getBoundingClientRect(); const top = r.top + scrollY; const head = s.querySelector('h2, h3'); return { top: Math.round(top), h: Math.round(r.height), id: s.id || (head ? head.textContent.trim().slice(0, 30) : s.tagName.toLowerCase()), pic: pics.some((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160) }; }).filter((x) => x.top >= vh * 0.6);
+  const sections = secs.map((s) => { const r = s.getBoundingClientRect(); const top = r.top + scrollY; const head = s.querySelector('h2, h3'); return { top: Math.round(top), h: Math.round(r.height), id: s.id || (head ? head.textContent.trim().slice(0, 30) : s.tagName.toLowerCase()), pic: pics.some((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160), form: (() => { const big = pics.filter((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160).sort((a, b) => b.w * b.h - a.w * a.h)[0]; if (!big) return 'text'; const br = big.el.getBoundingClientRect(); if (br.width > r.width * 0.8) return 'full'; const cx = (br.left + br.right) / 2 - r.left; return cx > r.width * 0.55 ? 'split-right' : cx < r.width * 0.45 ? 'split-left' : 'centre'; })() }; }).filter((x) => x.top >= vh * 0.6);
   const feet = [...document.querySelectorAll('footer')].filter((f) => visible(f) && f.getBoundingClientRect().height > 100 && !secs.some((o) => o.contains(f) || f.contains(o)));
   const sectionBoxes = secs.concat(feet).map((e) => { const r = e.getBoundingClientRect(); return { top: Math.round(r.top + scrollY), h: Math.round(r.height) }; }).filter((b) => b.h > 40).sort((a, b) => a.top - b.top);
   // How empty each screen is: share of its height with no text, control or picture.
@@ -445,6 +445,12 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
     const bad = a.empty.map((e, i) => [i + 1, e]).filter(([, e]) => e > 0.5);
     if (bad.length) blockers.push(`screen(s) ${bad.map(([i, e]) => `${i} (${Math.round(e * 100)}% empty)`).join(", ")}: more than half empty. Bigger content or a picture, never padding`);
     else if (a.empty.some((e) => e > 0.4)) warnings.push(`some screens are over 40% empty: ${a.empty.map((e) => Math.round(e * 100) + "%").join(" ")}`);
+  }
+  if (a.sections?.length >= 3) {
+    const forms = {};
+    for (const x of a.sections) if (x.form && x.form !== "text") forms[x.form] = (forms[x.form] || 0) + 1;
+    const top = Object.entries(forms).sort((p, q) => q[1] - p[1])[0];
+    if (top && top[1] >= 3 && top[0].startsWith("split")) warnings.push(`${top[1]} sections share one layout (${top[0].replace("split-", "text beside a picture on the ")}): a template, not a design. Give sections different forms from the references: a bento, a full-bleed picture, a horizontal gallery, a sticky demo, a big statement`);
   }
   if (persuade && a.sections?.length) {
     const bare = a.sections.filter((s) => !s.pic);

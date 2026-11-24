@@ -313,12 +313,22 @@ export function missingBeforeUi(task, config) {
       const names = reworkNames(dc);
       missing.push({
         need: "direction",
-        how: `the critic said ${dc.verdict.toUpperCase()} on the directions (${String(dc.summary || "").slice(0, 160)}). Rework ${names || "the weak directions"}${dc.fixes?.length ? ` (${String(dc.fixes[0]).slice(0, 140)})` : ""}${dc.verdict === "reject" ? " into genuinely different ideas, not recolours" : ""}, then board_directions again with the reworked set, critic review again (critic_prepare kind 'directions' -> Agent drip:critic -> critic_record), board_open, board_choose`,
+        how: `the critic said ${dc.verdict.toUpperCase()} on the directions (${String(dc.summary || "").slice(0, 160)}). Rework ${names || "the weak directions"}${dc.fixes?.length ? ` (${String(dc.fixes[0]).slice(0, 140)})` : ""}${dc.verdict === "reject" ? " into genuinely different ideas, not recolours" : ""}, then board_directions again with the reworked set, critic review again (critic_prepare kind 'directions' -> Agent drip:critic -> critic_record), show the user the two strongest comps, board_choose`,
       });
     } else if (g.requireDirection && !task.board?.chosen)
-      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions (2 first-viewport comps), critic review, board_open, board_choose" });
+      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), show the user the two strongest comps (the tile images), then board_choose" : "board_create, board_directions (3 ideas, each with what it takes from which reference), critic review, show the user the two strongest comps, board_choose" });
     if (g.requireComponentSearch !== false && pageWork && task.components?.count > 0 && !task.components.search)
       missing.push({ need: "reuse", how: `this project already has ${task.components.count} components: components_local_find for what you're about to build (and components_plan for a page) before writing new ones` });
+    // The parts come from somewhere: the project's or the catalogue's components for the interactive pieces, and a real
+    // picture source. Hand-drawing every part is why pages come out basic.
+    if (g.requireSources !== false && pageWork && task.board?.chosen && !task.board?.adopted) {
+      const used = task.toolUse || {};
+      const any = (re) => Object.keys(used).some((k) => re.test(k));
+      if (!any(/^(components_|catalogue_)/))
+        missing.push({ need: "components", how: "components_find for the page's interactive and eye-candy pieces (a prompt box, a gallery or marquee, a bento, pricing, a footer, a chart): build on the best one found, or say why none fits" });
+      if (!any(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
+        missing.push({ need: "pictures", how: "pick a picture source for each section that needs one: images_search (Imageory first), art_generate, shader_hero, mockup_render for screens, or the user's real files; never fill the product's place with a drawing you improvised" });
+    }
     if (g.requireCritic && task.board?.chosen && !task.board?.adopted && !lastCritique(task, "directions"))
       missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
   }

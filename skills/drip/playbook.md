@@ -7,6 +7,8 @@ Build from this. It covers Persuade (landing pages, product sites) and Experienc
 2. The failure to fear is not clutter. It is a page of small things on a wide canvas. When torn, go bigger: bigger type, a bigger picture, fewer words.
 3. Finish the job: every section built and every state styled. Only material the user must supply is left as a labelled slot.
    The numbers below are strong defaults, not law. When the brief, the subject or the user asks for something else, the brief wins: note in DESIGN.md which rule you overrode and why.
+   **What matters:** before every page, section and component, ask what the user wants, and what they'll be excited to see. Spend the effort there: the product working, the real work at full size, a visualisation, an interaction worth playing with, a footer worth scrolling to. Skip what nobody cares about (an image's pixel size under a thumbnail, a spec caption, a counter nobody asked for).
+   **Think creatively, stick to references:** the idea is yours and new; its decisions come from what you studied (a composition, a section idea, an interaction). Take decisions, never a reference's colours or surface.
 
 ## Material and job
 4. Read the project first: package.json, tokens, fonts, DESIGN.md, nearby pages. Never ask what you can look up.
@@ -40,7 +42,8 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 13. Name the signature: the subject's strongest real thing, shown at its best on the first screen. Then name how the thesis shows in each section below, in a different form each time. An idea that lives only in the hero is a sticker.
 
 ## Compose in pixels before CSS
-14. `board_create` → `board_directions` with 2 directions (3 only when the brief truly forks). Each direction needs:
+14. References first, then `board_create` → `board_directions` with 3 directions that are different IDEAS (not one idea in three colours). Read the gold page closest to yours first (`drip_guide examples/gold`). Each direction needs:
+    - its `idea` in one line, and what it `takes` from which studied references (a decision, never only colours);
     - a thesis (`manifesto`);
     - a palette in role order;
     - two faces;
@@ -48,7 +51,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
     - a concrete `picture`;
     - a `layout`.
 
-    It renders each as a first-viewport comp at real size. The critic ranks the comps (`critic_prepare kind "directions"` → Agent `drip:critic` → `critic_record`). The user picks (`board_open` → AskUserQuestion → `board_choose`).
+    It renders each as a first-viewport comp at real size. The critic ranks the comps (`critic_prepare kind "directions"` → Agent `drip:critic` → `critic_record`). The weak ones are dropped; show the user the two strongest comps as images and let them pick (AskUserQuestion → `board_choose`). No moodboard page unless they ask for one (`board_open`). After the pick comes the design system: DESIGN.md and tokens, and on a big project (several pages, an app, many components) a living system page (`drip_kit template "system"`).
 15. Redo a comp before showing it if any of these is true:
     - it could be any brand's hero;
     - the picture isn't the subject's real thing;
@@ -77,7 +80,9 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 22. Run `drip_kit`, fill in the faces and colours, and write a DESIGN.md of about 150 words: THESIS, WORLD, STORY, FIRST VIEWPORT (h1 px and columns, picture columns and px height, where the action sits), SIGNATURE, REFUSES. Then `drip_mark system`.
 
 ## Plan the page
-23. Plan 6-9 sections, hero and footer included. Write one line per section: its id, its one idea, its picture (what kind and where it comes from), its mass, and how the thesis shows there.
+23. Plan 6-9 sections, hero and footer included. Write one line per section: its id, its one idea, the reference move it borrows (which studied page, which decision), its picture (what kind and which tool or file makes it), its mass, and how the thesis shows there. No two neighbouring sections share a layout; three sections on one layout is a template.
+    - **Eye candy, planned:** two or three moments people will screenshot, each taken from a reference: a visualisation built in code from real data, a bento of live product UI, an interactive demo, a scroll or hover reveal with a reason, a big footer (wordmark, sitemap, a last call to action). Not every section is text beside a picture: vary the form.
+    - **Where the parts come from:** `components_find` for the interactive and eye-candy pieces (galleries, bentos, prompt boxes, pricing, footers, charts) and build on the best one; a picture source for each picture (`images_search` with Imageory first, `art_generate`, `shader_hero`, `mockup_render` for screens, the user's own files). A gate asks for both before UI is written.
 24. Every section has mass. A heading plus a paragraph is not a section: merge it or give it a picture. Mass is one of:
     - a visual 360px or taller;
     - a set of 3-4 across the width;
@@ -129,7 +134,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 36. Fade-up on every section; parallax on text; scroll-jacking; a marquee by reflex.
 
 ## Finish
-37. `fitcheck_shot({ url })` shoots the whole page at 1440 and 390 and runs the page gate. It blocks on any of these:
+37. Re-checks while fixing: `fitcheck_shot({ numbersOnly: true })` or `section: "#id"` (no screenshots, a fraction of the time and context). The full shot is for the page gate: `fitcheck_shot({ url })` shoots the whole page at 1440 and 390 and runs the page gate. It blocks on any of these:
     - text covered by a shape drawn over it;
     - more than 7 sizes or 2 families;
     - more than 10% mono;

@@ -6,14 +6,14 @@ import path from "node:path";
 import { z } from "zod";
 import { imageBlock, textBlock } from "../../core/images.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
-import { lookup, resolve } from "../../core/seen.mjs";
-import { actor, lastCritique, loadState, updateState } from "../../core/state.mjs";
+import { lookup, resolve, siteKey } from "../../core/seen.mjs";
+import { actor, lastCritique, loadState, missingBeforeUi, updateState } from "../../core/state.mjs";
 import { renderHtml, renderUrl } from "../../core/render.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { pathToFileURL } from "node:url";
 import { readGuide } from "../../core/guides.mjs";
 import { approveDirection, recordFeedback, writeProjectSkill } from "../../core/memory.mjs";
-import { facesOf, isOverused, recentLooks, recordLook, sameFace, samePalette } from "../../core/looks.mjs";
+import { colourDistance, facesOf, isOverused, recentLooks, recordLook, sameFace, samePalette } from "../../core/looks.mjs";
 import { COMP, tileHtml } from "./tile.mjs";
 import { screenshot } from "../fitcheck/chrome.mjs";
 import { typeIssues } from "../../core/cdp.mjs";
@@ -101,7 +101,16 @@ export function groundingGate(directions, task, live, config) {
   const studied = task.refs?.studied || [];
   if (!studied.some((x) => x.role)) return null; // older tasks without roles
   const roleOf = new Map(studied.map((x) => [x.key, x.role]));
-  const keyOf = (r) => (/^\d+$/.test(r) && live[+r - 1] ? live[+r - 1].key : r);
+  const keyOf = (r) => {
+    const v = String(r).trim();
+    if (/^\d+$/.test(v) && live[+v - 1]) return live[+v - 1].key;
+    if (/^https?:\/\//i.test(v)) return siteKey(v);
+    try {
+      return resolve(v);
+    } catch {
+      return v;
+    }
+  };
   const problems = [];
   for (const d of directions) {
     const roles = new Set(d.items.map(keyOf).map((k) => roleOf.get(k)).filter(Boolean));
@@ -109,6 +118,38 @@ export function groundingGate(directions, task, live, config) {
       problems.push(`"${d.name}" needs at least one studied style reference and one studied page or competitor reference in its items (it has: ${[...roles].join(", ") || "none"})`);
   }
   return problems.length ? `Directions not saved: each one builds on what you studied.\n- ${problems.join("\n- ")}\nUse the board numbers of studied references (board_read lists them).` : null;
+}
+
+/** Several pages, an app surface, or many components: worth a living design-system page. */
+function bigProject() {
+  const task = loadState().task;
+  if (["app", "mobile"].includes(task?.surface)) return true;
+  if ((task?.components?.count || 0) >= 20) return true;
+  try {
+    const root = projectDir();
+    const pages = fs.readdirSync(root).filter((f) => /\.html?$/i.test(f)).length;
+    return pages >= 3 || ["app", "pages", path.join("src", "pages")].some((d) => fs.existsSync(path.join(root, d)));
+  } catch {
+    return false;
+  }
+}
+
+/** A fresh redesign must not quietly keep the old site's faces or colours (task.before.brand, from refs_site before: true). */
+export function oldLookGate(directions, task) {
+  if (task?.brief?.redesign !== "fresh" || !task.before?.brand) return null;
+  const b = task.before.brand;
+  const hexes = [...(b.backgrounds || []), ...(b.textColors || [])].map((x) => (Array.isArray(x) ? x[0] : typeof x === "object" ? x?.hex || x?.color : x)).filter((x) => typeof x === "string" && x.startsWith("#"));
+  const oldFaces = (b.fonts || []).map(String);
+  const problems = [];
+  for (const d of directions) {
+    const keptFace = facesOf(d.type).find((f) => oldFaces.some((o) => sameFace(o, f)));
+    if (keptFace) problems.push(`"${d.name}" keeps the old site's face ${keptFace}`);
+    const ground = d.palette[0];
+    const accent = d.palette[2];
+    const near = (c) => c && hexes.some((h) => colourDistance(h, c) < 45);
+    if (near(ground) && near(accent)) problems.push(`"${d.name}" keeps the old site's ground ${ground} and accent ${accent}`);
+  }
+  return problems.length ? `The user asked for a completely fresh look, so the old site's look is out (keep only the logo and the real product material):\n- ${problems.join("\n- ")}` : null;
 }
 
 export function register(server, ctx) {
@@ -338,7 +379,7 @@ export function register(server, ctx) {
     {
       title: "Group the board into directions",
       description:
-        "Deal 3 directions that are different IDEAS, not one idea in different colours: each a different answer to the brief (what the page is about, how the first screen works), with the references it builds on, its palette in role order (ground, ink, accent, support), two faces, and the hero it implies. The critic ranks them; the weak ones are dropped and the user sees the best two. Before writing them, Read the gold page closest to this one (drip_guide examples/gold) and say what your best direction takes from its decisions. " +
+        "Deal 3 directions that are different IDEAS, not one idea in different colours: each a different answer to the brief (what the page is about, how the first screen works), with the references it builds on, its palette in role order (ground, ink, accent, support), two faces, and the hero it implies. At least one must break something structural (the page's form, the medium: a scene, a product in its real context, 3D; or, in a redesign, the current brand), not only light vs dark. The critic ranks them; the weak ones are dropped and the user sees the best two. Before writing them, Read the gold page closest to this one (drip_guide examples/gold) and say what your best direction takes from its decisions. " +
         "Renders each as a first-viewport comp at 1440x900 with the real headline, sentence and action (playbook P8-P16). Replaces previous directions. " +
         "On a master board whose direction is already approved this only proposes: the approved one stays until the user approves a change.",
       inputSchema: {
@@ -353,6 +394,10 @@ export function register(server, ctx) {
               typeReason: z.string().optional().describe("Why these faces fit this subject (required for overused faces such as Fraunces, Instrument Serif, Bricolage Grotesque, Syne, Satoshi)"),
               idea: z.string().min(12).describe("The idea in one line, as different from the other directions' ideas as possible: 'the product as a technical drawing being annotated live', 'a lab notebook: the research pages are the page', 'a toy catalogue: the walker in play at full bleed'"),
               refuses: z.string().optional().describe("What this direction refuses that another one keeps"),
+              takes: z
+                .array(z.object({ ref: z.string().describe("A studied reference: its board number, listing number (L3-7) or site URL"), what: z.string().min(12).describe("The decision you take: a composition, a section idea, an interaction, a type move. Never only its colours") }))
+                .min(2)
+                .describe("What this direction takes from which studied references (at least one style, and one page or competitor). The comp must visibly show each"),
               manifesto: z.string().optional().describe("The thesis: the idea this page owns and the category default it refuses, plus the physical scene (who, where, what light)"),
               pairing: z.string().optional().describe("What it borrows ambition or discipline from (a working web world), never a poster's clothes"),
               headline: z.string().optional().describe("The real headline for this direction's comp (8 words or fewer)"),
@@ -375,10 +420,21 @@ export function register(server, ctx) {
       const min = ctx.config().gates.minBoardItems;
       if (live.length < min) return text(`The board has ${live.length} items; collect at least ${min} studied references before forming directions.`, true);
       const keyOf = (r) => (/^\d+$/.test(r) && live[+r - 1] ? live[+r - 1].key : r);
-      const fresh = freshLooksGate(directions, loadState().task, ctx.config());
-      if (fresh) return text(fresh, true);
-      const grounding = groundingGate(directions, loadState().task, live, ctx.config());
-      if (grounding) return text(grounding, true);
+      // Every reason at once, not one per attempt.
+      const st0 = loadState().task;
+      const refusals = [];
+      // References come first: a comp written before they're studied ignores them, and a search afterwards only passes a gate.
+      if (st0 && st0.size === "full" && !st0.skipped && ctx.config().gates.enforce) {
+        const refsLeft = missingBeforeUi(st0, ctx.config()).filter((m) => /references|real examples/.test(m.need));
+        if (refsLeft.length) refusals.push(`Study the references before the directions: ${refsLeft.map((m) => m.how).join(" · ")}. Directions are built from what you studied, not justified by it afterwards.`);
+      }
+      const fresh = freshLooksGate(directions, st0, ctx.config());
+      if (fresh) refusals.push(fresh);
+      const grounding = groundingGate(directions.map((d) => ({ ...d, items: [...d.items, ...(d.takes || []).map((t) => t.ref)] })), st0, live, ctx.config());
+      if (grounding) refusals.push(grounding);
+      const stale = oldLookGate(directions, st0);
+      if (stale) refusals.push(stale);
+      if (refusals.length) return text(refusals.join("\n\n"), true);
       const board = updateBoard(
         b0.id,
         (b) => {
@@ -542,8 +598,11 @@ export function register(server, ctx) {
         `${note}${status}Direction locked: "${d.name}" — ${d.summary}\nAdjectives: ${d.adjectives.join(", ")} · Palette: ${d.palette.join(" ")} · Type: ${d.type}\n\n` +
           (task?.mode === "logo"
             ? "NEXT: refine the chosen concept in black first, then logo_test, then the critic."
-            : "NEXT: drip_kit, then fill in the faces (fonts_pair / fonts_preview with the real headline) and colour roles (palette_check), write DESIGN.md, drip_mark system. " +
-              "Then plan the sections and build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook, again, because these numbers are the job:\n\n" +
+            : "NEXT: the DESIGN SYSTEM, now that the direction is approved. drip_kit (tokens), fill in the faces (fonts_compare with the real headline) and colour roles (palette_check), write DESIGN.md, drip_mark system. " +
+              (bigProject()
+                ? 'This project is big (several pages, an app, or many components): also drip_kit({ template: "system" }) and fill the living system page (type roles, colours, spacing, buttons, inputs, cards, the signature components) so every later page builds from it. '
+                : 'When the project grows past one page, offer the user a living system page (drip_kit template "system"). ') +
+              "Then plan the page by what matters (what will the user be excited to see?), its eye-candy moments, and where each part comes from (components_find, a picture source); build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook:\n\n" +
               buildHalf),
       );
     }),

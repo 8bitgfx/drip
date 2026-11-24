@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design system</title>
+<!-- The living design system: every value on this page comes from the project's tokens, so it never drifts.
+     SET the path to the project's drip-base.css (drip_kit) and the faces' font link. Add a specimen for every component the
+     pages use (the prompt box, the cards, the pricing table, the footer): build them here first, then reuse them on every page. -->
+<link rel="stylesheet" href="./drip-base.css">
+<style>
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-text); }
+  .sys { width: min(100% - 2 * var(--gutter, 24px), 1312px); margin: 0 auto; padding: 96px 0; }
+  .sys h2 { font-family: var(--font-display); font-size: var(--t-section); margin: 96px 0 24px; }
+  .sys .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; }
+  .swatch { width: 168px; } .swatch b { display: block; height: 112px; border-radius: var(--radius, 12px); border: 1px solid var(--line); }
+  .swatch span { display: block; font-size: var(--t-small); margin-top: 8px; color: var(--ink-soft); }
+  .role { display: grid; grid-template-columns: 160px 1fr; gap: 24px; align-items: baseline; padding: 16px 0; border-top: 1px solid var(--line); }
+  .role small { color: var(--ink-soft); font-size: var(--t-small); }
+  .space { display: flex; align-items: flex-end; gap: 16px; } .space i { display: block; background: var(--accent); }
+  .specimen { border: 1px solid var(--line); border-radius: var(--radius, 12px); padding: 32px; margin: 16px 0; }
+</style>
+</head>
+<body>
+<main class="sys">
+  <p class="label">[Brand name] · design system</p>
+  <h1 class="display">[The thesis in one line]</h1>
+  <p class="lead">[What this system is for, who it serves, what it refuses.]</p>
+
+  <h2>Colour roles</h2>
+  <div class="row" id="colours"></div>
+
+  <h2>Type roles</h2>
+  <div id="type"></div>
+
+  <h2>Spacing</h2>
+  <div class="space" id="space"></div>
+
+  <h2>Components</h2>
+  <!-- One specimen per component, in every state that matters (default, hover, focus, disabled, empty, loading). -->
+  <div class="specimen"><a class="button" href="#">Primary action</a></div>
+  <div class="specimen">[Your signature component: the thing people will screenshot]</div>
+</main>
+<script>
+  const css = getComputedStyle(document.documentElement);
+  const v = (n) => css.getPropertyValue(n).trim();
+  for (const n of ["--ground", "--ink", "--ink-soft", "--accent", "--on-accent", "--band", "--on-band", "--line"]) {
+    if (!v(n)) continue;
+    document.getElementById("colours").insertAdjacentHTML("beforeend", `<div class="swatch"><b style="background:var(${n})"></b><span>${n} · ${v(n)}</span></div>`);
+  }
+  const roles = [["--t-display", "Display", "var(--font-display)"], ["--t-statement", "Statement", "var(--font-display)"], ["--t-section", "Section", "var(--font-display)"], ["--t-item", "Item", "var(--font-text)"], ["--t-lead", "Lead", "var(--font-text)"], ["--t-body", "Body", "var(--font-text)"], ["--t-small", "Small", "var(--font-text)"]];
+  for (const [n, label, face] of roles) {
+    if (!v(n)) continue;
+    document.getElementById("type").insertAdjacentHTML("beforeend", `<div class="role"><small>${label}<br>${v(n)}</small><div style="font:${n === "--t-display" || n === "--t-statement" || n === "--t-section" ? "var(--w-display, 700)" : "400"} var(${n})/1.1 ${face}">The quick brown fox</div></div>`);
+  }
+  for (const s of [4, 8, 12, 16, 24, 32, 48, 64, 96, 128]) document.getElementById("space").insertAdjacentHTML("beforeend", `<div><i style="width:${s}px;height:${s}px"></i><small>${s}</small></div>`);
+</script>
+</body>
+</html>

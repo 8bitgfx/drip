@@ -114,6 +114,11 @@ export function intakePlan(taskText, t = {}) {
   else open.push("FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus \"Surprise me (bold)\"");
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t.mode) || t.surface === "readme") answered.push("audience and action (clear enough from the request)");
   else open.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
+  // A redesign of a weak site must not inherit its look by accident: ask once whether to keep the brand or start fresh.
+  if (/(redesign|rework|refresh|revamp|redo)/i.test(taskText) || /[a-z0-9-]+\.[a-z]{2,}/i.test(taskText)) {
+    if (/\b(sucks|ugly|terrible|awful|bad|hate|outdated|dated|boring|basic|cheap|from scratch|fresh|start over|completely new)\b/i.test(taskText)) answered.push("redesign scope: a completely fresh look (the user called the current one bad): drip_brief redesign \"fresh\"");
+    else open.unshift('REDESIGN SCOPE: "Keep the brand (logo, colours, fonts), fix the page" / "Completely fresh look (keep only the logo and real material)" / "Evolve: same brand, bolder"; record it as drip_brief redesign');
+  }
   const max = has(DECIDE) ? 0 : Math.min(open.length, 2);
   return { open, answered, max };
 }
@@ -160,7 +165,7 @@ function refPlan(task, surface, mode) {
     return (
       "REFERENCE PLAN: three roles, each its own searches (never mix a style word into a subject search). Set role on every refs_study. " +
       (redesign ? "First refs_site({ urls: [<the current site>], before: true }) (role \"before\") and name what the product is in 1-2 words. " : "") +
-      `1) COMPETITORS (role "competitor"): name the 3-4 products people compare this with (direct rivals and the best-designed similar tools) and refs_site their shipped sites. ` +
+      `1) COMPETITORS (role "competitor"): name the 3-4 products people compare this with (direct rivals and the best-designed similar tools) and refs_site their shipped sites with screens: 4 (the lower sections are where pages differ). ` +
       `2) THE PAGE (role "page"): the same kind of page you're making: refs_search("${subj} ${pageKind}"), refs_tag "${pageKind}", refs_gallery({ query: "${subj}" }). ` +
       "3) STYLE (role \"style\"): the look you're aiming for, from the brief's feel: refs_search / refs_tag / refs_gallery with style words only (\"playful 3d\", \"brutalist\", \"editorial dark\"). " +
       "Never docs, wikis or GitHub pages. Each direction later names which style and page references it builds on."
@@ -290,7 +295,7 @@ export function register(server, ctx) {
         "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" }). " +
         "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills), \"readme-art\" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).",
       inputSchema: {
-        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art"]).optional().describe("Default base-css"),
+        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system"]).optional().describe("Default base-css"),
         out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; assets/readme/src/readme-art.mjs)"),
         overwrite: z.boolean().optional(),
       },
@@ -299,16 +304,18 @@ export function register(server, ctx) {
       const root = projectDir();
       if (template === "base-css" && loadState().task?.surface === "readme")
         return text("GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: \"readme-art\" }), render it with render_html (scale 2), and check it with readme_check.", true);
-      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs" };
-      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs" };
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html" };
+      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs.existsSync(path.join(root, "src")) ? "src/styles/system.html" : "styles/system.html" };
       const rel = out || DEF[template];
       const dest = path.resolve(root, rel);
       if (fs.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
       fs.mkdirSync(path.dirname(dest), { recursive: true });
       fs.copyFileSync(path.join(kitDir, SRC[template]), dest);
+      if (template === "design-md") updateState((st) => st.task && (st.task.designDoc = rel));
       if (template === "design-md") return text(`Wrote ${rel}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
       if (template === "comp") return text(`Wrote ${rel}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
       if (template === "readme-art") return text(`Wrote ${rel}: a TEMPLATE (greys, [bracketed] copy, dashed art slots). Set the CHANGE ME tokens to the brand, replace every [bracket] and slot with real words and objects, then run node ${rel}. It writes hero.png and bento-light/dark.png next to its folder. Guide: drip_guide readme/art.`);
+      if (template === "system") return text(`Wrote ${rel}: the living design system. It reads every colour, type role and spacing step from the project's drip-base.css (set the link at the top if it lives elsewhere), so it never drifts. Add a specimen for every component the pages use, in its states, and build them here first. Shoot it with fitcheck_shot to check it.`);
       if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +
@@ -335,6 +342,7 @@ export function register(server, ctx) {
         constraints: z.string().optional(),
         assumptions: z.string().optional().describe("What you assumed without asking"),
         asked: z.number().int().min(0).max(4).optional().describe("How many questions you asked (drip_start gives the cap; often 0-2)"),
+        redesign: z.enum(["fresh", "keep-brand", "evolve"]).optional().describe("For a redesign: fresh = ignore the current site's look and the repo's design rules (keep only the logo and real material); keep-brand = keep logo, colours and fonts; evolve = same brand, bolder"),
       },
     },
     async (brief) => {
@@ -347,6 +355,11 @@ export function register(server, ctx) {
         `Brief recorded: ${b.what} · for ${b.audience} · feel: ${b.feel.join(", ")} · ambition: ${b.ambition}.\n` +
           (st.task.intake && b.asked > st.task.intake.max ? `You asked ${b.asked} questions; this request needed at most ${st.task.intake.max}. Next time ask only what the request and the project leave open.
 ` : "") +
+          (b.redesign === "fresh"
+            ? "FRESH LOOK: the current site's palette, fonts and layout are out, and so are the repo's DESIGN.md, tokens and approved project direction. The before shot is evidence of what to leave behind, never a style reference. Keep only the logo and the product's real material (screens, photos, numbers).\n"
+            : b.redesign === "keep-brand"
+              ? "KEEP THE BRAND: logo, colours and fonts stay; everything else (layout, hierarchy, pictures, sections) is open.\n"
+              : "") +
           (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") +
           `${nextStep(st.task, ctx.config())}`,
       );

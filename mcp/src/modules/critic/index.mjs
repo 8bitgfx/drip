@@ -201,7 +201,7 @@ export function register(server, ctx) {
       if (kind !== "pack" && !files.length) return text("Nothing to judge: pass targets (URLs or files).", true);
 
       const rubric = (task?.packs || []).map((p) => readPackFile(p, "critic.md")).filter(Boolean).join("\n\n");
-      const doc = kind === "build" || kind === "any" ? designDoc() : null;
+      const doc = kind === "build" || kind === "any" ? designDoc(projectDir(), task) : null;
       // The project's approved direction and the rules the user approved: the critic judges against them, and a fix that
       // would break one is labelled [OFF-DIRECTION] (it never lowers Fit or System), like a DESIGN.md rule.
       const memory = kind === "build" || kind === "any" || kind === "directions" ? projectContext({ task, maxChars: 1500 }) : null;
@@ -320,7 +320,7 @@ export function register(server, ctx) {
       const next =
         rec.verdict === "pass"
           ? rec.kind === "directions"
-            ? "NEXT: board_open and present the ranking + your pick to the user (buttons)."
+            ? "NEXT: show the user the two strongest comps (Read the tile images and present them side by side, with the critic's ranking and your pick), ask them to choose with buttons, then board_choose. No moodboard page unless they ask (board_open)."
             : rec.kind === "build"
               ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)."
               : "NEXT: continue."

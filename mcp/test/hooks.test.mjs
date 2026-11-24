@@ -91,6 +91,7 @@ test("full task blocks until guides, references and direction are done", () => {
   assert.match(tasteOnly.hookSpecificOutput.permissionDecisionReason, /competitor references/);
   task.refs.studied.push({ key: "site:linear.app", role: "competitor", designer: "linear.app", onSurface: true }, { key: "site:height.app", role: "competitor", designer: "height.app", onSurface: true });
   task.refs.studied.push({ key: "site:stripe.com", role: "page", designer: "stripe.com", onSurface: true }, { key: "site:vercel.com", role: "page", designer: "vercel.com", onSurface: true });
+  task.toolUse = { components_find: 1, images_search: 1 }; // the parts' sources were searched
   task.critic.records = [];
   task.board = { id: "b", items: 9, directions: 2, chosen: "Terminal Calm" };
   task.critic.records.push({ kind: "directions", verdict: "pass", summary: "ok", at: new Date().toISOString() });

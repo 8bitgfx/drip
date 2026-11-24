@@ -9,7 +9,13 @@ import { projectDir } from "./paths.mjs";
 const DESIGN_MD = ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md", "docs/design/DESIGN.md", ".drip/DESIGN.md"];
 
 /** The project's DESIGN.md (the locked direction and system), or null. */
-export function designDoc(cwd = projectDir()) {
+export function designDoc(cwd = projectDir(), task = null) {
+  // The task's own DESIGN.md first (drip_kit records where it wrote it), then one beside the files the task wrote.
+  const own = [task?.designDoc, ...new Set((task?.uiWrites || []).map((w) => path.join(path.dirname(path.relative(cwd, path.resolve(cwd, w.file))), "DESIGN.md")))].filter(Boolean);
+  for (const rel of own) {
+    const f = path.resolve(cwd, rel);
+    if (fs.existsSync(f)) return { file: f, rel: path.relative(cwd, f), text: fs.readFileSync(f, "utf8") };
+  }
   for (const rel of DESIGN_MD) {
     const f = path.join(cwd, rel);
     if (fs.existsSync(f)) return { file: f, rel, text: fs.readFileSync(f, "utf8") };

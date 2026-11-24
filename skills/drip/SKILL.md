@@ -6,17 +6,20 @@ user-invocable: false
 
 # Drip
 
-**0. Load the tools.** In Codex, use the `drip_start`, `drip_brief`, `drip_status` and `drip_guide` tools from the Drip MCP server. If they are missing, check whether Drip is installed and start a new session. In Claude Code the tools are deferred: ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide`. Load others when a step needs them (`+drip refs`, `+drip board`, `+drip critic`, `+drip fitcheck`, `+drip kit`, `+drip logo`, `+drip execute` for Code Mode). If nothing loads, tell the user to reconnect `plugin:drip:drip` in `/mcp`, and stop.
+**0. Load the tools.** In Codex, use the `drip_start`, `drip_brief`, `drip_status` and `drip_guide` tools from the Drip MCP server (and the others as steps need them). If they are missing, check whether Drip is installed and start a new session. In Claude Code they are deferred: load them in ONE call, ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_guide,mcp__plugin_drip_drip__refs_site,mcp__plugin_drip_drip__refs_search,mcp__plugin_drip_drip__refs_tag,mcp__plugin_drip_drip__refs_gallery,mcp__plugin_drip_drip__refs_view,mcp__plugin_drip_drip__refs_study,mcp__plugin_drip_drip__board_create,mcp__plugin_drip_drip__board_directions,mcp__plugin_drip_drip__board_tile,mcp__plugin_drip_drip__board_choose,mcp__plugin_drip_drip__critic_prepare,mcp__plugin_drip_drip__critic_record,mcp__plugin_drip_drip__drip_kit,mcp__plugin_drip_drip__fonts_compare,mcp__plugin_drip_drip__palette_check,mcp__plugin_drip_drip__components_find,mcp__plugin_drip_drip__images_search,mcp__plugin_drip_drip__fitcheck_shot,mcp__plugin_drip_drip__fitcheck_done,mcp__plugin_drip_drip__drip_end`. One call, not fifteen; load others only when a step needs them (`+drip logo`, `+drip execute` for Code Mode). If nothing loads, tell the user to reconnect `plugin:drip:drip` in `/mcp`, and stop.
 
-**1. `drip_start`** with the request. It picks the mode (design · logo · refs · board · polish) and returns the one guide you need in full: the **playbook** for pages, the logo guide for logos. Read it once, properly; it is short because every line is load-bearing. Then follow its NEXT line. Lost? `drip_status`.
+**1. `drip_start`** with the request. It picks the mode (design · logo · refs · board · polish) and returns what you need now; the rest arrives when it is used.
 
-**The page loop** (about 25 calls):
-1. Intake: one question round, material first → `drip_brief`.
-2. Look: `refs_site` on 3-4 shipped sites → `refs_study`, both batched.
-3. Directions: `board_create` → `board_directions` (2 first-viewport comps) → critic ranks → `board_open` → user picks → `board_choose`.
-4. System: `drip_kit` → DESIGN.md → `drip_mark system`.
-5. Hero first: nav + hero → `fitcheck_shot({ hero: true })`.
-6. Sections in plan order → `fitcheck_shot` (the page gate) → the critic once, plus one confirming round → `fitcheck_done` → `drip_end`.
+**Always ask: what matters here?** What does the user want, and what will they be excited to see? Put the effort there (the product working, the real work big, a visualisation, an interaction, a great footer) and skip trivia nobody looks at. Think creatively; take decisions from the references, never their surface.
+
+**The page loop:**
+1. Intake: only what the request leaves open (often nothing) → `drip_brief`. A redesign of a weak site: fresh look or keep the brand.
+2. References by role BEFORE any comp: competitors (their shipped sites), the same kind of page, the style you aim for. Scouts can do this in Swarm Mode.
+3. Directions: 3 different ideas, each saying what it takes from which reference → critic ranks, weak ones dropped → show the user the two best comps → `board_choose`.
+4. Design system (after the pick): `drip_kit` → DESIGN.md; on a big project a living system page (`drip_kit template "system"`).
+5. Plan: what matters, two or three eye-candy moments, `components_find` and a picture source for the parts.
+6. Hero first → `fitcheck_shot({ hero: true })`; re-checks with `numbersOnly`.
+7. Sections → `fitcheck_shot` (the page gate) → the critic → `fitcheck_done` → `drip_end`.
 
 **Tools that save time** (load with `+drip <name>` in Claude Code):
 - **Code Mode:** `drip_search` returns tool signatures; `drip_execute` runs one sandboxed script of `await drip.<tool>(args)` calls. Use it whenever you'd make 5+ calls in a row (compare palettes and font pairs, study several sites, check several pages) and return only what matters.

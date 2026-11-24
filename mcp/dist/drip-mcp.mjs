@@ -17862,15 +17862,15 @@ var require_deflate = __commonJS({
       if (!strm) {
         return Z_STREAM_ERROR;
       }
-      var wrap4 = 1;
+      var wrap5 = 1;
       if (level === Z_DEFAULT_COMPRESSION) {
         level = 6;
       }
       if (windowBits < 0) {
-        wrap4 = 0;
+        wrap5 = 0;
         windowBits = -windowBits;
       } else if (windowBits > 15) {
-        wrap4 = 2;
+        wrap5 = 2;
         windowBits -= 16;
       }
       if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method !== Z_DEFLATED || windowBits < 8 || windowBits > 15 || level < 0 || level > 9 || strategy < 0 || strategy > Z_FIXED) {
@@ -17882,7 +17882,7 @@ var require_deflate = __commonJS({
       var s2 = new DeflateState();
       strm.state = s2;
       s2.strm = strm;
-      s2.wrap = wrap4;
+      s2.wrap = wrap5;
       s2.gzhead = null;
       s2.w_bits = windowBits;
       s2.w_size = 1 << s2.w_bits;
@@ -18175,7 +18175,7 @@ var require_deflate = __commonJS({
       var dictLength = dictionary.length;
       var s2;
       var str, n3;
-      var wrap4;
+      var wrap5;
       var avail;
       var next;
       var input2;
@@ -18184,16 +18184,16 @@ var require_deflate = __commonJS({
         return Z_STREAM_ERROR;
       }
       s2 = strm.state;
-      wrap4 = s2.wrap;
-      if (wrap4 === 2 || wrap4 === 1 && s2.status !== INIT_STATE || s2.lookahead) {
+      wrap5 = s2.wrap;
+      if (wrap5 === 2 || wrap5 === 1 && s2.status !== INIT_STATE || s2.lookahead) {
         return Z_STREAM_ERROR;
       }
-      if (wrap4 === 1) {
+      if (wrap5 === 1) {
         strm.adler = adler32(strm.adler, dictionary, dictLength, 0);
       }
       s2.wrap = 0;
       if (dictLength >= s2.w_size) {
-        if (wrap4 === 0) {
+        if (wrap5 === 0) {
           zero(s2.head);
           s2.strstart = 0;
           s2.block_start = 0;
@@ -18233,7 +18233,7 @@ var require_deflate = __commonJS({
       strm.next_in = next;
       strm.input = input2;
       strm.avail_in = avail;
-      s2.wrap = wrap4;
+      s2.wrap = wrap5;
       return Z_OK;
     }
     exports.deflateInit = deflateInit;
@@ -19253,17 +19253,17 @@ var require_inflate = __commonJS({
       return inflateResetKeep(strm);
     }
     function inflateReset2(strm, windowBits) {
-      var wrap4;
+      var wrap5;
       var state;
       if (!strm || !strm.state) {
         return Z_STREAM_ERROR;
       }
       state = strm.state;
       if (windowBits < 0) {
-        wrap4 = 0;
+        wrap5 = 0;
         windowBits = -windowBits;
       } else {
-        wrap4 = (windowBits >> 4) + 1;
+        wrap5 = (windowBits >> 4) + 1;
         if (windowBits < 48) {
           windowBits &= 15;
         }
@@ -19274,7 +19274,7 @@ var require_inflate = __commonJS({
       if (state.window !== null && state.wbits !== windowBits) {
         state.window = null;
       }
-      state.wrap = wrap4;
+      state.wrap = wrap5;
       state.wbits = windowBits;
       return inflateReset(strm);
     }
@@ -62051,7 +62051,7 @@ function putProp(target, key, value) {
   else
     target[key] = value;
 }
-function mirrorShape(target, source, keys, wrap4) {
+function mirrorShape(target, source, keys, wrap5) {
   const raw = sourceShape(source);
   for (const key of keys) {
     const desc = Object.getOwnPropertyDescriptor(raw, key);
@@ -62060,10 +62060,10 @@ function mirrorShape(target, source, keys, wrap4) {
     if (desc.get) {
       deferProp(target, key, () => {
         const value = source._zod.def.shape[key];
-        return wrap4 ? wrap4(value, key) : value;
+        return wrap5 ? wrap5(value, key) : value;
       });
     } else
-      putProp(target, key, wrap4 ? wrap4(desc.value, key) : desc.value);
+      putProp(target, key, wrap5 ? wrap5(desc.value, key) : desc.value);
   }
 }
 function mirrorProps(target, source) {
@@ -87151,7 +87151,12 @@ import fs3 from "node:fs";
 import os2 from "node:os";
 import path3 from "node:path";
 var DESIGN_MD = ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md", "docs/design/DESIGN.md", ".drip/DESIGN.md"];
-function designDoc(cwd = projectDir()) {
+function designDoc(cwd = projectDir(), task = null) {
+  const own2 = [task?.designDoc, ...new Set((task?.uiWrites || []).map((w) => path3.join(path3.dirname(path3.relative(cwd, path3.resolve(cwd, w.file))), "DESIGN.md")))].filter(Boolean);
+  for (const rel3 of own2) {
+    const f3 = path3.resolve(cwd, rel3);
+    if (fs3.existsSync(f3)) return { file: f3, rel: path3.relative(cwd, f3), text: fs3.readFileSync(f3, "utf8") };
+  }
   for (const rel3 of DESIGN_MD) {
     const f3 = path3.join(cwd, rel3);
     if (fs3.existsSync(f3)) return { file: f3, rel: rel3, text: fs3.readFileSync(f3, "utf8") };
@@ -87582,12 +87587,20 @@ function missingBeforeUi(task, config2) {
       const names3 = reworkNames(dc);
       missing.push({
         need: "direction",
-        how: `the critic said ${dc.verdict.toUpperCase()} on the directions (${String(dc.summary || "").slice(0, 160)}). Rework ${names3 || "the weak directions"}${dc.fixes?.length ? ` (${String(dc.fixes[0]).slice(0, 140)})` : ""}${dc.verdict === "reject" ? " into genuinely different ideas, not recolours" : ""}, then board_directions again with the reworked set, critic review again (critic_prepare kind 'directions' -> Agent drip:critic -> critic_record), board_open, board_choose`
+        how: `the critic said ${dc.verdict.toUpperCase()} on the directions (${String(dc.summary || "").slice(0, 160)}). Rework ${names3 || "the weak directions"}${dc.fixes?.length ? ` (${String(dc.fixes[0]).slice(0, 140)})` : ""}${dc.verdict === "reject" ? " into genuinely different ideas, not recolours" : ""}, then board_directions again with the reworked set, critic review again (critic_prepare kind 'directions' -> Agent drip:critic -> critic_record), show the user the two strongest comps, board_choose`
       });
     } else if (g.requireDirection && !task.board?.chosen)
-      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions (2 first-viewport comps), critic review, board_open, board_choose" });
+      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), show the user the two strongest comps (the tile images), then board_choose" : "board_create, board_directions (3 ideas, each with what it takes from which reference), critic review, show the user the two strongest comps, board_choose" });
     if (g.requireComponentSearch !== false && pageWork && task.components?.count > 0 && !task.components.search)
       missing.push({ need: "reuse", how: `this project already has ${task.components.count} components: components_local_find for what you're about to build (and components_plan for a page) before writing new ones` });
+    if (g.requireSources !== false && pageWork && task.board?.chosen && !task.board?.adopted) {
+      const used = task.toolUse || {};
+      const any2 = (re) => Object.keys(used).some((k) => re.test(k));
+      if (!any2(/^(components_|catalogue_)/))
+        missing.push({ need: "components", how: "components_find for the page's interactive and eye-candy pieces (a prompt box, a gallery or marquee, a bento, pricing, a footer, a chart): build on the best one found, or say why none fits" });
+      if (!any2(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
+        missing.push({ need: "pictures", how: "pick a picture source for each section that needs one: images_search (Imageory first), art_generate, shader_hero, mockup_render for screens, or the user's real files; never fill the product's place with a drawing you improvised" });
+    }
     if (g.requireCritic && task.board?.chosen && !task.board?.adopted && !lastCritique(task, "directions"))
       missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
   }
@@ -90210,6 +90223,10 @@ function intakePlan(taskText, t2 = {}) {
   else open2.push('FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus "Surprise me (bold)"');
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t2.mode) || t2.surface === "readme") answered.push("audience and action (clear enough from the request)");
   else open2.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
+  if (/(redesign|rework|refresh|revamp|redo)/i.test(taskText) || /[a-z0-9-]+\.[a-z]{2,}/i.test(taskText)) {
+    if (/\b(sucks|ugly|terrible|awful|bad|hate|outdated|dated|boring|basic|cheap|from scratch|fresh|start over|completely new)\b/i.test(taskText)) answered.push('redesign scope: a completely fresh look (the user called the current one bad): drip_brief redesign "fresh"');
+    else open2.unshift('REDESIGN SCOPE: "Keep the brand (logo, colours, fonts), fix the page" / "Completely fresh look (keep only the logo and real material)" / "Evolve: same brand, bolder"; record it as drip_brief redesign');
+  }
   const max = has(DECIDE) ? 0 : Math.min(open2.length, 2);
   return { open: open2, answered, max };
 }
@@ -90231,7 +90248,7 @@ function refPlan(task, surface, mode) {
     const redesign = /(redesign|rework|refresh|revamp)/i.test(task) || /[a-z0-9-]+\.[a-z]{2,}/i.test(task);
     const subj = words3 || "<what the product is, 1-2 words>";
     const pageKind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : "landing page";
-    return "REFERENCE PLAN: three roles, each its own searches (never mix a style word into a subject search). Set role on every refs_study. " + (redesign ? 'First refs_site({ urls: [<the current site>], before: true }) (role "before") and name what the product is in 1-2 words. ' : "") + `1) COMPETITORS (role "competitor"): name the 3-4 products people compare this with (direct rivals and the best-designed similar tools) and refs_site their shipped sites. 2) THE PAGE (role "page"): the same kind of page you're making: refs_search("${subj} ${pageKind}"), refs_tag "${pageKind}", refs_gallery({ query: "${subj}" }). 3) STYLE (role "style"): the look you're aiming for, from the brief's feel: refs_search / refs_tag / refs_gallery with style words only ("playful 3d", "brutalist", "editorial dark"). Never docs, wikis or GitHub pages. Each direction later names which style and page references it builds on.`;
+    return "REFERENCE PLAN: three roles, each its own searches (never mix a style word into a subject search). Set role on every refs_study. " + (redesign ? 'First refs_site({ urls: [<the current site>], before: true }) (role "before") and name what the product is in 1-2 words. ' : "") + `1) COMPETITORS (role "competitor"): name the 3-4 products people compare this with (direct rivals and the best-designed similar tools) and refs_site their shipped sites with screens: 4 (the lower sections are where pages differ). 2) THE PAGE (role "page"): the same kind of page you're making: refs_search("${subj} ${pageKind}"), refs_tag "${pageKind}", refs_gallery({ query: "${subj}" }). 3) STYLE (role "style"): the look you're aiming for, from the brief's feel: refs_search / refs_tag / refs_gallery with style words only ("playful 3d", "brutalist", "editorial dark"). Never docs, wikis or GitHub pages. Each direction later names which style and page references it builds on.`;
   }
   const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";
   return `REFERENCE PLAN: refs_site on 1-2 shipped products with a strong ${kind} (real screens, measured), then refs_tag "${kind}" and refs_search "${subject} ${kind}" category "product-design"; refs_view the 2-3 best in one call and refs_study them in one call. Refer to shots by their tagged number (L3-7).`;
@@ -90350,7 +90367,7 @@ ${b}`).join("\n\n")
       title: "Copy the base kit into the project",
       description: `Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: "src/styles/base.css" }). Other templates: template "design-md" (DESIGN.md skeleton the critic and fitcheck_lint check against), "comp" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), "brand-board" (the HTML board_brand fills), "readme-art" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).`,
       inputSchema: {
-        template: external_exports.enum(["base-css", "design-md", "comp", "brand-board", "readme-art"]).optional().describe("Default base-css"),
+        template: external_exports.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system"]).optional().describe("Default base-css"),
         out: external_exports.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; assets/readme/src/readme-art.mjs)"),
         overwrite: external_exports.boolean().optional()
       }
@@ -90359,16 +90376,18 @@ ${b}`).join("\n\n")
       const root = projectDir();
       if (template === "base-css" && loadState().task?.surface === "readme")
         return text('GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: "readme-art" }), render it with render_html (scale 2), and check it with readme_check.', true);
-      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs" };
-      const DEF = { "base-css": fs22.existsSync(path21.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs" };
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html" };
+      const DEF = { "base-css": fs22.existsSync(path21.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs22.existsSync(path21.join(root, "src")) ? "src/styles/system.html" : "styles/system.html" };
       const rel3 = out || DEF[template];
       const dest = path21.resolve(root, rel3);
       if (fs22.existsSync(dest) && !overwrite) return text(`${rel3} already exists. Pass overwrite: true to replace it, or edit it.`, true);
       fs22.mkdirSync(path21.dirname(dest), { recursive: true });
       fs22.copyFileSync(path21.join(kitDir, SRC[template]), dest);
+      if (template === "design-md") updateState((st) => st.task && (st.task.designDoc = rel3));
       if (template === "design-md") return text(`Wrote ${rel3}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
       if (template === "comp") return text(`Wrote ${rel3}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
       if (template === "readme-art") return text(`Wrote ${rel3}: a TEMPLATE (greys, [bracketed] copy, dashed art slots). Set the CHANGE ME tokens to the brand, replace every [bracket] and slot with real words and objects, then run node ${rel3}. It writes hero.png and bento-light/dark.png next to its folder. Guide: drip_guide readme/art.`);
+      if (template === "system") return text(`Wrote ${rel3}: the living design system. It reads every colour, type role and spacing step from the project's drip-base.css (set the link at the top if it lives elsewhere), so it never drifts. Add a specimen for every component the pages use, in its states, and build them here first. Shoot it with fitcheck_shot to check it.`);
       if (template === "brand-board") return text(`Wrote ${rel3}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel3}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then DESIGN.md and drip_mark system.`
@@ -90390,7 +90409,8 @@ ${b}`).join("\n\n")
         ambition: external_exports.enum(["bold", "balanced", "conservative"]).optional().describe("Default bold. Conservative ONLY if the user asked for plain / safe / corporate."),
         constraints: external_exports.string().optional(),
         assumptions: external_exports.string().optional().describe("What you assumed without asking"),
-        asked: external_exports.number().int().min(0).max(4).optional().describe("How many questions you asked (drip_start gives the cap; often 0-2)")
+        asked: external_exports.number().int().min(0).max(4).optional().describe("How many questions you asked (drip_start gives the cap; often 0-2)"),
+        redesign: external_exports.enum(["fresh", "keep-brand", "evolve"]).optional().describe("For a redesign: fresh = ignore the current site's look and the repo's design rules (keep only the logo and real material); keep-brand = keep logo, colours and fonts; evolve = same brand, bolder")
       }
     },
     async (brief) => {
@@ -90402,7 +90422,7 @@ ${b}`).join("\n\n")
       return text(
         `Brief recorded: ${b.what} \xB7 for ${b.audience} \xB7 feel: ${b.feel.join(", ")} \xB7 ambition: ${b.ambition}.
 ` + (st.task.intake && b.asked > st.task.intake.max ? `You asked ${b.asked} questions; this request needed at most ${st.task.intake.max}. Next time ask only what the request and the project leave open.
-` : "") + (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") + `${nextStep(st.task, ctx2.config())}`
+` : "") + (b.redesign === "fresh" ? "FRESH LOOK: the current site's palette, fonts and layout are out, and so are the repo's DESIGN.md, tokens and approved project direction. The before shot is evidence of what to leave behind, never a style reference. Keep only the logo and the product's real material (screens, photos, numbers).\n" : b.redesign === "keep-brand" ? "KEEP THE BRAND: logo, colours and fonts stay; everything else (layout, hierarchy, pictures, sections) is open.\n" : "") + (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") + `${nextStep(st.task, ctx2.config())}`
       );
     }
   );
@@ -99598,7 +99618,7 @@ var AUDIT = `(() => {
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
   secs = secs.filter((s) => !secs.some((o) => o !== s && o.contains(s)));
-  const sections = secs.map((s) => { const r = s.getBoundingClientRect(); const top = r.top + scrollY; const head = s.querySelector('h2, h3'); return { top: Math.round(top), h: Math.round(r.height), id: s.id || (head ? head.textContent.trim().slice(0, 30) : s.tagName.toLowerCase()), pic: pics.some((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160) }; }).filter((x) => x.top >= vh * 0.6);
+  const sections = secs.map((s) => { const r = s.getBoundingClientRect(); const top = r.top + scrollY; const head = s.querySelector('h2, h3'); return { top: Math.round(top), h: Math.round(r.height), id: s.id || (head ? head.textContent.trim().slice(0, 30) : s.tagName.toLowerCase()), pic: pics.some((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160), form: (() => { const big = pics.filter((p) => s.contains(p.el) && p.w >= 240 && p.h >= 160).sort((a, b) => b.w * b.h - a.w * a.h)[0]; if (!big) return 'text'; const br = big.el.getBoundingClientRect(); if (br.width > r.width * 0.8) return 'full'; const cx = (br.left + br.right) / 2 - r.left; return cx > r.width * 0.55 ? 'split-right' : cx < r.width * 0.45 ? 'split-left' : 'centre'; })() }; }).filter((x) => x.top >= vh * 0.6);
   const feet = [...document.querySelectorAll('footer')].filter((f) => visible(f) && f.getBoundingClientRect().height > 100 && !secs.some((o) => o.contains(f) || f.contains(o)));
   const sectionBoxes = secs.concat(feet).map((e) => { const r = e.getBoundingClientRect(); return { top: Math.round(r.top + scrollY), h: Math.round(r.height) }; }).filter((b) => b.h > 40).sort((a, b) => a.top - b.top);
   // How empty each screen is: share of its height with no text, control or picture.
@@ -99824,6 +99844,12 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
     const bad = a2.empty.map((e2, i2) => [i2 + 1, e2]).filter(([, e2]) => e2 > 0.5);
     if (bad.length) blockers.push(`screen(s) ${bad.map(([i2, e2]) => `${i2} (${Math.round(e2 * 100)}% empty)`).join(", ")}: more than half empty. Bigger content or a picture, never padding`);
     else if (a2.empty.some((e2) => e2 > 0.4)) warnings.push(`some screens are over 40% empty: ${a2.empty.map((e2) => Math.round(e2 * 100) + "%").join(" ")}`);
+  }
+  if (a2.sections?.length >= 3) {
+    const forms = {};
+    for (const x2 of a2.sections) if (x2.form && x2.form !== "text") forms[x2.form] = (forms[x2.form] || 0) + 1;
+    const top = Object.entries(forms).sort((p2, q2) => q2[1] - p2[1])[0];
+    if (top && top[1] >= 3 && top[0].startsWith("split")) warnings.push(`${top[1]} sections share one layout (${top[0].replace("split-", "text beside a picture on the ")}): a template, not a design. Give sections different forms from the references: a bento, a full-bleed picture, a horizontal gallery, a sticky demo, a big statement`);
   }
   if (persuade && a2.sections?.length) {
     const bare = a2.sections.filter((s2) => !s2.pic);
@@ -100658,6 +100684,7 @@ var board_exports = {};
 __export(board_exports, {
   freshLooksGate: () => freshLooksGate,
   groundingGate: () => groundingGate,
+  oldLookGate: () => oldLookGate,
   register: () => register4,
   syncTask: () => syncTask
 });
@@ -101353,7 +101380,16 @@ function groundingGate(directions, task, live, config2) {
   const studied = task.refs?.studied || [];
   if (!studied.some((x2) => x2.role)) return null;
   const roleOf = new Map(studied.map((x2) => [x2.key, x2.role]));
-  const keyOf = (r2) => /^\d+$/.test(r2) && live[+r2 - 1] ? live[+r2 - 1].key : r2;
+  const keyOf = (r2) => {
+    const v = String(r2).trim();
+    if (/^\d+$/.test(v) && live[+v - 1]) return live[+v - 1].key;
+    if (/^https?:\/\//i.test(v)) return siteKey(v);
+    try {
+      return resolve(v);
+    } catch {
+      return v;
+    }
+  };
   const problems = [];
   for (const d of directions) {
     const roles2 = new Set(d.items.map(keyOf).map((k) => roleOf.get(k)).filter(Boolean));
@@ -101363,6 +101399,35 @@ function groundingGate(directions, task, live, config2) {
   return problems.length ? `Directions not saved: each one builds on what you studied.
 - ${problems.join("\n- ")}
 Use the board numbers of studied references (board_read lists them).` : null;
+}
+function bigProject() {
+  const task = loadState().task;
+  if (["app", "mobile"].includes(task?.surface)) return true;
+  if ((task?.components?.count || 0) >= 20) return true;
+  try {
+    const root = projectDir();
+    const pages = fs34.readdirSync(root).filter((f3) => /\.html?$/i.test(f3)).length;
+    return pages >= 3 || ["app", "pages", path30.join("src", "pages")].some((d) => fs34.existsSync(path30.join(root, d)));
+  } catch {
+    return false;
+  }
+}
+function oldLookGate(directions, task) {
+  if (task?.brief?.redesign !== "fresh" || !task.before?.brand) return null;
+  const b = task.before.brand;
+  const hexes = [...b.backgrounds || [], ...b.textColors || []].map((x2) => Array.isArray(x2) ? x2[0] : typeof x2 === "object" ? x2?.hex || x2?.color : x2).filter((x2) => typeof x2 === "string" && x2.startsWith("#"));
+  const oldFaces = (b.fonts || []).map(String);
+  const problems = [];
+  for (const d of directions) {
+    const keptFace = facesOf(d.type).find((f3) => oldFaces.some((o2) => sameFace(o2, f3)));
+    if (keptFace) problems.push(`"${d.name}" keeps the old site's face ${keptFace}`);
+    const ground = d.palette[0];
+    const accent = d.palette[2];
+    const near = (c3) => c3 && hexes.some((h) => colourDistance(h, c3) < 45);
+    if (near(ground) && near(accent)) problems.push(`"${d.name}" keeps the old site's ground ${ground} and accent ${accent}`);
+  }
+  return problems.length ? `The user asked for a completely fresh look, so the old site's look is out (keep only the logo and the real product material):
+- ${problems.join("\n- ")}` : null;
 }
 function register4(server2, ctx2) {
   server2.registerTool(
@@ -101575,7 +101640,7 @@ NEXT: keep collecting (${n3}/${min} before directions).` : "\nNEXT: group the bo
     "board_directions",
     {
       title: "Group the board into directions",
-      description: "Deal 3 directions that are different IDEAS, not one idea in different colours: each a different answer to the brief (what the page is about, how the first screen works), with the references it builds on, its palette in role order (ground, ink, accent, support), two faces, and the hero it implies. The critic ranks them; the weak ones are dropped and the user sees the best two. Before writing them, Read the gold page closest to this one (drip_guide examples/gold) and say what your best direction takes from its decisions. Renders each as a first-viewport comp at 1440x900 with the real headline, sentence and action (playbook P8-P16). Replaces previous directions. On a master board whose direction is already approved this only proposes: the approved one stays until the user approves a change.",
+      description: "Deal 3 directions that are different IDEAS, not one idea in different colours: each a different answer to the brief (what the page is about, how the first screen works), with the references it builds on, its palette in role order (ground, ink, accent, support), two faces, and the hero it implies. At least one must break something structural (the page's form, the medium: a scene, a product in its real context, 3D; or, in a redesign, the current brand), not only light vs dark. The critic ranks them; the weak ones are dropped and the user sees the best two. Before writing them, Read the gold page closest to this one (drip_guide examples/gold) and say what your best direction takes from its decisions. Renders each as a first-viewport comp at 1440x900 with the real headline, sentence and action (playbook P8-P16). Replaces previous directions. On a master board whose direction is already approved this only proposes: the approved one stays until the user approves a change.",
       inputSchema: {
         directions: external_exports.array(
           external_exports.object({
@@ -101587,6 +101652,7 @@ NEXT: keep collecting (${n3}/${min} before directions).` : "\nNEXT: group the bo
             typeReason: external_exports.string().optional().describe("Why these faces fit this subject (required for overused faces such as Fraunces, Instrument Serif, Bricolage Grotesque, Syne, Satoshi)"),
             idea: external_exports.string().min(12).describe("The idea in one line, as different from the other directions' ideas as possible: 'the product as a technical drawing being annotated live', 'a lab notebook: the research pages are the page', 'a toy catalogue: the walker in play at full bleed'"),
             refuses: external_exports.string().optional().describe("What this direction refuses that another one keeps"),
+            takes: external_exports.array(external_exports.object({ ref: external_exports.string().describe("A studied reference: its board number, listing number (L3-7) or site URL"), what: external_exports.string().min(12).describe("The decision you take: a composition, a section idea, an interaction, a type move. Never only its colours") })).min(2).describe("What this direction takes from which studied references (at least one style, and one page or competitor). The comp must visibly show each"),
             manifesto: external_exports.string().optional().describe("The thesis: the idea this page owns and the category default it refuses, plus the physical scene (who, where, what light)"),
             pairing: external_exports.string().optional().describe("What it borrows ambition or discipline from (a working web world), never a poster's clothes"),
             headline: external_exports.string().optional().describe("The real headline for this direction's comp (8 words or fewer)"),
@@ -101607,10 +101673,19 @@ NEXT: keep collecting (${n3}/${min} before directions).` : "\nNEXT: group the bo
       const min = ctx2.config().gates.minBoardItems;
       if (live.length < min) return text(`The board has ${live.length} items; collect at least ${min} studied references before forming directions.`, true);
       const keyOf = (r2) => /^\d+$/.test(r2) && live[+r2 - 1] ? live[+r2 - 1].key : r2;
-      const fresh = freshLooksGate(directions, loadState().task, ctx2.config());
-      if (fresh) return text(fresh, true);
-      const grounding = groundingGate(directions, loadState().task, live, ctx2.config());
-      if (grounding) return text(grounding, true);
+      const st0 = loadState().task;
+      const refusals = [];
+      if (st0 && st0.size === "full" && !st0.skipped && ctx2.config().gates.enforce) {
+        const refsLeft = missingBeforeUi(st0, ctx2.config()).filter((m) => /references|real examples/.test(m.need));
+        if (refsLeft.length) refusals.push(`Study the references before the directions: ${refsLeft.map((m) => m.how).join(" \xB7 ")}. Directions are built from what you studied, not justified by it afterwards.`);
+      }
+      const fresh = freshLooksGate(directions, st0, ctx2.config());
+      if (fresh) refusals.push(fresh);
+      const grounding = groundingGate(directions.map((d) => ({ ...d, items: [...d.items, ...(d.takes || []).map((t2) => t2.ref)] })), st0, live, ctx2.config());
+      if (grounding) refusals.push(grounding);
+      const stale = oldLookGate(directions, st0);
+      if (stale) refusals.push(stale);
+      if (refusals.length) return text(refusals.join("\n\n"), true);
       const board = updateBoard(
         b0.id,
         (b) => {
@@ -101760,7 +101835,7 @@ ${lines.join("\n")}`
         `${note}${status}Direction locked: "${d.name}" \u2014 ${d.summary}
 Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7 Type: ${d.type}
 
-` + (task?.mode === "logo" ? "NEXT: refine the chosen concept in black first, then logo_test, then the critic." : "NEXT: drip_kit, then fill in the faces (fonts_pair / fonts_preview with the real headline) and colour roles (palette_check), write DESIGN.md, drip_mark system. Then plan the sections and build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook, again, because these numbers are the job:\n\n" + buildHalf)
+` + (task?.mode === "logo" ? "NEXT: refine the chosen concept in black first, then logo_test, then the critic." : "NEXT: the DESIGN SYSTEM, now that the direction is approved. drip_kit (tokens), fill in the faces (fonts_compare with the real headline) and colour roles (palette_check), write DESIGN.md, drip_mark system. " + (bigProject() ? 'This project is big (several pages, an app, or many components): also drip_kit({ template: "system" }) and fill the living system page (type roles, colours, spacing, buttons, inputs, cards, the signature components) so every later page builds from it. ' : 'When the project grows past one page, offer the user a living system page (drip_kit template "system"). ') + "Then plan the page by what matters (what will the user be excited to see?), its eye-candy moments, and where each part comes from (components_find, a picture source); build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook:\n\n" + buildHalf)
       );
     })
   );
@@ -102244,10 +102319,10 @@ function gitTracked(root) {
 }
 var baselineFile = (root) => path33.join(projectDripDir(root), "check", "dry-baseline.json");
 async function dryLintInputs(root) {
-  const tracked = await gitTracked(root);
-  if (!tracked) return { tracked: null, files: [] };
-  const files = tracked.filter((f3) => DRY_LINT_EXTS.test(f3));
-  return { tracked, files };
+  const tracked2 = await gitTracked(root);
+  if (!tracked2) return { tracked: null, files: [] };
+  const files = tracked2.filter((f3) => DRY_LINT_EXTS.test(f3));
+  return { tracked: tracked2, files };
 }
 async function runDryLint(root, cfg = {}, { env = process.env, timeoutMs = 24e4, judge = detectJudge(cfg, env), record: record2 = false } = {}) {
   const t0 = Date.now();
@@ -105156,7 +105231,7 @@ ${c3.slice(0, 9e3)}`).join("\n\n");
       }
       if (kind !== "pack" && !files.length) return text("Nothing to judge: pass targets (URLs or files).", true);
       const rubric = (task?.packs || []).map((p2) => readPackFile(p2, "critic.md")).filter(Boolean).join("\n\n");
-      const doc = kind === "build" || kind === "any" ? designDoc() : null;
+      const doc = kind === "build" || kind === "any" ? designDoc(projectDir(), task) : null;
       const memory = kind === "build" || kind === "any" || kind === "directions" ? projectContext({ task, maxChars: 1500 }) : null;
       const skills = relevantSkills(task);
       const prev = prevRounds.at(-1);
@@ -105275,7 +105350,7 @@ Then critic_record the verdict and show the user the critic's own words.`
       }
       const rounds = (st.task?.critic?.records || []).filter((x2) => x2.kind === rec.kind).length;
       const max = ctx2.config().gates.maxCriticRounds;
-      const next = rec.verdict === "pass" ? rec.kind === "directions" ? "NEXT: board_open and present the ranking + your pick to the user (buttons)." : rec.kind === "build" ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)." : "NEXT: continue." : rounds >= max + (st.task?.critic?.extraRounds || 0) && rec.kind === "build" ? `That's ${rounds} critic rounds, the limit. Fix what you can, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round" (critic_prepare with extraRound: true). Don't stop silently.` : rec.verdict === "reject" ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review." : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";
+      const next = rec.verdict === "pass" ? rec.kind === "directions" ? "NEXT: show the user the two strongest comps (Read the tile images and present them side by side, with the critic's ranking and your pick), ask them to choose with buttons, then board_choose. No moodboard page unless they ask (board_open)." : rec.kind === "build" ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)." : "NEXT: continue." : rounds >= max + (st.task?.critic?.extraRounds || 0) && rec.kind === "build" ? `That's ${rounds} critic rounds, the limit. Fix what you can, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round" (critic_prepare with extraRound: true). Don't stop silently.` : rec.verdict === "reject" ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review." : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";
       const stale = movedOn ? "\nWARNING: the work changed after critic_prepare, so this verdict is about the earlier version and does not count for the current one. critic_prepare again when you're done changing it." : "";
       return text(`Recorded critic verdict: ${rec.verdict.toUpperCase()} (${rec.kind}, round ${rounds}). Worst: ${rec.worst}${stale}
 ${next}
@@ -106338,7 +106413,7 @@ function installLib() {
     return r2.width > 0 && r2.height > 0 && cs.display !== "none" && cs.visibility !== "hidden" && +cs.opacity > 0.01;
   };
   const extraRoots = (root) => [...document.querySelectorAll(PORTAL)].filter((e2) => !root.contains(e2) && !e2.contains(root));
-  const tracked = (root) => {
+  const tracked2 = (root) => {
     const out = [];
     const seen = /* @__PURE__ */ new Set();
     const walk = (start2, prefix) => {
@@ -106423,7 +106498,7 @@ function installLib() {
   const spec = ({ selector, maxNodes = 40 } = {}) => {
     const root = pickRoot(selector);
     const rr = rectOf(root);
-    const nodes = tracked(root);
+    const nodes = tracked2(root);
     const structure = [];
     const typeMap = /* @__PURE__ */ new Map();
     const colorUse = /* @__PURE__ */ new Map();
@@ -106540,7 +106615,7 @@ function installLib() {
     const root = pickRoot(selector);
     const out = {};
     let u2 = null;
-    for (const { el, key } of tracked(root)) {
+    for (const { el, key } of tracked2(root)) {
       const cs = getComputedStyle(el);
       const vis = visible(el);
       const r2 = el.getBoundingClientRect();
@@ -111785,17 +111860,40 @@ function register34(server2, ctx2) {
 // src/core/registry.mjs
 var ctx = { config: () => loadConfig() };
 var MODULES = { refs: refs_exports, board: board_exports, components: components_exports, assets: assets_exports, gen: gen_exports, fitcheck: fitcheck_exports, critic: critic_exports, logo: logo_exports, packs: packs_exports, codemode: codemode_exports, patterns: patterns_exports, project: project_exports, inspire: inspire_exports, studio: studio_exports, swarm: swarm_exports };
+var TRACKED = /^(components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
+function tracked(name, handler) {
+  if (!TRACKED.test(name)) return handler;
+  return async (...args) => {
+    const res = await handler(...args);
+    try {
+      if (!res?.isError)
+        updateState((st) => {
+          if (st.task) (st.task.toolUse ||= {})[name] = (st.task.toolUse[name] || 0) + 1;
+        });
+    } catch {
+    }
+    return res;
+  };
+}
+var wrap4 = (server2) => new Proxy(server2, {
+  get(target, prop, receiver) {
+    if (prop === "registerTool") return (name, meta3, handler) => target.registerTool(name, meta3, tracked(name, handler));
+    const v = Reflect.get(target, prop, receiver);
+    return typeof v === "function" ? v.bind(target) : v;
+  }
+});
 function registerAll(server2, c3 = ctx) {
-  register2(server2, c3);
+  const s2 = wrap4(server2);
+  register2(s2, c3);
   const enabled = c3.config().modules || {};
-  for (const [name, mod] of Object.entries(MODULES)) if (enabled[name] !== false) mod.register(server2, c3);
+  for (const [name, mod] of Object.entries(MODULES)) if (enabled[name] !== false) mod.register(s2, c3);
 }
 var cache2 = null;
 function collectTools() {
   if (cache2) return cache2;
   const tools = /* @__PURE__ */ new Map();
   let current = "workflow";
-  const sink = { registerTool: (name, meta3, handler) => tools.set(name, { meta: meta3, handler, module: current }), registerResource: () => {
+  const sink = { registerTool: (name, meta3, handler) => tools.set(name, { meta: meta3, handler: tracked(name, handler), module: current }), registerResource: () => {
   } };
   register2(sink, ctx);
   const enabled = ctx.config().modules || {};
@@ -112408,7 +112506,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.7.0";
+var VERSION = "0.7.1";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.

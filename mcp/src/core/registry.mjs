@@ -2,6 +2,7 @@
 // and host adapters all get their tools from here, so names, schemas and handlers never drift apart.
 // Modules register with server.registerTool(name, meta, handler) exactly as on an McpServer.
 import { loadConfig } from "./config.mjs";
+import { updateState } from "./state.mjs";
 import * as workflow from "../modules/workflow.mjs";
 import * as refs from "../modules/refs/index.mjs";
 import * as board from "../modules/board/index.mjs";
@@ -24,10 +25,38 @@ export const ctx = { config: () => loadConfig() };
 // Order matters only for listings. A module can be turned off in .drip/config.json ("modules": { "<name>": false }).
 export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm };
 
+// Which tools a task used (task.toolUse): lets gates ask for steps no prose can enforce, such as searching
+// components and picture sources before building. Counting never fails a call.
+const TRACKED = /^(components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
+function tracked(name, handler) {
+  if (!TRACKED.test(name)) return handler;
+  return async (...args) => {
+    const res = await handler(...args);
+    try {
+      if (!res?.isError)
+        updateState((st) => {
+          if (st.task) (st.task.toolUse ||= {})[name] = (st.task.toolUse[name] || 0) + 1;
+        });
+    } catch {
+      /* bookkeeping only */
+    }
+    return res;
+  };
+}
+const wrap = (server) =>
+  new Proxy(server, {
+    get(target, prop, receiver) {
+      if (prop === "registerTool") return (name, meta, handler) => target.registerTool(name, meta, tracked(name, handler));
+      const v = Reflect.get(target, prop, receiver);
+      return typeof v === "function" ? v.bind(target) : v;
+    },
+  });
+
 export function registerAll(server, c = ctx) {
-  workflow.register(server, c);
+  const s = wrap(server);
+  workflow.register(s, c);
   const enabled = c.config().modules || {};
-  for (const [name, mod] of Object.entries(MODULES)) if (enabled[name] !== false) mod.register(server, c);
+  for (const [name, mod] of Object.entries(MODULES)) if (enabled[name] !== false) mod.register(s, c);
 }
 
 let cache = null;
@@ -36,7 +65,7 @@ export function collectTools() {
   if (cache) return cache;
   const tools = new Map();
   let current = "workflow";
-  const sink = { registerTool: (name, meta, handler) => tools.set(name, { meta, handler, module: current }), registerResource: () => {} };
+  const sink = { registerTool: (name, meta, handler) => tools.set(name, { meta, handler: tracked(name, handler), module: current }), registerResource: () => {} };
   workflow.register(sink, ctx);
   const enabled = ctx.config().modules || {};
   for (const [name, mod] of Object.entries(MODULES)) {
