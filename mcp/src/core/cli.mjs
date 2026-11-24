@@ -11,7 +11,7 @@ import { inputJsonSchema } from "./codemode/signatures.mjs";
 import { homeDripDir, pluginRoot, projectDir, projectDripDir } from "./paths.mjs";
 import { collectTools } from "./registry.mjs";
 import { bindSession, loadState, setIdentity } from "./state.mjs";
-import { formatDoctor, runDoctor } from "./doctor.mjs";
+import { doctorFix, formatDoctor, formatFix, installPreflight, runDoctor } from "./doctor.mjs";
 import { installVendor } from "./vendor.mjs";
 import { installMockstudio } from "../modules/studio/mockup.mjs";
 import { executeCode } from "./codemode/execute.mjs";
@@ -20,7 +20,7 @@ import { toolSignature } from "./codemode/signatures.mjs";
 export const EXIT = { OK: 0, TOOL: 1, USAGE: 2, PREREQ: 3 };
 
 const VALUE_FLAGS = new Set(["project", "session", "task", "out", "input", "input-file", "install", "agent", "file", "max-chars", "code"]);
-const BOOL_FLAGS = new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "stdin", "version"]);
+const BOOL_FLAGS = new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "stdin", "version", "fix", "yes"]);
 const DEFAULT_MAX_CHARS = 20000;
 
 class UsageError extends Error {}
@@ -165,6 +165,7 @@ const NO_HOSTS = "Host installers are not available in this build (mcp/src/hosts
 
 const COMMANDS = [
   ["doctor [--json] [--install <dep>]", "Check Node, Chrome/Edge, Blender, uvx, optional dependencies, keys (names only), project and plugin folders."],
+  ["doctor --fix [--yes]", "Install what is missing and optional (MockStudio, axe-core, svgo). Lists it first; --yes does it. Never installs Chrome, Edge or Blender: says where to get them."],
   ["tools list [--json]", "Every tool name with a one-line description."],
   ["tools schema <name>", "A tool's JSON Schema, from the same definition MCP uses."],
   ["call <tool> [--input json | --input-file f | --input -] [--json] [--out dir]", "Run any tool. Images are written to --out (default .drip/cli)."],
@@ -204,6 +205,14 @@ const oneLine = (d) => (d || "").split(". ")[0].slice(0, 110);
 // ---- commands ----
 
 async function cmdDoctor(flags) {
+  if (flags.fix) {
+    try {
+      const r = await doctorFix({ confirm: !!flags.yes, log });
+      return finish({ ok: r.ok, tool: "doctor", ...(flags.json ? { result: r } : { text: formatFix(r) }), images: [], ...(r.ok ? {} : { error: { code: "install_failed", message: r.failed.join("; "), exit: EXIT.TOOL } }) }, flags);
+    } catch (e) {
+      return finish(failure("doctor", EXIT.TOOL, "install_failed", e.message), flags);
+    }
+  }
   if (flags.install) {
     try {
       log(`Installing ${flags.install} into ~/.drip/vendor ...`);
@@ -226,7 +235,7 @@ async function cmdDoctor(flags) {
     for (const host of list) {
       const id = host.id || host.name || host;
       try {
-        const d = await h.doctor(id);
+        const d = await h.doctor(id, { machine: false }); // the machine checks are this doctor's own lines
         out.push({ id: `host-${id}`, label: `Host ${host.label || id}`, status: d?.ok === false ? "warn" : "info", detail: typeof d === "string" ? d : d?.summary || d?.text || (d?.ok ? "ready" : JSON.stringify(d)) });
       } catch (e) {
         out.push({ id: `host-${id}`, label: `Host ${id}`, status: "warn", detail: String(e?.message || e) });
@@ -355,6 +364,13 @@ async function cmdHosts(sub, pos, flags) {
   }
   const agent = flags.agent;
   if (!agent) throw new UsageError(`Usage: drip ${sub} --agent <host> [--dry-run]. Hosts: drip hosts`);
+  if (sub === "install") {
+    // Every visual step needs Chrome or Edge: say so now, with the fix, not on the first screenshot.
+    const pre = await installPreflight({});
+    if (!pre.ok && !flags["dry-run"]) return finish(failure(sub, EXIT.PREREQ, "missing_prerequisite", `Not installed: this machine is missing something Drip needs.
+${pre.text}`), flags);
+    if (pre.text) log(pre.text);
+  }
   const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
   const fn = hosts[sub];
   if (typeof fn !== "function") return finish(failure(sub, EXIT.PREREQ, "not_available", `${sub} is not available in this build.`), flags);

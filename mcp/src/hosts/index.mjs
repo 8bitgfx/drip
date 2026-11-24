@@ -86,6 +86,25 @@ export async function uninstall(agent, opts = {}) {
   return native.uninstall(resolveOpts(opts));
 }
 
+/**
+ * The machine checks of `drip doctor` (Node, Chrome/Edge, optional pieces, project, Code Mode...), as host checks.
+ * `opts.machineChecks` (a function returning checks) replaces them in tests; `opts.machine: false` skips them.
+ */
+async function machineChecks(opts) {
+  if (opts.machine === false) return [];
+  if (typeof opts.machineChecks === "function") return opts.machineChecks();
+  const { runDoctor } = await import("../core/doctor.mjs");
+  const r = await runDoctor({});
+  return r.checks.filter((c) => c.id !== "plugin").map((c) => ({ id: `machine-${c.id}`, status: c.status, detail: `${c.label}: ${c.detail}`, ...(c.fix ? { fix: c.fix } : {}) }));
+}
+
+const withMachine = (r, extra) => {
+  const checks = [...(r.checks || []), ...extra];
+  const bad = extra.filter((c) => c.status === "fail");
+  if (!bad.length) return { ...r, checks };
+  return { ...r, ok: false, checks, summary: `${r.ok ? "" : `${r.summary}; `}${bad.length} machine problem${bad.length === 1 ? "" : "s"}: ${bad.map((b) => b.id.replace(/^machine-/, "")).join(", ")}` };
+};
+
 export async function doctor(agent, opts = {}) {
   if (!agent) {
     const checks = [];
@@ -93,11 +112,13 @@ export async function doctor(agent, opts = {}) {
       const r = await m.doctor(resolveOpts(opts));
       checks.push({ id: m.meta.id, status: r.ok ? "ok" : "fail", detail: `${m.meta.label}: ${r.summary}` });
     }
+    const machine = await machineChecks(opts);
     const bad = checks.filter((c) => c.status === "fail");
-    return { ok: !bad.length, summary: bad.length ? `${bad.length} host${bad.length === 1 ? "" : "s"} need attention` : "ready", checks };
+    const mbad = machine.filter((c) => c.status === "fail");
+    return { ok: !bad.length && !mbad.length, summary: bad.length || mbad.length ? [bad.length ? `${bad.length} host${bad.length === 1 ? "" : "s"} need attention` : "", mbad.length ? `${mbad.length} machine problem${mbad.length === 1 ? "" : "s"}` : ""].filter(Boolean).join("; ") : "ready", checks: [...checks, ...machine] };
   }
   const { native, info } = resolve(agent);
-  if (native) return native.doctor(resolveOpts(opts));
+  if (native) return withMachine(await native.doctor(resolveOpts(opts)), await machineChecks(opts));
   return { host: info.id, ok: info.kind !== "deferred", summary: info.summary, checks: [{ id: "note", status: "info", detail: info.summary }] };
 }
 
