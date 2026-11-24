@@ -99,6 +99,21 @@ export async function getHtml(url, config, { delayMs = 1200, ttlMs = 6 * 3600e3,
 
 const CHALLENGE = /<title>s*(Just a moment|Attention Required|Vercel Security Checkpoint)/i;
 
+// Words that describe the task or the surface, not the subject: galleries match the subject ("coffee", "ai tool", "gaming").
+const NOT_SUBJECT = new Set("a an and the for with of to in on at by from that which who sells selling my our your their its new modern clean beautiful nice cool bold simple minimal great best design designs designed redesign redesigned make build create improve update refresh rework revamp landing landingpage page pages website websites site web homepage home main screen screens view ui ux app hero section sections layout template theme".split(" "));
+
+/** The subject words of a query: lower case, no task or surface words, no URLs or domains, at most `max`. */
+export function subjectWords(query, max = 3) {
+  return String(query || "")
+    .toLowerCase()
+    .replace(/https?:[^\s]+/g, " ")
+    .split(/\s+/)
+    .filter((w) => !/[a-z0-9-]+\.[a-z]{2,}/.test(w)) // domains (vizzbees.com) name the client, not the subject
+    .map((w) => w.replace(/[^a-z0-9-]+/g, ""))
+    .filter((w) => w.length > 1 && !NOT_SUBJECT.has(w))
+    .slice(0, max);
+}
+
 /**
  * For providers without a text search (a latest-items feed): rank by how many query words hit the
  * title/tags, keep matches first. Items that match nothing stay behind them, flagged `feed: true`.

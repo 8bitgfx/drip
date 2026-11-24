@@ -7434,22 +7434,22 @@ var init_paths = __esm({
 });
 
 // src/core/serve.mjs
-import fs14 from "node:fs";
+import fs15 from "node:fs";
 import http from "node:http";
-import path15 from "node:path";
+import path16 from "node:path";
 function start(root) {
   const server2 = http.createServer((req, res) => {
     const rel3 = decodeURIComponent(new URL(req.url, "http://x").pathname);
-    let file4 = path15.join(root, rel3);
+    let file4 = path16.join(root, rel3);
     if (!file4.startsWith(root)) return res.writeHead(403).end();
     try {
-      if (fs14.statSync(file4).isDirectory()) file4 = path15.join(file4, "index.html");
+      if (fs15.statSync(file4).isDirectory()) file4 = path16.join(file4, "index.html");
     } catch {
-      if (!path15.extname(file4) && fs14.existsSync(`${file4}.html`)) file4 = `${file4}.html`;
+      if (!path16.extname(file4) && fs15.existsSync(`${file4}.html`)) file4 = `${file4}.html`;
     }
-    fs14.readFile(file4, (err, buf) => {
+    fs15.readFile(file4, (err, buf) => {
       if (err) return res.writeHead(404, { "content-type": "text/plain" }).end(`Not found: ${rel3}`);
-      res.writeHead(200, { "content-type": TYPES[path15.extname(file4).toLowerCase()] || "application/octet-stream", "cache-control": "no-store" });
+      res.writeHead(200, { "content-type": TYPES[path16.extname(file4).toLowerCase()] || "application/octet-stream", "cache-control": "no-store" });
       res.end(buf);
     });
   });
@@ -7460,18 +7460,18 @@ function start(root) {
   });
 }
 async function serveDir(dir) {
-  const root = path15.resolve(projectDir(), dir || ".");
-  if (!fs14.existsSync(root)) throw new Error(`No folder ${root}`);
+  const root = path16.resolve(projectDir(), dir || ".");
+  if (!fs15.existsSync(root)) throw new Error(`No folder ${root}`);
   if (!servers.has(root)) servers.set(root, start(root));
   const port2 = await servers.get(root);
   return `http://127.0.0.1:${port2}`;
 }
 async function toUrl(target) {
   if (/^(https?|file):/i.test(target)) return target;
-  const abs2 = path15.resolve(projectDir(), target);
-  const isDir = fs14.existsSync(abs2) && fs14.statSync(abs2).isDirectory();
-  const base = await serveDir(isDir ? abs2 : path15.dirname(abs2));
-  return isDir ? `${base}/` : `${base}/${encodeURIComponent(path15.basename(abs2))}`;
+  const abs2 = path16.resolve(projectDir(), target);
+  const isDir = fs15.existsSync(abs2) && fs15.statSync(abs2).isDirectory();
+  const base = await serveDir(isDir ? abs2 : path16.dirname(abs2));
+  return isDir ? `${base}/` : `${base}/${encodeURIComponent(path16.basename(abs2))}`;
 }
 var TYPES, servers;
 var init_serve = __esm({
@@ -7504,11 +7504,11 @@ var init_serve = __esm({
 });
 
 // src/modules/fitcheck/chrome.mjs
-import fs15 from "node:fs";
+import fs16 from "node:fs";
 function findChrome(config2) {
   const configured = config2?.fitcheck?.chromePath || process.env.DRIP_CHROME;
-  if (configured && fs15.existsSync(configured)) return configured;
-  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs15.existsSync(p2)) || null;
+  if (configured && fs16.existsSync(configured)) return configured;
+  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs16.existsSync(p2)) || null;
 }
 function browserEnv() {
   const env = { ...process.env };
@@ -7557,13 +7557,13 @@ __export(browser_exports, {
   withTab: () => withTab
 });
 import { spawn } from "node:child_process";
-import fs16 from "node:fs";
+import fs17 from "node:fs";
 import os3 from "node:os";
-import path16 from "node:path";
+import path17 from "node:path";
 async function launch(config2) {
   const chrome = findChrome(config2);
   if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
-  const profile = fs16.mkdtempSync(path16.join(os3.tmpdir(), "drip-cdp-"));
+  const profile = fs17.mkdtempSync(path17.join(os3.tmpdir(), "drip-cdp-"));
   const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-background-networking", "--disable-sync", "--mute-audio", ...process.platform === "linux" && (process.env.CI || process.getuid?.() === 0) ? ["--no-sandbox"] : [], `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
     env: browserEnv(),
     windowsHide: true,
@@ -7614,7 +7614,7 @@ async function launch(config2) {
     }
     setTimeout(() => {
       try {
-        fs16.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+        fs17.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
       } catch {
       }
     }, 500).unref();
@@ -26430,7 +26430,7 @@ var init_NotRegularFileError = __esm({
 
 // node_modules/strtok3/lib/FileTokenizer.js
 import { constants as constants2 } from "node:fs";
-import fs20, {} from "node:fs/promises";
+import fs21, {} from "node:fs/promises";
 var FileTokenizer;
 var init_FileTokenizer = __esm({
   "node_modules/strtok3/lib/FileTokenizer.js"() {
@@ -26449,7 +26449,7 @@ var init_FileTokenizer = __esm({
         getMaxBufferSize(options);
         throwIfAborted(options?.abortSignal);
         const flags = options?.regularFileOnly ? constants2.O_RDONLY | constants2.O_NONBLOCK : "r";
-        const fileHandle = await fs20.open(sourceFilePath, flags);
+        const fileHandle = await fs21.open(sourceFilePath, flags);
         try {
           const stat = await fileHandle.stat();
           if (options?.regularFileOnly && !stat.isFile()) {
@@ -30875,7 +30875,7 @@ __export(file_type_exports, {
 });
 import { ReadableStream as WebReadableStream } from "node:stream/web";
 import { pipeline, PassThrough, Readable } from "node:stream";
-import fs21 from "node:fs/promises";
+import fs22 from "node:fs/promises";
 import { constants as fileSystemConstants } from "node:fs";
 function isTokenizerStreamBoundsError(error62) {
   if (!(error62 instanceof RangeError) || error62.message !== "offset is out of bounds" || typeof error62.stack !== "string") {
@@ -30917,7 +30917,7 @@ var init_file_type = __esm({
       }
       async fromFile(path73) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs21.open(path73, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs22.open(path73, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -88663,49 +88663,229 @@ function graphOf(index) {
   return { components, byName, tokensDefined, importGraph, fileSet };
 }
 
-// src/core/project.mjs
-import fs13 from "node:fs";
-import path14 from "node:path";
-
-// src/core/memory.mjs
-import crypto4 from "node:crypto";
-import fs12 from "node:fs";
-import path13 from "node:path";
-init_paths();
-
-// src/modules/board/store.mjs
+// src/core/http.mjs
 init_paths();
 import crypto3 from "node:crypto";
 import fs11 from "node:fs";
 import path12 from "node:path";
+var cacheDir = path12.join(homeDripDir, "cache");
+var lastHit = /* @__PURE__ */ new Map();
+var queues = /* @__PURE__ */ new Map();
+var DAY = 24 * 60 * 60 * 1e3;
+function cacheFile(key, ext) {
+  const hash2 = crypto3.createHash("sha1").update(key).digest("hex");
+  return path12.join(cacheDir, hash2.slice(0, 2), `${hash2}.${ext}`);
+}
+function readCache(file4, ttlMs) {
+  try {
+    const st = fs11.statSync(file4);
+    if (Date.now() - st.mtimeMs > ttlMs) return null;
+    return fs11.readFileSync(file4);
+  } catch {
+    return null;
+  }
+}
+function writeCache(file4, buf) {
+  ensureDir(path12.dirname(file4));
+  fs11.writeFileSync(file4, buf);
+}
+function throttle(host, delayMs, fn) {
+  const prev = queues.get(host) || Promise.resolve();
+  const next = prev.then(async () => {
+    const wait2 = (lastHit.get(host) || 0) + delayMs - Date.now();
+    if (wait2 > 0) await new Promise((r2) => setTimeout(r2, wait2));
+    try {
+      return await fn();
+    } finally {
+      lastHit.set(host, Date.now());
+    }
+  });
+  queues.set(host, next.catch(() => {
+  }));
+  return next;
+}
+var active = 0;
+var waiting = [];
+async function pooled(fn) {
+  if (active >= 10) await new Promise((r2) => waiting.push(r2));
+  active++;
+  try {
+    return await fn();
+  } finally {
+    active--;
+    waiting.shift()?.();
+  }
+}
+var HttpError = class extends Error {
+  constructor(status, url2, body) {
+    super(`HTTP ${status} for ${url2}${body ? `: ${String(body).slice(0, 200)}` : ""}`);
+    this.status = status;
+  }
+};
+async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as = "text", timeoutMs = 3e4, retries = 2, maxWaitS = 8 } = {}) {
+  const ext = as === "buffer" ? "bin" : "txt";
+  const file4 = cacheFile(url2 + JSON.stringify(headers2), ext);
+  if (ttlMs > 0) {
+    const hit = readCache(file4, ttlMs);
+    const meta3 = readCache(file4 + ".type", ttlMs);
+    if (hit) return { body: decode3(hit, as), contentType: meta3?.toString() || "", cached: true };
+  }
+  const host = new URL(url2).host;
+  const run3 = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
+  return run3(async () => {
+    let res;
+    for (let attempt = 0; ; attempt++) {
+      res = await fetch(url2, { headers: headers2, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
+      if (![429, 503].includes(res.status) || attempt >= retries) break;
+      const after = Number(res.headers.get("retry-after"));
+      const wait2 = Math.min(maxWaitS, Number.isFinite(after) && after > 0 ? after : 3 * 2 ** attempt) * 1e3;
+      await res.arrayBuffer().catch(() => {
+      });
+      await new Promise((r2) => setTimeout(r2, wait2));
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (res.status === 429) throw new HttpError(429, url2, "rate limited after retries; slow down (fewer parallel calls) and try again in a minute");
+    if (!res.ok) throw new HttpError(res.status, url2, as === "buffer" ? "" : buf.toString("utf8"));
+    const contentType = res.headers.get("content-type") || "";
+    if (ttlMs > 0) {
+      writeCache(file4, buf);
+      writeCache(file4 + ".type", Buffer.from(contentType));
+    }
+    return { body: decode3(buf, as), contentType, cached: false };
+  });
+}
+async function postJson(url2, body, { headers: headers2 = {}, timeoutMs = 18e4 } = {}) {
+  const res = await fetch(url2, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...headers2 },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(timeoutMs)
+  });
+  const text2 = await res.text();
+  if (!res.ok) throw new HttpError(res.status, url2, text2);
+  return JSON.parse(text2);
+}
+function decode3(buf, as) {
+  if (as === "buffer") return buf;
+  const text2 = buf.toString("utf8");
+  return as === "json" ? JSON.parse(text2) : text2;
+}
+
+// src/modules/inspire/contract.mjs
+var NAMED = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "\u2013", mdash: "\u2014", hellip: "\u2026", rsquo: "\u2019", lsquo: "\u2018", rdquo: "\u201D", ldquo: "\u201C" };
+function decode4(s2 = "") {
+  return String(s2).replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e2) => {
+    if (e2[0] === "#") {
+      const code = e2[1].toLowerCase() === "x" ? parseInt(e2.slice(2), 16) : parseInt(e2.slice(1), 10);
+      return Number.isFinite(code) ? String.fromCodePoint(code) : m;
+    }
+    return NAMED[e2.toLowerCase()] ?? m;
+  });
+}
+var strip = (html = "") => decode4(String(html).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ")).trim();
+function abs(u2, base) {
+  if (!u2) return "";
+  try {
+    return new URL(decode4(u2).trim(), base).href;
+  } catch {
+    return "";
+  }
+}
+var hostOf = (u2) => {
+  try {
+    return new URL(u2).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+};
+var slugify2 = (s2) => String(s2 || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+function makeItem(provider, { id, title, url: url2, image: image2, images, author, tags = [], kind = "site", ...extra }) {
+  const clean2 = (s2) => decode4(String(s2 || "")).replace(/\s+/g, " ").trim();
+  return {
+    key: `${provider}:${id}`,
+    title: clean2(title) || String(id),
+    url: url2,
+    image: image2,
+    ...images?.length ? { images } : {},
+    author: clean2(author) || hostOf(url2) || "",
+    source: provider,
+    tags: [...new Set(tags.map(clean2).filter(Boolean))].slice(0, 12),
+    kind,
+    ...extra
+  };
+}
+async function getHtml(url2, config2, { delayMs = 1200, ttlMs = 6 * 36e5, headers: headers2 = {}, fetchPage = get } = {}) {
+  const ua = config2?.refs?.userAgent || "Mozilla/5.0";
+  let body;
+  try {
+    ({ body } = await fetchPage(url2, { headers: { "user-agent": ua, accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", ...headers2 }, delayMs, ttlMs }));
+  } catch (err) {
+    if ([403, 429].includes(err?.status)) throw new Error(`${hostOf(url2)} refuses scripted requests (HTTP ${err.status}); open it in your own browser`);
+    throw err;
+  }
+  if (CHALLENGE.test(String(body).slice(0, 4e3))) throw new Error(`${hostOf(url2)} shows a human check to scripted requests; open it in your own browser`);
+  return body;
+}
+var CHALLENGE = /<title>s*(Just a moment|Attention Required|Vercel Security Checkpoint)/i;
+var NOT_SUBJECT = new Set("a an and the for with of to in on at by from that which who sells selling my our your their its new modern clean beautiful nice cool bold simple minimal great best design designs designed redesign redesigned make build create improve update refresh rework revamp landing landingpage page pages website websites site web homepage home main screen screens view ui ux app hero section sections layout template theme".split(" "));
+function subjectWords(query, max = 3) {
+  return String(query || "").toLowerCase().replace(/https?:[^\s]+/g, " ").split(/\s+/).filter((w) => !/[a-z0-9-]+\.[a-z]{2,}/.test(w)).map((w) => w.replace(/[^a-z0-9-]+/g, "")).filter((w) => w.length > 1 && !NOT_SUBJECT.has(w)).slice(0, max);
+}
+function rankByQuery(items, query) {
+  const words3 = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+  if (!words3.length) return items.map((it) => ({ ...it, feed: true }));
+  const scored = items.map((it, i2) => {
+    const hay = `${it.title} ${it.tags.join(" ")} ${it.author}`.toLowerCase();
+    const hits = words3.filter((w) => hay.includes(w)).length;
+    return { it: { ...it, ...hits ? {} : { feed: true } }, hits, i: i2 };
+  });
+  scored.sort((a2, b) => b.hits - a2.hits || a2.i - b.i);
+  return scored.map((s2) => s2.it);
+}
+
+// src/core/project.mjs
+import fs14 from "node:fs";
+import path15 from "node:path";
+
+// src/core/memory.mjs
+import crypto5 from "node:crypto";
+import fs13 from "node:fs";
+import path14 from "node:path";
+init_paths();
+
+// src/modules/board/store.mjs
+init_paths();
+import crypto4 from "node:crypto";
+import fs12 from "node:fs";
+import path13 from "node:path";
 var SCHEMA = 2;
 var SCOPES = ["master", "feature", "concept"];
 var ITEM_STATUS = ["current", "inspiration", "proposed", "approved", "rejected", "archived"];
-var readDir = () => path12.join(projectDripDir(), "boards");
-var boardsDir = () => ensureDir(path12.join(ensureProjectDrip(), "boards"));
-var indexFile2 = () => path12.join(readDir(), "index.json");
+var readDir = () => path13.join(projectDripDir(), "boards");
+var boardsDir = () => ensureDir(path13.join(ensureProjectDrip(), "boards"));
+var indexFile2 = () => path13.join(readDir(), "index.json");
 function slug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "board";
 }
 function boardFile(id) {
-  return path12.join(readDir(), id, "board.json");
+  return path13.join(readDir(), id, "board.json");
 }
-var boardDir = (id) => path12.dirname(boardFile(id));
-var historyFile = (id) => path12.join(boardDir(id), "history.jsonl");
+var boardDir = (id) => path13.dirname(boardFile(id));
+var historyFile = (id) => path13.join(boardDir(id), "history.jsonl");
 function toRel(p2, root = projectDir()) {
-  if (!p2 || typeof p2 !== "string" || !path12.isAbsolute(p2)) return p2;
-  const rel3 = path12.relative(root, p2);
-  return rel3 && !rel3.startsWith("..") && !path12.isAbsolute(rel3) ? rel3.split(path12.sep).join("/") : p2;
+  if (!p2 || typeof p2 !== "string" || !path13.isAbsolute(p2)) return p2;
+  const rel3 = path13.relative(root, p2);
+  return rel3 && !rel3.startsWith("..") && !path13.isAbsolute(rel3) ? rel3.split(path13.sep).join("/") : p2;
 }
 function fromRel(p2, root = projectDir()) {
-  return p2 && typeof p2 === "string" && !path12.isAbsolute(p2) ? path12.resolve(root, p2) : p2;
+  return p2 && typeof p2 === "string" && !path13.isAbsolute(p2) ? path13.resolve(root, p2) : p2;
 }
 function resolveTile(tile, id) {
   if (!tile) return tile;
   const abs2 = fromRel(tile);
-  if (fs11.existsSync(abs2)) return abs2;
-  const alt = path12.join(boardDir(id), "tiles", path12.basename(String(tile).replace(/\\/g, "/")));
-  return fs11.existsSync(alt) ? alt : abs2;
+  if (fs12.existsSync(abs2)) return abs2;
+  const alt = path13.join(boardDir(id), "tiles", path13.basename(String(tile).replace(/\\/g, "/")));
+  return fs12.existsSync(alt) ? alt : abs2;
 }
 function defaultStatus(kind) {
   return kind === "shot" || kind === "image" || kind === "color" || kind === "font" ? "inspiration" : "current";
@@ -88748,7 +88928,7 @@ function loadBoard(id) {
 }
 function updateBoard(id, fn, { expect, op = "update", summary = "", by = null } = {}) {
   const file4 = boardFile(id);
-  if (!id || !fs11.existsSync(file4)) throw new Error(`No board "${id}".`);
+  if (!id || !fs12.existsSync(file4)) throw new Error(`No board "${id}".`);
   const next = updateJson(
     file4,
     (cur) => {
@@ -88795,7 +88975,7 @@ function updateIndex(fn) {
 }
 function boardIds() {
   try {
-    return fs11.readdirSync(readDir(), { withFileTypes: true }).filter((e2) => e2.isDirectory()).map((e2) => e2.name);
+    return fs12.readdirSync(readDir(), { withFileTypes: true }).filter((e2) => e2.isDirectory()).map((e2) => e2.name);
   } catch {
     return [];
   }
@@ -88857,7 +89037,7 @@ function createBoard(name, brief, { scope, parent, brand = null } = {}) {
   const dirs = boardsDir();
   while (true) {
     try {
-      fs11.mkdirSync(path12.join(dirs, id));
+      fs12.mkdirSync(path13.join(dirs, id));
       break;
     } catch (e2) {
       if (e2.code !== "EEXIST") throw e2;
@@ -88913,11 +89093,11 @@ function resolveBoard({ id, task } = {}) {
   return { board: null, how: "none" };
 }
 function contentHash(data) {
-  return crypto3.createHash("sha1").update(data).digest("hex").slice(0, 16);
+  return crypto4.createHash("sha1").update(data).digest("hex").slice(0, 16);
 }
 function fileHash(file4) {
   try {
-    return contentHash(fs11.readFileSync(file4));
+    return contentHash(fs12.readFileSync(file4));
   } catch {
     return null;
   }
@@ -88997,9 +89177,9 @@ function resetBoard(id, { approved, by = null } = {}) {
   needYes(approved, "Resetting a board");
   const cur = loadBoard(id);
   if (!cur) throw new Error(`No board "${id}".`);
-  const snap = path12.join(boardDir(id), "history", `reset-${Date.now()}.json`);
-  ensureDir(path12.dirname(snap));
-  fs11.writeFileSync(snap, JSON.stringify(memToDisk(cur), null, 2));
+  const snap = path13.join(boardDir(id), "history", `reset-${Date.now()}.json`);
+  ensureDir(path13.dirname(snap));
+  fs12.writeFileSync(snap, JSON.stringify(memToDisk(cur), null, 2));
   const b = updateBoard(id, (x2) => {
     x2.items = [];
     x2.directions = [];
@@ -89008,7 +89188,7 @@ function resetBoard(id, { approved, by = null } = {}) {
     x2.criteria = void 0;
     x2.approved = null;
     x2.resetAt = (/* @__PURE__ */ new Date()).toISOString();
-  }, { op: "reset", summary: `cleared; previous content saved to ${path12.relative(projectDir(), snap).split(path12.sep).join("/")}`, by });
+  }, { op: "reset", summary: `cleared; previous content saved to ${path13.relative(projectDir(), snap).split(path13.sep).join("/")}`, by });
   return { board: b, snapshot: snap };
 }
 var boardHistory = (id, limit = 30) => readJsonl(historyFile(id)).slice(-limit);
@@ -89018,12 +89198,12 @@ var AUTH = { "user-explicit": 4, decision: 3, "user-selection": 2, critic: 1, "a
 var SOURCES = ["user-explicit", "user-selection", "critic", "agent-inference"];
 var SCOPES2 = ["page", "feature", "brand"];
 var authorityOf = (src) => AUTH[src] ?? 0;
-var memDir = (cwd) => path13.join(projectDripDir(cwd), "memory");
-var feedbackFile = (cwd) => path13.join(memDir(cwd), "feedback.jsonl");
-var decisionsFile = (cwd) => path13.join(memDir(cwd), "decisions.json");
-var styleFile = (cwd) => path13.join(memDir(cwd), "style.json");
-var skillDir = (cwd) => path13.join(projectDripDir(cwd), "skills", "project-design");
-var newId = (p2) => `${p2}_${Date.now().toString(36)}${crypto4.randomBytes(3).toString("hex")}`;
+var memDir = (cwd) => path14.join(projectDripDir(cwd), "memory");
+var feedbackFile = (cwd) => path14.join(memDir(cwd), "feedback.jsonl");
+var decisionsFile = (cwd) => path14.join(memDir(cwd), "decisions.json");
+var styleFile = (cwd) => path14.join(memDir(cwd), "style.json");
+var skillDir = (cwd) => path14.join(projectDripDir(cwd), "skills", "project-design");
+var newId = (p2) => `${p2}_${Date.now().toString(36)}${crypto5.randomBytes(3).toString("hex")}`;
 var norm = (s2) => String(s2 ?? "").toLowerCase().replace(/[^a-z0-9#.%]+/g, " ").trim();
 var brandKey2 = (b) => b || "default";
 var emptyDecisions = () => ({ schema: 1, revision: 0, rules: [], exceptions: [], rejected: [], styleRevisions: [], activeRevision: null });
@@ -89358,7 +89538,7 @@ function skillBody(cwd, { brandOnly = false } = {}) {
   lines.push("", "## Where things are");
   if (m) lines.push(`- master board: .drip/boards/${m}/board.json (board_read, project_context)`);
   lines.push(doc ? `- DESIGN.md: ${doc.rel} (hash ${hashFile(doc.file)}; maintained by hand, Drip never overwrites it)` : "- DESIGN.md: none yet");
-  if (fs12.existsSync(path13.join(projectDripDir(cwd), "patterns", "index.json"))) lines.push("- patterns: .drip/patterns/index.json (approved, reusable components and recipes)");
+  if (fs13.existsSync(path14.join(projectDripDir(cwd), "patterns", "index.json"))) lines.push("- patterns: .drip/patterns/index.json (approved, reusable components and recipes)");
   lines.push("", "## How to use this", "Call project_context before researching. Fidelity mode: extend this system, new content only. Redesign mode: propose a new direction; this one stays until the user approves the change. A learned rule never replaces this task's own gates: research gaps, critic, fit check still run.");
   return lines.join("\n");
 }
@@ -89372,12 +89552,12 @@ description: ${name}'s design memory: the approved direction, measured tokens, r
 
 `;
 }
-var projectName = (cwd) => path13.basename(projectDir(cwd));
+var projectName = (cwd) => path14.basename(projectDir(cwd));
 function writeProjectSkill({ cwd, dryRun = false } = {}) {
   const dir = skillDir(cwd);
-  const file4 = path13.join(dir, "SKILL.md");
+  const file4 = path14.join(dir, "SKILL.md");
   const body = skillBody(cwd);
-  const cur = fs12.existsSync(file4) ? fs12.readFileSync(file4, "utf8") : null;
+  const cur = fs13.existsSync(file4) ? fs13.readFileSync(file4, "utf8") : null;
   const prevV = cur ? Number((cur.match(GEN_RE) || [])[1] || 0) : 0;
   const block = `${GEN_START(prevV + 1)}
 ${body}
@@ -89394,28 +89574,28 @@ ${block}
 `;
   const same = cur !== null && (cur.match(GEN_RE)?.[0] || "").replace(/ v=\d+/, "") === block.replace(/ v=\d+/, "");
   if (dryRun || same) return { file: file4, changed: !same, version: prevV + (same ? 0 : 1), preview: body };
-  fs12.mkdirSync(path13.join(dir, ".history"), { recursive: true });
+  fs13.mkdirSync(path14.join(dir, ".history"), { recursive: true });
   if (cur !== null) {
-    fs12.writeFileSync(path13.join(dir, ".history", `SKILL-v${prevV}-${Date.now()}.md`), cur);
-    const old = fs12.readdirSync(path13.join(dir, ".history")).sort();
-    for (const f3 of old.slice(0, Math.max(0, old.length - 20))) fs12.rmSync(path13.join(dir, ".history", f3), { force: true });
+    fs13.writeFileSync(path14.join(dir, ".history", `SKILL-v${prevV}-${Date.now()}.md`), cur);
+    const old = fs13.readdirSync(path14.join(dir, ".history")).sort();
+    for (const f3 of old.slice(0, Math.max(0, old.length - 20))) fs13.rmSync(path14.join(dir, ".history", f3), { force: true });
   }
   ensureProjectDrip(cwd);
-  fs12.writeFileSync(file4, next);
+  fs13.writeFileSync(file4, next);
   return { file: file4, changed: true, version: prevV + 1, preview: body };
 }
 function undoProjectSkill({ cwd } = {}) {
   const dir = skillDir(cwd);
-  const hist = path13.join(dir, ".history");
-  const files = fs12.existsSync(hist) ? fs12.readdirSync(hist).filter((f3) => f3.endsWith(".md")).sort() : [];
+  const hist = path14.join(dir, ".history");
+  const files = fs13.existsSync(hist) ? fs13.readdirSync(hist).filter((f3) => f3.endsWith(".md")).sort() : [];
   if (!files.length) throw new Error("No earlier version of the project skill to restore.");
   const last = files[files.length - 1];
-  const file4 = path13.join(dir, "SKILL.md");
-  const cur = fs12.existsSync(file4) ? fs12.readFileSync(file4, "utf8") : "";
-  const restored = fs12.readFileSync(path13.join(hist, last), "utf8");
-  fs12.writeFileSync(path13.join(hist, `SKILL-undone-${Date.now()}.md`), cur);
-  fs12.writeFileSync(file4, restored);
-  fs12.rmSync(path13.join(hist, last), { force: true });
+  const file4 = path14.join(dir, "SKILL.md");
+  const cur = fs13.existsSync(file4) ? fs13.readFileSync(file4, "utf8") : "";
+  const restored = fs13.readFileSync(path14.join(hist, last), "utf8");
+  fs13.writeFileSync(path14.join(hist, `SKILL-undone-${Date.now()}.md`), cur);
+  fs13.writeFileSync(file4, restored);
+  fs13.rmSync(path14.join(hist, last), { force: true });
   return { file: file4, restored: last };
 }
 
@@ -89425,7 +89605,7 @@ var brandKey3 = (b) => b || "default";
 var REDESIGN = /\b(redesign|re-design|rework|rebrand|new direction|reimagine|overhaul|different look|start over|explore (?:new|other|different))\b/i;
 function hasMemory(cwd) {
   const dir = projectDripDir(cwd);
-  return ["boards/index.json", "memory/decisions.json", "skills/project-design/SKILL.md"].some((f3) => fs13.existsSync(path14.join(dir, f3)));
+  return ["boards/index.json", "memory/decisions.json", "skills/project-design/SKILL.md"].some((f3) => fs14.existsSync(path15.join(dir, f3)));
 }
 function itemCounts(board) {
   const c3 = {};
@@ -89456,7 +89636,7 @@ function projectContext({ cwd, task, brand, maxChars } = {}) {
   out.subBoards = listBoards({ includeArchived: false }).filter((b) => b.id !== mid).slice(0, 6).map((b) => ({ id: b.id, name: b.name, scope: b.scope, items: liveItems(b).length, chosen: b.chosen }));
   const doc = designDoc(root);
   if (doc) out.designDoc = { rel: doc.rel, chars: doc.text.length };
-  if (fs13.existsSync(path14.join(projectDripDir(cwd), "skills", "project-design", "SKILL.md"))) out.skill = ".drip/skills/project-design/SKILL.md";
+  if (fs14.existsSync(path15.join(projectDripDir(cwd), "skills", "project-design", "SKILL.md"))) out.skill = ".drip/skills/project-design/SKILL.md";
   out.packs = listPacks(cwd).filter((p2) => p2.type === "project").map((p2) => p2.id);
   const L2 = [];
   L2.push(
@@ -89529,8 +89709,8 @@ init_browser();
 
 // src/core/keys.mjs
 init_paths();
-import fs17 from "node:fs";
-import path17 from "node:path";
+import fs18 from "node:fs";
+import path18 from "node:path";
 var KEY_ENV = {
   openai: ["OPENAI_API_KEY"],
   gemini: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
@@ -89539,10 +89719,10 @@ var KEY_ENV = {
   openverse: ["OPENVERSE_TOKEN"],
   pixabay: ["PIXABAY_API_KEY"]
 };
-var file2 = path17.join(homeDripDir, "keys.json");
+var file2 = path18.join(homeDripDir, "keys.json");
 function readFile() {
   try {
-    return JSON.parse(fs17.readFileSync(file2, "utf8"));
+    return JSON.parse(fs18.readFileSync(file2, "utf8"));
   } catch {
     return {};
   }
@@ -89556,7 +89736,7 @@ function setKey(name, value) {
   const keys = readFile();
   if (value) keys[name] = value.trim();
   else delete keys[name];
-  fs17.writeFileSync(file2, JSON.stringify(keys, null, 2), { mode: 384 });
+  fs18.writeFileSync(file2, JSON.stringify(keys, null, 2), { mode: 384 });
 }
 function keyStatus(names3) {
   const stored = readFile();
@@ -89567,7 +89747,7 @@ function keyStatus(names3) {
 }
 function logUsage(entry) {
   ensureDir(homeDripDir);
-  fs17.appendFileSync(path17.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
+  fs18.appendFileSync(path18.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
 `);
 }
 
@@ -89590,8 +89770,8 @@ function safe(handler) {
 
 // src/modules/workflow.mjs
 init_paths();
-import fs18 from "node:fs";
-import path18 from "node:path";
+import fs19 from "node:fs";
+import path19 from "node:path";
 var SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
   landing: /\b(landing|marketing|homepage|home page|hero|website|site|pricing page|waitlist|portfolio|company)\b/i,
@@ -89685,8 +89865,12 @@ function refPlan(task, surface, mode) {
     return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark", refs_tag "${subject.split(" ")[0]} logo", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
   if (surface === "readme")
     return `REFERENCE PLAN (README): TASTE first: refs_gallery({ query: "${subject} landing page" }) and refs_tag "landing page" (popular): the hero art, bentos and diagrams worth stealing ideas from; refs_view the 3-4 best, refs_study them. REALITY: refs_site on 1 GitHub README known for its design (it shows the 830px column and what GitHub strips). Judge the README's images, not GitHub's own type.`;
-  if (PERSUADE(surface, mode))
-    return `REFERENCE PLAN, two passes. TASTE (the ideas): refs_gallery({ query: "${subject}" }) (Awwwards, Godly, One Page Love, Minimal Gallery\u2026) and refs_tag "landing page" on Dribbble's popular shots; pick the 3-4 most ambitious that fit the brief, refs_view them, refs_study in one call. REALITY (the sizes): refs_site with 2 shipped sites known for their design (${/portfolio/i.test(task) ? "studio, designer and artist portfolios" : "the best product and brand sites in or near this space"}); it measures h1, h2 and body px. Never docs, wikis or GitHub pages. Take the idea from the taste pass and the numbers from the reality pass.`;
+  if (PERSUADE(surface, mode)) {
+    const words3 = subjectWords(task, 2).join(" ");
+    const redesign = /(redesign|rework|refresh|revamp)/i.test(task) || /[a-z0-9-]+\.[a-z]{2,}/i.test(task);
+    const subj = words3 || '<what the product is, 1-2 words: "ai tool", "gaming", "coffee">';
+    return "REFERENCE PLAN, two passes. " + (redesign && !words3 ? "First refs_site({ urls: [<the current site>], before: true }) and name what the product is in 1-2 words; search with THAT, never with the task sentence or the domain. " : "") + `TASTE (the ideas): refs_search("${subj} landing page") and refs_gallery({ query: "${subj}" }) (Awwwards, Minimal Gallery, One Page Love\u2026): the subject's own world, liked work only. For craft beyond the subject: refs_tag "landing page" (popular, well made, not about your subject). Pick the 3-4 strongest that fit the brief, refs_view, refs_study in one call. REALITY (the sizes): refs_site with 2 shipped sites known for their design (${/portfolio/i.test(task) ? "studio, designer and artist portfolios" : "the best product and brand sites in or near this space"}); it measures h1, h2 and body px. Never docs, wikis or GitHub pages. Take the idea from taste, the numbers from reality.`;
+  }
   const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";
   return `REFERENCE PLAN: refs_site on 1-2 shipped products with a strong ${kind} (real screens, measured), then refs_tag "${kind}" and refs_search "${subject} ${kind}" category "product-design"; refs_view the 2-3 best in one call and refs_study them in one call. Refer to shots by their tagged number (L3-7).`;
 }
@@ -89783,12 +89967,12 @@ ${b}`).join("\n\n")
       if (template === "base-css" && loadState().task?.surface === "readme")
         return text('GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: "readme-art" }), render it with render_html (scale 2), and check it with readme_check.', true);
       const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs" };
-      const DEF = { "base-css": fs18.existsSync(path18.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs" };
+      const DEF = { "base-css": fs19.existsSync(path19.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs" };
       const rel3 = out || DEF[template];
-      const dest = path18.resolve(root, rel3);
-      if (fs18.existsSync(dest) && !overwrite) return text(`${rel3} already exists. Pass overwrite: true to replace it, or edit it.`, true);
-      fs18.mkdirSync(path18.dirname(dest), { recursive: true });
-      fs18.copyFileSync(path18.join(kitDir, SRC[template]), dest);
+      const dest = path19.resolve(root, rel3);
+      if (fs19.existsSync(dest) && !overwrite) return text(`${rel3} already exists. Pass overwrite: true to replace it, or edit it.`, true);
+      fs19.mkdirSync(path19.dirname(dest), { recursive: true });
+      fs19.copyFileSync(path19.join(kitDir, SRC[template]), dest);
       if (template === "design-md") return text(`Wrote ${rel3}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
       if (template === "comp") return text(`Wrote ${rel3}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
       if (template === "readme-art") return text(`Wrote ${rel3}: a TEMPLATE (greys, [bracketed] copy, dashed art slots). Set the CHANGE ME tokens to the brand, replace every [bracket] and slot with real words and objects, then run node ${rel3}. It writes hero.png and bento-light/dark.png next to its folder. Guide: drip_guide readme/art.`);
@@ -90545,7 +90729,7 @@ var BmpEncoder = class {
 };
 
 // node_modules/bmp-ts/dist/esm/index.js
-function decode3(bmpData, options) {
+function decode5(bmpData, options) {
   return new BmpDecoder(bmpData, options);
 }
 function encode3(imgData) {
@@ -91628,8 +91812,8 @@ function encode4(image2, options = {}) {
   });
   return encode3({ ...image2, ...options }).data;
 }
-function decode4(data, options) {
-  const result = decode3(data, options);
+function decode6(data, options) {
+  const result = decode5(data, options);
   scan({ bitmap: result }, 0, 0, result.width, result.height, function(_, __, index) {
     const blue = result.data[index + 1];
     const green = result.data[index + 2];
@@ -91645,14 +91829,14 @@ function msBmp() {
   return {
     mime: "image/x-ms-bmp",
     encode: encode4,
-    decode: decode4
+    decode: decode6
   };
 }
 function bmp() {
   return {
     mime: "image/bmp",
     encode: encode4,
-    decode: decode4
+    decode: decode6
   };
 }
 
@@ -93297,10 +93481,10 @@ var methods4 = {
 var import_await_to_js = __toESM(require_await_to_js_umd(), 1);
 
 // node_modules/@jimp/file-ops/dist/esm/index.js
-import { promises as fs19 } from "fs";
+import { promises as fs20 } from "fs";
 import { existsSync } from "fs";
-var readFile2 = fs19.readFile;
-var writeFile = fs19.writeFile;
+var readFile2 = fs20.readFile;
+var writeFile = fs20.writeFile;
 
 // node_modules/@jimp/core/dist/esm/index.js
 var import_lite = __toESM(require_lite(), 1);
@@ -98803,116 +98987,6 @@ var Jimp = createJimp({
 
 // src/core/images.mjs
 import fs24 from "node:fs";
-
-// src/core/http.mjs
-init_paths();
-import crypto5 from "node:crypto";
-import fs22 from "node:fs";
-import path19 from "node:path";
-var cacheDir = path19.join(homeDripDir, "cache");
-var lastHit = /* @__PURE__ */ new Map();
-var queues = /* @__PURE__ */ new Map();
-var DAY = 24 * 60 * 60 * 1e3;
-function cacheFile(key, ext) {
-  const hash2 = crypto5.createHash("sha1").update(key).digest("hex");
-  return path19.join(cacheDir, hash2.slice(0, 2), `${hash2}.${ext}`);
-}
-function readCache(file4, ttlMs) {
-  try {
-    const st = fs22.statSync(file4);
-    if (Date.now() - st.mtimeMs > ttlMs) return null;
-    return fs22.readFileSync(file4);
-  } catch {
-    return null;
-  }
-}
-function writeCache(file4, buf) {
-  ensureDir(path19.dirname(file4));
-  fs22.writeFileSync(file4, buf);
-}
-function throttle(host, delayMs, fn) {
-  const prev = queues.get(host) || Promise.resolve();
-  const next = prev.then(async () => {
-    const wait2 = (lastHit.get(host) || 0) + delayMs - Date.now();
-    if (wait2 > 0) await new Promise((r2) => setTimeout(r2, wait2));
-    try {
-      return await fn();
-    } finally {
-      lastHit.set(host, Date.now());
-    }
-  });
-  queues.set(host, next.catch(() => {
-  }));
-  return next;
-}
-var active = 0;
-var waiting = [];
-async function pooled(fn) {
-  if (active >= 10) await new Promise((r2) => waiting.push(r2));
-  active++;
-  try {
-    return await fn();
-  } finally {
-    active--;
-    waiting.shift()?.();
-  }
-}
-var HttpError = class extends Error {
-  constructor(status, url2, body) {
-    super(`HTTP ${status} for ${url2}${body ? `: ${String(body).slice(0, 200)}` : ""}`);
-    this.status = status;
-  }
-};
-async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as = "text", timeoutMs = 3e4, retries = 2, maxWaitS = 8 } = {}) {
-  const ext = as === "buffer" ? "bin" : "txt";
-  const file4 = cacheFile(url2 + JSON.stringify(headers2), ext);
-  if (ttlMs > 0) {
-    const hit = readCache(file4, ttlMs);
-    const meta3 = readCache(file4 + ".type", ttlMs);
-    if (hit) return { body: decode5(hit, as), contentType: meta3?.toString() || "", cached: true };
-  }
-  const host = new URL(url2).host;
-  const run3 = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
-  return run3(async () => {
-    let res;
-    for (let attempt = 0; ; attempt++) {
-      res = await fetch(url2, { headers: headers2, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
-      if (![429, 503].includes(res.status) || attempt >= retries) break;
-      const after = Number(res.headers.get("retry-after"));
-      const wait2 = Math.min(maxWaitS, Number.isFinite(after) && after > 0 ? after : 3 * 2 ** attempt) * 1e3;
-      await res.arrayBuffer().catch(() => {
-      });
-      await new Promise((r2) => setTimeout(r2, wait2));
-    }
-    const buf = Buffer.from(await res.arrayBuffer());
-    if (res.status === 429) throw new HttpError(429, url2, "rate limited after retries; slow down (fewer parallel calls) and try again in a minute");
-    if (!res.ok) throw new HttpError(res.status, url2, as === "buffer" ? "" : buf.toString("utf8"));
-    const contentType = res.headers.get("content-type") || "";
-    if (ttlMs > 0) {
-      writeCache(file4, buf);
-      writeCache(file4 + ".type", Buffer.from(contentType));
-    }
-    return { body: decode5(buf, as), contentType, cached: false };
-  });
-}
-async function postJson(url2, body, { headers: headers2 = {}, timeoutMs = 18e4 } = {}) {
-  const res = await fetch(url2, {
-    method: "POST",
-    headers: { "content-type": "application/json", ...headers2 },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(timeoutMs)
-  });
-  const text2 = await res.text();
-  if (!res.ok) throw new HttpError(res.status, url2, text2);
-  return JSON.parse(text2);
-}
-function decode5(buf, as) {
-  if (as === "buffer") return buf;
-  const text2 = buf.toString("utf8");
-  return as === "json" ? JSON.parse(text2) : text2;
-}
-
-// src/core/images.mjs
 function imageBlock(buf, mimeType = "image/jpeg") {
   return { type: "image", data: Buffer.from(buf).toString("base64"), mimeType };
 }
@@ -99440,8 +99514,8 @@ async function fetchHtml(url2, config2, ttlMs = 6 * 36e5, retries = 2) {
   return body;
 }
 var ENTITIES = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&#x27;": "'", "&nbsp;": " " };
-var decode6 = (s2) => s2.replace(/&(amp|lt|gt|quot|nbsp|#39|#x27);/g, (m) => ENTITIES[m] || m).replace(/&#(\d+);/g, (_, n3) => String.fromCodePoint(+n3));
-var clean = (s2) => decode6((s2 || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+var decode7 = (s2) => s2.replace(/&(amp|lt|gt|quot|nbsp|#39|#x27);/g, (m) => ENTITIES[m] || m).replace(/&#(\d+);/g, (_, n3) => String.fromCodePoint(+n3));
+var clean = (s2) => decode7((s2 || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
 function cdnBase(url2) {
   return (url2 || "").split("?")[0];
 }
@@ -99467,7 +99541,7 @@ function parseCards(html) {
     const likes = clean(c3.match(/data-shot-like-count>([\s\S]*?)<\/span>/)?.[1]);
     const views = clean(c3.match(/js-shot-views-count[^>]*>([\s\S]*?)<\/span>/)?.[1]);
     const boosted = /data-boost-id="\d+"/.test(c3);
-    cards.push({ id, url: href ? BASE + href : `${BASE}/shots/${id}`, title, image: cdnBase(decode6(img || "")), video: video ? decode6(video) : null, designer, designerUrl, likes, views, boosted });
+    cards.push({ id, url: href ? BASE + href : `${BASE}/shots/${id}`, title, image: cdnBase(decode7(img || "")), video: video ? decode7(video) : null, designer, designerUrl, likes, views, boosted });
   }
   return cards;
 }
@@ -99579,7 +99653,11 @@ async function listingResult(kind, params, ctx2, label) {
     ({ url: url2, cards } = await listing(kind, { ...params, category: void 0 }, config2));
     label = `${label} (no results in ${params.category}; showing all categories)`;
   }
-  const fresh = cards.filter((c3) => c3.image);
+  let fresh = cards.filter((c3) => c3.image);
+  const minLikes = params.minLikes ?? (kind === "search" || kind === "tag" ? 25 : 0);
+  const liked = fresh.filter((c3) => (c3.likes ?? 0) >= minLikes);
+  const lowDropped = minLikes && liked.length >= 10 ? fresh.length - liked.length : 0;
+  if (lowDropped) fresh = liked;
   if (!fresh.length) return text(`No shots for ${label} (page ${params.page || 1}). Try other words, a tag (refs_tag) or a category feed (refs_feed).`);
   const items = fresh.map(toItem);
   const tag = rememberListing(items, { kind, query: params.query || params.username || "", tag: params.tag || "", category: params.category || "" });
@@ -99594,7 +99672,8 @@ async function listingResult(kind, params, ctx2, label) {
   const content = [
     textBlock(
       `Listing ${tag}: ${label} \u2014 page ${params.page || 1}, ${items.length} shots (${url2}). Sheet numbers = ${tag}-<n>.
-${lines.join("\n")}
+` + (lowDropped ? `Left out ${lowDropped} shots with under ${minLikes} likes (minLikes: 0 shows them).
+` : "") + `${lines.join("\n")}
 
 ` + (capped ? "Note: logged-out keyword search stops after about 2 pages. Go deeper with refs_tag / refs_feed / refs_designer.\n" : `More: same call with page ${(params.page || 1) + 1}.
 `) + NEXT_STUDY
@@ -102836,7 +102915,7 @@ import fs42 from "node:fs";
 import path39 from "node:path";
 init_imaging();
 init_paths();
-var strip = (s2) => (s2 || "").replace(/<[^>]+>/g, "").trim();
+var strip2 = (s2) => (s2 || "").replace(/<[^>]+>/g, "").trim();
 var UA = { "User-Agent": "drip-design-mcp/0.4 (design tool; https://github.com/8bitgfx/drip)" };
 var fitsOrientation = (r2, o2) => !o2 || (o2 === "landscape" ? r2.width > r2.height : o2 === "portrait" ? r2.height > r2.width : Math.abs(r2.width / r2.height - 1) < 0.25);
 var SOURCES2 = {
@@ -102881,7 +102960,7 @@ var SOURCES2 = {
     return Object.values(body.query?.pages || {}).map((p2) => {
       const ii = p2.imageinfo?.[0] || {};
       const m = ii.extmetadata || {};
-      return { title: p2.title.replace(/^File:/, "").replace(/\.\w+$/, ""), thumb: ii.thumburl?.replace(/\/\d+px-/, "/400px-"), full: ii.thumburl || ii.url, width: ii.width, height: ii.height, page: ii.descriptionurl, author: strip(m.Artist?.value), license: (strip(m.LicenseShortName?.value) || "see page") + (/SA/.test(m.LicenseShortName?.value || "") ? " (share-alike)" : "") };
+      return { title: p2.title.replace(/^File:/, "").replace(/\.\w+$/, ""), thumb: ii.thumburl?.replace(/\/\d+px-/, "/400px-"), full: ii.thumburl || ii.url, width: ii.width, height: ii.height, page: ii.descriptionurl, author: strip2(m.Artist?.value), license: (strip2(m.LicenseShortName?.value) || "see page") + (/SA/.test(m.LicenseShortName?.value || "") ? " (share-alike)" : "") };
     }).filter((r2) => r2.thumb && r2.width >= 1e3 && fitsOrientation(r2, orientation)).slice(0, limit);
   },
   async cleveland({ query, orientation, limit }) {
@@ -106005,7 +106084,7 @@ async function keyboardProbe(s2, selector) {
 }
 
 // src/modules/patterns/extract.mjs
-var strip2 = (st) => ({ do: st.do, selector: st.selector, text: st.text, label: st.label });
+var strip3 = (st) => ({ do: st.do, selector: st.selector, text: st.text, label: st.label });
 async function extractSpec(target, { selector, states = [], sizes = SIZES2, config: config2, source = {}, axe = false } = {}) {
   const t2 = target.kind ? target : await resolveTarget(target);
   if (t2.kind === "screenshot") return inferFromImage(t2.file, { config: config2, source });
@@ -106035,7 +106114,7 @@ async function extractSpec(target, { selector, states = [], sizes = SIZES2, conf
     ...d.spec,
     states: d.states.map((s2, i2) => ({
       label: s2.label,
-      step: strip2(s2.step),
+      step: strip3(s2.step),
       changes: s2.changes,
       appeared: s2.appeared,
       disappeared: s2.disappeared,
@@ -107747,74 +107826,6 @@ __export(inspire_exports, {
   toSeenItem: () => toSeenItem
 });
 
-// src/modules/inspire/contract.mjs
-var NAMED = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "\u2013", mdash: "\u2014", hellip: "\u2026", rsquo: "\u2019", lsquo: "\u2018", rdquo: "\u201D", ldquo: "\u201C" };
-function decode7(s2 = "") {
-  return String(s2).replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e2) => {
-    if (e2[0] === "#") {
-      const code = e2[1].toLowerCase() === "x" ? parseInt(e2.slice(2), 16) : parseInt(e2.slice(1), 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : m;
-    }
-    return NAMED[e2.toLowerCase()] ?? m;
-  });
-}
-var strip3 = (html = "") => decode7(String(html).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ")).trim();
-function abs(u2, base) {
-  if (!u2) return "";
-  try {
-    return new URL(decode7(u2).trim(), base).href;
-  } catch {
-    return "";
-  }
-}
-var hostOf = (u2) => {
-  try {
-    return new URL(u2).hostname.replace(/^www\./, "");
-  } catch {
-    return "";
-  }
-};
-var slugify2 = (s2) => String(s2 || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-function makeItem(provider, { id, title, url: url2, image: image2, images, author, tags = [], kind = "site", ...extra }) {
-  const clean2 = (s2) => decode7(String(s2 || "")).replace(/\s+/g, " ").trim();
-  return {
-    key: `${provider}:${id}`,
-    title: clean2(title) || String(id),
-    url: url2,
-    image: image2,
-    ...images?.length ? { images } : {},
-    author: clean2(author) || hostOf(url2) || "",
-    source: provider,
-    tags: [...new Set(tags.map(clean2).filter(Boolean))].slice(0, 12),
-    kind,
-    ...extra
-  };
-}
-async function getHtml(url2, config2, { delayMs = 1200, ttlMs = 6 * 36e5, headers: headers2 = {}, fetchPage = get } = {}) {
-  const ua = config2?.refs?.userAgent || "Mozilla/5.0";
-  let body;
-  try {
-    ({ body } = await fetchPage(url2, { headers: { "user-agent": ua, accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", ...headers2 }, delayMs, ttlMs }));
-  } catch (err) {
-    if ([403, 429].includes(err?.status)) throw new Error(`${hostOf(url2)} refuses scripted requests (HTTP ${err.status}); open it in your own browser`);
-    throw err;
-  }
-  if (CHALLENGE.test(String(body).slice(0, 4e3))) throw new Error(`${hostOf(url2)} shows a human check to scripted requests; open it in your own browser`);
-  return body;
-}
-var CHALLENGE = /<title>s*(Just a moment|Attention Required|Vercel Security Checkpoint)/i;
-function rankByQuery(items, query) {
-  const words3 = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
-  if (!words3.length) return items.map((it) => ({ ...it, feed: true }));
-  const scored = items.map((it, i2) => {
-    const hay = `${it.title} ${it.tags.join(" ")} ${it.author}`.toLowerCase();
-    const hits = words3.filter((w) => hay.includes(w)).length;
-    return { it: { ...it, ...hits ? {} : { feed: true } }, hits, i: i2 };
-  });
-  scored.sort((a2, b) => b.hits - a2.hits || a2.i - b.i);
-  return scored.map((s2) => s2.it);
-}
-
 // src/modules/inspire/providers/arena.mjs
 var API3 = "https://api.are.na/v3";
 var token = () => process.env.ARENA_TOKEN || getKey("arena");
@@ -107865,7 +107876,7 @@ function parseAwwwards(html) {
     if (!raw) continue;
     let m;
     try {
-      m = JSON.parse(decode7(raw));
+      m = JSON.parse(decode4(raw));
     } catch {
       continue;
     }
@@ -107896,7 +107907,11 @@ var awwwards = {
   status: "works",
   async search(query, { limit = 24, page: page2 = 1, config: config2 }) {
     const url2 = `https://www.awwwards.com/websites/?${query ? `text=${q(query)}&` : ""}page=${page2}`;
-    return parseAwwwards(await getHtml(url2, config2)).slice(0, limit);
+    const found = parseAwwwards(await getHtml(url2, config2));
+    if (!query) return found.slice(0, limit);
+    const plain = new Set(parseAwwwards(await getHtml(`https://www.awwwards.com/websites/?page=${page2}`, config2)).map((i2) => i2.key));
+    const same = found.filter((i2) => plain.has(i2.key)).length;
+    return (found.length && same / found.length > 0.6 ? found.map((i2) => ({ ...i2, feed: true })) : found).slice(0, limit);
   }
 };
 function parseMinimalGallery(posts) {
@@ -107906,7 +107921,7 @@ function parseMinimalGallery(posts) {
     const image2 = media?.media_details?.sizes?.large?.source_url || media?.source_url;
     if (!image2 || !p2.link) continue;
     const terms = (p2._embedded?.["wp:term"] || []).flat().map((t2) => t2.name);
-    out.push(makeItem("minimalgallery", { id: p2.slug || p2.id, title: strip3(p2.title?.rendered || ""), url: p2.link, image: image2, tags: terms, kind: "site" }));
+    out.push(makeItem("minimalgallery", { id: p2.slug || p2.id, title: strip(p2.title?.rendered || ""), url: p2.link, image: image2, tags: terms, kind: "site" }));
   }
   return out;
 }
@@ -107929,7 +107944,7 @@ function parseHttpster(html) {
     const image2 = chunk2.match(/<img class="Preview__img"[^>]*src="([^"]+)"/)?.[1];
     if (!link || !image2) continue;
     const live = chunk2.match(/class="Preview__ext" href="([^"]+)"/)?.[1]?.replace(/[?&]ref=httpster\.net/, "");
-    out.push(makeItem("httpster", { id: link[1].replace(/^\/website\/|\/$/g, "") || slugify2(link[2]), title: strip3(link[2]), url: abs(link[1], "https://httpster.net"), image: abs(image2, "https://httpster.net"), kind: "site", live }));
+    out.push(makeItem("httpster", { id: link[1].replace(/^\/website\/|\/$/g, "") || slugify2(link[2]), title: strip(link[2]), url: abs(link[1], "https://httpster.net"), image: abs(image2, "https://httpster.net"), kind: "site", live }));
   }
   return out;
 }
@@ -108024,7 +108039,7 @@ function parseOpl(blocks2, kind = "site") {
     out.push(
       makeItem("onepagelove", {
         id: slugify2(page2.replace(/^https?:\/\/onepagelove\.com\//, "")) || slugify2(m[3]),
-        title: decode7(m[3]),
+        title: decode4(m[3]),
         url: page2,
         image: m[2],
         images: kind === "site" ? [m[2].replace(/w=\d+,h=\d+,fit=cover,g=top/, "w=1400")] : void 0,
@@ -108237,7 +108252,7 @@ function register25(server2, ctx2) {
       title: "Search design galleries",
       description: 'Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Land-book, Lapa Ninja, Minimal Gallery, 21st.dev (components), and feeds (Httpster, Dark Mode Design, Godly). Returns a numbered list AND a contact sheet; the numbers work in refs_pick, refs_view, refs_study and board_add. Without `source` it asks every working source for that kind and mixes the results. kind: site (default: shipped pages), section (pricing tables, FAQs, footers... One Page Love), component (21st.dev), motion (Godly). Example: refs_gallery({ query: "fintech dashboard dark", limit: 24 }) or refs_gallery({ source: "onepagelove", kind: "section", query: "pricing table" }). refs_sources shows what each source is good for and whether it works right now.',
       inputSchema: {
-        query: external_exports.string().optional().describe("What you look for, as a designer would say it. Empty = the source's latest"),
+        query: external_exports.string().optional().describe(`1-3 words naming WHAT the product is: "coffee", "ai tool", "gaming", "fintech". Not the task sentence, not the client's domain. Empty = the source's latest`),
         source: external_exports.union([external_exports.string(), external_exports.array(external_exports.string())]).optional().describe('One id or several ("awwwards", ["landbook", "lapaninja"]) or "all". See refs_sources'),
         kind: external_exports.enum(KINDS3).optional().describe("What to look for (default site)"),
         limit: external_exports.number().int().min(4).max(48).optional().describe("Items on the sheet (default 24)"),
@@ -108245,7 +108260,14 @@ function register25(server2, ctx2) {
         sheet: external_exports.boolean().optional().describe("Include the contact sheet image (default true)")
       }
     },
-    safe(async ({ query = "", source, kind = "site", limit = 24, page: page2 = 1, sheet = true }) => {
+    safe(async ({ query: asked = "", source, kind = "site", limit = 24, page: page2 = 1, sheet = true }) => {
+      const words3 = subjectWords(asked);
+      if (asked.trim() && !words3.length)
+        return text(
+          `"${asked}" names no subject: galleries search by what the product IS. Use 1-3 words for its category or world, e.g. "ai tool", "gaming", "coffee", "fintech", "portfolio". For a redesign, look at the current site first (refs_site with before: true) and name what it is.`,
+          true
+        );
+      const query = words3.join(" ");
       const { list: list4, unknown: unknown2 } = resolveSources(source, kind);
       if (!list4.length) return text(`No source to search${unknown2.length ? ` (unknown: ${unknown2.join(", ")})` : ""}. Run refs_sources to see the ids.`, true);
       const config2 = ctx2.config();
@@ -108263,9 +108285,13 @@ function register25(server2, ctx2) {
           }
         })
       );
-      const items = interleave(results.map((r2) => r2.items), limit);
+      const dropped = query ? results.reduce((n3, r2) => n3 + r2.items.filter((i2) => i2.feed).length, 0) : 0;
+      const items = interleave(results.map((r2) => query ? r2.items.filter((i2) => !i2.feed) : r2.items), limit);
+      const thin = query && items.length < Math.min(8, limit / 3);
       const notes = results.filter((r2) => r2.error).map((r2) => `${r2.p.label}: ${r2.error}`);
       const feedNote = results.filter((r2) => r2.p.status === "feed" && r2.items.length).map((r2) => r2.p.label);
+      if (!items.length) return text(`No gallery matches for "${query}"${dropped ? ` (the sources only had unrelated latest posts, left out)` : ""}. Try one broader word for the category ("saas", "food", "gaming", "fashion") or Dribbble: refs_search("${query} landing page").${notes.length ? `
+Problems: ${notes.join(" \xB7 ")}` : ""}`, true);
       if (!items.length) return text(`No results for "${query}" (${list4.map((p2) => p2.label).join(", ")}).${notes.length ? `
 Problems: ${notes.join(" \xB7 ")}` : ""}
 Try other words, another kind or source (refs_sources).`, !!notes.length);
@@ -108287,8 +108313,11 @@ Try other words, another kind or source (refs_sources).`, !!notes.length);
 `;
       const content = [
         textBlock(
-          head + lines.join("\n") + (feedNote.length ? `
-Note: ${feedNote.join(", ")} ha${feedNote.length > 1 ? "ve" : "s"} no text search: shown by title match, then newest.` : "") + (notes.length ? `
+          head + lines.join("\n") + (asked && query !== asked.trim().toLowerCase() ? `
+Searched the subject words "${query}" (from "${asked}").` : "") + (dropped ? `
+Left out ${dropped} unrelated latest posts from sources that found no match.` : "") + (thin ? `
+Few matches: also try one broader category word, or Dribbble refs_search("${query} landing page").` : "") + (feedNote.length ? `
+Note: ${feedNote.join(", ")} ha${feedNote.length > 1 ? "ve" : "s"} no text search: matched by title and tags.` : "") + (notes.length ? `
 Skipped: ${notes.join(" \xB7 ")}` : "") + (unknown2.length ? `
 Unknown source: ${unknown2.join(", ")}` : "") + `
 More: same call with page ${page2 + 1}.
@@ -111631,7 +111660,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.6.0";
+var VERSION = "0.6.1";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.

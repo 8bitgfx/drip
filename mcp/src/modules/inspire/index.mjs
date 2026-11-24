@@ -8,6 +8,7 @@ import { contactSheet, fetchImage, imageBlock, textBlock } from "../../core/imag
 import { blocks, safe, text } from "../../core/result.mjs";
 import { rememberListing } from "../../core/seen.mjs";
 import { updateState } from "../../core/state.mjs";
+import { subjectWords } from "./contract.mjs";
 import { allProviders, getProvider, NOT_USABLE } from "./providers/index.mjs";
 import { token as arenaToken } from "./providers/arena.mjs";
 import { loadEntries, rankEntries } from "./rank.mjs";
@@ -84,7 +85,7 @@ export function register(server, ctx) {
         'Example: refs_gallery({ query: "fintech dashboard dark", limit: 24 }) or refs_gallery({ source: "onepagelove", kind: "section", query: "pricing table" }). ' +
         "refs_sources shows what each source is good for and whether it works right now.",
       inputSchema: {
-        query: z.string().optional().describe("What you look for, as a designer would say it. Empty = the source's latest"),
+        query: z.string().optional().describe("1-3 words naming WHAT the product is: \"coffee\", \"ai tool\", \"gaming\", \"fintech\". Not the task sentence, not the client's domain. Empty = the source's latest"),
         source: z.union([z.string(), z.array(z.string())]).optional().describe('One id or several ("awwwards", ["landbook", "lapaninja"]) or "all". See refs_sources'),
         kind: z.enum(KINDS).optional().describe("What to look for (default site)"),
         limit: z.number().int().min(4).max(48).optional().describe("Items on the sheet (default 24)"),
@@ -92,7 +93,17 @@ export function register(server, ctx) {
         sheet: z.boolean().optional().describe("Include the contact sheet image (default true)"),
       },
     },
-    safe(async ({ query = "", source, kind = "site", limit = 24, page = 1, sheet = true }) => {
+    safe(async ({ query: asked = "", source, kind = "site", limit = 24, page = 1, sheet = true }) => {
+      // Galleries match the subject. A task sentence ("redesign vizzbees.com landing and main screen") matches nothing and
+      // every source then answers with its latest posts: random references. Search the subject words, or say what's missing.
+      const words = subjectWords(asked);
+      if (asked.trim() && !words.length)
+        return text(
+          `"${asked}" names no subject: galleries search by what the product IS. Use 1-3 words for its category or world, e.g. "ai tool", "gaming", "coffee", "fintech", "portfolio". ` +
+            "For a redesign, look at the current site first (refs_site with before: true) and name what it is.",
+          true,
+        );
+      const query = words.join(" ");
       const { list, unknown } = resolveSources(source, kind);
       if (!list.length) return text(`No source to search${unknown.length ? ` (unknown: ${unknown.join(", ")})` : ""}. Run refs_sources to see the ids.`, true);
       const config = ctx.config();
@@ -110,9 +121,14 @@ export function register(server, ctx) {
           }
         }),
       );
-      const items = interleave(results.map((r) => r.items), limit);
+      // With a query, only real matches: a source's latest posts are not references for this subject.
+      const dropped = query ? results.reduce((n, r) => n + r.items.filter((i) => i.feed).length, 0) : 0;
+      const items = interleave(results.map((r) => (query ? r.items.filter((i) => !i.feed) : r.items)), limit);
+      const thin = query && items.length < Math.min(8, limit / 3);
       const notes = results.filter((r) => r.error).map((r) => `${r.p.label}: ${r.error}`);
       const feedNote = results.filter((r) => r.p.status === "feed" && r.items.length).map((r) => r.p.label);
+      if (!items.length) return text(`No gallery matches for "${query}"${dropped ? ` (the sources only had unrelated latest posts, left out)` : ""}. Try one broader word for the category ("saas", "food", "gaming", "fashion") or Dribbble: refs_search("${query} landing page").${notes.length ? `
+Problems: ${notes.join(" · ")}` : ""}`, true);
       if (!items.length) return text(`No results for "${query}" (${list.map((p) => p.label).join(", ")}).${notes.length ? `\nProblems: ${notes.join(" · ")}` : ""}\nTry other words, another kind or source (refs_sources).`, !!notes.length);
 
       const seen = items.map((it) => toSeenItem(it, { query, kind }));
@@ -133,7 +149,10 @@ export function register(server, ctx) {
         textBlock(
           head +
             lines.join("\n") +
-            (feedNote.length ? `\nNote: ${feedNote.join(", ")} ha${feedNote.length > 1 ? "ve" : "s"} no text search: shown by title match, then newest.` : "") +
+            (asked && query !== asked.trim().toLowerCase() ? `\nSearched the subject words "${query}" (from "${asked}").` : "") +
+            (dropped ? `\nLeft out ${dropped} unrelated latest posts from sources that found no match.` : "") +
+            (thin ? `\nFew matches: also try one broader category word, or Dribbble refs_search("${query} landing page").` : "") +
+            (feedNote.length ? `\nNote: ${feedNote.join(", ")} ha${feedNote.length > 1 ? "ve" : "s"} no text search: matched by title and tags.` : "") +
             (notes.length ? `\nSkipped: ${notes.join(" · ")}` : "") +
             (unknown.length ? `\nUnknown source: ${unknown.join(", ")}` : "") +
             `\nMore: same call with page ${page + 1}.\n${NEXT}`,

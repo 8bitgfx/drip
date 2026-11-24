@@ -49,7 +49,13 @@ async function listingResult(kind, params, ctx, label) {
     ({ url, cards } = await dribbble.listing(kind, { ...params, category: undefined }, config));
     label = `${label} (no results in ${params.category}; showing all categories)`;
   }
-  const fresh = cards.filter((c) => c.image);
+  let fresh = cards.filter((c) => c.image);
+  // Searches and tags mix studio work with 5-like practice shots, and the sheet shows them the same size.
+  // Keep the shots people actually liked, when enough are left.
+  const minLikes = params.minLikes ?? (kind === "search" || kind === "tag" ? 25 : 0);
+  const liked = fresh.filter((c) => (c.likes ?? 0) >= minLikes);
+  const lowDropped = minLikes && liked.length >= 10 ? fresh.length - liked.length : 0;
+  if (lowDropped) fresh = liked;
   if (!fresh.length) return text(`No shots for ${label} (page ${params.page || 1}). Try other words, a tag (refs_tag) or a category feed (refs_feed).`);
   const items = fresh.map(toItem);
   const tag = rememberListing(items, { kind, query: params.query || params.username || "", tag: params.tag || "", category: params.category || "" });
@@ -64,6 +70,7 @@ async function listingResult(kind, params, ctx, label) {
   const content = [
     textBlock(
       `Listing ${tag}: ${label} — page ${params.page || 1}, ${items.length} shots (${url}). Sheet numbers = ${tag}-<n>.\n` +
+        (lowDropped ? `Left out ${lowDropped} shots with under ${minLikes} likes (minLikes: 0 shows them).\n` : "") +
         `${lines.join("\n")}\n\n` +
         (capped ? "Note: logged-out keyword search stops after about 2 pages. Go deeper with refs_tag / refs_feed / refs_designer.\n" : `More: same call with page ${(params.page || 1) + 1}.\n`) +
         NEXT_STUDY,

@@ -45,7 +45,12 @@ const awwwards = {
   status: "works",
   async search(query, { limit = 24, page = 1, config }) {
     const url = `https://www.awwwards.com/websites/?${query ? `text=${q(query)}&` : ""}page=${page}`;
-    return parseAwwwards(await getHtml(url, config)).slice(0, limit);
+    const found = parseAwwwards(await getHtml(url, config));
+    if (!query) return found.slice(0, limit);
+    // A query it can't match returns its usual list: compare with the unfiltered page and call that no match.
+    const plain = new Set(parseAwwwards(await getHtml(`https://www.awwwards.com/websites/?page=${page}`, config)).map((i) => i.key));
+    const same = found.filter((i) => plain.has(i.key)).length;
+    return (found.length && same / found.length > 0.6 ? found.map((i) => ({ ...i, feed: true })) : found).slice(0, limit);
   },
 };
 

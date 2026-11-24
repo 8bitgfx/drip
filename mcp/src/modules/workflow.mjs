@@ -5,6 +5,7 @@ import { listGuides, normalizeTopic, readGuide, subTopics } from "../core/guides
 import { checklist, evidenceStale, loadState, missingBeforeUi, needsFitcheck, newTask, otherTasks, reconcileWorkspace, updateState } from "../core/state.mjs";
 import { takeSnapshot } from "../core/evidence.mjs";
 import { graphOf, indexProject } from "../core/indexer/index.mjs";
+import { subjectWords } from "./inspire/contract.mjs";
 import { buildTaskMemory, hasMemory, projectContext } from "../core/project.mjs";
 import { writeProjectSkill } from "../core/memory.mjs";
 import { serveDir } from "../core/serve.mjs";
@@ -144,12 +145,19 @@ function refPlan(task, surface, mode) {
       `REFERENCE PLAN (README): TASTE first: refs_gallery({ query: "${subject} landing page" }) and refs_tag "landing page" (popular): the hero art, bentos and diagrams worth stealing ideas from; refs_view the 3-4 best, refs_study them. ` +
       "REALITY: refs_site on 1 GitHub README known for its design (it shows the 830px column and what GitHub strips). Judge the README's images, not GitHub's own type."
     );
-  if (PERSUADE(surface, mode))
+  if (PERSUADE(surface, mode)) {
+    const words = subjectWords(task, 2).join(" ");
+    const redesign = /(redesign|rework|refresh|revamp)/i.test(task) || /[a-z0-9-]+\.[a-z]{2,}/i.test(task);
+    const subj = words || "<what the product is, 1-2 words: \"ai tool\", \"gaming\", \"coffee\">";
     return (
-      `REFERENCE PLAN, two passes. TASTE (the ideas): refs_gallery({ query: "${subject}" }) (Awwwards, Godly, One Page Love, Minimal Gallery…) and refs_tag "landing page" on Dribbble's popular shots; ` +
-      `pick the 3-4 most ambitious that fit the brief, refs_view them, refs_study in one call. REALITY (the sizes): refs_site with 2 shipped sites known for their design (${/portfolio/i.test(task) ? "studio, designer and artist portfolios" : "the best product and brand sites in or near this space"}); ` +
-      "it measures h1, h2 and body px. Never docs, wikis or GitHub pages. Take the idea from the taste pass and the numbers from the reality pass."
+      "REFERENCE PLAN, two passes. " +
+      (redesign && !words ? "First refs_site({ urls: [<the current site>], before: true }) and name what the product is in 1-2 words; search with THAT, never with the task sentence or the domain. " : "") +
+      `TASTE (the ideas): refs_search("${subj} landing page") and refs_gallery({ query: "${subj}" }) (Awwwards, Minimal Gallery, One Page Love…): the subject's own world, liked work only. ` +
+      "For craft beyond the subject: refs_tag \"landing page\" (popular, well made, not about your subject). Pick the 3-4 strongest that fit the brief, refs_view, refs_study in one call. " +
+      `REALITY (the sizes): refs_site with 2 shipped sites known for their design (${/portfolio/i.test(task) ? "studio, designer and artist portfolios" : "the best product and brand sites in or near this space"}); it measures h1, h2 and body px. ` +
+      "Never docs, wikis or GitHub pages. Take the idea from taste, the numbers from reality."
     );
+  }
   const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";
   return (
     `REFERENCE PLAN: refs_site on 1-2 shipped products with a strong ${kind} (real screens, measured), then refs_tag "${kind}" and refs_search "${subject} ${kind}" category "product-design"; ` +
