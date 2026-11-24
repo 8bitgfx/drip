@@ -59,7 +59,7 @@ export function register(server, ctx) {
       description:
         "Turns text in any open font (Fontsource family name, or a local .ttf/.otf/.woff) into SVG paths, with the font's real metrics (ascender, descender, cap height, x-height, baseline) and per-glyph advances/bounding boxes, " +
         "so you can customise letters and align a mark to the type (e.g. a frame from ascender to baseline). Always outline wordmarks: SVGs in a GitHub <img> can't load fonts. " +
-        'Example: logo_outline({ text: "crumb", font: "Bricolage Grotesque", weight: 700, size: 240, letterSpacing: -0.02, out: "brand/wordmark.svg" })',
+        'Example: logo_outline({ text: "crumb", font: "<the face you chose>", weight: 700, size: 240, letterSpacing: -0.02, out: "brand/wordmark.svg" })',
       inputSchema: {
         text: z.string().min(1).max(40),
         font: z.string().describe("Family name (Fontsource) or a project path to a font file"),

@@ -19,6 +19,12 @@ const NEXT_STUDY =
   "then refs_view each: the ORIGINAL full-size images, every section of the page; study the whole design, then refs_study with values. " +
   "refs_zoom is optional, for one small detail. Fan out with refs_tag and refs_designer. Target: 6-12 studied from 3+ designers, most of them real examples of what you're building.";
 
+// Pages that are almost never good design references: docs, wikis, package registries, repo pages.
+const DULL_SITE = /(^|\/\/|\.)(docs?|developer|developers|wiki|api|reference|readthedocs|gitbook|mintlify)\.|readthedocs\.io|gitbook\.io|github\.com|gitlab\.com|npmjs\.com|pypi\.org|wikipedia\.org|\/docs?(\/|$)/i;
+
+/** A study is a TASTE reference (galleries, Dribbble: ideas, ambition) or a REALITY reference (a shipped site, measured: real sizes). */
+export const passOf = (key) => (String(key).startsWith("site:") ? "reality" : "taste");
+
 /** Does this reference show the kind of thing being built (a page, a screen), not print or objects? */
 export function onSurface(item) {
   const hay = `${item.title || ""} ${(item.tags || []).join(" ")} ${item.from?.category || ""} ${item.from?.query || ""} ${item.from?.tag || ""}`.toLowerCase();
@@ -225,7 +231,7 @@ export function register(server, ctx) {
       title: "Study shipped sites",
       description:
         "Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. " +
-        "The best references for a page: what strong studios actually ship, at real scale (Dribbble shots are concepts whose type sizes are fiction). Pick sites in the category and a notch above it. " +
+        "The REALITY pass: real type sizes, real density, at real scale. Take the idea from galleries and Dribbble (refs_gallery, refs_tag), the sizes from here. Pick sites known for their design, in the category or a notch above it; never docs, wikis or GitHub pages. " +
         "Waits for app content to load (network idle) and warns when the shot still shows skeletons. Also reads each site's brand as shipped: logo (img src or inline SVG), fonts, colours. " +
         "For a REDESIGN, pass the current site with before: true first: it becomes the 'before' and its logo, fonts and colours go into the brief. " +
         "Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: [\"https://linear.app\", \"https://www.figma.com\"] })",
@@ -237,6 +243,14 @@ export function register(server, ctx) {
     },
     safe(async ({ urls, screens = 2, before = false }) => {
       const config = ctx.config();
+      const surface = loadState().task?.surface;
+      const dull = before ? [] : urls.filter((u) => DULL_SITE.test(u) && !(surface === "readme" && /github\.com/i.test(u)));
+      if (dull.length)
+        return text(
+          `Not references: ${dull.join(", ")}. Docs, wikis, package pages and GitHub repos show what a default looks like, not what good looks like. ` +
+            "For taste use refs_gallery (Awwwards, Godly, One Page Love, Minimal Gallery…) or refs_tag on Dribbble; for real sizes use 2 shipped product or brand sites that are known for their design.",
+          true,
+        );
       const dir = rendersDir(`sites-${stamp()}`);
       const results = await Promise.all(
         urls.map(async (raw) => {
@@ -448,12 +462,12 @@ export function register(server, ctx) {
         };
       const note = `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · density: ${n.density} · detail: ${n.detail} · leave: ${n.leave}`;
       const surface = st0.task?.surface;
-      const studyRec = { ...n, at: new Date().toISOString(), surface, onSurface: onSurface(item) };
+      const studyRec = { ...n, at: new Date().toISOString(), surface, onSurface: onSurface(item), pass: passOf(key) };
       remember({ ...item, study: studyRec });
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.refs.studied = (s.task.refs.studied || []).filter((x) => x.key !== key);
-        s.task.refs.studied.push({ key, designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: new Date().toISOString() });
+        s.task.refs.studied.push({ key, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: new Date().toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;

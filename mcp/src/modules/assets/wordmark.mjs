@@ -113,7 +113,7 @@ export function register(server, ctx) {
       description:
         "Outlines a name in a real font into an SVG wordmark and keeps an editable spec. You control tracking (thousandths of an em), kerning per pair (\"AV\": -40), ligatures and colours; it reports the gaps between letters (which pairs sit loose or tight) and previews the mark large, small (64/32/18 px) and reversed. " +
         "Saves .drip/wordmarks/<name>/wordmark.svg + wordmark.json + preview.png. To tune: call again with from: \"<name>\" and only what changes (kerning merges). Use fonts_compare first to pick the face; logo_outline is the quick one-off. " +
-        'Example: wordmark_build({ name: "bakery", font: "Fraunces", weight: 600, text: "Dawn & Crumb", tracking: -10, kerning: { "w&": 20 } })',
+        'Example: wordmark_build({ name: "bakery", font: "<the face you chose>", weight: 600, text: "Dawn & Crumb", tracking: -10, kerning: { "w&": 20 } })',
       inputSchema: {
         text: z.string().min(1).max(60).optional().describe("The name (required unless from is given)"),
         font: z.string().optional().describe("Open font family (Fontsource) or a local .ttf/.otf/.woff path"),

@@ -59,7 +59,7 @@ Commit to the paired genre; take its `breaks_if` list seriously. "X with a touch
 | `summary` | the 3-sentence manifesto: idea · look and motion · refusal | see below |
 | `adjectives` | 2-4 that each rule something out | "live, dense, exact" |
 | `palette` | 4-6 hex in role order: ground, ink, accent, support | `#121416 #ECEAE4 #F2A93B #24282C` |
-| `type` | real, available faces | "Host Grotesk 500 + Atkinson Hyperlegible Mono" |
+| `type` | real, available faces found with `fonts_search` / `fonts_compare` for this subject | "<display face> 500 + <text face>" |
 | `items` | 3+ board items | `2, 5, 9` |
 
 Check before saving: `palette_check` (body text ≥ 4.5:1; Read surfaces aim for 7:1), `fonts_pair` with the adjectives as mood, `fonts_preview` with the brief's real headline.
@@ -72,7 +72,7 @@ Criteria: (T) crowd level readable in 2 s at 390px · (T) 40 slots/day fit witho
 
 **Door Counter** · Swiss/instrument
 - Manifesto: The live crowd number is the hero, read like an instrument at the door. A dark, dense screen: the number at ~30vw in mono, a 3-hour forecast bar, slots as square buttons, amber only for "now". It refuses the dramatic climber photo and the motivational headline.
-- Adjectives: live, dense, exact · Palette: `#121416 #ECEAE4 #F2A93B #24282C #7FA7C9` · Type: Host Grotesk 500 + Atkinson Hyperlegible Mono · Items: 2, 5, 9
+- Adjectives: live, dense, exact · Palette: `#121416 #ECEAE4 #F2A93B #24282C #7FA7C9` · Type: <a grotesk found for this subject> 500 + <a mono with tabular figures> · Items: 2, 5, 9
 
 **Setter's Sheet** · Editorial / retro print (unexpected pairing: a printed topo sheet)
 - Manifesto: The week's new routes are the reason to come, so the page is the setter's printed sheet. Chalk-white ground, condensed caps for grades, routes listed with line-and-number notation, one hold colour for the CTA and "busy". It refuses the sports-brand look entirely; pairing a gym with print logic beats the safe photo hero because Tuesday's reset is the news.

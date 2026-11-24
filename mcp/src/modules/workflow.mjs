@@ -18,6 +18,7 @@ import path from "node:path";
 import { kitDir, projectDir } from "../core/paths.mjs";
 
 const SURFACE_WORDS = {
+  readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
   landing: /\b(landing|marketing|homepage|home page|hero|website|site|pricing page|waitlist|portfolio|company)\b/i,
   app: /\b(dashboard|admin|app|table|settings|crm|analytics|panel|console|inbox|editor|tool)\b/i,
   mobile: /\b(mobile|phone|ios|android|pwa|app screen|bottom sheet)\b/i,
@@ -37,7 +38,7 @@ const TOPIC_WORDS = {
   components: /\b(component|library|shadcn)\b/i,
 };
 
-const FULL_WORDS = /\b(new|design|redesign|build|create|make|landing|page|screen|site|dashboard|from scratch|revamp|overhaul)\b/i;
+const FULL_WORDS = /\b(new|design|redesign|redo|rewrite|build|create|make|landing|page|screen|site|dashboard|from scratch|revamp|overhaul)\b/i;
 const QUICK_WORDS = /\b(tweak|fix|adjust|nudge|small|slightly|change the|bump|align|rename|padding|margin)\b/i;
 
 function guess(task) {
@@ -66,7 +67,7 @@ function requiredGuides(size, surface, task, mode, packs) {
   else if (mode === "board") g.push("refs", "moodboard");
   else if (mode === "logo") g.push("logo");
   else if (PERSUADE(surface, mode)) g.push("playbook");
-  else if (size === "full") g.push("rules/hard-rules", { app: "app", mobile: "mobile", component: "components" }[surface] || "layout");
+  else if (size === "full") g.push("rules/hard-rules", { app: "app", mobile: "mobile", component: "components", readme: "readme" }[surface] || "layout");
   else {
     const topics = Object.entries(TOPIC_WORDS).filter(([, re]) => re.test(task)).map(([t]) => t);
     g.push("rules/hard-rules", ...(topics.length ? topics.slice(0, 2) : ["polish"]));
@@ -110,10 +111,16 @@ function refPlan(task, surface, mode) {
       .trim() || "product";
   if (mode === "logo")
     return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark", refs_tag "${subject.split(" ")[0]} logo", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
+  if (surface === "readme")
+    return (
+      `REFERENCE PLAN (README): TASTE first: refs_gallery({ query: "${subject} landing page" }) and refs_tag "landing page" (popular): the hero art, bentos and diagrams worth stealing ideas from; refs_view the 3-4 best, refs_study them. ` +
+      "REALITY: refs_site on 1 GitHub README known for its design (it shows the 830px column and what GitHub strips). Judge the README's images, not GitHub's own type."
+    );
   if (PERSUADE(surface, mode))
     return (
-      `REFERENCE PLAN (fast, ~2 calls): refs_site with 3-4 SHIPPED sites in this category or a notch above it (${/portfolio/i.test(task) ? "studio, designer and artist portfolios you know are strong" : "the best product and brand sites in this space you know"}), ` +
-      "in one call; it measures their h1, h2 and body px. Then refs_study them all in one call. Only if a gap remains (a section type, a motion idea): refs_tag one Dribbble tag, refs_view 1-2, refs_study."
+      `REFERENCE PLAN, two passes. TASTE (the ideas): refs_gallery({ query: "${subject}" }) (Awwwards, Godly, One Page Love, Minimal Gallery…) and refs_tag "landing page" on Dribbble's popular shots; ` +
+      `pick the 3-4 most ambitious that fit the brief, refs_view them, refs_study in one call. REALITY (the sizes): refs_site with 2 shipped sites known for their design (${/portfolio/i.test(task) ? "studio, designer and artist portfolios" : "the best product and brand sites in or near this space"}); ` +
+      "it measures h1, h2 and body px. Never docs, wikis or GitHub pages. Take the idea from the taste pass and the numbers from the reality pass."
     );
   const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";
   return (
@@ -219,6 +226,8 @@ export function register(server, ctx) {
     },
     async ({ template = "base-css", out, overwrite }) => {
       const root = projectDir();
+      if (template === "base-css" && loadState().task?.surface === "readme")
+        return text("GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: \"readme-art\" }), render it with render_html (scale 2), and check it with readme_check.", true);
       const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs" };
       const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs" };
       const rel = out || DEF[template];

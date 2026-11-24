@@ -251,6 +251,8 @@ export function register(server, ctx) {
       // Fixes that would break an approved rule are marked, not applied blindly. The verdict is bound to what was reviewed.
       rec.fixes = offDirectionFixes(rec.fixes).map((m) => (m.off ? `[OFF-DIRECTION: breaks "${m.rule.topic}: ${m.rule.value}"] ${m.fix}` : m.fix));
       const r = { ...rec, at: new Date().toISOString(), measuredBlockers, rev: task?.critic?.pending?.rev || null };
+      // The work changed while the critic was reviewing it: the verdict is about an older version.
+      const movedOn = task && r.rev && r.rev !== artifactRev(task);
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.critic.records.push(r);
@@ -289,7 +291,8 @@ export function register(server, ctx) {
             : rec.verdict === "reject"
               ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review."
               : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";
-      return text(`Recorded critic verdict: ${rec.verdict.toUpperCase()} (${rec.kind}, round ${rounds}). Worst: ${rec.worst}\n${next}\nShow the user the critic's own summary and scores, not a softened version.`);
+      const stale = movedOn ? "\nWARNING: the work changed after critic_prepare, so this verdict is about the earlier version and does not count for the current one. critic_prepare again when you're done changing it." : "";
+      return text(`Recorded critic verdict: ${rec.verdict.toUpperCase()} (${rec.kind}, round ${rounds}). Worst: ${rec.worst}${stale}\n${next}\nShow the user the critic's own summary and scores, not a softened version.`);
     }),
   );
 }

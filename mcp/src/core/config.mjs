@@ -20,6 +20,9 @@ export const DEFAULTS = {
     requireBrief: true,      // full loop: the user's answers recorded with drip_brief
     minRefsStudied: 4,       // full loop: references studied with refs_study before UI is written
     minDesigners: 3,         // ...from at least this many different designers
+    minTaste: 3,             // full loop: studied picks from galleries / Dribbble (ideas, ambition) before UI is written
+    minReality: 2,           // landing pages: shipped sites measured with refs_site (real sizes)
+    freshLooks: true,        // board_directions refuses faces and palettes Drip just used in other projects
     minOnSurface: 3,         // ...and at least this many must show the thing being built (real landing pages, app screens), not print or objects
     minBoardItems: 4,        // items on the moodboard before directions can be formed
     requireDirection: true,  // a direction must be chosen before UI is written, full loop
@@ -29,7 +32,7 @@ export const DEFAULTS = {
   },
 
   // Which files count as UI. Matched against the file path.
-  uiFiles: "\\.(tsx|jsx|vue|svelte|astro|html|css|scss|sass|less)$",
+  uiFiles: "(\\.(tsx|jsx|vue|svelte|astro|html|css|scss|sass|less)$|(^|/)README\\.md$)",
   // Paths that are never gated (tests, stories, generated files).
   ignoreFiles: "(node_modules|\\.drip|dist|build|\\.next|__tests__|\\.test\\.|\\.spec\\.|\\.stories\\.)",
 

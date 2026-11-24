@@ -14,6 +14,7 @@ import { designDoc } from "../../core/skills.mjs";
 import { designDrift } from "./drift.mjs";
 import { toUrl } from "../../core/serve.mjs";
 import * as compare from "./compare.mjs";
+import * as readme from "./readme.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { screenshot } from "./chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
@@ -22,6 +23,7 @@ const CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "
 
 export function register(server, ctx) {
   compare.register(server, ctx);
+  readme.register(server, ctx);
   server.registerTool(
     "fitcheck_shot",
     {
@@ -82,7 +84,7 @@ export function register(server, ctx) {
       updateState((st) => {
         if (st.task) {
           st.task.fitcheck.url = url;
-          if (!blockers.length) st.task.fitcheck.heroPassedAt = new Date().toISOString();
+          if (hero && !blockers.length) st.task.fitcheck.heroPassedAt = new Date().toISOString(); // only fitcheck_shot hero: true passes the hero gate
           if (hero) return; // a hero shot is not a fit check of the page
           st.task.fitcheck.shots += files.length;
           st.task.fitcheck.lastShotAt = new Date().toISOString();

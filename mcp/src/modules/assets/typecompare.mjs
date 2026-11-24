@@ -13,6 +13,7 @@ import { imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
+import { noteFontResearch } from "./fonts.mjs";
 
 const API = "https://api.fontsource.org/v1/fonts";
 const DAY30 = 30 * 24 * 3600e3;
@@ -237,7 +238,7 @@ export function register(server, ctx) {
       description:
         "Candidate fonts side by side in ONE sheet, set with your real headline and body text, plus measured facts from the font files (x-height, cap height, width per em, stroke contrast, stem). " +
         "Use it after fonts_pair / fonts_search to choose between 2-6 faces with your eyes and numbers, and again to check a wordmark candidate. Fonts: open font family names (Fontsource) or local .ttf/.otf/.woff paths (the project's own fonts). " +
-        'Example: fonts_compare({ fonts: ["Fraunces", "Newsreader", "Instrument Serif"], headline: "Slow bread, baked at dawn", body: "Small-batch loaves for the street.", weights: [400, 700] })',
+        'Example: fonts_compare({ fonts: ["<candidate 1>", "<candidate 2>", "<candidate 3>"], headline: "Slow bread, baked at dawn", body: "Small-batch loaves for the street.", weights: [400, 700] })',
       inputSchema: {
         fonts: z.array(z.string()).min(1).max(8).describe("Family names (open fonts) or local font file paths"),
         text: z.string().max(200).optional().describe("The headline to set (default: a sample line)"),
@@ -247,6 +248,7 @@ export function register(server, ctx) {
       },
     },
     safe(async ({ fonts, text: headline = "Ship the product, not the template", body = "The quick brown fox jumps over the lazy dog. Pricing starts at $29 a month: 1,234 teams, 99.9% uptime.", sizes = [56, 18], weights = [400, 700] }) => {
+      noteFontResearch();
       const ws = [...new Set(weights)].sort((a, b) => a - b);
       const failed = [];
       const cards = (

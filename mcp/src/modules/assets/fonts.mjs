@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
+import { updateState } from "../../core/state.mjs";
 import { get } from "../../core/http.mjs";
 import { dataDir } from "../../core/paths.mjs";
 import { previewHtml } from "../../core/preview.mjs";
@@ -28,6 +29,17 @@ function specimen(display, body, sample) {
 </div>`;
 }
 
+/** fonts_search / fonts_pair / fonts_compare count as font research (board_directions asks for it). */
+export function noteFontResearch() {
+  try {
+    updateState((st) => {
+      if (st.task) st.task.fonts = { searched: (st.task.fonts?.searched || 0) + 1, at: new Date().toISOString() };
+    });
+  } catch {
+    /* advisory */
+  }
+}
+
 export function register(server, ctx) {
   server.registerTool(
     "fonts_search",
@@ -38,6 +50,7 @@ export function register(server, ctx) {
     },
     safe(async ({ query, category, variable, limit = 25 }) => {
       const { body } = await get(LIST, { as: "json", ttlMs: 7 * 24 * 3600e3 });
+      noteFontResearch();
       const q = (query || "").toLowerCase();
       const hits = body
         .filter((f) => (!q || f.family.toLowerCase().includes(q) || f.id.includes(q)) && (!category || f.category === category) && (variable === undefined || !!f.variable === variable))
@@ -56,6 +69,7 @@ export function register(server, ctx) {
       inputSchema: { mood: z.string(), preview: z.boolean().optional() },
     },
     safe(async ({ mood, preview = true }) => {
+      noteFontResearch();
       const words = mood.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
       const ranked = pairs()
         .map((p) => ({ p, s: p.moods.filter((m) => words.some((w) => m.includes(w) || w.includes(m))).length - (p.overused ? 0.5 : 0) }))

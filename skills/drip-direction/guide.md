@@ -123,7 +123,7 @@ About 150 words, seven blocks (the last is the genre's `breaks_if` list). It goe
 ```
 ## Direction: Door counter
 THESIS: The live crowd number is the hero, read like an instrument. Refuses the dramatic climber photo and the motivational headline.
-WORLD: Dark (#121416) ground, bone ink, one amber for the live number and "now", a pale blue for booked. Host Grotesk 500 for reading, Atkinson Hyperlegible Mono for every number. Square, ruled, no shadows.
+WORLD: Dark (#121416) ground, bone ink, one amber for the live number and "now", a pale blue for booked. A grotesk found with fonts_search for reading (500), a monospace with tabular figures for every number. Square, ruled, no shadows.
 STORY: A climber sees how busy it is now and over the next 3 hours, picks a slot, books in two taps.
 FIRST VIEWPORT: The number at ~30vw left, a 3-hour forecast bar to its right, the next 4 open slots as buttons under it; nav: wordmark left, "Book" right.
 SIGNATURE: The door counter, updating live, with today's curve behind it.

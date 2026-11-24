@@ -130,7 +130,7 @@ primitive block). `--hue` is the page's anchor hue, used to tint neutrals and sh
 }
 
 @theme {
-  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-display: "<Display Face> Variable", ui-serif, Georgia, serif;
   --font-sans: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 

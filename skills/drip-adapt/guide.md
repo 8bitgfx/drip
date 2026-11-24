@@ -43,7 +43,7 @@ would be equally true for any niche, it doesn't belong.
 4. **References.** Map the niche with the refs tools: 3+ keyword angles, tag paging, related tags, popular
    feeds, 3+ designers. Pick 12-20, study 8-12 closely with `refs_study`. Collect the queries that returned good
    work for `queries.md`.
-5. **Shipped products.** Dribbble is fiction; shipped work is truth. Open 8-15 real products in the browser,
+5. **Shipped products.** Galleries and Dribbble show the ideas and the ambition; shipped work shows the real sizes. Open 8-15 real products in the browser,
    screenshot their key screens, and note what ships versus what only exists in shots.
 6. **Artists and studios.** Find the 10-20 that define the top end. For each: what they do that others don't, in
    one concrete line, plus 1-3 links.
@@ -77,8 +77,8 @@ would be equally true for any niche, it doesn't belong.
 
 - **Do** prefer the official source over a blog's summary of it. A rule from a guideline is evidence; a rule from
   a Medium post is opinion.
-- **Don't** let Dribbble define the niche. It over-represents concepts that never shipped; label those "shot
-  fiction" in study notes.
+- **Don't** let one source define the niche. Dribbble over-represents concepts that never shipped: take their ideas,
+  and note in the study when a size or density only works in a shot.
 
 ### The fixed skeleton
 
@@ -146,7 +146,7 @@ The critic follows it.
 | Adjective leading words ("clean, modern, sleek") | Words that rule things out, each tied to defaults |
 | Artists listed with no "what they do that others don't" | One concrete line each, or drop them |
 | Standards paraphrased from memory, no link | Official source linked, date checked, or marked "verify" |
-| References all from Dribbble concept shots | Add shipped products from the browser; label shot fiction |
+| References all from one source | Mix galleries and Dribbble (ideas) with shipped products (sizes) |
 | Copied text from a public skill or guideline | Rewrite in Drip's voice; credit; no-licence sources as ideas only |
 | A style preset ("use these 3 colours") | Defaults about roles and ratios; palettes belong to genres |
 | Keywords that hijack other tasks ("app", "game", "shop") | Niche-specific words only |

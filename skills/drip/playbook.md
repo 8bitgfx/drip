@@ -3,7 +3,7 @@
 Build from this. It covers Persuade (landing pages, product sites) and Experience (portfolios, showcases). Numbers are at 1440×900 and 390×844, and `kit/base.css` holds them (`drip_kit` copies it into the project). Everything else in Drip is a reference: read a guide only when the step needs it (`drip_guide <topic>`).
 
 ## The bar
-1. Build the page a strong studio would ship this year for this subject. It says plainly what it is, shows the real thing on every screen, and sets it big. Judge against shipped sites (`refs_site`), never against Dribbble shots.
+1. Build the page a strong studio would ship this year for this subject. It says plainly what it is, shows the real thing on every screen, and sets it big. Aim at the best of the galleries; check the numbers against shipped sites (`refs_site`).
 2. The failure to fear is not clutter. It is a page of small things on a wide canvas. When torn, go bigger: bigger type, a bigger picture, fewer words.
 3. Finish the job: every section built and every state styled. Only material the user must supply is left as a labelled slot.
 
@@ -16,7 +16,7 @@ Build from this. It covers Persuade (landing pages, product sites) and Experienc
    - **Experience**: the work itself leads from the first viewport, and the interface recedes.
 
 ## Look (fast)
-8. `refs_site` on 3-4 shipped sites in the category or a notch above it, in one call. It shows their first screens with measured h1, h2 and body px. Then `refs_study` them all in one call, with numbers. Add Dribbble (`refs_tag` → `refs_view` → `refs_study`) only for a gap the sites don't cover. Studies must BE what you are building.
+8. References in two passes. **Taste** (the ideas): `refs_gallery` (Awwwards, Godly, One Page Love, Minimal Gallery…) and `refs_tag` on Dribbble's popular shots; pick the 3-4 most ambitious that fit the brief, `refs_view`, `refs_study`. **Reality** (the sizes): `refs_site` on 2 shipped sites known for their design; it measures h1, h2 and body px. Take the idea from taste, the numbers from reality. Never docs, wikis or GitHub pages: they show the default, not the bar. Studies must BE what you are building.
 
 If `drip_start` printed PROJECT MEMORY, the project already has a master board and maybe an approved direction and rules. Fidelity mode (default): extend that system, research only what is new, `board_attach({ adopt: true, carry: true })`; the brief, the references gate, the critic and the fit check are still this task's own. Redesign mode: propose, never replace. Write what the user says about taste with `feedback_record` (scope page, feature or brand), not into chat memory. Details: `drip_guide moodboard`.
 

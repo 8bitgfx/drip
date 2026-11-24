@@ -13,6 +13,7 @@ import { projectDir } from "../../core/paths.mjs";
 import { pathToFileURL } from "node:url";
 import { readGuide } from "../../core/guides.mjs";
 import { approveDirection, recordFeedback, writeProjectSkill } from "../../core/memory.mjs";
+import { facesOf, isOverused, recentLooks, recordLook, sameFace, samePalette } from "../../core/looks.mjs";
 import { COMP, tileHtml } from "./tile.mjs";
 import { screenshot } from "../fitcheck/chrome.mjs";
 import { renderBoard } from "./render.mjs";
@@ -57,6 +58,34 @@ function remember(board, ev) {
   } catch {
     /* evidence is best effort: the board change already happened */
   }
+}
+
+/**
+ * New directions must not quietly repeat what Drip made for OTHER projects (same faces, same ground + accent), must not
+ * share a display face with each other, and overused faces need a subject reason. Repeats inside one project are its
+ * brand and are fine. Returns an error message or null.
+ */
+export function freshLooksGate(directions, task, config) {
+  if (!task || task.skipped || !config.gates.enforce || config.gates.freshLooks === false || task.size !== "full") return null;
+  const problems = [];
+  if (!task.fonts?.searched)
+    problems.push("No font research yet: fonts_search (by category or a word from the subject), fonts_pair with the direction's mood, or fonts_compare on 3-4 candidates with the real headline. Pick faces from what you find, not from memory.");
+  const displays = directions.map((d) => facesOf(d.type)[0]).filter(Boolean);
+  for (let i = 0; i < displays.length; i++) for (let j = i + 1; j < displays.length; j++) if (sameFace(displays[i], displays[j])) problems.push(`"${directions[i].name}" and "${directions[j].name}" share the display face ${displays[i]}: directions must differ in voice, not only in colour.`);
+  const here = projectDir();
+  const others = recentLooks(5).filter((l) => l.project !== here); // the same project reusing its own faces is its brand
+  for (const d of directions) {
+    const faces = facesOf(d.type);
+    for (const f of faces) {
+      const hit = others.find((l) => (l.faces || []).some((x) => sameFace(x, f)));
+      if (hit) problems.push(`"${d.name}": ${f} was the face of "${hit.direction}" in another project (${hit.at.slice(0, 10)}). Drip just used it: find a different one with fonts_search / fonts_compare.`);
+      else if (isOverused(f) && (d.typeReason || "").trim().length < 25)
+        problems.push(`"${d.name}": ${f} is what every agent reaches for once Inter is banned. Keep it only with typeReason saying why it fits THIS subject (25+ characters), or find another with fonts_search.`);
+    }
+    const twin = others.find((l) => samePalette(d.palette, l.palette));
+    if (twin) problems.push(`"${d.name}": ground ${d.palette[0]} + accent ${d.palette[2] || "?"} is the palette of "${twin.direction}" in another project. Take the colours from this subject's world instead.`);
+  }
+  return problems.length ? `Directions not saved. They repeat Drip's defaults:\n- ${problems.join("\n- ")}` : null;
 }
 
 export function register(server, ctx) {
@@ -275,7 +304,8 @@ export function register(server, ctx) {
               summary: z.string(),
               adjectives: z.array(z.string()).min(2).max(4),
               palette: z.array(z.string()).min(2).max(8).describe("Hex colours in role order: ground, ink, accent, support…"),
-              type: z.string().describe("Display face + text face, e.g. 'Fraunces + Söhne'. Never mono as a voice"),
+              type: z.string().describe("Display face + text face, '<display> + <text>', found with fonts_search / fonts_compare for THIS subject. Never mono as a voice"),
+              typeReason: z.string().optional().describe("Why these faces fit this subject (required for overused faces such as Fraunces, Instrument Serif, Bricolage Grotesque, Syne, Satoshi)"),
               manifesto: z.string().optional().describe("The thesis: the idea this page owns and the category default it refuses, plus the physical scene (who, where, what light)"),
               pairing: z.string().optional().describe("What it borrows ambition or discipline from (a working web world), never a poster's clothes"),
               headline: z.string().optional().describe("The real headline for this direction's comp (8 words or fewer)"),
@@ -298,6 +328,8 @@ export function register(server, ctx) {
       const min = ctx.config().gates.minBoardItems;
       if (live.length < min) return text(`The board has ${live.length} items; collect at least ${min} studied references before forming directions.`, true);
       const keyOf = (r) => (/^\d+$/.test(r) && live[+r - 1] ? live[+r - 1].key : r);
+      const fresh = freshLooksGate(directions, loadState().task, ctx.config());
+      if (fresh) return text(fresh, true);
       const board = updateBoard(
         b0.id,
         (b) => {
@@ -418,6 +450,11 @@ export function register(server, ctx) {
       const yes = approved ?? mode !== "redesign";
       let outcome;
       try {
+        try {
+          recordLook({ direction: d.name, type: d.type, palette: d.palette, task: task?.id, board: b0.id });
+        } catch {
+          /* the history is a nudge, never a reason to fail the choice */
+        }
         outcome = yes || mode === "redesign" ? approveDirection({ boardId: b0.id, direction: d.name, reason, critic: lastCritique(task, "directions") ? (({ verdict, summary, at }) => ({ verdict, summary, at }))(lastCritique(task, "directions")) : null, mode, approved: yes }) : { kind: "chosen-only" };
       } catch (e) {
         return text(e.message, true);

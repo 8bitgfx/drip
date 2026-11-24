@@ -24,7 +24,8 @@ A project keeps its design memory in `.drip/` (master board, approved direction,
 | Shortcut | What it produces | Drip's answer |
 |---|---|---|
 | Guesses the brief, never asks about material | Pages with nothing to show | Intake asks about material first; `drip_brief` is required |
-| Studies concept shots, not shipped sites | Type sizes from Dribbble fiction: 13px labels, 89px heroes | `refs_site` measures real sites; most studies must BE the surface |
+| Studies only one kind of reference | Docs and repo pages give no ambition; concept shots alone give 13px labels and 89px heroes | Taste pass from galleries and Dribbble for the idea, reality pass with `refs_site` for the sizes; never docs or GitHub pages |
+| Same faces and colours every project | Bricolage, Fraunces, Instrument Serif, a yellow or cream ground, again | `fonts_search` / `fonts_compare` for THIS subject; `board_directions` refuses what Drip used in other projects |
 | Directions as palettes and adjectives | A choice that never shows a page | `board_directions` renders each as a first-viewport comp at real size |
 | Writes a free-form type scale | 12-13 sizes, body at 15px, mono labels | `kit/base.css`: seven roles and no eighth; the page gate counts sizes |
 | Builds the whole page, then measures | Fixing scale means rebuilding | The hero gate runs after nav + hero, before any section |
