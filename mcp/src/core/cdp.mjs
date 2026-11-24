@@ -443,14 +443,14 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   if (persuade && desk && a.h2 && a.h2 < 40) blockers.push(`median h2 is ${a.h2}px (min 40; the Section role is 56px)`);
   if (persuade && a.empty?.length) {
     const bad = a.empty.map((e, i) => [i + 1, e]).filter(([, e]) => e > 0.5);
-    if (bad.length) blockers.push(`screen(s) ${bad.map(([i, e]) => `${i} (${Math.round(e * 100)}% empty)`).join(", ")}: more than half empty. Bigger content or a picture, never padding`);
+    if (bad.length) blockers.push(`screen(s) ${bad.map(([i, e]) => `${i} (${Math.round(e * 100)}% empty)`).join(", ")}: more than half empty. Fill it with a layout move, never padding: make the picture span the full width, set the line as a big statement across the screen, put two short sections side by side as a bento, pin a sticky demo beside the copy, or run a horizontal gallery of the real work`);
     else if (a.empty.some((e) => e > 0.4)) warnings.push(`some screens are over 40% empty: ${a.empty.map((e) => Math.round(e * 100) + "%").join(" ")}`);
   }
   if (a.sections?.length >= 3) {
     const forms = {};
     for (const x of a.sections) if (x.form && x.form !== "text") forms[x.form] = (forms[x.form] || 0) + 1;
     const top = Object.entries(forms).sort((p, q) => q[1] - p[1])[0];
-    if (top && top[1] >= 3 && top[0].startsWith("split")) warnings.push(`${top[1]} sections share one layout (${top[0].replace("split-", "text beside a picture on the ")}): a template, not a design. Give sections different forms from the references: a bento, a full-bleed picture, a horizontal gallery, a sticky demo, a big statement`);
+    if (top && top[1] >= 3 && top[0].startsWith("split")) (persuade ? blockers : warnings).push(`${top[1]} sections share one layout (${top[0].replace("split-", "text beside a picture on the ")}): a template, not a design. Give sections different forms from the references: a bento, a full-bleed picture, a horizontal gallery, a sticky demo, a big statement`);
   }
   if (persuade && a.sections?.length) {
     const bare = a.sections.filter((s) => !s.pic);

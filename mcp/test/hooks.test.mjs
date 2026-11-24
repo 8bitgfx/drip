@@ -96,6 +96,11 @@ test("full task blocks until guides, references and direction are done", () => {
   task.board = { id: "b", items: 9, directions: 2, chosen: "Terminal Calm" };
   task.critic.records.push({ kind: "directions", verdict: "pass", summary: "ok", at: new Date().toISOString() });
   saveState({ version: 1, task, history: [] }, p);
+  const noPlan = runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: path.join(p, "src/Pricing.tsx"), content: "<div/>" } }, p);
+  assert.ok(deny(noPlan), "sections need a plan that names their borrowed move and picture");
+  assert.match(noPlan.hookSpecificOutput.permissionDecisionReason, /board_plan/);
+  task.plan = { page: "landing", at: new Date().toISOString(), sections: [] };
+  saveState({ version: 1, task, history: [] }, p);
   assert.equal(runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: path.join(p, "src/Pricing.tsx"), content: "<div/>" } }, p), null);
 });
 

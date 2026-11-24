@@ -342,6 +342,9 @@ export function missingBeforeUi(task, config) {
       if (!any(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
         missing.push({ need: "pictures", how: "pick a picture source for each section that needs one: images_search (Imageory first), art_generate, shader_hero, mockup_render for screens, or the user's real files; never fill the product's place with a drawing you improvised" });
     }
+    // Sections come from the references too, not only the hero: the plan names each section's borrowed move and picture.
+    if (g.requirePlan !== false && ["landing", "app", "mobile"].includes(task.surface) && task.board?.chosen && !task.board?.adopted && !task.plan)
+      missing.push({ need: "section plan", how: "board_plan: one line per section (hero and footer included) with its idea, its form, the move it takes from a studied reference, its picture source, and two or three eye-candy moments" });
     if (g.requireCritic && task.board?.chosen && !task.board?.adopted && !lastCritique(task, "directions"))
       missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
   }
@@ -416,6 +419,7 @@ export function checklist(task, config) {
     lines.push(`${tick(dc?.verdict === "pass")} critic ranked the directions${dc ? `: ${dc.verdict.toUpperCase()} (${dc.summary})${dc.verdict === "pass" ? "" : ` NOT PASSED: rework ${reworkNames(dc) || "the weak directions"}`}` : ""}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
     lines.push(`${tick(task.system)} system written (kit/base.css + DESIGN.md)`);
+    if (["landing", "app", "mobile"].includes(task.surface)) lines.push(`${tick(!!task.plan)} section plan${task.plan ? `: ${task.plan.sections.length} sections, ${new Set(task.plan.sections.map((s) => s.form)).size} forms, ${task.plan.sections.filter((s) => s.candy).length} eye-candy` : " (board_plan)"}`);
     if (isPersuade(task)) lines.push(`${tick(!!task.fitcheck.heroPassedAt)} hero gate passed (fitcheck_shot hero: true, before the sections)`);
   }
   lines.push(`${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`);

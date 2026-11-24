@@ -120,6 +120,58 @@ export function groundingGate(directions, task, live, config) {
   return problems.length ? `Directions not saved: each one builds on what you studied.\n- ${problems.join("\n- ")}\nUse the board numbers of studied references (board_read lists them).` : null;
 }
 
+export const PLAN_FORMS = ["hero", "split", "full-bleed", "bento", "gallery", "sticky-demo", "interactive", "statement", "visualisation", "grid", "table", "timeline", "quotes", "footer", "other"];
+export const PICTURE_SOURCES = ["images_search", "art_generate", "shader_hero", "mockup_render", "scene_render", "components_find", "code-visual", "product-ui", "user-files", "none"];
+
+/**
+ * The section plan: every section borrows a move from a studied reference, names where its picture comes from, and the
+ * page varies its forms. This is what stops sections 2-8 coming from habit (one text-beside-picture split, repeated).
+ * Returns every problem at once, or [] when the plan holds.
+ */
+export function planGate(sections, task, live = []) {
+  const problems = [];
+  const studied = task?.refs?.studied || [];
+  const keys = new Set(studied.map((x) => x.key));
+  const keyOf = (r) => {
+    const v = String(r).trim();
+    if (/^\d+$/.test(v) && live[+v - 1]) return live[+v - 1].key;
+    if (/^https?:\/\//i.test(v)) return siteKey(v);
+    try {
+      return resolve(v);
+    } catch {
+      return v;
+    }
+  };
+  const used = new Set();
+  if (keys.size) {
+    for (const s of sections) {
+      const k = keyOf(s.takes.ref);
+      if (!keys.has(k)) problems.push(`"${s.id}" takes from "${s.takes.ref}", which you haven't studied. Use a studied reference (its board number, URL or key), or study it first (refs_site / refs_study)`);
+      else used.add(k);
+    }
+    const want = Math.min(3, keys.size);
+    if (used.size && used.size < want) problems.push(`the plan borrows from ${used.size} reference(s); take from at least ${want} different ones, so the page is not one reference re-skinned`);
+  }
+  const body = sections.filter((s) => s.form !== "hero" && s.form !== "footer");
+  const counts = {};
+  for (const s of body) counts[s.form] = (counts[s.form] || 0) + 1;
+  const cap = Math.max(2, Math.ceil(body.length / 3));
+  for (const [f, n] of Object.entries(counts)) {
+    const max = f === "split" ? 2 : cap;
+    if (n > max) problems.push(`${n} sections are "${f}" (max ${max}): a repeated form is a template. Give some of them another form from the references (bento, full-bleed, gallery, sticky demo, statement, visualisation, interactive)`);
+  }
+  for (let i = 1; i < sections.length; i++)
+    if (sections[i].form === sections[i - 1].form && sections[i].form !== "other") problems.push(`"${sections[i - 1].id}" and "${sections[i].id}" are both "${sections[i].form}" side by side: neighbours need different forms`);
+  if (body.length >= 4 && Object.keys(counts).length < 3) problems.push(`only ${Object.keys(counts).length} form(s) across ${body.length} sections; use at least 3`);
+  const none = sections.filter((s) => s.picture.source === "none");
+  if (none.length > 2) problems.push(`${none.length} sections have no picture (${none.map((s) => `"${s.id}"`).join(", ")}); at most 2, and only a statement, table or timeline goes without one`);
+  for (const s of none) if (!["statement", "table", "timeline", "quotes", "footer"].includes(s.form)) problems.push(`"${s.id}" (${s.form}) has no picture: name its source, or make it a statement, table or timeline`);
+  const candy = sections.filter((s) => s.candy);
+  if (candy.length < 2) problems.push(`${candy.length} eye-candy moment(s); mark two or three sections people will screenshot (candy: true): a visualisation built from real data, a bento of live product UI, an interactive demo, a big footer`);
+  if (!sections.some((s) => s.form === "footer" || /footer/i.test(s.id))) problems.push("no footer in the plan: plan it as a section (wordmark, sitemap, a last call to action), not an afterthought");
+  return problems;
+}
+
 /** Several pages, an app surface, or many components: worth a living design-system page. */
 function bigProject() {
   const task = loadState().task;
@@ -602,9 +654,54 @@ export function register(server, ctx) {
               (bigProject()
                 ? 'This project is big (several pages, an app, or many components): also drip_kit({ template: "system" }) and fill the living system page (type roles, colours, spacing, buttons, inputs, cards, the signature components) so every later page builds from it. '
                 : 'When the project grows past one page, offer the user a living system page (drip_kit template "system"). ') +
-              "Then plan the page by what matters (what will the user be excited to see?), its eye-candy moments, and where each part comes from (components_find, a picture source); build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook:\n\n" +
+              "Then board_plan the page by what matters (what will the user be excited to see?): each section's form, the move it takes from a studied reference, its picture source, two or three eye-candy moments; get the parts (components_find, the picture tools); build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook:\n\n" +
               buildHalf),
       );
+    }),
+  );
+
+  server.registerTool(
+    "board_plan",
+    {
+      title: "Plan the page's sections",
+      description:
+        "After the direction and the system, before the hero: one line per section, hero and footer included. Each section names its one idea, its form, " +
+        "the move it TAKES from a studied reference (a composition, a section idea, an interaction; never only colours), where its picture comes from, and whether it is an eye-candy moment. " +
+        "Refused, with every reason at once, when a reference wasn't studied, the plan leans on fewer than 3 references, forms repeat (max 2 splits, no two neighbours alike, 3+ forms), more than 2 sections have no picture, there are fewer than 2 eye-candy moments, or there is no footer. UI writes wait for it.",
+      inputSchema: {
+        page: z.string().optional().describe("Which page, e.g. 'landing'"),
+        sections: z
+          .array(
+            z.object({
+              id: z.string().min(1),
+              idea: z.string().min(8).describe("The one thing this section says or shows, and why the user cares"),
+              form: z.enum(PLAN_FORMS),
+              takes: z.object({ ref: z.string().describe("A studied reference: board number, URL or key"), what: z.string().min(8).describe("The move borrowed, e.g. 'the sticky product demo that changes with each step'") }),
+              picture: z.object({ source: z.enum(PICTURE_SOURCES), what: z.string().optional().describe("What it shows, e.g. 'the real thumbnail wall', 'chart of renders per day'") }),
+              candy: z.boolean().optional().describe("An eye-candy moment people will screenshot"),
+            }),
+          )
+          .min(4)
+          .max(14),
+        board: z.string().optional(),
+      },
+    },
+    safe(async ({ page, sections, board: bid }) => {
+      let live = [];
+      try {
+        live = liveItems(pick(bid).board);
+      } catch {
+        /* no board: references resolve by URL or key */
+      }
+      const task = loadState().task;
+      if (!task) return text("No Drip task is active. Call drip_start first.", true);
+      const problems = planGate(sections, task, live);
+      if (problems.length) return text(`Plan not saved:\n- ${problems.join("\n- ")}`, true);
+      updateState((s) => {
+        if (s.task) s.task.plan = { page: page || "page", at: new Date().toISOString(), sections };
+      });
+      const lines = sections.map((s, i) => `${i + 1}. ${s.id} [${s.form}${s.candy ? ", eye candy" : ""}]: ${s.idea} · takes ${s.takes.what} (from ${s.takes.ref}) · picture: ${s.picture.source}${s.picture.what ? ` (${s.picture.what})` : ""}`);
+      return text(`Plan saved (${sections.length} sections).\n${lines.join("\n")}\n\nNEXT: get the parts (components_find for the interactive and eye-candy pieces, the picture sources above), then build the hero FIRST and fitcheck_shot({ hero: true }). Build each section to its line; the page gate blocks repeated layouts.`);
     }),
   );
 

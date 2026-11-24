@@ -388,3 +388,26 @@ test("mix guard: a query that mixes look words with a subject says to search twi
   assert.equal(mixNote("brutalist"), "");
   assert.equal(mixNote(""), "");
 });
+
+test("the section plan borrows from studied references and varies its forms", async () => {
+  const { planGate } = await import("../src/modules/board/index.mjs");
+  const task = { refs: { studied: [{ key: "site:linear.app", role: "competitor" }, { key: "site:vercel.com", role: "page" }, { key: "site:dsyellow.com", role: "style" }] } };
+  const s = (id, form, ref, source = "product-ui", candy) => ({ id, idea: "says one clear thing", form, takes: { ref, what: "a borrowed composition" }, picture: { source }, candy });
+  const lazy = [s("hero", "hero", "https://linear.app/"), s("how", "split", "https://linear.app/"), s("features", "split", "https://linear.app/"), s("proof", "split", "https://linear.app/"), s("pricing", "split", "https://linear.app/")];
+  const p = planGate(lazy, task).join("\n");
+  assert.match(p, /from 1 reference/);
+  assert.match(p, /4 sections are "split"/);
+  assert.match(p, /side by side/);
+  assert.match(p, /eye-candy/);
+  assert.match(p, /no footer/);
+  assert.match(planGate([s("hero", "hero", "https://nowhere.example/"), ...lazy.slice(1)], task).join("\n"), /haven't studied/);
+  const good = [
+    s("hero", "hero", "https://linear.app/"),
+    s("demo", "sticky-demo", "https://vercel.com/", "product-ui", true),
+    s("wall", "gallery", "https://dsyellow.com/", "user-files"),
+    s("numbers", "visualisation", "https://vercel.com/", "code-visual", true),
+    s("say", "statement", "https://dsyellow.com/", "none"),
+    s("footer", "footer", "https://linear.app/", "none"),
+  ];
+  assert.deepEqual(planGate(good, task), []);
+});
