@@ -48,7 +48,7 @@ The critic writes findings as `P# [S0-S3 · evidence · confidence] location —
 | **S2** medium | a weak section, an inconsistent recipe, drift from the direction | fix when cheap; otherwise list under "Left" |
 | **S3** polish | details | at the polish pass (`drip_guide polish`) |
 
-- **Fix the root, not the symptom.** "Timid hero type" is fixed by scale (the testable target: the Display role, ~127px at 1440), not by colouring a word.
+- **Fix the root, not the symptom.** "Nothing to look at" is fixed by a picture (the product mockup, a fan of real cards, a render), not by bigger type or colouring a word.
 - **Its fix list is ordered by impact.** Work in that order.
 - **"WHAT'S GENERIC"** lines are S1 by default on bold briefs: replace the default with the direction's own move.
 - **REJECT on a build** means the idea didn't survive into the page. Go back to the direction contract and the signature move; don't polish.

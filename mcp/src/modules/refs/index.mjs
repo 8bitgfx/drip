@@ -430,7 +430,7 @@ export function register(server, ctx) {
       description:
         "Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. " +
         "Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). " +
-        'Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "12-col, headline spans cols 1-9 at ~180px, image bleeds off right edge", type: "condensed grotesk caps, display:body ~10:1", color: "#1B3BFF drenched ground, #F4F1EA ink, the CTA in ink", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, …] })',
+        'Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, …] })',
       inputSchema: {
         studies: z.array(z.object(STUDY_SHAPE)).min(1).max(8).optional(),
         ...Object.fromEntries(Object.entries(STUDY_SHAPE).map(([k, v]) => [k, v.optional()])),

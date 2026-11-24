@@ -22,15 +22,15 @@ A strong direction is specific enough that you could recognise the product with 
 
 ## The craft
 
-### 0. Ambition: bold unless asked
+### 0. Ambition: polished unless asked
 
-The brief's `ambition` is `bold` unless the user asked for plain, safe or corporate. Bold means the page passes the screenshot test (someone would send it to a friend) and the one-risk test (you can name the decision a cautious designer wouldn't make). It does not mean loud everywhere: on Operate and Read, bold is precision and one signature move. `balanced` keeps one signature move and makes the rest familiar; `conservative` is the category standard done perfectly. Full rules: `drip_guide rules/ambition`.
+The brief's `ambition` is `polished` unless the user asked otherwise: beautiful, Dribbble-level craft, proven structure, one rich picture, calm type, smooth motion (the patterns in `drip_guide examples/gold`). `bold` only when the user asked for loud, playful or experimental: then a signature risk is welcome. `conservative` is the category standard done perfectly. Full rules: `drip_guide rules/ambition`.
 
 The direction you commit to is the one the user chose on the board. It is **locked**: this step sharpens it, it never swaps its idea, palette or type voice for something you like better. If it can't carry the content, ask.
 
 ### The anti-genre
 
-"Tasteful AI" (cream or beige ground, terracotta accent, a polite serif with an italic word, tracked mono eyebrows, hairlines, centred hero, three cards) is what models make when nobody decided anything. Its siblings: near-black with one neon and glow; purple-blue gradients with glass; Inter as the only voice. Drip treats them as a named anti-genre: never a direction unless the brief pins it, and the critic caps Idea and Conviction at 4/10 when it finds one. Details and tokens: `drip_guide direction/genres`.
+"Tasteful AI" (cream or beige ground, terracotta accent, a polite serif with an italic word, tracked mono eyebrows, hairlines, centred hero, three cards) is what models make when nobody decided anything. Its siblings: near-black with one neon and glow; purple-blue gradients with glass; Inter as the only voice. Drip treats them as a named anti-genre: never a direction unless the brief pins it, and the critic caps Appeal at 4/10 when it finds one. Details and tokens: `drip_guide direction/genres`.
 
 ### 1. Ambition by mode
 

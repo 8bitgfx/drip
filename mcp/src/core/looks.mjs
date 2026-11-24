@@ -9,10 +9,11 @@ export const looksFile = () => path.join(homeDripDir, "looks.jsonl");
 
 // Faces agents reach for once the first-tier defaults (Inter, Geist, Space Grotesk…) are banned. Allowed, but each
 // needs a reason tied to the subject (typeReason), and never the same one twice in a row across projects.
+// The AI tells: faces agents reach for once Inter is banned, which make every page look the same model made it.
+// Clean premium sans faces (Satoshi, General Sans, Manrope, Plus Jakarta...) are not here: polished pages use them well.
 export const OVERUSED_FACES = [
-  "Bricolage Grotesque", "Instrument Serif", "Instrument Sans", "Fraunces", "Syne", "Satoshi", "Clash Display", "Clash Grotesk",
-  "Cabinet Grotesk", "General Sans", "Host Grotesk", "Atkinson Hyperlegible", "Atkinson Hyperlegible Mono", "Space Grotesk",
-  "DM Serif Display", "Playfair Display", "Cormorant Garamond", "Manrope", "Plus Jakarta Sans", "Outfit", "Sora", "Archivo",
+  "Bricolage Grotesque", "Instrument Serif", "Fraunces", "Syne", "Clash Display", "Space Grotesk", "DM Serif Display",
+  "Playfair Display", "Cormorant Garamond", "Anybody", "Big Shoulders Display", "Climate Crisis", "Dela Gothic One",
 ];
 
 const norm = (f) => f.toLowerCase().replace(/\b(variable|vf)\b/g, "").replace(/[^a-z0-9]+/g, " ").trim();

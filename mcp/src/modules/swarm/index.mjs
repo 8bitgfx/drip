@@ -19,7 +19,8 @@ export function hostHasSubagents(env = process.env) {
 
 /** Swarm mode is on by config (swarm: true) or because this task was started with mode "swarm". */
 export function swarmOn(config, task) {
-  return config?.swarm === true || task?.swarm === true;
+  if (task?.swarm === false) return false;
+  return task?.swarm === true || config?.swarm !== false;
 }
 
 const ROLE_ASK = {

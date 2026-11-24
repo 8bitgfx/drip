@@ -45,3 +45,20 @@ They are a bar for craft, confidence and restraint, never a look to copy: take t
 - Before board_directions: Read the gold image closest to your page and write one line on what your best direction takes from
   its decisions (not its colours or faces).
 - The critic compares your comps and build with it: "would this sit next to the gold page without looking like a template?"
+
+## The polished hero patterns (the target for most briefs)
+What the heroes people save on Dribbble have in common: a calm centred or left headline (about 48-72px, a refined face),
+one short sentence, one or two pill buttons, a small quiet nav, and ONE rich picture doing the work, with soft light and depth.
+Pick the pattern that shows the product best; make it beautifully, not strangely.
+
+- **Glowing product mockup:** near-black ground, a soft coloured radial light (blue, teal, warm; never purple-pink) rising behind
+  the real product dashboard, which sits below the headline in a rounded device frame and bleeds off the bottom; a logo strip between.
+- **Fan or arc of cards:** white or soft ground, real outputs (photos, renders, results) on rounded tilted cards in an arc around
+  a centred serif or grotesk headline; three short benefit columns under the button. Ideal for any tool that makes pictures.
+- **Character in a scene:** an illustrated or 3D mascot and a framed scene (a window, a screen) with the headline inside it;
+  a soft dark frame around, one brand accent on the button and one word.
+- **Product render on dark:** one product (a 3D render or photo) floating centre, lit from the side, a huge faint wordmark behind
+  it as texture, headline and button bottom left, a small detail card bottom right.
+
+Each one: the picture is real or rendered for this product, the type stays calm, the light comes from the picture, rounded
+corners and crisp 1px borders agree, and the hero has an entrance (the cards fan in, the light rises, the render settles).

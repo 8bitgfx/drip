@@ -101,7 +101,7 @@ export function nextStep(task, config) {
 const MATERIAL_WORDS = /\b(screenshot|screenshots|photo|photos|photograph|mockup|mockups|3d|render|renders|illustration|illustrations|generate|generated|own tools|my (app|product|work|screens)|real (screens|data|work)|images?|video|the work)\b/i;
 const FEEL_WORDS = /\b(cool|bold|loud|minimal|minimalist|clean|playful|fun|dark|light|premium|luxury|calm|quiet|editorial|brutal|brutalist|retro|elegant|showcase|wow|fancy|serious|corporate|plain|simple|warm|techy|futuristic|cute|weird|experimental|crazy|insane|polished|sleek|gritty|vibrant|colorful|colourful|moody)\b/i;
 const AUDIENCE_WORDS = /\b(for (my|our|a|an|the)?\s*[a-z-]+s\b|for (developers|devs|designers|kids|teens|gamers|investors|customers|users|clients|teams|startups|agencies|creators|artists|musicians|players)|audience|users? (are|is))\b/i;
-const DECIDE = /\b(just do it|decide for me|you (pick|choose|decide)|surprise me|no questions|don'?t ask)\b/i;
+const DECIDE = /\b(just do it|decide for me|you (pick|choose|decide)|surprise me|no questions|don'?t ask|asap|as soon as possible|get it done|right now)\b/i;
 
 export function intakePlan(taskText, t = {}) {
   const has = (re) => re.test(taskText);
@@ -110,7 +110,7 @@ export function intakePlan(taskText, t = {}) {
   const answered = [];
   if (has(MATERIAL_WORDS) || (brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText))) answered.push("material (the request or the project's brand says what to show)");
   else open.push("MATERIAL: what can it show? e.g. \"Real screenshots/photos I'll give you\" / \"The work itself, rebuilt in HTML\" / \"Generate pictures\" / \"Leave labelled slots\"");
-  if (has(FEEL_WORDS) || (brand && t.memory?.mode === "fidelity")) answered.push(brand && t.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition bold)");
+  if (has(FEEL_WORDS) || (brand && t.memory?.mode === "fidelity")) answered.push(brand && t.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition polished)");
   else open.push("FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus \"Surprise me (bold)\"");
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t.mode) || t.surface === "readme") answered.push("audience and action (clear enough from the request)");
   else open.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
@@ -136,7 +136,7 @@ function intakeText(plan) {
     `Fewer is better; zero is fine when the project answers them. Never pad the round.\n` +
     plan.open.map((q, i) => `${i + 1}. ${q}`).join("\n") +
     (plan.answered.length ? `\nDon't ask about: ${plan.answered.join("; ")}.` : "") +
-    "\nThen drip_brief (asked: the number you asked). Default ambition is BOLD unless they asked for plain."
+    "\nThen drip_brief (asked: the number you asked). Default ambition is POLISHED (beautiful, Dribbble-level craft); bold only if they asked for loud or experimental, conservative if they asked for plain."
   );
 }
 
@@ -209,7 +209,7 @@ export function register(server, ctx) {
         surface: z.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
         packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
         memory: z.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
-        swarm: z.boolean().optional().describe("Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. Also on by default with \"swarm\": true in .drip/config.json."),
+        swarm: z.boolean().optional().describe("Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. On by default; pass false for a small job, or set \"swarm\": false in .drip/config.json."),
       },
     },
     async ({ task, mode, size, surface, packs, memory, swarm }) => {
@@ -220,7 +220,7 @@ export function register(server, ctx) {
       const pk = packs || matchPacks(task).map((p) => p.id);
       const guides = requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
-      if (swarm) t.swarm = true;
+      if (typeof swarm === "boolean") t.swarm = swarm;
       // Design tasks load the project's design memory (compact) and remember which revision they started from. Reusing it
       // never passes this task's own gates: research gaps, the critic and the fit check still run.
       const designTask = ["design", "logo", "board", "polish"].includes(m);
@@ -338,7 +338,7 @@ export function register(server, ctx) {
         feel: z.array(z.string()).min(1).describe("The chosen feel words / options"),
         loves: z.array(z.string()).optional(),
         hates: z.array(z.string()).optional(),
-        ambition: z.enum(["bold", "balanced", "conservative"]).optional().describe("Default bold. Conservative ONLY if the user asked for plain / safe / corporate."),
+        ambition: z.enum(["polished", "bold", "balanced", "conservative"]).optional().describe("Default polished: beautiful, proven structure, superb craft, rich pictures, smooth motion. bold ONLY if the user asked for loud / playful / experimental / brutalist. conservative if they asked for plain / corporate."),
         constraints: z.string().optional(),
         assumptions: z.string().optional().describe("What you assumed without asking"),
         asked: z.number().int().min(0).max(4).optional().describe("How many questions you asked (drip_start gives the cap; often 0-2)"),
@@ -346,7 +346,7 @@ export function register(server, ctx) {
       },
     },
     async (brief) => {
-      const b = { ...brief, ambition: brief.ambition || "bold", at: new Date().toISOString() };
+      const b = { ...brief, ambition: brief.ambition === "balanced" ? "polished" : brief.ambition || "polished", at: new Date().toISOString() };
       const st = updateState((s) => {
         if (s.task) s.task.brief = b;
       });
@@ -360,7 +360,11 @@ export function register(server, ctx) {
             : b.redesign === "keep-brand"
               ? "KEEP THE BRAND: logo, colours and fonts stay; everything else (layout, hierarchy, pictures, sections) is open.\n"
               : "") +
-          (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") +
+          (b.ambition === "bold"
+            ? "Ambition BOLD (the user asked for it): a signature risk is welcome, still beautifully made (rules/ambition).\n"
+            : b.ambition === "polished"
+              ? "Ambition POLISHED: beautiful first, at the level of the best Dribbble shots and Awwwards sites. Proven structure is fine; rich pictures (product UI cards, renders, photos), calm confident type, depth, one colour story and smooth motion make it. No screaming posters (rules/ambition).\n"
+              : "") +
           `${nextStep(st.task, ctx.config())}`,
       );
     },

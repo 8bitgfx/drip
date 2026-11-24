@@ -27,7 +27,7 @@ Ambition is bold by default (`drip_guide rules/ambition`): pick the genre that m
 - **Tokens:** cream or beige ground (#F0-F8 range: #F4F1EA, #FAF7F2); terracotta, rust or clay accent; a polite high-contrast serif display (Fraunces, Playfair Display, Instrument Serif, Cormorant, Newsreader) with one italic word; tracked uppercase mono eyebrows; hairline rules; a centred hero with two buttons; three equal cards; soft grain.
 - **Siblings, same status:** near-black + one neon + glow (the "AI startup" costume); purple-to-blue gradients with glass cards; Inter or Geist everywhere as the only voice.
 - **When allowed:** only when the brief or brand literally pins it ("cream and serif, like our print catalogue"). Then push craft inside it and say so.
-- **The critic:** caps Idea and Conviction at 4/10 for any of these when the brief didn't ask.
+- **The critic:** caps Appeal at 4/10 for any of these when the brief didn't ask.
 - **Breaks if (i.e. you are in it):** three or more of the tokens above appear together. Fix: a palette from the subject's own materials, a type voice with a point of view, a structure from the content's own form.
 
 ---

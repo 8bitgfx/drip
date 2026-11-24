@@ -46,10 +46,16 @@ const AUDIT = `(() => {
   const h2l = [...document.querySelectorAll('h2')].filter(visible).map((h) => Math.round(rpx(h))).sort((a, b) => a - b);
   const h2 = h2l.length ? h2l[Math.floor(h2l.length / 2)] : null;
   // Pictures: media elements, elements with a background image, and anything marked data-visual (a built visual).
-  const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
+  const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
   // First viewport (the page is scrolled to the top here).
   let bigPic = { w: 0, h: 0 };
   for (const p of pics) { const h = Math.min(p.bottom, vh) - Math.max(p.top, 0); if (h > 0 && p.w * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(p.w), h: Math.round(h) }; }
+  const inView = pics.filter((p) => p.top < vh && p.bottom > 0);
+  if (inView.length >= 3) {
+    const w = Math.max(...inView.map((p) => p.right)) - Math.min(...inView.map((p) => p.left));
+    const h = Math.min(vh, Math.max(...inView.map((p) => p.bottom))) - Math.max(0, Math.min(...inView.map((p) => p.top)));
+    if (w * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(w), h: Math.round(h), group: inView.length };
+  }
   let lowest = 0;
   for (const [t, b] of marks) if (t < vh) lowest = Math.max(lowest, Math.min(b, vh));
   for (const p of pics) if (p.top < vh) lowest = Math.max(lowest, Math.min(p.bottom, vh));
@@ -422,7 +428,7 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
       const container = Math.min(a.width - 128, 1312);
       const picOk = a.hero.pic.w >= container * 0.45 && a.hero.pic.h >= (a.vh || 900) * 0.6;
       const typeOk = a.hero.h1w >= container * 0.62;
-      if (!picOk && !typeOk) blockers.push(`hero is small: biggest picture ${a.hero.pic.w}x${a.hero.pic.h}px, h1 ${a.hero.h1w}px wide. Needs a picture >= 6 columns and >= 60% of the screen tall, or an h1 spanning 8+ columns`);
+      if (!picOk && !typeOk) blockers.push(`hero is small: biggest picture ${a.hero.pic.w}x${a.hero.pic.h}px, h1 ${a.hero.h1w}px wide. Needs a picture (or a group of 3+ pictures, such as a fan of cards or a product mockup) >= 6 columns and >= 60% of the screen tall, or an h1 spanning 8+ columns`);
       if (!a.hero.actions) warnings.push("no visible action (button or styled link) in the first viewport");
     }
     if (a.hero.emptyBelow > 160) blockers.push(`${a.hero.emptyBelow}px of nothing at the bottom of the first viewport (max 160). Make the content bigger, never the gap`);

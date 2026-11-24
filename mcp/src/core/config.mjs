@@ -45,7 +45,7 @@ export const DEFAULTS = {
   board: { port: 4567 },
 
   // Swarm Mode: the main agent directs; cheap subagents scout, build and re-check (drip_start swarm: true per task).
-  swarm: false,
+  swarm: true,
 
   // Project design memory (docs/PROJECT_MEMORY.md).
   //   freshDays      a study older than this is not carried into a new task as inherited evidence

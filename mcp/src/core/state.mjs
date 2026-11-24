@@ -297,7 +297,7 @@ export function missingBeforeUi(task, config) {
     const need = { style: g.minStyle ?? 2, competitor: g.minCompetitors ?? 2, page: g.minPage ?? 2 };
     if (pageWork || task.surface === "readme") {
       if (roles.style < need.style)
-        missing.push({ need: "style references", how: `study ${need.style - roles.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("brutalist", "playful 3d", "editorial dark"), never mixed with the subject (now ${roles.style}/${need.style})` });
+        missing.push({ need: "style references", how: `study ${need.style - roles.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("dark saas glow", "soft 3d", "clean product", "playful illustration"), never mixed with the subject (now ${roles.style}/${need.style})` });
       if (roles.competitor < need.competitor && task.surface !== "readme") {
         const type = productTypeWords(task).slice(0, 3).join(" ");
         const sameType = competitorsShareType(task) === false;
@@ -339,7 +339,9 @@ export function missingBeforeUi(task, config) {
       const any = (re) => Object.keys(used).some((k) => re.test(k));
       if (!any(/^(components_|catalogue_)/))
         missing.push({ need: "components", how: "components_find for the page's interactive and eye-candy pieces (a prompt box, a gallery or marquee, a bento, pricing, a footer, a chart): build on the best one found, or say why none fits" });
-      if (!any(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
+      // The plan may say every picture is the project's own (real outputs, product UI built in code): that is a source too.
+      const ownPictures = task.plan?.sections?.length && task.plan.sections.every((x) => ["user-files", "product-ui", "code-visual", "none"].includes(x.picture?.source));
+      if (!ownPictures && !any(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
         missing.push({ need: "pictures", how: "pick a picture source for each section that needs one: images_search (Imageory first), art_generate, shader_hero, mockup_render for screens, or the user's real files; never fill the product's place with a drawing you improvised" });
     }
     // Sections come from the references too, not only the hero: the plan names each section's borrowed move and picture.
@@ -463,7 +465,13 @@ export function reconcileWorkspace(cwd) {
   if (!task || task.skipped) return [];
   const { unseen } = workspaceDiff(task, cwd);
   const posix = (f) => f.replace(/\\/g, "/"); // hooks record native separators on Windows
-  const fresh = unseen.filter((u) => u.status !== "deleted" || !task.uiWrites.some((w) => posix(w.file) === u.file));
+  // Another session's edits are not this task's: skip files another open task wrote, and once this task has written
+  // UI of its own, files outside its own folders (several sessions often share one project folder).
+  const raw = readRaw(cwd);
+  const theirs = new Set(Object.values(raw.tasks || {}).filter((t) => t.id !== task.id).flatMap((t) => (t.uiWrites || []).filter((w) => !w.unseen).map((w) => posix(w.file))));
+  const top = (f) => (posix(f).includes("/") ? posix(f).split("/")[0] : ".");
+  const mine = new Set(task.uiWrites.filter((w) => !w.unseen).map((w) => top(w.file)));
+  const fresh = unseen.filter((u) => (u.status !== "deleted" || !task.uiWrites.some((w) => posix(w.file) === u.file)) && !theirs.has(u.file) && (!mine.size || mine.has(top(u.file))));
   if (!fresh.length) return [];
   updateState((st) => {
     if (!st.task) return;

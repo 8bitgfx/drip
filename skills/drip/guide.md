@@ -32,10 +32,10 @@ A project keeps its design memory in `.drip/` (master board, approved direction,
 | Pads sections to fill the screen | Screens of ground with a heading on them | Height follows content; the gate fails a screen more than half empty |
 | No pictures | A wall of type on a flat ground | Every section shows something; two picture-less sections can't touch |
 | Grades its own build kindly | A sloppy page shipped with a "pass" | The critic must pass the build (one round plus one confirming round) |
-| Tasteful-safe output nobody asked for | Cream, terracotta, a polite serif | Bold by default; the mirror test; the critic caps Idea |
+| Tasteful-safe output nobody asked for | Cream, terracotta, a polite serif | Polished by default (a rich picture, calm type); the critic caps Appeal |
 
 ## Ambition by mode
-- **Persuade / Experience** (landing, portfolio, showcase): full commitment. The work or the offer is big from the first screen, colour commits at page scale, and there is one signature moment. The critic expects *Convicted*.
+- **Persuade / Experience** (landing, portfolio, showcase): beautiful and polished. One rich picture carries the first screen (the product, a fan of real cards, a render), calm confident type, soft light and depth, smooth motion, and one eye-candy moment per screen. The critic expects *Beautiful*.
 - **Operate** (apps, dashboards): ambition shows as precision: density, alignment, speed, states, keyboard paths. Familiar patterns win.
 - **Read** (docs, articles): typography and rhythm first.
 

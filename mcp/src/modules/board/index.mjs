@@ -80,7 +80,9 @@ export function freshLooksGate(directions, task, config) {
   const displays = directions.map((d) => facesOf(d.type)[0]).filter(Boolean);
   for (let i = 0; i < displays.length; i++) for (let j = i + 1; j < displays.length; j++) if (sameFace(displays[i], displays[j])) problems.push(`"${directions[i].name}" and "${directions[j].name}" share the display face ${displays[i]}: directions must differ in voice, not only in colour.`);
   const here = projectDir();
-  const others = recentLooks(5).filter((l) => l.project !== here); // the same project reusing its own faces is its brand
+  // Another project, or another task in this folder that is not this brand (several products share one folder), counts as a repeat.
+  const brand = !!task.memory?.styleRevision;
+  const others = recentLooks(8).filter((l) => l.project !== here || (!brand && l.task && l.task !== task.id));
   for (const d of directions) {
     const faces = facesOf(d.type);
     for (const f of faces) {
@@ -167,7 +169,9 @@ export function planGate(sections, task, live = []) {
   if (none.length > 2) problems.push(`${none.length} sections have no picture (${none.map((s) => `"${s.id}"`).join(", ")}); at most 2, and only a statement, table or timeline goes without one`);
   for (const s of none) if (!["statement", "table", "timeline", "quotes", "footer"].includes(s.form)) problems.push(`"${s.id}" (${s.form}) has no picture: name its source, or make it a statement, table or timeline`);
   const candy = sections.filter((s) => s.candy);
-  if (candy.length < 2) problems.push(`${candy.length} eye-candy moment(s); mark two or three sections people will screenshot (candy: true): a visualisation built from real data, a bento of live product UI, an interactive demo, a big footer`);
+  if (candy.length < 2) problems.push(`${candy.length} eye-candy moment(s); mark two or three sections people will screenshot (candy: true): a fan of real cards, a glowing product mockup, a visualisation built from real data, a bento of live product UI, an interactive demo, a big footer`);
+  const still = sections.filter((s) => (s.form === "hero" || s.candy) && !(s.motion && s.motion.trim().length >= 8));
+  if (still.length) problems.push(`no motion planned for ${still.map((s) => `"${s.id}"`).join(", ")}: the hero and every eye-candy moment say how they move or respond (an entrance that fans the cards in, the light rising behind the mockup, a hover that lifts a card, a live demo, a scroll reveal), with a reason`);
   if (!sections.some((s) => s.form === "footer" || /footer/i.test(s.id))) problems.push("no footer in the plan: plan it as a section (wordmark, sitemap, a last call to action), not an afterthought");
   return problems;
 }
@@ -666,7 +670,7 @@ export function register(server, ctx) {
       title: "Plan the page's sections",
       description:
         "After the direction and the system, before the hero: one line per section, hero and footer included. Each section names its one idea, its form, " +
-        "the move it TAKES from a studied reference (a composition, a section idea, an interaction; never only colours), where its picture comes from, and whether it is an eye-candy moment. " +
+        "the move it TAKES from a studied reference (a composition, a section idea, an interaction; never only colours), where its picture comes from, whether it is an eye-candy moment, and how it moves (required for the hero and eye-candy sections). " +
         "Refused, with every reason at once, when a reference wasn't studied, the plan leans on fewer than 3 references, forms repeat (max 2 splits, no two neighbours alike, 3+ forms), more than 2 sections have no picture, there are fewer than 2 eye-candy moments, or there is no footer. UI writes wait for it.",
       inputSchema: {
         page: z.string().optional().describe("Which page, e.g. 'landing'"),
@@ -679,6 +683,7 @@ export function register(server, ctx) {
               takes: z.object({ ref: z.string().describe("A studied reference: board number, URL or key"), what: z.string().min(8).describe("The move borrowed, e.g. 'the sticky product demo that changes with each step'") }),
               picture: z.object({ source: z.enum(PICTURE_SOURCES), what: z.string().optional().describe("What it shows, e.g. 'the real thumbnail wall', 'chart of renders per day'") }),
               candy: z.boolean().optional().describe("An eye-candy moment people will screenshot"),
+              motion: z.string().optional().describe("How it moves or responds, and why: 'the cards fan in on load, lift on hover', 'the glow rises behind the mockup', 'the chart draws as it scrolls in'. Required for the hero and eye-candy sections"),
             }),
           )
           .min(4)
@@ -700,7 +705,7 @@ export function register(server, ctx) {
       updateState((s) => {
         if (s.task) s.task.plan = { page: page || "page", at: new Date().toISOString(), sections };
       });
-      const lines = sections.map((s, i) => `${i + 1}. ${s.id} [${s.form}${s.candy ? ", eye candy" : ""}]: ${s.idea} · takes ${s.takes.what} (from ${s.takes.ref}) · picture: ${s.picture.source}${s.picture.what ? ` (${s.picture.what})` : ""}`);
+      const lines = sections.map((s, i) => `${i + 1}. ${s.id} [${s.form}${s.candy ? ", eye candy" : ""}]: ${s.idea} · takes ${s.takes.what} (from ${s.takes.ref}) · picture: ${s.picture.source}${s.picture.what ? ` (${s.picture.what})` : ""}${s.motion ? ` · motion: ${s.motion}` : ""}`);
       return text(`Plan saved (${sections.length} sections).\n${lines.join("\n")}\n\nNEXT: get the parts (components_find for the interactive and eye-candy pieces, the picture sources above), then build the hero FIRST and fitcheck_shot({ hero: true }). Build each section to its line; the page gate blocks repeated layouts.`);
     }),
   );

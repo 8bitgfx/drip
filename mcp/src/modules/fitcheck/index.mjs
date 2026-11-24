@@ -36,9 +36,11 @@ export function register(server, ctx) {
         "hero: true shoots only the first viewport and runs the hero gate (playbook P31): the h1 and the primary action must sit fully inside it and nothing may be cut off at the edges; do it after building nav + hero, before any section. " +
         "numbersOnly: true returns the measured blockers and numbers with NO images (cheap re-checks after a fix; it never records a pass: the verdict still needs one real shot). " +
         "section: \"<css selector>\" shoots just that section (phone and desktop) instead of the page. " +
+        "Several states or pages at once: fitcheck_shot({ urls: [\"http://localhost:3000/?state=typing\", \"http://localhost:3000/?state=result\"], numbersOnly: true }). " +
         "Example: fitcheck_shot({ url: \"http://localhost:3000\", hero: true }) or fitcheck_shot({ url, numbersOnly: true }) or fitcheck_shot({ url, section: \"#pricing\" })",
       inputSchema: {
-        url: z.string().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
+        url: z.string().optional().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
+        urls: z.array(z.string()).max(8).optional().describe("Several pages or states in ONE call (e.g. every ?state= of an app screen, or /, /pricing, /about): each is shot and measured, one reply. Prefer this over one call per state"),
         sizes: z.array(z.object({ name: z.string(), width: z.number(), height: z.number() })).optional(),
         maxSlices: z.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
         hero: z.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
@@ -54,7 +56,23 @@ export function register(server, ctx) {
         app: z.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
       },
     },
-    safe(async ({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section }) => {
+    safe(async (args) => {
+      // Several pages or states in one call (?state=typing, ?state=result, /pricing...): one shot each, one reply.
+      const many = args.urls?.length ? [...new Set([args.url, ...args.urls].filter(Boolean))] : null;
+      if (!args.url && !many) return text("Pass url, or urls for several pages or states at once.", true);
+      if (!many || many.length === 1) return shootOne({ ...args, url: many ? many[0] : args.url });
+      const content = [];
+      let failed = false;
+      for (const u of many) {
+        const r = await shootOne({ ...args, url: u });
+        failed ||= !!r.isError;
+        content.push(textBlock(`===== ${u} =====`), ...(r.content || []));
+      }
+      return { ...blocks(content), ...(failed ? { isError: true } : {}) };
+    }),
+  );
+
+  async function shootOne({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section }) {
       const config = ctx.config();
       const url = await toUrl(target);
       const persuade = app === undefined ? isPersuade(loadState().task) : !app;
@@ -127,8 +145,8 @@ export function register(server, ctx) {
       }
       content.unshift(textBlock(head));
       return blocks(content);
-    }),
-  );
+  }
+
 
   server.registerTool(
     "fitcheck_compare",

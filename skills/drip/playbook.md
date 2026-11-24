@@ -34,8 +34,8 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
     Not a default to refuse: a well-made SaaS page (generous white space, the real product UI, real photography, crisp type, a restrained glow on dark). Judge the execution, not the genre.
 
     Mirror test: would a neighbouring brief get this exact combination? If so, change one major decision.
-11. Colour commits at page scale. On Persuade and Experience, use Committed (one colour on 30-60% of the surface) or Drenched (the ground is the colour) unless the brief or the subject asks for quiet (care, money, medicine, premium craft often do): then a calm ground and one decisive accent. The accent is a signal on the action. A grey page with one coloured button is not restraint; it is the default.
-12. Pick two faces like objects from the subject's world: a display face with a point of view and a text face (`fonts_pair`). Use one family when its range is wide.
+11. Colour comes from the picture. The default is a calm ground (white, near-black, or a soft tint) with the colour carried by the imagery, a soft light or glow behind the hero picture, and one accent on the action. Committed or drenched grounds (one colour on 30-60% of the surface) are for briefs that ask for loud or playful. A flat page with nothing to look at and one coloured button is the real default to avoid; fix it with a picture, not a colour field.
+12. Pick refined faces (`fonts_pair`): a display face with good details (a crisp grotesk, an elegant serif, a friendly rounded sans to suit the subject) and a text face. Calm and well set beats quirky. Use one family when its range is wide.
     - Mono only inside code, a measurement or a tabular figure.
     - Never mono for labels, nav, buttons, body or headings.
     - Never more than 10% of the page's text in mono.
@@ -62,7 +62,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 
 | Role | 1440 | 390 | Line height | Tracking |
 |---|---|---|---|---|
-| Display (hero h1) | `--t-display`, about 127px | about 48px | 0.95-1.05 | -0.03 to -0.045em |
+| Display (hero h1) | `--t-display`, about 72px (up to ~120px when type alone is the picture) | about 40px | 1.0-1.1 | -0.02 to -0.035em |
 | Statement | 72px | 40px | 1.05 | -0.03em |
 | Section (h2) | 56px | 34px | 1.1 | -0.02em |
 | Item (h3) | 26px | 22px | 1.25 | -0.01em |
@@ -70,8 +70,8 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 | Body | 18px | 17px | 1.6 | 0 |
 | Small | 14px | 14px | 1.45 | 0 |
 
-    No eighth size, and nothing under 14px except the legal line. The hero is about 2× the section head, and the section head about 2× the item title.
-    Display size follows the job: when a big picture or the product carries the hero, the h1 can be Statement size (72px); a hero made of type alone takes the full Display role. Never shout by reflex.
+    No eighth size, and nothing under 14px except the legal line. The hero is clearly bigger than the section head, and the section head about 2× the item title.
+    Display size follows the job: when a picture carries the hero (the usual case: a product mockup, a fan of cards, a render), the h1 is calm, about 48-72px; only a hero made of type alone goes bigger. Never shout by reflex.
 17. Display text uses one weight, one style and one colour, with no accented word. It gets its weight from size and tracking. Use three weights at most, picked as extremes (400 with 700, or 300 with 800).
 18. Labels, nav, captions, meta and tags use the text face at Small or Body size, in sentence case and untracked. No eyebrows.
 19. Container: `min(100% - 2 gutters, 1312px)`, with gutters of 64 / 48 / 24. Use 12 columns with a 32px gap. Every block starts on a column line, and the left text edge is the same from the nav to the footer.

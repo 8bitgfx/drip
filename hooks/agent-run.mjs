@@ -8,7 +8,9 @@ run(async () => {
   const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
   const type = String(input.tool_input?.subagent_type || "");
   if (!loadState(dir).task) return allow();
-  if (!input.tool_input?.run_in_background) agentFinished(type || "agent", dir);
+  // Hosts may start a subagent in the background without the flag (the result says so): it is still running.
+  const background = input.tool_input?.run_in_background || /async agent launched|running in the background|agentId/i.test(JSON.stringify(input.tool_response ?? "").slice(0, 2000));
+  if (!background) agentFinished(type || "agent", dir);
   if (!/critic/i.test(type)) return allow();
   updateState((st) => {
     if (!st.task) return;

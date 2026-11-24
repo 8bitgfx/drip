@@ -20,9 +20,9 @@ import { toUrl } from "../../core/serve.mjs";
 
 const KIND_BRIEF = {
   directions:
-    "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Could it be any brand's hero? Is the h1 big enough (the Display role is ~127px at 1440) and does the picture slot show the subject's real thing at a real size? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
+    "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
   build:
-    "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it distinctive, crafted and finished, or a competent template? Name every place it looks amateur, generic or AI-made.",
+    "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
   logo:
     "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a cliché), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack:
@@ -31,11 +31,11 @@ const KIND_BRIEF = {
 };
 
 const AXES = {
-  directions: ["concept", "distinctiveness", "brief fit", "craft potential"],
-  build: ["concept", "distinctiveness", "hierarchy", "typography", "colour", "composition", "craft & detail", "copy", "brief/direction fit"],
+  directions: ["appeal", "craft potential", "brief fit", "eye candy", "different ideas"],
+  build: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy", "UX & motion", "copy", "brief/direction fit"],
   logo: ["idea", "distinctiveness", "construction", "small-size", "typography", "versatility"],
   pack: ["specificity", "accuracy", "usefulness", "coverage"],
-  any: ["concept", "distinctiveness", "hierarchy", "typography", "colour", "composition", "craft & detail"],
+  any: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy"],
 };
 
 function briefBlock(task) {
@@ -49,7 +49,7 @@ function briefBlock(task) {
     `Feel: ${b.feel.join(", ")}`,
     b.loves?.length ? `Loves: ${b.loves.join(", ")}` : "",
     b.hates?.length ? `Hates: ${b.hates.join(", ")}` : "",
-    `Ambition: ${b.ambition}${b.ambition === "bold" ? " (the client wants distinctive, memorable work; safe defaults fail)" : ""}`,
+    `Ambition: ${b.ambition}${b.ambition === "bold" ? " (the client asked for loud, distinctive work)" : b.ambition === "conservative" ? " (the category standard done perfectly)" : " (beautiful and polished: proven structure is fine; judge appeal, craft and feel, never mark good familiar work down as safe)"}`,
     b.constraints ? `Constraints: ${b.constraints}` : "",
   ]
     .filter(Boolean)
@@ -88,9 +88,9 @@ export function register(server, ctx) {
         'Examples: critic_prepare({ kind: "directions" }) · critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) · critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })',
       inputSchema: {
         kind: z.enum(["directions", "build", "logo", "pack", "any"]),
-        targets: z.array(z.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id"),
+        targets: z.array(z.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id. Pass every state of an app screen at once (?state=typing, ?state=result, ...): each keeps its own screenshots"),
         context: z.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses."),
-        steps: z.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (drag, click, open...), same as fitcheck_shot steps"),
+        steps: z.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (hover, click, open, generate...), same as fitcheck_shot steps. For a transition, add waits of ~150ms between shots: the critic judges motion from that frame strip"),
         extraRound: z.boolean().optional().describe("Only when the user chose 'one more round' after the round limit"),
       },
     },
@@ -140,7 +140,10 @@ export function register(server, ctx) {
         }
       }
 
-      for (const t0 of kind === "directions" || kind === "pack" ? [] : targets) {
+      const list = kind === "directions" || kind === "pack" ? [] : targets;
+      for (const [ti, t0] of list.entries()) {
+        // Several targets (states of one screen, several pages) each keep their own files.
+        const tag = list.length > 1 ? `t${ti + 1}-` : "";
         // A local page is served and judged like a live one (whole page, measured), not as one still.
         const t = kind === "build" && /\.html?$/i.test(t0) && !isUrl(t0) ? await toUrl(t0) : t0;
         if (isUrl(t)) {
@@ -152,7 +155,7 @@ export function register(server, ctx) {
             const j = judgeAudit(r.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s.name}: ${formatAudit(r.audit, j)}`);
             r.slices.forEach((sl, i) => {
-              const f = path.join(dir, `${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);
+              const f = path.join(dir, `${tag}${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);
               fs.writeFileSync(f, sl.buf);
               files.push(f);
               notes.push(`${t} at ${s.name} ${s.width}px, screen ${i + 1} of ${r.sliceCount} (from y=${sl.y}px)`);
@@ -162,7 +165,7 @@ export function register(server, ctx) {
             const desk = sizes.find((s) => s.width >= 1000) || sizes.at(-1);
             const states = await captureStates(t, steps, { width: desk.width, height: desk.height, config });
             states.forEach((st, i) => {
-              const f = path.join(dir, `state-${String(i + 1).padStart(2, "0")}.jpg`);
+              const f = path.join(dir, `${tag}state-${String(i + 1).padStart(2, "0")}.jpg`);
               fs.writeFileSync(f, st.buf);
               files.push(f);
               notes.push(`interaction state ${i + 1}: ${st.label}${st.error ? ` (step failed: ${st.error})` : ""}`);
@@ -261,7 +264,7 @@ export function register(server, ctx) {
       description:
         "Store the drip:critic subagent's verdict (copy its numbers and words; don't soften them). Only works after the subagent actually ran. " +
         "verdict: pass (ship it / show it), revise (fix the listed problems), reject (start over / replace). For directions, include perDirection so the board shows the critic's ranking. " +
-        'Example: critic_record({ kind: "build", verdict: "revise", scores: { concept: 6, typography: 4 }, worst: "hero type is timid: 48px on a 1440 canvas", fixes: ["set the headline at 120px+", "cut the three equal cards"], summary: "competent template, not a portfolio anyone remembers" })',
+        'Example: critic_record({ kind: "build", verdict: "revise", scores: { concept: 6, typography: 4 }, worst: "the hero has nothing to look at: a headline on a flat ground", fixes: ["put the real product UI as layered cards beside the headline", "cut the three equal cards"], summary: "competent template, not a portfolio anyone remembers" })',
       inputSchema: {
         kind: z.enum(["directions", "build", "logo", "pack", "any"]),
         verdict: z.enum(["pass", "revise", "reject"]),

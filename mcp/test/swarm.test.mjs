@@ -68,8 +68,10 @@ test("swarmInstructions: full crew on Claude Code, single-agent fallback elsewhe
   assert.ok(hostHasSubagents({}) && hostHasSubagents({ DRIP_HOST: "claude-code" }) && !hostHasSubagents({ DRIP_HOST: "cursor" }));
 });
 
-test("swarm is off by default and on by config or task", () => {
-  assert.equal(swarmOn({}, null), false);
+test("swarm is on by default, off by config or task", () => {
+  assert.equal(swarmOn({}, null), true);
+  assert.equal(swarmOn({ swarm: false }, null), false);
+  assert.equal(swarmOn({}, { swarm: false }), false);
   assert.equal(swarmOn({ swarm: true }, null), true);
   assert.equal(swarmOn({ swarm: false }, { swarm: true }), true);
 });

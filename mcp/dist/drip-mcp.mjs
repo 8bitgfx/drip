@@ -87094,7 +87094,7 @@ var DEFAULTS = {
   refs: { delayMs: 2e3, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
   board: { port: 4567 },
   // Swarm Mode: the main agent directs; cheap subagents scout, build and re-check (drip_start swarm: true per task).
-  swarm: false,
+  swarm: true,
   // Project design memory (docs/PROJECT_MEMORY.md).
   //   freshDays      a study older than this is not carried into a new task as inherited evidence
   //   contextChars   size of the compact project context drip_start and session start print
@@ -87564,7 +87564,7 @@ function missingBeforeUi(task, config2) {
     const need = { style: g.minStyle ?? 2, competitor: g.minCompetitors ?? 2, page: g.minPage ?? 2 };
     if (pageWork || task.surface === "readme") {
       if (roles2.style < need.style)
-        missing.push({ need: "style references", how: `study ${need.style - roles2.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("brutalist", "playful 3d", "editorial dark"), never mixed with the subject (now ${roles2.style}/${need.style})` });
+        missing.push({ need: "style references", how: `study ${need.style - roles2.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("dark saas glow", "soft 3d", "clean product", "playful illustration"), never mixed with the subject (now ${roles2.style}/${need.style})` });
       if (roles2.competitor < need.competitor && task.surface !== "readme") {
         const type = productTypeWords(task).slice(0, 3).join(" ");
         const sameType = competitorsShareType(task) === false;
@@ -87600,7 +87600,8 @@ function missingBeforeUi(task, config2) {
       const any2 = (re) => Object.keys(used).some((k) => re.test(k));
       if (!any2(/^(components_|catalogue_)/))
         missing.push({ need: "components", how: "components_find for the page's interactive and eye-candy pieces (a prompt box, a gallery or marquee, a bento, pricing, a footer, a chart): build on the best one found, or say why none fits" });
-      if (!any2(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
+      const ownPictures = task.plan?.sections?.length && task.plan.sections.every((x2) => ["user-files", "product-ui", "code-visual", "none"].includes(x2.picture?.source));
+      if (!ownPictures && !any2(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
         missing.push({ need: "pictures", how: "pick a picture source for each section that needs one: images_search (Imageory first), art_generate, shader_hero, mockup_render for screens, or the user's real files; never fill the product's place with a drawing you improvised" });
     }
     if (g.requirePlan !== false && ["landing", "app", "mobile"].includes(task.surface) && task.board?.chosen && !task.board?.adopted && !task.plan)
@@ -87700,7 +87701,11 @@ function reconcileWorkspace(cwd) {
   if (!task || task.skipped) return [];
   const { unseen } = workspaceDiff(task, cwd);
   const posix4 = (f3) => f3.replace(/\\/g, "/");
-  const fresh = unseen.filter((u2) => u2.status !== "deleted" || !task.uiWrites.some((w) => posix4(w.file) === u2.file));
+  const raw = readRaw(cwd);
+  const theirs = new Set(Object.values(raw.tasks || {}).filter((t2) => t2.id !== task.id).flatMap((t2) => (t2.uiWrites || []).filter((w) => !w.unseen).map((w) => posix4(w.file))));
+  const top = (f3) => posix4(f3).includes("/") ? posix4(f3).split("/")[0] : ".";
+  const mine = new Set(task.uiWrites.filter((w) => !w.unseen).map((w) => top(w.file)));
+  const fresh = unseen.filter((u2) => (u2.status !== "deleted" || !task.uiWrites.some((w) => posix4(w.file) === u2.file)) && !theirs.has(u2.file) && (!mine.size || mine.has(top(u2.file))));
   if (!fresh.length) return [];
   updateState((st) => {
     if (!st.task) return;
@@ -89987,7 +89992,8 @@ function hostHasSubagents(env = process.env) {
   return h === "" || h === "claude-code";
 }
 function swarmOn(config2, task) {
-  return config2?.swarm === true || task?.swarm === true;
+  if (task?.swarm === false) return false;
+  return task?.swarm === true || config2?.swarm !== false;
 }
 var ROLE_ASK = {
   style: "the look the director is aiming for: shipped pages and gallery work with this feel, on the surface being built",
@@ -90216,7 +90222,7 @@ function nextStep(task, config2) {
 var MATERIAL_WORDS = /\b(screenshot|screenshots|photo|photos|photograph|mockup|mockups|3d|render|renders|illustration|illustrations|generate|generated|own tools|my (app|product|work|screens)|real (screens|data|work)|images?|video|the work)\b/i;
 var FEEL_WORDS = /\b(cool|bold|loud|minimal|minimalist|clean|playful|fun|dark|light|premium|luxury|calm|quiet|editorial|brutal|brutalist|retro|elegant|showcase|wow|fancy|serious|corporate|plain|simple|warm|techy|futuristic|cute|weird|experimental|crazy|insane|polished|sleek|gritty|vibrant|colorful|colourful|moody)\b/i;
 var AUDIENCE_WORDS = /\b(for (my|our|a|an|the)?\s*[a-z-]+s\b|for (developers|devs|designers|kids|teens|gamers|investors|customers|users|clients|teams|startups|agencies|creators|artists|musicians|players)|audience|users? (are|is))\b/i;
-var DECIDE = /\b(just do it|decide for me|you (pick|choose|decide)|surprise me|no questions|don'?t ask)\b/i;
+var DECIDE = /\b(just do it|decide for me|you (pick|choose|decide)|surprise me|no questions|don'?t ask|asap|as soon as possible|get it done|right now)\b/i;
 function intakePlan(taskText, t2 = {}) {
   const has = (re) => re.test(taskText);
   const brand = !!(t2.memory && t2.memory.mode !== "fresh");
@@ -90224,7 +90230,7 @@ function intakePlan(taskText, t2 = {}) {
   const answered = [];
   if (has(MATERIAL_WORDS) || brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText)) answered.push("material (the request or the project's brand says what to show)");
   else open2.push(`MATERIAL: what can it show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Leave labelled slots"`);
-  if (has(FEEL_WORDS) || brand && t2.memory?.mode === "fidelity") answered.push(brand && t2.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition bold)");
+  if (has(FEEL_WORDS) || brand && t2.memory?.mode === "fidelity") answered.push(brand && t2.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition polished)");
   else open2.push('FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus "Surprise me (bold)"');
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t2.mode) || t2.surface === "readme") answered.push("audience and action (clear enough from the request)");
   else open2.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
@@ -90240,7 +90246,7 @@ function intakeText(plan) {
     return `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.` + (plan.open.some((q2) => q2.startsWith("MATERIAL")) ? ` MATERIAL is unknown: don't invent pictures of the product. Build labelled slots at their real size for the photos, CAD renders or screenshots the user surely has, and end the hand-off with the exact list of files to send ("hero: a 3/4 photo of the product on a plain ground, 2400px"\u2026). drip_guide imagery covers products with no photos.` : "");
   return `INTAKE: read the project first (never ask what you can look up), then ask AT MOST ${plan.max} question${plan.max > 1 ? "s" : ""} in one AskUserQuestion round, options specific to this request, your recommendation first. Fewer is better; zero is fine when the project answers them. Never pad the round.
 ` + plan.open.map((q2, i2) => `${i2 + 1}. ${q2}`).join("\n") + (plan.answered.length ? `
-Don't ask about: ${plan.answered.join("; ")}.` : "") + "\nThen drip_brief (asked: the number you asked). Default ambition is BOLD unless they asked for plain.";
+Don't ask about: ${plan.answered.join("; ")}.` : "") + "\nThen drip_brief (asked: the number you asked). Default ambition is POLISHED (beautiful, Dribbble-level craft); bold only if they asked for loud or experimental, conservative if they asked for plain.";
 }
 function refPlan(task, surface, mode) {
   const subject = task.toLowerCase().replace(/\b(design|redesign|make|build|create|me|my|our|a|an|the|for|please|new|site|website|web|page|landing|homepage|portfolio|app|screen|logo|for an?)\b/g, " ").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim() || "product";
@@ -90290,7 +90296,7 @@ function register2(server2, ctx2) {
         surface: external_exports.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
         packs: external_exports.array(external_exports.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
         memory: external_exports.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
-        swarm: external_exports.boolean().optional().describe('Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. Also on by default with "swarm": true in .drip/config.json.')
+        swarm: external_exports.boolean().optional().describe('Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. On by default; pass false for a small job, or set "swarm": false in .drip/config.json.')
       }
     },
     async ({ task, mode, size, surface, packs, memory, swarm }) => {
@@ -90301,7 +90307,7 @@ function register2(server2, ctx2) {
       const pk = packs || matchPacks(task).map((p2) => p2.id);
       const guides = requiredGuides(s2, sf, task, m, pk);
       const t2 = newTask({ title: task, size: s2, surface: sf, guides, mode: m, packs: pk });
-      if (swarm) t2.swarm = true;
+      if (typeof swarm === "boolean") t2.swarm = swarm;
       const designTask = ["design", "logo", "board", "polish"].includes(m);
       if (designTask && memory !== "fresh") t2.memory = buildTaskMemory({ taskText: task, mode: memory });
       const memCtx = t2.memory ? projectContext({ task: t2 }) : null;
@@ -90411,7 +90417,7 @@ ${b}`).join("\n\n")
         feel: external_exports.array(external_exports.string()).min(1).describe("The chosen feel words / options"),
         loves: external_exports.array(external_exports.string()).optional(),
         hates: external_exports.array(external_exports.string()).optional(),
-        ambition: external_exports.enum(["bold", "balanced", "conservative"]).optional().describe("Default bold. Conservative ONLY if the user asked for plain / safe / corporate."),
+        ambition: external_exports.enum(["polished", "bold", "balanced", "conservative"]).optional().describe("Default polished: beautiful, proven structure, superb craft, rich pictures, smooth motion. bold ONLY if the user asked for loud / playful / experimental / brutalist. conservative if they asked for plain / corporate."),
         constraints: external_exports.string().optional(),
         assumptions: external_exports.string().optional().describe("What you assumed without asking"),
         asked: external_exports.number().int().min(0).max(4).optional().describe("How many questions you asked (drip_start gives the cap; often 0-2)"),
@@ -90419,7 +90425,7 @@ ${b}`).join("\n\n")
       }
     },
     async (brief) => {
-      const b = { ...brief, ambition: brief.ambition || "bold", at: (/* @__PURE__ */ new Date()).toISOString() };
+      const b = { ...brief, ambition: brief.ambition === "balanced" ? "polished" : brief.ambition || "polished", at: (/* @__PURE__ */ new Date()).toISOString() };
       const st = updateState((s2) => {
         if (s2.task) s2.task.brief = b;
       });
@@ -90427,7 +90433,7 @@ ${b}`).join("\n\n")
       return text(
         `Brief recorded: ${b.what} \xB7 for ${b.audience} \xB7 feel: ${b.feel.join(", ")} \xB7 ambition: ${b.ambition}.
 ` + (st.task.intake && b.asked > st.task.intake.max ? `You asked ${b.asked} questions; this request needed at most ${st.task.intake.max}. Next time ask only what the request and the project leave open.
-` : "") + (b.redesign === "fresh" ? "FRESH LOOK: the current site's palette, fonts and layout are out, and so are the repo's DESIGN.md, tokens and approved project direction. The before shot is evidence of what to leave behind, never a style reference. Keep only the logo and the product's real material (screens, photos, numbers).\n" : b.redesign === "keep-brand" ? "KEEP THE BRAND: logo, colours and fonts stay; everything else (layout, hierarchy, pictures, sections) is open.\n" : "") + (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") + `${nextStep(st.task, ctx2.config())}`
+` : "") + (b.redesign === "fresh" ? "FRESH LOOK: the current site's palette, fonts and layout are out, and so are the repo's DESIGN.md, tokens and approved project direction. The before shot is evidence of what to leave behind, never a style reference. Keep only the logo and the product's real material (screens, photos, numbers).\n" : b.redesign === "keep-brand" ? "KEEP THE BRAND: logo, colours and fonts stay; everything else (layout, hierarchy, pictures, sections) is open.\n" : "") + (b.ambition === "bold" ? "Ambition BOLD (the user asked for it): a signature risk is welcome, still beautifully made (rules/ambition).\n" : b.ambition === "polished" ? "Ambition POLISHED: beautiful first, at the level of the best Dribbble shots and Awwwards sites. Proven structure is fine; rich pictures (product UI cards, renders, photos), calm confident type, depth, one colour story and smooth motion make it. No screaming posters (rules/ambition).\n" : "") + `${nextStep(st.task, ctx2.config())}`
       );
     }
   );
@@ -99580,10 +99586,16 @@ var AUDIT = `(() => {
   const h2l = [...document.querySelectorAll('h2')].filter(visible).map((h) => Math.round(rpx(h))).sort((a, b) => a - b);
   const h2 = h2l.length ? h2l[Math.floor(h2l.length / 2)] : null;
   // Pictures: media elements, elements with a background image, and anything marked data-visual (a built visual).
-  const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
+  const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
   // First viewport (the page is scrolled to the top here).
   let bigPic = { w: 0, h: 0 };
   for (const p of pics) { const h = Math.min(p.bottom, vh) - Math.max(p.top, 0); if (h > 0 && p.w * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(p.w), h: Math.round(h) }; }
+  const inView = pics.filter((p) => p.top < vh && p.bottom > 0);
+  if (inView.length >= 3) {
+    const w = Math.max(...inView.map((p) => p.right)) - Math.min(...inView.map((p) => p.left));
+    const h = Math.min(vh, Math.max(...inView.map((p) => p.bottom))) - Math.max(0, Math.min(...inView.map((p) => p.top)));
+    if (w * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(w), h: Math.round(h), group: inView.length };
+  }
   let lowest = 0;
   for (const [t, b] of marks) if (t < vh) lowest = Math.max(lowest, Math.min(b, vh));
   for (const p of pics) if (p.top < vh) lowest = Math.max(lowest, Math.min(p.bottom, vh));
@@ -99827,7 +99839,7 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
       const container = Math.min(a2.width - 128, 1312);
       const picOk = a2.hero.pic.w >= container * 0.45 && a2.hero.pic.h >= (a2.vh || 900) * 0.6;
       const typeOk = a2.hero.h1w >= container * 0.62;
-      if (!picOk && !typeOk) blockers.push(`hero is small: biggest picture ${a2.hero.pic.w}x${a2.hero.pic.h}px, h1 ${a2.hero.h1w}px wide. Needs a picture >= 6 columns and >= 60% of the screen tall, or an h1 spanning 8+ columns`);
+      if (!picOk && !typeOk) blockers.push(`hero is small: biggest picture ${a2.hero.pic.w}x${a2.hero.pic.h}px, h1 ${a2.hero.h1w}px wide. Needs a picture (or a group of 3+ pictures, such as a fan of cards or a product mockup) >= 6 columns and >= 60% of the screen tall, or an h1 spanning 8+ columns`);
       if (!a2.hero.actions) warnings.push("no visible action (button or styled link) in the first viewport");
     }
     if (a2.hero.emptyBelow > 160) blockers.push(`${a2.hero.emptyBelow}px of nothing at the bottom of the first viewport (max 160). Make the content bigger, never the gap`);
@@ -100603,7 +100615,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     "refs_study",
     {
       title: "Record what a reference teaches",
-      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "12-col, headline spans cols 1-9 at ~180px, image bleeds off right edge", type: "condensed grotesk caps, display:body ~10:1", color: "#1B3BFF drenched ground, #F4F1EA ink, the CTA in ink", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, \u2026] })',
+      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, \u2026] })',
       inputSchema: {
         studies: external_exports.array(external_exports.object(STUDY_SHAPE)).min(1).max(8).optional(),
         ...Object.fromEntries(Object.entries(STUDY_SHAPE).map(([k, v]) => [k, v.optional()]))
@@ -100708,26 +100720,17 @@ var looksFile = () => path26.join(homeDripDir, "looks.jsonl");
 var OVERUSED_FACES = [
   "Bricolage Grotesque",
   "Instrument Serif",
-  "Instrument Sans",
   "Fraunces",
   "Syne",
-  "Satoshi",
   "Clash Display",
-  "Clash Grotesk",
-  "Cabinet Grotesk",
-  "General Sans",
-  "Host Grotesk",
-  "Atkinson Hyperlegible",
-  "Atkinson Hyperlegible Mono",
   "Space Grotesk",
   "DM Serif Display",
   "Playfair Display",
   "Cormorant Garamond",
-  "Manrope",
-  "Plus Jakarta Sans",
-  "Outfit",
-  "Sora",
-  "Archivo"
+  "Anybody",
+  "Big Shoulders Display",
+  "Climate Crisis",
+  "Dela Gothic One"
 ];
 var norm2 = (f3) => f3.toLowerCase().replace(/\b(variable|vf)\b/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 function facesOf(type) {
@@ -101368,7 +101371,8 @@ function freshLooksGate(directions, task, config2) {
   const displays = directions.map((d) => facesOf(d.type)[0]).filter(Boolean);
   for (let i2 = 0; i2 < displays.length; i2++) for (let j = i2 + 1; j < displays.length; j++) if (sameFace(displays[i2], displays[j])) problems.push(`"${directions[i2].name}" and "${directions[j].name}" share the display face ${displays[i2]}: directions must differ in voice, not only in colour.`);
   const here2 = projectDir();
-  const others = recentLooks(5).filter((l2) => l2.project !== here2);
+  const brand = !!task.memory?.styleRevision;
+  const others = recentLooks(8).filter((l2) => l2.project !== here2 || !brand && l2.task && l2.task !== task.id);
   for (const d of directions) {
     const faces = facesOf(d.type);
     for (const f3 of faces) {
@@ -101449,7 +101453,9 @@ function planGate(sections, task, live = []) {
   if (none.length > 2) problems.push(`${none.length} sections have no picture (${none.map((s2) => `"${s2.id}"`).join(", ")}); at most 2, and only a statement, table or timeline goes without one`);
   for (const s2 of none) if (!["statement", "table", "timeline", "quotes", "footer"].includes(s2.form)) problems.push(`"${s2.id}" (${s2.form}) has no picture: name its source, or make it a statement, table or timeline`);
   const candy = sections.filter((s2) => s2.candy);
-  if (candy.length < 2) problems.push(`${candy.length} eye-candy moment(s); mark two or three sections people will screenshot (candy: true): a visualisation built from real data, a bento of live product UI, an interactive demo, a big footer`);
+  if (candy.length < 2) problems.push(`${candy.length} eye-candy moment(s); mark two or three sections people will screenshot (candy: true): a fan of real cards, a glowing product mockup, a visualisation built from real data, a bento of live product UI, an interactive demo, a big footer`);
+  const still = sections.filter((s2) => (s2.form === "hero" || s2.candy) && !(s2.motion && s2.motion.trim().length >= 8));
+  if (still.length) problems.push(`no motion planned for ${still.map((s2) => `"${s2.id}"`).join(", ")}: the hero and every eye-candy moment say how they move or respond (an entrance that fans the cards in, the light rising behind the mockup, a hover that lifts a card, a live demo, a scroll reveal), with a reason`);
   if (!sections.some((s2) => s2.form === "footer" || /footer/i.test(s2.id))) problems.push("no footer in the plan: plan it as a section (wordmark, sitemap, a last call to action), not an afterthought");
   return problems;
 }
@@ -101896,7 +101902,7 @@ Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7
     "board_plan",
     {
       title: "Plan the page's sections",
-      description: "After the direction and the system, before the hero: one line per section, hero and footer included. Each section names its one idea, its form, the move it TAKES from a studied reference (a composition, a section idea, an interaction; never only colours), where its picture comes from, and whether it is an eye-candy moment. Refused, with every reason at once, when a reference wasn't studied, the plan leans on fewer than 3 references, forms repeat (max 2 splits, no two neighbours alike, 3+ forms), more than 2 sections have no picture, there are fewer than 2 eye-candy moments, or there is no footer. UI writes wait for it.",
+      description: "After the direction and the system, before the hero: one line per section, hero and footer included. Each section names its one idea, its form, the move it TAKES from a studied reference (a composition, a section idea, an interaction; never only colours), where its picture comes from, whether it is an eye-candy moment, and how it moves (required for the hero and eye-candy sections). Refused, with every reason at once, when a reference wasn't studied, the plan leans on fewer than 3 references, forms repeat (max 2 splits, no two neighbours alike, 3+ forms), more than 2 sections have no picture, there are fewer than 2 eye-candy moments, or there is no footer. UI writes wait for it.",
       inputSchema: {
         page: external_exports.string().optional().describe("Which page, e.g. 'landing'"),
         sections: external_exports.array(
@@ -101906,7 +101912,8 @@ Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7
             form: external_exports.enum(PLAN_FORMS),
             takes: external_exports.object({ ref: external_exports.string().describe("A studied reference: board number, URL or key"), what: external_exports.string().min(8).describe("The move borrowed, e.g. 'the sticky product demo that changes with each step'") }),
             picture: external_exports.object({ source: external_exports.enum(PICTURE_SOURCES), what: external_exports.string().optional().describe("What it shows, e.g. 'the real thumbnail wall', 'chart of renders per day'") }),
-            candy: external_exports.boolean().optional().describe("An eye-candy moment people will screenshot")
+            candy: external_exports.boolean().optional().describe("An eye-candy moment people will screenshot"),
+            motion: external_exports.string().optional().describe("How it moves or responds, and why: 'the cards fan in on load, lift on hover', 'the glow rises behind the mockup', 'the chart draws as it scrolls in'. Required for the hero and eye-candy sections")
           })
         ).min(4).max(14),
         board: external_exports.string().optional()
@@ -101926,7 +101933,7 @@ Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7
       updateState((s2) => {
         if (s2.task) s2.task.plan = { page: page2 || "page", at: (/* @__PURE__ */ new Date()).toISOString(), sections };
       });
-      const lines = sections.map((s2, i2) => `${i2 + 1}. ${s2.id} [${s2.form}${s2.candy ? ", eye candy" : ""}]: ${s2.idea} \xB7 takes ${s2.takes.what} (from ${s2.takes.ref}) \xB7 picture: ${s2.picture.source}${s2.picture.what ? ` (${s2.picture.what})` : ""}`);
+      const lines = sections.map((s2, i2) => `${i2 + 1}. ${s2.id} [${s2.form}${s2.candy ? ", eye candy" : ""}]: ${s2.idea} \xB7 takes ${s2.takes.what} (from ${s2.takes.ref}) \xB7 picture: ${s2.picture.source}${s2.picture.what ? ` (${s2.picture.what})` : ""}${s2.motion ? ` \xB7 motion: ${s2.motion}` : ""}`);
       return text(`Plan saved (${sections.length} sections).
 ${lines.join("\n")}
 
@@ -104959,9 +104966,10 @@ function register19(server2, ctx2) {
     "fitcheck_shot",
     {
       title: "Screenshot the result",
-      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. url can be a dev-server URL or a local .html file / folder (served for you on a free port; no dev server needed). Every section of a long page appears in at least one slice (more than maxSlices if the page has that many sections). hero: true shoots only the first viewport and runs the hero gate (playbook P31): the h1 and the primary action must sit fully inside it and nothing may be cut off at the edges; do it after building nav + hero, before any section. numbersOnly: true returns the measured blockers and numbers with NO images (cheap re-checks after a fix; it never records a pass: the verdict still needs one real shot). section: "<css selector>" shoots just that section (phone and desktop) instead of the page. Example: fitcheck_shot({ url: "http://localhost:3000", hero: true }) or fitcheck_shot({ url, numbersOnly: true }) or fitcheck_shot({ url, section: "#pricing" })',
+      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. url can be a dev-server URL or a local .html file / folder (served for you on a free port; no dev server needed). Every section of a long page appears in at least one slice (more than maxSlices if the page has that many sections). hero: true shoots only the first viewport and runs the hero gate (playbook P31): the h1 and the primary action must sit fully inside it and nothing may be cut off at the edges; do it after building nav + hero, before any section. numbersOnly: true returns the measured blockers and numbers with NO images (cheap re-checks after a fix; it never records a pass: the verdict still needs one real shot). section: "<css selector>" shoots just that section (phone and desktop) instead of the page. Several states or pages at once: fitcheck_shot({ urls: ["http://localhost:3000/?state=typing", "http://localhost:3000/?state=result"], numbersOnly: true }). Example: fitcheck_shot({ url: "http://localhost:3000", hero: true }) or fitcheck_shot({ url, numbersOnly: true }) or fitcheck_shot({ url, section: "#pricing" })',
       inputSchema: {
-        url: external_exports.string().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
+        url: external_exports.string().optional().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
+        urls: external_exports.array(external_exports.string()).max(8).optional().describe("Several pages or states in ONE call (e.g. every ?state= of an app screen, or /, /pricing, /about): each is shot and measured, one reply. Prefer this over one call per state"),
         sizes: external_exports.array(external_exports.object({ name: external_exports.string(), width: external_exports.number(), height: external_exports.number() })).optional(),
         maxSlices: external_exports.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
         hero: external_exports.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
@@ -104973,72 +104981,86 @@ function register19(server2, ctx2) {
         app: external_exports.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface")
       }
     },
-    safe(async ({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section }) => {
-      const config2 = ctx2.config();
-      const url2 = await toUrl(target);
-      const persuade = app === void 0 ? isPersuade(loadState().task) : !app;
-      const list4 = sizes || config2.fitcheck.sizes;
-      const dir = rendersDir(`fitcheck-${stamp()}`);
+    safe(async (args) => {
+      const many = args.urls?.length ? [...new Set([args.url, ...args.urls].filter(Boolean))] : null;
+      if (!args.url && !many) return text("Pass url, or urls for several pages or states at once.", true);
+      if (!many || many.length === 1) return shootOne({ ...args, url: many ? many[0] : args.url });
       const content = [];
-      const audits = [];
-      const files = [];
-      const caps = await Promise.all(list4.map((s2) => capture(url2, { width: s2.width, height: s2.height, maxSlices: hero ? 1 : section ? 3 : maxSlices || (s2.width < 600 ? 4 : 5), scale: s2.width > 1200 ? 1200 / s2.width : 1, shots: !numbersOnly, section: section || null, config: config2 })));
-      if (section && caps.every((c3) => c3.audit?.section?.missing)) return text(`No element matches ${section} on ${url2}. Check the selector (an id, class or "main > section:nth-of-type(2)").`, true);
-      for (const [k, s2] of list4.entries()) {
-        const r2 = caps[k];
-        const j = judgeAudit(r2.audit, { persuade, hero });
-        audits.push({ size: s2.name, width: s2.width, audit: r2.audit, ...j });
-        content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${numbersOnly ? "numbers only" : section ? `section ${section} (${r2.audit.section?.missing ? "not found" : `y ${r2.audit.section?.top}, ${r2.audit.section?.h}px tall`})` : `${r2.slices.length} of ${r2.sliceCount} screens${r2.audit.sliceYs ? ` at y ${r2.audit.sliceYs.join(", ")}` : ""}`}
+      let failed = false;
+      for (const u2 of many) {
+        const r2 = await shootOne({ ...args, url: u2 });
+        failed ||= !!r2.isError;
+        content.push(textBlock(`===== ${u2} =====`), ...r2.content || []);
+      }
+      return { ...blocks(content), ...failed ? { isError: true } : {} };
+    })
+  );
+  async function shootOne({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section }) {
+    const config2 = ctx2.config();
+    const url2 = await toUrl(target);
+    const persuade = app === void 0 ? isPersuade(loadState().task) : !app;
+    const list4 = sizes || config2.fitcheck.sizes;
+    const dir = rendersDir(`fitcheck-${stamp()}`);
+    const content = [];
+    const audits = [];
+    const files = [];
+    const caps = await Promise.all(list4.map((s2) => capture(url2, { width: s2.width, height: s2.height, maxSlices: hero ? 1 : section ? 3 : maxSlices || (s2.width < 600 ? 4 : 5), scale: s2.width > 1200 ? 1200 / s2.width : 1, shots: !numbersOnly, section: section || null, config: config2 })));
+    if (section && caps.every((c3) => c3.audit?.section?.missing)) return text(`No element matches ${section} on ${url2}. Check the selector (an id, class or "main > section:nth-of-type(2)").`, true);
+    for (const [k, s2] of list4.entries()) {
+      const r2 = caps[k];
+      const j = judgeAudit(r2.audit, { persuade, hero });
+      audits.push({ size: s2.name, width: s2.width, audit: r2.audit, ...j });
+      content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${numbersOnly ? "numbers only" : section ? `section ${section} (${r2.audit.section?.missing ? "not found" : `y ${r2.audit.section?.top}, ${r2.audit.section?.h}px tall`})` : `${r2.slices.length} of ${r2.sliceCount} screens${r2.audit.sliceYs ? ` at y ${r2.audit.sliceYs.join(", ")}` : ""}`}
 ${formatAudit(r2.audit, j)}`));
-        for (const [i2, sl] of r2.slices.entries()) {
-          const f3 = path49.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-          fs53.writeFileSync(f3, sl.buf);
-          files.push(f3);
-          content.push(imageBlock(sl.buf));
-        }
+      for (const [i2, sl] of r2.slices.entries()) {
+        const f3 = path49.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+        fs53.writeFileSync(f3, sl.buf);
+        files.push(f3);
+        content.push(imageBlock(sl.buf));
       }
-      if (steps?.length && !hero && !numbersOnly && !section) {
-        const desk = list4.find((s2) => s2.width >= 1e3) || list4.at(-1);
-        const states = await captureStates(url2, steps, { width: desk.width, height: desk.height, config: config2 });
-        for (const [i2, st] of states.entries()) {
-          content.push(textBlock(`State ${i2 + 1}: ${st.label}${st.error ? ` \xB7 STEP FAILED: ${st.error}` : ""}`));
-          if (!st.buf?.length) continue;
-          const f3 = path49.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
-          fs53.writeFileSync(f3, st.buf);
-          files.push(f3);
-          content.push(imageBlock(st.buf));
-        }
+    }
+    if (steps?.length && !hero && !numbersOnly && !section) {
+      const desk = list4.find((s2) => s2.width >= 1e3) || list4.at(-1);
+      const states = await captureStates(url2, steps, { width: desk.width, height: desk.height, config: config2 });
+      for (const [i2, st] of states.entries()) {
+        content.push(textBlock(`State ${i2 + 1}: ${st.label}${st.error ? ` \xB7 STEP FAILED: ${st.error}` : ""}`));
+        if (!st.buf?.length) continue;
+        const f3 = path49.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+        fs53.writeFileSync(f3, st.buf);
+        files.push(f3);
+        content.push(imageBlock(st.buf));
       }
-      const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
-      updateState((st) => {
-        if (st.task) {
-          st.task.fitcheck.url = url2;
-          if (numbersOnly || section) {
-            st.task.fitcheck.numbersAt = (/* @__PURE__ */ new Date()).toISOString();
-            return;
-          }
-          if (hero && !blockers.length) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
-          if (hero) return;
-          st.task.fitcheck.shots += files.length;
-          st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
-          st.task.fitcheck.shotRev = artifactRev(st.task);
-          st.task.fitcheck.blockers = blockers;
-          st.task.fitcheck.files = files;
+    }
+    const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
+    updateState((st) => {
+      if (st.task) {
+        st.task.fitcheck.url = url2;
+        if (numbersOnly || section) {
+          st.task.fitcheck.numbersAt = (/* @__PURE__ */ new Date()).toISOString();
+          return;
         }
-      });
-      if (!hero && !numbersOnly && !section) markShot(loadState().task);
-      const list22 = blockers.map((b) => `- ${b}`).join("\n");
-      let head;
-      if (numbersOnly)
-        head = `${blockers.length ? `MEASURED BLOCKERS (numbers only, no images):
+        if (hero && !blockers.length) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (hero) return;
+        st.task.fitcheck.shots += files.length;
+        st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
+        st.task.fitcheck.shotRev = artifactRev(st.task);
+        st.task.fitcheck.blockers = blockers;
+        st.task.fitcheck.files = files;
+      }
+    });
+    if (!hero && !numbersOnly && !section) markShot(loadState().task);
+    const list22 = blockers.map((b) => `- ${b}`).join("\n");
+    let head;
+    if (numbersOnly)
+      head = `${blockers.length ? `MEASURED BLOCKERS (numbers only, no images):
 ${list22}` : "No measured blockers (numbers only)."}
 
 This is not the fit check: it has no pictures. Fix, re-run numbersOnly as needed, then shoot once with images before fitcheck_done.`;
-      else if (section)
-        head = `Section ${section} at both sizes (the page-wide numbers are in the text below${blockers.length ? `; ${blockers.length} blocker(s)` : ""}). Look at it, fix, and shoot the whole page once more before fitcheck_done.`;
-      else {
-        const judge = "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " + dir;
-        head = hero ? blockers.length ? `HERO GATE FAILED (fix before writing any section):
+    else if (section)
+      head = `Section ${section} at both sizes (the page-wide numbers are in the text below${blockers.length ? `; ${blockers.length} blocker(s)` : ""}). Look at it, fix, and shoot the whole page once more before fitcheck_done.`;
+    else {
+      const judge = "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " + dir;
+      head = hero ? blockers.length ? `HERO GATE FAILED (fix before writing any section):
 ${list22}
 
 Redo the hero bigger and fully inside the first screen, then fitcheck_shot({ url, hero: true }) again.
@@ -105049,11 +105071,10 @@ ${judge}` : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done ca
 ${list22}` : "No measured blockers."}
 
 ${judge}`;
-      }
-      content.unshift(textBlock(head));
-      return blocks(content);
-    })
-  );
+    }
+    content.unshift(textBlock(head));
+    return blocks(content);
+  }
   server2.registerTool(
     "fitcheck_compare",
     {
@@ -105178,18 +105199,18 @@ import path50 from "node:path";
 init_paths();
 init_serve();
 var KIND_BRIEF = {
-  directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Could it be any brand's hero? Is the h1 big enough (the Display role is ~127px at 1440) and does the picture slot show the subject's real thing at a real size? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
-  build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it distinctive, crafted and finished, or a competent template? Name every place it looks amateur, generic or AI-made.",
+  directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
+  build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
   logo: "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a clich\xE9), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack: "You are judging a NICHE PACK: written guidance meant to make a designer excellent in one niche. Is it specific to the niche (real standards, real artists, real techniques, real numbers) or generic design advice with the niche's name pasted in? Name every generic or wrong statement and what's missing.",
   any: "You are judging a design. Judge only what you see against the brief (if any)."
 };
 var AXES = {
-  directions: ["concept", "distinctiveness", "brief fit", "craft potential"],
-  build: ["concept", "distinctiveness", "hierarchy", "typography", "colour", "composition", "craft & detail", "copy", "brief/direction fit"],
+  directions: ["appeal", "craft potential", "brief fit", "eye candy", "different ideas"],
+  build: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy", "UX & motion", "copy", "brief/direction fit"],
   logo: ["idea", "distinctiveness", "construction", "small-size", "typography", "versatility"],
   pack: ["specificity", "accuracy", "usefulness", "coverage"],
-  any: ["concept", "distinctiveness", "hierarchy", "typography", "colour", "composition", "craft & detail"]
+  any: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy"]
 };
 function briefBlock2(task) {
   const b = task?.brief;
@@ -105202,7 +105223,7 @@ function briefBlock2(task) {
     `Feel: ${b.feel.join(", ")}`,
     b.loves?.length ? `Loves: ${b.loves.join(", ")}` : "",
     b.hates?.length ? `Hates: ${b.hates.join(", ")}` : "",
-    `Ambition: ${b.ambition}${b.ambition === "bold" ? " (the client wants distinctive, memorable work; safe defaults fail)" : ""}`,
+    `Ambition: ${b.ambition}${b.ambition === "bold" ? " (the client asked for loud, distinctive work)" : b.ambition === "conservative" ? " (the category standard done perfectly)" : " (beautiful and polished: proven structure is fine; judge appeal, craft and feel, never mark good familiar work down as safe)"}`,
     b.constraints ? `Constraints: ${b.constraints}` : ""
   ].filter(Boolean).join("\n");
 }
@@ -105222,9 +105243,9 @@ function register20(server2, ctx2) {
       description: `Prepares an independent review by the drip:critic subagent (Sonnet, no history, harsh). It renders the work to image files and returns the exact prompt to pass to the subagent: Agent({ subagent_type: "drip:critic", description: "Critic review", prompt: <returned prompt> }). Pass the prompt unchanged; never add your own defence of the work. kind: directions (uses the board's first-viewport comps), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. Examples: critic_prepare({ kind: "directions" }) \xB7 critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) \xB7 critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })`,
       inputSchema: {
         kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
-        targets: external_exports.array(external_exports.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id"),
+        targets: external_exports.array(external_exports.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id. Pass every state of an app screen at once (?state=typing, ?state=result, ...): each keeps its own screenshots"),
         context: external_exports.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses."),
-        steps: external_exports.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (drag, click, open...), same as fitcheck_shot steps"),
+        steps: external_exports.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (hover, click, open, generate...), same as fitcheck_shot steps. For a transition, add waits of ~150ms between shots: the critic judges motion from that frame strip"),
         extraRound: external_exports.boolean().optional().describe("Only when the user chose 'one more round' after the round limit")
       }
     },
@@ -105267,7 +105288,9 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
           notes.push(`THE BAR (image ${files.length}): ${gold.label}, a shipped page of the same kind. Judge craft, confidence and restraint against it ("would this sit next to it without looking like a template?"); never ask the work to copy its look.`);
         }
       }
-      for (const t0 of kind === "directions" || kind === "pack" ? [] : targets) {
+      const list4 = kind === "directions" || kind === "pack" ? [] : targets;
+      for (const [ti, t0] of list4.entries()) {
+        const tag = list4.length > 1 ? `t${ti + 1}-` : "";
         const t2 = kind === "build" && /\.html?$/i.test(t0) && !isUrl(t0) ? await toUrl(t0) : t0;
         if (isUrl(t2)) {
           const sizes = config2.fitcheck.sizes;
@@ -105277,7 +105300,7 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
             const j = judgeAudit(r2.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
             r2.slices.forEach((sl, i2) => {
-              const f3 = path50.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              const f3 = path50.join(dir, `${tag}${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
               fs54.writeFileSync(f3, sl.buf);
               files.push(f3);
               notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
@@ -105287,7 +105310,7 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
             const desk = sizes.find((s2) => s2.width >= 1e3) || sizes.at(-1);
             const states = await captureStates(t2, steps, { width: desk.width, height: desk.height, config: config2 });
             states.forEach((st, i2) => {
-              const f3 = path50.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              const f3 = path50.join(dir, `${tag}state-${String(i2 + 1).padStart(2, "0")}.jpg`);
               fs54.writeFileSync(f3, st.buf);
               files.push(f3);
               notes.push(`interaction state ${i2 + 1}: ${st.label}${st.error ? ` (step failed: ${st.error})` : ""}`);
@@ -105393,7 +105416,7 @@ Then critic_record the verdict and show the user the critic's own words.`
     "critic_record",
     {
       title: "Record the critic's verdict",
-      description: `Store the drip:critic subagent's verdict (copy its numbers and words; don't soften them). Only works after the subagent actually ran. verdict: pass (ship it / show it), revise (fix the listed problems), reject (start over / replace). For directions, include perDirection so the board shows the critic's ranking. Example: critic_record({ kind: "build", verdict: "revise", scores: { concept: 6, typography: 4 }, worst: "hero type is timid: 48px on a 1440 canvas", fixes: ["set the headline at 120px+", "cut the three equal cards"], summary: "competent template, not a portfolio anyone remembers" })`,
+      description: `Store the drip:critic subagent's verdict (copy its numbers and words; don't soften them). Only works after the subagent actually ran. verdict: pass (ship it / show it), revise (fix the listed problems), reject (start over / replace). For directions, include perDirection so the board shows the critic's ranking. Example: critic_record({ kind: "build", verdict: "revise", scores: { concept: 6, typography: 4 }, worst: "the hero has nothing to look at: a headline on a flat ground", fixes: ["put the real product UI as layered cards beside the headline", "cut the three equal cards"], summary: "competent template, not a portfolio anyone remembers" })`,
       inputSchema: {
         kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
         verdict: external_exports.enum(["pass", "revise", "reject"]),

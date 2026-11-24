@@ -70,8 +70,8 @@ Example option set for a portfolio for an AI model:
 
 | Value | When | What it changes |
 |---|---|---|
-| `bold` (default) | always, unless the user said otherwise | every direction must pass the screenshot test; the critic caps defaults at 4 |
-| `balanced` | the user wants distinctive but not loud ("make it ours, but it's a bank") | one signature move, the rest familiar |
+| `polished` (default) | always, unless the user said otherwise | beautiful, Dribbble-level craft: proven structure, one rich picture, calm type, smooth motion; the critic scores appeal and polish |
+| `bold` | the user asked for loud, playful, experimental, brutalist | a signature risk is welcome, still beautifully made |
 | `conservative` | the user asked for plain, safe, corporate, or to match an existing site | the category standard done perfectly; ambition shows as precision |
 
 Operate and Read surfaces are still `bold`; on them, bold means precision, density and one signature move, not spectacle (`drip_guide rules/ambition`).

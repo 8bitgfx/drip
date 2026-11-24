@@ -22,7 +22,7 @@ one ground and ink, one type voice, one signature move, committed as far as the 
 7. Spend boldness in one place. Everything around the signature is quiet and exact.
 8. One world owns the page, top to bottom. A world that stops after the hero is a template with a good hero.
 9. Commit every atom: buttons, inputs, nav, links and tables are restyled in the world's vocabulary. A stock component inside a committed world is a lapse.
-10. Ambition is bold unless the brief says otherwise (`drip_guide rules/ambition`). "Tasteful AI" (cream + polite serif + terracotta + mono eyebrows) and its siblings (near-black + neon + glow; purple gradients + glass; Inter as the only voice) are a named anti-genre, never a direction unless the brief pins it. Same for a hue picked by category (blue = finance, green = health).
+10. Ambition is polished unless the brief says otherwise (`drip_guide rules/ambition`). "Tasteful AI" (cream + polite serif + terracotta + mono eyebrows) and its siblings (near-black + neon + glow; purple gradients + glass; Inter as the only voice) are a named anti-genre, never a direction unless the brief pins it. Same for a hue picked by category (blue = finance, green = health).
 11. One genre leads; no hybrids. Copy its `breaks_if` list into the contract and check the built CSS against it; a second genre may lend one named move only.
 12. The chosen direction is locked: sharpen it, never swap its idea, palette or type voice without asking. A brief- or brand-pinned look wins over all of the above.
 13. Run the tests before the system step: category guess, competitor swap, thumbnail, logo off, mirror, `breaks_if`, screenshot. Fail any: rework.

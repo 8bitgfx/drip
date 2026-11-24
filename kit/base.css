@@ -19,7 +19,7 @@
   --line: color-mix(in srgb, var(--ink) 14%, transparent);
 
   /* ---- Type roles: desktop ~ / phone ~ ---- */
-  --t-display: clamp(3rem, 1.2rem + 7.5vw, 9rem);        /* hero h1: ~127px / ~48px */
+  --t-display: clamp(2.5rem, 1.4rem + 3.9vw, 4.5rem);    /* hero h1: ~72px / ~40px (a hero made of type alone may go bigger) */
   --t-statement: clamp(2.5rem, 1rem + 4vw, 4.5rem);      /* a big line: 72 / 40 */
   --t-section: clamp(2.125rem, 1.2rem + 2.6vw, 3.5rem);  /* h2: 56 / 34 */
   --t-item: clamp(1.375rem, 1.05rem + 0.7vw, 1.625rem);  /* h3: 26 / 22 */
@@ -63,7 +63,7 @@ img, video, canvas, svg { display: block; max-width: 100%; height: auto; }
 }
 
 /* ---- Roles ---- */
-.display, h1 { font: var(--w-display) var(--t-display) / 1 var(--font-display); letter-spacing: -0.04em; margin: 0 0 var(--s-6); text-wrap: balance; max-width: 14ch; }
+.display, h1 { font: var(--w-display) var(--t-display) / 1.05 var(--font-display); letter-spacing: -0.025em; margin: 0 0 var(--s-6); text-wrap: balance; max-width: 18ch; }
 .statement { font: var(--w-display) var(--t-statement) / 1.05 var(--font-display); letter-spacing: -0.03em; margin: 0; text-wrap: balance; max-width: 18ch; }
 h2, .section { font: var(--w-display) var(--t-section) / 1.1 var(--font-display); letter-spacing: -0.02em; margin: 0 0 var(--s-5); text-wrap: balance; max-width: 22ch; }
 h3, .item { font: var(--w-strong) var(--t-item) / 1.25 var(--font-text); letter-spacing: -0.01em; margin: 0 0 var(--s-3); text-wrap: balance; }
