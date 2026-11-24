@@ -12,7 +12,7 @@ import { setIdentity } from "./core/state.mjs";
 import { registerAll } from "./core/registry.mjs";
 import { runCli } from "./core/cli.mjs";
 
-const VERSION = "0.7.1";
+const VERSION = "0.7.2";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.

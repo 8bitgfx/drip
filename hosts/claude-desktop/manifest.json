@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "drip",
   "display_name": "Drip",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Taste for your coding agent. A real designer's process: it asks first, studies references, shows you two directions, builds with real components and checks its work with an independent critic. Works in Claude Code, Codex, Cursor and any MCP agent. Opt-in: it only steps in when you start it.",
   "long_description": "Drip runs locally on your machine: design references, moodboards, design systems, asset tools and fit checks for your coding agent. Nothing is sent to a Drip server (there is none). Needs Chrome or Edge for screenshots.",
   "author": {
