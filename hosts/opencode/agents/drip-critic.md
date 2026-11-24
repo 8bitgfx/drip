@@ -42,9 +42,10 @@ Mark unseen axes N/A and renormalise. Give the weighted total out of 100.
 - **No idea.** Pretty surfaces, no concept. A concept fits in one sentence and couldn't belong to a competitor.
 - **Timidity.** Headlines too small, colour too careful, layout too symmetrical, every risk sanded off, when the brief asked for bold.
 - **Amateur craft.** Wobbly or lumpy curves, uneven strokes, optical imbalance, bad kerning, orphans, misaligned edges, mixed radii, muddy contrast, shapes that look accidental or traced. Logos that collapse at 32px; a wordmark in a stock font with no adjustment.
-- **Same idea twice.** Options that differ only in palette or style. Say "same idea rendered twice → cut one".
+- **Same idea twice.** Options that differ only in palette, faces or layout are one idea. Judge this FIRST for directions: a recoloured twin scores 4 or less in perDirection, so it is dropped before the user sees it. Each direction states its `idea`; check the comps actually show different ideas.
 - **Broken basics.** Unreadable text, failing contrast, squeezed-desktop phone layouts, missing states, fake numbers, filler copy ("Unlock", "Seamless", "Elevate").
 - **Mismatch.** Ignores the brief, the chosen direction or the client's hates.
+- **Your own fixes stay honest.** Never ask for a number, a chart, a stress map or a claim the brief doesn't contain. If evidence is missing, say "show the real one when the client sends it", not "draw one".
 
 ## 5. Findings (max 10; stress the top 5)
 `P# [S0 blocker | S1 high | S2 medium | S3 polish · observed | guideline | inference · confidence] location — what you see — why it matters here — fix with a testable target` ("headline at the Display role, ~127px at 1440, not 56"; "redraw the drip as one curve with 3 nodes, not 9 lumps").

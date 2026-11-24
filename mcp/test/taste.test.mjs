@@ -66,7 +66,7 @@ test("taste guards through the server", { skip, timeout: 240000 }, async (t) => 
     fs.mkdirSync(path.join(projB, ".drip"), { recursive: true });
     await call("board_create", { name: "Ceramics" });
     await call("board_add", { items: ["#F4EFE6", "#1B1A17", "#B5452B", "#6F7A5C"].map((c) => ({ ref: c, note: `${c} as a role colour for the kiln and clay world` })) });
-    const dir = (name, type, palette, extra = {}) => ({ name, summary: "s", adjectives: ["a", "b"], palette, type, items: ["1"], ...extra });
+    const dir = (name, type, palette, extra = {}) => ({ name, idea: `${name}: a different answer to the brief`, summary: "s", adjectives: ["a", "b"], palette, type, items: ["1"], ...extra });
 
     await t.test("directions need font research, and refuse faces and palettes used in another project", async () => {
       let r = await call("board_directions", { directions: [dir("Kiln", "Newsreader + Public Sans", ["#F4EFE6", "#1B1A17", "#B5452B"]), dir("Clay", "Fragment Mono + Public Sans", ["#101010", "#EEE", "#6F7A5C"])] });

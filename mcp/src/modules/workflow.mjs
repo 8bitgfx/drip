@@ -17,6 +17,8 @@ import { isProjectPack, matchPacks } from "../core/packs.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { kitDir, projectDir } from "../core/paths.mjs";
+import { setupNotes } from "../core/setup.mjs";
+import { swarmInstructions, swarmOn } from "./swarm/index.mjs";
 
 const SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
@@ -202,9 +204,10 @@ export function register(server, ctx) {
         surface: z.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
         packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
         memory: z.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
+        swarm: z.boolean().optional().describe("Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. Also on by default with \"swarm\": true in .drip/config.json."),
       },
     },
-    async ({ task, mode, size, surface, packs, memory }) => {
+    async ({ task, mode, size, surface, packs, memory, swarm }) => {
       const g = guess(task);
       const m = mode || guessMode(task) || (g.size === "quick" ? "polish" : "design");
       const s = size || (m === "polish" ? "quick" : "full");
@@ -212,6 +215,7 @@ export function register(server, ctx) {
       const pk = packs || matchPacks(task).map((p) => p.id);
       const guides = requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
+      if (swarm) t.swarm = true;
       // Design tasks load the project's design memory (compact) and remember which revision they started from. Reusing it
       // never passes this task's own gates: research gaps, the critic and the fit check still run.
       const designTask = ["design", "logo", "board", "polish"].includes(m);
@@ -262,6 +266,15 @@ export function register(server, ctx) {
           `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x]) => x).join(", ")}.\n\n` +
           (s === "full" && config.gates.requireBrief ? `${intakeText(t.intake)}\n\n` : "") +
           (s === "full" ? `${refPlan(task, sf, m)}\n\n` : "") +
+          (swarmOn(config, t) ? `${swarmInstructions(t)}\n\n` : "") +
+          (() => {
+            try {
+              const n = setupNotes(config);
+              return n ? `${n}\n\n` : "";
+            } catch {
+              return "";
+            }
+          })() +
           `${TALK}\n\n${nextStep(t, config)}\n\n` +
           bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
       );

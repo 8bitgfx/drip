@@ -8,10 +8,12 @@ import { KEY_ENV, keyStatus } from "./keys.mjs";
 import { homeDripDir, pluginRoot, projectDir, projectDripDir } from "./paths.mjs";
 import { collectTools } from "./registry.mjs";
 import { executeCode } from "./codemode/execute.mjs";
-import { VENDOR_DEPS, vendorDir, vendorResolve } from "./vendor.mjs";
+import { VENDOR_DEPS, installVendor, vendorDir, vendorResolve } from "./vendor.mjs";
+import { installMockstudio } from "../modules/studio/mockup.mjs";
+import { CHROME_GET, FIX_VENDOR, missingPieces, setupNotes, vendor0 } from "./setup.mjs";
+export { FIX_VENDOR, missingPieces, setupNotes };
 
 /** First executable called one of `names` on PATH, or null. */
-const vendor0 = () => path.join(process.env.DRIP_HOME || path.join(os.homedir(), ".drip"), "vendor");
 
 export function onPath(names) {
   const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
@@ -54,7 +56,6 @@ export function findBlender() {
 
 const check = (id, label, status, detail, fix) => ({ id, label, status, detail, ...(fix ? { fix } : {}) });
 
-const CHROME_GET = "Install Google Chrome (google.com/chrome) or Microsoft Edge (microsoft.com/edge), or point Drip at one: set DRIP_CHROME or fitcheck.chromePath in .drip/config.json.";
 const BLENDER_GET = "download it from blender.org/download and put it on PATH.";
 
 /** `config` and `chrome` can be injected (tests); otherwise they are looked up. */
@@ -136,65 +137,11 @@ export function formatDoctor(r) {
 // ---- first-use setup: what is missing on this machine, and the fix with consent ----
 
 /** The optional pieces `drip doctor --fix` installs (npm packages into ~/.drip/vendor, plus MockStudio). */
-export const FIX_VENDOR = ["axe-core", "svgo"];
-
-const mockstudioReady = () => fs.existsSync(path.join(vendor0(), "mockstudio", "dist", "index.html"));
-
-/** What is missing here: [{ id, what, fix, installable }] (Chrome and Blender are only explained, never installed). */
-export function missingPieces({ config, chrome: chromeIn } = {}) {
-  const out = [];
-  const chrome = chromeIn === undefined ? findChrome(config || loadConfig()) : chromeIn;
-  if (!chrome) out.push({ id: "chrome", what: "Chrome or Edge (screenshots, fit checks and previews need it)", fix: CHROME_GET, installable: false });
-  const gone = FIX_VENDOR.filter((n) => !vendorResolve(n));
-  if (gone.length) out.push({ id: "vendor", what: `${gone.join(" and ")} (accessibility and SVG checks)`, fix: "drip doctor --fix --yes", installable: true, names: gone });
-  if (!mockstudioReady()) out.push({ id: "mockstudio", what: "MockStudio (device mockups)", fix: "drip doctor --fix --yes", installable: true });
-  return out;
-}
-
-const setupFile = () => path.join(process.env.DRIP_HOME || homeDripDir, "setup.json");
-
-function readSetup() {
-  try {
-    return JSON.parse(fs.readFileSync(setupFile(), "utf8"));
-  } catch {
-    return {};
-  }
-}
-
-/**
- * One to three lines on what is missing on this machine, for drip_start to show. Shown once per machine for a given
- * set of missing pieces (cached in ~/.drip/setup.json); an empty string when nothing is missing or it was already shown.
- */
-export function setupNotes(config, { chrome, force = false } = {}) {
-  const missing = missingPieces({ config, chrome });
-  const key = missing.map((m) => m.id).sort().join(",");
-  const prev = readSetup();
-  if (!force && prev.shown === key) return "";
-  try {
-    fs.mkdirSync(path.dirname(setupFile()), { recursive: true });
-    fs.writeFileSync(setupFile(), JSON.stringify({ shown: key, at: new Date().toISOString(), missing: missing.map((m) => m.id) }, null, 2));
-  } catch {
-    /* read-only home: the note just shows again next time */
-  }
-  if (!missing.length) return "";
-  const lines = [`SETUP: ${missing.length === 1 ? "one thing is" : `${missing.length} things are`} missing on this machine.`];
-  const chromeGone = missing.find((m) => m.id === "chrome");
-  if (chromeGone) lines.push(`- ${chromeGone.what}: ${chromeGone.fix} Do this before the first visual step.`);
-  const rest = missing.filter((m) => m.id !== "chrome");
-  if (rest.length) lines.push(`- Optional: ${rest.map((m) => m.what).join("; ")}. Run "drip doctor --fix --yes" (installs them; ask the user first).`);
-  return lines.slice(0, 3).join("\n");
-}
-
-/**
- * `drip doctor --fix`. Without `confirm` it only says what it would install. With it, installs MockStudio and the npm
- * vendor packages that are missing. Never installs Chrome, Edge or Blender: it says where to get them.
- * `installers` ({ vendor, mockstudio }) can be injected for tests.
- */
 export async function doctorFix({ confirm = false, config, chrome, log = () => {}, installers } = {}) {
   const missing = missingPieces({ config, chrome });
   const inst = installers || {};
-  const installVendorFn = inst.vendor || (await import("./vendor.mjs")).installVendor;
-  const installMockFn = inst.mockstudio || (await import("../modules/studio/mockup.mjs")).installMockstudio;
+  const installVendorFn = inst.vendor || installVendor;
+  const installMockFn = inst.mockstudio || installMockstudio;
   const manual = missing.filter((m) => !m.installable).map((m) => `${m.what}: ${m.fix}`);
   const blender = findBlender() ? [] : [`Blender (optional): ${BLENDER_GET}`];
   const todo = [];
