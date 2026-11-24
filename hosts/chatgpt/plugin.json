@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "drip",
   "version": "0.5.0",
-  "description": "Give Claude drip: a real designer's process for coding agents. Run /drip:design and Claude studies Dribbble references, builds a moodboard for you to pick a direction from, writes a design system, builds with real components and fit-checks its own work on screenshots. Opt-in: it only steps in when you start it.",
+  "description": "Taste for your coding agent. A real designer's process: it asks first, studies references, shows you two directions, builds with real components and checks its work with an independent critic. Works in Claude Code, Codex, Cursor and any MCP agent. Opt-in: it only steps in when you start it.",
   "author": {
     "name": "Drip contributors"
   },
