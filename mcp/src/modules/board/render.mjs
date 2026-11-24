@@ -71,7 +71,7 @@ export async function renderBoard(board, { mode = "live", inline = false } = {})
   const numbers = new Map(items.map((it, i) => [it.key, i + 1]));
   const byKey = new Map(items.map((it) => [it.key, it]));
   const sections = [];
-  for (const d of board.directions) {
+  for (const d of board.directions.filter((x) => !x.dropped)) { // the critic dropped weak ideas: the user sees the strong ones
     const its = d.items.map((k) => byKey.get(k)).filter(Boolean);
     const cards = await Promise.all(its.map((it) => card(it, numbers.get(it.key), inline, board.id)));
     sections.push(`<section class="direction${board.chosen === d.name ? " chosen" : ""}">
@@ -110,18 +110,18 @@ export async function renderBoard(board, { mode = "live", inline = false } = {})
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(board.name)} · moodboard</title>
 <style>
-:root{--bg:#f4f1ea;--ink:#16140f;--muted:#6f6a5f;--line:#e2ddd2;--card:#fffdf8;--accent:#e8452c;color-scheme:light}
+:root{--bg:#f5f5f4;--ink:#141414;--muted:#6b6b6b;--line:#e2e2e0;--card:#ffffff;--accent:#141414;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#151411;--ink:#f1ede4;--muted:#a39e92;--line:#2a2822;--card:#1d1b17;color-scheme:dark}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .top{padding:40px clamp(16px,4vw,48px) 8px;max-width:1600px;margin:auto}
 .top small{color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-size:12px}
-.top h1{font:600 clamp(28px,4vw,44px)/1.1 ui-serif,Georgia,serif;margin:6px 0 10px;letter-spacing:-.01em}
+.top h1{font:600 clamp(28px,4vw,44px)/1.1 ui-sans-serif,system-ui,sans-serif;margin:6px 0 10px;letter-spacing:-.01em}
 .top p{color:var(--muted);max-width:70ch;margin:0}
 main{padding:8px clamp(16px,4vw,48px) 80px;max-width:1600px;margin:auto}
 .direction{margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
 .direction.chosen{border-top:2px solid var(--accent)}
 .direction header{display:flex;gap:24px;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px}
-.direction h2{font:600 22px/1.2 ui-serif,Georgia,serif;margin:0}.direction header p{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.direction h2{font:600 22px/1.2 ui-sans-serif,system-ui,sans-serif;margin:0}.direction header p{margin:4px 0 0;color:var(--muted);max-width:60ch}
 .pill{font:600 11px/1 ui-sans-serif,system-ui;background:var(--accent);color:#fff;border-radius:99px;padding:4px 8px;vertical-align:middle;margin-left:6px}
 .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.chip{border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:13px}
 .pal{display:flex}.pal i{width:22px;height:22px;border-radius:50%;border:2px solid var(--bg);margin-left:-6px}.type{font-size:13px;color:var(--muted)}

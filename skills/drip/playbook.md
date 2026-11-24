@@ -6,6 +6,7 @@ Build from this. It covers Persuade (landing pages, product sites) and Experienc
 1. Build the page a strong studio would ship this year for this subject. It says plainly what it is, shows the real thing on every screen, and sets it big. Aim at the best of the galleries; check the numbers against shipped sites (`refs_site`).
 2. The failure to fear is not clutter. It is a page of small things on a wide canvas. When torn, go bigger: bigger type, a bigger picture, fewer words.
 3. Finish the job: every section built and every state styled. Only material the user must supply is left as a labelled slot.
+   The numbers below are strong defaults, not law. When the brief, the subject or the user asks for something else, the brief wins: note in DESIGN.md which rule you overrode and why.
 
 ## Material and job
 4. Read the project first: package.json, tokens, fonts, DESIGN.md, nearby pages. Never ask what you can look up.
@@ -31,7 +32,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
     Not a default to refuse: a well-made SaaS page (generous white space, the real product UI, real photography, crisp type, a restrained glow on dark). Judge the execution, not the genre.
 
     Mirror test: would a neighbouring brief get this exact combination? If so, change one major decision.
-11. Colour commits at page scale. On Persuade and Experience, use Committed (one colour on 30-60% of the surface) or Drenched (the ground is the colour) unless the brief asks for quiet. The accent is a signal on the action. A grey page with one coloured button is not restraint; it is the default.
+11. Colour commits at page scale. On Persuade and Experience, use Committed (one colour on 30-60% of the surface) or Drenched (the ground is the colour) unless the brief or the subject asks for quiet (care, money, medicine, premium craft often do): then a calm ground and one decisive accent. The accent is a signal on the action. A grey page with one coloured button is not restraint; it is the default.
 12. Pick two faces like objects from the subject's world: a display face with a point of view and a text face (`fonts_pair`). Use one family when its range is wide.
     - Mono only inside code, a measurement or a tabular figure.
     - Never mono for labels, nav, buttons, body or headings.
@@ -67,6 +68,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 | Small | 14px | 14px | 1.45 | 0 |
 
     No eighth size, and nothing under 14px except the legal line. The hero is about 2× the section head, and the section head about 2× the item title.
+    Display size follows the job: when a big picture or the product carries the hero, the h1 can be Statement size (72px); a hero made of type alone takes the full Display role. Never shout by reflex.
 17. Display text uses one weight, one style and one colour, with no accented word. It gets its weight from size and tracking. Use three weights at most, picked as extremes (400 with 700, or 300 with 800).
 18. Labels, nav, captions, meta and tags use the text face at Small or Body size, in sentence case and untracked. No eyebrows.
 19. Container: `min(100% - 2 gutters, 1312px)`, with gutters of 64 / 48 / 24. Use 12 columns with a 32px gap. Every block starts on a column line, and the left text edge is the same from the nav to the footer.

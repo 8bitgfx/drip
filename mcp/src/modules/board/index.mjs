@@ -42,9 +42,10 @@ function directionsGate(board, config) {
   if (rec.verdict === "reject")
     return `The critic rejected this set ("${rec.summary}"). Rework the weak directions (or replace them with bolder ones), board_directions again, re-render tiles and get a new ranking.`;
   // Never show the user a direction the critic scored as weak: rework it or replace it first.
-  const weak = (rec.perDirection || []).filter((p) => typeof p.score === "number" && p.score < (config.gates.minDirectionScore ?? 6));
-  if (weak.length)
-    return `Not ready to show: ${weak.map((p) => `"${p.name}" scored ${p.score}/10 (${p.note || p.verdict || "weak"})`).join(", ")}. Rework or replace ${weak.length > 1 ? "them" : "it"} so every option is one you'd defend, board_directions again, and get a new ranking.`;
+  const scored = (rec.perDirection || []).filter((p) => typeof p.score === "number");
+  const strong = scored.filter((p) => p.score >= (config.gates.minDirectionScore ?? 6));
+  if (scored.length && strong.length < 2)
+    return `Not ready to show: only ${strong.length} direction${strong.length === 1 ? "" : "s"} scored ${config.gates.minDirectionScore ?? 6}/10 or more (${scored.map((p) => `"${p.name}" ${p.score}`).join(", ")}). The user chooses between two strong ideas: rework or replace the weak ones, board_directions again, and get a new ranking.`;
   return null;
 }
 
@@ -92,6 +93,22 @@ export function freshLooksGate(directions, task, config) {
     if (twin) problems.push(`"${d.name}": ground ${d.palette[0]} + accent ${d.palette[2] || "?"} is the palette of "${twin.direction}" in another project. Take the colours from this subject's world instead.`);
   }
   return problems.length ? `Directions not saved. They repeat Drip's defaults:\n- ${problems.join("\n- ")}` : null;
+}
+
+/** Each direction builds on what was studied: at least one style reference and one of the same kind of page or a competitor. */
+export function groundingGate(directions, task, live, config) {
+  if (!task || task.skipped || !config.gates.enforce || task.size !== "full") return null;
+  const studied = task.refs?.studied || [];
+  if (!studied.some((x) => x.role)) return null; // older tasks without roles
+  const roleOf = new Map(studied.map((x) => [x.key, x.role]));
+  const keyOf = (r) => (/^\d+$/.test(r) && live[+r - 1] ? live[+r - 1].key : r);
+  const problems = [];
+  for (const d of directions) {
+    const roles = new Set(d.items.map(keyOf).map((k) => roleOf.get(k)).filter(Boolean));
+    if (!roles.has("style") || !(roles.has("page") || roles.has("competitor")))
+      problems.push(`"${d.name}" needs at least one studied style reference and one studied page or competitor reference in its items (it has: ${[...roles].join(", ") || "none"})`);
+  }
+  return problems.length ? `Directions not saved: each one builds on what you studied.\n- ${problems.join("\n- ")}\nUse the board numbers of studied references (board_read lists them).` : null;
 }
 
 export function register(server, ctx) {
@@ -321,7 +338,7 @@ export function register(server, ctx) {
     {
       title: "Group the board into directions",
       description:
-        "Deal 2 (3 only when the brief truly forks) directions that differ in IDEA, each with its thesis, palette in role order (ground, ink, accent, support), two faces, and the hero it implies. " +
+        "Deal 3 directions that are different IDEAS, not one idea in different colours: each a different answer to the brief (what the page is about, how the first screen works), with the references it builds on, its palette in role order (ground, ink, accent, support), two faces, and the hero it implies. The critic ranks them; the weak ones are dropped and the user sees the best two. Before writing them, Read the gold page closest to this one (drip_guide examples/gold) and say what your best direction takes from its decisions. " +
         "Renders each as a first-viewport comp at 1440x900 with the real headline, sentence and action (playbook P8-P16). Replaces previous directions. " +
         "On a master board whose direction is already approved this only proposes: the approved one stays until the user approves a change.",
       inputSchema: {
@@ -334,6 +351,8 @@ export function register(server, ctx) {
               palette: z.array(z.string()).min(2).max(8).describe("Hex colours in role order: ground, ink, accent, support…"),
               type: z.string().describe("Display face + text face, '<display> + <text>', found with fonts_search / fonts_compare for THIS subject. Never mono as a voice"),
               typeReason: z.string().optional().describe("Why these faces fit this subject (required for overused faces such as Fraunces, Instrument Serif, Bricolage Grotesque, Syne, Satoshi)"),
+              idea: z.string().min(12).describe("The idea in one line, as different from the other directions' ideas as possible: 'the product as a technical drawing being annotated live', 'a lab notebook: the research pages are the page', 'a toy catalogue: the walker in play at full bleed'"),
+              refuses: z.string().optional().describe("What this direction refuses that another one keeps"),
               manifesto: z.string().optional().describe("The thesis: the idea this page owns and the category default it refuses, plus the physical scene (who, where, what light)"),
               pairing: z.string().optional().describe("What it borrows ambition or discipline from (a working web world), never a poster's clothes"),
               headline: z.string().optional().describe("The real headline for this direction's comp (8 words or fewer)"),
@@ -358,6 +377,8 @@ export function register(server, ctx) {
       const keyOf = (r) => (/^\d+$/.test(r) && live[+r - 1] ? live[+r - 1].key : r);
       const fresh = freshLooksGate(directions, loadState().task, ctx.config());
       if (fresh) return text(fresh, true);
+      const grounding = groundingGate(directions, loadState().task, live, ctx.config());
+      if (grounding) return text(grounding, true);
       const board = updateBoard(
         b0.id,
         (b) => {

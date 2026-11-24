@@ -84,19 +84,10 @@ Do: one moment, built with care, with a still poster under reduced motion. Don't
 
 ### Grid, edges and type
 
-| Token | Desktop 1440 | Tablet 768 | Phone 390 |
-|---|---|---|---|
-| Container | min(100% - 128px, 1312px) | 100% - 96px | 100% - 48px |
-| Columns / gutter | 12 / 24px | 8 / 24px | 4 / 16px |
-| Section padding (top/bottom) | 96-176, mixed by mass | 96 | 64-96 |
-| h1 | Display role: ~127px, tracking -3% to -4.5% | ~100px | ~48px |
-| h2 | 40-48px | 32-40px | 28-32px |
-| Lead / card title | 20px | 18-20px | 18px |
-| Body | 16-18px, line-height 1.5-1.6 | 16-18px | 16px |
-| Measure | 45-65ch | 45-65ch | full column |
+Sizes, gutters, columns and the type roles are the playbook's (rules 16-21) and `kit/base.css`: one source, never restated here. Measure: 45-65ch.
 
 - **Two text lines only:** the left line and one split line (column 6, 7 or 8). Every split on the page uses the same pair. Text on the left, picture on the right, top-aligned, never alternating left/right down the page.
-- **Display weight comes from size and tight tracking,** not 800 weight. Display at 400 to 600; body 400 and 500.
+- **Display weight:** one weight for all display text (playbook 17); pick it for the face, light or heavy, and never a weight the face doesn't have.
 - **Each heading level at least 1.25 times the next.** Nothing under 13px. `drip_guide type` for pairing and scale.
 - **One button pair** (filled primary, quiet secondary), one card style, one radius scale, one link style across the page.
 - **Two boxes deep at most:** a card holds a panel, a panel holds UI. Never a card in a card in a card.

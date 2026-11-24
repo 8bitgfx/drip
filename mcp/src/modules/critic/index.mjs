@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { readPackFile } from "../../core/packs.mjs";
-import { projectDir } from "../../core/paths.mjs";
+import { examplesDir, projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
 import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
@@ -58,6 +58,24 @@ function briefBlock(task) {
 
 const isUrl = (s) => /^https?:\/\//i.test(s) || /^file:/i.test(s);
 
+/** The gold page closest to the task (examples/gold/<kind>/1.jpg), or null. */
+export function goldFor(task) {
+  const t = `${task?.title || ""} ${task?.brief?.what || ""}`.toLowerCase();
+  const kind =
+    /\b(walker|device|hardware|speaker|bike|camera|furniture|toy|gadget|appliance|wearable|shoe|bottle|stroller)\b/.test(t) && !/\b(saas|software|app|platform)\b/.test(t)
+      ? "hardware"
+      : /\b(ai|generator|thumbnail|image|video|creative tool|model)\b/.test(t)
+        ? "ai-tool"
+        : /\b(portfolio|studio|agency|designer|artist|photographer)\b/.test(t)
+          ? "studio"
+          : task?.surface === "landing" || task?.surface === "app"
+            ? "saas"
+            : null;
+  const labels = { hardware: "teenage.engineering, OP-1 product page", "ai-tool": "krea.ai", studio: "locomotive.ca", saas: "linear.app" };
+  const file = kind && path.join(examplesDir, "gold", kind, "1.jpg");
+  return file && fs.existsSync(file) ? { kind, file, label: labels[kind] } : null;
+}
+
 export function register(server, ctx) {
   server.registerTool(
     "critic_prepare",
@@ -80,8 +98,14 @@ export function register(server, ctx) {
       const config = ctx.config();
       const { task } = loadState();
       const prevRounds = (task?.critic?.records || []).filter((r) => r.kind === kind);
+      // The user said "decide for me": that standing answer covers one more round without a question.
+      const decided = task?.intake?.max === 0;
+      if (kind === "build" && decided && !extraRound && !(task?.critic?.extraRounds) && prevRounds.length >= config.gates.maxCriticRounds) extraRound = true;
       if (kind === "build" && prevRounds.length >= config.gates.maxCriticRounds + (task?.critic?.extraRounds || 0) && !extraRound)
         return text(
+          decided
+            ? `Round limit: ${prevRounds.length} critic rounds (last: ${prevRounds.at(-1).verdict.toUpperCase()}). The user told you to decide: ship it. fitcheck_done, then drip_end({ acceptOpen: "decide for me" }) and list the open points in the hand-off.`
+            :
           `Round limit: the critic has judged this build ${prevRounds.length} times (last: ${prevRounds.at(-1).verdict.toUpperCase()}, ${prevRounds.at(-1).summary}).\n` +
             'Ask the user now with AskUserQuestion: "Ship it with the open points listed" or "One more critic round". Show the open points first. ' +
             "If they pick another round, call critic_prepare again with extraRound: true; if they ship, fitcheck_done and hand off with the open points.",
@@ -101,11 +125,19 @@ export function register(server, ctx) {
         const unreadable = board.directions.filter((d) => d.typeIssues?.length);
         if (unreadable.length)
           return text(`Not ready for the critic: ${unreadable.map((d) => `"${d.name}" (${d.typeIssues.map((t) => t.detail).join("; ")})`).join(" · ")}. Fix the comps and board_tile again; a critic's time goes on ideas, not on broken type.`, true);
-        board.directions.forEach((d, i) => {
+        board.directions.filter((d) => !d.dropped).forEach((d, i) => {
           files.push(d.tile);
-          notes.push(`Direction ${i + 1} "${d.name}" (${files.length}): ${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} · ${d.adjectives.join(", ")} · palette ${d.palette.join(" ")} · type ${d.type}`);
+          notes.push(`Direction ${i + 1} "${d.name}" (${files.length}): ${d.idea ? `IDEA: ${d.idea}. ` : ""}${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} · ${d.adjectives.join(", ")} · palette ${d.palette.join(" ")} · type ${d.type}`);
           if (i === 0 && board.criteria?.length) context = `${context ? `${context}\n` : ""}Choice criteria (written before the tiles): ${board.criteria.join("; ")}`;
         });
+      }
+      // The bar: a shipped page of the same kind (examples/gold.md). The work is judged against its craft, not its look.
+      if (kind === "directions" || kind === "build") {
+        const gold = goldFor(task);
+        if (gold) {
+          files.push(gold.file);
+          notes.push(`THE BAR (image ${files.length}): ${gold.label}, a shipped page of the same kind. Judge craft, confidence and restraint against it ("would this sit next to it without looking like a template?"); never ask the work to copy its look.`);
+        }
       }
 
       for (const t0 of kind === "directions" || kind === "pack" ? [] : targets) {
@@ -268,7 +300,10 @@ export function register(server, ctx) {
             (board) => {
               for (const pd of rec.perDirection) {
                 const d = board.directions.find((x) => x.name.toLowerCase() === pd.name.toLowerCase());
-                if (d) d.critic = `${pd.score}/10 · ${pd.verdict} — ${pd.note}`;
+                if (d) {
+                  d.critic = `${pd.score}/10 · ${pd.verdict} — ${pd.note}`;
+                  d.dropped = typeof pd.score === "number" && pd.score < (ctx.config().gates.minDirectionScore ?? 6); // the user sees only strong ideas
+                }
               }
             },
             { op: "critic", summary: "ranking" },

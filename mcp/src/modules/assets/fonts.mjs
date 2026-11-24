@@ -40,6 +40,9 @@ export function noteFontResearch() {
   }
 }
 
+// Faces the playbook refuses as the display voice (rule 10); they rank last as a display pick.
+const BANNED_VOICE = ["Inter", "Geist", "Space Grotesk"];
+
 export function register(server, ctx) {
   server.registerTool(
     "fonts_search",
@@ -72,10 +75,10 @@ export function register(server, ctx) {
       noteFontResearch();
       const words = mood.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
       const ranked = pairs()
-        .map((p) => ({ p, s: p.moods.filter((m) => words.some((w) => m.includes(w) || w.includes(m))).length - (p.overused ? 0.5 : 0) }))
+        .map((p) => ({ p, s: p.moods.filter((m) => words.some((w) => m.includes(w) || w.includes(m))).length - (p.overused ? 1 : 0) - (BANNED_VOICE.includes(p.display) ? 3 : 0) }))
         .sort((a, b) => b.s - a.s)
         .slice(0, 6);
-      const content = [{ type: "text", text: ranked.map(({ p }, i) => `${i + 1}. ${p.display} + ${p.text}${p.mono ? ` (+ ${p.mono})` : ""} — ${p.moods.join(", ")}${p.overused ? " · OVERUSED" : ""}\n   ${p.note}`).join("\n") }];
+      const content = [{ type: "text", text: ranked.map(({ p }, i) => `${i + 1}. ${p.display} + ${p.text}${p.mono ? ` (+ ${p.mono})` : ""} — ${p.moods.join(", ")}${BANNED_VOICE.includes(p.display) ? " · NOT AS THE VOICE (playbook 10): fine as a text face" : p.overused ? " · OVERUSED: only with a subject reason" : ""}\n   ${p.note}`).join("\n") }];
       if (preview && ranked[0]) {
         const img = await previewHtml(specimen(ranked[0].p.display, ranked[0].p.text, "Design that earns its place"), { width: 1100, height: 330, config: ctx.config() });
         if (img) content.push(img);

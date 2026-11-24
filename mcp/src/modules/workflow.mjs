@@ -118,7 +118,12 @@ export function intakePlan(taskText, t = {}) {
 
 function intakeText(plan) {
   if (plan.max === 0)
-    return `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.`;
+    return (
+      `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.` +
+      (plan.open.some((q) => q.startsWith("MATERIAL"))
+        ? " MATERIAL is unknown: don't invent pictures of the product. Build labelled slots at their real size for the photos, CAD renders or screenshots the user surely has, and end the hand-off with the exact list of files to send (\"hero: a 3/4 photo of the product on a plain ground, 2400px\"…). drip_guide imagery covers products with no photos."
+        : "")
+    );
   return (
     `INTAKE: read the project first (never ask what you can look up), then ask AT MOST ${plan.max} question${plan.max > 1 ? "s" : ""} in one AskUserQuestion round, options specific to this request, your recommendation first. ` +
     `Fewer is better; zero is fine when the project answers them. Never pad the round.\n` +
@@ -166,6 +171,19 @@ function refPlan(task, surface, mode) {
   );
 }
 
+/** The first half of the playbook: everything before "## System", plus "## Never" and "## Talk". */
+export function playbookFloor(pb) {
+  if (!pb) return pb;
+  const cut = (from, to) => {
+    const a = pb.indexOf(from);
+    if (a < 0) return "";
+    const b = to ? pb.indexOf(to, a + from.length) : -1;
+    return pb.slice(a, b < 0 ? undefined : b);
+  };
+  const head = pb.slice(0, pb.indexOf("## System") > 0 ? pb.indexOf("## System") : undefined);
+  return `${head.trimEnd()}\n\n${cut("## Never", "## Finish").trimEnd()}\n\n${cut("## Talk").trimEnd()}\n\n(The build half: system, plan, build, finish, comes with board_choose; drip_guide playbook has the whole text.)\n`;
+}
+
 const TALK = `TALK: decisions first, 3-6 short lines per message; show (board link, screenshots) instead of describing; one question at a time with buttons; never paste tool output.`;
 
 export function register(server, ctx) {
@@ -199,8 +217,10 @@ export function register(server, ctx) {
       const designTask = ["design", "logo", "board", "polish"].includes(m);
       if (designTask && memory !== "fresh") t.memory = buildTaskMemory({ taskText: task, mode: memory });
       const memCtx = t.memory ? projectContext({ task: t }) : null;
-      // Every required guide is short now, so all of them come inline: zero extra calls.
-      const bodies = guides.map((x) => [x, readGuide(x)]).filter(([, b]) => b);
+      // Required guides come inline. The playbook comes in two halves: what the first steps need now (the bar, material,
+      // references, direction, comps, the never-list, how to talk); the build half (system, plan, build, finish) arrives once,
+      // with board_choose, when it is used. Less to carry while thinking about the design.
+      const bodies = guides.map((x) => [x, x === "playbook" ? playbookFloor(readGuide(x)) : readGuide(x)]).filter(([, b]) => b);
       for (const [x] of bodies) t.guidesRead.push(x);
       const others = otherTasks();
       if (["design", "logo", "board", "polish"].includes(m)) warmBrowser(ctx.config()); // ready before the first shot
@@ -428,6 +448,8 @@ export function register(server, ctx) {
       const config = ctx.config();
       const unseen = reconcileWorkspace();
       const cur = loadState().task;
+      // "Decide for me" is the user's standing acceptance: close with the open points listed rather than ask.
+      if (cur?.intake?.max === 0 && !acceptOpen) acceptOpen = "the user said: decide for me (open points listed in the hand-off)";
       if (cur && !cur.skipped && config.gates.enforce && !acceptOpen) {
         const open = [];
         if (needsFitcheck(cur, config)) open.push("the UI changed after the last passing fit check (or the critic has not passed the latest build)");

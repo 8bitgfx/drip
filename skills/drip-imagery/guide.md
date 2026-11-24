@@ -23,6 +23,14 @@ Good imagery shows the real thing: the place, the food, the object, the hands at
 10. **Wire for speed and access:** `srcset`, `sizes`, lazy loading, `width`/`height`, alt text, the credit line.
 11. **Look:** `fitcheck_shot` at phone and desktop. Check every crop at 390px wide: phones cut the subject out of wide frames more than anything else.
 
+## When the product has no photos yet
+The most common reason a page looks cheap: the agent fills the product's place with something it drew itself. In order:
+1. **Ask for or slot the real material.** The client almost always has CAD renders, prototype photos, sketches or screenshots. Build the slot at its real size with a label ("3/4 photo of the walker on a plain ground, 2400px") and list it in the hand-off.
+2. **A device or screen:** `mockup_render` with the real screenshot.
+3. **A real object model the user has** (.glb, a CAD export): `scene_render` with `type: "model"`.
+4. **Only if the user asks for drawings:** a constructed technical drawing, never a doodle. One projection (side elevation or isometric), constant line weights (outline 2px, details 1px, hidden lines dashed), real fillets on bends, leader lines with short labels, nothing decorative. A drawing that looks hand-wobbled reads as clip art; a primitive-built 3D object reads as a toy.
+5. **The page can lead with something else:** the problem in a photo the user has (a hallway, a park path), the claim in type, a real number they gave you. A strong page with a labelled slot beats a full page with a fake product.
+
 ## Find, generate, ask or build
 
 | The slot shows | First choice | Second | Never |
