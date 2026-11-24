@@ -14,40 +14,31 @@ export const COLORS = {
 
 const r1 = (n) => +n.toFixed(1);
 
-// Mark space: the selection box is 0..S on both axes; paint bulges BAND below it and runs into drips.
+// Mark space: the selection box is 0..S on both axes; the paint fills it and runs out of the bottom edge.
+// Drips: a concave fillet where they leave the box, a neck that swells slightly into a round tip.
 export const S = 480;
-const BAND = 24;
+const FILLET = 34;
+const SWELL = 1.14; // the tip is a little wider than the neck, so it reads as liquid, not a bar
 const DRIPS = [
-  { x: 116, w: 66, len: 124, r: 38, f: 0.95 },
-  { x: 238, w: 36, len: 52, r: 20, f: 0.8 },
-  { x: 334, w: 86, len: 210, r: 50, f: 0.95 },
+  { x: 112, w: 64, len: 160 },
+  { x: 240, w: 40, len: 78, s: 1.04 },
+  { x: 372, w: 84, len: 240 },
 ];
-export const MARK_BOUNDS = { x: -24, y: -24, w: S + 48, h: S + BAND + 210 + 24 }; // incl. handles
+const MAXLEN = Math.max(...DRIPS.map((d) => d.len)) + 8;
+export const MARK_BOUNDS = { x: -24, y: -24, w: S + 48, h: S + MAXLEN + 48 }; // incl. handles
 
 function paintPath() {
-  const YB = S + BAND, rc = 30;
-  let d = `M0,0 H${S} V${YB - rc} Q${S},${YB} ${S - rc},${YB}`;
-  const ds = [...DRIPS].sort((a, b) => b.x - a.x);
-  // Shoulders may overlap their neighbours (the fill hides it) but never run past the bottom corners.
-  ds.forEach(({ x: cx, w, len, r, f }) => {
-    const n = w / 2, nn = n * 0.9, cy = YB + len - r;
-    const fl = Math.min(w * f, S - rc - (cx + n), cx - n - rc);
-    const top = Math.min(YB + fl, cy - r * 1.25); // where the shoulder turns vertical
-    const mid = cy - r * 0.95; // narrowest point of the neck
-    const pinch = mid - top > 8;
-    // right side, going down: shoulder, neck (S-curve), bulb; every join has a vertical tangent
-    d += ` L${r1(cx + n + fl)},${YB}`;
-    d += ` C${r1(cx + n + fl * 0.4)},${YB} ${r1(cx + n)},${r1(YB + (top - YB) * 0.45)} ${r1(cx + n)},${r1(top)}`;
-    const nx = pinch ? nn : n, ny = pinch ? mid : top;
-    if (pinch) d += ` C${r1(cx + n)},${r1(top + (mid - top) * 0.5)} ${r1(cx + nn)},${r1(mid - (mid - top) * 0.5)} ${r1(cx + nn)},${r1(mid)}`;
-    d += ` C${r1(cx + nx)},${r1(ny + (cy - ny) * 0.45)} ${r1(cx + r)},${r1(cy - r * 0.55)} ${r1(cx + r)},${r1(cy)}`;
-    d += ` A${r},${r} 0 0 1 ${r1(cx - r)},${r1(cy)}`;
-    // left side, going up: mirror
-    d += ` C${r1(cx - r)},${r1(cy - r * 0.55)} ${r1(cx - nx)},${r1(ny + (cy - ny) * 0.45)} ${r1(cx - nx)},${r1(ny)}`;
-    if (pinch) d += ` C${r1(cx - nn)},${r1(mid - (mid - top) * 0.5)} ${r1(cx - n)},${r1(top + (mid - top) * 0.5)} ${r1(cx - n)},${r1(top)}`;
-    d += ` C${r1(cx - n)},${r1(YB + (top - YB) * 0.45)} ${r1(cx - n - fl * 0.4)},${YB} ${r1(cx - n - fl)},${YB}`;
+  const f = FILLET;
+  let d = `M0,0 H${S} V${S}`;
+  [...DRIPS].sort((a, b) => b.x - a.x).forEach(({ x, w, len, s = SWELL }) => {
+    const n = w / 2, t = n * s, cy = S + len - t, y0 = S + f, h = cy - y0;
+    d += ` H${r1(x + n + f)} A${f},${f} 0 0 0 ${r1(x + n)},${y0}`;
+    d += ` C${r1(x + n)},${r1(y0 + h * 0.55)} ${r1(x + t)},${r1(cy - h * 0.3)} ${r1(x + t)},${r1(cy)}`;
+    d += ` A${r1(t)},${r1(t)} 0 0 1 ${r1(x - t)},${r1(cy)}`;
+    d += ` C${r1(x - t)},${r1(cy - h * 0.3)} ${r1(x - n)},${r1(y0 + h * 0.55)} ${r1(x - n)},${y0}`;
+    d += ` A${f},${f} 0 0 0 ${r1(x - n - f)},${S}`;
   });
-  return `${d} L${rc},${YB} Q0,${YB} 0,${YB - rc} Z`;
+  return `${d} H0 Z`;
 }
 
 /** The mark (no background) in mark space. */
@@ -55,11 +46,8 @@ export function mark({ frame = COLORS.frameOnDark, handleFill = "#fff", hs = 40,
   const handles = [[0, 0], [S / 2, 0], [S, 0], [0, S / 2], [S, S / 2], [0, S], [S, S]]
     .map(([x, y]) => `<rect x="${x - hs / 2}" y="${y - hs / 2}" width="${hs}" height="${hs}" rx="5" fill="${handleFill}" stroke="${COLORS.blue}" stroke-width="${sw}"/>`)
     .join("");
-  const big = DRIPS[2], cy = S + BAND + big.len - big.r, gr = big.r;
-  const glint = `<path d="M${r1(big.x - gr * 0.55)},${r1(cy - gr * 0.05)} A${gr * 0.6},${gr * 0.6} 0 0 1 ${r1(big.x - gr * 0.05)},${r1(cy - gr * 0.55)}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="${r1(gr * 0.18)}" stroke-linecap="round"/>`;
-  return `<path d="M0,${S} H${S}" stroke="${frame}" stroke-width="${sw}"/>`
-    + `<path d="${paintPath()}" fill="${COLORS.blue}"/>${glint}`
-    + `<path d="M0,${S} V0 H${S} V${S}" fill="none" stroke="${frame}" stroke-width="${sw}"/>${handles}`;
+  return `<path d="${paintPath()}" fill="${COLORS.blue}"/>`
+    + `<path d="M0,0 H${S} V${S} H0 Z" fill="none" stroke="${frame}" stroke-width="${sw}"/>${handles}`;
 }
 
 /** App / plugin icon, 1024 square. */
@@ -68,7 +56,7 @@ export function iconSvg() {
 <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${COLORS.inkTop}"/><stop offset="1" stop-color="${COLORS.ink}"/></linearGradient></defs>
 <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
 <rect x="2" y="2" width="1020" height="1020" rx="230" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="4"/>
-<g transform="translate(272 172)">${mark()}</g>
+<g transform="translate(272 150)">${mark()}</g>
 </svg>`;
 }
 
@@ -86,7 +74,7 @@ export function wordmarkSvg(theme = "light", { pad = 40 } = {}) {
   const dark = theme === "dark";
   const k = -glyphs.ascender / S; // mark scale: frame height = ascender height
   const gap = 64, tx = S * k + gap;
-  const top = glyphs.ascender - 24 * k, bottom = glyphs.ascender + (S + BAND + 210) * k;
+  const top = glyphs.ascender - 24 * k, bottom = glyphs.ascender + (S + MAXLEN + 24) * k;
   const w = tx + glyphs.width, h = bottom - top;
   const vb = `${-24 * k - pad} ${top - pad} ${w + 24 * k + pad * 2} ${h + pad * 2}`;
   const [, , vw, vh] = vb.split(" ").map(Number);
