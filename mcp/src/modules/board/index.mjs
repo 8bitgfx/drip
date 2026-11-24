@@ -97,10 +97,10 @@ export function register(server, ctx) {
       fs.mkdirSync(dir, { recursive: true });
       const content = [];
       const files = [];
-      for (const d of board.directions) {
+      const pngs = await Promise.all(board.directions.map((d) => {
         const file = path.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
         const own = custom.find((c) => c.direction.toLowerCase() === d.name.toLowerCase());
-        const png = await renderHtml(
+        return renderHtml(
           own
             ? own.html
             : tileHtml(d, {
@@ -111,7 +111,10 @@ export function register(server, ctx) {
               }),
           file,
           { width: COMP.width, height: COMP.height, config: ctx.config() },
-        );
+        ).then((png) => ({ png, file }));
+      }));
+      for (const [k, d] of board.directions.entries()) {
+        const { png, file } = pngs[k];
         d.tile = file;
         files.push(file);
         content.push(textBlock(`Comp: ${d.name} — ${d.adjectives.join(", ")} · ${d.type}`), imageBlock(await toJpeg(png, 1200, 840)));
@@ -265,8 +268,7 @@ export function register(server, ctx) {
         ),
       ];
       try {
-        const png = await screenshot(url, { width: 1440, height: 1100, config: ctx.config() });
-        content.push(imageBlock(await toJpeg(png, 1440, 1100)));
+        content.push(imageBlock(await screenshot(url, { width: 1440, height: 1100, format: "jpeg", quality: 80, scale: 1200 / 1440, waitMs: 3000, config: ctx.config() })));
       } catch {
         content.push(textBlock("(No preview: Chrome/Edge not found. Set fitcheck.chromePath in .drip/config.json to enable previews.)"));
       }

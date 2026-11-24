@@ -92,8 +92,10 @@ export function register(server, ctx) {
       for (const t of kind === "directions" || kind === "pack" ? [] : targets) {
         if (isUrl(t)) {
           // The whole page, top to bottom, plus measured facts the critic must weigh.
-          for (const s of config.fitcheck.sizes) {
-            const r = await capture(t, { width: s.width, height: s.height, maxSlices: s.width < 600 ? 4 : 6, config });
+          const sizes = config.fitcheck.sizes;
+          const caps = await Promise.all(sizes.map((s) => capture(t, { width: s.width, height: s.height, maxSlices: s.width < 600 ? 4 : 6, config })));
+          for (const [k, s] of sizes.entries()) {
+            const r = caps[k];
             const j = judgeAudit(r.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s.name}: ${formatAudit(r.audit, j)}`);
             r.slices.forEach((sl, i) => {

@@ -19,12 +19,15 @@ await client.connect(new StdioClientTransport({ command: process.execPath, args:
 let fails = 0;
 let n = 0;
 async function call(name, args = {}, ok = (r) => !r.isError) {
-  const r = await client.callTool({ name, arguments: args }).catch((e) => ({ isError: true, content: [{ type: "text", text: String(e) }] }));
+  const t0 = Date.now();
+  const r = await client.callTool({ name, arguments: args }, undefined, { timeout: 300000 }).catch((e) => ({ isError: true, content: [{ type: "text", text: String(e) }] }));
+  const ms = Date.now() - t0;
   const t = r.content.filter((c) => c.type === "text").map((c) => c.text).join("\n");
   for (const im of r.content.filter((c) => c.type === "image")) fs.writeFileSync(path.join(outDir, `${String(++n).padStart(2, "0")}-${name}.jpg`), Buffer.from(im.data, "base64"));
   const pass = ok(r, t);
   if (!pass) fails++;
-  console.log(`${pass ? "PASS" : "FAIL"} ${name}\n   ${t.slice(0, 260).replace(/\n/g, "\n   ")}`);
+  const kb = Math.round(JSON.stringify(r.content).length / 1024);
+  console.log(`${pass ? "PASS" : "FAIL"} ${name} · ${(ms / 1000).toFixed(1)}s · ${kb}KB\n   ${t.slice(0, 260).replace(/\n/g, "\n   ")}`);
   return t;
 }
 const statePath = path.join(project, ".drip", "state.json");

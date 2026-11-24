@@ -148,10 +148,9 @@ export function register(server, ctx) {
       if (!list.length) return text("Pass shots: [\"L3-7\", …] (or shot).", true);
       const per = maxImages || (list.length === 1 ? 4 : 2);
       const out = [];
-      for (const one of list) {
-        const r = await viewOne(one, per);
-        out.push(textBlock(r.info), ...r.imgs);
-      }
+      // Shot pages still queue 2 s apart (Dribbble rate limits); image downloads and resizing overlap that wait.
+      const views = await Promise.all(list.map((one) => viewOne(one, per).catch((err) => ({ info: `${one}: ${err.message}`, imgs: [] }))));
+      for (const r of views) out.push(textBlock(r.info), ...r.imgs);
       if (list.length > 1) out.push(textBlock(`NEXT: refs_study all ${list.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, …] }).`));
       return blocks(out);
     }),
@@ -182,9 +181,10 @@ export function register(server, ctx) {
       // Originals at 1600px wide. Tall images (full landing pages) are cut into ~4:3 sections so each one is
       // readable at full width instead of being shrunk to fit one tile. At most 8 images in total.
       const imgs = [];
-      const fetched = await Promise.all(s.images.slice(0, maxImages).map((url) => fetchImage(dribbble.fullUrl(url, 1600)).then((r) => r.buf).catch(() => null)));
-      for (const buf of fetched) {
-        if (!buf || imgs.length >= 8) continue;
+      const fetched = await Promise.all(s.images.slice(0, maxImages).map((url) => fetchImage(dribbble.fullUrl(url, 1600)).catch(() => null)));
+      for (const f of fetched) {
+        if (!f || imgs.length >= 8) continue;
+        const { buf, mime } = f;
         try {
           const img = await Jimp.read(buf);
           const sectionH = Math.round(img.width * 0.8);
@@ -193,9 +193,11 @@ export function register(server, ctx) {
             for (let p = 0; p < parts && imgs.length < 8; p++) {
               const y = Math.round((p * (img.height - sectionH)) / Math.max(1, parts - 1));
               const piece = img.clone().crop({ x: 0, y, w: img.width, h: Math.min(sectionH, img.height - y) });
-              imgs.push(imageBlock(await toJpeg(await piece.getBuffer("image/png"), 1600, 1300, 86)));
+              if (piece.width > 1600) piece.resize({ w: 1600, h: Math.round((piece.height * 1600) / piece.width) });
+              imgs.push(imageBlock(await piece.getBuffer("image/jpeg", { quality: 84 })));
             }
-          } else imgs.push(imageBlock(await toJpeg(buf, 1600, 1600, 86)));
+          } else if (/^image\/(jpeg|png|webp|gif)$/.test(mime) && img.width <= 1600 && img.height <= 1600) imgs.push(imageBlock(buf, mime));
+          else imgs.push(imageBlock(await toJpeg(buf, 1600, 1600, 86)));
         } catch {
           /* skip broken image */
         }
@@ -259,7 +261,7 @@ export function register(server, ctx) {
           continue;
         }
         out.push(textBlock(`=== ${r.audit.title || r.url} (${r.key}) · ${r.slices.length} of ${r.total} screens\n${formatAudit(r.audit, { blockers: [], warnings: [] })}`));
-        for (const sl of r.slices) out.push(imageBlock(await toJpeg(sl.buf, 1440, 900, 82)));
+        for (const sl of r.slices) out.push(imageBlock(sl.buf));
       }
       const ok = results.filter((r) => r.ok);
       if (ok.length)

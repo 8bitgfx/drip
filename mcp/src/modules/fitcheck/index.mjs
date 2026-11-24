@@ -41,8 +41,9 @@ export function register(server, ctx) {
       const content = [];
       const audits = [];
       const files = [];
-      for (const s of list) {
-        const r = await capture(url, { width: s.width, height: s.height, maxSlices: hero ? 1 : maxSlices || (s.width < 600 ? 4 : 5), config });
+      const caps = await Promise.all(list.map((s) => capture(url, { width: s.width, height: s.height, maxSlices: hero ? 1 : maxSlices || (s.width < 600 ? 4 : 5), scale: s.width > 1200 ? 1200 / s.width : 1, config })));
+      for (const [k, s] of list.entries()) {
+        const r = caps[k];
         const j = judgeAudit(r.audit, { persuade, hero });
         audits.push({ size: s.name, width: s.width, audit: r.audit, ...j });
         content.push(textBlock(`${s.name} ${s.width}px · ${r.slices.length} of ${r.sliceCount} screens\n${formatAudit(r.audit, j)}`));
@@ -50,7 +51,7 @@ export function register(server, ctx) {
           const f = path.join(dir, `${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);
           fs.writeFileSync(f, sl.buf);
           files.push(f);
-          content.push(imageBlock(s.width < 600 ? sl.buf : await toJpeg(sl.buf, 1200, 900, 80)));
+          content.push(imageBlock(sl.buf));
         }
       }
       const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
@@ -95,8 +96,8 @@ export function register(server, ctx) {
       const board = task?.board?.id && loadBoard(task.board.id);
       const dir = board?.directions.find((d) => d.name === board.chosen);
       const content = [];
-      const png = await screenshot(target, { width: 1440, height: 900, config: ctx.config() });
-      content.push(textBlock(`The build (${target}):`), imageBlock(await toJpeg(png, 1440, 900)));
+      const shot = await screenshot(target, { width: 1440, height: 900, format: "jpeg", quality: 80, config: ctx.config() });
+      content.push(textBlock(`The build (${target}):`), imageBlock(shot));
       if (dir) {
         const items = dir.items.map((k) => board.items.find((it) => it.key === k)).filter((it) => it?.image);
         const bufs = await Promise.all(items.slice(0, 9).map((it) => fetchImage(it.source === "dribbble" ? thumbUrl(it.image, 480, 360) : it.image).then((r) => r.buf).catch(() => Buffer.alloc(0))));

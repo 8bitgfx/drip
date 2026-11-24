@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path29) {
-      let input2 = path29;
+    function removeDotSegments(path28) {
+      let input2 = path28;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path29) {
-      if (path29 === "" || path29[0] === "/") {
-        return removeDotSegments(path29);
+    function removeDotSegmentsRelative(path28) {
+      if (path28 === "" || path28[0] === "/") {
+        return removeDotSegments(path28);
       }
-      const segments = path29.split("/");
+      const segments = path28.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path29 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path29 && path29 !== "/" ? path29 : void 0;
+        const path28 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path28 && path28 !== "/" ? path28 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -11147,14 +11147,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path29, frames, spec, encoder) {
+    exports.write = function(path28, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches = path29.match(/\.[a-zA-Z]+$/);
+      const matches = path28.match(/\.[a-zA-Z]+$/);
       if (matches !== null && INVALID_SUFFIXES.includes(matches[0].toLowerCase())) {
-        throw new Error(`GIF '${path29}' has an unexpected suffix`);
+        throw new Error(`GIF '${path28}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path29, gif2.buffer).then(() => {
+        return _writeBinary(path28, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -11226,9 +11226,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path29) {
+    function _readBinary(path28) {
       return new Promise((resolve2, reject) => {
-        fs34.readFile(path29, (err, buffer) => {
+        fs34.readFile(path28, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -11236,9 +11236,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path29, buffer) {
+    function _writeBinary(path28, buffer) {
       return new Promise((resolve2, reject) => {
-        fs34.writeFile(path29, buffer, (err) => {
+        fs34.writeFile(path28, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -13217,9 +13217,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path29) {
+        load: function load2(path28) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path29, true);
+          xhr.open("GET", path28, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -23646,11 +23646,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path29) {
-      path29 = String(path29);
-      let last = path29.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path28) {
+      path28 = String(path28);
+      let last = path28.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path29.length;
+      let hasPath = last.length < path28.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -25903,9 +25903,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path29) {
-        super(`Not a regular file: ${path29}`);
-        this.path = path29;
+      constructor(path28) {
+        super(`Not a regular file: ${path28}`);
+        this.path = path28;
         this.name = "NotRegularFileError";
       }
     };
@@ -26017,15 +26017,15 @@ async function waitForPendingOpen(stream) {
     return;
   }
   await new Promise((resolve2) => {
-    const settle2 = () => {
-      stream.removeListener("open", settle2);
-      stream.removeListener("error", settle2);
-      stream.removeListener("close", settle2);
+    const settle3 = () => {
+      stream.removeListener("open", settle3);
+      stream.removeListener("error", settle3);
+      stream.removeListener("close", settle3);
       resolve2();
     };
-    stream.once("open", settle2);
-    stream.once("error", settle2);
-    stream.once("close", settle2);
+    stream.once("open", settle3);
+    stream.once("error", settle3);
+    stream.once("close", settle3);
   });
 }
 async function fromStream2(stream, options) {
@@ -30252,8 +30252,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path29, options) {
-  return new FileTypeParser2(options).fromFile(path29, options);
+async function fileTypeFromFile(path28, options) {
+  return new FileTypeParser2(options).fromFile(path28, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -30284,9 +30284,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path29) {
+      async fromFile(path28) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs9.open(path29, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs9.open(path28, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -30295,7 +30295,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path29,
+            path: path28,
             size: fileStat.size
           }
         });
@@ -30316,7 +30316,7 @@ var init_file_type = __esm({
             readableStream.off("readable", onReadable);
             signal?.removeEventListener("abort", onAbort);
           };
-          const settle2 = (callback, value) => {
+          const settle3 = (callback, value) => {
             if (isSettled) {
               return;
             }
@@ -30325,13 +30325,13 @@ var init_file_type = __esm({
             callback(value);
           };
           const onError = (error62) => {
-            settle2(reject, error62);
+            settle3(reject, error62);
           };
           const onAbort = () => {
             if (!readableStream.destroyed) {
               readableStream.destroy();
             }
-            settle2(reject, signal.reason);
+            settle3(reject, signal.reason);
           };
           const onReadable = () => {
             (async () => {
@@ -30346,12 +30346,12 @@ var init_file_type = __esm({
                   if (error62 instanceof EndOfStreamError) {
                     pass.fileType = void 0;
                   } else {
-                    settle2(reject, error62);
+                    settle3(reject, error62);
                   }
                 }
-                settle2(resolve2, outputStream);
+                settle3(resolve2, outputStream);
               } catch (error62) {
-                settle2(reject, error62);
+                settle3(reject, error62);
               }
             })();
           };
@@ -36952,6 +36952,240 @@ var require_pixelmatch = __commonJS({
   }
 });
 
+// src/modules/fitcheck/chrome.mjs
+import fs14 from "node:fs";
+function findChrome(config2) {
+  const configured = config2?.fitcheck?.chromePath || process.env.DRIP_CHROME;
+  if (configured && fs14.existsSync(configured)) return configured;
+  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs14.existsSync(p2)) || null;
+}
+function browserEnv() {
+  const env = { ...process.env };
+  for (const k of Object.keys(env)) if (k.toUpperCase() === "__COMPAT_LAYER") delete env[k];
+  return env;
+}
+async function screenshot(url2, { width = 1440, height = 900, dark = false, waitMs = 4e3, format = "png", quality: quality2 = 80, scale = 1, config: config2 } = {}) {
+  const { openPage: openPage2, withTab: withTab2 } = await Promise.resolve().then(() => (init_browser(), browser_exports));
+  return withTab2(config2, async (tab) => {
+    await openPage2(tab, url2, { width, height, dark, timeout: Math.max(waitMs, 8e3), settleMs: Math.min(waitMs, 1500) });
+    const { data } = await tab.s("Page.captureScreenshot", { format, ...format === "jpeg" ? { quality: quality2 } : {}, clip: { x: 0, y: 0, width, height, scale } });
+    return Buffer.from(data, "base64");
+  });
+}
+var CANDIDATES;
+var init_chrome = __esm({
+  "src/modules/fitcheck/chrome.mjs"() {
+    CANDIDATES = {
+      win32: [
+        "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+        `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
+        "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+        "C:/Program Files/Microsoft/Edge/Application/msedge.exe"
+      ],
+      darwin: [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Chromium.app/Contents/MacOS/Chromium",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+      ],
+      linux: ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/usr/bin/microsoft-edge", "/snap/bin/chromium"]
+    };
+  }
+});
+
+// src/core/browser.mjs
+var browser_exports = {};
+__export(browser_exports, {
+  closeBrowser: () => closeBrowser,
+  openPage: () => openPage,
+  settle: () => settle2,
+  withTab: () => withTab
+});
+import { spawn } from "node:child_process";
+import fs15 from "node:fs";
+import os2 from "node:os";
+import path10 from "node:path";
+async function launch(config2) {
+  const chrome = findChrome(config2);
+  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
+  const profile = fs15.mkdtempSync(path10.join(os2.tmpdir(), "drip-cdp-"));
+  const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-background-networking", "--disable-sync", "--mute-audio", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
+    env: browserEnv(),
+    windowsHide: true,
+    stdio: ["ignore", "ignore", "pipe"]
+  });
+  const wsUrl = await new Promise((resolve2, reject) => {
+    let buf = "";
+    const t2 = setTimeout(() => reject(new Error("Browser did not start (no DevTools endpoint).")), 2e4);
+    proc.stderr.on("data", (d) => {
+      buf += d;
+      const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
+      if (m) {
+        clearTimeout(t2);
+        resolve2(m[1]);
+      }
+    });
+    proc.on("exit", () => reject(new Error("Browser exited early.")));
+  });
+  const ws = new WebSocket(wsUrl);
+  await new Promise((r2, j) => {
+    ws.onopen = r2;
+    ws.onerror = () => j(new Error("Couldn't connect to the browser."));
+  });
+  let id = 0;
+  let dead = false;
+  const waiting2 = /* @__PURE__ */ new Map();
+  const listeners = /* @__PURE__ */ new Set();
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(ev.data);
+    if (msg.id && waiting2.has(msg.id)) {
+      const { resolve: resolve2, reject, timer } = waiting2.get(msg.id);
+      clearTimeout(timer);
+      waiting2.delete(msg.id);
+      msg.error ? reject(new Error(msg.error.message)) : resolve2(msg.result);
+    } else for (const l2 of listeners) l2(msg);
+  };
+  const die = () => {
+    if (dead) return;
+    dead = true;
+    for (const { reject, timer } of waiting2.values()) {
+      clearTimeout(timer);
+      reject(new Error("The browser closed."));
+    }
+    waiting2.clear();
+    try {
+      proc.kill();
+    } catch {
+    }
+    setTimeout(() => {
+      try {
+        fs15.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      } catch {
+      }
+    }, 500).unref();
+  };
+  ws.onclose = die;
+  proc.on("exit", die);
+  const send = (method, params = {}, sessionId) => new Promise((resolve2, reject) => {
+    if (dead) return reject(new Error("The browser closed."));
+    const mid = ++id;
+    const timer = setTimeout(() => {
+      waiting2.delete(mid);
+      reject(new Error(`Browser timed out on ${method}.`));
+    }, SEND_TIMEOUT_MS);
+    waiting2.set(mid, { resolve: resolve2, reject, timer });
+    ws.send(JSON.stringify({ id: mid, method, params, ...sessionId ? { sessionId } : {} }));
+  });
+  const close = async () => {
+    try {
+      await send("Browser.close");
+    } catch {
+    }
+    try {
+      ws.close();
+    } catch {
+    }
+    die();
+  };
+  return { send, close, listeners, isDead: () => dead };
+}
+async function getBrowser(config2) {
+  if (shared) {
+    const b = await shared.catch(() => null);
+    if (b && !b.isDead()) return b;
+    shared = null;
+  }
+  shared = launch(config2);
+  shared.catch(() => shared = null);
+  return shared;
+}
+async function closeBrowser() {
+  clearTimeout(idleTimer);
+  const p2 = shared;
+  shared = null;
+  if (p2) (await p2.catch(() => null))?.close();
+}
+async function withTab(config2, fn) {
+  busy++;
+  clearTimeout(idleTimer);
+  try {
+    let b = await getBrowser(config2);
+    let targetId;
+    try {
+      ({ targetId } = await b.send("Target.createTarget", { url: "about:blank" }));
+    } catch {
+      await closeBrowser();
+      b = await getBrowser(config2);
+      ({ targetId } = await b.send("Target.createTarget", { url: "about:blank" }));
+    }
+    try {
+      const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
+      return await fn({ s: (m, p2) => b.send(m, p2, sessionId), sessionId, listeners: b.listeners });
+    } finally {
+      b.send("Target.closeTarget", { targetId }).catch(() => {
+      });
+    }
+  } finally {
+    busy--;
+    if (!busy) {
+      idleTimer = setTimeout(closeBrowser, IDLE_MS);
+      idleTimer.unref();
+    }
+  }
+}
+async function openPage({ s: s2, sessionId, listeners }, url2, { width = 1440, height = 900, dark = false, timeout = 12e3, settleMs = 1500 } = {}) {
+  await s2("Page.enable");
+  await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
+  if (dark) await s2("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+  let onLoad;
+  let timer;
+  const loaded = new Promise((r2) => {
+    onLoad = (msg) => {
+      if (msg.method === "Page.loadEventFired" && msg.sessionId === sessionId) r2();
+    };
+    listeners.add(onLoad);
+    timer = setTimeout(r2, timeout);
+  });
+  try {
+    await s2("Page.navigate", { url: url2 });
+    await loaded;
+  } finally {
+    listeners.delete(onLoad);
+    clearTimeout(timer);
+  }
+  await settle2(s2, settleMs);
+}
+async function settle2(s2, ms = 1500) {
+  await s2("Runtime.evaluate", {
+    expression: `(async () => {
+      const cap = new Promise((r) => setTimeout(r, ${ms}));
+      await Promise.race([document.fonts ? document.fonts.ready : null, cap]);
+      const running = (document.getAnimations ? document.getAnimations() : []).filter((a) => { const t = a.effect && a.effect.getComputedTiming(); return t && t.iterations !== Infinity && a.playState === 'running'; });
+      await Promise.race([Promise.all(running.map((a) => a.finished.catch(() => {}))), cap]);
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    })()`,
+    awaitPromise: true
+  });
+}
+var IDLE_MS, SEND_TIMEOUT_MS, shared, idleTimer, busy;
+var init_browser = __esm({
+  "src/core/browser.mjs"() {
+    init_chrome();
+    IDLE_MS = 12e4;
+    SEND_TIMEOUT_MS = 45e3;
+    shared = null;
+    idleTimer = null;
+    busy = 0;
+    process.once("exit", () => {
+      if (shared) shared.then((b) => b.close()).catch(() => {
+      });
+    });
+    process.stdin.once("end", () => closeBrowser());
+  }
+});
+
 // node_modules/opentype.js/dist/opentype.js
 var require_opentype = __commonJS({
   "node_modules/opentype.js/dist/opentype.js"(exports, module) {
@@ -37549,9 +37783,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path29, options) {
+      Path.fromSVG = function(path28, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path29, options);
+        return newPath.fromSVG(path28, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -42716,8 +42950,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path29) {
-        let _path = path29 || new path_default();
+      function getPathDefinition(glyph, path28) {
+        let _path = path28 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -42945,8 +43179,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path29 = this.getPath(x2, y2, fontSize, options, font);
-        path29.draw(ctx2);
+        const path28 = this.getPath(x2, y2, fontSize, options, font);
+        path28.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -42975,8 +43209,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path29 = this.path;
-        let commands = path29.commands;
+        const path28 = this.path;
+        let commands = path28.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -43123,9 +43357,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path29 = buildPath2(font.glyphs, glyph);
-            path29.unitsPerEm = font.unitsPerEm;
-            return path29;
+            const path28 = buildPath2(font.glyphs, glyph);
+            path28.unitsPerEm = font.unitsPerEm;
+            return path28;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -43140,9 +43374,9 @@ var require_opentype = __commonJS({
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path29 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path29.unitsPerEm = font.unitsPerEm;
-            return path29;
+            const path28 = parseCFFCharstring2(font, glyph, charstring, version2);
+            path28.unitsPerEm = font.unitsPerEm;
+            return path28;
           };
           return glyph;
         };
@@ -43609,12 +43843,12 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path29) {
+      function applyPaintType(font, path28) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path29.fill = null;
-          path29.stroke = "black";
-          path29.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path28.fill = null;
+          path28.stroke = "black";
+          path28.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
@@ -44377,16 +44611,16 @@ var require_opentype = __commonJS({
       }
       function glyphToOps(glyph, version2) {
         const ops = [];
-        const path29 = glyph.path;
+        const path28 = glyph.path;
         if (version2 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path29.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path28.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path29.commands[i2];
+          let cmd = path28.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -52394,8 +52628,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path29 = this.getPath(text2, x2, y2, fontSize, options);
-        path29.draw(ctx2);
+        const path28 = this.getPath(text2, x2, y2, fontSize, options);
+        path28.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -53155,7 +53389,7 @@ var require_opentype = __commonJS({
 
 // src/index.mjs
 import fs33 from "node:fs";
-import path28 from "node:path";
+import path27 from "node:path";
 
 // node_modules/zod/v3/helpers/util.js
 var util;
@@ -53531,8 +53765,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path29, errorMaps, issueData } = params;
-  const fullPath = [...path29, ...issueData.path || []];
+  const { data, path: path28, errorMaps, issueData } = params;
+  const fullPath = [...path28, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -53647,11 +53881,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path29, key) {
+  constructor(parent, value, path28, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path29;
+    this._path = path28;
     this._key = key;
   }
   get path() {
@@ -57606,10 +57840,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path29) {
-  if (!path29)
+function getElementAtPath(obj, path28) {
+  if (!path28)
     return obj;
-  return path29.reduce((acc, key) => acc?.[key], obj);
+  return path28.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -57949,11 +58183,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path29, issues) {
+function prefixIssues(path28, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path29);
+    iss.path.unshift(path28);
     return iss;
   });
 }
@@ -58415,16 +58649,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path29 = []) => {
+  const processError = (error63, path28 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path29, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path28, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
       } else {
-        const fullpath = [...path29, ...issue2.path];
+        const fullpath = [...path28, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -58463,17 +58697,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path29 = []) => {
+  const processError = (error63, path28 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path29, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path28, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path29, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
       } else {
-        const fullpath = [...path29, ...issue2.path];
+        const fullpath = [...path28, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -58512,8 +58746,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path29 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path29) {
+  const path28 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path28) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -74064,11 +74298,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path29) {
-  if (path29.length === 0) {
+function getDotPath(path28) {
+  if (path28.length === 0) {
     return "object root";
   }
-  return path29.reduce((acc, seg, index) => {
+  return path28.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -76295,13 +76529,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path29 = ref.slice(1).split("/").filter(Boolean);
-  if (path29.length === 0) {
+  const path28 = ref.slice(1).split("/").filter(Boolean);
+  if (path28.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path29[0] === defsKey) {
-    const key = path29[1] === void 0 ? void 0 : decodeJSONPointerSegment(path29[1]);
+  if (path28[0] === defsKey) {
+    const key = path28[1] === void 0 ? void 0 : decodeJSONPointerSegment(path28[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -82701,8 +82935,8 @@ function listPacks(cwd) {
   }
   return [...out.values()];
 }
-function createPack({ id, name, niche, keywords, summary, shared }, cwd) {
-  const dir = ensureDir(path3.join(shared ? path3.join(projectDripDir(cwd), "packs") : path3.join(homeDripDir, "packs"), id));
+function createPack({ id, name, niche, keywords, summary, shared: shared2 }, cwd) {
+  const dir = ensureDir(path3.join(shared2 ? path3.join(projectDripDir(cwd), "packs") : path3.join(homeDripDir, "packs"), id));
   const file4 = path3.join(dir, "pack.json");
   const prev = fs3.existsSync(file4) ? JSON.parse(fs3.readFileSync(file4, "utf8")) : {};
   const meta3 = { ...prev, id, name, niche, keywords, summary, createdAt: prev.createdAt || (/* @__PURE__ */ new Date()).toISOString(), updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
@@ -87152,9 +87386,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path29, options) {
-      const mimeType = import_lite.default.getType(path29);
-      await writeFile(path29, await this.getBuffer(mimeType, options));
+    async write(path28, options) {
+      const mimeType = import_lite.default.getType(path28);
+      await writeFile(path28, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -92316,145 +92550,10 @@ function lookup(key) {
 
 // src/modules/refs/index.mjs
 import fs17 from "node:fs";
-import path13 from "node:path";
+import path12 from "node:path";
 
 // src/core/cdp.mjs
-import { spawn } from "node:child_process";
-import fs15 from "node:fs";
-import os3 from "node:os";
-import path11 from "node:path";
-
-// src/modules/fitcheck/chrome.mjs
-import { execFile } from "node:child_process";
-import fs14 from "node:fs";
-import os2 from "node:os";
-import path10 from "node:path";
-var CANDIDATES = {
-  win32: [
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-    "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
-    `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
-    "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-    "C:/Program Files/Microsoft/Edge/Application/msedge.exe"
-  ],
-  darwin: [
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
-  ],
-  linux: ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/usr/bin/microsoft-edge", "/snap/bin/chromium"]
-};
-function findChrome(config2) {
-  const configured = config2?.fitcheck?.chromePath || process.env.DRIP_CHROME;
-  if (configured && fs14.existsSync(configured)) return configured;
-  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs14.existsSync(p2)) || null;
-}
-function browserEnv() {
-  const env = { ...process.env };
-  for (const k of Object.keys(env)) if (k.toUpperCase() === "__COMPAT_LAYER") delete env[k];
-  return env;
-}
-async function screenshot(url2, { width = 1440, height = 900, dark = false, waitMs = 4e3, config: config2 } = {}) {
-  const chrome = findChrome(config2);
-  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
-  const dir = fs14.mkdtempSync(path10.join(os2.tmpdir(), "drip-shot-"));
-  const out = path10.join(dir, "shot.png");
-  const args = [
-    "--headless=new",
-    "--disable-gpu",
-    "--hide-scrollbars",
-    "--no-first-run",
-    "--no-default-browser-check",
-    `--user-data-dir=${path10.join(dir, "profile")}`,
-    `--window-size=${width},${height}`,
-    `--virtual-time-budget=${waitMs}`,
-    ...dark ? ["--force-dark-mode", "--blink-settings=preferredColorScheme=0"] : [],
-    `--screenshot=${out}`,
-    url2
-  ];
-  await new Promise(
-    (resolve2, reject) => execFile(chrome, args, { timeout: waitMs + 3e4, windowsHide: true, env: browserEnv() }, (err) => err && !fs14.existsSync(out) ? reject(err) : resolve2())
-  );
-  let last = -1;
-  for (let i2 = 0; i2 < 40; i2++) {
-    const size = fs14.existsSync(out) ? fs14.statSync(out).size : -1;
-    if (size > 0 && size === last) break;
-    last = size;
-    await new Promise((r2) => setTimeout(r2, 150));
-  }
-  if (!fs14.existsSync(out) || fs14.statSync(out).size === 0) throw new Error("Chrome did not produce a screenshot (is the page reachable?).");
-  const buf = fs14.readFileSync(out);
-  try {
-    fs14.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
-  } catch {
-  }
-  return buf;
-}
-
-// src/core/cdp.mjs
-async function launch(config2) {
-  const chrome = findChrome(config2);
-  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
-  const profile = fs15.mkdtempSync(path11.join(os3.tmpdir(), "drip-cdp-"));
-  const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
-    env: browserEnv(),
-    windowsHide: true,
-    stdio: ["ignore", "ignore", "pipe"]
-  });
-  const wsUrl = await new Promise((resolve2, reject) => {
-    let buf = "";
-    const t2 = setTimeout(() => reject(new Error("Browser did not start (no DevTools endpoint).")), 2e4);
-    proc.stderr.on("data", (d) => {
-      buf += d;
-      const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
-      if (m) {
-        clearTimeout(t2);
-        resolve2(m[1]);
-      }
-    });
-    proc.on("exit", () => reject(new Error("Browser exited early.")));
-  });
-  const ws = new WebSocket(wsUrl);
-  await new Promise((r2, j) => {
-    ws.onopen = r2;
-    ws.onerror = () => j(new Error("Couldn't connect to the browser."));
-  });
-  let id = 0;
-  const waiting2 = /* @__PURE__ */ new Map();
-  const listeners = /* @__PURE__ */ new Set();
-  ws.onmessage = (ev) => {
-    const msg = JSON.parse(ev.data);
-    if (msg.id && waiting2.has(msg.id)) {
-      const { resolve: resolve2, reject } = waiting2.get(msg.id);
-      waiting2.delete(msg.id);
-      msg.error ? reject(new Error(msg.error.message)) : resolve2(msg.result);
-    } else for (const l2 of listeners) l2(msg);
-  };
-  const send = (method, params = {}, sessionId) => new Promise((resolve2, reject) => {
-    const mid = ++id;
-    waiting2.set(mid, { resolve: resolve2, reject });
-    ws.send(JSON.stringify({ id: mid, method, params, ...sessionId ? { sessionId } : {} }));
-  });
-  const close = async () => {
-    try {
-      await send("Browser.close");
-    } catch {
-    }
-    try {
-      ws.close();
-    } catch {
-    }
-    proc.kill();
-    setTimeout(() => {
-      try {
-        fs15.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
-      } catch {
-      }
-    }, 500).unref();
-  };
-  return { send, close, listeners };
-}
+init_browser();
 var AUDIT = `(() => {
   const vw = innerWidth, vh = innerHeight;
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
@@ -92510,29 +92609,12 @@ var AUDIT = `(() => {
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
 })()`;
-async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, config: config2 } = {}) {
-  const b = await launch(config2);
-  try {
-    const { targetId } = await b.send("Target.createTarget", { url: "about:blank" });
-    const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
-    const s2 = (m, p2) => b.send(m, p2, sessionId);
-    await s2("Page.enable");
-    await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
-    if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
-    const loaded = new Promise((r2) => {
-      const l2 = (msg) => {
-        if (msg.method === "Page.loadEventFired" && msg.sessionId === sessionId) {
-          b.listeners.delete(l2);
-          r2();
-        }
-      };
-      b.listeners.add(l2);
-      setTimeout(r2, 15e3);
-    });
-    await s2("Page.navigate", { url: url2 });
-    await loaded;
-    await new Promise((r2) => setTimeout(r2, 1200));
-    await s2("Runtime.evaluate", { expression: "(async()=>{for(let y=0;y<document.documentElement.scrollHeight;y+=innerHeight){scrollTo(0,y);await new Promise(r=>setTimeout(r,120));}scrollTo(0,0);await new Promise(r=>setTimeout(r,300));})()", awaitPromise: true });
+async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, scale = 1, config: config2 } = {}) {
+  return withTab(config2, async (tab) => {
+    const { s: s2 } = tab;
+    await openPage(tab, url2, { width, height });
+    await s2("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
+    await settle2(s2, 800);
     const { result } = await s2("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
     const audit = result.value;
     const total = Math.min(audit.height, 3e4);
@@ -92541,13 +92623,11 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
     const slices = [];
     for (const i2 of picks) {
       const y2 = Math.min(i2 * height, Math.max(0, total - height));
-      const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: quality2, captureBeyondViewport: true, clip: { x: 0, y: y2, width, height: Math.min(height, total - y2), scale: 1 } });
+      const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: quality2, captureBeyondViewport: true, clip: { x: 0, y: y2, width, height: Math.min(height, total - y2), scale } });
       slices.push({ y: y2, buf: Buffer.from(data, "base64") });
     }
     return { audit, slices, sliceCount: count };
-  } finally {
-    await b.close();
-  }
+  });
 }
 var displayPx = (vw) => Math.min(144, Math.max(48, 19.2 + 0.075 * vw));
 function judgeAudit(a2, { persuade = true, hero = false } = {}) {
@@ -92608,25 +92688,26 @@ function formatAudit(a2, j) {
 }
 
 // src/core/render.mjs
+init_chrome();
 import fs16 from "node:fs";
-import os4 from "node:os";
-import path12 from "node:path";
+import os3 from "node:os";
+import path11 from "node:path";
 import { pathToFileURL } from "node:url";
 function rendersDir(sub = "") {
-  return ensureDir(path12.join(ensureProjectDrip(), "renders", sub));
+  return ensureDir(path11.join(ensureProjectDrip(), "renders", sub));
 }
 function stamp() {
   return (/* @__PURE__ */ new Date()).toISOString().replace(/[-:T]/g, "").slice(0, 14);
 }
 async function renderUrl(url2, file4, { width = 1440, height = 900, dark = false, config: config2 } = {}) {
   const png2 = await screenshot(url2, { width, height, dark, config: config2 });
-  ensureDir(path12.dirname(file4));
+  ensureDir(path11.dirname(file4));
   fs16.writeFileSync(file4, png2);
   return png2;
 }
 async function renderHtml(html, file4, { width = 1200, height = 800, config: config2 } = {}) {
-  const dir = fs16.mkdtempSync(path12.join(os4.tmpdir(), "drip-render-"));
-  const page2 = path12.join(dir, "page.html");
+  const dir = fs16.mkdtempSync(path11.join(os3.tmpdir(), "drip-render-"));
+  const page2 = path11.join(dir, "page.html");
   const doc = /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`;
   fs16.writeFileSync(page2, doc);
   try {
@@ -92891,10 +92972,8 @@ function register2(server2, ctx2) {
       if (!list.length) return text('Pass shots: ["L3-7", \u2026] (or shot).', true);
       const per = maxImages || (list.length === 1 ? 4 : 2);
       const out = [];
-      for (const one of list) {
-        const r2 = await viewOne(one, per);
-        out.push(textBlock(r2.info), ...r2.imgs);
-      }
+      const views = await Promise.all(list.map((one) => viewOne(one, per).catch((err) => ({ info: `${one}: ${err.message}`, imgs: [] }))));
+      for (const r2 of views) out.push(textBlock(r2.info), ...r2.imgs);
       if (list.length > 1) out.push(textBlock(`NEXT: refs_study all ${list.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, \u2026] }).`));
       return blocks(out);
     })
@@ -92921,9 +93000,10 @@ function register2(server2, ctx2) {
         if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
       });
       const imgs = [];
-      const fetched = await Promise.all(s2.images.slice(0, maxImages).map((url2) => fetchImage(fullUrl(url2, 1600)).then((r2) => r2.buf).catch(() => null)));
-      for (const buf of fetched) {
-        if (!buf || imgs.length >= 8) continue;
+      const fetched = await Promise.all(s2.images.slice(0, maxImages).map((url2) => fetchImage(fullUrl(url2, 1600)).catch(() => null)));
+      for (const f2 of fetched) {
+        if (!f2 || imgs.length >= 8) continue;
+        const { buf, mime: mime2 } = f2;
         try {
           const img = await Jimp.read(buf);
           const sectionH = Math.round(img.width * 0.8);
@@ -92932,9 +93012,11 @@ function register2(server2, ctx2) {
             for (let p2 = 0; p2 < parts && imgs.length < 8; p2++) {
               const y2 = Math.round(p2 * (img.height - sectionH) / Math.max(1, parts - 1));
               const piece = img.clone().crop({ x: 0, y: y2, w: img.width, h: Math.min(sectionH, img.height - y2) });
-              imgs.push(imageBlock(await toJpeg(await piece.getBuffer("image/png"), 1600, 1300, 86)));
+              if (piece.width > 1600) piece.resize({ w: 1600, h: Math.round(piece.height * 1600 / piece.width) });
+              imgs.push(imageBlock(await piece.getBuffer("image/jpeg", { quality: 84 })));
             }
-          } else imgs.push(imageBlock(await toJpeg(buf, 1600, 1600, 86)));
+          } else if (/^image\/(jpeg|png|webp|gif)$/.test(mime2) && img.width <= 1600 && img.height <= 1600) imgs.push(imageBlock(buf, mime2));
+          else imgs.push(imageBlock(await toJpeg(buf, 1600, 1600, 86)));
         } catch {
         }
       }
@@ -92971,7 +93053,7 @@ ${s2.description.slice(0, 1500)}
             const key = siteKey(url2);
             const slug2 = key.slice(5).replace(/[^a-z0-9]+/gi, "-");
             const files = r2.slices.map((sl, i2) => {
-              const f2 = path13.join(dir, `${slug2}-${i2 + 1}.jpg`);
+              const f2 = path12.join(dir, `${slug2}-${i2 + 1}.jpg`);
               fs17.writeFileSync(f2, sl.buf);
               return f2;
             });
@@ -92995,7 +93077,7 @@ ${s2.description.slice(0, 1500)}
         }
         out.push(textBlock(`=== ${r2.audit.title || r2.url} (${r2.key}) \xB7 ${r2.slices.length} of ${r2.total} screens
 ${formatAudit(r2.audit, { blockers: [], warnings: [] })}`));
-        for (const sl of r2.slices) out.push(imageBlock(await toJpeg(sl.buf, 1440, 900, 82)));
+        for (const sl of r2.slices) out.push(imageBlock(sl.buf));
       }
       const ok = results.filter((r2) => r2.ok);
       if (ok.length)
@@ -93178,7 +93260,7 @@ __export(board_exports, {
   register: () => register3
 });
 import fs19 from "node:fs";
-import path14 from "node:path";
+import path13 from "node:path";
 
 // src/modules/assets/color.mjs
 var clamp = (x2, a2 = 0, b = 1) => Math.min(b, Math.max(a2, x2));
@@ -93317,6 +93399,9 @@ p{font-size:21px;line-height:1.45;max-width:36ch;margin:0 0 32px}
 <div class="spec"><b>${esc2(direction.name)}</b><div class="sw">${r2.all.slice(0, 6).map((c3) => `<i style="background:${c3}"></i>`).join("")}</div><span>${esc2(f2.display)} / ${esc2(f2.text)}</span><span>${esc2((direction.adjectives || []).join(" \xB7 "))}</span></div>
 </body></html>`;
 }
+
+// src/modules/board/index.mjs
+init_chrome();
 
 // src/modules/board/render.mjs
 import fs18 from "node:fs";
@@ -93545,14 +93630,14 @@ NEXT: board_directions: 2 directions that differ in idea, each with a thesis (ma
   async function renderTiles(board, copy = {}, custom2 = []) {
     {
       const brief = loadState().task?.brief;
-      const dir = path14.join(path14.dirname(boardFile(board.id)), "tiles");
+      const dir = path13.join(path13.dirname(boardFile(board.id)), "tiles");
       fs19.mkdirSync(dir, { recursive: true });
       const content = [];
       const files = [];
-      for (const d of board.directions) {
-        const file4 = path14.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
+      const pngs = await Promise.all(board.directions.map((d) => {
+        const file4 = path13.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
         const own2 = custom2.find((c3) => c3.direction.toLowerCase() === d.name.toLowerCase());
-        const png2 = await renderHtml(
+        return renderHtml(
           own2 ? own2.html : tileHtml(d, {
             brand: copy.brand || board.name,
             headline: copy.headline || d.headline || d.summary,
@@ -93561,7 +93646,10 @@ NEXT: board_directions: 2 directions that differ in idea, each with a thesis (ma
           }),
           file4,
           { width: COMP.width, height: COMP.height, config: ctx2.config() }
-        );
+        ).then((png2) => ({ png: png2, file: file4 }));
+      }));
+      for (const [k, d] of board.directions.entries()) {
+        const { png: png2, file: file4 } = pngs[k];
         d.tile = file4;
         files.push(file4);
         content.push(textBlock(`Comp: ${d.name} \u2014 ${d.adjectives.join(", ")} \xB7 ${d.type}`), imageBlock(await toJpeg(png2, 1200, 840)));
@@ -93690,10 +93778,10 @@ NEXT: keep collecting (${n2}/${min} before directions).` : "\nNEXT: group the bo
       if (gate) return text(gate, true);
       const port2 = await ensureServer(ctx2.config().board.port);
       const url2 = `http://localhost:${port2}/b/${board.id}`;
-      const dir = path14.dirname(boardFile(board.id));
+      const dir = path13.dirname(boardFile(board.id));
       let file4 = null;
       if (stat) {
-        file4 = path14.join(dir, "board.html");
+        file4 = path13.join(dir, "board.html");
         fs19.writeFileSync(file4, await renderBoard(board, { mode: "static", inline: true }));
       }
       const content = [
@@ -93705,8 +93793,7 @@ Show the user: publish the file as an artifact if you can, otherwise give them t
         )
       ];
       try {
-        const png2 = await screenshot(url2, { width: 1440, height: 1100, config: ctx2.config() });
-        content.push(imageBlock(await toJpeg(png2, 1440, 1100)));
+        content.push(imageBlock(await screenshot(url2, { width: 1440, height: 1100, format: "jpeg", quality: 80, scale: 1200 / 1440, waitMs: 3e3, config: ctx2.config() })));
       } catch {
         content.push(textBlock("(No preview: Chrome/Edge not found. Set fitcheck.chromePath in .drip/config.json to enable previews.)"));
       }
@@ -93792,7 +93879,7 @@ __export(components_exports, {
   register: () => register4
 });
 import fs20 from "node:fs";
-import path15 from "node:path";
+import path14 from "node:path";
 var WEEK = 7 * 24 * 36e5;
 var DIRECTORY = "https://ui.shadcn.com/r/registries.json";
 function loadCatalogue() {
@@ -93803,8 +93890,8 @@ function loadCatalogue() {
       return {};
     }
   };
-  const base = read2(path15.join(dataDir, "catalogue.json"));
-  const extra = read2(path15.join(projectDripDir(), "catalogue.json"));
+  const base = read2(path14.join(dataDir, "catalogue.json"));
+  const extra = read2(path14.join(projectDripDir(), "catalogue.json"));
   return { ...base, entries: [...base.entries || [], ...extra.entries || []] };
 }
 var words = (s2) => (s2 || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
@@ -93926,13 +94013,14 @@ __export(palette_exports2, {
 });
 
 // src/core/preview.mjs
+init_chrome();
 import fs21 from "node:fs";
-import os5 from "node:os";
-import path16 from "node:path";
+import os4 from "node:os";
+import path15 from "node:path";
 import { pathToFileURL as pathToFileURL2 } from "node:url";
 async function previewHtml(html, { width = 1200, height = 700, config: config2 } = {}) {
-  const dir = fs21.mkdtempSync(path16.join(os5.tmpdir(), "drip-preview-"));
-  const file4 = path16.join(dir, "preview.html");
+  const dir = fs21.mkdtempSync(path15.join(os4.tmpdir(), "drip-preview-"));
+  const file4 = path15.join(dir, "preview.html");
   fs21.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
   try {
     const png2 = await screenshot(pathToFileURL2(file4).href, { width, height, waitMs: 2500, config: config2 });
@@ -94081,7 +94169,7 @@ __export(gradient_exports, {
   register: () => register6
 });
 import fs22 from "node:fs";
-import path17 from "node:path";
+import path16 from "node:path";
 function rng(seed) {
   let s2 = seed >>> 0 || 1;
   return () => (s2 = s2 * 1664525 + 1013904223 >>> 0) / 4294967296;
@@ -94136,8 +94224,8 @@ function register6(server2, ctx2) {
       const g = meshGradient(args);
       let saved = "";
       if (args.out) {
-        const file4 = path17.resolve(projectDir(), args.out);
-        fs22.mkdirSync(path17.dirname(file4), { recursive: true });
+        const file4 = path16.resolve(projectDir(), args.out);
+        fs22.mkdirSync(path16.dirname(file4), { recursive: true });
         fs22.writeFileSync(file4, g.svg);
         saved = `Saved SVG: ${file4}
 
@@ -94161,7 +94249,7 @@ __export(icons_exports, {
   register: () => register7
 });
 import fs23 from "node:fs";
-import path18 from "node:path";
+import path17 from "node:path";
 var API = "https://api.iconify.design";
 function register7(server2, ctx2) {
   server2.registerTool(
@@ -94201,8 +94289,8 @@ Get SVG / install: icons_get. React: lucide-react / @phosphor-icons/react / @tab
         const [prefix, icon] = name.split(":");
         const { body } = await get(`${API}/${prefix}/${icon}.svg${size ? `?height=${size}` : ""}`, { ttlMs: 30 * 24 * 36e5 });
         if (dir) {
-          const target = path18.resolve(projectDir(), dir, `${icon}.svg`);
-          fs23.mkdirSync(path18.dirname(target), { recursive: true });
+          const target = path17.resolve(projectDir(), dir, `${icon}.svg`);
+          fs23.mkdirSync(path17.dirname(target), { recursive: true });
           fs23.writeFileSync(target, body);
         }
         out.push(`${name}:
@@ -94221,11 +94309,11 @@ __export(fonts_exports, {
   register: () => register8
 });
 import fs24 from "node:fs";
-import path19 from "node:path";
+import path18 from "node:path";
 var LIST = "https://api.fontsource.org/v1/fonts";
 function pairs() {
   try {
-    return JSON.parse(fs24.readFileSync(path19.join(dataDir, "font-pairs.json"), "utf8")).pairs;
+    return JSON.parse(fs24.readFileSync(path18.join(dataDir, "font-pairs.json"), "utf8")).pairs;
   } catch {
     return [];
   }
@@ -94298,11 +94386,11 @@ __export(images_exports, {
   register: () => register9
 });
 import fs26 from "node:fs";
-import path21 from "node:path";
+import path20 from "node:path";
 
 // src/core/keys.mjs
 import fs25 from "node:fs";
-import path20 from "node:path";
+import path19 from "node:path";
 var KEY_ENV = {
   openai: ["OPENAI_API_KEY"],
   gemini: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
@@ -94310,7 +94398,7 @@ var KEY_ENV = {
   pexels: ["PEXELS_API_KEY"],
   openverse: ["OPENVERSE_TOKEN"]
 };
-var file3 = path20.join(homeDripDir, "keys.json");
+var file3 = path19.join(homeDripDir, "keys.json");
 function readFile2() {
   try {
     return JSON.parse(fs25.readFileSync(file3, "utf8"));
@@ -94338,7 +94426,7 @@ function keyStatus(names3) {
 }
 function logUsage(entry) {
   ensureDir(homeDripDir);
-  fs25.appendFileSync(path20.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
+  fs25.appendFileSync(path19.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
 `);
 }
 
@@ -94412,10 +94500,10 @@ Save one with images_save (logs the credit). Add to the board with board_add (re
       const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : lookup(resolve(image2, "image"));
       if (!item?.image) return text("Unknown image. Use a number from the last images_search or a URL.", true);
       const { buf } = await fetchImage(item.image, { ttlMs: 0 });
-      const file4 = path21.resolve(projectDir(), dest);
-      fs26.mkdirSync(path21.dirname(file4), { recursive: true });
+      const file4 = path20.resolve(projectDir(), dest);
+      fs26.mkdirSync(path20.dirname(file4), { recursive: true });
       fs26.writeFileSync(file4, buf);
-      const log = path21.join(ensureProjectDrip(), "assets.json");
+      const log = path20.join(ensureProjectDrip(), "assets.json");
       const list = fs26.existsSync(log) ? JSON.parse(fs26.readFileSync(log, "utf8")) : [];
       list.push({ file: dest, source: item.url, author: item.designer || null, license: item.license || "unknown \u2014 check before shipping", credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
       fs26.writeFileSync(log, JSON.stringify(list, null, 2));
@@ -94436,7 +94524,7 @@ __export(gen_exports, {
   register: () => register11
 });
 import fs27 from "node:fs";
-import path22 from "node:path";
+import path21 from "node:path";
 import { pathToFileURL as pathToFileURL3 } from "node:url";
 
 // src/modules/gen/providers/gemini.mjs
@@ -94523,11 +94611,11 @@ async function openKeyPage(names3) {
 var BUILT_IN = [openai_default, gemini_default];
 async function providers() {
   const list = [...BUILT_IN];
-  const dir = path22.join(homeDripDir, "providers");
+  const dir = path21.join(homeDripDir, "providers");
   if (fs27.existsSync(dir))
     for (const f2 of fs27.readdirSync(dir).filter((f3) => f3.endsWith(".mjs"))) {
       try {
-        const mod = await import(pathToFileURL3(path22.join(dir, f2)).href);
+        const mod = await import(pathToFileURL3(path21.join(dir, f2)).href);
         if (mod.default?.id && mod.default?.generate) list.push(mod.default);
       } catch {
       }
@@ -94563,11 +94651,11 @@ function register11(server2, ctx2) {
       }
       const refImgs = await Promise.all(refs.map((u2) => fetchImage(u2)));
       const imgs = await p2.generate({ prompt, aspect, model: model || config2.gen.providers?.[p2.id]?.model, refs: refImgs }, key);
-      const file4 = path22.resolve(projectDir(), out);
-      fs27.mkdirSync(path22.dirname(file4), { recursive: true });
+      const file4 = path21.resolve(projectDir(), out);
+      fs27.mkdirSync(path21.dirname(file4), { recursive: true });
       fs27.writeFileSync(file4, imgs[0].buf);
       logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
-      const log = path22.join(ensureProjectDrip(), "assets.json");
+      const log = path21.join(ensureProjectDrip(), "assets.json");
       const list = fs27.existsSync(log) ? JSON.parse(fs27.readFileSync(log, "utf8")) : [];
       list.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
       fs27.writeFileSync(log, JSON.stringify(list, null, 2));
@@ -94603,12 +94691,13 @@ var fitcheck_exports = {};
 __export(fitcheck_exports, {
   register: () => register12
 });
-import path24 from "node:path";
+import path23 from "node:path";
 import fs29 from "node:fs";
+init_chrome();
 
 // src/modules/fitcheck/lint.mjs
 import fs28 from "node:fs";
-import path23 from "node:path";
+import path22 from "node:path";
 function readRules(file4) {
   try {
     return JSON.parse(fs28.readFileSync(file4, "utf8")).rules || [];
@@ -94617,10 +94706,10 @@ function readRules(file4) {
   }
 }
 function loadRules(cwd) {
-  const rules = [...readRules(path23.join(dataDir, "slop.json")), ...readRules(path23.join(projectDripDir(cwd), "slop.json"))];
+  const rules = [...readRules(path22.join(dataDir, "slop.json")), ...readRules(path22.join(projectDripDir(cwd), "slop.json"))];
   for (const id of loadState(cwd).task?.packs || []) {
     const dir = packDir(id, cwd);
-    if (dir) rules.push(...readRules(path23.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
+    if (dir) rules.push(...readRules(path22.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
   }
   return rules;
 }
@@ -94665,7 +94754,7 @@ function lintFiles(files, cwd) {
 function formatIssues(issues, cwd) {
   if (!issues.length) return "No slop or polish issues found by the static checks (that does not replace looking at it).";
   const order = { error: 0, warn: 1, info: 2 };
-  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path23.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
+  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path22.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
 }
 
 // src/modules/fitcheck/index.mjs
@@ -94692,17 +94781,18 @@ function register12(server2, ctx2) {
       const content = [];
       const audits = [];
       const files = [];
-      for (const s2 of list) {
-        const r2 = await capture(url2, { width: s2.width, height: s2.height, maxSlices: hero ? 1 : maxSlices || (s2.width < 600 ? 4 : 5), config: config2 });
+      const caps = await Promise.all(list.map((s2) => capture(url2, { width: s2.width, height: s2.height, maxSlices: hero ? 1 : maxSlices || (s2.width < 600 ? 4 : 5), scale: s2.width > 1200 ? 1200 / s2.width : 1, config: config2 })));
+      for (const [k, s2] of list.entries()) {
+        const r2 = caps[k];
         const j = judgeAudit(r2.audit, { persuade, hero });
         audits.push({ size: s2.name, width: s2.width, audit: r2.audit, ...j });
         content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${r2.slices.length} of ${r2.sliceCount} screens
 ${formatAudit(r2.audit, j)}`));
         for (const [i2, sl] of r2.slices.entries()) {
-          const f2 = path24.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+          const f2 = path23.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
           fs29.writeFileSync(f2, sl.buf);
           files.push(f2);
-          content.push(imageBlock(s2.width < 600 ? sl.buf : await toJpeg(sl.buf, 1200, 900, 80)));
+          content.push(imageBlock(sl.buf));
         }
       }
       const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
@@ -94747,8 +94837,8 @@ Redo the hero bigger, then fitcheck_shot({ url, hero: true }) again.
       const board = task?.board?.id && loadBoard(task.board.id);
       const dir = board?.directions.find((d) => d.name === board.chosen);
       const content = [];
-      const png2 = await screenshot(target, { width: 1440, height: 900, config: ctx2.config() });
-      content.push(textBlock(`The build (${target}):`), imageBlock(await toJpeg(png2, 1440, 900)));
+      const shot2 = await screenshot(target, { width: 1440, height: 900, format: "jpeg", quality: 80, config: ctx2.config() });
+      content.push(textBlock(`The build (${target}):`), imageBlock(shot2));
       if (dir) {
         const items = dir.items.map((k) => board.items.find((it) => it.key === k)).filter((it) => it?.image);
         const bufs = await Promise.all(items.slice(0, 9).map((it) => fetchImage(it.source === "dribbble" ? thumbUrl(it.image, 480, 360) : it.image).then((r2) => r2.buf).catch(() => Buffer.alloc(0))));
@@ -94774,7 +94864,7 @@ ${items.map((it, i2) => `${i2 + 1}. ${it.note}`).join("\n")}`),
     safe(async ({ files }) => {
       const { task } = loadState();
       const root = projectDir();
-      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path24.resolve(root, f2));
+      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path23.resolve(root, f2));
       if (!list.length) return text("No files given and none recorded for this task.", true);
       const issues = lintFiles(list, root);
       updateState((st) => {
@@ -94826,7 +94916,7 @@ __export(critic_exports, {
   register: () => register13
 });
 import fs30 from "node:fs";
-import path25 from "node:path";
+import path24 from "node:path";
 var KIND_BRIEF = {
   directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Could it be any brand's hero? Is the h1 big enough (the Display role is ~127px at 1440) and does the picture slot show the subject's real thing at a real size? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it distinctive, crafted and finished, or a competent template? Name every place it looks amateur, generic or AI-made.",
@@ -94890,30 +94980,32 @@ function register13(server2, ctx2) {
       }
       for (const t2 of kind === "directions" || kind === "pack" ? [] : targets) {
         if (isUrl(t2)) {
-          for (const s2 of config2.fitcheck.sizes) {
-            const r2 = await capture(t2, { width: s2.width, height: s2.height, maxSlices: s2.width < 600 ? 4 : 6, config: config2 });
+          const sizes = config2.fitcheck.sizes;
+          const caps = await Promise.all(sizes.map((s2) => capture(t2, { width: s2.width, height: s2.height, maxSlices: s2.width < 600 ? 4 : 6, config: config2 })));
+          for (const [k, s2] of sizes.entries()) {
+            const r2 = caps[k];
             const j = judgeAudit(r2.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
             r2.slices.forEach((sl, i2) => {
-              const f2 = path25.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              const f2 = path24.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
               fs30.writeFileSync(f2, sl.buf);
               files.push(f2);
               notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
             });
           }
         } else {
-          const abs = path25.resolve(projectDir(), t2);
+          const abs = path24.resolve(projectDir(), t2);
           if (!fs30.existsSync(abs)) return text(`File not found: ${t2}`, true);
           if (/\.svg$/i.test(abs)) {
             const svg = fs30.readFileSync(abs, "utf8");
             for (const [bg, label, size] of [["#FFFFFF", "light", 1024], ["#111111", "dark", 1024], ["#FFFFFF", "small 64px", 64], ["#FFFFFF", "tiny 24px", 24]]) {
-              const f2 = path25.join(dir, `${path25.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
+              const f2 = path24.join(dir, `${path24.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
               await renderSvg(svg, f2, { size, bg, config: config2 });
               files.push(f2);
               notes.push(`${t2} on ${label}`);
             }
           } else if (/\.html?$/i.test(abs)) {
-            const f2 = path25.join(dir, `${path25.basename(abs)}.png`);
+            const f2 = path24.join(dir, `${path24.basename(abs)}.png`);
             await renderUrl(`file:///${abs.replace(/\\/g, "/")}`, f2, { width: 1440, height: 900, config: config2 });
             files.push(f2);
             notes.push(`${t2} rendered`);
@@ -95033,14 +95125,14 @@ __export(logo_exports, {
   register: () => register14
 });
 import fs32 from "node:fs";
-import path27 from "node:path";
+import path26 from "node:path";
 
 // src/modules/logo/outline.mjs
 var import_opentype = __toESM(require_opentype(), 1);
 import fs31 from "node:fs";
-import path26 from "node:path";
+import path25 from "node:path";
 async function loadFont2(font, weight = 400, style = "normal") {
-  const local = path26.resolve(projectDir(), font);
+  const local = path25.resolve(projectDir(), font);
   if (/\.(ttf|otf|woff)$/i.test(font) && fs31.existsSync(local)) {
     const b = fs31.readFileSync(local);
     return import_opentype.default.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
@@ -95097,7 +95189,7 @@ function outline(font, text2, { size = 200, letterSpacing = 0, kerning = true } 
 var esc5 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
 function loadSvg(src) {
   if (/^\s*<svg/i.test(src)) return src;
-  const abs = path27.resolve(projectDir(), src);
+  const abs = path26.resolve(projectDir(), src);
   if (!fs32.existsSync(abs)) throw new Error(`SVG not found: ${src}`);
   return fs32.readFileSync(abs, "utf8");
 }
@@ -95144,14 +95236,14 @@ function register14(server2, ctx2) {
       const o2 = outline(f2, str, { size, letterSpacing });
       let saved = "";
       if (out) {
-        const abs = path27.resolve(projectDir(), out);
-        fs32.mkdirSync(path27.dirname(abs), { recursive: true });
+        const abs = path26.resolve(projectDir(), out);
+        fs32.mkdirSync(path26.dirname(abs), { recursive: true });
         fs32.writeFileSync(abs, o2.svg);
         saved = `Saved ${out}
 `;
       }
       const m = o2.metrics;
-      const file4 = path27.join(rendersDir("logo"), `outline-${stamp()}.png`);
+      const file4 = path26.join(rendersDir("logo"), `outline-${stamp()}.png`);
       const png2 = await renderHtml(
         `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o2.width}px;height:${o2.height}px">${o2.svg}
 <div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
@@ -95196,7 +95288,7 @@ Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to 
 .small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
 <h1>${esc5(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
       const rows = Math.ceil(svgs.length / cols);
-      const file4 = path27.join(rendersDir("logo"), `sheet-${stamp()}.png`);
+      const file4 = path26.join(rendersDir("logo"), `sheet-${stamp()}.png`);
       const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, config: ctx2.config() });
       return blocks([
         textBlock(`Concept sheet saved: ${file4}
@@ -95223,7 +95315,7 @@ Judge ideas first (one clear thought each, no clich\xE9s), then have the critic 
 <p class="label">Sizes 16 / 24 / 32 / 64 / 128 \u2014 light, dark, one colour, inverse, busy ground</p>
 ${strip2("#fff", svg)}${strip2(dark, svg)}${strip2("#fff", mono(svg, "#111", "#fff"))}${strip2("#111", mono(svg, "#fff", "#111"))}
 ${strip2("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
-      const file4 = path27.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
+      const file4 = path26.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
       const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, config: ctx2.config() });
       const stats = pathStats(svg);
       const hints = [];
@@ -95307,7 +95399,7 @@ Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack
 }
 
 // src/index.mjs
-var VERSION = "0.3.3";
+var VERSION = "0.3.4";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
@@ -95334,7 +95426,7 @@ async function cli(argv) {
     process.exit(2);
   }
   const outIdx = rest.indexOf("--out");
-  const outDir = path28.resolve(outIdx >= 0 ? rest[outIdx + 1] : path28.join(projectDripDir(), "cli"));
+  const outDir = path27.resolve(outIdx >= 0 ? rest[outIdx + 1] : path27.join(projectDripDir(), "cli"));
   const args = external_exports.object(tool.meta.inputSchema || {}).parse(json2 ? JSON.parse(json2) : {});
   const res = await tool.handler(args, {});
   let n2 = 0;
@@ -95342,7 +95434,7 @@ async function cli(argv) {
     if (c3.type === "text") console.log(c3.text);
     if (c3.type === "image") {
       fs33.mkdirSync(outDir, { recursive: true });
-      const file4 = path28.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
+      const file4 = path27.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
       fs33.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       console.log(`[image] ${file4}`);
     }
