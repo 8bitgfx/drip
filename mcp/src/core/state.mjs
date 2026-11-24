@@ -17,6 +17,7 @@ const EMPTY = () => ({ version: 2, tasks: {}, sessions: {}, history: [] });
 const me = { session: process.env.CLAUDE_CODE_SESSION_ID || null, server: false, taskId: null };
 export function setIdentity({ session, server } = {}) {
   if (session) me.session = session;
+  else if (session === null) me.session = null; // explicit: no session (tests run inside a Claude session inherit its id)
   if (server !== undefined) me.server = server;
 }
 
@@ -76,8 +77,14 @@ function resolveId(raw) {
     const own = Object.values(raw.tasks).find((t) => t.ownerSession === me.session);
     if (own) return own.id;
   }
-  // Nothing bound: a task nobody live is working on (a resumed or restarted session) is yours.
-  const free = Object.values(raw.tasks).filter((t) => !ownedByOther(t, raw));
+  // A known session that never started or bound a task has none: another session's leftover task in the same folder is
+  // not its business (its Stop hook must not demand fit checks for edits it never made). A resumed session keeps its
+  // own task through ownerSession / the sessions map above.
+  // A task with no owner (made by the CLI, a test, or a host without session ids) can still be picked up.
+  // The MCP server may resume a task whose session ended (the agent is using Drip's tools); hooks never adopt one.
+  const foreign = (t) => !me.server && me.session && ((t.ownerSession && t.ownerSession !== me.session) || Object.entries(raw.sessions).some(([sid, id]) => id === t.id && sid !== me.session));
+  // No session id, or an ownerless task: a task nobody live is working on is yours.
+  const free = Object.values(raw.tasks).filter((t) => !foreign(t) && !ownedByOther(t, raw));
   return free.length === 1 ? free[0].id : null;
 }
 
@@ -89,6 +96,12 @@ function claim(raw, task) {
     task.ownerSession = me.session;
     raw.sessions[me.session] = task.id;
   }
+}
+
+/** Tasks left open by sessions that have ended (for the session-start pointer; this session doesn't own them). */
+export function orphanTasks(cwd) {
+  const raw = readRaw(cwd);
+  return Object.values(raw.tasks).filter((t) => t.ownerSession && t.ownerSession !== me.session && !alive(t.ownerPid));
 }
 
 /** Open tasks in this folder that belong to other live sessions (never touch them). */

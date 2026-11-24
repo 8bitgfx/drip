@@ -11,7 +11,9 @@ import { adaptText } from "../src/hosts/adapt.mjs";
 import * as hosts from "../src/hosts/index.mjs";
 import { packMcpb, packPlugin, renderTemplates } from "../build-hosts.mjs";
 import { readZip, zipDir } from "../src/hosts/zip.mjs";
-import { newTask, saveState, loadState } from "../src/core/state.mjs";
+import { newTask, saveState, loadState, setIdentity } from "../src/core/state.mjs";
+
+setIdentity({ session: null }); // these tests play the hosts; never the Claude session that runs them
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..", "..");

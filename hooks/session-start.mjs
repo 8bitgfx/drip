@@ -1,11 +1,13 @@
 // SessionStart: only speaks when there is something to say — an unfinished Drip task, or strict mode.
-import { allow, checklist, loadConfig, loadState, otherTasks, out, readInput, run } from "./lib.mjs";
+import { allow, checklist, loadConfig, loadState, orphanTasks, otherTasks, out, readInput, run } from "./lib.mjs";
 import { sessionPointer } from "../mcp/src/core/project.mjs";
 
 run(async () => {
   const input = await readInput();
   const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
-  const { task } = loadState(dir);
+  // This session's own task, or one an ended session left open (mentioned, never enforced here).
+  const own = loadState(dir).task;
+  const task = own || orphanTasks(dir)[0] || null;
   const config = loadConfig(dir);
   const load = "Load its tools with ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide.";
   const others = otherTasks(dir);
