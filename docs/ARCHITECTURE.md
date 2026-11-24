@@ -2,6 +2,9 @@
 
 ```
 drip/
+  .agents/plugins/   marketplace.json (Codex install source)
+  plugin.json        portable manifest for the native Codex plugin
+  mcp.json           launches the shared Drip bundle for Codex
   .claude-plugin/      plugin.json (manifest), marketplace.json (install source)
   (plugin.json → mcpServers)  starts the MCP server: node mcp/dist/drip-mcp.mjs (inline, so no project .mcp.json is created)
   skills/              22 skills: drip (director) + drip-<craft>; each SKILL.md + guide.md + reference/

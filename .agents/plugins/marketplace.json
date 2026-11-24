@@ -1,0 +1,20 @@
+{
+  "name": "drip-design",
+  "interface": {
+    "displayName": "Drip Design"
+  },
+  "plugins": [
+    {
+      "name": "drip",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Design"
+    }
+  ]
+}

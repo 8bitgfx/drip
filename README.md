@@ -53,11 +53,21 @@ Also: references from Dribbble, Awwwards, Godly and more, licensed photos, a [St
 
 Restart Claude Code, then run `/drip:design a pricing page for my app`.
 
-**Codex, Cursor, OpenCode, Claude Desktop, ChatGPT desktop**
+**Codex** (native plugin)
+
+```bash
+codex plugin marketplace add 8bitgfx/drip
+```
+
+Open **Plugins** in the ChatGPT desktop app or `/plugins` in Codex. Install **Drip** from **Drip Design**, review its hooks with `/hooks`, and start a new session. Try `@Drip design a pricing page for my app`.
+
+See [Codex setup](docs/HOSTS.md#codex-native-plugin) for the independent critic and for switching from the direct installer.
+
+**Cursor, OpenCode, Claude Desktop, ChatGPT desktop** (direct installer)
 
 ```bash
 git clone https://github.com/8bitgfx/drip ~/drip && cd ~/drip
-node mcp/dist/drip-mcp.mjs install --agent codex   # or cursor, opencode, claude-desktop, chatgpt
+node mcp/dist/drip-mcp.mjs install --agent cursor   # or opencode, claude-desktop, chatgpt
 ```
 
 It registers Drip's local engine, copies the skills and the critic, and wires hooks where the app has them. Any other MCP client can run `node ~/drip/mcp/dist/drip-mcp.mjs` as a stdio server. What each app enforces: [docs/HOSTS.md](docs/HOSTS.md).

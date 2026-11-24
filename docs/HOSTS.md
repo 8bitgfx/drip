@@ -2,7 +2,7 @@
 
 Drip's engine is one local Node program (`mcp/dist/drip-mcp.mjs`, a stdio MCP server, plus the same code as a CLI). Each host starts that same engine on the user's machine; nothing is hosted, no account, no tunnel. A host adapter only does the host-specific parts: where the MCP server is registered, where skills and rules go, how hooks are wired, which subagent plays the critic.
 
-**Status: every host below is "built, not verified in the real app".** The installers, hook adapters and packages are tested against temporary home folders and sample payloads written from the official docs (`mcp/test/hosts.test.mjs`). Codex, Cursor and OpenCode are not installed on the development machine and no host software was installed or run. Research was done on 2026-11-24 from the pages linked below; the docs were read through a summarising fetch tool, so quoted shapes are approximate where marked.
+**Status: the host integrations below have automated checks. Live desktop installation remains unverified.** The installers, hook adapters and packages are tested against temporary home folders and sample payloads written from the official docs (`mcp/test/hosts.test.mjs`). Codex, Cursor and OpenCode are not installed on the development machine and no host software was installed or run. Research was done on 2026-11-24 from the pages linked below; the docs were read through a summarising fetch tool, so quoted shapes are approximate where marked.
 
 ## Install
 
@@ -65,7 +65,17 @@ Swarm Mode (docs/SWARM.md) needs a host that launches Drip's named subagents (`d
 
 All hosts: the engine is registered as a local stdio server; the skills in `skills/` are copied with Claude-Code-only wording rewritten (`mcp/src/hosts/adapt.mjs`: tool names without the `mcp__plugin_drip_drip__` prefix, no "load deferred tools with ToolSearch" step, the critic called by the host's name, no `AskUserQuestion`); a short always-on rule says Drip is opt-in, to start with `drip_start`, to use the host's `drip-critic` subagent and what the host cannot enforce. The hook adapters are in `hooks/hosts/<host>.mjs`: they translate the host's payload to the Claude Code format, run the unchanged `hooks/pre-write.mjs` and friends, and translate the answer back (denial, block, extra context). On any error they print nothing and exit 0, so a host is never broken by Drip. Session ids map to Drip's per-session task state, so several sessions in one folder stay separate.
 
-### Codex (CLI and desktop app)
+### Codex native plugin
+
+Run `codex plugin marketplace add 8bitgfx/drip`. Open **Plugins** in the ChatGPT desktop app or `/plugins` in Codex and install **Drip** from **Drip Design**. Review the plugin hooks with `/hooks` and trust them to enable Drip's write and completion checks. Start a new session and ask `@Drip` for a design.
+
+The plugin starts the committed Drip MCP bundle in your project and includes Drip's skills and design guides. It needs Node 22+ on `PATH` and Chrome or Edge for screenshots. To update the marketplace, run `codex plugin marketplace upgrade drip-design`.
+
+For independent reviews, put [drip-critic.toml](../hosts/codex/agents/drip-critic.toml) in your Codex `agents/` folder (`~/.codex/agents/` by default, or `$CODEX_HOME/agents/` if set), then start a new session. Codex loads custom agents from its own agent directories. The Drip workflow uses this named agent to record independent reviews.
+
+If you previously ran `drip install --agent codex`, use the same checkout to run `node mcp/dist/drip-mcp.mjs uninstall --agent codex` before enabling the plugin. This avoids loading two copies of the MCP server and hooks. Set up the critic again after uninstalling the old integration.
+
+### Codex direct installer (CLI and desktop app)
 
 - MCP: `[mcp_servers.drip]` in `~/.codex/config.toml` (`$CODEX_HOME` honoured), inside a marked block, with `startup_timeout_sec` and `tool_timeout_sec`. Source: https://learn.chatgpt.com/docs/extend/mcp?surface=cli (redirect target of developers.openai.com/codex).
 - Skills: `~/.agents/skills/<skill>/SKILL.md` (https://learn.chatgpt.com/docs/build-skills).

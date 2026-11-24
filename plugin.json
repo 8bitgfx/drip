@@ -1,0 +1,33 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "drip",
+  "version": "0.7.0",
+  "description": "Taste for your coding agent. A real designer's process: it asks first, studies references, shows you two directions, builds with real components and checks its work with an independent critic. Works in Claude Code, Codex, Cursor and any MCP agent. Opt-in: it only steps in when you start it.",
+  "author": {
+    "name": "Drip contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "design",
+    "ui",
+    "ux",
+    "frontend",
+    "moodboard",
+    "design-system"
+  ],
+  "extensions": {
+    "com.openai": {
+      "hooks": "./hooks/codex-plugin.json",
+      "requires_local_executor": true,
+      "interface": {
+        "displayName": "Drip",
+        "shortDescription": "Design workflow for Codex",
+        "longDescription": "Study references, compare design directions, build with reusable components, and review the result at desktop and mobile sizes.",
+        "developerName": "Drip contributors",
+        "category": "Design",
+        "defaultPrompt": "Use Drip to design a pricing page for my app."
+      }
+    }
+  },
+  "repository": "https://github.com/8bitgfx/drip"
+}
