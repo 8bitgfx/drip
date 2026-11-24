@@ -9,7 +9,7 @@ Build from this. It covers Persuade (landing pages, product sites) and Experienc
 
 ## Material and job
 4. Read the project first: package.json, tokens, fonts, DESIGN.md, nearby pages. Never ask what you can look up.
-5. Ask one round of at most 4 questions (AskUserQuestion). The first is always about material: what can the page show (screens, photos, the work, real numbers, a named quote)? Then `drip_brief`.
+5. Ask only what the request and the project leave open: `drip_start` lists those questions and the cap (often 0-2, never padded to 4). Material comes first when it is open: what can the page show (screens, photos, the work, real numbers, a named quote)? Then `drip_brief`.
 6. Write four lines: what it is, who it's for, the one action, and the material (real / pictures / absent). Never invent a number, quote, logo or customer. Anything absent is left out or becomes a labelled slot.
 7. Name the mode:
    - **Persuade**: the offer and the action are clear in the first viewport.

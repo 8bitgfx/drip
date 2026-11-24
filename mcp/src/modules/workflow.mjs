@@ -77,7 +77,7 @@ function requiredGuides(size, surface, task, mode, packs) {
 }
 
 export function nextStep(task, config) {
-  if (task.size === "full" && config.gates.requireBrief && !task.brief) return "NEXT: ask the intake questions (AskUserQuestion, up to 4, material first; see INTAKE), then drip_brief with the answers.";
+  if (task.size === "full" && config.gates.requireBrief && !task.brief) return `NEXT: ${task.intake?.max === 0 ? "no questions needed: drip_brief with your assumptions" : `ask at most ${task.intake?.max ?? 2} intake question(s) (AskUserQuestion; see INTAKE), then drip_brief with the answers.`}`;
   const missing = missingBeforeUi(task, config);
   if (missing.length) return `NEXT: ${missing[0].how}.`;
   if (task.mode === "refs") return "NEXT: summarise what the studied references have in common and where they differ (6-10 lines), then offer a moodboard.";
@@ -93,12 +93,40 @@ export function nextStep(task, config) {
   return "NEXT: build the sections in plan order. Then fitcheck_shot (the page gate), fix every blocker, the critic once (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), one confirming round, fitcheck_done.";
 }
 
-const INTAKE = `INTAKE (do this now): read the project first, then ask ONE round of up to 4 questions with AskUserQuestion, options specific to this request (never generic), your recommendation first.
-1. MATERIAL (always): what can the page show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Nothing yet: leave labelled slots".
-2. The one action, or who it's for, only if unclear: 2-4 concrete readings.
-3. Feel: 3-4 OPPOSED options, each a vivid one-liner of what the first screen looks like. Add "Surprise me (bold)".
-4. Anything they love or hate (sites, colours, fonts) when it would change the direction.
-Skip what the request already answers. "Just do it" / "decide for me": skip all and state assumptions. Then drip_brief. Default ambition is BOLD unless they asked for plain.`;
+// Intake asks only what the request (and the project) leave open. Agents pad a "up to 4" round to 4 every time,
+// so drip_start works out which slots are answered and hands over a short numbered list with a cap.
+const MATERIAL_WORDS = /\b(screenshot|screenshots|photo|photos|photograph|mockup|mockups|3d|render|renders|illustration|illustrations|generate|generated|own tools|my (app|product|work|screens)|real (screens|data|work)|images?|video|the work)\b/i;
+const FEEL_WORDS = /\b(cool|bold|loud|minimal|minimalist|clean|playful|fun|dark|light|premium|luxury|calm|quiet|editorial|brutal|brutalist|retro|elegant|showcase|wow|fancy|serious|corporate|plain|simple|warm|techy|futuristic|cute|weird|experimental|crazy|insane|polished|sleek|gritty|vibrant|colorful|colourful|moody)\b/i;
+const AUDIENCE_WORDS = /\b(for (my|our|a|an|the)?\s*[a-z-]+s\b|for (developers|devs|designers|kids|teens|gamers|investors|customers|users|clients|teams|startups|agencies|creators|artists|musicians|players)|audience|users? (are|is))\b/i;
+const DECIDE = /\b(just do it|decide for me|you (pick|choose|decide)|surprise me|no questions|don'?t ask)\b/i;
+
+export function intakePlan(taskText, t = {}) {
+  const has = (re) => re.test(taskText);
+  const brand = !!(t.memory && t.memory.mode !== "fresh");
+  const open = [];
+  const answered = [];
+  if (has(MATERIAL_WORDS) || (brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText))) answered.push("material (the request or the project's brand says what to show)");
+  else open.push("MATERIAL: what can it show? e.g. \"Real screenshots/photos I'll give you\" / \"The work itself, rebuilt in HTML\" / \"Generate pictures\" / \"Leave labelled slots\"");
+  if (has(FEEL_WORDS) || (brand && t.memory?.mode === "fidelity")) answered.push(brand && t.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition bold)");
+  else open.push("FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus \"Surprise me (bold)\"");
+  if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t.mode) || t.surface === "readme") answered.push("audience and action (clear enough from the request)");
+  else open.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
+  const max = has(DECIDE) ? 0 : Math.min(open.length, 2);
+  return { open, answered, max };
+}
+
+function intakeText(plan) {
+  if (plan.max === 0)
+    return `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.`;
+  return (
+    `INTAKE: read the project first (never ask what you can look up), then ask AT MOST ${plan.max} question${plan.max > 1 ? "s" : ""} in one AskUserQuestion round, options specific to this request, your recommendation first. ` +
+    `Fewer is better; zero is fine when the project answers them. Never pad the round.\n` +
+    plan.open.map((q, i) => `${i + 1}. ${q}`).join("\n") +
+    (plan.answered.length ? `\nDon't ask about: ${plan.answered.join("; ")}.` : "") +
+    "\nThen drip_brief (asked: the number you asked). Default ambition is BOLD unless they asked for plain."
+  );
+}
+
 
 /** A concrete research plan: shipped sites first (measured), Dribbble only for gaps. */
 function refPlan(task, surface, mode) {
@@ -177,6 +205,7 @@ export function register(server, ctx) {
           /* no index: nothing to reuse */
         }
       }
+      t.intake = intakePlan(task, { ...t, memory: t.memory });
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: new Date().toISOString(), endedBy: "new task" });
         st.task = t;
@@ -202,7 +231,7 @@ export function register(server, ctx) {
           (s === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "No photo keys yet (Unsplash/Pexels): if the page needs photos, ask the user to add one now (keys_open, free, 2 minutes); without them use images_search (openverse, wikimedia, cleveland for public-domain art), or gradient_mesh.\n" : "") +
           (m === "polish" ? "Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode \"design\".\n" : "") +
           `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x]) => x).join(", ")}.\n\n` +
-          (s === "full" && config.gates.requireBrief ? `${INTAKE}\n\n` : "") +
+          (s === "full" && config.gates.requireBrief ? `${intakeText(t.intake)}\n\n` : "") +
           (s === "full" ? `${refPlan(task, sf, m)}\n\n` : "") +
           `${TALK}\n\n${nextStep(t, config)}\n\n` +
           bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
@@ -263,6 +292,7 @@ export function register(server, ctx) {
         ambition: z.enum(["bold", "balanced", "conservative"]).optional().describe("Default bold. Conservative ONLY if the user asked for plain / safe / corporate."),
         constraints: z.string().optional(),
         assumptions: z.string().optional().describe("What you assumed without asking"),
+        asked: z.number().int().min(0).max(4).optional().describe("How many questions you asked (drip_start gives the cap; often 0-2)"),
       },
     },
     async (brief) => {
@@ -273,6 +303,8 @@ export function register(server, ctx) {
       if (!st.task) return text("No Drip task is active. Call drip_start first.", true);
       return text(
         `Brief recorded: ${b.what} · for ${b.audience} · feel: ${b.feel.join(", ")} · ambition: ${b.ambition}.\n` +
+          (st.task.intake && b.asked > st.task.intake.max ? `You asked ${b.asked} questions; this request needed at most ${st.task.intake.max}. Next time ask only what the request and the project leave open.
+` : "") +
           (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") +
           `${nextStep(st.task, ctx.config())}`,
       );

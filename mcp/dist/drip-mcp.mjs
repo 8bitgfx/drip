@@ -89643,7 +89643,7 @@ function requiredGuides(size, surface, task, mode, packs) {
   return [...new Set(g)];
 }
 function nextStep(task, config2) {
-  if (task.size === "full" && config2.gates.requireBrief && !task.brief) return "NEXT: ask the intake questions (AskUserQuestion, up to 4, material first; see INTAKE), then drip_brief with the answers.";
+  if (task.size === "full" && config2.gates.requireBrief && !task.brief) return `NEXT: ${task.intake?.max === 0 ? "no questions needed: drip_brief with your assumptions" : `ask at most ${task.intake?.max ?? 2} intake question(s) (AskUserQuestion; see INTAKE), then drip_brief with the answers.`}`;
   const missing = missingBeforeUi(task, config2);
   if (missing.length) return `NEXT: ${missing[0].how}.`;
   if (task.mode === "refs") return "NEXT: summarise what the studied references have in common and where they differ (6-10 lines), then offer a moodboard.";
@@ -89654,12 +89654,31 @@ function nextStep(task, config2) {
     return "NEXT: plan the sections (playbook P23), then build the nav + hero ONLY and run fitcheck_shot({ url, hero: true }). No section before the hero gate passes.";
   return "NEXT: build the sections in plan order. Then fitcheck_shot (the page gate), fix every blocker, the critic once (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), one confirming round, fitcheck_done.";
 }
-var INTAKE = `INTAKE (do this now): read the project first, then ask ONE round of up to 4 questions with AskUserQuestion, options specific to this request (never generic), your recommendation first.
-1. MATERIAL (always): what can the page show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Nothing yet: leave labelled slots".
-2. The one action, or who it's for, only if unclear: 2-4 concrete readings.
-3. Feel: 3-4 OPPOSED options, each a vivid one-liner of what the first screen looks like. Add "Surprise me (bold)".
-4. Anything they love or hate (sites, colours, fonts) when it would change the direction.
-Skip what the request already answers. "Just do it" / "decide for me": skip all and state assumptions. Then drip_brief. Default ambition is BOLD unless they asked for plain.`;
+var MATERIAL_WORDS = /\b(screenshot|screenshots|photo|photos|photograph|mockup|mockups|3d|render|renders|illustration|illustrations|generate|generated|own tools|my (app|product|work|screens)|real (screens|data|work)|images?|video|the work)\b/i;
+var FEEL_WORDS = /\b(cool|bold|loud|minimal|minimalist|clean|playful|fun|dark|light|premium|luxury|calm|quiet|editorial|brutal|brutalist|retro|elegant|showcase|wow|fancy|serious|corporate|plain|simple|warm|techy|futuristic|cute|weird|experimental|crazy|insane|polished|sleek|gritty|vibrant|colorful|colourful|moody)\b/i;
+var AUDIENCE_WORDS = /\b(for (my|our|a|an|the)?\s*[a-z-]+s\b|for (developers|devs|designers|kids|teens|gamers|investors|customers|users|clients|teams|startups|agencies|creators|artists|musicians|players)|audience|users? (are|is))\b/i;
+var DECIDE = /\b(just do it|decide for me|you (pick|choose|decide)|surprise me|no questions|don'?t ask)\b/i;
+function intakePlan(taskText, t2 = {}) {
+  const has = (re) => re.test(taskText);
+  const brand = !!(t2.memory && t2.memory.mode !== "fresh");
+  const open2 = [];
+  const answered = [];
+  if (has(MATERIAL_WORDS) || brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText)) answered.push("material (the request or the project's brand says what to show)");
+  else open2.push(`MATERIAL: what can it show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Leave labelled slots"`);
+  if (has(FEEL_WORDS) || brand && t2.memory?.mode === "fidelity") answered.push(brand && t2.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition bold)");
+  else open2.push('FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus "Surprise me (bold)"');
+  if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t2.mode) || t2.surface === "readme") answered.push("audience and action (clear enough from the request)");
+  else open2.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
+  const max = has(DECIDE) ? 0 : Math.min(open2.length, 2);
+  return { open: open2, answered, max };
+}
+function intakeText(plan) {
+  if (plan.max === 0)
+    return `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.`;
+  return `INTAKE: read the project first (never ask what you can look up), then ask AT MOST ${plan.max} question${plan.max > 1 ? "s" : ""} in one AskUserQuestion round, options specific to this request, your recommendation first. Fewer is better; zero is fine when the project answers them. Never pad the round.
+` + plan.open.map((q2, i2) => `${i2 + 1}. ${q2}`).join("\n") + (plan.answered.length ? `
+Don't ask about: ${plan.answered.join("; ")}.` : "") + "\nThen drip_brief (asked: the number you asked). Default ambition is BOLD unless they asked for plain.";
+}
 function refPlan(task, surface, mode) {
   const subject = task.toLowerCase().replace(/\b(design|redesign|make|build|create|me|my|our|a|an|the|for|please|new|site|website|web|page|landing|homepage|portfolio|app|screen|logo|for an?)\b/g, " ").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim() || "product";
   if (mode === "logo")
@@ -89711,6 +89730,7 @@ function register(server2, ctx2) {
         } catch {
         }
       }
+      t2.intake = intakePlan(task, { ...t2, memory: t2.memory });
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: (/* @__PURE__ */ new Date()).toISOString(), endedBy: "new task" });
         st.task = t2;
@@ -89734,7 +89754,7 @@ Inherited: ${t2.memory.inherited.join(", ") || "nothing yet"}. Still needed from
 ` : "") + (s2 === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "No photo keys yet (Unsplash/Pexels): if the page needs photos, ask the user to add one now (keys_open, free, 2 minutes); without them use images_search (openverse, wikimedia, cleveland for public-domain art), or gradient_mesh.\n" : "") + (m === "polish" ? `Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode "design".
 ` : "") + `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x2]) => x2).join(", ")}.
 
-` + (s2 === "full" && config2.gates.requireBrief ? `${INTAKE}
+` + (s2 === "full" && config2.gates.requireBrief ? `${intakeText(t2.intake)}
 
 ` : "") + (s2 === "full" ? `${refPlan(task, sf, m)}
 
@@ -89792,7 +89812,8 @@ ${b}`).join("\n\n")
         hates: external_exports.array(external_exports.string()).optional(),
         ambition: external_exports.enum(["bold", "balanced", "conservative"]).optional().describe("Default bold. Conservative ONLY if the user asked for plain / safe / corporate."),
         constraints: external_exports.string().optional(),
-        assumptions: external_exports.string().optional().describe("What you assumed without asking")
+        assumptions: external_exports.string().optional().describe("What you assumed without asking"),
+        asked: external_exports.number().int().min(0).max(4).optional().describe("How many questions you asked (drip_start gives the cap; often 0-2)")
       }
     },
     async (brief) => {
@@ -89803,7 +89824,8 @@ ${b}`).join("\n\n")
       if (!st.task) return text("No Drip task is active. Call drip_start first.", true);
       return text(
         `Brief recorded: ${b.what} \xB7 for ${b.audience} \xB7 feel: ${b.feel.join(", ")} \xB7 ambition: ${b.ambition}.
-` + (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") + `${nextStep(st.task, ctx2.config())}`
+` + (st.task.intake && b.asked > st.task.intake.max ? `You asked ${b.asked} questions; this request needed at most ${st.task.intake.max}. Next time ask only what the request and the project leave open.
+` : "") + (b.ambition === "bold" ? "Ambition BOLD: every direction must be distinctive enough that someone would screenshot it. The critic rejects safe defaults (rules/ambition).\n" : "") + `${nextStep(st.task, ctx2.config())}`
       );
     }
   );
@@ -111244,7 +111266,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.5.1";
+var VERSION = "0.5.2";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.

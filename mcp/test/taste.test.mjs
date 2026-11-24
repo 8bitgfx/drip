@@ -118,3 +118,11 @@ test("taste guards through the server", { skip, timeout: 240000 }, async (t) => 
     await client.close();
   }
 });
+
+test("intake asks only what the request leaves open, never padded to 4", async () => {
+  const { intakePlan } = await import("../src/modules/workflow.mjs");
+  assert.equal(intakePlan("use drip and make a cool 3d + mockups brandsheet for drip, a showcase", { mode: "design", memory: { mode: "fidelity" } }).max <= 1, true);
+  assert.equal(intakePlan("design a landing page for my bakery", { mode: "design" }).max, 2);
+  assert.equal(intakePlan("pricing page for developers, minimal and dark", { mode: "design" }).max, 1);
+  assert.equal(intakePlan("make a portfolio site, decide for me", { mode: "design" }).max, 0);
+});
