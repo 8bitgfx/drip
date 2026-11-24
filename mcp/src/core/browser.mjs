@@ -181,7 +181,9 @@ export async function openPage({ s, sessionId, listeners }, url, { width = 1440,
   await s("Page.enable");
   await s("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
   if (width < 600) await s("Emulation.setTouchEmulationEnabled", { enabled: true });
-  if (dark) await s("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+  // Pin the media features so a page renders the same on every machine: Windows Server (CI) and machines with
+  // animations turned off report prefers-reduced-motion: reduce, which hides the motion we measure and judge.
+  await s("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: dark ? "dark" : "light" }, { name: "prefers-reduced-motion", value: "no-preference" }] });
   let onLoad;
   let timer;
   const loaded = new Promise((r) => {

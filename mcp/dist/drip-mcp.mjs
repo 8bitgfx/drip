@@ -7702,7 +7702,7 @@ async function openPage({ s: s2, sessionId, listeners }, url2, { width = 1440, h
   await s2("Page.enable");
   await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
   if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
-  if (dark) await s2("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+  await s2("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: dark ? "dark" : "light" }, { name: "prefers-reduced-motion", value: "no-preference" }] });
   let onLoad;
   let timer;
   const loaded = new Promise((r2) => {
