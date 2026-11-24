@@ -108,6 +108,7 @@ The README is copy (`drip_guide copy`): specific nouns, verbs that do things, nu
 ## Reference files
 
 - `readme/anatomy` — section order, the first screen in Markdown, badges, alerts, `<details>`, TOC rules, worked skeletons for an app, a CLI, a library and a plugin.
+- `readme/art` — a hero banner and bento grids for projects with no screen to show, rendered from the `drip_kit` template `readme-art`.
 - `readme/visuals` — hero choices per project type, capturing and sizing, `<picture>` light/dark, GIF recipe, mermaid, rendering text into images, the social preview.
 
 Related guides: `drip_guide productshots` (capturing and staging the product), `drip_guide copy` (the one-liner and every heading), `drip_guide fitcheck` (the rendered check and the critic).

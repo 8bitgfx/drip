@@ -33,6 +33,7 @@ else is depth for the few who scroll.
 - `fitcheck_lint` — slop words and fake stats in the README text.
 - `fonts_search`, `palette_check` — when a hero banner uses the brand's type and colours.
 - `icons_search`, `icons_get` — one icon family if a feature table needs icons (rarely).
+- `drip_kit` (template `readme-art`) — a neutral starter script that renders a README hero banner and light/dark bento grids to PNG.
 - `gen_image` — only for a banner background the user approved; never as a stand-in for the product.
 
 ## Read deeper when
@@ -40,5 +41,6 @@ else is depth for the few who scroll.
 |---|---|
 | Structure, length budget, sections, badges, alerts, `<details>`, TOC, repo settings | `drip_guide readme/anatomy` |
 | Hero images, GIFs, light/dark `<picture>`, mermaid, rendering text, social preview | `drip_guide readme/visuals` |
+| No screen to show (plugin, toolkit): a hero banner and bento grids, starter via `drip_kit` template `readme-art` | `drip_guide readme/art` |
 | Capturing or staging screenshots and demo animations of the product | `drip_guide productshots` |
 | The one-liner, headings and every sentence | `drip_guide copy` |

@@ -210,17 +210,17 @@ export function register(server, ctx) {
       description:
         "Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, " +
         "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" }). " +
-        "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills).",
+        "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills), \"readme-art\" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).",
       inputSchema: {
-        template: z.enum(["base-css", "design-md", "comp", "brand-board"]).optional().describe("Default base-css"),
-        out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html)"),
+        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art"]).optional().describe("Default base-css"),
+        out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; assets/readme/src/readme-art.mjs)"),
         overwrite: z.boolean().optional(),
       },
     },
     async ({ template = "base-css", out, overwrite }) => {
       const root = projectDir();
-      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html" };
-      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html" };
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs" };
+      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs" };
       const rel = out || DEF[template];
       const dest = path.resolve(root, rel);
       if (fs.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
@@ -228,6 +228,7 @@ export function register(server, ctx) {
       fs.copyFileSync(path.join(kitDir, SRC[template]), dest);
       if (template === "design-md") return text(`Wrote ${rel}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
       if (template === "comp") return text(`Wrote ${rel}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
+      if (template === "readme-art") return text(`Wrote ${rel}: a TEMPLATE (greys, [bracketed] copy, dashed art slots). Set the CHANGE ME tokens to the brand, replace every [bracket] and slot with real words and objects, then run node ${rel}. It writes hero.png and bento-light/dark.png next to its folder. Guide: drip_guide readme/art.`);
       if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +
