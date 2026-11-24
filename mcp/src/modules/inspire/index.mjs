@@ -93,7 +93,7 @@ export function register(server, ctx) {
         sheet: z.boolean().optional().describe("Include the contact sheet image (default true)"),
       },
     },
-    safe(async ({ query: asked = "", source, kind = "site", limit = 24, page = 1, sheet = true }) => {
+    safe(async ({ query: asked = "", source, kind = "site", limit = 12, page = 1, sheet = true }) => {
       // Galleries match the subject. A task sentence ("redesign vizzbees.com landing and main screen") matches nothing and
       // every source then answers with its latest posts: random references. Search the subject words, or say what's missing.
       const words = subjectWords(asked);

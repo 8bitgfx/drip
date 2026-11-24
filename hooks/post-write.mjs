@@ -31,7 +31,12 @@ run(async () => {
   }
 
   const { lintFiles } = await import("../mcp/src/modules/fitcheck/lint.mjs"); // only when there is something to lint
-  const issues = lintFiles([abs], dir).filter((i) => i.severity !== "info");
+  const all = lintFiles([abs], dir).filter((i) => i.severity !== "info");
+  // Say each issue once: the same list after every edit of the file is noise.
+  const sig = (i) => `${i.id}:${i.message}`;
+  const said = new Set(task?.linted?.[rel] || []);
+  const issues = all.filter((i) => !said.has(sig(i)));
+  if (task && all.length) updateState((st) => st.task && ((st.task.linted ||= {})[rel] = [...new Set(all.map(sig))].slice(0, 80)), dir);
   const notes = [];
   if (issues.length) notes.push(`[Drip] Slop/polish checks on ${rel}:\n${issues.map((i) => `- ${i.severity} line ${i.line} [${i.id}${i.count > 1 ? ` x${i.count}` : ""}] ${i.message} -> ${i.fix}`).join("\n")}\nFix these now.`);
   if (!task && visual && config.gates.enforce) notes.push("[Drip] UI changed without a Drip task. Call drip_start (size quick) so the change gets the right guides and a fit check.");

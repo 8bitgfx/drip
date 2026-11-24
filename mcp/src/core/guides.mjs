@@ -13,6 +13,7 @@ function topicFile(topic) {
   const t = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
   if (t === "loop" || t === "drip") return path.join(skillsDir, "drip", "guide.md");
   if (t === "playbook") return path.join(skillsDir, "drip", "playbook.md");
+  if (t === "fast") return path.join(skillsDir, "drip", "fast.md");
   if (t.startsWith("rules/")) return path.join(rulesDir, `${t.slice(6)}.md`);
   if (t.startsWith("examples/")) return path.join(examplesDir, `${t.slice(9)}.md`);
   const [skill, ...rest] = t.split("/");
@@ -35,7 +36,15 @@ export function readGuide(topic) {
   }
   const file = topicFile(topic);
   if (!fs.existsSync(file)) return null;
-  return fs.readFileSync(file, "utf8");
+  return stripSources(fs.readFileSync(file, "utf8"));
+}
+
+/** Drops "## Sources" / "## Credits" sections (attribution lives in CREDITS.md) and source HTML comments. */
+export function stripSources(md) {
+  return String(md)
+    .replace(/\n#{2,3} (Sources|Credits|References used)\b[\s\S]*?(?=\n#{1,3} |$)/gi, "\n")
+    .replace(/<!--\s*(Method adapted|Sources?|Adapted)[\s\S]*?-->/gi, "")
+    .trimEnd() + "\n";
 }
 
 /** Every topic that exists, with its first heading, for the index. */
@@ -53,6 +62,7 @@ export function listGuides() {
       const guide = path.join(skillsDir, d, "guide.md");
       if (fs.existsSync(guide)) add(topic, guide);
       if (d === "drip" && fs.existsSync(path.join(skillsDir, d, "playbook.md"))) add("playbook", path.join(skillsDir, d, "playbook.md"));
+      if (d === "drip" && fs.existsSync(path.join(skillsDir, d, "fast.md"))) add("fast", path.join(skillsDir, d, "fast.md"));
       const ref = path.join(skillsDir, d, "reference");
       if (fs.existsSync(ref)) for (const f of fs.readdirSync(ref).filter((f) => f.endsWith(".md"))) add(`${topic}/${f.slice(0, -3)}`, path.join(ref, f));
     }

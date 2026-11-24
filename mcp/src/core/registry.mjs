@@ -53,8 +53,23 @@ const wrap = (server) =>
     },
   });
 
+// The tools the agent sees: what the fast loop uses. Everything else stays one call away through Code Mode
+// (drip_search finds it, drip_execute runs it), so the tool list stays small and every tool still works.
+// "tools": "all" in .drip/config.json lists every tool directly.
+export const CORE = new Set([
+  "drip_start", "drip_status", "drip_guide", "drip_brief", "drip_end", "drip_skip", "drip_kit", "drip_serve", "drip_check", "drip_search", "drip_execute", "keys_open",
+  "refs_site", "refs_gallery", "refs_view", "refs_search",
+  "layout_deal", "parts_list", "parts_preview", "parts_get",
+  "images_search", "images_save", "fonts_compare", "fonts_search", "palette_check", "icons_search", "icons_get", "mockup_render",
+  "components_find", "components_local_find",
+  "fitcheck_shot", "fitcheck_done", "critic_prepare", "critic_record",
+  "build_prepare", "scout_prepare", "checker_prepare", "page_stitch",
+  "board_create", "board_directions", "board_tile", "board_choose", "logo_sheet", "logo_test",
+]);
+
 export function registerAll(server, c = ctx) {
-  const s = wrap(server);
+  const all = c.config().tools === "all" || process.env.DRIP_TOOLS === "all";
+  const s = wrap(all ? server : new Proxy(server, { get: (t, p, r) => (p === "registerTool" ? (name, meta, h) => (CORE.has(name) ? t.registerTool(name, meta, h) : undefined) : ((v) => (typeof v === "function" ? v.bind(t) : v))(Reflect.get(t, p, r))) }));
   workflow.register(s, c);
   const enabled = c.config().modules || {};
   for (const [name, mod] of Object.entries(MODULES)) if (enabled[name] !== false) mod.register(s, c);

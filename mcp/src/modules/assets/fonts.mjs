@@ -51,7 +51,7 @@ export function register(server, ctx) {
       description: "Search all open-source fonts (Fontsource: every Google font and more) by name or category (serif, sans-serif, display, handwriting, monospace), optionally variable-only.",
       inputSchema: { query: z.string().optional(), category: z.string().optional(), variable: z.boolean().optional(), limit: z.number().int().min(5).max(60).optional() },
     },
-    safe(async ({ query, category, variable, limit = 25 }) => {
+    safe(async ({ query, category, variable, limit = 12 }) => {
       const { body } = await get(LIST, { as: "json", ttlMs: 7 * 24 * 3600e3 });
       noteFontResearch();
       const q = (query || "").toLowerCase();

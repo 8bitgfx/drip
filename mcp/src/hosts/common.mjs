@@ -264,5 +264,3 @@ export function readText(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
 }
 
-/** Which of these paths exists? (host detection) */
-export const firstExisting = (paths) => paths.find((p) => p && fs.existsSync(p)) || null;

@@ -3,7 +3,7 @@
 These apply to every Drip task, full or quick. Breaking one is a failed fit check.
 
 ## Process
-1. **`drip_start` before any UI work.** Read every guide it lists through `drip_guide`.
+1. **`drip_start` before any UI work.** The guides it returns are already included; a deeper topic a step needs comes from `drip_guide <topic>`.
 2. **References before new UI.** 4+ studied, most of them shipped examples of the same surface (`refs_site`, or `refs_view` for shots), each with measured values. Study, never copy one-to-one.
 3. **A chosen direction before building new UI**, from a board with 2-3 genuinely different directions.
 4. **Write the system down** (DESIGN.md + tokens) before components use it. Extend an existing system; replace it only in a redesign, and say so.

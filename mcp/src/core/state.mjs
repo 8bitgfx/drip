@@ -274,6 +274,13 @@ export function missingBeforeUi(task, config) {
   if (task.skipped || !config.gates.enforce) return [];
   const g = config.gates;
   const missing = [];
+  if (task.loop === "fast" && task.size === "full") {
+    const looked = (task.refs?.viewed || []).length + (task.refs?.studied || []).length + Object.keys(task.toolUse || {}).filter((k) => /^refs_/.test(k)).length;
+    if (!looked) missing.push({ need: "look", how: "one look at proven work first: refs_gallery (the pattern you'll build, e.g. 'saas dashboard hero') or refs_site on 3-4 shipped sites, in ONE call" });
+    if (!task.deal && !task.board?.chosen && !task.board?.adopted && !task.memory?.styleRevision)
+      missing.push({ need: "deal", how: 'layout_deal({ kind, trade }) for the hero layout, palette, type and sections (or board_choose / an approved direction)' });
+    return missing;
+  }
   if (task.size === "full" && g.requireBrief && !task.brief)
     missing.push({ need: "brief", how: "ask the user up to 4 clickable questions (AskUserQuestion), then record the answers with drip_brief" });
   const unread = task.requiredGuides.filter((x) => !task.guidesRead.includes(x));
@@ -356,7 +363,7 @@ export function missingBeforeUi(task, config) {
 
 /** How many build critic rounds this task gets: one when the user asked for it asap. */
 export function criticRounds(task, config) {
-  return task?.asap ? 1 : config.gates.maxCriticRounds;
+  return task?.asap || task?.loop === "fast" ? 1 : config.gates.maxCriticRounds;
 }
 
 /** True when the build changed after the last passing critic verdict (full loop only). */
@@ -410,6 +417,19 @@ export function checklist(task, config) {
   if (!task) return "No Drip task is active. Call drip_start first.";
   const tick = (ok) => (ok ? "[x]" : "[ ]");
   const g = config.gates;
+  if (task.loop === "fast" && task.size === "full") {
+    const fc = task.fitcheck || {};
+    const rec = lastCritique(task, "build");
+    return [
+      `Task: ${task.title}  (fast loop, ${task.surface})`,
+      `${tick((task.refs?.viewed || []).length + (task.refs?.studied || []).length > 0 || Object.keys(task.toolUse || {}).some((k) => /^refs_/.test(k)))} looked at proven work`,
+      `${tick(!!task.deal || !!task.board?.chosen)} dealt a set${task.deal ? `: ${task.deal.summary}` : ""}`,
+      `${tick(!!fc.heroPassedAt)} hero gate`,
+      `${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`,
+      `${tick(!!fc.doneAt && !needsFitcheck(task, config))} page check clean on the current version`,
+      `${tick(!!rec)} critic${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : ""}`,
+    ].join("\n");
+  }
   const lines = [`Task: ${task.title}  (${task.mode || "design"}, ${task.size} loop, ${task.surface})${task.packs?.length ? `  packs: ${task.packs.join(", ")}` : ""}${task.skipped ? `  SKIPPED: ${task.skipped}` : ""}`];
   const mem = memoryLine(task);
   if (mem) lines.push(mem);

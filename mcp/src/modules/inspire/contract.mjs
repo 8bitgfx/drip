@@ -52,19 +52,7 @@ export const slugify = (s) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-/** The first src of an srcset-less <img>, preferring a real URL over a lazy-load placeholder. */
-export function imgSrc(tag) {
-  const get1 = (n) => (tag.match(new RegExp(`\\s${n}="([^"]+)"`, "i")) || [])[1];
-  const cands = [get1("data-src"), get1("src"), (get1("data-srcset") || get1("srcset") || "").split(",")[0]?.trim().split(/\s+/)[0]];
-  return cands.find((c) => c && !c.startsWith("data:")) || "";
-}
 
-/** Largest candidate in an srcset ("url 600w, url 1200w"). */
-export function biggestSrcset(srcset = "") {
-  const parts = srcset.split(",").map((p) => p.trim().split(/\s+/)).filter((p) => p[0]);
-  parts.sort((a, b) => parseFloat(b[1] || "0") - parseFloat(a[1] || "0"));
-  return parts[0]?.[0] || "";
-}
 
 /** Build a normalised item. `id` is the provider-local id; the key is "<provider>:<id>". */
 export function makeItem(provider, { id, title, url, image, images, author, tags = [], kind = "site", ...extra }) {

@@ -450,6 +450,10 @@ export function register(server, ctx) {
               palette: z.array(z.string()).min(2).max(8).describe("Hex colours in role order: ground, ink, accent, support…"),
               type: z.string().describe("Display face + text face, '<display> + <text>', found with fonts_search / fonts_compare for THIS subject. Never mono as a voice"),
               typeReason: z.string().optional().describe("Why these faces fit this subject (required for overused faces such as Fraunces, Instrument Serif, Bricolage Grotesque, Syne, Satoshi)"),
+              pattern: z
+                .enum(["product-mockup-glow", "card-fan", "bento-live-ui", "render-on-dark", "character-scene", "photo-full-bleed", "other"])
+                .optional()
+                .describe("The proven hero pattern it builds on (drip_guide examples/gold): product-mockup-glow (the real UI rising out of a soft light), card-fan (real outputs on tilted cards around a calm headline), bento-live-ui, render-on-dark (one product render lit on dark), character-scene (a mascot in a framed scene), photo-full-bleed. 'other' only on a bold brief"),
               idea: z.string().min(12).describe("The idea in one line, as different from the other directions' ideas as possible: 'the product as a technical drawing being annotated live', 'a lab notebook: the research pages are the page', 'a toy catalogue: the walker in play at full bleed'"),
               refuses: z.string().optional().describe("What this direction refuses that another one keeps"),
               takes: z
@@ -490,6 +494,9 @@ export function register(server, ctx) {
       if (fresh) refusals.push(fresh);
       const grounding = groundingGate(directions.map((d) => ({ ...d, items: [...d.items, ...(d.takes || []).map((t) => t.ref)] })), st0, live, ctx.config());
       if (grounding) refusals.push(grounding);
+      // Polished briefs build on the patterns that make heroes people save; an abstract idea with nothing real to look at is the failure mode.
+      if (st0?.brief?.ambition !== "bold" && directions.filter((d) => d.pattern && d.pattern !== "other").length < Math.min(2, directions.length))
+        refusals.push(`At least ${Math.min(2, directions.length)} directions build on a proven hero pattern (pattern: product-mockup-glow, card-fan, bento-live-ui, render-on-dark, character-scene, photo-full-bleed; see drip_guide examples/gold). Abstract heroes (contour lines, a dotted route, a big word alone) read as art pieces, not products: the brief is polished.`);
       const stale = oldLookGate(directions, st0);
       if (stale) refusals.push(stale);
       if (refusals.length) return text(refusals.join("\n\n"), true);

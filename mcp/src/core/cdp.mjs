@@ -359,7 +359,7 @@ export async function capture(url, { width = 1440, height = 900, maxSlices = 6, 
     audit.type = (await run(TYPE_CHECK)) || [];
     if (brand) audit.brand = await run(BRAND);
     // The audit scrolled the page and came back: let headers that hide on scroll slide back before anything is shot.
-    if (shots) await new Promise((r) => setTimeout(r, 450));
+    if (shots) await new Promise((r) => setTimeout(r, 150));
     const total = Math.min(audit.height, 30000);
     const count = Math.max(1, Math.ceil(total / height));
     const maxY = Math.max(0, total - height);

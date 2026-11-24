@@ -205,7 +205,7 @@ export function register(server, ctx) {
         limit: z.number().int().min(4).max(30).optional(),
       },
     },
-    safe(async ({ query, queries, source, orientation, color, kind, limit = 18 }) => {
+    safe(async ({ query, queries, source, orientation, color, kind, limit = 12 }) => {
       const qs = [...new Set([query, ...(queries || [])].filter(Boolean))];
       if (!qs.length) return text("Pass query (or queries).", true);
       const keyed = ["unsplash", "pexels", "pixabay"].filter((k) => getKey(k));

@@ -157,17 +157,27 @@ export function register(server, ctx) {
       inputSchema: {
         shots: z.array(z.string()).min(1).max(4).optional().describe("Tagged numbers (e.g. 'L3-7') or shot ids"),
         shot: z.string().optional().describe("A single shot (same as shots: [shot])"),
-        maxImages: z.number().int().min(1).max(8).optional().describe("Images per shot (default: 4 for one shot, 2 each for several)"),
+        maxImages: z.number().int().min(1).max(8).optional().describe("Images per shot (default 2 for one shot, 1 each for several)"),
+        full: z.boolean().optional().describe("Every image separately at full width (to read small details). Default: several images come back as ONE numbered sheet"),
       },
     },
-    safe(async ({ shots, shot, maxImages }) => {
+    safe(async ({ shots, shot, maxImages, full }) => {
       const list = shots?.length ? shots : shot ? [shot] : [];
       if (!list.length) return text("Pass shots: [\"L3-7\", …] (or shot).", true);
-      const per = maxImages || (list.length === 1 ? 4 : 2);
+      const per = maxImages || (list.length === 1 ? 2 : 1);
       const out = [];
       // Shot pages still queue 2 s apart (Dribbble rate limits); image downloads and resizing overlap that wait.
       const views = await Promise.all(list.map((one) => viewOne(one, per).catch((err) => ({ info: `${one}: ${err.message}`, imgs: [] }))));
-      for (const r of views) out.push(textBlock(r.info), ...r.imgs);
+      const all = views.flatMap((r) => r.imgs);
+      if (full || all.length <= 1) for (const r of views) out.push(textBlock(r.info), ...r.imgs);
+      else {
+        // One image for the whole call: the pictures numbered in order, shot by shot.
+        let n = 0;
+        for (const r of views) out.push(textBlock(`${r.info}
+(sheet tiles ${r.imgs.length ? `${n + 1}-${(n += r.imgs.length)}` : "none"})`));
+        const cols = all.length <= 4 ? 2 : 3;
+        out.push(imageBlock(await contactSheet(all.map((b) => Buffer.from(b.data, "base64")), { cols, tileW: Math.floor(1540 / cols), tileH: Math.floor(1540 / cols * 0.75), fit: "contain", gap: 6 })));
+      }
       if (list.length > 1) out.push(textBlock(`NEXT: refs_study (with role: "competitor", "page", "style" or "before") all ${list.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, …] }).`));
       return blocks(out);
     }),

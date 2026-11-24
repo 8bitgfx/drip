@@ -40,12 +40,16 @@ export const DEFAULTS = {
   // Words in a prompt that mean "this is design work" (the prompt hook reminds Claude to start Drip).
   designWords: "\\b(design|redesign|landing|hero|page|screen|component|ui|ux|layout|dashboard|navbar|header|footer|pricing|onboarding|modal|card|form|theme|style|restyle|look|polish|pretty|beautiful|ugly|mid)\\b",
 
-  refs: { delayMs: 2000, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
+  refs: { delayMs: 800, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
 
   board: { port: 4567 },
 
   // Swarm Mode: the main agent directs; cheap subagents scout, build and re-check (drip_start swarm: true per task).
   swarm: true,
+  // fast: look, deal, build, check once, critic once. full: the old process (intake, roles, comps, plan) for big brand work.
+  loop: "fast",
+  // core: the fast loop's tools are listed, every other tool through drip_search / drip_execute. all: list every tool.
+  tools: "core",
 
   // Project design memory (docs/PROJECT_MEMORY.md).
   //   freshDays      a study older than this is not carried into a new task as inherited evidence

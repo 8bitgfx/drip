@@ -54,6 +54,7 @@ export function register(server, ctx) {
             'Interactions to capture as states, with real mouse and keyboard input (drag handlers fire). Each step screenshots the desktop viewport. e.g. [{ do: "drag", selector: ".sheet:nth-child(1)", to: { x: 400, y: 60 }, label: "sheets dragged apart" }, { do: "click", selector: "[data-work=2]", label: "work 2 open" }, { do: "key", text: "Escape" }]',
           ),
         app: z.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
+        images: z.enum(["sheet", "all", "none"]).optional().describe("sheet (default): ONE contact sheet per size, all slices in it (layout, rhythm, scale), so a shot costs 2 images instead of 9. all: every slice full size (when you need to read small text). none: numbers and file paths only. Every slice is always saved to disk"),
       },
     },
     safe(async (args) => {
@@ -72,7 +73,9 @@ export function register(server, ctx) {
     }),
   );
 
-  async function shootOne({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section }) {
+  async function shootOne({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section, images }) {
+      // Hero shots are one slice per size already; everything else becomes one sheet per size unless asked otherwise.
+      const mode = images || (hero ? "all" : "sheet");
       const config = ctx.config();
       const url = await toUrl(target);
       const persuade = app === undefined ? isPersuade(loadState().task) : !app;
@@ -92,7 +95,15 @@ export function register(server, ctx) {
           const f = path.join(dir, `${s.name}-${String(i + 1).padStart(2, "0")}.jpg`);
           fs.writeFileSync(f, sl.buf);
           files.push(f);
-          content.push(imageBlock(sl.buf));
+          if (mode === "all" || (mode === "sheet" && r.slices.length === 1)) content.push(imageBlock(sl.buf));
+        }
+        if (mode === "sheet" && r.slices.length > 1) {
+          // One image for the whole size, tiles in reading order, numbered; long edge kept under ~1560px (the model's own cap).
+          const phone = s.width < 600;
+          const cols = phone ? Math.min(r.slices.length, 5) : r.slices.length <= 4 ? 2 : 3;
+          const tileW = phone ? Math.floor(1500 / cols) : Math.floor(1540 / cols);
+          const tileH = Math.round(tileW * (s.height / s.width));
+          content.push(imageBlock(await contactSheet(r.slices.map((x) => x.buf), { cols, tileW, tileH, fit: "contain", gap: 6 })));
         }
       }
       if (steps?.length && !hero && !numbersOnly && !section) {
@@ -104,7 +115,11 @@ export function register(server, ctx) {
           const f = path.join(dir, `state-${String(i + 1).padStart(2, "0")}.jpg`);
           fs.writeFileSync(f, st.buf);
           files.push(f);
-          content.push(imageBlock(st.buf));
+          if (mode === "all") content.push(imageBlock(st.buf));
+        }
+        if (mode === "sheet") {
+          const bufs = states.filter((x) => x.buf?.length).map((x) => x.buf);
+          if (bufs.length) content.push(imageBlock(await contactSheet(bufs, { cols: Math.min(bufs.length, 3), tileW: Math.floor(1540 / Math.min(bufs.length, 3)), tileH: Math.round((Math.floor(1540 / Math.min(bufs.length, 3)) * desk.height) / desk.width), fit: "contain", gap: 6 })));
         }
       }
       const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
@@ -123,6 +138,11 @@ export function register(server, ctx) {
           st.task.fitcheck.shotRev = artifactRev(st.task); // what this shot (and its measured blockers) is evidence of
           st.task.fitcheck.blockers = blockers;
           st.task.fitcheck.files = files;
+          // A clean full shot of the current files IS the fit check: no self-scoring call needed.
+          if (!blockers.length) {
+            st.task.fitcheck.doneAt = st.task.fitcheck.lastShotAt;
+            st.task.fitcheck.doneRev = st.task.fitcheck.shotRev;
+          }
         }
       });
       if (!hero && !numbersOnly && !section) markShot(loadState().task); // what the pictures showed: files with these contents are not "unseen" later
@@ -135,13 +155,13 @@ export function register(server, ctx) {
       else {
         const judge =
           "Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, " +
-          "off-system type, imagery, slop tells, the phone layout, missing states. Fix, re-shoot, then the critic. Files for the critic: " +
+          "off-system type, imagery, slop tells, the phone layout, missing states. The sheet shows every screen small; to read fine text use images: \"all\" or section: \"#id\". Fix, re-shoot, then the critic. Files for the critic: " +
           dir;
         head = hero
           ? blockers.length
             ? `HERO GATE FAILED (fix before writing any section):\n${list2}\n\nRedo the hero bigger and fully inside the first screen, then fitcheck_shot({ url, hero: true }) again.\n\n${judge}`
             : `HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.\n\n${judge}`
-          : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n${list2}` : "No measured blockers."}\n\n${judge}`;
+          : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n${list2}` : "No measured blockers: the page check is recorded for this version (no fitcheck_done needed). Look at the sheet, fix what looks wrong, then the critic."}\n\n${judge}`;
       }
       content.unshift(textBlock(head));
       return blocks(content);

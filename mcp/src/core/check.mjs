@@ -136,10 +136,10 @@ export async function runCheck({ changed = false, full = false, only, project, s
   // 1. the project's own scripts
   const pm = pkgManager(root);
   const pkgHash = hashText(readIf(path.join(root, "package.json")) + ["package-lock.json", "pnpm-lock.yaml", "yarn.lock"].map((f) => readIf(path.join(root, f)).length).join(","));
-  for (const s of discoverScripts(root)) {
-    if (!want(s.name) && !want("scripts")) continue;
-    if (!/^[\w:.-]+$/.test(s.script)) continue;
-    await withReceipt(s.name, hashText([pkgHash, idxHash, cfgHash, versions.node, s.script].join("|")), async () => {
+  // Lint, types and tests run side by side: none of them writes what another reads.
+  const scripts = discoverScripts(root).filter((s) => (want(s.name) || want("scripts")) && /^[\w:.-]+$/.test(s.script));
+  await Promise.all(scripts.map((s) =>
+    withReceipt(s.name, hashText([pkgHash, idxHash, cfgHash, versions.node, s.script].join("|")), async () => {
       const r = await runScript(root, pm, s.script, s.timeoutMs);
       const locs = r.code ? parseLocations(r.out, root) : [];
       return {
@@ -148,8 +148,8 @@ export async function runCheck({ changed = false, full = false, only, project, s
         summary: r.code === 0 ? `${pm} run ${s.script} passed in ${(r.ms / 1000).toFixed(1)}s` : `${pm} run ${s.script} ${r.timedOut ? `timed out after ${s.timeoutMs / 1000}s` : `failed (exit ${r.code})`}:\n${tail(r.out)}`,
         fix: r.code === 0 ? undefined : `Run \`${pm} run ${s.script}\` yourself and fix what it reports, starting with the first error.`,
       };
-    });
-  }
+    }),
+  ));
 
   // 1b. the open Drip task's evidence: fit check / critic on an older version, UI edits no hook saw. Never cached.
   if (want("drip-evidence")) {

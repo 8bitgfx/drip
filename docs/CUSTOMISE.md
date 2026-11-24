@@ -10,12 +10,14 @@ Project wins over personal, personal wins over the defaults (`mcp/src/core/confi
   "gates": {
     "mode": "task",
     "enforce": true,
-    "minRefsViewed": 6,
+    "minRefsStudied": 4,
     "minBoardItems": 8,
     "requireDirection": true,
     "requireFitcheck": true
   },
-  "modules": { "refs": true, "board": true, "components": true, "assets": true, "gen": true, "fitcheck": true },
+  "loop": "fast",
+  "tools": "core",
+  "modules": { "refs": true, "board": true, "components": true, "assets": true, "gen": true, "fitcheck": true, "parts": true, "swarm": true, "codemode": true },
   "uiFiles": "\\.(tsx|jsx|vue|svelte|astro|html|css|scss)$",
   "ignoreFiles": "(node_modules|dist|\\.test\\.|\\.stories\\.)",
   "gen": { "defaultProvider": "gemini" },
@@ -28,7 +30,9 @@ Project wins over personal, personal wins over the defaults (`mcp/src/core/confi
 
 - `gates.mode`: `"task"` (default) means Drip only acts while a Drip task is open (`/drip:design` … `drip_end`); with no task the hooks are silent. `"always"` means every UI write needs a Drip task, and design prompts get a reminder (strict, for teams).
 - `gates.enforce: false` makes Drip advisory: no blocking, the guides and tools still work.
-- Lower `minRefsViewed` for small teams that iterate fast; raise it for big launches.
+- `loop`: "fast" (default: look, deal, build, check once, critic once) or "full" (the old process with intake, references by role, three comps, a plan and two critic rounds).
+- `tools`: "core" (default: the fast loop's tools are listed; every other tool is reached through drip_search and drip_execute) or "all".
+- `minRefsStudied` and the role minimums apply to the full loop only.
 - `modules` turns tool groups off (fewer tools in Claude's context).
 
 ## Your own slop rules: `.drip/slop.json`

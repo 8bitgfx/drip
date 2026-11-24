@@ -11,6 +11,7 @@ import { screenshot } from "../fitcheck/chrome.mjs";
 import { serveDir } from "../../core/serve.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { vendor0 } from "../../core/setup.mjs";
+import { updateState } from "../../core/state.mjs";
 
 export const TASTE = { repo: "https://github.com/Leonxlnx/taste-skill.git", sha: "6c0b5c78f5d31776e2210305abaa210cdc0030bf" };
 export const tasteDir = () => path.join(vendor0(), "taste-skill");
@@ -266,6 +267,13 @@ export function registerDeal(server, ctx) {
         const clean = (s) => String(s).replace(/<skill>/g, skill.replace(/\\/g, "/")).split("\n").filter((l) => !/finish gate is armed|^then: node|plan line 2/.test(l)).join("\n").trim();
         out.push(`===== SET ${i + 1}${directions > 1 ? ` (direction ${i + 1})` : ""} =====\n${clean(hero)}\n\n${clean(look)}\n\nSECTIONS: nav ${nav} · footer ${footer} · close ${close} · rhythm ${rhythm} · buttons ${buttons} · mark ${mark}`);
       }
+      const first = out[0] || "";
+      const hero = (first.match(/^hero: ([a-z-]+)/m) || [])[1];
+      const palette = (first.match(/^ {2}([a-z0-9-]+) {2,}[A-Z]/m) || [])[1];
+      const summary = [hero && `hero ${hero}`, palette && `palette ${palette}`, kind].filter(Boolean).join(", ");
+      updateState((st) => {
+        if (st.task) st.task.deal = { kind, trade, summary, at: new Date().toISOString() };
+      });
       return text(`${out.join("\n\n")}\n\nThe hero demos and section recipes: parts_get({ items: [{ kind: "hero", id: "<hero id>" }] }) copies the hero's demo; its README (layout-v4) has the recipes. Take the first palette and pairing unless they clash with the client's own colours.`);
     }),
   );

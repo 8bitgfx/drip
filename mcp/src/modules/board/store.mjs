@@ -310,7 +310,6 @@ export function resolveBoard({ id, task } = {}) {
   return { board: null, how: "none" };
 }
 
-export const boardSummary = (b) => ({ id: b.id, name: b.name, scope: b.scope, status: b.status, revision: b.revision, items: liveItems(b).length, directions: b.directions.length, chosen: b.chosen, approved: b.approved?.direction || null });
 
 // ---- items: dedupe by stable source key and by content hash ----
 export function contentHash(data) {

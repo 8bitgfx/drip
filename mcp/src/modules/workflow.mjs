@@ -209,17 +209,23 @@ export function register(server, ctx) {
         surface: z.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
         packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
         memory: z.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
+        loop: z.enum(["fast", "full"]).optional().describe("fast (default for design): look, deal, build, check once, critic once: a page in ~10 minutes. full: the old process (intake, references by role, three comps, critic, design system, plan) for big brand projects or when the user asks for it."),
         swarm: z.boolean().optional().describe("Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. On by default; pass false for a small job, or set \"swarm\": false in .drip/config.json."),
       },
     },
-    async ({ task, mode, size, surface, packs, memory, swarm }) => {
+    async ({ task, mode, size, surface, packs, memory, swarm, loop }) => {
       const g = guess(task);
       const m = mode || guessMode(task) || (g.size === "quick" ? "polish" : "design");
       const s = size || (m === "polish" ? "quick" : "full");
       const sf = surface || (m === "logo" ? "brand" : g.surface);
       const pk = packs || matchPacks(task).map((p) => p.id);
-      const guides = requiredGuides(s, sf, task, m, pk);
+      const fast = m === "design" && s === "full" && (loop || process.env.DRIP_LOOP || ctx.config().loop || "fast") === "fast" && !/\b(full (process|loop)|moodboard|three directions|3 directions|brand (book|system|identity))\b/i.test(task);
+      const guides = fast ? ["fast", ...pk.filter((p) => !isProjectPack(p)).map((p) => `pack:${p}`)] : requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
+      if (fast) {
+        t.loop = "fast";
+        t.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: new Date().toISOString() };
+      }
       if (typeof swarm === "boolean") t.swarm = swarm;
       if (/\b(asap|as soon as possible|get it done|right now|in a hurry)\b/i.test(task)) t.asap = true;
       // Design tasks load the project's design memory (compact) and remember which revision they started from. Reusing it
@@ -257,6 +263,23 @@ export function register(server, ctx) {
         }
       }
       const config = ctx.config();
+      if (t.loop === "fast") {
+        const kind = /\b(game|gaming)\b/i.test(task) ? "gaming" : /\b(hardware|device|gadget|controller|headphone|keyboard|drone|robot)\b/i.test(task) ? "tech" : /\b(cafe|café|bakery|restaurant|bar|hotel|shop|store|gym|salon|florist|guesthouse)\b/i.test(task) ? "place" : /\b(clinic|agency|studio|law|consult|dentist|architect)\b/i.test(task) ? "service" : /\b(saas|app|ai|platform|tool|api|dashboard|software|startup|fintech)\b/i.test(task) ? "software" : "product";
+        return text(
+          `Drip task started (task id ${t.id}): FAST LOOP, surface ${sf}, kind ${kind}. Ambition: polished (a cooler, cleaner take on proven designs; never "unique" for its own sake).\n` +
+            (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}): never touch them.\n` : "") +
+            (memCtx ? `PROJECT MEMORY (${t.memory.mode}): ${memCtx.text}\n` : "") +
+            (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.\n` : "") +
+            (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first.\n` : "") +
+            `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n\n` +
+            `FIRST CALLS (send the independent ones in one message):\n` +
+            `1. refs_gallery({ query: "<the product kind> landing hero" }) — look, take two or three decisions.\n` +
+            `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>] }).\n` +
+            `3. parts_list({ query: "<what the hero and sections need>" }) and images_search({ queries: [...] }).\n` +
+            `Then the hero, fitcheck_shot hero: true, sections (Swarm builders in parallel), one fitcheck_shot, one critic, drip_end.\n\n` +
+            bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
+        );
+      }
       return text(
         `Drip task started (task id ${t.id}): mode ${m}, ${s} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.\n` +
           (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}). They are separate: never drip_end, edit or judge them.\n` : "") +
@@ -347,7 +370,11 @@ export function register(server, ctx) {
       },
     },
     async (brief) => {
-      const b = { ...brief, ambition: brief.ambition === "balanced" ? "polished" : brief.ambition || "polished", at: new Date().toISOString() };
+      // Bold is the user's word, never the agent's reading of "award worthy" or "beautiful": those mean polished.
+      const asked = `${loadState().task?.title || ""} ${(brief.feel || []).join(" ")}`;
+      const loud = /\b(loud|bold|brutal\w*|experimental|edgy|wild|crazy|weird|punk|maximal\w*|in your face|out there|unhinged|chaotic)\b/i.test(asked);
+      const ambition = brief.ambition === "bold" && !loud ? "polished" : brief.ambition === "balanced" ? "polished" : brief.ambition || "polished";
+      const b = { ...brief, ambition, at: new Date().toISOString() };
       const st = updateState((s) => {
         if (s.task) s.task.brief = b;
       });

@@ -68,7 +68,7 @@ test("taste guards through the server", { skip, timeout: 240000 }, async (t) => 
     fs.writeFileSync(path.join(projB, ".drip", "config.json"), JSON.stringify({ gates: { minRefsStudied: 0, minDesigners: 0, minOnSurface: 0, minStyle: 0, minCompetitors: 0, minPage: 0 } }));
     await call("board_create", { name: "Ceramics" });
     await call("board_add", { items: ["#F4EFE6", "#1B1A17", "#B5452B", "#6F7A5C"].map((c) => ({ ref: c, note: `${c} as a role colour for the kiln and clay world` })) });
-    const dir = (name, type, palette, extra = {}) => ({ name, idea: `${name}: a different answer to the brief`, takes: [{ ref: "1", what: "the colour role used as a block" }, { ref: "2", what: "the second role as the ground" }], summary: "s", adjectives: ["a", "b"], palette, type, items: ["1"], ...extra });
+    const dir = (name, type, palette, extra = {}) => ({ name, pattern: "product-mockup-glow", idea: `${name}: a different answer to the brief`, takes: [{ ref: "1", what: "the colour role used as a block" }, { ref: "2", what: "the second role as the ground" }], summary: "s", adjectives: ["a", "b"], palette, type, items: ["1"], ...extra });
 
     await t.test("directions need font research, and refuse faces and palettes used in another project", async () => {
       let r = await call("board_directions", { directions: [dir("Kiln", "Newsreader + Public Sans", ["#F4EFE6", "#1B1A17", "#B5452B"]), dir("Clay", "Fragment Mono + Public Sans", ["#101010", "#EEE", "#6F7A5C"])] });

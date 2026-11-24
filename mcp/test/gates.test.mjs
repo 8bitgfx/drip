@@ -421,3 +421,28 @@ test("web image results parse from Bing's markup", async () => {
   assert.equal(r[0].full, "https://site.example/a.jpg");
   assert.equal(r[0].title, "Vineyard rows");
 });
+
+test("the fast loop asks only for a look and a deal before UI", async () => {
+  const { missingBeforeUi, newTask } = await import("../src/core/state.mjs");
+  const { loadConfig } = await import("../src/core/config.mjs");
+  const t = newTask({ title: "landing page for a saas", size: "full", surface: "landing", guides: ["fast"], mode: "design" });
+  t.loop = "fast";
+  const cfg = loadConfig();
+  assert.deepEqual(missingBeforeUi(t, cfg).map((m) => m.need), ["look", "deal"]);
+  t.toolUse = { refs_gallery: 1 };
+  t.deal = { kind: "software", summary: "hero centred" };
+  assert.deepEqual(missingBeforeUi(t, cfg), []);
+});
+
+test("the agent sees the core tools; Code Mode reaches the rest", async () => {
+  const { registerAll, collectTools, CORE } = await import("../src/core/registry.mjs");
+  const prev = process.env.DRIP_TOOLS;
+  delete process.env.DRIP_TOOLS;
+  const seen = [];
+  registerAll({ registerTool: (name) => seen.push(name), registerResource: () => {} });
+  process.env.DRIP_TOOLS = prev;
+  assert.ok(seen.length < 60, `too many listed tools: ${seen.length}`);
+  for (const n of seen) assert.ok(CORE.has(n), `${n} listed but not core`);
+  for (const n of ["drip_start", "layout_deal", "parts_get", "page_stitch", "fitcheck_shot", "drip_execute"]) assert.ok(seen.includes(n), `${n} missing`);
+  assert.ok(collectTools().size > seen.length + 40, "Code Mode keeps every tool");
+});

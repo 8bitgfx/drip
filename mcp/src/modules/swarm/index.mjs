@@ -3,6 +3,7 @@
 // prompt for a subagent, the way critic_prepare does; the director launches it and passes the prompt unchanged.
 // Gates are untouched: scouts call refs_study with a role, so state records studies as always.
 import fs from "node:fs";
+import path from "node:path";
 import { z } from "zod";
 import { projectDir } from "../../core/paths.mjs";
 import { designDoc } from "../../core/skills.mjs";
@@ -98,7 +99,9 @@ export function buildPrompt({ section, spec, files, url, task }) {
       : "No DESIGN.md yet: use the project's existing tokens and the kit's base.css (drip_kit) as the system.",
     "",
     `KIT: the project's base stylesheet from drip_kit (type roles, 12-column grid, spacing scale, .button states). Use its classes and variables; never add a new size or colour.`,
-    files?.length ? `YOU MAY TOUCH ONLY: ${files.join(", ")}` : "Touch only the files this section lives in; list them in your answer.",
+    files?.length
+      ? `YOU MAY TOUCH ONLY: ${files.join(", ")}`
+      : `WRITE ONLY: sections/${String(section).replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}.html (the <section> element alone, no <html>/<head>) and styles/sections/${String(section).replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}.css, next to the page. Other builders are writing the other sections at the same time; the director stitches them in with page_stitch. Use the page's tokens and classes; add the hover layer (cards lift 2px, photos zoom 1.02, buttons step) and the section's motion.`,
     url ? `PAGE TO CHECK: ${url} (shoot only your section: fitcheck_shot with section set to its CSS selector)` : "",
     "",
     "Answer in your standard format: changed files, the one-section screenshot path, open points.",
@@ -207,6 +210,49 @@ export function register(server, ctx) {
       }
       if (!target) return text("No page URL. Pass url (the running page).", true);
       return text(wrap("checker", "Check build", checkerPrompt({ url: target, sections, imagesOnRequest }), "Fix every blocker it lists, then check again; only then ask for the critic."));
+    }),
+  );
+
+  server.registerTool(
+    "page_stitch",
+    {
+      title: "Stitch section files into the page",
+      description:
+        "Swarm Mode. Builders each write sections/<id>.html (the <section> only) and styles/sections/<id>.css, so several can work at once without touching the same file. " +
+        "This puts the sections into the page in the order given, between <!-- drip:sections --> and <!-- /drip:sections --> (added before </main>, the footer or </body> the first time), and links each section's stylesheet in the <head>. Run it again after any builder finishes.",
+      inputSchema: {
+        page: z.string().describe("The page, e.g. saas-award/index.html"),
+        sections: z.array(z.string()).min(1).max(20).describe("Section ids in page order, e.g. ['features', 'proof', 'pricing', 'footer']"),
+      },
+    },
+    safe(async ({ page, sections }) => {
+      const abs = path.resolve(projectDir(), page);
+      if (!fs.existsSync(abs)) return text(`No page at ${page}. Write the page (nav + hero) first.`, true);
+      const dir = path.dirname(abs);
+      let html = fs.readFileSync(abs, "utf8");
+      const found = [];
+      const missing = [];
+      const parts = sections.map((id) => {
+        const f = path.join(dir, "sections", `${id}.html`);
+        if (!fs.existsSync(f)) {
+          missing.push(id);
+          return "";
+        }
+        found.push(id);
+        return fs.readFileSync(f, "utf8").trim();
+      });
+      const block = `<!-- drip:sections -->\n${parts.filter(Boolean).join("\n\n")}\n<!-- /drip:sections -->`;
+      if (/<!-- drip:sections -->[\s\S]*?<!-- \/drip:sections -->/.test(html)) html = html.replace(/<!-- drip:sections -->[\s\S]*?<!-- \/drip:sections -->/, () => block);
+      else {
+        const at = ["</main>", "<footer", "</body>"].map((t) => html.lastIndexOf(t)).find((i) => i >= 0);
+        html = at >= 0 ? `${html.slice(0, at)}${block}\n${html.slice(at)}` : `${html}\n${block}\n`;
+      }
+      const links = found
+        .filter((id) => fs.existsSync(path.join(dir, "styles", "sections", `${id}.css`)) && !html.includes(`styles/sections/${id}.css`))
+        .map((id) => `<link rel="stylesheet" href="styles/sections/${id}.css">`);
+      if (links.length) html = html.replace("</head>", `${links.join("\n")}\n</head>`);
+      fs.writeFileSync(abs, html);
+      return text(`Stitched ${found.length} section(s) into ${page}${found.length ? `: ${found.join(", ")}` : ""}.${missing.length ? ` Not written yet: ${missing.join(", ")} (sections/<id>.html).` : ""}${links.length ? ` Linked ${links.length} stylesheet(s).` : ""} Next: fitcheck_shot({ url: "${page}" }).`);
     }),
   );
 }

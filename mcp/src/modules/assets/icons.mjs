@@ -19,7 +19,7 @@ export function register(server, ctx) {
         "Without `set`, compare families in the preview and pick one for the whole project. Read drip_guide icons first.",
       inputSchema: { query: z.string(), set: z.string().optional(), limit: z.number().int().min(4).max(64).optional(), preview: z.boolean().optional() },
     },
-    safe(async ({ query, set, limit = 24, preview = true }) => {
+    safe(async ({ query, set, limit = 12, preview = true }) => {
       const url = `${API}/search?query=${encodeURIComponent(query)}&limit=${Math.max(32, limit)}${set ? `&prefix=${encodeURIComponent(set)}` : ""}`;
       const { body } = await get(url, { as: "json", ttlMs: 7 * 24 * 3600e3 });
       const icons = (body.icons || []).slice(0, limit);

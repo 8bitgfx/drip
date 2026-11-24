@@ -122,4 +122,3 @@ export async function doctor(agent, opts = {}) {
   return { host: info.id, ok: info.kind !== "deferred", summary: info.summary, checks: [{ id: "note", status: "info", detail: info.summary }] };
 }
 
-export const capabilityMatrix = () => listHosts().map((h) => ({ id: h.id, label: h.label, ...h.capabilities }));
