@@ -8,10 +8,12 @@ import { z } from "zod";
 import { readPackFile } from "../../core/packs.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
-import { capture, formatAudit, judgeAudit } from "../../core/cdp.mjs";
+import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
 import { isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { loadBoard, saveBoard } from "../board/store.mjs";
+import { designDoc, relevantSkills } from "../../core/skills.mjs";
+import { toUrl } from "../../core/serve.mjs";
 
 const KIND_BRIEF = {
   directions:
@@ -67,11 +69,22 @@ export function register(server, ctx) {
         kind: z.enum(["directions", "build", "logo", "pack", "any"]),
         targets: z.array(z.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id"),
         context: z.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses."),
+        steps: z.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (drag, click, open...), same as fitcheck_shot steps"),
+        extraRound: z.boolean().optional().describe("Only when the user chose 'one more round' after the round limit"),
       },
     },
-    safe(async ({ kind, targets = [], context }) => {
+    safe(async ({ kind, targets = [], context, steps, extraRound }) => {
       const config = ctx.config();
       const { task } = loadState();
+      const prevRounds = (task?.critic?.records || []).filter((r) => r.kind === kind);
+      if (kind === "build" && prevRounds.length >= config.gates.maxCriticRounds + (task?.critic?.extraRounds || 0) && !extraRound)
+        return text(
+          `Round limit: the critic has judged this build ${prevRounds.length} times (last: ${prevRounds.at(-1).verdict.toUpperCase()}, ${prevRounds.at(-1).summary}).\n` +
+            'Ask the user now with AskUserQuestion: "Ship it with the open points listed" or "One more critic round". Show the open points first. ' +
+            "If they pick another round, call critic_prepare again with extraRound: true; if they ship, fitcheck_done and hand off with the open points.",
+          true,
+        );
+      if (extraRound) updateState((st) => st.task && (st.task.critic.extraRounds = (st.task.critic.extraRounds || 0) + 1));
       const dir = rendersDir(`critic-${stamp()}`);
       const files = [];
       const notes = [];
@@ -89,7 +102,9 @@ export function register(server, ctx) {
         });
       }
 
-      for (const t of kind === "directions" || kind === "pack" ? [] : targets) {
+      for (const t0 of kind === "directions" || kind === "pack" ? [] : targets) {
+        // A local page is served and judged like a live one (whole page, measured), not as one still.
+        const t = kind === "build" && /\.html?$/i.test(t0) && !isUrl(t0) ? await toUrl(t0) : t0;
         if (isUrl(t)) {
           // The whole page, top to bottom, plus measured facts the critic must weigh.
           const sizes = config.fitcheck.sizes;
@@ -103,6 +118,16 @@ export function register(server, ctx) {
               fs.writeFileSync(f, sl.buf);
               files.push(f);
               notes.push(`${t} at ${s.name} ${s.width}px, screen ${i + 1} of ${r.sliceCount} (from y=${sl.y}px)`);
+            });
+          }
+          if (steps?.length) {
+            const desk = sizes.find((s) => s.width >= 1000) || sizes.at(-1);
+            const states = await captureStates(t, steps, { width: desk.width, height: desk.height, config });
+            states.forEach((st, i) => {
+              const f = path.join(dir, `state-${String(i + 1).padStart(2, "0")}.jpg`);
+              fs.writeFileSync(f, st.buf);
+              files.push(f);
+              notes.push(`interaction state ${i + 1}: ${st.label}${st.error ? ` (step failed: ${st.error})` : ""}`);
             });
           }
         } else {
@@ -138,6 +163,18 @@ export function register(server, ctx) {
       if (kind !== "pack" && !files.length) return text("Nothing to judge: pass targets (URLs or files).", true);
 
       const rubric = (task?.packs || []).map((p) => readPackFile(p, "critic.md")).filter(Boolean).join("\n\n");
+      const doc = kind === "build" || kind === "any" ? designDoc() : null;
+      const skills = relevantSkills(task);
+      const prev = prevRounds.at(-1);
+      const prevBlock = prev
+        ? [
+            `\nPREVIOUS ROUND (round ${prevRounds.length}: ${prev.verdict.toUpperCase()}, scores ${Object.entries(prev.scores).map(([k, v]) => `${k} ${v}`).join(", ")})`,
+            `Worst then: ${prev.worst}`,
+            `Fixes asked for:\n${prev.fixes.map((f, i) => `  ${i + 1}. ${f}`).join("\n")}`,
+            "START your answer with a PROGRESS line per fix above: FIXED / PARTLY / NOT FIXED, from what you see. Then new problems. " +
+              "Scores must reflect progress: an axis whose problems are fixed goes up unless something visibly got worse; do not swap in fresh nitpicks to hold a score down.",
+          ].join("\n")
+        : "";
       const id = `c${Date.now().toString(36)}`;
       const prompt = [
         `DRIP CRITIC REVIEW ${id} · kind: ${kind}`,
@@ -146,6 +183,11 @@ export function register(server, ctx) {
         "THE BRIEF",
         briefBlock(task),
         task?.board?.chosen && kind === "build" ? `Chosen direction: ${task.board.chosen}` : "",
+        doc
+          ? `\nTHE LOCKED DIRECTION AND SYSTEM (${doc.rel}; the client chose this. Judge the build against it. A suggestion that breaks one of its rules, e.g. a second accent in a one-accent system, is allowed only labelled [OFF-DIRECTION] in FIXES and never lowers Fit or System):\n${doc.text.slice(0, 4000)}`
+          : "",
+        skills.length ? `\nTHE PRODUCT'S OWN RULES (Claude skills in this workspace; Read each SKILL.md and flag any violation as S1):\n${skills.map((k) => `- ${k.name}: ${k.file}`).join("\n")}` : "",
+        prevBlock,
         context ? `Context: ${context}` : "",
         measured.length ? `\nMEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):\n${measured.join("\n")}` : "",
         rubric ? `\nNICHE RUBRIC (also judge against this)\n${rubric}` : "",
@@ -222,8 +264,8 @@ export function register(server, ctx) {
             : rec.kind === "build"
               ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)."
               : "NEXT: continue."
-          : rounds >= max && rec.kind === "build"
-            ? `That's ${rounds} critic rounds: fix what you can, then hand off and list the critic's open points honestly.`
+          : rounds >= max + (st.task?.critic?.extraRounds || 0) && rec.kind === "build"
+            ? `That's ${rounds} critic rounds, the limit. Fix what you can, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round" (critic_prepare with extraRound: true). Don't stop silently.`
             : rec.verdict === "reject"
               ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review."
               : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";

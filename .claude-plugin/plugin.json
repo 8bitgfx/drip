@@ -1,7 +1,7 @@
 {
   "name": "drip",
   "displayName": "Drip",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Give Claude drip: a real designer's process for coding agents. Run /drip:design and Claude studies Dribbble references, builds a moodboard for you to pick a direction from, writes a design system, builds with real components and fit-checks its own work on screenshots. Opt-in: it only steps in when you start it.",
   "author": {
     "name": "Drip contributors"

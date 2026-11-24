@@ -16,21 +16,21 @@ export function stamp() {
 }
 
 /** Screenshot a URL into `file`. Returns the PNG buffer. */
-export async function renderUrl(url, file, { width = 1440, height = 900, dark = false, config } = {}) {
-  const png = await screenshot(url, { width, height, dark, config });
+export async function renderUrl(url, file, { width = 1440, height = 900, dark = false, format = "png", quality = 82, config } = {}) {
+  const png = await screenshot(url, { width, height, dark, format, quality, config });
   ensureDir(path.dirname(file));
   fs.writeFileSync(file, png);
   return png;
 }
 
 /** Render an HTML fragment (full document optional) into `file`. */
-export async function renderHtml(html, file, { width = 1200, height = 800, config } = {}) {
+export async function renderHtml(html, file, { width = 1200, height = 800, format = "png", quality = 82, config } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "drip-render-"));
   const page = path.join(dir, "page.html");
   const doc = /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`;
   fs.writeFileSync(page, doc);
   try {
-    return await renderUrl(pathToFileURL(page).href, file, { width, height, config });
+    return await renderUrl(pathToFileURL(page).href, file, { width, height, format, quality, config });
   } finally {
     try {
       fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });

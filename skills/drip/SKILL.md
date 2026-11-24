@@ -18,6 +18,14 @@ user-invocable: false
 5. Hero first: nav + hero → `fitcheck_shot({ hero: true })`.
 6. Sections in plan order → `fitcheck_shot` (the page gate) → the critic once, plus one confirming round → `fitcheck_done` → `drip_end`.
 
+**Tools that save time** (load with `+drip <name>` when needed):
+- `drip_serve` / a local `.html` path in `fitcheck_shot`: no dev server needed.
+- `fitcheck_shot({ steps })`: interactions (drag, click, type, key) captured as states for you and the critic.
+- `drip_compare`: before / after, build vs comp, us vs competitors, on one sheet.
+- `board_brand`: the brand on one board. `drip_kit({ template })`: base CSS, DESIGN.md, comp, brand-board templates.
+- `images_save({ slots })`: web-ready crops (WebP, focal point, size budget) + `<picture>`. `gradient_mesh`: licence-free backgrounds. `components_find({ kind: "background" })`: hero effects.
+- `optical_center`: where the eye puts the centre of a mark or object, and its pivot. `logo_export`: favicons and app icons.
+
 **The critic.** `critic_prepare` returns a prompt. Launch `Agent({ subagent_type: "drip:critic", description: "Critic review", prompt })` with that prompt unchanged: no defence of the work, no context about effort. Record the verdict with `critic_record`, and show the user its words.
 
 **Never:**

@@ -6,34 +6,147 @@ import path from "node:path";
 import { ensureProjectDrip, projectDripDir } from "./paths.mjs";
 import { loadConfig } from "./config.mjs";
 
-const EMPTY = () => ({ version: 1, task: null, history: [] });
+// Several Claude sessions can work in one folder at once, so the file holds one task PER SESSION:
+// { version: 2, tasks: { <id>: task }, sessions: { <session id>: <task id> }, history: [] }.
+// A session only ever sees and changes its own task. loadState() still returns { task, history }.
+const EMPTY = () => ({ version: 2, tasks: {}, sessions: {}, history: [] });
+
+// Who is asking. The MCP server (one per session) remembers its task in memory and knows its session
+// from CLAUDE_CODE_SESSION_ID; hooks pass the session_id Claude Code gives them (setIdentity).
+const me = { session: process.env.CLAUDE_CODE_SESSION_ID || null, server: false, taskId: null };
+export function setIdentity({ session, server } = {}) {
+  if (session) me.session = session;
+  if (server !== undefined) me.server = server;
+}
+
+function alive(pid) {
+  if (!pid) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return e.code === "EPERM";
+  }
+}
 
 export function statePath(cwd) {
   return path.join(projectDripDir(cwd), "state.json");
 }
 
-export function loadState(cwd) {
+function readRaw(cwd) {
+  let raw;
   try {
-    return { ...EMPTY(), ...JSON.parse(fs.readFileSync(statePath(cwd), "utf8")) };
+    raw = JSON.parse(fs.readFileSync(statePath(cwd), "utf8"));
   } catch {
     return EMPTY();
   }
+  const out = { ...EMPTY(), ...raw, tasks: { ...(raw.tasks || {}) }, sessions: { ...(raw.sessions || {}) }, history: raw.history || [] };
+  if (raw.task) out.tasks[raw.task.id] = raw.task; // v1 file: one task for the whole folder
+  delete out.task;
+  return out;
+}
+
+/** Is this task being worked on by another live session? */
+function ownedByOther(t, raw) {
+  if (me.session && t.ownerSession && t.ownerSession !== me.session && alive(t.ownerPid)) return true;
+  const boundTo = Object.entries(raw.sessions).filter(([, id]) => id === t.id).map(([sid]) => sid);
+  if (me.session && boundTo.length && !boundTo.includes(me.session) && alive(t.ownerPid)) return true;
+  if (me.server && t.ownerPid && t.ownerPid !== process.pid && alive(t.ownerPid)) return true;
+  return false;
+}
+
+/** The id of this session's task, or null. */
+function resolveId(raw) {
+  if (me.taskId && raw.tasks[me.taskId]) return me.taskId;
+  if (me.session) {
+    const id = raw.sessions[me.session];
+    if (id && raw.tasks[id]) return id;
+    const own = Object.values(raw.tasks).find((t) => t.ownerSession === me.session);
+    if (own) return own.id;
+  }
+  // Nothing bound: a task nobody live is working on (a resumed or restarted session) is yours.
+  const free = Object.values(raw.tasks).filter((t) => !ownedByOther(t, raw));
+  return free.length === 1 ? free[0].id : null;
+}
+
+function claim(raw, task) {
+  if (!me.server) return;
+  me.taskId = task.id;
+  task.ownerPid = process.pid;
+  if (me.session) {
+    task.ownerSession = me.session;
+    raw.sessions[me.session] = task.id;
+  }
+}
+
+/** Open tasks in this folder that belong to other live sessions (never touch them). */
+export function otherTasks(cwd) {
+  const raw = readRaw(cwd);
+  const mine = resolveId(raw);
+  return Object.values(raw.tasks).filter((t) => t.id !== mine && ownedByOther(t, raw));
+}
+
+/** Hooks: remember that `session` works on task `taskId` (after drip_start answered it). */
+export function bindSession(session, taskId, cwd) {
+  const raw = readRaw(cwd);
+  if (!session || !raw.tasks[taskId]) return;
+  raw.sessions[session] = taskId;
+  if (!raw.tasks[taskId].ownerSession) raw.tasks[taskId].ownerSession = session;
+  writeRaw(raw, cwd);
+}
+
+export function loadState(cwd) {
+  const raw = readRaw(cwd);
+  const id = resolveId(raw);
+  return { history: raw.history, task: id ? raw.tasks[id] : null };
+}
+
+function writeRaw(raw, cwd) {
+  ensureProjectDrip(cwd);
+  const file = statePath(cwd);
+  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(raw, null, 2));
+  try {
+    fs.renameSync(tmp, file);
+  } catch {
+    // Windows: another process has the file open for a moment.
+    fs.writeFileSync(file, JSON.stringify(raw, null, 2));
+    fs.rmSync(tmp, { force: true });
+  }
+}
+
+/** Write a { task, history } view back: only this session's task changes. */
+function merge(raw, id, view) {
+  if (id && (!view.task || view.task.id !== id)) {
+    delete raw.tasks[id];
+    for (const [sid, tid] of Object.entries(raw.sessions)) if (tid === id) delete raw.sessions[sid];
+    if (me.taskId === id) me.taskId = null;
+  }
+  if (view.task) {
+    if (view.task.id !== id || me.taskId !== view.task.id) claim(raw, view.task);
+    view.task.touchedAt = new Date().toISOString();
+    raw.tasks[view.task.id] = view.task;
+  }
+  // Forget tasks nobody has touched for 14 days (crashed sessions).
+  const old = Date.now() - 14 * 864e5;
+  for (const t of Object.values(raw.tasks)) if (t.id !== view.task?.id && Date.parse(t.touchedAt || t.startedAt) < old) delete raw.tasks[t.id];
+  raw.history = (view.history || raw.history).slice(-30);
+  return raw;
 }
 
 export function saveState(state, cwd) {
-  ensureProjectDrip(cwd);
-  const file = statePath(cwd);
-  const tmp = `${file}.${process.pid}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(state, null, 2));
-  fs.renameSync(tmp, file);
+  const raw = readRaw(cwd);
+  writeRaw(merge(raw, resolveId(raw), state), cwd);
 }
 
-/** Read, change and save in one go. `fn` gets the state and may mutate it. */
+/** Read, change and save in one go. `fn` gets { task, history } (this session's task) and may mutate it. */
 export function updateState(fn, cwd) {
-  const state = loadState(cwd);
-  const ret = fn(state);
-  const out = ret && typeof ret === "object" && "history" in ret ? ret : state;
-  saveState(out, cwd);
+  const raw = readRaw(cwd);
+  const id = resolveId(raw);
+  const view = { history: [...raw.history], task: id ? raw.tasks[id] : null };
+  const ret = fn(view);
+  const out = ret && typeof ret === "object" && "history" in ret ? ret : view;
+  writeRaw(merge(raw, id, out), cwd);
   return out;
 }
 
@@ -116,7 +229,7 @@ export function needsCritic(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
   const rec = lastCritique(task, "build");
   const rounds = (task.critic?.records || []).filter((r) => r.kind === "build").length;
-  if (rounds >= config.gates.maxCriticRounds) return false; // never loop forever; the hand-off lists what's left
+  if (rounds >= config.gates.maxCriticRounds + (task.critic?.extraRounds || 0)) return false; // never loop forever; the hand-off lists what's left
   return !rec || rec.at < task.lastUiWriteAt || rec.verdict !== "pass";
 }
 

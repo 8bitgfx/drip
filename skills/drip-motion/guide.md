@@ -144,6 +144,7 @@ Gate it: `@media (hover: hover) and (pointer: fine)`. Tailwind v4's `hover:` alr
 | Cards `hover:scale-105` with shadow bloom | Lift 2px or darken the border one step; no scale on cards with text |
 | Modal pops from `scale(0)` or zooms from 0.5 | `scale(0.96)` + opacity, 200-250ms, centred origin |
 | Dropdown grows from its centre | `transform-origin` at the trigger via the library's CSS variable |
+| A mark or object spins, scales or swings around its bounding-box centre and wobbles | Pivot on the body: `optical_center` gives the `transform-origin`; a hanging or swinging thing pivots where it attaches |
 | `bounce`, `back.out`, `elastic` on buttons and menus | Bounce 0; overshoot only on drag release or a playful brand |
 | Stagger of 100-150ms on a 20-item list | 30-50ms, cap after item 6, total under 300ms |
 | Panel slides in, then its rows cascade in | One entrance: the panel carries its rows |

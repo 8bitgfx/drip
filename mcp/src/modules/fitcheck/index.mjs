@@ -1,14 +1,18 @@
 // Fit check: look at the real result, next to the chosen direction, and score it honestly.
 import path from "node:path";
 import { z } from "zod";
-import { fetchImage, contactSheet, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
+import { fetchImage, contactSheet, imageBlock, textBlock } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
 import { loadBoard } from "../board/store.mjs";
 import fs from "node:fs";
-import { capture, formatAudit, judgeAudit } from "../../core/cdp.mjs";
+import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
+import { designDoc } from "../../core/skills.mjs";
+import { designDrift } from "./drift.mjs";
+import { toUrl } from "../../core/serve.mjs";
+import * as compare from "./compare.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { screenshot } from "./chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
@@ -16,6 +20,7 @@ import { formatIssues, lintFiles } from "./lint.mjs";
 const CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 
 export function register(server, ctx) {
+  compare.register(server, ctx);
   server.registerTool(
     "fitcheck_shot",
     {
@@ -23,18 +28,26 @@ export function register(server, ctx) {
       description:
         "Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: " +
         "horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. " +
-        "Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. " +
+        "Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. url can be a dev-server URL or a local .html file / folder (served for you on a free port; no dev server needed). " +
         "hero: true shoots only the first viewport and runs the hero gate (playbook P31): do it after building nav + hero, before any section. Example: fitcheck_shot({ url: \"http://localhost:3000\", hero: true })",
       inputSchema: {
-        url: z.string().describe("e.g. http://localhost:3000/pricing"),
+        url: z.string().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
         sizes: z.array(z.object({ name: z.string(), width: z.number(), height: z.number() })).optional(),
         maxSlices: z.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
         hero: z.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
+        steps: z
+          .array(STEP)
+          .max(12)
+          .optional()
+          .describe(
+            'Interactions to capture as states, with real mouse and keyboard input (drag handlers fire). Each step screenshots the desktop viewport. e.g. [{ do: "drag", selector: ".sheet:nth-child(1)", to: { x: 400, y: 60 }, label: "sheets dragged apart" }, { do: "click", selector: "[data-work=2]", label: "work 2 open" }, { do: "key", text: "Escape" }]',
+          ),
         app: z.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
       },
     },
-    safe(async ({ url, sizes, maxSlices, hero, app }) => {
+    safe(async ({ url: target, sizes, maxSlices, hero, app, steps }) => {
       const config = ctx.config();
+      const url = await toUrl(target);
       const persuade = app === undefined ? isPersuade(loadState().task) : !app;
       const list = sizes || config.fitcheck.sizes;
       const dir = rendersDir(`fitcheck-${stamp()}`);
@@ -52,6 +65,16 @@ export function register(server, ctx) {
           fs.writeFileSync(f, sl.buf);
           files.push(f);
           content.push(imageBlock(sl.buf));
+        }
+      }
+      if (steps?.length && !hero) {
+        const desk = list.find((s) => s.width >= 1000) || list.at(-1);
+        const states = await captureStates(url, steps, { width: desk.width, height: desk.height, config });
+        for (const [i, st] of states.entries()) {
+          const f = path.join(dir, `state-${String(i + 1).padStart(2, "0")}.jpg`);
+          fs.writeFileSync(f, st.buf);
+          files.push(f);
+          content.push(textBlock(`State ${i + 1}: ${st.label}${st.error ? ` · STEP FAILED: ${st.error}` : ""}`), imageBlock(st.buf));
         }
       }
       const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
@@ -115,7 +138,7 @@ export function register(server, ctx) {
     "fitcheck_lint",
     {
       title: "Static slop and polish checks",
-      description: "Scans UI files for AI-slop tells and polish problems (purple gradients, emoji icons, filler copy, removed focus rings, transition-all, 100vh, fake stats…). Defaults to the files changed in this task.",
+      description: "Scans UI files for AI-slop tells and polish problems (purple gradients, emoji icons, filler copy, removed focus rings, transition-all, 100vh, fake stats…), and checks DESIGN.md against the code (colours, fonts, kit placeholders). Defaults to the files changed in this task.",
       inputSchema: { files: z.array(z.string()).optional() },
     },
     safe(async ({ files }) => {
@@ -127,7 +150,13 @@ export function register(server, ctx) {
       updateState((st) => {
         if (st.task) st.task.fitcheck.lintAt = new Date().toISOString();
       });
-      return text(`${list.length} file(s) checked.\n${formatIssues(issues, root)}`);
+      const doc = designDoc(root);
+      let drift = "";
+      if (doc) {
+        const d = designDrift(root, doc.file);
+        drift = d.issues.length ? `\n\n${doc.rel} vs the code (${d.files} style files, ${d.tokenCount} tokens):\n- ${d.issues.join("\n- ")}` : `\n\n${doc.rel} matches the code's colours and fonts.`;
+      }
+      return text(`${list.length} file(s) checked.\n${formatIssues(issues, root)}${drift}`);
     }),
   );
 

@@ -8,7 +8,7 @@ await build({
   bundle: true,
   platform: "node",
   format: "esm",
-  target: "node20",
+  target: "node22",
   legalComments: "none",
   // Some bundled CommonJS deps call require(); give the ESM bundle a real one.
   banner: { js: "import { createRequire as __dripRequire } from 'node:module'; const require = __dripRequire(import.meta.url);" },

@@ -1,7 +1,6 @@
 // PostToolUse (Write | Edit | MultiEdit): record UI changes (so the Stop hook can demand a fit check)
 // and run the static slop checks on the file that just changed.
 import path from "node:path";
-import { lintFiles } from "../mcp/src/modules/fitcheck/lint.mjs";
 import { allow, isUiFile, loadConfig, loadState, looksVisual, out, readInput, run, updateState } from "./lib.mjs";
 
 run(async () => {
@@ -25,6 +24,7 @@ run(async () => {
       st.task.lastUiWriteAt = now;
     }, dir);
 
+  const { lintFiles } = await import("../mcp/src/modules/fitcheck/lint.mjs"); // only when there is something to lint
   const issues = lintFiles([abs], dir).filter((i) => i.severity !== "info");
   const notes = [];
   if (issues.length) notes.push(`[Drip] Slop/polish checks on ${rel}:\n${issues.map((i) => `- ${i.severity} line ${i.line} [${i.id}${i.count > 1 ? ` x${i.count}` : ""}] ${i.message} -> ${i.fix}`).join("\n")}\nFix these now.`);

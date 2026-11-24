@@ -2,7 +2,11 @@
 // These are what make Drip enforce the designer loop instead of hoping Claude reads a skill.
 import { z } from "zod";
 import { listGuides, normalizeTopic, readGuide, subTopics } from "../core/guides.mjs";
-import { checklist, loadState, missingBeforeUi, newTask, updateState } from "../core/state.mjs";
+import { checklist, loadState, missingBeforeUi, newTask, otherTasks, updateState } from "../core/state.mjs";
+import { serveDir } from "../core/serve.mjs";
+import { warmBrowser } from "../core/browser.mjs";
+import { relevantSkills } from "../core/skills.mjs";
+import { getKey } from "../core/keys.mjs";
 import { text } from "../core/result.mjs";
 import { matchPacks } from "../core/packs.mjs";
 import fs from "node:fs";
@@ -144,13 +148,21 @@ export function register(server, ctx) {
       // Every required guide is short now, so all of them come inline: zero extra calls.
       const bodies = guides.map((x) => [x, readGuide(x)]).filter(([, b]) => b);
       for (const [x] of bodies) t.guidesRead.push(x);
+      const others = otherTasks();
+      if (["design", "logo", "board", "polish"].includes(m)) warmBrowser(ctx.config()); // ready before the first shot
+      const skills = relevantSkills(t);
+      const redesignUrl = /redesign|rework|refresh|revamp/i.test(task) ? (task.match(/\b(?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:io|com|dev|app|co|net|org|ai|so|xyz|design|studio)\b[^\s,)]*/i) || [])[0] : null;
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: new Date().toISOString(), endedBy: "new task" });
         st.task = t;
       });
       const config = ctx.config();
       return text(
-        `Drip task started: mode ${m}, ${s} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.\n` +
+        `Drip task started (task id ${t.id}): mode ${m}, ${s} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.\n` +
+          (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}). They are separate: never drip_end, edit or judge them.\n` : "") +
+          (skills.length ? `The workspace has its own rules for this: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them now (Skill tool, or Read the file); the critic judges against them too.\n` : "") +
+          (redesignUrl ? `Redesign of a live site: first refs_site({ urls: ["${redesignUrl}"], before: true }) to shoot the before and pull its logo, fonts and colours.\n` : "") +
+          (s === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "No photo keys yet (Unsplash/Pexels): if the page needs photos, ask the user to add one now (keys_open, free, 2 minutes); without them use images_search (openverse, wikimedia, cleveland for public-domain art), or gradient_mesh.\n" : "") +
           (m === "polish" ? "Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode \"design\".\n" : "") +
           `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x]) => x).join(", ")}.\n\n` +
           (s === "full" && config.gates.requireBrief ? `${INTAKE}\n\n` : "") +
@@ -167,19 +179,26 @@ export function register(server, ctx) {
       title: "Copy the base kit into the project",
       description:
         "Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, " +
-        "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" })",
+        "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" }). " +
+        "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills).",
       inputSchema: {
-        out: z.string().optional().describe("Path in the project (default styles/drip-base.css, or src/styles/drip-base.css when src/ exists)"),
+        template: z.enum(["base-css", "design-md", "comp", "brand-board"]).optional().describe("Default base-css"),
+        out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html)"),
         overwrite: z.boolean().optional(),
       },
     },
-    async ({ out, overwrite }) => {
+    async ({ template = "base-css", out, overwrite }) => {
       const root = projectDir();
-      const rel = out || (fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css");
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html" };
+      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html" };
+      const rel = out || DEF[template];
       const dest = path.resolve(root, rel);
       if (fs.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
       fs.mkdirSync(path.dirname(dest), { recursive: true });
-      fs.copyFileSync(path.join(kitDir, "base.css"), dest);
+      fs.copyFileSync(path.join(kitDir, SRC[template]), dest);
+      if (template === "design-md") return text(`Wrote ${rel}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
+      if (template === "comp") return text(`Wrote ${rel}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
+      if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +
           "Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then DESIGN.md and drip_mark system.",
@@ -257,6 +276,21 @@ export function register(server, ctx) {
       const { task } = loadState();
       if (!task) return text("No Drip task is active. Call drip_start with what you are designing.");
       return text(`${checklist(task, ctx.config())}\n\n${nextStep(task, ctx.config())}`);
+    },
+  );
+
+  server.registerTool(
+    "drip_serve",
+    {
+      title: "Preview a static build",
+      description:
+        "Serves a folder of plain HTML/CSS/JS on a free local port (no dev server, no port clashes) and returns the URL for fitcheck_shot, critic_prepare and the user. " +
+        "fitcheck_shot and critic_prepare also accept a local .html path directly. Example: drip_serve({ dir: \"site\" }) -> http://127.0.0.1:53121/",
+      inputSchema: { dir: z.string().optional().describe("Folder to serve (default: the project)") },
+    },
+    async ({ dir }) => {
+      const url = await serveDir(dir);
+      return text(`Serving ${dir || "the project"} at ${url}/ (stays up while this session runs).`);
     },
   );
 

@@ -1,0 +1,49 @@
+<!doctype html>
+<!-- Drip brand board template (board_brand fills the {{slots}}). 1600 x 1000, one screen:
+     the mark, the palette with roles and proportions, the type pair at real sizes, imagery, voice, do / don't.
+     Copy it and edit by hand if you like: it is plain HTML. -->
+<html>
+<head>
+<meta charset="utf-8">
+{{fontsLink}}
+<style>
+  :root { --display: {{displayFamily}}; --text: {{textFamily}}; --ink: {{ink}}; --ground: {{ground}}; --line: color-mix(in srgb, var(--ink) 14%, transparent); }
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1600px; height: 1000px; background: var(--ground); color: var(--ink); font: 400 16px/1.45 var(--text); }
+  .board { display: grid; grid-template-columns: 1.15fr 1fr 1fr; grid-template-rows: 1.2fr 1fr; gap: 16px; padding: 28px; height: 100%; }
+  .cell { border-radius: 14px; background: color-mix(in srgb, var(--ink) 4%, var(--ground)); padding: 22px; overflow: hidden; position: relative; }
+  .label { position: absolute; left: 22px; top: 16px; font-size: 13px; opacity: 0.6; }
+  .mark { display: grid; place-items: center; grid-row: span 1; }
+  .mark .logo { width: 70%; max-height: 62%; display: grid; place-items: center; }
+  .mark .logo svg, .mark .logo img { max-width: 100%; max-height: 260px; }
+  .mark .name { position: absolute; left: 22px; bottom: 18px; font: 700 28px/1 var(--display); letter-spacing: -0.02em; }
+  .mark .line { position: absolute; right: 22px; bottom: 20px; font-size: 14px; opacity: 0.7; max-width: 50%; text-align: right; }
+  .palette { display: flex; flex-direction: column; gap: 0; padding: 0; }
+  .palette .sw { display: flex; align-items: flex-end; justify-content: space-between; padding: 12px 18px; font-size: 13px; }
+  .palette .sw b { font-weight: 700; }
+  .type { display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; }
+  .type .aa { font: 700 150px/0.85 var(--display); letter-spacing: -0.04em; }
+  .type .head { font: 700 40px/1.05 var(--display); letter-spacing: -0.02em; }
+  .type .body { font: 400 18px/1.5 var(--text); max-width: 34ch; }
+  .type .meta { font-size: 13px; opacity: 0.65; }
+  .images { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 0; background: none; }
+  .images img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; display: block; }
+  .voice { display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+  .voice p { margin: 0; font: 600 24px/1.2 var(--display); letter-spacing: -0.01em; }
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-content: center; font-size: 15px; }
+  .rules h4 { margin: 0 0 8px; font-size: 13px; }
+  .rules ul { margin: 0; padding-left: 18px; }
+  .rules li { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+<div class="board">
+  <section class="cell mark" style="background: {{markGround}}; color: {{markInk}}"><span class="label">Mark</span><div class="logo">{{logo}}</div><div class="name">{{name}}</div><div class="line">{{tagline}}</div></section>
+  <section class="cell palette">{{swatches}}</section>
+  <section class="cell type"><span class="label">Type</span><div class="aa">Aa</div><div class="head">{{headline}}</div><div class="body">{{bodyCopy}}</div><div class="meta">{{typeMeta}}</div></section>
+  <section class="cell images">{{images}}</section>
+  <section class="cell voice"><span class="label">Voice</span>{{voice}}</section>
+  <section class="cell rules">{{rules}}</section>
+</div>
+</body>
+</html>

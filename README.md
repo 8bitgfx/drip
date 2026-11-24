@@ -12,6 +12,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/8bitgfx/drip/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/8bitgfx/drip/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-2340FF?style=flat-square&labelColor=0D0E12"></a>
   <a href="#quickstart"><img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude_Code-plugin-2340FF?style=flat-square&labelColor=0D0E12"></a>
   <img alt="Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2F8bitgfx%2Fdrip%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&color=2340FF&labelColor=0D0E12&style=flat-square">
@@ -119,7 +120,7 @@ flowchart TD
 ## Requirements
 
 - Claude Code with plugin support
-- Node.js 20+
+- Node.js 22+
 - Chrome or Edge, for screenshots and previews (optional but strongly recommended)
 - No API keys for the core. Optional keys: OpenAI or Gemini (image generation), Unsplash or Pexels (better photo search)
 
@@ -160,7 +161,7 @@ Your own slop rules, component registries and image providers: [docs/CUSTOMISE.m
 First check `/mcp` in Claude Code: `plugin:drip:drip` should be **connected**.
 
 > [!WARNING]
-> If the Drip log says `'node' is not recognized`, install Node.js 20+ so `node` is on the system PATH, then fully quit and reopen the Claude app.
+> If the Drip log says `'node' is not recognized`, install Node.js 22+ so `node` is on the system PATH, then fully quit and reopen the Claude app.
 
 Rate limits, tool loading, blocked writes and more: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 

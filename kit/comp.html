@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- Drip comp template: one direction's FIRST VIEWPORT at 1440 x 1000, for board_directions / board_tile
+     custom comps. Copy to .drip/comps/<direction>.html (never gated), set the fonts, colours, headline and
+     picture, then board_tile({ custom: [{ direction: "Name", file: ".drip/comps/name.html" }] }).
+     Real sizes: the h1 is the Display role (~127px at 1440). The picture slot shows the real thing. -->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: "Fraunces", serif;   /* the direction's display face */
+    --font-text: "Inter", sans-serif;    /* its text face */
+    --ground: #f3efe6; --ink: #141414; --accent: #2340ff; --on-accent: #fff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1440px; height: 1000px; overflow: hidden; background: var(--ground); color: var(--ink); font: 400 18px/1.55 var(--font-text); }
+  nav { height: 88px; display: flex; align-items: center; justify-content: space-between; padding: 0 64px; font-size: 15px; }
+  nav .brand { font: 700 22px/1 var(--font-display); letter-spacing: -0.02em; }
+  nav .links { display: flex; gap: 32px; }
+  .hero { display: grid; grid-template-columns: repeat(12, 1fr); gap: 32px; padding: 0 64px; height: 912px; align-items: end; padding-bottom: 64px; }
+  .copy { grid-column: 1 / 7; }
+  h1 { font: 700 127px/0.95 var(--font-display); letter-spacing: -0.04em; margin: 0 0 32px; max-width: 12ch; }
+  .lead { font-size: 21px; line-height: 1.45; max-width: 36ch; margin: 0 0 32px; }
+  .button { display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 600; text-decoration: none; }
+  .picture { grid-column: 7 / 13; align-self: stretch; margin-top: 24px; border-radius: 16px; overflow: hidden; background: #d9d3c7; display: grid; place-items: center; }
+  .picture img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .picture .slot { font-size: 15px; opacity: 0.6; padding: 24px; text-align: center; }
+</style>
+</head>
+<body>
+  <nav><span class="brand">Studio</span><span class="links"><span>Work</span><span>About</span><span>Contact</span></span></nav>
+  <main class="hero">
+    <div class="copy">
+      <h1>The headline, at full size</h1>
+      <p class="lead">One sentence that says what this is and who it is for.</p>
+      <a class="button" href="#">The one action</a>
+    </div>
+    <!-- Replace with <img src="../../public/img/hero-desktop.webp"> or a built visual -->
+    <div class="picture"><div class="slot">Picture: the real work / product / photo, at this size</div></div>
+  </main>
+</body>
+</html>

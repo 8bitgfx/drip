@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint, build, test (${{ matrix.os }}, node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 22
+          - os: ubuntu-latest
+            node: 24
+          - os: windows-latest
+            node: 22
+    defaults:
+      run:
+        working-directory: mcp
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: mcp/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint (server, tests, hooks)
+        run: npm run lint
+
+      - name: Build the bundle
+        run: npm run build
+
+      - name: The committed bundle is up to date
+        if: runner.os == 'Linux' && matrix.node == 22
+        run: git diff --exit-code -- dist/drip-mcp.mjs || (echo "::error::mcp/dist/drip-mcp.mjs is stale. Run 'npm run build' in mcp/ and commit it." && exit 1)
+
+      - name: Tests (unit, hooks, skills, browser tools in headless Chrome)
+        run: npm test
+
+  plugin:
+    name: plugin manifest and skills
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Manifests parse and versions agree
+        run: |
+          node -e '
+            const fs = require("fs");
+            const plugin = JSON.parse(fs.readFileSync(".claude-plugin/plugin.json", "utf8"));
+            const pkg = JSON.parse(fs.readFileSync("mcp/package.json", "utf8"));
+            const src = fs.readFileSync("mcp/src/index.mjs", "utf8");
+            const v = (src.match(/const VERSION = "([^"]+)"/) || [])[1];
+            JSON.parse(fs.readFileSync("hooks/hooks.json", "utf8"));
+            if (fs.existsSync(".claude-plugin/marketplace.json")) JSON.parse(fs.readFileSync(".claude-plugin/marketplace.json", "utf8"));
+            if (plugin.version !== pkg.version || pkg.version !== v) { console.error(`version mismatch: plugin ${plugin.version}, package ${pkg.version}, server ${v}`); process.exit(1); }
+            console.log("drip", plugin.version, "ok");
+          '

@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { fetchImage, imageBlock, toJpeg } from "../../core/images.mjs";
 import { getKey, keyStatus, logUsage } from "../../core/keys.mjs";
-import { ensureProjectDrip, homeDripDir, projectDir, projectDripDir, ensureDir } from "../../core/paths.mjs";
+import { ensureProjectDrip, homeDripDir, projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import gemini from "./providers/gemini.mjs";
 import openai from "./providers/openai.mjs";
@@ -28,7 +28,7 @@ async function providers() {
   return list;
 }
 
-const KEY_NAMES = ["openai", "gemini", "unsplash", "pexels", "openverse"];
+const KEY_NAMES = ["openai", "gemini", "unsplash", "pexels", "pixabay", "openverse"];
 
 export function register(server, ctx) {
   server.registerTool(

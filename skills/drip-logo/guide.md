@@ -108,8 +108,12 @@ Where strokes meet, thin them so the joint doesn't clot. Gaps and strokes never 
   S-curve that pinches → bulb arc, the tangent vertical where neck meets bulb. Rect + circle + a goo blur looks
   cheap and isn't a vector. A straight tapered neck meeting a vertical bulb tangent kinks visibly at large sizes.
   Thin drips read as legs (the octopus problem). Details in `drip_guide logo/construction`.
-- **Optical centring.** Drips, tails and descenders add weight at one edge. Centre the full bounding box in the
-  icon frame first, then nudge by eye towards the heavy side's opposite until it sits, and check at 32px.
+- **Optical centring: centre the body, not the box.** The centre of a mark is where a viewer puts it. A box
+  with drips hanging off it is centred on the box; the drips are details. Drips, tails, sparkles, antennae and
+  descenders stretch the bounding box without moving the eye's centre, so centring the box hangs the body high or
+  shoves it sideways. Run `optical_center` on the mark: it strips the thin parts and returns the body's centre,
+  the offset to apply in a frame, and the `transform-origin` for animating it. Centre the body in the icon frame,
+  align lockup text to the body's edges, lift it 1-3% (centred shapes read low), and check at 32px.
 
 ### Wordmarks: chosen, then made
 

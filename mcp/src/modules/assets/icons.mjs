@@ -44,18 +44,22 @@ export function register(server, ctx) {
       inputSchema: { icons: z.array(z.string()).min(1).max(40), size: z.number().int().optional(), dir: z.string().optional().describe("Project folder to save .svg files into") },
     },
     safe(async ({ icons, size, dir }) => {
-      const out = [];
-      for (const name of icons) {
-        const [prefix, icon] = name.split(":");
-        const { body } = await get(`${API}/${prefix}/${icon}.svg${size ? `?height=${size}` : ""}`, { ttlMs: 30 * 24 * 3600e3 });
-        if (dir) {
-          const target = path.resolve(projectDir(), dir, `${icon}.svg`);
-          fs.mkdirSync(path.dirname(target), { recursive: true });
-          fs.writeFileSync(target, body);
-        }
-        out.push(`${name}:\n${body}`);
-      }
-      return text(`${dir ? `Saved to ${dir}\n\n` : ""}${out.join("\n\n")}`);
+      const out = await Promise.all(
+        icons.map(async (name) => {
+          const [prefix, icon] = name.split(":");
+          const { body } = await get(`${API}/${prefix}/${icon}.svg${size ? `?height=${size}` : ""}`, { ttlMs: 30 * 24 * 3600e3 });
+          if (dir) {
+            const target = path.resolve(projectDir(), dir, `${icon}.svg`);
+            fs.mkdirSync(path.dirname(target), { recursive: true });
+            fs.writeFileSync(target, body);
+            return `${name} -> ${path.join(dir, `${icon}.svg`)}`;
+          }
+          return `${name}:\n${body}`;
+        }),
+      );
+      // Saved files are not echoed back: that is just tokens.
+      if (dir) return text(`Saved ${out.length} icon(s) to ${dir} (currentColor):\n${out.join("\n")}`);
+      return text(out.join("\n\n"));
     }),
   );
 }

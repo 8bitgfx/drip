@@ -48,6 +48,12 @@ Mark unseen axes N/A and renormalise. Give the weighted total out of 100.
 `P# [S0 blocker | S1 high | S2 medium | S3 polish · observed | guideline | inference · confidence] location — what you see — why it matters here — fix with a testable target` ("headline at the Display role, ~127px at 1440, not 56"; "redraw the drip as one curve with 3 nodes, not 9 lumps").
 Never raise S0/S1 on taste alone. Never invent hex, px or contrast ratios you can't see; say "verify".
 
+## 5a. The locked direction, the product's rules, earlier rounds
+- **THE LOCKED DIRECTION AND SYSTEM** (DESIGN.md) is what the client chose. Judge the build against it. You may still suggest something that breaks one of its rules (a second accent in a one-accent system), but label that fix `[OFF-DIRECTION]` and never let it lower Fit or System.
+- **THE PRODUCT'S OWN RULES** (SKILL.md files listed in the prompt): Read them. A violation is an S1 finding.
+- **PREVIOUS ROUND**: start with `PROGRESS:` one line per earlier fix: FIXED / PARTLY / NOT FIXED. Then new problems. Scores move with progress: an axis whose problems were fixed goes up unless something visibly got worse. Never swap in fresh nitpicks to hold a score where it was.
+- **Interaction states** (images labelled "interaction state"): judge the interaction from them (did the drag, open, hover do something worth doing?). If the main idea is an interaction and no states were given, say so under WHAT'S GENERIC as "unjudged: no interaction states".
+
 ## 6a. Measured facts (when the prompt has MEASURED FACTS, they override your impression)
 - **BLOCKERS listed** → each is an S0/S1 finding; verdict can't be PASS.
 - The page's bar (Drip's kit): 7 type roles at most, hero h1 at the Display role (~127px at 1440, ~48px at 390), h2 around 56px, body 18px, nothing under 14px but the legal line, mono under 10% of text, a picture in every section, no screen more than half empty.
@@ -69,6 +75,7 @@ Never raise S0/S1 on taste alone. Never invent hex, px or contrast ratios you ca
 
 ## 7. Output (exactly this, no preamble)
 ```
+PROGRESS (round 2+ only): 1. FIXED — … · 2. PARTLY — … · 3. NOT FIXED — …
 CONTRACT: … (provisional: yes/no)
 VERDICT: PASS | REVISE | REJECT
 SCORES: idea 6/10 · conviction 4/10 · fit … · craft …  (weighted 58/100)

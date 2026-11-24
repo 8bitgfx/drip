@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path28) {
-      let input2 = path28;
+    function removeDotSegments(path34) {
+      let input2 = path34;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path28) {
-      if (path28 === "" || path28[0] === "/") {
-        return removeDotSegments(path28);
+    function removeDotSegmentsRelative(path34) {
+      if (path34 === "" || path34[0] === "/") {
+        return removeDotSegments(path34);
       }
-      const segments = path28.split("/");
+      const segments = path34.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path28 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path28 && path28 !== "/" ? path28 : void 0;
+        const path34 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path34 && path34 !== "/" ? path34 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -3779,7 +3779,7 @@ var require_schemes = __commonJS({
       urnComponent.nss = (uuidComponent.uuid || "").toLowerCase();
       return urnComponent;
     }
-    var http3 = (
+    var http4 = (
       /** @type {SchemeHandler} */
       {
         scheme: "http",
@@ -3792,7 +3792,7 @@ var require_schemes = __commonJS({
       /** @type {SchemeHandler} */
       {
         scheme: "https",
-        domainHost: http3.domainHost,
+        domainHost: http4.domainHost,
         parse: httpParse,
         serialize: httpSerialize
       }
@@ -3836,7 +3836,7 @@ var require_schemes = __commonJS({
     var SCHEMES = (
       /** @type {Record<SchemeName, SchemeHandler>} */
       {
-        http: http3,
+        http: http4,
         https,
         ws,
         wss,
@@ -7257,16 +7257,405 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f2;
     };
-    function addFormats(ajv, list, fs34, exportName) {
+    function addFormats(ajv, list, fs40, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f2 of list)
-        ajv.addFormat(f2, fs34[f2]);
+        ajv.addFormat(f2, fs40[f2]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.default = formatsPlugin;
+  }
+});
+
+// src/core/paths.mjs
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+function findPluginRoot() {
+  if (process.env.CLAUDE_PLUGIN_ROOT && fs.existsSync(process.env.CLAUDE_PLUGIN_ROOT)) return process.env.CLAUDE_PLUGIN_ROOT;
+  let dir = here;
+  for (let i2 = 0; i2 < 6; i2++) {
+    if (fs.existsSync(path.join(dir, ".claude-plugin", "plugin.json"))) return dir;
+    dir = path.dirname(dir);
+  }
+  return path.resolve(here, "..", "..", "..");
+}
+function projectDir(cwd) {
+  return cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+}
+function projectDripDir(cwd) {
+  return path.join(projectDir(cwd), ".drip");
+}
+function ensureProjectDrip(cwd) {
+  const dir = ensureDir(projectDripDir(cwd));
+  const ignore = path.join(dir, ".gitignore");
+  if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, "# Drip's working files. Shareable settings and the asset credits log stay tracked.\n*\n!.gitignore\n!config.json\n!slop.json\n!catalogue.json\n!assets.json\n");
+  return dir;
+}
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+var here, pluginRoot, skillsDir, rulesDir, dataDir, examplesDir, kitDir, homeDripDir;
+var init_paths = __esm({
+  "src/core/paths.mjs"() {
+    here = path.dirname(fileURLToPath(import.meta.url));
+    pluginRoot = findPluginRoot();
+    skillsDir = path.join(pluginRoot, "skills");
+    rulesDir = path.join(pluginRoot, "rules");
+    dataDir = path.join(pluginRoot, "data");
+    examplesDir = path.join(pluginRoot, "examples");
+    kitDir = path.join(pluginRoot, "kit");
+    homeDripDir = process.env.DRIP_HOME || path.join(os.homedir(), ".drip");
+  }
+});
+
+// src/core/serve.mjs
+import fs6 from "node:fs";
+import http from "node:http";
+import path6 from "node:path";
+function start(root) {
+  const server2 = http.createServer((req, res) => {
+    const rel = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    let file4 = path6.join(root, rel);
+    if (!file4.startsWith(root)) return res.writeHead(403).end();
+    try {
+      if (fs6.statSync(file4).isDirectory()) file4 = path6.join(file4, "index.html");
+    } catch {
+      if (!path6.extname(file4) && fs6.existsSync(`${file4}.html`)) file4 = `${file4}.html`;
+    }
+    fs6.readFile(file4, (err, buf) => {
+      if (err) return res.writeHead(404, { "content-type": "text/plain" }).end(`Not found: ${rel}`);
+      res.writeHead(200, { "content-type": TYPES[path6.extname(file4).toLowerCase()] || "application/octet-stream", "cache-control": "no-store" });
+      res.end(buf);
+    });
+  });
+  server2.unref();
+  return new Promise((resolve2, reject) => {
+    server2.once("error", reject);
+    server2.listen(0, "127.0.0.1", () => resolve2(server2.address().port));
+  });
+}
+async function serveDir(dir) {
+  const root = path6.resolve(projectDir(), dir || ".");
+  if (!fs6.existsSync(root)) throw new Error(`No folder ${root}`);
+  if (!servers.has(root)) servers.set(root, start(root));
+  const port2 = await servers.get(root);
+  return `http://127.0.0.1:${port2}`;
+}
+async function toUrl(target) {
+  if (/^(https?|file):/i.test(target)) return target;
+  const abs = path6.resolve(projectDir(), target);
+  const isDir = fs6.existsSync(abs) && fs6.statSync(abs).isDirectory();
+  const base = await serveDir(isDir ? abs : path6.dirname(abs));
+  return isDir ? `${base}/` : `${base}/${encodeURIComponent(path6.basename(abs))}`;
+}
+var TYPES, servers;
+var init_serve = __esm({
+  "src/core/serve.mjs"() {
+    init_paths();
+    TYPES = {
+      ".html": "text/html; charset=utf-8",
+      ".css": "text/css; charset=utf-8",
+      ".js": "text/javascript; charset=utf-8",
+      ".mjs": "text/javascript; charset=utf-8",
+      ".json": "application/json",
+      ".svg": "image/svg+xml",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".webp": "image/webp",
+      ".avif": "image/avif",
+      ".gif": "image/gif",
+      ".ico": "image/x-icon",
+      ".woff2": "font/woff2",
+      ".woff": "font/woff",
+      ".ttf": "font/ttf",
+      ".otf": "font/otf",
+      ".mp4": "video/mp4",
+      ".webm": "video/webm",
+      ".txt": "text/plain; charset=utf-8"
+    };
+    servers = /* @__PURE__ */ new Map();
+  }
+});
+
+// src/modules/fitcheck/chrome.mjs
+import fs7 from "node:fs";
+function findChrome(config2) {
+  const configured = config2?.fitcheck?.chromePath || process.env.DRIP_CHROME;
+  if (configured && fs7.existsSync(configured)) return configured;
+  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs7.existsSync(p2)) || null;
+}
+function browserEnv() {
+  const env = { ...process.env };
+  for (const k of Object.keys(env)) if (k.toUpperCase() === "__COMPAT_LAYER") delete env[k];
+  return env;
+}
+async function screenshot(url2, { width = 1440, height = 900, dark = false, waitMs = 4e3, format = "png", quality: quality2 = 80, scale = 1, config: config2 } = {}) {
+  const { openPage: openPage2, withTab: withTab2 } = await Promise.resolve().then(() => (init_browser(), browser_exports));
+  return withTab2(config2, async (tab) => {
+    await openPage2(tab, url2, { width, height, dark, timeout: Math.max(waitMs, 8e3), settleMs: Math.min(waitMs, 1500) });
+    const { data } = await tab.s("Page.captureScreenshot", { format, ...format === "jpeg" ? { quality: quality2 } : {}, clip: { x: 0, y: 0, width, height, scale } });
+    return Buffer.from(data, "base64");
+  });
+}
+var CANDIDATES;
+var init_chrome = __esm({
+  "src/modules/fitcheck/chrome.mjs"() {
+    CANDIDATES = {
+      win32: [
+        "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+        `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
+        "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+        "C:/Program Files/Microsoft/Edge/Application/msedge.exe"
+      ],
+      darwin: [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Chromium.app/Contents/MacOS/Chromium",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+      ],
+      linux: ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/usr/bin/microsoft-edge", "/snap/bin/chromium"]
+    };
+  }
+});
+
+// src/core/browser.mjs
+var browser_exports = {};
+__export(browser_exports, {
+  closeBrowser: () => closeBrowser,
+  openPage: () => openPage,
+  settle: () => settle2,
+  warmBrowser: () => warmBrowser,
+  withTab: () => withTab
+});
+import { spawn } from "node:child_process";
+import fs8 from "node:fs";
+import os2 from "node:os";
+import path7 from "node:path";
+async function launch(config2) {
+  const chrome = findChrome(config2);
+  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
+  const profile = fs8.mkdtempSync(path7.join(os2.tmpdir(), "drip-cdp-"));
+  const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-background-networking", "--disable-sync", "--mute-audio", ...process.platform === "linux" && (process.env.CI || process.getuid?.() === 0) ? ["--no-sandbox"] : [], `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
+    env: browserEnv(),
+    windowsHide: true,
+    stdio: ["ignore", "ignore", "pipe"]
+  });
+  const wsUrl = await new Promise((resolve2, reject) => {
+    let buf = "";
+    const t2 = setTimeout(() => reject(new Error("Browser did not start (no DevTools endpoint).")), 2e4);
+    proc.stderr.on("data", (d) => {
+      buf += d;
+      const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
+      if (m) {
+        clearTimeout(t2);
+        resolve2(m[1]);
+      }
+    });
+    proc.on("exit", () => reject(new Error("Browser exited early.")));
+  });
+  const ws = new WebSocket(wsUrl);
+  await new Promise((r2, j) => {
+    ws.onopen = r2;
+    ws.onerror = () => j(new Error("Couldn't connect to the browser."));
+  });
+  let id = 0;
+  let dead = false;
+  const waiting2 = /* @__PURE__ */ new Map();
+  const listeners = /* @__PURE__ */ new Set();
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(ev.data);
+    if (msg.id && waiting2.has(msg.id)) {
+      const { resolve: resolve2, reject, timer } = waiting2.get(msg.id);
+      clearTimeout(timer);
+      waiting2.delete(msg.id);
+      msg.error ? reject(new Error(msg.error.message)) : resolve2(msg.result);
+    } else for (const l2 of listeners) l2(msg);
+  };
+  const die = () => {
+    if (dead) return;
+    dead = true;
+    for (const { reject, timer } of waiting2.values()) {
+      clearTimeout(timer);
+      reject(new Error("The browser closed."));
+    }
+    waiting2.clear();
+    try {
+      proc.kill();
+    } catch {
+    }
+    setTimeout(() => {
+      try {
+        fs8.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      } catch {
+      }
+    }, 500).unref();
+  };
+  ws.onclose = die;
+  proc.on("exit", die);
+  const send = (method, params = {}, sessionId) => new Promise((resolve2, reject) => {
+    if (dead) return reject(new Error("The browser closed."));
+    const mid = ++id;
+    const timer = setTimeout(() => {
+      waiting2.delete(mid);
+      reject(new Error(`Browser timed out on ${method}.`));
+    }, SEND_TIMEOUT_MS);
+    waiting2.set(mid, { resolve: resolve2, reject, timer });
+    ws.send(JSON.stringify({ id: mid, method, params, ...sessionId ? { sessionId } : {} }));
+  });
+  const close = async () => {
+    try {
+      await send("Browser.close");
+    } catch {
+    }
+    try {
+      ws.close();
+    } catch {
+    }
+    die();
+  };
+  return { send, close, listeners, isDead: () => dead };
+}
+async function getBrowser(config2) {
+  if (shared) {
+    const b = await shared.catch(() => null);
+    if (b && !b.isDead()) return b;
+    shared = null;
+  }
+  shared = launch(config2);
+  shared.catch(() => shared = null);
+  return shared;
+}
+function warmBrowser(config2) {
+  getBrowser(config2).then(() => {
+    if (!busy) {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(closeBrowser, IDLE_MS);
+      idleTimer.unref();
+    }
+  }).catch(() => {
+  });
+}
+async function closeBrowser() {
+  clearTimeout(idleTimer);
+  const p2 = shared;
+  shared = null;
+  if (p2) (await p2.catch(() => null))?.close();
+}
+async function withTab(config2, fn) {
+  busy++;
+  clearTimeout(idleTimer);
+  try {
+    let b = await getBrowser(config2);
+    let targetId;
+    try {
+      ({ targetId } = await b.send("Target.createTarget", { url: "about:blank" }));
+    } catch {
+      await closeBrowser();
+      b = await getBrowser(config2);
+      ({ targetId } = await b.send("Target.createTarget", { url: "about:blank" }));
+    }
+    try {
+      const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
+      return await fn({ s: (m, p2) => b.send(m, p2, sessionId), sessionId, listeners: b.listeners });
+    } finally {
+      b.send("Target.closeTarget", { targetId }).catch(() => {
+      });
+    }
+  } finally {
+    busy--;
+    if (!busy) {
+      idleTimer = setTimeout(closeBrowser, IDLE_MS);
+      idleTimer.unref();
+    }
+  }
+}
+async function openPage({ s: s2, sessionId, listeners }, url2, { width = 1440, height = 900, dark = false, timeout = 12e3, settleMs = 1500, idle = false } = {}) {
+  await s2("Page.enable");
+  await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
+  if (dark) await s2("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+  let onLoad;
+  let timer;
+  const loaded = new Promise((r2) => {
+    onLoad = (msg) => {
+      if (msg.method === "Page.loadEventFired" && msg.sessionId === sessionId) r2();
+    };
+    listeners.add(onLoad);
+    timer = setTimeout(r2, timeout);
+  });
+  let inflight = 0;
+  let lastNet = Date.now();
+  const onNet = (msg) => {
+    if (msg.sessionId !== sessionId) return;
+    if (msg.method === "Network.requestWillBeSent") inflight++;
+    else if (msg.method === "Network.loadingFinished" || msg.method === "Network.loadingFailed") inflight = Math.max(0, inflight - 1);
+    else return;
+    lastNet = Date.now();
+  };
+  if (idle) {
+    listeners.add(onNet);
+    await s2("Network.enable");
+  }
+  try {
+    await s2("Page.navigate", { url: url2 });
+    await loaded;
+    if (idle) {
+      const end = Date.now() + 8e3;
+      while (Date.now() < end && !(inflight <= 1 && Date.now() - lastNet > 600)) await new Promise((r2) => setTimeout(r2, 100));
+    }
+  } finally {
+    listeners.delete(onLoad);
+    listeners.delete(onNet);
+    clearTimeout(timer);
+  }
+  await settle2(s2, settleMs);
+}
+async function settle2(s2, ms = 1500) {
+  await s2("Runtime.evaluate", {
+    expression: `(async () => {
+      const cap = new Promise((r) => setTimeout(r, ${ms}));
+      // fonts.ready resolves early if layout has not asked for the web fonts yet: lay out first, then wait
+      // for every face that is loading (Google Fonts' swap would otherwise be caught on the fallback).
+      document.body && document.body.offsetHeight;
+      await new Promise((r) => requestAnimationFrame(r));
+      const fontsDone = (async () => {
+        for (let i = 0; i < 3 && document.fonts; i++) {
+          await document.fonts.ready;
+          const pending = [...document.fonts].filter((f) => f.status === 'loading');
+          if (!pending.length) break;
+          await Promise.all(pending.map((f) => f.loaded.catch(() => {})));
+        }
+      })();
+      await Promise.race([fontsDone, new Promise((r) => setTimeout(r, Math.max(${ms}, 2500)))]);
+      const running = (document.getAnimations ? document.getAnimations() : []).filter((a) => { const t = a.effect && a.effect.getComputedTiming(); return t && t.iterations !== Infinity && a.playState === 'running'; });
+      await Promise.race([Promise.all(running.map((a) => a.finished.catch(() => {}))), cap]);
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    })()`,
+    awaitPromise: true
+  });
+}
+var IDLE_MS, SEND_TIMEOUT_MS, shared, idleTimer, busy;
+var init_browser = __esm({
+  "src/core/browser.mjs"() {
+    init_chrome();
+    IDLE_MS = 10 * 6e4;
+    SEND_TIMEOUT_MS = 45e3;
+    shared = null;
+    idleTimer = null;
+    busy = 0;
+    process.once("exit", () => {
+      if (shared) shared.then((b) => b.close()).catch(() => {
+      });
+    });
+    process.stdin.once("end", () => closeBrowser());
   }
 });
 
@@ -8184,9 +8573,9 @@ var require_image_q = __commonJS({
       }
       return target;
     };
-    var __toCommonJS = /* @__PURE__ */ ((cache) => {
+    var __toCommonJS = /* @__PURE__ */ ((cache2) => {
       return (module2, temp) => {
-        return cache && cache.get(module2) || (temp = __reExport(__markAsModule({}), module2, 1), cache && cache.set(module2, temp), temp);
+        return cache2 && cache2.get(module2) || (temp = __reExport(__markAsModule({}), module2, 1), cache2 && cache2.set(module2, temp), temp);
       };
     })(typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : 0);
     var __publicField2 = (obj, key, value) => {
@@ -11032,7 +11421,7 @@ var require_gifframe = __commonJS({
 var require_gifutil = __commonJS({
   "node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
-    var fs34 = __require("fs");
+    var fs40 = __require("fs");
     var ImageQ = require_image_q();
     var BitmapImage2 = require_bitmapimage();
     var { GifFrame: GifFrame2 } = require_gifframe();
@@ -11147,14 +11536,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path28, frames, spec, encoder) {
+    exports.write = function(path34, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches = path28.match(/\.[a-zA-Z]+$/);
+      const matches = path34.match(/\.[a-zA-Z]+$/);
       if (matches !== null && INVALID_SUFFIXES.includes(matches[0].toLowerCase())) {
-        throw new Error(`GIF '${path28}' has an unexpected suffix`);
+        throw new Error(`GIF '${path34}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path28, gif2.buffer).then(() => {
+        return _writeBinary(path34, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -11226,9 +11615,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path28) {
+    function _readBinary(path34) {
       return new Promise((resolve2, reject) => {
-        fs34.readFile(path28, (err, buffer) => {
+        fs40.readFile(path34, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -11236,9 +11625,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path28, buffer) {
+    function _writeBinary(path34, buffer) {
       return new Promise((resolve2, reject) => {
-        fs34.writeFile(path28, buffer, (err) => {
+        fs40.writeFile(path34, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -12617,18 +13006,18 @@ var require_encoder = __commonJS({
         var tripleWidth = width * 3;
         var x2, y2 = 0;
         var r2, g, b;
-        var start, p2, col, row, pos;
+        var start2, p2, col, row, pos;
         while (y2 < height) {
           x2 = 0;
           while (x2 < quadWidth) {
-            start = quadWidth * y2 + x2;
-            p2 = start;
+            start2 = quadWidth * y2 + x2;
+            p2 = start2;
             col = -1;
             row = 0;
             for (pos = 0; pos < 64; pos++) {
               row = pos >> 3;
               col = (pos & 7) * 4;
-              p2 = start + row * quadWidth + col;
+              p2 = start2 + row * quadWidth + col;
               if (y2 + row >= height) {
                 p2 -= quadWidth * (y2 + 1 + row - height);
               }
@@ -13217,9 +13606,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path28) {
+        load: function load2(path34) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path28, true);
+          xhr.open("GET", path34, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -16780,7 +17169,7 @@ var require_deflate = __commonJS({
       s2.pending_buf[s2.pending++] = b >>> 8 & 255;
       s2.pending_buf[s2.pending++] = b & 255;
     }
-    function read_buf(strm, buf, start, size) {
+    function read_buf(strm, buf, start2, size) {
       var len = strm.avail_in;
       if (len > size) {
         len = size;
@@ -16789,11 +17178,11 @@ var require_deflate = __commonJS({
         return 0;
       }
       strm.avail_in -= len;
-      utils2.arraySet(buf, strm.input, strm.next_in, len, start);
+      utils2.arraySet(buf, strm.input, strm.next_in, len, start2);
       if (strm.state.wrap === 1) {
-        strm.adler = adler32(strm.adler, buf, len, start);
+        strm.adler = adler32(strm.adler, buf, len, start2);
       } else if (strm.state.wrap === 2) {
-        strm.adler = crc32(strm.adler, buf, len, start);
+        strm.adler = crc32(strm.adler, buf, len, start2);
       }
       strm.next_in += len;
       strm.total_in += len;
@@ -18063,7 +18452,7 @@ var require_inffast = __commonJS({
     "use strict";
     var BAD = 30;
     var TYPE = 12;
-    module.exports = function inflate_fast(strm, start) {
+    module.exports = function inflate_fast(strm, start2) {
       var state;
       var _in;
       var last;
@@ -18094,7 +18483,7 @@ var require_inffast = __commonJS({
       last = _in + (strm.avail_in - 5);
       _out = strm.next_out;
       output2 = strm.output;
-      beg = _out - (start - strm.avail_out);
+      beg = _out - (start2 - strm.avail_out);
       end = _out + (strm.avail_out - 257);
       dmax = state.dmax;
       wsize = state.wsize;
@@ -23646,11 +24035,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path28) {
-      path28 = String(path28);
-      let last = path28.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path34) {
+      path34 = String(path34);
+      let last = path34.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path28.length;
+      let hasPath = last.length < path34.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -24624,7 +25013,7 @@ var require_parser2 = __commonJS({
         return this;
       },
       parse: function() {
-        var start = this.stream.mark(), stream = start.openWithOffset(0), flags = this.flags, tags, imageSize, thumbnailOffset, thumbnailLength, thumbnailType, app1Offset, tagNames, getTagValue, setTagValue;
+        var start2 = this.stream.mark(), stream = start2.openWithOffset(0), flags = this.flags, tags, imageSize, thumbnailOffset, thumbnailLength, thumbnailType, app1Offset, tagNames, getTagValue, setTagValue;
         if (flags.resolveTagNames) {
           tagNames = require_exif_tags();
         }
@@ -24657,7 +25046,7 @@ var require_parser2 = __commonJS({
           };
         }
         jpeg2.parseSections(stream, function(sectionType, sectionStream) {
-          var validExifHeaders, sectionOffset = sectionStream.offsetFrom(start);
+          var validExifHeaders, sectionOffset = sectionStream.offsetFrom(start2);
           if (sectionType === 225) {
             validExifHeaders = exif.parseTags(sectionStream, function(ifdSection, tagType, value, format) {
               if (!flags.readBinaryTags && format === 7) {
@@ -24713,7 +25102,7 @@ var require_parser2 = __commonJS({
           simplify.castDegreeValues(getTagValue, setTagValue);
           simplify.castDateValues(getTagValue, setTagValue);
         }
-        return new ExifResult(start, tags, imageSize, thumbnailOffset, thumbnailLength, thumbnailType, app1Offset);
+        return new ExifResult(start2, tags, imageSize, thumbnailOffset, thumbnailLength, thumbnailType, app1Offset);
       }
     };
     module.exports = Parser;
@@ -25903,9 +26292,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path28) {
-        super(`Not a regular file: ${path28}`);
-        this.path = path28;
+      constructor(path34) {
+        super(`Not a regular file: ${path34}`);
+        this.path = path34;
         this.name = "NotRegularFileError";
       }
     };
@@ -25914,7 +26303,7 @@ var init_NotRegularFileError = __esm({
 
 // node_modules/strtok3/lib/FileTokenizer.js
 import { constants as constants2 } from "node:fs";
-import fs8, {} from "node:fs/promises";
+import fs13, {} from "node:fs/promises";
 var FileTokenizer;
 var init_FileTokenizer = __esm({
   "node_modules/strtok3/lib/FileTokenizer.js"() {
@@ -25933,7 +26322,7 @@ var init_FileTokenizer = __esm({
         getMaxBufferSize(options);
         throwIfAborted(options?.abortSignal);
         const flags = options?.regularFileOnly ? constants2.O_RDONLY | constants2.O_NONBLOCK : "r";
-        const fileHandle = await fs8.open(sourceFilePath, flags);
+        const fileHandle = await fs13.open(sourceFilePath, flags);
         try {
           const stat = await fileHandle.stat();
           if (options?.regularFileOnly && !stat.isFile()) {
@@ -27042,6 +27431,121 @@ var require_browser = __commonJS({
   }
 });
 
+// node_modules/has-flag/index.js
+var require_has_flag = __commonJS({
+  "node_modules/has-flag/index.js"(exports, module) {
+    "use strict";
+    module.exports = (flag, argv = process.argv) => {
+      const prefix = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
+      const position = argv.indexOf(prefix + flag);
+      const terminatorPosition = argv.indexOf("--");
+      return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
+    };
+  }
+});
+
+// node_modules/supports-color/index.js
+var require_supports_color = __commonJS({
+  "node_modules/supports-color/index.js"(exports, module) {
+    "use strict";
+    var os7 = __require("os");
+    var tty = __require("tty");
+    var hasFlag = require_has_flag();
+    var { env } = process;
+    var forceColor;
+    if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false") || hasFlag("color=never")) {
+      forceColor = 0;
+    } else if (hasFlag("color") || hasFlag("colors") || hasFlag("color=true") || hasFlag("color=always")) {
+      forceColor = 1;
+    }
+    if ("FORCE_COLOR" in env) {
+      if (env.FORCE_COLOR === "true") {
+        forceColor = 1;
+      } else if (env.FORCE_COLOR === "false") {
+        forceColor = 0;
+      } else {
+        forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
+      }
+    }
+    function translateLevel(level) {
+      if (level === 0) {
+        return false;
+      }
+      return {
+        level,
+        hasBasic: true,
+        has256: level >= 2,
+        has16m: level >= 3
+      };
+    }
+    function supportsColor(haveStream, streamIsTTY) {
+      if (forceColor === 0) {
+        return 0;
+      }
+      if (hasFlag("color=16m") || hasFlag("color=full") || hasFlag("color=truecolor")) {
+        return 3;
+      }
+      if (hasFlag("color=256")) {
+        return 2;
+      }
+      if (haveStream && !streamIsTTY && forceColor === void 0) {
+        return 0;
+      }
+      const min = forceColor || 0;
+      if (env.TERM === "dumb") {
+        return min;
+      }
+      if (process.platform === "win32") {
+        const osRelease = os7.release().split(".");
+        if (Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
+          return Number(osRelease[2]) >= 14931 ? 3 : 2;
+        }
+        return 1;
+      }
+      if ("CI" in env) {
+        if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI", "GITHUB_ACTIONS", "BUILDKITE"].some((sign) => sign in env) || env.CI_NAME === "codeship") {
+          return 1;
+        }
+        return min;
+      }
+      if ("TEAMCITY_VERSION" in env) {
+        return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+      }
+      if (env.COLORTERM === "truecolor") {
+        return 3;
+      }
+      if ("TERM_PROGRAM" in env) {
+        const version2 = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
+        switch (env.TERM_PROGRAM) {
+          case "iTerm.app":
+            return version2 >= 3 ? 3 : 2;
+          case "Apple_Terminal":
+            return 2;
+        }
+      }
+      if (/-256(color)?$/i.test(env.TERM)) {
+        return 2;
+      }
+      if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+        return 1;
+      }
+      if ("COLORTERM" in env) {
+        return 1;
+      }
+      return min;
+    }
+    function getSupportLevel(stream) {
+      const level = supportsColor(stream, stream && stream.isTTY);
+      return translateLevel(level);
+    }
+    module.exports = {
+      supportsColor: getSupportLevel,
+      stdout: translateLevel(supportsColor(true, tty.isatty(1))),
+      stderr: translateLevel(supportsColor(true, tty.isatty(2)))
+    };
+  }
+});
+
 // node_modules/debug/src/node.js
 var require_node = __commonJS({
   "node_modules/debug/src/node.js"(exports, module) {
@@ -27060,7 +27564,7 @@ var require_node = __commonJS({
     );
     exports.colors = [6, 2, 3, 4, 5, 1];
     try {
-      const supportsColor = __require("supports-color");
+      const supportsColor = require_supports_color();
       if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
         exports.colors = [
           20,
@@ -30244,7 +30748,7 @@ __export(file_type_exports, {
 });
 import { ReadableStream as WebReadableStream } from "node:stream/web";
 import { pipeline, PassThrough, Readable } from "node:stream";
-import fs9 from "node:fs/promises";
+import fs14 from "node:fs/promises";
 import { constants as fileSystemConstants } from "node:fs";
 function isTokenizerStreamBoundsError(error62) {
   if (!(error62 instanceof RangeError) || error62.message !== "offset is out of bounds" || typeof error62.stack !== "string") {
@@ -30252,8 +30756,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path28, options) {
-  return new FileTypeParser2(options).fromFile(path28, options);
+async function fileTypeFromFile(path34, options) {
+  return new FileTypeParser2(options).fromFile(path34, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -30284,9 +30788,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path28) {
+      async fromFile(path34) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs9.open(path28, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs14.open(path34, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -30295,7 +30799,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path28,
+            path: path34,
             size: fileStat.size
           }
         });
@@ -32817,9 +33321,9 @@ var require_XMLNode = __commonJS({
 var require_XMLStringifier = __commonJS({
   "node_modules/xmlbuilder/lib/XMLStringifier.js"(exports, module) {
     (function() {
-      var XMLStringifier, bind = function(fn, me) {
+      var XMLStringifier, bind = function(fn, me2) {
         return function() {
-          return fn.apply(me, arguments);
+          return fn.apply(me2, arguments);
         };
       }, hasProp = {}.hasOwnProperty;
       module.exports = XMLStringifier = (function() {
@@ -34696,28 +35200,28 @@ var require_sax = __commonJS({
         this._parser = new SAXParser(strict, opt);
         this.writable = true;
         this.readable = true;
-        var me = this;
+        var me2 = this;
         this._parser.onend = function() {
-          me.emit("end");
+          me2.emit("end");
         };
         this._parser.onerror = function(er) {
-          me.emit("error", er);
-          me._parser.error = null;
+          me2.emit("error", er);
+          me2._parser.error = null;
         };
         this._decoder = null;
         this._decoderBuffer = null;
         streamWraps.forEach(function(ev) {
-          Object.defineProperty(me, "on" + ev, {
+          Object.defineProperty(me2, "on" + ev, {
             get: function() {
-              return me._parser["on" + ev];
+              return me2._parser["on" + ev];
             },
             set: function(h) {
               if (!h) {
-                me.removeAllListeners(ev);
-                me._parser["on" + ev] = h;
+                me2.removeAllListeners(ev);
+                me2._parser["on" + ev] = h;
                 return h;
               }
-              me.on(ev, h);
+              me2.on(ev, h);
             },
             enumerable: true,
             configurable: false
@@ -34780,15 +35284,15 @@ var require_sax = __commonJS({
         return true;
       };
       SAXStream.prototype.on = function(ev, handler) {
-        var me = this;
-        if (!me._parser["on" + ev] && streamWraps.indexOf(ev) !== -1) {
-          me._parser["on" + ev] = function() {
+        var me2 = this;
+        if (!me2._parser["on" + ev] && streamWraps.indexOf(ev) !== -1) {
+          me2._parser["on" + ev] = function() {
             var args = arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments);
             args.splice(0, 0, ev);
-            me.emit.apply(me, args);
+            me2.emit.apply(me2, args);
           };
         }
-        return Stream.prototype.on.call(me, ev, handler);
+        return Stream.prototype.on.call(me2, ev, handler);
       };
       var CDATAre = /^\[CDATA\[$/i;
       var DOCTYPEre = /^DOCTYPE$/i;
@@ -36141,9 +36645,9 @@ var require_parser3 = __commonJS({
   "node_modules/xml2js/lib/parser.js"(exports) {
     (function() {
       "use strict";
-      var bom, defaults, events, isEmpty, processItem, processors, sax, setImmediate2, bind = function(fn, me) {
+      var bom, defaults, events, isEmpty, processItem, processors, sax, setImmediate2, bind = function(fn, me2) {
         return function() {
-          return fn.apply(me, arguments);
+          return fn.apply(me2, arguments);
         };
       }, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -36952,237 +37456,194 @@ var require_pixelmatch = __commonJS({
   }
 });
 
-// src/modules/fitcheck/chrome.mjs
-import fs14 from "node:fs";
-function findChrome(config2) {
-  const configured = config2?.fitcheck?.chromePath || process.env.DRIP_CHROME;
-  if (configured && fs14.existsSync(configured)) return configured;
-  return (CANDIDATES[process.platform] || CANDIDATES.linux).find((p2) => p2 && fs14.existsSync(p2)) || null;
-}
-function browserEnv() {
-  const env = { ...process.env };
-  for (const k of Object.keys(env)) if (k.toUpperCase() === "__COMPAT_LAYER") delete env[k];
-  return env;
-}
-async function screenshot(url2, { width = 1440, height = 900, dark = false, waitMs = 4e3, format = "png", quality: quality2 = 80, scale = 1, config: config2 } = {}) {
-  const { openPage: openPage2, withTab: withTab2 } = await Promise.resolve().then(() => (init_browser(), browser_exports));
-  return withTab2(config2, async (tab) => {
-    await openPage2(tab, url2, { width, height, dark, timeout: Math.max(waitMs, 8e3), settleMs: Math.min(waitMs, 1500) });
-    const { data } = await tab.s("Page.captureScreenshot", { format, ...format === "jpeg" ? { quality: quality2 } : {}, clip: { x: 0, y: 0, width, height, scale } });
-    return Buffer.from(data, "base64");
-  });
-}
-var CANDIDATES;
-var init_chrome = __esm({
-  "src/modules/fitcheck/chrome.mjs"() {
-    CANDIDATES = {
-      win32: [
-        "C:/Program Files/Google/Chrome/Application/chrome.exe",
-        "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
-        `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
-        "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-        "C:/Program Files/Microsoft/Edge/Application/msedge.exe"
-      ],
-      darwin: [
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-        "/Applications/Chromium.app/Contents/MacOS/Chromium",
-        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
-      ],
-      linux: ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/usr/bin/microsoft-edge", "/snap/bin/chromium"]
-    };
-  }
+// src/core/imaging.mjs
+var imaging_exports = {};
+__export(imaging_exports, {
+  opticalCenter: () => opticalCenter,
+  processImage: () => processImage,
+  rasterSizes: () => rasterSizes,
+  sheetInBrowser: () => sheetInBrowser
 });
-
-// src/core/browser.mjs
-var browser_exports = {};
-__export(browser_exports, {
-  closeBrowser: () => closeBrowser,
-  openPage: () => openPage,
-  settle: () => settle2,
-  withTab: () => withTab
-});
-import { spawn } from "node:child_process";
-import fs15 from "node:fs";
-import os2 from "node:os";
-import path10 from "node:path";
-async function launch(config2) {
-  const chrome = findChrome(config2);
-  if (!chrome) throw new Error("Chrome/Edge not found. Install Chrome or set fitcheck.chromePath in .drip/config.json.");
-  const profile = fs15.mkdtempSync(path10.join(os2.tmpdir(), "drip-cdp-"));
-  const proc = spawn(chrome, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-background-networking", "--disable-sync", "--mute-audio", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], {
-    env: browserEnv(),
-    windowsHide: true,
-    stdio: ["ignore", "ignore", "pipe"]
-  });
-  const wsUrl = await new Promise((resolve2, reject) => {
-    let buf = "";
-    const t2 = setTimeout(() => reject(new Error("Browser did not start (no DevTools endpoint).")), 2e4);
-    proc.stderr.on("data", (d) => {
-      buf += d;
-      const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
-      if (m) {
-        clearTimeout(t2);
-        resolve2(m[1]);
-      }
-    });
-    proc.on("exit", () => reject(new Error("Browser exited early.")));
-  });
-  const ws = new WebSocket(wsUrl);
-  await new Promise((r2, j) => {
-    ws.onopen = r2;
-    ws.onerror = () => j(new Error("Couldn't connect to the browser."));
-  });
-  let id = 0;
-  let dead = false;
-  const waiting2 = /* @__PURE__ */ new Map();
-  const listeners = /* @__PURE__ */ new Set();
-  ws.onmessage = (ev) => {
-    const msg = JSON.parse(ev.data);
-    if (msg.id && waiting2.has(msg.id)) {
-      const { resolve: resolve2, reject, timer } = waiting2.get(msg.id);
-      clearTimeout(timer);
-      waiting2.delete(msg.id);
-      msg.error ? reject(new Error(msg.error.message)) : resolve2(msg.result);
-    } else for (const l2 of listeners) l2(msg);
-  };
-  const die = () => {
-    if (dead) return;
-    dead = true;
-    for (const { reject, timer } of waiting2.values()) {
-      clearTimeout(timer);
-      reject(new Error("The browser closed."));
-    }
-    waiting2.clear();
-    try {
-      proc.kill();
-    } catch {
-    }
-    setTimeout(() => {
-      try {
-        fs15.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
-      } catch {
-      }
-    }, 500).unref();
-  };
-  ws.onclose = die;
-  proc.on("exit", die);
-  const send = (method, params = {}, sessionId) => new Promise((resolve2, reject) => {
-    if (dead) return reject(new Error("The browser closed."));
-    const mid = ++id;
-    const timer = setTimeout(() => {
-      waiting2.delete(mid);
-      reject(new Error(`Browser timed out on ${method}.`));
-    }, SEND_TIMEOUT_MS);
-    waiting2.set(mid, { resolve: resolve2, reject, timer });
-    ws.send(JSON.stringify({ id: mid, method, params, ...sessionId ? { sessionId } : {} }));
-  });
-  const close = async () => {
-    try {
-      await send("Browser.close");
-    } catch {
-    }
-    try {
-      ws.close();
-    } catch {
-    }
-    die();
-  };
-  return { send, close, listeners, isDead: () => dead };
+import fs17 from "node:fs";
+import os4 from "node:os";
+import path13 from "node:path";
+async function stage(buf, ext) {
+  if (!workDir) workDir = fs17.mkdtempSync(path13.join(os4.tmpdir(), "drip-img-"));
+  const name = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+  fs17.writeFileSync(path13.join(workDir, `${name}.${ext}`), buf);
+  fs17.writeFileSync(path13.join(workDir, `${name}.html`), "<!doctype html><meta charset=utf-8><body style=margin:0>");
+  const base = await serveDir(workDir);
+  return { page: `${base}/${name}.html`, src: `${base}/${name}.${ext}`, cleanup: () => [`${name}.${ext}`, `${name}.html`].forEach((f2) => fs17.rmSync(path13.join(workDir, f2), { force: true })) };
 }
-async function getBrowser(config2) {
-  if (shared) {
-    const b = await shared.catch(() => null);
-    if (b && !b.isDead()) return b;
-    shared = null;
-  }
-  shared = launch(config2);
-  shared.catch(() => shared = null);
-  return shared;
-}
-async function closeBrowser() {
-  clearTimeout(idleTimer);
-  const p2 = shared;
-  shared = null;
-  if (p2) (await p2.catch(() => null))?.close();
-}
-async function withTab(config2, fn) {
-  busy++;
-  clearTimeout(idleTimer);
+async function inPage(buf, script, config2) {
+  const st = await stage(buf, sniff(buf));
   try {
-    let b = await getBrowser(config2);
-    let targetId;
-    try {
-      ({ targetId } = await b.send("Target.createTarget", { url: "about:blank" }));
-    } catch {
-      await closeBrowser();
-      b = await getBrowser(config2);
-      ({ targetId } = await b.send("Target.createTarget", { url: "about:blank" }));
-    }
-    try {
-      const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
-      return await fn({ s: (m, p2) => b.send(m, p2, sessionId), sessionId, listeners: b.listeners });
-    } finally {
-      b.send("Target.closeTarget", { targetId }).catch(() => {
-      });
-    }
+    return await withTab(config2, async (tab) => {
+      await openPage(tab, st.page, { width: 800, height: 600, settleMs: 50 });
+      const expression = `(async () => {
+        const img = new Image(); img.decoding = 'async'; img.src = ${JSON.stringify(st.src)};
+        await img.decode();
+        const W = img.naturalWidth || 1024, H = img.naturalHeight || 1024;
+        ${script}
+      })()`;
+      const { result, exceptionDetails } = await tab.s("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
+      if (exceptionDetails) throw new Error(exceptionDetails.exception?.description?.split("\n")[0] || "image script failed");
+      return result.value;
+    });
   } finally {
-    busy--;
-    if (!busy) {
-      idleTimer = setTimeout(closeBrowser, IDLE_MS);
-      idleTimer.unref();
-    }
+    st.cleanup();
   }
 }
-async function openPage({ s: s2, sessionId, listeners }, url2, { width = 1440, height = 900, dark = false, timeout = 12e3, settleMs = 1500 } = {}) {
-  await s2("Page.enable");
-  await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
-  if (width < 600) await s2("Emulation.setTouchEmulationEnabled", { enabled: true });
-  if (dark) await s2("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
-  let onLoad;
-  let timer;
-  const loaded = new Promise((r2) => {
-    onLoad = (msg) => {
-      if (msg.method === "Page.loadEventFired" && msg.sessionId === sessionId) r2();
+async function processImage(buf, { outputs, focus = "auto", quality: quality2 = 0.82, maxKB = 400, config: config2 } = {}) {
+  const spec = JSON.stringify({ outputs, focus, quality: quality2, maxKB });
+  const out = await inPage(
+    buf,
+    `${FOCUS_JS}
+    const spec = ${spec};
+    const f = spec.focus === 'auto' ? focusOf(img, W, H) : spec.focus || { x: 0.5, y: 0.5 };
+    const res = [];
+    for (const o of spec.outputs) {
+      const ar = typeof o.ar === 'string' ? (o.ar.split(':')[0] / o.ar.split(':')[1]) : (o.ar || W / H);
+      let cw = W, ch = W / ar; if (ch > H) { ch = H; cw = H * ar; }
+      const cx = Math.min(Math.max(f.x * W - cw / 2, 0), W - cw), cy = Math.min(Math.max(f.y * H - ch / 2, 0), H - ch);
+      const tw = Math.round(Math.min(o.width || cw, cw)), th = Math.round(tw / ar);
+      // Downscale in halving steps for quality, then the last step.
+      let src = img, sx = cx, sy = cy, sw = cw, sh = ch;
+      while (sw / 2 > tw) {
+        const t = document.createElement('canvas'); t.width = Math.round(sw / 2); t.height = Math.round(sh / 2);
+        const tg = t.getContext('2d'); tg.imageSmoothingQuality = 'high'; tg.drawImage(src, sx, sy, sw, sh, 0, 0, t.width, t.height);
+        src = t; sx = 0; sy = 0; sw = t.width; sh = t.height;
+      }
+      const c = document.createElement('canvas'); c.width = tw; c.height = th;
+      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(src, sx, sy, sw, sh, 0, 0, tw, th);
+      const type = 'image/' + (o.format || 'webp');
+      let q = spec.quality, url = c.toDataURL(type, q);
+      while (type !== 'image/png' && url.length * 0.75 / 1024 > spec.maxKB && q > 0.5) { q -= 0.06; url = c.toDataURL(type, q); }
+      res.push({ name: o.name, data: url.split(',')[1], width: tw, height: th, format: o.format || 'webp', q: +q.toFixed(2) });
+    }
+    return { width: W, height: H, focus: f, files: res };`,
+    config2
+  );
+  out.files = out.files.map((x2) => ({ ...x2, buf: Buffer.from(x2.data, "base64"), kb: Math.round(x2.data.length * 0.75 / 1024), data: void 0 }));
+  return out;
+}
+async function rasterSizes(buf, sizes, { bg = null, padding = 0, config: config2 } = {}) {
+  const out = await inPage(
+    buf,
+    `const res = [];
+    for (const s of ${JSON.stringify(sizes)}) {
+      const c = document.createElement('canvas'); c.width = s; c.height = s; const g = c.getContext('2d');
+      ${bg ? `g.fillStyle = ${JSON.stringify(bg)}; g.fillRect(0, 0, s, s);` : ""}
+      const pad = s * ${padding}; const k = Math.min((s - 2 * pad) / W, (s - 2 * pad) / H);
+      g.imageSmoothingQuality = 'high'; g.drawImage(img, (s - W * k) / 2, (s - H * k) / 2, W * k, H * k);
+      res.push(c.toDataURL('image/png').split(',')[1]);
+    }
+    return res;`,
+    config2
+  );
+  return out.map((d) => Buffer.from(d, "base64"));
+}
+async function opticalCenter(buf, { detail = 0.06, config: config2 } = {}) {
+  const out = await inPage(
+    buf,
+    `const n = 384, k = Math.min(n / W, n / H), w = Math.max(8, Math.round(W * k)), h = Math.max(8, Math.round(H * k));
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, w, h); const d = g.getImageData(0, 0, w, h).data;
+    // Background = the most common corner colour; ink = anything that differs from it (or is opaque on transparent).
+    const px = (i) => [d[i], d[i + 1], d[i + 2], d[i + 3]];
+    const corners = [0, (w - 1) * 4, (h - 1) * w * 4, ((h - 1) * w + w - 1) * 4].map(px);
+    const bg = corners[0]; const transparent = corners.every((p) => p[3] < 16);
+    const ink = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) {
+      const p = px(i * 4);
+      ink[i] = transparent ? (p[3] > 40 ? 1 : 0) : (Math.abs(p[0] - bg[0]) + Math.abs(p[1] - bg[1]) + Math.abs(p[2] - bg[2]) > 60 && p[3] > 40 ? 1 : 0);
+    }
+    const r = Math.max(1, Math.round(Math.min(w, h) * ${detail}));
+    const morph = (src, erode) => { // separable square erosion/dilation
+      const tmp = new Uint8Array(w * h), dst = new Uint8Array(w * h);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let v = erode ? 1 : 0; for (let t = -r; t <= r; t++) { const xx = x + t; const s = xx < 0 || xx >= w ? 0 : src[y * w + xx]; if (erode ? !s : s) { v = erode ? 0 : 1; break; } } tmp[y * w + x] = v; }
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let v = erode ? 1 : 0; for (let t = -r; t <= r; t++) { const yy = y + t; const s = yy < 0 || yy >= h ? 0 : tmp[yy * w + x]; if (erode ? !s : s) { v = erode ? 0 : 1; break; } } dst[y * w + x] = v; }
+      return dst;
     };
-    listeners.add(onLoad);
-    timer = setTimeout(r2, timeout);
+    let body = morph(morph(ink, true), false);
+    // Keep the largest connected piece of the opened shape: the body.
+    const lab = new Int32Array(w * h); let best = 0, bestN = 0, id = 0;
+    for (let i = 0; i < w * h; i++) if (body[i] && !lab[i]) { id++; let cnt = 0; const st = [i]; lab[i] = id; while (st.length) { const j = st.pop(); cnt++; const x = j % w, y = (j / w) | 0; for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) { const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue; const q = yy * w + xx; if (body[q] && !lab[q]) { lab[q] = id; st.push(q); } } } if (cnt > bestN) { bestN = cnt; best = id; } }
+    const stats = (mask) => { let x0 = w, y0 = h, x1 = -1, y1 = -1, sx = 0, sy = 0, s = 0; for (let i = 0; i < w * h; i++) if (mask(i)) { const x = i % w, y = (i / w) | 0; x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); sx += x; sy += y; s++; } return s ? { box: { x0: x0 / w, y0: y0 / h, x1: (x1 + 1) / w, y1: (y1 + 1) / h }, c: { x: (sx / s + 0.5) / w, y: (sy / s + 0.5) / h }, area: s / (w * h) } : null; };
+    const all = stats((i) => ink[i]); const bod = stats((i) => best && lab[i] === best) || all;
+    if (!all) return { empty: true };
+    // Overlay: ink grey, body tinted, marks for box (red), mass (blue), body (green).
+    const o = document.createElement('canvas'); o.width = w * 2; o.height = h * 2; const og = o.getContext('2d');
+    og.fillStyle = '#fff'; og.fillRect(0, 0, o.width, o.height); og.globalAlpha = 0.35; og.drawImage(img, 0, 0, o.width, o.height); og.globalAlpha = 1;
+    og.fillStyle = 'rgba(0,160,90,0.25)'; for (let i = 0; i < w * h; i++) if (best && lab[i] === best) og.fillRect((i % w) * 2, ((i / w) | 0) * 2, 2, 2);
+    const box = all.box, bc = { x: (box.x0 + box.x1) / 2, y: (box.y0 + box.y1) / 2 };
+    og.strokeStyle = '#e5322d'; og.setLineDash([6, 4]); og.strokeRect(box.x0 * o.width, box.y0 * o.height, (box.x1 - box.x0) * o.width, (box.y1 - box.y0) * o.height); og.setLineDash([]);
+    og.strokeStyle = '#0a9d5a'; og.strokeRect(bod.box.x0 * o.width, bod.box.y0 * o.height, (bod.box.x1 - bod.box.x0) * o.width, (bod.box.y1 - bod.box.y0) * o.height);
+    const mark = (p, col, rr) => { og.strokeStyle = col; og.lineWidth = 3; og.beginPath(); og.moveTo(p.x * o.width - rr, p.y * o.height); og.lineTo(p.x * o.width + rr, p.y * o.height); og.moveTo(p.x * o.width, p.y * o.height - rr); og.lineTo(p.x * o.width, p.y * o.height + rr); og.stroke(); og.beginPath(); og.arc(p.x * o.width, p.y * o.height, rr * 0.6, 0, 7); og.stroke(); };
+    mark(bc, '#e5322d', 16); mark(all.c, '#2b50ff', 12); mark(bod.c, '#0a9d5a', 20);
+    return { size: { w: W, h: H }, box: bc, bbox: box, mass: all.c, body: bod.c, bodyBox: bod.box, bodyArea: bod.area, inkArea: all.area, detailPx: r / k, overlay: o.toDataURL('image/png').split(',')[1] };`,
+    config2
+  );
+  if (out.overlay) out.overlay = Buffer.from(out.overlay, "base64");
+  return out;
+}
+async function sheetInBrowser(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, fit: fit2 = "cover", quality: quality2 = 78, config: config2 } = {}) {
+  if (!workDir) workDir = fs17.mkdtempSync(path13.join(os4.tmpdir(), "drip-img-"));
+  const id = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  const names3 = buffers.map((b, i2) => {
+    if (!b?.length) return null;
+    const n2 = `${id}-${i2}.${sniff(b)}`;
+    fs17.writeFileSync(path13.join(workDir, n2), b);
+    return n2;
   });
+  const rows = Math.ceil(buffers.length / cols);
+  const W = cols * tileW + (cols + 1) * gap;
+  const H = rows * tileH + (rows + 1) * gap;
+  const cells = names3.map((n2, i2) => `<div class=c>${n2 ? `<img src="${n2}">` : ""}<b>${first + i2}</b></div>`).join("");
+  fs17.writeFileSync(
+    path13.join(workDir, `${id}.html`),
+    `<!doctype html><meta charset=utf-8><style>body{margin:0;background:#f2f2f2}.g{display:grid;grid-template-columns:repeat(${cols},${tileW}px);grid-auto-rows:${tileH}px;gap:${gap}px;padding:${gap}px}.c{position:relative;background:#ddd;overflow:hidden}img{width:100%;height:100%;object-fit:${fit2};display:block}b{position:absolute;left:6px;top:6px;font:700 15px/1 system-ui;color:#fff;background:#111;padding:4px 6px;border-radius:3px}</style><div class=g>${cells}</div>`
+  );
   try {
-    await s2("Page.navigate", { url: url2 });
-    await loaded;
-  } finally {
-    listeners.delete(onLoad);
-    clearTimeout(timer);
-  }
-  await settle2(s2, settleMs);
-}
-async function settle2(s2, ms = 1500) {
-  await s2("Runtime.evaluate", {
-    expression: `(async () => {
-      const cap = new Promise((r) => setTimeout(r, ${ms}));
-      await Promise.race([document.fonts ? document.fonts.ready : null, cap]);
-      const running = (document.getAnimations ? document.getAnimations() : []).filter((a) => { const t = a.effect && a.effect.getComputedTiming(); return t && t.iterations !== Infinity && a.playState === 'running'; });
-      await Promise.race([Promise.all(running.map((a) => a.finished.catch(() => {}))), cap]);
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    })()`,
-    awaitPromise: true
-  });
-}
-var IDLE_MS, SEND_TIMEOUT_MS, shared, idleTimer, busy;
-var init_browser = __esm({
-  "src/core/browser.mjs"() {
-    init_chrome();
-    IDLE_MS = 12e4;
-    SEND_TIMEOUT_MS = 45e3;
-    shared = null;
-    idleTimer = null;
-    busy = 0;
-    process.once("exit", () => {
-      if (shared) shared.then((b) => b.close()).catch(() => {
-      });
+    const base = await serveDir(workDir);
+    return await withTab(config2, async (tab) => {
+      await openPage(tab, `${base}/${id}.html`, { width: W, height: H, settleMs: 200 });
+      await tab.s("Runtime.evaluate", { expression: "Promise.all([...document.images].map((i) => i.decode().catch(() => {})))", awaitPromise: true });
+      const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: quality2, clip: { x: 0, y: 0, width: W, height: H, scale: 1 } });
+      return Buffer.from(data, "base64");
     });
-    process.stdin.once("end", () => closeBrowser());
+  } finally {
+    for (const n2 of [...names3.filter(Boolean), `${id}.html`]) fs17.rmSync(path13.join(workDir, n2), { force: true });
+  }
+}
+var workDir, sniff, FOCUS_JS;
+var init_imaging = __esm({
+  "src/core/imaging.mjs"() {
+    init_browser();
+    init_serve();
+    workDir = null;
+    sniff = (buf) => {
+      const h = buf.subarray(0, 32).toString("latin1");
+      if (h.startsWith("\x89PNG")) return "png";
+      if (h.startsWith("\xFF\xD8")) return "jpg";
+      if (h.startsWith("RIFF") && h.includes("WEBP")) return "webp";
+      if (h.startsWith("GIF")) return "gif";
+      if (/ftyp(avif|avis)/.test(h)) return "avif";
+      if (/<svg|<\?xml/i.test(buf.subarray(0, 400).toString("utf8"))) return "svg";
+      return "img";
+    };
+    FOCUS_JS = `
+  const focusOf = (img, W, H) => {
+    const n = 64, c = document.createElement('canvas'); c.width = n; c.height = Math.max(1, Math.round(n * H / W));
+    const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height);
+    const d = g.getImageData(0, 0, c.width, c.height).data; const L = (x, y) => { const i = (y * c.width + x) * 4; return 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]; };
+    let sx = 0, sy = 0, sw = 0;
+    for (let y = 1; y < c.height - 1; y++) for (let x = 1; x < c.width - 1; x++) {
+      const e = Math.abs(L(x + 1, y) - L(x - 1, y)) + Math.abs(L(x, y + 1) - L(x, y - 1)); const w = e * e;
+      sx += w * x; sy += w * y; sw += w;
+    }
+    return sw ? { x: sx / sw / c.width, y: sy / sw / c.height } : { x: 0.5, y: 0.5 };
+  };`;
   }
 });
 
@@ -37783,9 +38244,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path28, options) {
+      Path.fromSVG = function(path34, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path28, options);
+        return newPath.fromSVG(path34, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -39168,17 +39629,17 @@ var require_opentype = __commonJS({
         const relativeOffset = this.relativeOffset;
         const list = new Array(count);
         for (let i2 = 0; i2 < count; i2++) {
-          const start = offsets[i2];
-          if (start === 0) {
+          const start2 = offsets[i2];
+          if (start2 === 0) {
             list[i2] = void 0;
             continue;
           }
-          this.relativeOffset = start;
+          this.relativeOffset = start2;
           if (itemCallback) {
             const subOffsets = this.parseOffset16List();
             const subList = new Array(subOffsets.length);
             for (let j = 0; j < subOffsets.length; j++) {
-              this.relativeOffset = start + subOffsets[j];
+              this.relativeOffset = start2 + subOffsets[j];
               subList[j] = itemCallback.call(this);
             }
             list[i2] = subList;
@@ -40402,9 +40863,9 @@ var require_opentype = __commonJS({
       function getPlatform(platformID) {
         return platforms[platformID];
       }
-      function parseNameTable(data, start, ltag) {
+      function parseNameTable(data, start2, ltag) {
         const name = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         const format = p2.parseUShort();
         const count = p2.parseUShort();
         const stringOffset = p2.offset + p2.parseUShort();
@@ -40624,18 +41085,18 @@ var require_opentype = __commonJS({
           }
         }
       }
-      function parseCmapTableFormat4(cmap, p2, data, start, offset) {
+      function parseCmapTableFormat4(cmap, p2, data, start2, offset) {
         cmap.length = p2.parseUShort();
         cmap.language = p2.parseUShort();
         let segCount;
         cmap.segCount = segCount = p2.parseUShort() >> 1;
         p2.skip("uShort", 3);
         cmap.glyphIndexMap = {};
-        const endCountParser = new parse_default.Parser(data, start + offset + 14);
-        const startCountParser = new parse_default.Parser(data, start + offset + 16 + segCount * 2);
-        const idDeltaParser = new parse_default.Parser(data, start + offset + 16 + segCount * 4);
-        const idRangeOffsetParser = new parse_default.Parser(data, start + offset + 16 + segCount * 6);
-        let glyphIndexOffset = start + offset + 16 + segCount * 8;
+        const endCountParser = new parse_default.Parser(data, start2 + offset + 14);
+        const startCountParser = new parse_default.Parser(data, start2 + offset + 16 + segCount * 2);
+        const idDeltaParser = new parse_default.Parser(data, start2 + offset + 16 + segCount * 4);
+        const idRangeOffsetParser = new parse_default.Parser(data, start2 + offset + 16 + segCount * 6);
+        let glyphIndexOffset = start2 + offset + 16 + segCount * 8;
         for (let i2 = 0; i2 < segCount - 1; i2 += 1) {
           let glyphIndex;
           const endCount = endCountParser.parseUShort();
@@ -40702,11 +41163,11 @@ var require_opentype = __commonJS({
         }
         cmap.varSelectorList = varSelectorList;
       }
-      function parseCmapTable(data, start) {
+      function parseCmapTable(data, start2) {
         const cmap = {};
-        cmap.version = parse_default.getUShort(data, start);
+        cmap.version = parse_default.getUShort(data, start2);
         check_default.argument(cmap.version === 0, "cmap table version should be 0.");
-        cmap.numTables = parse_default.getUShort(data, start + 2);
+        cmap.numTables = parse_default.getUShort(data, start2 + 2);
         let format14Parser = null;
         let format14offset = -1;
         let offset = -1;
@@ -40715,17 +41176,17 @@ var require_opentype = __commonJS({
         const platform0Encodings = [0, 1, 2, 3, 4, 6];
         const platform3Encodings = [0, 1, 10];
         for (let i2 = cmap.numTables - 1; i2 >= 0; i2 -= 1) {
-          platformId = parse_default.getUShort(data, start + 4 + i2 * 8);
-          encodingId = parse_default.getUShort(data, start + 4 + i2 * 8 + 2);
+          platformId = parse_default.getUShort(data, start2 + 4 + i2 * 8);
+          encodingId = parse_default.getUShort(data, start2 + 4 + i2 * 8 + 2);
           if (platformId === 3 && platform3Encodings.includes(encodingId) || platformId === 0 && platform0Encodings.includes(encodingId) || platformId === 1 && encodingId === 0) {
             if (offset > 0) continue;
-            offset = parse_default.getULong(data, start + 4 + i2 * 8 + 4);
+            offset = parse_default.getULong(data, start2 + 4 + i2 * 8 + 4);
             if (format14Parser) {
               break;
             }
           } else if (platformId === 0 && encodingId === 5) {
-            format14offset = parse_default.getULong(data, start + 4 + i2 * 8 + 4);
-            format14Parser = new parse_default.Parser(data, start + format14offset);
+            format14offset = parse_default.getULong(data, start2 + 4 + i2 * 8 + 4);
+            format14Parser = new parse_default.Parser(data, start2 + format14offset);
             if (format14Parser.parseUShort() !== 14) {
               format14offset = -1;
               format14Parser = null;
@@ -40737,14 +41198,14 @@ var require_opentype = __commonJS({
         if (offset === -1) {
           throw new Error("No valid cmap sub-tables found.");
         }
-        const p2 = new parse_default.Parser(data, start + offset);
+        const p2 = new parse_default.Parser(data, start2 + offset);
         cmap.format = p2.parseUShort();
         if (cmap.format === 0) {
           parseCmapTableFormat0(cmap, p2, platformId, encodingId);
         } else if (cmap.format === 12 || cmap.format === 13) {
           parseCmapTableFormat12or13(cmap, p2, cmap.format);
         } else if (cmap.format === 4) {
-          parseCmapTableFormat4(cmap, p2, data, start, offset);
+          parseCmapTableFormat4(cmap, p2, data, start2, offset);
         } else {
           throw new Error(
             "Only format 0 (platformId 1, encodingId 0), 4, 12 and 14 cmap tables are supported (found format " + cmap.format + ", platformId " + platformId + ", encodingId " + encodingId + ")."
@@ -42672,8 +43133,8 @@ var require_opentype = __commonJS({
         ctx2.stroke();
       }
       var draw_default = { line };
-      function parseCpalTable(data, start) {
-        const p2 = new Parser(data, start);
+      function parseCpalTable(data, start2) {
+        const p2 = new Parser(data, start2);
         const version2 = p2.parseShort();
         if (version2 !== 0) {
           console.warn("Only CPALv0 is currently fully supported.");
@@ -42950,8 +43411,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path28) {
-        let _path = path28 || new path_default();
+      function getPathDefinition(glyph, path34) {
+        let _path = path34 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -43179,8 +43640,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path28 = this.getPath(x2, y2, fontSize, options, font);
-        path28.draw(ctx2);
+        const path34 = this.getPath(x2, y2, fontSize, options, font);
+        path34.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -43209,8 +43670,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path28 = this.path;
-        let commands = path28.commands;
+        const path34 = this.path;
+        let commands = path34.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -43357,9 +43818,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path28 = buildPath2(font.glyphs, glyph);
-            path28.unitsPerEm = font.unitsPerEm;
-            return path28;
+            const path34 = buildPath2(font.glyphs, glyph);
+            path34.unitsPerEm = font.unitsPerEm;
+            return path34;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -43374,9 +43835,9 @@ var require_opentype = __commonJS({
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path28 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path28.unitsPerEm = font.unitsPerEm;
-            return path28;
+            const path34 = parseCFFCharstring2(font, glyph, charstring, version2);
+            path34.unitsPerEm = font.unitsPerEm;
+            return path34;
           };
           return glyph;
         };
@@ -43411,61 +43872,61 @@ var require_opentype = __commonJS({
         }
         return bias;
       }
-      function parseCFFIndex(data, start, conversionFn, version2) {
+      function parseCFFIndex(data, start2, conversionFn, version2) {
         const offsets = [];
         const objects = [];
-        const count = version2 > 1 ? parse_default.getULong(data, start) : parse_default.getCard16(data, start);
+        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
         const countLength = version2 > 1 ? 4 : 2;
         let objectOffset;
         let endOffset;
         if (count !== 0) {
-          const offsetSize = parse_default.getByte(data, start + countLength);
-          objectOffset = start + (count + 1) * offsetSize + countLength;
-          let pos = start + countLength + 1;
+          const offsetSize = parse_default.getByte(data, start2 + countLength);
+          objectOffset = start2 + (count + 1) * offsetSize + countLength;
+          let pos = start2 + countLength + 1;
           for (let i2 = 0; i2 < count + 1; i2 += 1) {
             offsets.push(parse_default.getOffset(data, pos, offsetSize));
             pos += offsetSize;
           }
           endOffset = objectOffset + offsets[count];
         } else {
-          endOffset = start + countLength;
+          endOffset = start2 + countLength;
         }
         for (let i2 = 0; i2 < offsets.length - 1; i2 += 1) {
           let value = parse_default.getBytes(data, objectOffset + offsets[i2], objectOffset + offsets[i2 + 1]);
           if (conversionFn) {
-            value = conversionFn(value, data, start, version2);
+            value = conversionFn(value, data, start2, version2);
           }
           objects.push(value);
         }
-        return { objects, startOffset: start, endOffset };
+        return { objects, startOffset: start2, endOffset };
       }
-      function parseCFFIndexLowMemory(data, start, version2) {
+      function parseCFFIndexLowMemory(data, start2, version2) {
         const offsets = [];
-        const count = version2 > 1 ? parse_default.getULong(data, start) : parse_default.getCard16(data, start);
+        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
         const countLength = version2 > 1 ? 4 : 2;
         let objectOffset;
         let endOffset;
         if (count !== 0) {
-          const offsetSize = parse_default.getByte(data, start + countLength);
-          objectOffset = start + (count + 1) * offsetSize + countLength;
-          let pos = start + countLength + 1;
+          const offsetSize = parse_default.getByte(data, start2 + countLength);
+          objectOffset = start2 + (count + 1) * offsetSize + countLength;
+          let pos = start2 + countLength + 1;
           for (let i2 = 0; i2 < count + 1; i2 += 1) {
             offsets.push(parse_default.getOffset(data, pos, offsetSize));
             pos += offsetSize;
           }
           endOffset = objectOffset + offsets[count];
         } else {
-          endOffset = start + countLength;
+          endOffset = start2 + countLength;
         }
-        return { offsets, startOffset: start, endOffset };
+        return { offsets, startOffset: start2, endOffset };
       }
-      function getCffIndexObject(i2, offsets, data, start, conversionFn, version2) {
-        const count = version2 > 1 ? parse_default.getULong(data, start) : parse_default.getCard16(data, start);
+      function getCffIndexObject(i2, offsets, data, start2, conversionFn, version2) {
+        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
         const countLength = version2 > 1 ? 4 : 2;
         let objectOffset = 0;
         if (count !== 0) {
-          const offsetSize = parse_default.getByte(data, start + countLength);
-          objectOffset = start + (count + 1) * offsetSize + countLength;
+          const offsetSize = parse_default.getByte(data, start2 + countLength);
+          objectOffset = start2 + (count + 1) * offsetSize + countLength;
         }
         let value = parse_default.getBytes(data, objectOffset + offsets[i2], objectOffset + offsets[i2 + 1]);
         if (conversionFn) {
@@ -43543,9 +44004,9 @@ var require_opentype = __commonJS({
         }
         return o2;
       }
-      function parseCFFDict(data, start, size, version2) {
-        start = start !== void 0 ? start : 0;
-        const parser = new parse_default.Parser(data, start);
+      function parseCFFDict(data, start2, size, version2) {
+        start2 = start2 !== void 0 ? start2 : 0;
+        const parser = new parse_default.Parser(data, start2);
         const entries = [];
         let operands = [];
         size = size !== void 0 ? size : data.byteLength;
@@ -43610,21 +44071,21 @@ var require_opentype = __commonJS({
         }
         return newDict;
       }
-      function parseCFFHeader(data, start) {
+      function parseCFFHeader(data, start2) {
         const header = {};
-        header.formatMajor = parse_default.getCard8(data, start);
-        header.formatMinor = parse_default.getCard8(data, start + 1);
+        header.formatMajor = parse_default.getCard8(data, start2);
+        header.formatMinor = parse_default.getCard8(data, start2 + 1);
         if (header.formatMajor > 2) {
           throw new Error(`Unsupported CFF table version ${header.formatMajor}.${header.formatMinor}`);
         }
-        header.size = parse_default.getCard8(data, start + 2);
+        header.size = parse_default.getCard8(data, start2 + 2);
         if (header.formatMajor < 2) {
-          header.offsetSize = parse_default.getCard8(data, start + 3);
-          header.startOffset = start;
-          header.endOffset = start + 4;
+          header.offsetSize = parse_default.getCard8(data, start2 + 3);
+          header.startOffset = start2;
+          header.endOffset = start2 + 4;
         } else {
-          header.topDictLength = parse_default.getCard16(data, start + 3);
-          header.endOffset = start + 8;
+          header.topDictLength = parse_default.getCard16(data, start2 + 3);
+          header.endOffset = start2 + 8;
         }
         return header;
       }
@@ -43703,19 +44164,19 @@ var require_opentype = __commonJS({
       var FONT_DICT_META = [
         { name: "private", op: 18, type: ["number", "offset"], value: [0, 0] }
       ];
-      function parseCFFTopDict(data, start, strings, version2) {
-        const dict = parseCFFDict(data, start, data.byteLength, version2);
+      function parseCFFTopDict(data, start2, strings, version2) {
+        const dict = parseCFFDict(data, start2, data.byteLength, version2);
         return interpretDict(dict, version2 > 1 ? TOP_DICT_META_CFF2 : TOP_DICT_META, strings);
       }
-      function parseCFFPrivateDict(data, start, size, strings, version2) {
-        const dict = parseCFFDict(data, start, size, version2);
+      function parseCFFPrivateDict(data, start2, size, strings, version2) {
+        const dict = parseCFFDict(data, start2, size, version2);
         return interpretDict(dict, version2 > 1 ? PRIVATE_DICT_META_CFF2 : PRIVATE_DICT_META, strings);
       }
-      function parseFontDict(data, start, version2) {
-        const dict = parseCFFDict(data, start, void 0, version2);
+      function parseFontDict(data, start2, version2) {
+        const dict = parseCFFDict(data, start2, void 0, version2);
         return interpretDict(dict, FONT_DICT_META);
       }
-      function gatherCFF2FontDicts(data, start, fdArray) {
+      function gatherCFF2FontDicts(data, start2, fdArray) {
         const fontDictArray = [];
         for (let i2 = 0; i2 < fdArray.length; i2++) {
           const fontDictData = new DataView(new Uint8Array(fdArray[i2]).buffer);
@@ -43723,10 +44184,10 @@ var require_opentype = __commonJS({
           const privateSize = fontDict.private[0];
           const privateOffset = fontDict.private[1];
           if (privateSize !== 0 && privateOffset !== 0) {
-            const privateDict = parseCFFPrivateDict(data, privateOffset + start, privateSize, [], 2);
+            const privateDict = parseCFFPrivateDict(data, privateOffset + start2, privateSize, [], 2);
             if (privateDict.subrs) {
               const subrOffset = privateOffset + privateDict.subrs;
-              const subrIndex = parseCFFIndex(data, subrOffset + start, void 0, 2);
+              const subrIndex = parseCFFIndex(data, subrOffset + start2, void 0, 2);
               fontDict._subrs = subrIndex.objects;
               fontDict._subrsBias = calcCFFSubroutineBias(fontDict._subrs);
             }
@@ -43736,7 +44197,7 @@ var require_opentype = __commonJS({
         }
         return fontDictArray;
       }
-      function gatherCFFTopDicts(data, start, cffIndex, strings, version2) {
+      function gatherCFFTopDicts(data, start2, cffIndex, strings, version2) {
         const topDictArray = [];
         for (let iTopDict = 0; iTopDict < cffIndex.length; iTopDict += 1) {
           const topDictData = new DataView(new Uint8Array(cffIndex[iTopDict]).buffer);
@@ -43748,12 +44209,12 @@ var require_opentype = __commonJS({
           const privateSize = version2 < 2 ? topDict.private[0] : 0;
           const privateOffset = version2 < 2 ? topDict.private[1] : 0;
           if (privateSize !== 0 && privateOffset !== 0) {
-            const privateDict = parseCFFPrivateDict(data, privateOffset + start, privateSize, strings, version2);
+            const privateDict = parseCFFPrivateDict(data, privateOffset + start2, privateSize, strings, version2);
             topDict._defaultWidthX = privateDict.defaultWidthX;
             topDict._nominalWidthX = privateDict.nominalWidthX;
             if (privateDict.subrs !== 0) {
               const subrOffset = privateOffset + privateDict.subrs;
-              const subrIndex = parseCFFIndex(data, subrOffset + start, void 0, version2);
+              const subrIndex = parseCFFIndex(data, subrOffset + start2, void 0, version2);
               topDict._subrs = subrIndex.objects;
               topDict._subrsBias = calcCFFSubroutineBias(topDict._subrs);
             }
@@ -43763,10 +44224,10 @@ var require_opentype = __commonJS({
         }
         return topDictArray;
       }
-      function parseCFFCharset(data, start, nGlyphs, strings, isCIDFont) {
+      function parseCFFCharset(data, start2, nGlyphs, strings, isCIDFont) {
         let sid;
         let count;
-        const parser = new parse_default.Parser(data, start);
+        const parser = new parse_default.Parser(data, start2);
         nGlyphs -= 1;
         const charset = [".notdef"];
         const format = parser.parseCard8();
@@ -43810,10 +44271,10 @@ var require_opentype = __commonJS({
         }
         return charset;
       }
-      function parseCFFEncoding(data, start) {
+      function parseCFFEncoding(data, start2) {
         let code;
         const encoding = {};
-        const parser = new parse_default.Parser(data, start);
+        const parser = new parse_default.Parser(data, start2);
         const format = parser.parseCard8();
         if (format === 0) {
           const nCodes = parser.parseCard8();
@@ -43843,12 +44304,12 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path28) {
+      function applyPaintType(font, path34) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path28.fill = null;
-          path28.stroke = "black";
-          path28.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path34.fill = null;
+          path34.stroke = "black";
+          path34.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
@@ -44356,10 +44817,10 @@ var require_opentype = __commonJS({
         }
         return p2;
       }
-      function parseCFFFDSelect(data, start, nGlyphs, fdArrayCount, version2) {
+      function parseCFFFDSelect(data, start2, nGlyphs, fdArrayCount, version2) {
         const fdSelect = [];
         let fdIndex;
-        const parser = new parse_default.Parser(data, start);
+        const parser = new parse_default.Parser(data, start2);
         const format = parser.parseCard8();
         if (format === 0) {
           for (let iGid = 0; iGid < nGlyphs; iGid++) {
@@ -44398,9 +44859,9 @@ var require_opentype = __commonJS({
         }
         return fdSelect;
       }
-      function parseCFFTable(data, start, font, opt) {
+      function parseCFFTable(data, start2, font, opt) {
         let resultTable;
-        const header = parseCFFHeader(data, start);
+        const header = parseCFFHeader(data, start2);
         if (header.formatMajor === 2) {
           resultTable = font.tables.cff2 = {};
         } else {
@@ -44409,16 +44870,16 @@ var require_opentype = __commonJS({
         const nameIndex = header.formatMajor > 1 ? null : parseCFFIndex(data, header.endOffset, parse_default.bytesToString);
         const topDictIndex = header.formatMajor > 1 ? null : parseCFFIndex(data, nameIndex.endOffset);
         const stringIndex = header.formatMajor > 1 ? null : parseCFFIndex(data, topDictIndex.endOffset, parse_default.bytesToString);
-        const globalSubrIndex = parseCFFIndex(data, header.formatMajor > 1 ? start + header.size + header.topDictLength : stringIndex.endOffset, void 0, header.formatMajor);
+        const globalSubrIndex = parseCFFIndex(data, header.formatMajor > 1 ? start2 + header.size + header.topDictLength : stringIndex.endOffset, void 0, header.formatMajor);
         font.gsubrs = globalSubrIndex.objects;
         font.gsubrsBias = calcCFFSubroutineBias(font.gsubrs);
         let topDict;
         if (header.formatMajor > 1) {
-          const topDictOffset = start + header.size;
+          const topDictOffset = start2 + header.size;
           const topDictData = parse_default.getBytes(data, topDictOffset, topDictOffset + header.topDictLength);
           topDict = gatherCFFTopDicts(data, 0, [topDictData], void 0, header.formatMajor)[0];
         } else {
-          const topDictArray = gatherCFFTopDicts(data, start, topDictIndex.objects, stringIndex.objects, header.formatMajor);
+          const topDictArray = gatherCFFTopDicts(data, start2, topDictIndex.objects, stringIndex.objects, header.formatMajor);
           if (topDictArray.length !== 1) {
             throw new Error("CFF table has too many fonts in 'FontSet' - count of fonts NameIndex.length = " + topDictArray.length);
           }
@@ -44438,11 +44899,11 @@ var require_opentype = __commonJS({
           if (!fdArrayIndexOffset) {
             throw new Error("This is a CFF2 font, but FDArray information is missing");
           }
-          const fdArrayIndex = parseCFFIndex(data, start + fdArrayIndexOffset, null, header.formatMajor);
-          const fdArray = gatherCFF2FontDicts(data, start, fdArrayIndex.objects);
+          const fdArrayIndex = parseCFFIndex(data, start2 + fdArrayIndexOffset, null, header.formatMajor);
+          const fdArray = gatherCFF2FontDicts(data, start2, fdArrayIndex.objects);
           topDict._fdArray = fdArray;
           if (fdSelectOffset) {
-            topDict._fdSelect = parseCFFFDSelect(data, start + fdSelectOffset, font.numGlyphs, fdArray.length, header.formatMajor);
+            topDict._fdSelect = parseCFFFDSelect(data, start2 + fdSelectOffset, font.numGlyphs, fdArray.length, header.formatMajor);
           }
         } else if (font.isCIDFont) {
           let fdArrayOffset = topDict.fdArray;
@@ -44450,15 +44911,15 @@ var require_opentype = __commonJS({
           if (fdArrayOffset === 0 || fdSelectOffset === 0) {
             throw new Error("Font is marked as a CID font, but FDArray and/or FDSelect information is missing");
           }
-          fdArrayOffset += start;
+          fdArrayOffset += start2;
           const fdArrayIndex = parseCFFIndex(data, fdArrayOffset);
-          const fdArray = gatherCFFTopDicts(data, start, fdArrayIndex.objects, stringIndex.objects, header.formatMajor);
+          const fdArray = gatherCFFTopDicts(data, start2, fdArrayIndex.objects, stringIndex.objects, header.formatMajor);
           topDict._fdArray = fdArray;
-          fdSelectOffset += start;
+          fdSelectOffset += start2;
           topDict._fdSelect = parseCFFFDSelect(data, fdSelectOffset, font.numGlyphs, fdArray.length, header.formatMajor);
         }
         if (header.formatMajor < 2) {
-          const privateDictOffset = start + topDict.private[1];
+          const privateDictOffset = start2 + topDict.private[1];
           const privateDict = parseCFFPrivateDict(data, privateDictOffset, topDict.private[0], stringIndex.objects, header.formatMajor);
           font.defaultWidthX = privateDict.defaultWidthX;
           font.nominalWidthX = privateDict.nominalWidthX;
@@ -44474,10 +44935,10 @@ var require_opentype = __commonJS({
         }
         let charStringsIndex;
         if (opt.lowMemory) {
-          charStringsIndex = parseCFFIndexLowMemory(data, start + topDict.charStrings, header.formatMajor);
+          charStringsIndex = parseCFFIndexLowMemory(data, start2 + topDict.charStrings, header.formatMajor);
           font.nGlyphs = charStringsIndex.offsets.length - (header.formatMajor > 1 ? 1 : 0);
         } else {
-          charStringsIndex = parseCFFIndex(data, start + topDict.charStrings, null, header.formatMajor);
+          charStringsIndex = parseCFFIndex(data, start2 + topDict.charStrings, null, header.formatMajor);
           font.nGlyphs = charStringsIndex.objects.length;
         }
         if (header.formatMajor > 1 && font.tables.maxp && font.nGlyphs !== font.tables.maxp.numGlyphs) {
@@ -44493,14 +44954,14 @@ var require_opentype = __commonJS({
           } else if (topDict.charset === 2) {
             charset = cffExpertSubsetStrings;
           } else {
-            charset = parseCFFCharset(data, start + topDict.charset, font.nGlyphs, stringIndex.objects, font.isCIDFont);
+            charset = parseCFFCharset(data, start2 + topDict.charset, font.nGlyphs, stringIndex.objects, font.isCIDFont);
           }
           if (topDict.encoding === 0) {
             encoding = cffStandardEncoding;
           } else if (topDict.encoding === 1) {
             encoding = cffExpertEncoding;
           } else {
-            encoding = parseCFFEncoding(data, start + topDict.encoding);
+            encoding = parseCFFEncoding(data, start2 + topDict.encoding);
           }
           font.cffEncoding = new CffEncoding(encoding, charset);
           font.encoding = font.encoding || font.cffEncoding;
@@ -44508,7 +44969,7 @@ var require_opentype = __commonJS({
         font.glyphs = new glyphset_default.GlyphSet(font);
         if (opt.lowMemory) {
           font._push = function(i2) {
-            const charString = getCffIndexObject(i2, charStringsIndex.offsets, data, start + topDict.charStrings, void 0, header.formatMajor);
+            const charString = getCffIndexObject(i2, charStringsIndex.offsets, data, start2 + topDict.charStrings, void 0, header.formatMajor);
             font.glyphs.push(i2, glyphset_default.cffGlyphLoader(font, i2, parseCFFCharstring, charString, header.formatMajor));
           };
         } else {
@@ -44518,7 +44979,7 @@ var require_opentype = __commonJS({
           }
         }
         if (topDict.vstore) {
-          const p2 = new parse_default.Parser(data, start + topDict.vstore);
+          const p2 = new parse_default.Parser(data, start2 + topDict.vstore);
           topDict._vstore = p2.parseVariationStore();
         }
       }
@@ -44611,16 +45072,16 @@ var require_opentype = __commonJS({
       }
       function glyphToOps(glyph, version2) {
         const ops = [];
-        const path28 = glyph.path;
+        const path34 = glyph.path;
         if (version2 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path28.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path34.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path28.commands[i2];
+          let cmd = path34.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -44748,9 +45209,9 @@ var require_opentype = __commonJS({
         return t2;
       }
       var cff_default = { parse: parseCFFTable, make: makeCFFTable };
-      function parseHeadTable(data, start) {
+      function parseHeadTable(data, start2) {
         const head = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         head.version = p2.parseVersion();
         head.fontRevision = Math.round(p2.parseFixed() * 1e3) / 1e3;
         head.checkSumAdjustment = p2.parseULong();
@@ -44799,9 +45260,9 @@ var require_opentype = __commonJS({
         ], options);
       }
       var head_default = { parse: parseHeadTable, make: makeHeadTable };
-      function parseHheaTable(data, start) {
+      function parseHheaTable(data, start2) {
         const hhea = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         hhea.version = p2.parseVersion();
         hhea.ascender = p2.parseShort();
         hhea.descender = p2.parseShort();
@@ -44840,10 +45301,10 @@ var require_opentype = __commonJS({
         ], options);
       }
       var hhea_default = { parse: parseHheaTable, make: makeHheaTable };
-      function parseHmtxTableAll(data, start, numMetrics, numGlyphs, glyphs) {
+      function parseHmtxTableAll(data, start2, numMetrics, numGlyphs, glyphs) {
         let advanceWidth;
         let leftSideBearing;
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         for (let i2 = 0; i2 < numGlyphs; i2 += 1) {
           if (i2 < numMetrics) {
             advanceWidth = p2.parseUShort();
@@ -44854,11 +45315,11 @@ var require_opentype = __commonJS({
           glyph.leftSideBearing = leftSideBearing;
         }
       }
-      function parseHmtxTableOnLowMemory(font, data, start, numMetrics, numGlyphs) {
+      function parseHmtxTableOnLowMemory(font, data, start2, numMetrics, numGlyphs) {
         font._hmtxTableData = {};
         let advanceWidth;
         let leftSideBearing;
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         for (let i2 = 0; i2 < numGlyphs; i2 += 1) {
           if (i2 < numMetrics) {
             advanceWidth = p2.parseUShort();
@@ -44870,11 +45331,11 @@ var require_opentype = __commonJS({
           };
         }
       }
-      function parseHmtxTable(font, data, start, numMetrics, numGlyphs, glyphs, opt) {
+      function parseHmtxTable(font, data, start2, numMetrics, numGlyphs, glyphs, opt) {
         if (opt.lowMemory)
-          parseHmtxTableOnLowMemory(font, data, start, numMetrics, numGlyphs);
+          parseHmtxTableOnLowMemory(font, data, start2, numMetrics, numGlyphs);
         else
-          parseHmtxTableAll(data, start, numMetrics, numGlyphs, glyphs);
+          parseHmtxTableAll(data, start2, numMetrics, numGlyphs, glyphs);
       }
       function makeHmtxTable(glyphs) {
         const t2 = new table_default.Table("hmtx", []);
@@ -44908,8 +45369,8 @@ var require_opentype = __commonJS({
         result.fields.push({ name: "stringPool", type: "CHARARRAY", value: stringPool });
         return result;
       }
-      function parseLtagTable(data, start) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseLtagTable(data, start2) {
+        const p2 = new parse_default.Parser(data, start2);
         const tableVersion = p2.parseULong();
         check_default.argument(tableVersion === 1, "Unsupported ltag table version.");
         p2.skip("uLong", 1);
@@ -44917,7 +45378,7 @@ var require_opentype = __commonJS({
         const tags = [];
         for (let i2 = 0; i2 < numTags; i2++) {
           let tag = "";
-          const offset = start + p2.parseUShort();
+          const offset = start2 + p2.parseUShort();
           const length = p2.parseUShort();
           for (let j = offset; j < offset + length; ++j) {
             tag += String.fromCharCode(data.getInt8(j));
@@ -44927,9 +45388,9 @@ var require_opentype = __commonJS({
         return tags;
       }
       var ltag_default = { make: makeLtagTable, parse: parseLtagTable };
-      function parseMaxpTable(data, start) {
+      function parseMaxpTable(data, start2) {
         const maxp = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         maxp.version = p2.parseVersion();
         maxp.numGlyphs = p2.parseUShort();
         if (maxp.version === 1) {
@@ -45213,9 +45674,9 @@ var require_opentype = __commonJS({
         }
         return -1;
       }
-      function parseOS2Table(data, start) {
+      function parseOS2Table(data, start2) {
         const os22 = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         os22.version = p2.parseUShort();
         os22.xAvgCharWidth = p2.parseShort();
         os22.usWeightClass = p2.parseUShort();
@@ -45313,9 +45774,9 @@ var require_opentype = __commonJS({
         ], options);
       }
       var os2_default = { parse: parseOS2Table, make: makeOS2Table, unicodeRanges, getUnicodeRange };
-      function parsePostTable(data, start) {
+      function parsePostTable(data, start2) {
         const post = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         post.version = p2.parseVersion();
         post.italicAngle = p2.parseFixed();
         post.underlinePosition = p2.parseShort();
@@ -45379,7 +45840,7 @@ var require_opentype = __commonJS({
       var post_default = { parse: parsePostTable, make: makePostTable };
       var subtableParsers = new Array(9);
       subtableParsers[1] = function parseLookup1() {
-        const start = this.offset + this.relativeOffset;
+        const start2 = this.offset + this.relativeOffset;
         const substFormat = this.parseUShort();
         if (substFormat === 1) {
           return {
@@ -45394,7 +45855,7 @@ var require_opentype = __commonJS({
             substitute: this.parseOffset16List()
           };
         }
-        check_default.assert(false, "0x" + start.toString(16) + ": lookup type 1 format must be 1 or 2.");
+        check_default.assert(false, "0x" + start2.toString(16) + ": lookup type 1 format must be 1 or 2.");
       };
       subtableParsers[2] = function parseLookup2() {
         const substFormat = this.parseUShort();
@@ -45433,7 +45894,7 @@ var require_opentype = __commonJS({
         lookupListIndex: Parser.uShort
       };
       subtableParsers[5] = function parseLookup5() {
-        const start = this.offset + this.relativeOffset;
+        const start2 = this.offset + this.relativeOffset;
         const substFormat = this.parseUShort();
         if (substFormat === 1) {
           return {
@@ -45471,10 +45932,10 @@ var require_opentype = __commonJS({
             lookupRecords: this.parseRecordList(substCount, lookupRecordDesc)
           };
         }
-        check_default.assert(false, "0x" + start.toString(16) + ": lookup type 5 format must be 1, 2 or 3.");
+        check_default.assert(false, "0x" + start2.toString(16) + ": lookup type 5 format must be 1, 2 or 3.");
       };
       subtableParsers[6] = function parseLookup6() {
-        const start = this.offset + this.relativeOffset;
+        const start2 = this.offset + this.relativeOffset;
         const substFormat = this.parseUShort();
         if (substFormat === 1) {
           return {
@@ -45514,7 +45975,7 @@ var require_opentype = __commonJS({
             lookupRecords: this.parseRecordList(lookupRecordDesc)
           };
         }
-        check_default.assert(false, "0x" + start.toString(16) + ": lookup type 6 format must be 1, 2 or 3.");
+        check_default.assert(false, "0x" + start2.toString(16) + ": lookup type 6 format must be 1, 2 or 3.");
       };
       subtableParsers[7] = function parseLookup7() {
         const substFormat = this.parseUShort();
@@ -45538,9 +45999,9 @@ var require_opentype = __commonJS({
           substitutes: this.parseUShortList()
         };
       };
-      function parseGsubTable(data, start) {
-        start = start || 0;
-        const p2 = new Parser(data, start);
+      function parseGsubTable(data, start2) {
+        start2 = start2 || 0;
+        const p2 = new Parser(data, start2);
         const tableVersion = p2.parseVersion(1);
         check_default.argument(tableVersion === 1 || tableVersion === 1.1, "Unsupported GSUB table version.");
         if (tableVersion === 1) {
@@ -45720,8 +46181,8 @@ var require_opentype = __commonJS({
         ]);
       }
       var gsub_default = { parse: parseGsubTable, make: makeGsubTable };
-      function parseMetaTable(data, start) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseMetaTable(data, start2) {
+        const p2 = new parse_default.Parser(data, start2);
         const tableVersion = p2.parseULong();
         check_default.argument(tableVersion === 1, "Unsupported META table version.");
         p2.parseULong();
@@ -45734,7 +46195,7 @@ var require_opentype = __commonJS({
           const dataLength = p2.parseULong();
           if (tag === "appl" || tag === "bild")
             continue;
-          const text2 = decode7.UTF8(data, start + dataOffset, dataLength);
+          const text2 = decode7.UTF8(data, start2 + dataOffset, dataLength);
           tags[tag] = text2;
         }
         return tags;
@@ -45760,8 +46221,8 @@ var require_opentype = __commonJS({
         return result;
       }
       var meta_default = { parse: parseMetaTable, make: makeMetaTable };
-      function parseColrTable(data, start) {
-        const p2 = new Parser(data, start);
+      function parseColrTable(data, start2) {
+        const p2 = new Parser(data, start2);
         const version2 = p2.parseUShort();
         if (version2 !== 0) {
           console.warn("Only COLRv0 is currently fully supported. A subset of color glyphs might be available in this font if provided in the v0 format.");
@@ -45819,9 +46280,9 @@ var require_opentype = __commonJS({
           { name: "nameID_" + n2, type: "USHORT", value: axis.axisNameID }
         ];
       }
-      function parseFvarAxis(data, start, names3) {
+      function parseFvarAxis(data, start2, names3) {
         const axis = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         axis.tag = p2.parseTag();
         axis.minValue = p2.parseFixed();
         axis.defaultValue = p2.parseFixed();
@@ -45854,9 +46315,9 @@ var require_opentype = __commonJS({
         }
         return fields;
       }
-      function parseFvarInstance(data, start, axes, names3, instanceSize) {
+      function parseFvarInstance(data, start2, axes, names3, instanceSize) {
         const inst = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         const subfamilyNameID = p2.parseUShort();
         inst.subfamilyNameID = subfamilyNameID;
         inst.name = getNameByID(names3, subfamilyNameID, [2, 17]);
@@ -45907,8 +46368,8 @@ var require_opentype = __commonJS({
         }
         return result;
       }
-      function parseFvarTable(data, start, names3) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseFvarTable(data, start2, names3) {
+        const p2 = new parse_default.Parser(data, start2);
         const tableVersion = p2.parseULong();
         check_default.argument(tableVersion === 65536, "Unsupported fvar table version.");
         const offsetToData = p2.parseOffset16();
@@ -45919,10 +46380,10 @@ var require_opentype = __commonJS({
         const instanceSize = p2.parseUShort();
         const axes = [];
         for (let i2 = 0; i2 < axisCount; i2++) {
-          axes.push(parseFvarAxis(data, start + offsetToData + i2 * axisSize, names3));
+          axes.push(parseFvarAxis(data, start2 + offsetToData + i2 * axisSize, names3));
         }
         const instances = [];
-        const instanceStart = start + offsetToData + axisCount * axisSize;
+        const instanceStart = start2 + offsetToData + axisCount * axisSize;
         for (let j = 0; j < instanceCount; j++) {
           instances.push(parseFvarInstance(data, instanceStart + j * instanceSize, axes, names3, instanceSize));
         }
@@ -45987,11 +46448,11 @@ var require_opentype = __commonJS({
         }
         return Object.assign(formatStub, this.parseStruct(axisValueParser.bind(this)));
       }
-      function parseSTATTable(data, start, fvar) {
-        if (!start) {
-          start = 0;
+      function parseSTATTable(data, start2, fvar) {
+        if (!start2) {
+          start2 = 0;
         }
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         const tableVersionMajor = p2.parseUShort();
         const tableVersionMinor = p2.parseUShort();
         if (tableVersionMajor !== 1) {
@@ -46015,16 +46476,16 @@ var require_opentype = __commonJS({
         }
         const axes = [];
         for (let i2 = 0; i2 < designAxisCount; i2++) {
-          p2.offset = start + designAxesOffset;
+          p2.offset = start2 + designAxesOffset;
           p2.relativeOffset = i2 * designAxisSize;
           axes.push(p2.parseStruct(axisRecordStruct));
         }
-        p2.offset = start;
+        p2.offset = start2;
         p2.relativeOffset = offsetToAxisValueOffsets;
         const valueOffsets = p2.parseUShortList(axisValueCount);
         const values = [];
         for (let i2 = 0; i2 < axisValueCount; i2++) {
-          p2.offset = start + offsetToAxisValueOffsets;
+          p2.offset = start2 + offsetToAxisValueOffsets;
           p2.relativeOffset = valueOffsets[i2];
           values.push(parseSTATAxisValue.apply(p2));
         }
@@ -46162,11 +46623,11 @@ var require_opentype = __commonJS({
         }
         return result;
       }
-      function parseAvarTable(data, start, fvar) {
-        if (!start) {
-          start = 0;
+      function parseAvarTable(data, start2, fvar) {
+        if (!start2) {
+          start2 = 0;
         }
-        const p2 = new Parser(data, start);
+        const p2 = new Parser(data, start2);
         const tableVersionMajor = p2.parseUShort();
         const tableVersionMinor = p2.parseUShort();
         if (tableVersionMajor !== 1) {
@@ -46197,8 +46658,8 @@ var require_opentype = __commonJS({
         };
       }
       var avar_default = { make: makeAvarTable, parse: parseAvarTable };
-      function parseCvarTable(data, start, fvar, cvt) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseCvarTable(data, start2, fvar, cvt) {
+        const p2 = new parse_default.Parser(data, start2);
         const cvtVariations = p2.parseTupleVariationStore(
           p2.relativeOffset,
           fvar.axes.length,
@@ -46219,8 +46680,8 @@ var require_opentype = __commonJS({
         console.warn("Writing of cvar tables is not yet supported.");
       }
       var cvar_default = { make: makeCvarTable, parse: parseCvarTable };
-      function parseGvarTable(data, start, fvar, glyphs) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseGvarTable(data, start2, fvar, glyphs) {
+        const p2 = new parse_default.Parser(data, start2);
         const tableVersionMajor = p2.parseUShort();
         const tableVersionMinor = p2.parseUShort();
         if (tableVersionMajor !== 1) {
@@ -46245,9 +46706,9 @@ var require_opentype = __commonJS({
         console.warn("Writing of gvar tables is not yet supported.");
       }
       var gvar_default = { make: makeGvarTable, parse: parseGvarTable };
-      function parseGaspTable(data, start) {
+      function parseGaspTable(data, start2) {
         const gasp = {};
-        const p2 = new parse_default.Parser(data, start);
+        const p2 = new parse_default.Parser(data, start2);
         gasp.version = p2.parseUShort();
         check_default.argument(gasp.version <= 1, "Unsupported gasp table version.");
         gasp.numRanges = p2.parseUShort();
@@ -46707,10 +47168,10 @@ var require_opentype = __commonJS({
         while (imin <= imax) {
           const imid = imin + imax >>> 1;
           range = ranges[imid];
-          const start = range.start;
-          if (start === value) {
+          const start2 = range.start;
+          if (start2 === value) {
             return range;
-          } else if (start < value) {
+          } else if (start2 < value) {
             imin = imid + 1;
           } else {
             imax = imid - 1;
@@ -46975,9 +47436,9 @@ var require_opentype = __commonJS({
             const ranges = coverageTable.ranges;
             for (let i2 = 0; i2 < ranges.length; i2++) {
               const range = ranges[i2];
-              const start = range.start;
+              const start2 = range.start;
               const end = range.end;
-              for (let j = start; j <= end; j++) {
+              for (let j = start2; j <= end; j++) {
                 glyphs.push(j);
               }
             }
@@ -47090,24 +47551,24 @@ var require_opentype = __commonJS({
       }
       function unGzip(gzip) {
         const data = new DataView(gzip.buffer, gzip.byteOffset, gzip.byteLength);
-        let start = 10;
+        let start2 = 10;
         const end = gzip.byteLength - 8;
         const flg = data.getInt8(3);
         if (flg & 4) {
-          start += 2 + data.getUint16(start, true);
+          start2 += 2 + data.getUint16(start2, true);
         }
         if (flg & 8) {
-          while (start < end) if (gzip[start++] === 0) break;
+          while (start2 < end) if (gzip[start2++] === 0) break;
         }
         if (flg & 16) {
-          while (start < end) if (gzip[start++] === 0) break;
+          while (start2 < end) if (gzip[start2++] === 0) break;
         }
         if (flg & 2) {
-          start += 2;
+          start2 += 2;
         }
-        if (start >= end) throw new Error("Can't find compressed blocks");
+        if (start2 >= end) throw new Error("Can't find compressed blocks");
         const isize = data.getUint32(data.byteLength - 4, true);
-        return tinf_uncompress(gzip.subarray(start, end), new Uint8Array(isize));
+        return tinf_uncompress(gzip.subarray(start2, end), new Uint8Array(isize));
       }
       function copyPoint(p2) {
         return {
@@ -47743,13 +48204,13 @@ var require_opentype = __commonJS({
          * @param {integer} start index to remove the layer at
          * @param {integer?} end (optional) if provided, removes all layers from start index to (and including) end index
          */
-        remove(glyphIndex, start, end = start) {
+        remove(glyphIndex, start2, end = start2) {
           let currentLayers = this.get(glyphIndex);
           currentLayers = currentLayers.map((layer) => ({
             glyphID: layer.glyph.index,
             paletteIndex: layer.paletteIndex
           }));
-          currentLayers.splice(start, end - start + 1);
+          currentLayers.splice(start2, end - start2 + 1);
           this.updateColrTable(glyphIndex, currentLayers);
         }
         /**
@@ -47967,8 +48428,8 @@ var require_opentype = __commonJS({
         }
         return v;
       }
-      function parseGlyph(glyph, data, start) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseGlyph(glyph, data, start2) {
+        const p2 = new parse_default.Parser(data, start2);
         glyph._numberOfContours = p2.parseShort();
         glyph._xMin = p2.parseShort();
         glyph._yMin = p2.parseShort();
@@ -48130,8 +48591,8 @@ var require_opentype = __commonJS({
             if (next.onCurve) {
               p2.moveTo(next.x, next.y);
             } else {
-              const start = { x: (curr.x + next.x) * 0.5, y: (curr.y + next.y) * 0.5 };
-              p2.moveTo(start.x, start.y);
+              const start2 = { x: (curr.x + next.x) * 0.5, y: (curr.y + next.y) * 0.5 };
+              p2.moveTo(start2.x, start2.y);
             }
           }
           for (let i2 = 0; i2 < contour.length; ++i2) {
@@ -48198,37 +48659,37 @@ var require_opentype = __commonJS({
         }
         return getPath(glyph.points);
       }
-      function parseGlyfTableAll(data, start, loca, font) {
+      function parseGlyfTableAll(data, start2, loca, font) {
         const glyphs = new glyphset_default.GlyphSet(font);
         for (let i2 = 0; i2 < loca.length - 1; i2 += 1) {
           const offset = loca[i2];
           const nextOffset = loca[i2 + 1];
           if (offset !== nextOffset) {
-            glyphs.push(i2, glyphset_default.ttfGlyphLoader(font, i2, parseGlyph, data, start + offset, buildPath));
+            glyphs.push(i2, glyphset_default.ttfGlyphLoader(font, i2, parseGlyph, data, start2 + offset, buildPath));
           } else {
             glyphs.push(i2, glyphset_default.glyphLoader(font, i2));
           }
         }
         return glyphs;
       }
-      function parseGlyfTableOnLowMemory(data, start, loca, font) {
+      function parseGlyfTableOnLowMemory(data, start2, loca, font) {
         const glyphs = new glyphset_default.GlyphSet(font);
         font._push = function(i2) {
           const offset = loca[i2];
           const nextOffset = loca[i2 + 1];
           if (offset !== nextOffset) {
-            glyphs.push(i2, glyphset_default.ttfGlyphLoader(font, i2, parseGlyph, data, start + offset, buildPath));
+            glyphs.push(i2, glyphset_default.ttfGlyphLoader(font, i2, parseGlyph, data, start2 + offset, buildPath));
           } else {
             glyphs.push(i2, glyphset_default.glyphLoader(font, i2));
           }
         };
         return glyphs;
       }
-      function parseGlyfTable(data, start, loca, font, opt) {
+      function parseGlyfTable(data, start2, loca, font, opt) {
         if (opt.lowMemory)
-          return parseGlyfTableOnLowMemory(data, start, loca, font);
+          return parseGlyfTableOnLowMemory(data, start2, loca, font);
         else
-          return parseGlyfTableAll(data, start, loca, font);
+          return parseGlyfTableAll(data, start2, loca, font);
       }
       var glyf_default = { getPath, parse: parseGlyfTable };
       var VariationProcessor = class {
@@ -51079,16 +51540,16 @@ var require_opentype = __commonJS({
         }
         this.dispatch("composeRUD", [state.filter((op) => !hasFAILObject(op))]);
       };
-      Tokenizer.prototype.replaceRange = function(startIndex, offset, tokens, silent) {
+      Tokenizer.prototype.replaceRange = function(startIndex, offset, tokens2, silent) {
         offset = offset !== null ? offset : this.tokens.length;
-        const isTokenType = tokens.every((token) => token instanceof Token);
+        const isTokenType = tokens2.every((token) => token instanceof Token);
         if (!isNaN(startIndex) && this.inboundIndex(startIndex) && isTokenType) {
           const replaced = this.tokens.splice.apply(
             this.tokens,
-            [startIndex, offset].concat(tokens)
+            [startIndex, offset].concat(tokens2)
           );
-          if (!silent) this.dispatch("replaceToken", [startIndex, offset, tokens]);
-          return [replaced, tokens];
+          if (!silent) this.dispatch("replaceToken", [startIndex, offset, tokens2]);
+          return [replaced, tokens2];
         } else {
           return { FAIL: "replaceRange: invalid tokens or startIndex." };
         }
@@ -51104,9 +51565,9 @@ var require_opentype = __commonJS({
       };
       Tokenizer.prototype.removeRange = function(startIndex, offset, silent) {
         offset = !isNaN(offset) ? offset : this.tokens.length;
-        const tokens = this.tokens.splice(startIndex, offset);
-        if (!silent) this.dispatch("removeRange", [tokens, startIndex, offset]);
-        return tokens;
+        const tokens2 = this.tokens.splice(startIndex, offset);
+        if (!silent) this.dispatch("removeRange", [tokens2, startIndex, offset]);
+        return tokens2;
       };
       Tokenizer.prototype.removeToken = function(index, silent) {
         if (!isNaN(index) && this.inboundIndex(index)) {
@@ -51117,17 +51578,17 @@ var require_opentype = __commonJS({
           return { FAIL: "removeToken: invalid token index." };
         }
       };
-      Tokenizer.prototype.insertToken = function(tokens, index, silent) {
-        const tokenType = tokens.every(
+      Tokenizer.prototype.insertToken = function(tokens2, index, silent) {
+        const tokenType = tokens2.every(
           (token) => token instanceof Token
         );
         if (tokenType) {
           this.tokens.splice.apply(
             this.tokens,
-            [index, 0].concat(tokens)
+            [index, 0].concat(tokens2)
           );
-          if (!silent) this.dispatch("insertToken", [tokens, index]);
-          return tokens;
+          if (!silent) this.dispatch("insertToken", [tokens2, index]);
+          return tokens2;
         } else {
           return { FAIL: "insertToken: invalid token(s)." };
         }
@@ -51816,16 +52277,16 @@ var require_opentype = __commonJS({
         startCheck: arabicSentenceStartCheck,
         endCheck: arabicSentenceEndCheck
       };
-      function singleSubstitutionFormat12(action, tokens, index) {
-        tokens[index].setState(action.tag, action.substitution);
+      function singleSubstitutionFormat12(action, tokens2, index) {
+        tokens2[index].setState(action.tag, action.substitution);
       }
-      function singleSubstitutionFormat22(action, tokens, index) {
-        tokens[index].setState(action.tag, action.substitution);
+      function singleSubstitutionFormat22(action, tokens2, index) {
+        tokens2[index].setState(action.tag, action.substitution);
       }
-      function chainingSubstitutionFormat32(action, tokens, index) {
+      function chainingSubstitutionFormat32(action, tokens2, index) {
         for (let i2 = 0; i2 < action.substitution.length; i2++) {
           const subst = action.substitution[i2];
-          const token = tokens[index + i2];
+          const token = tokens2[index + i2];
           if (Array.isArray(subst)) {
             if (subst.length) {
               token.setState(action.tag, subst[0]);
@@ -51837,12 +52298,12 @@ var require_opentype = __commonJS({
           token.setState(action.tag, subst);
         }
       }
-      function ligatureSubstitutionFormat12(action, tokens, index) {
-        let token = tokens[index];
+      function ligatureSubstitutionFormat12(action, tokens2, index) {
+        let token = tokens2[index];
         token.setState(action.tag, action.substitution.ligGlyph);
         const compsCount = action.substitution.components.length;
         for (let i2 = 0; i2 < compsCount; i2++) {
-          token = tokens[index + i2 + 1];
+          token = tokens2[index + i2 + 1];
           token.setState("deleted", true);
         }
       }
@@ -51854,9 +52315,9 @@ var require_opentype = __commonJS({
         51: chainingSubstitutionFormat32,
         53: chainingSubstitutionFormat32
       };
-      function applySubstitution(action, tokens, index) {
+      function applySubstitution(action, tokens2, index) {
         if (action instanceof SubstitutionAction && SUBSTITUTIONS[action.id]) {
-          SUBSTITUTIONS[action.id](action, tokens, index);
+          SUBSTITUTIONS[action.id](action, tokens2, index);
         }
       }
       var applySubstitution_default = applySubstitution;
@@ -51883,22 +52344,22 @@ var require_opentype = __commonJS({
       function arabicPresentationForms(range) {
         const script = "arab";
         const tags = this.featuresTags[script];
-        const tokens = this.tokenizer.getRangeTokens(range);
-        if (tokens.length === 1) return;
+        const tokens2 = this.tokenizer.getRangeTokens(range);
+        if (tokens2.length === 1) return;
         let contextParams = new ContextParams(
-          tokens.map(
+          tokens2.map(
             (token) => token.getState("glyphIndex")
           ),
           0
         );
         const charContextParams = new ContextParams(
-          tokens.map(
+          tokens2.map(
             (token) => token.char
           ),
           0
         );
-        for (let i2 = 0; i2 < tokens.length; i2++) {
-          const token = tokens[i2];
+        for (let i2 = 0; i2 < tokens2.length; i2++) {
+          const token = tokens2[i2];
           if (isTashkeelArabicChar(token.char)) continue;
           contextParams.setCurrentIndex(i2);
           charContextParams.setCurrentIndex(i2);
@@ -51930,21 +52391,21 @@ var require_opentype = __commonJS({
           for (let j = 0; j < substitutions.length; j++) {
             const action = substitutions[j];
             if (action instanceof SubstitutionAction) {
-              applySubstitution_default(action, tokens, j);
+              applySubstitution_default(action, tokens2, j);
               contextParams.context[j] = action.substitution;
             }
           }
         }
       }
       var arabicPresentationForms_default = arabicPresentationForms;
-      function getContextParams(tokens, index) {
-        const context = tokens.map((token) => token.activeState.value);
+      function getContextParams(tokens2, index) {
+        const context = tokens2.map((token) => token.activeState.value);
         return new ContextParams(context, index || 0);
       }
       function arabicRequiredLigatures(range) {
         const script = "arab";
-        let tokens = this.tokenizer.getRangeTokens(range);
-        let contextParams = getContextParams(tokens);
+        let tokens2 = this.tokenizer.getRangeTokens(range);
+        let contextParams = getContextParams(tokens2);
         for (let index = 0; index < contextParams.context.length; index++) {
           contextParams.setCurrentIndex(index);
           let substitutions = this.query.lookupFeature({
@@ -51955,9 +52416,9 @@ var require_opentype = __commonJS({
           if (substitutions.length) {
             for (let i2 = 0; i2 < substitutions.length; i2++) {
               const action = substitutions[i2];
-              applySubstitution_default(action, tokens, index);
+              applySubstitution_default(action, tokens2, index);
             }
-            contextParams = getContextParams(tokens);
+            contextParams = getContextParams(tokens2);
           }
         }
       }
@@ -51972,15 +52433,15 @@ var require_opentype = __commonJS({
         startCheck: ccmpReplacementStartCheck,
         endCheck: ccmpReplacementEndCheck
       };
-      function getContextParams2(tokens, index) {
-        const context = tokens.map((token) => token.activeState.value);
+      function getContextParams2(tokens2, index) {
+        const context = tokens2.map((token) => token.activeState.value);
         return new ContextParams(context, index || 0);
       }
       function ccmpReplacementLigatures(range) {
         const script = "delf";
         const tag = "ccmp";
-        let tokens = this.tokenizer.getRangeTokens(range);
-        let contextParams = getContextParams2(tokens);
+        let tokens2 = this.tokenizer.getRangeTokens(range);
+        let contextParams = getContextParams2(tokens2);
         for (let index = 0; index < contextParams.context.length; index++) {
           if (!this.query.getFeature({ tag, script, contextParams })) {
             continue;
@@ -51994,9 +52455,9 @@ var require_opentype = __commonJS({
           if (substitutions.length) {
             for (let i2 = 0; i2 < substitutions.length; i2++) {
               const action = substitutions[i2];
-              applySubstitution_default(action, tokens, index);
+              applySubstitution_default(action, tokens2, index);
             }
-            contextParams = getContextParams2(tokens);
+            contextParams = getContextParams2(tokens2);
           }
         }
       }
@@ -52022,14 +52483,14 @@ var require_opentype = __commonJS({
         startCheck: latinWordStartCheck,
         endCheck: latinWordEndCheck
       };
-      function getContextParams3(tokens, index) {
-        const context = tokens.map((token) => token.activeState.value);
+      function getContextParams3(tokens2, index) {
+        const context = tokens2.map((token) => token.activeState.value);
         return new ContextParams(context, index || 0);
       }
       function latinLigature(range) {
         const script = "latn";
-        let tokens = this.tokenizer.getRangeTokens(range);
-        let contextParams = getContextParams3(tokens);
+        let tokens2 = this.tokenizer.getRangeTokens(range);
+        let contextParams = getContextParams3(tokens2);
         for (let index = 0; index < contextParams.context.length; index++) {
           contextParams.setCurrentIndex(index);
           let substitutions = this.query.lookupFeature({
@@ -52040,9 +52501,9 @@ var require_opentype = __commonJS({
           if (substitutions.length) {
             for (let i2 = 0; i2 < substitutions.length; i2++) {
               const action = substitutions[i2];
-              applySubstitution_default(action, tokens, index);
+              applySubstitution_default(action, tokens2, index);
             }
-            contextParams = getContextParams3(tokens);
+            contextParams = getContextParams3(tokens2);
           }
         }
       }
@@ -52068,14 +52529,14 @@ var require_opentype = __commonJS({
         startCheck: thaiWordStartCheck,
         endCheck: thaiWordEndCheck
       };
-      function getContextParams4(tokens, index) {
-        const context = tokens.map((token) => token.activeState.value);
+      function getContextParams4(tokens2, index) {
+        const context = tokens2.map((token) => token.activeState.value);
         return new ContextParams(context, index || 0);
       }
       function thaiGlyphComposition(range) {
         const script = "thai";
-        let tokens = this.tokenizer.getRangeTokens(range);
-        let contextParams = getContextParams4(tokens, 0);
+        let tokens2 = this.tokenizer.getRangeTokens(range);
+        let contextParams = getContextParams4(tokens2, 0);
         for (let index = 0; index < contextParams.context.length; index++) {
           contextParams.setCurrentIndex(index);
           let substitutions = this.query.lookupFeature({
@@ -52086,21 +52547,21 @@ var require_opentype = __commonJS({
           if (substitutions.length) {
             for (let i2 = 0; i2 < substitutions.length; i2++) {
               const action = substitutions[i2];
-              applySubstitution_default(action, tokens, index);
+              applySubstitution_default(action, tokens2, index);
             }
-            contextParams = getContextParams4(tokens, index);
+            contextParams = getContextParams4(tokens2, index);
           }
         }
       }
       var thaiGlyphComposition_default = thaiGlyphComposition;
-      function getContextParams5(tokens, index) {
-        const context = tokens.map((token) => token.activeState.value);
+      function getContextParams5(tokens2, index) {
+        const context = tokens2.map((token) => token.activeState.value);
         return new ContextParams(context, index || 0);
       }
       function thaiLigatures(range) {
         const script = "thai";
-        let tokens = this.tokenizer.getRangeTokens(range);
-        let contextParams = getContextParams5(tokens, 0);
+        let tokens2 = this.tokenizer.getRangeTokens(range);
+        let contextParams = getContextParams5(tokens2, 0);
         for (let index = 0; index < contextParams.context.length; index++) {
           contextParams.setCurrentIndex(index);
           let substitutions = this.query.lookupFeature({
@@ -52111,21 +52572,21 @@ var require_opentype = __commonJS({
           if (substitutions.length) {
             for (let i2 = 0; i2 < substitutions.length; i2++) {
               const action = substitutions[i2];
-              applySubstitution_default(action, tokens, index);
+              applySubstitution_default(action, tokens2, index);
             }
-            contextParams = getContextParams5(tokens, index);
+            contextParams = getContextParams5(tokens2, index);
           }
         }
       }
       var thaiLigatures_default = thaiLigatures;
-      function getContextParams6(tokens, index) {
-        const context = tokens.map((token) => token.activeState.value);
+      function getContextParams6(tokens2, index) {
+        const context = tokens2.map((token) => token.activeState.value);
         return new ContextParams(context, index || 0);
       }
       function thaiRequiredLigatures(range) {
         const script = "thai";
-        let tokens = this.tokenizer.getRangeTokens(range);
-        let contextParams = getContextParams6(tokens, 0);
+        let tokens2 = this.tokenizer.getRangeTokens(range);
+        let contextParams = getContextParams6(tokens2, 0);
         for (let index = 0; index < contextParams.context.length; index++) {
           contextParams.setCurrentIndex(index);
           let substitutions = this.query.lookupFeature({
@@ -52136,9 +52597,9 @@ var require_opentype = __commonJS({
           if (substitutions.length) {
             for (let i2 = 0; i2 < substitutions.length; i2++) {
               const action = substitutions[i2];
-              applySubstitution_default(action, tokens, index);
+              applySubstitution_default(action, tokens2, index);
             }
-            contextParams = getContextParams6(tokens, index);
+            contextParams = getContextParams6(tokens2, index);
           }
         }
       }
@@ -52168,11 +52629,11 @@ var require_opentype = __commonJS({
       };
       function unicodeVariationSequence(range) {
         const font = this.query.font;
-        const tokens = this.tokenizer.getRangeTokens(range);
-        tokens[1].setState("deleted", true);
+        const tokens2 = this.tokenizer.getRangeTokens(range);
+        tokens2[1].setState("deleted", true);
         if (font.tables.cmap && font.tables.cmap.varSelectorList) {
-          const baseCodePoint = tokens[0].char.codePointAt(0);
-          const vsCodePoint = tokens[1].char.codePointAt(0);
+          const baseCodePoint = tokens2[0].char.codePointAt(0);
+          const vsCodePoint = tokens2[1].char.codePointAt(0);
           const selectorLookup = font.tables.cmap.varSelectorList[vsCodePoint];
           if (selectorLookup !== void 0) {
             if (selectorLookup.nonDefaultUVS) {
@@ -52180,7 +52641,7 @@ var require_opentype = __commonJS({
               if (mappings[baseCodePoint]) {
                 const replacementGlyphId = mappings[baseCodePoint].glyphID;
                 if (font.glyphs.glyphs[replacementGlyphId] !== void 0) {
-                  tokens[0].setState("glyphIndex", replacementGlyphId);
+                  tokens2[0].setState("glyphIndex", replacementGlyphId);
                 }
               }
             }
@@ -52628,8 +53089,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path28 = this.getPath(text2, x2, y2, fontSize, options);
-        path28.draw(ctx2);
+        const path34 = this.getPath(text2, x2, y2, fontSize, options);
+        path34.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -52766,8 +53227,8 @@ var require_opentype = __commonJS({
         BLACK: 900
       };
       var font_default = Font;
-      function parseHvarTable(data, start) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseHvarTable(data, start2) {
+        const p2 = new parse_default.Parser(data, start2);
         const tableVersionMajor = p2.parseUShort();
         const tableVersionMinor = p2.parseUShort();
         if (tableVersionMajor !== 1) {
@@ -52834,9 +53295,9 @@ var require_opentype = __commonJS({
         this.parseUShort();
         return this.parseList(Parser.pointer(Parser.coverage));
       };
-      function parseGDEFTable(data, start) {
-        start = start || 0;
-        const p2 = new Parser(data, start);
+      function parseGDEFTable(data, start2) {
+        start2 = start2 || 0;
+        const p2 = new Parser(data, start2);
         const tableVersion = p2.parseVersion(1);
         check_default.argument(
           tableVersion === 1 || tableVersion === 1.2 || tableVersion === 1.3,
@@ -52857,7 +53318,7 @@ var require_opentype = __commonJS({
       var gdef_default = { parse: parseGDEFTable };
       var subtableParsers2 = new Array(10);
       subtableParsers2[1] = function parseLookup12() {
-        const start = this.offset + this.relativeOffset;
+        const start2 = this.offset + this.relativeOffset;
         const posformat = this.parseUShort();
         if (posformat === 1) {
           return {
@@ -52872,12 +53333,12 @@ var require_opentype = __commonJS({
             values: this.parseValueRecordList()
           };
         }
-        check_default.assert(false, "0x" + start.toString(16) + ": GPOS lookup type 1 format must be 1 or 2.");
+        check_default.assert(false, "0x" + start2.toString(16) + ": GPOS lookup type 1 format must be 1 or 2.");
       };
       subtableParsers2[2] = function parseLookup22() {
-        const start = this.offset + this.relativeOffset;
+        const start2 = this.offset + this.relativeOffset;
         const posFormat = this.parseUShort();
-        check_default.assert(posFormat === 1 || posFormat === 2, "0x" + start.toString(16) + ": GPOS lookup type 2 format must be 1 or 2.");
+        check_default.assert(posFormat === 1 || posFormat === 2, "0x" + start2.toString(16) + ": GPOS lookup type 2 format must be 1 or 2.");
         const coverage = this.parsePointer(Parser.coverage);
         const valueFormat1 = this.parseUShort();
         const valueFormat2 = this.parseUShort();
@@ -52941,9 +53402,9 @@ var require_opentype = __commonJS({
       subtableParsers2[9] = function parseLookup9() {
         return { error: "GPOS Lookup 9 not supported" };
       };
-      function parseGposTable(data, start) {
-        start = start || 0;
-        const p2 = new Parser(data, start);
+      function parseGposTable(data, start2) {
+        start2 = start2 || 0;
+        const p2 = new Parser(data, start2);
         const tableVersion = p2.parseVersion(1);
         check_default.argument(tableVersion === 1 || tableVersion === 1.1, "Unsupported GPOS table version " + tableVersion);
         if (tableVersion === 1) {
@@ -53012,8 +53473,8 @@ var require_opentype = __commonJS({
         }
         return pairs2;
       }
-      function parseKernTable(data, start) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseKernTable(data, start2) {
+        const p2 = new parse_default.Parser(data, start2);
         const tableVersion = p2.parseUShort();
         if (tableVersion === 0) {
           return parseWindowsKernTable(p2);
@@ -53024,8 +53485,8 @@ var require_opentype = __commonJS({
         }
       }
       var kern_default = { parse: parseKernTable };
-      function parseLocaTable(data, start, numGlyphs, shortVersion) {
-        const p2 = new parse_default.Parser(data, start);
+      function parseLocaTable(data, start2, numGlyphs, shortVersion) {
+        const p2 = new parse_default.Parser(data, start2);
         const parseFn = shortVersion ? p2.parseUShort : p2.parseULong;
         const glyphOffsets = [];
         for (let i2 = 0; i2 < numGlyphs + 1; i2 += 1) {
@@ -53388,8 +53849,8 @@ var require_opentype = __commonJS({
 });
 
 // src/index.mjs
-import fs33 from "node:fs";
-import path27 from "node:path";
+import fs39 from "node:fs";
+import path33 from "node:path";
 
 // node_modules/zod/v3/helpers/util.js
 var util;
@@ -53765,8 +54226,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path28, errorMaps, issueData } = params;
-  const fullPath = [...path28, ...issueData.path || []];
+  const { data, path: path34, errorMaps, issueData } = params;
+  const fullPath = [...path34, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -53881,11 +54342,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path28, key) {
+  constructor(parent, value, path34, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path28;
+    this._path = path34;
     this._key = key;
   }
   get path() {
@@ -56596,29 +57057,29 @@ var ZodFunction = class _ZodFunction extends ZodType {
     const params = { errorMap: ctx2.common.contextualErrorMap };
     const fn = ctx2.data;
     if (this._def.returns instanceof ZodPromise) {
-      const me = this;
+      const me2 = this;
       return OK(async function(...args) {
         const error62 = new ZodError([]);
-        const parsedArgs = await me._def.args.parseAsync(args, params).catch((e2) => {
+        const parsedArgs = await me2._def.args.parseAsync(args, params).catch((e2) => {
           error62.addIssue(makeArgsIssue(args, e2));
           throw error62;
         });
         const result = await Reflect.apply(fn, this, parsedArgs);
-        const parsedReturns = await me._def.returns._def.type.parseAsync(result, params).catch((e2) => {
+        const parsedReturns = await me2._def.returns._def.type.parseAsync(result, params).catch((e2) => {
           error62.addIssue(makeReturnsIssue(result, e2));
           throw error62;
         });
         return parsedReturns;
       });
     } else {
-      const me = this;
+      const me2 = this;
       return OK(function(...args) {
-        const parsedArgs = me._def.args.safeParse(args, params);
+        const parsedArgs = me2._def.args.safeParse(args, params);
         if (!parsedArgs.success) {
           throw new ZodError([makeArgsIssue(args, parsedArgs.error)]);
         }
         const result = Reflect.apply(fn, this, parsedArgs.data);
-        const parsedReturns = me._def.returns.safeParse(result, params);
+        const parsedReturns = me2._def.returns.safeParse(result, params);
         if (!parsedReturns.success) {
           throw new ZodError([makeReturnsIssue(result, parsedReturns.error)]);
         }
@@ -57733,9 +58194,9 @@ function nullish(input2) {
   return input2 === null || input2 === void 0;
 }
 function cleanRegex(source) {
-  const start = source.startsWith("^") ? 1 : 0;
+  const start2 = source.startsWith("^") ? 1 : 0;
   const end = source.endsWith("$") ? source.length - 1 : source.length;
-  return source.slice(start, end);
+  return source.slice(start2, end);
 }
 function floatSafeRemainder2(val, step) {
   const ratio = val / step;
@@ -57840,10 +58301,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path28) {
-  if (!path28)
+function getElementAtPath(obj, path34) {
+  if (!path34)
     return obj;
-  return path28.reduce((acc, key) => acc?.[key], obj);
+  return path34.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -58183,11 +58644,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path28, issues) {
+function prefixIssues(path34, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path28);
+    iss.path.unshift(path34);
     return iss;
   });
 }
@@ -58206,9 +58667,9 @@ function sizeCaps(defChecks) {
   }
   return caps;
 }
-function attachSchema(issues, start, inst) {
+function attachSchema(issues, start2, inst) {
   var _a3;
-  for (let i2 = start; i2 < issues.length; i2++) {
+  for (let i2 = start2; i2 < issues.length; i2++) {
     (_a3 = issues[i2]).schema ?? (_a3.schema = inst);
   }
 }
@@ -58649,16 +59110,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path28 = []) => {
+  const processError = (error63, path34 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path28, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path34, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path34, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path34, ...issue2.path]);
       } else {
-        const fullpath = [...path28, ...issue2.path];
+        const fullpath = [...path34, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -58697,17 +59158,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path28 = []) => {
+  const processError = (error63, path34 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path28, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path34, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path34, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path28, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path34, ...issue2.path]);
       } else {
-        const fullpath = [...path28, ...issue2.path];
+        const fullpath = [...path34, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -58746,8 +59207,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path28 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path28) {
+  const path34 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path34) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -60393,10 +60854,10 @@ function capSize(inst, size) {
     if (n2 > cap && !ctx2?.skipChecks && ctx2?.direction !== "backward") {
       for (const [max, ch] of sizeCaps(inst._zod.def.checks)) {
         if (n2 > max && ch._zod.def.when(payload)) {
-          const start = payload.issues.length;
+          const start2 = payload.issues.length;
           ch._zod.check(payload);
-          payload.issues[start].continue = false;
-          attachSchema(payload.issues, start, inst);
+          payload.issues[start2].continue = false;
+          attachSchema(payload.issues, start2, inst);
           return payload;
         }
       }
@@ -62117,7 +62578,7 @@ function isRecursive(inst, stack, resolve2) {
     }
     return answer;
   };
-  const merge3 = (answer) => {
+  const merge4 = (answer) => {
     if (answer > result)
       result = answer;
   };
@@ -62126,7 +62587,7 @@ function isRecursive(inst, stack, resolve2) {
   switch (kind) {
     case "object": {
       const raw = rawShape(def);
-      merge3(raw ? shape(raw, true) : ASSUMED);
+      merge4(raw ? shape(raw, true) : ASSUMED);
       check2(def.catchall);
       break;
     }
@@ -62176,7 +62637,7 @@ function isRecursive(inst, stack, resolve2) {
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
       const inner = def._cachedInner ?? (resolve2 ? inst._zod.innerType : void 0);
-      merge3(inner ? isRecursive(inner, stack, false) : ASSUMED);
+      merge4(inner ? isRecursive(inner, stack, false) : ASSUMED);
       break;
     }
     // a leaf by choice: `parts` are regex fragments, not data positions
@@ -72486,13 +72947,13 @@ function _promise(Class2, innerType) {
 }
 // @__NO_SIDE_EFFECTS__
 function _custom(Class2, fn, _params) {
-  const norm2 = normalizeParams(_params);
-  norm2.abort ?? (norm2.abort = true);
+  const norm3 = normalizeParams(_params);
+  norm3.abort ?? (norm3.abort = true);
   const schema = new Class2({
     type: "custom",
     check: "custom",
     fn,
-    ...norm2
+    ...norm3
   });
   return schema;
 }
@@ -74066,21 +74527,21 @@ function visit(schema, fnOrHandlers) {
     const h = fnOrHandlers[node2._zod.def.type];
     return h ? h(node2, rewritten) : node2;
   };
-  const cache = /* @__PURE__ */ new Map();
+  const cache2 = /* @__PURE__ */ new Map();
   function run(s2) {
-    const cached2 = cache.get(s2);
+    const cached2 = cache2.get(s2);
     if (cached2 === RESOLVING) {
       return new $ZodLazy({
         type: "lazy",
-        getter: () => cache.get(s2)
+        getter: () => cache2.get(s2)
       });
     }
     if (cached2 !== void 0)
       return cached2;
-    cache.set(s2, RESOLVING);
+    cache2.set(s2, RESOLVING);
     const inner = mapInner(s2);
     const mapped = fn(inner, inner !== s2);
-    cache.set(s2, mapped);
+    cache2.set(s2, mapped);
     return mapped;
   }
   function mapInner(s2) {
@@ -74298,11 +74759,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path28) {
-  if (path28.length === 0) {
+function getDotPath(path34) {
+  if (path34.length === 0) {
     return "object root";
   }
-  return path28.reduce((acc, seg, index) => {
+  return path34.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -76529,13 +76990,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path28 = ref.slice(1).split("/").filter(Boolean);
-  if (path28.length === 0) {
+  const path34 = ref.slice(1).split("/").filter(Boolean);
+  if (path34.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path28[0] === defsKey) {
-    const key = path28[1] === void 0 ? void 0 : decodeJSONPointerSegment(path28[1]);
+  if (path34[0] === defsKey) {
+    const key = path34[1] === void 0 ? void 0 : decodeJSONPointerSegment(path34[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -82791,49 +83252,9 @@ var StdioServerTransport = class {
 };
 
 // src/core/config.mjs
+init_paths();
 import fs2 from "node:fs";
 import path2 from "node:path";
-
-// src/core/paths.mjs
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-var here = path.dirname(fileURLToPath(import.meta.url));
-function findPluginRoot() {
-  if (process.env.CLAUDE_PLUGIN_ROOT && fs.existsSync(process.env.CLAUDE_PLUGIN_ROOT)) return process.env.CLAUDE_PLUGIN_ROOT;
-  let dir = here;
-  for (let i2 = 0; i2 < 6; i2++) {
-    if (fs.existsSync(path.join(dir, ".claude-plugin", "plugin.json"))) return dir;
-    dir = path.dirname(dir);
-  }
-  return path.resolve(here, "..", "..", "..");
-}
-var pluginRoot = findPluginRoot();
-var skillsDir = path.join(pluginRoot, "skills");
-var rulesDir = path.join(pluginRoot, "rules");
-var dataDir = path.join(pluginRoot, "data");
-var examplesDir = path.join(pluginRoot, "examples");
-var kitDir = path.join(pluginRoot, "kit");
-function projectDir(cwd) {
-  return cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
-}
-function projectDripDir(cwd) {
-  return path.join(projectDir(cwd), ".drip");
-}
-function ensureProjectDrip(cwd) {
-  const dir = ensureDir(projectDripDir(cwd));
-  const ignore = path.join(dir, ".gitignore");
-  if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, "# Drip's working files. Shareable settings and the asset credits log stay tracked.\n*\n!.gitignore\n!config.json\n!slop.json\n!catalogue.json\n!assets.json\n");
-  return dir;
-}
-var homeDripDir = process.env.DRIP_HOME || path.join(os.homedir(), ".drip");
-function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
-  return dir;
-}
-
-// src/core/config.mjs
 var DEFAULTS = {
   // Turn whole tool groups on or off.
   modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true, critic: true, logo: true, packs: true },
@@ -82881,7 +83302,7 @@ var DEFAULTS = {
   },
   fitcheck: {
     sizes: [
-      { name: "phone", width: 390, height: 844 },
+      { name: "phone", width: 375, height: 812 },
       { name: "desktop", width: 1440, height: 900 }
     ],
     chromePath: ""
@@ -82906,145 +83327,115 @@ function loadConfig(cwd) {
   return merge2(merge2(DEFAULTS, global), project);
 }
 
-// src/core/guides.mjs
-import fs4 from "node:fs";
-import path4 from "node:path";
-
-// src/core/packs.mjs
-import fs3 from "node:fs";
-import path3 from "node:path";
-var PACK_FILES = ["guide.md", "genres.md", "artists.md", "queries.md", "critic.md", "sources.md", "refs.json", "slop.json", "catalogue.json"];
-function roots(cwd) {
-  return [path3.join(projectDripDir(cwd), "packs"), path3.join(homeDripDir, "packs")];
-}
-function packDir(id, cwd) {
-  for (const r2 of roots(cwd)) if (fs3.existsSync(path3.join(r2, id, "pack.json"))) return path3.join(r2, id);
-  return null;
-}
-function listPacks(cwd) {
-  const out = /* @__PURE__ */ new Map();
-  for (const r2 of roots(cwd).reverse()) {
-    if (!fs3.existsSync(r2)) continue;
-    for (const id of fs3.readdirSync(r2)) {
-      try {
-        const meta3 = JSON.parse(fs3.readFileSync(path3.join(r2, id, "pack.json"), "utf8"));
-        out.set(id, { ...meta3, id, dir: path3.join(r2, id), shared: r2.startsWith(projectDripDir(cwd)) });
-      } catch {
-      }
-    }
-  }
-  return [...out.values()];
-}
-function createPack({ id, name, niche, keywords, summary, shared: shared2 }, cwd) {
-  const dir = ensureDir(path3.join(shared2 ? path3.join(projectDripDir(cwd), "packs") : path3.join(homeDripDir, "packs"), id));
-  const file4 = path3.join(dir, "pack.json");
-  const prev = fs3.existsSync(file4) ? JSON.parse(fs3.readFileSync(file4, "utf8")) : {};
-  const meta3 = { ...prev, id, name, niche, keywords, summary, createdAt: prev.createdAt || (/* @__PURE__ */ new Date()).toISOString(), updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
-  fs3.writeFileSync(file4, JSON.stringify(meta3, null, 2));
-  return { ...meta3, dir };
-}
-function writePackFile(id, file4, content, cwd) {
-  if (!PACK_FILES.includes(file4)) throw new Error(`Pack files are: ${PACK_FILES.join(", ")}`);
-  const dir = packDir(id, cwd);
-  if (!dir) throw new Error(`No pack "${id}". Create it with pack_create first.`);
-  if (file4.endsWith(".json")) JSON.parse(content);
-  fs3.writeFileSync(path3.join(dir, file4), content);
-  const metaFile = path3.join(dir, "pack.json");
-  const meta3 = JSON.parse(fs3.readFileSync(metaFile, "utf8"));
-  meta3.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
-  fs3.writeFileSync(metaFile, JSON.stringify(meta3, null, 2));
-  return path3.join(dir, file4);
-}
-function readPackFile(id, file4, cwd) {
-  const dir = packDir(id, cwd);
-  if (!dir) return null;
-  const f2 = path3.join(dir, file4);
-  return fs3.existsSync(f2) ? fs3.readFileSync(f2, "utf8") : null;
-}
-function matchPacks(text2, cwd) {
-  const t2 = text2.toLowerCase();
-  return listPacks(cwd).filter((p2) => (p2.keywords || []).some((k) => k && t2.includes(String(k).toLowerCase())));
-}
-
-// src/core/guides.mjs
-function topicFile(topic) {
-  const t2 = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
-  if (t2 === "loop" || t2 === "drip") return path4.join(skillsDir, "drip", "guide.md");
-  if (t2 === "playbook") return path4.join(skillsDir, "drip", "playbook.md");
-  if (t2.startsWith("rules/")) return path4.join(rulesDir, `${t2.slice(6)}.md`);
-  if (t2.startsWith("examples/")) return path4.join(examplesDir, `${t2.slice(9)}.md`);
-  const [skill, ...rest] = t2.split("/");
-  const dir = path4.join(skillsDir, `drip-${skill}`);
-  return rest.length ? path4.join(dir, "reference", `${rest.join("/")}.md`) : path4.join(dir, "guide.md");
-}
-function normalizeTopic(topic) {
-  if (/^pack:/.test(topic.trim())) return topic.trim();
-  const t2 = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
-  return t2 === "drip" ? "loop" : t2;
-}
-function readGuide(topic) {
-  const pk = topic.trim().match(/^pack:([a-z0-9-]+)(?:\/([a-z-]+))?$/);
-  if (pk) {
-    const file5 = pk[2] ? pk[2].includes(".") ? pk[2] : `${pk[2]}.md` : "guide.md";
-    return readPackFile(pk[1], file5);
-  }
-  const file4 = topicFile(topic);
-  if (!fs4.existsSync(file4)) return null;
-  return fs4.readFileSync(file4, "utf8");
-}
-function listGuides() {
-  const out = [];
-  const add2 = (topic, file4) => {
-    const first = fs4.readFileSync(file4, "utf8").split("\n").find((l2) => l2.startsWith("# ")) || "";
-    out.push({ topic, title: first.replace(/^#\s*/, "") });
-  };
-  if (fs4.existsSync(examplesDir)) for (const f2 of fs4.readdirSync(examplesDir).filter((f3) => f3.endsWith(".md"))) add2(`examples/${f2.slice(0, -3)}`, path4.join(examplesDir, f2));
-  if (fs4.existsSync(rulesDir)) for (const f2 of fs4.readdirSync(rulesDir).filter((f3) => f3.endsWith(".md"))) add2(`rules/${f2.slice(0, -3)}`, path4.join(rulesDir, f2));
-  if (fs4.existsSync(skillsDir))
-    for (const d of fs4.readdirSync(skillsDir)) {
-      const topic = d === "drip" ? "loop" : d.replace(/^drip-/, "");
-      const guide = path4.join(skillsDir, d, "guide.md");
-      if (fs4.existsSync(guide)) add2(topic, guide);
-      if (d === "drip" && fs4.existsSync(path4.join(skillsDir, d, "playbook.md"))) add2("playbook", path4.join(skillsDir, d, "playbook.md"));
-      const ref = path4.join(skillsDir, d, "reference");
-      if (fs4.existsSync(ref)) for (const f2 of fs4.readdirSync(ref).filter((f3) => f3.endsWith(".md"))) add2(`${topic}/${f2.slice(0, -3)}`, path4.join(ref, f2));
-    }
-  return out;
-}
-function subTopics(topic) {
-  const t2 = normalizeTopic(topic);
-  if (t2.includes("/")) return [];
-  const dir = path4.join(skillsDir, t2 === "loop" ? "drip" : `drip-${t2}`, "reference");
-  if (!fs4.existsSync(dir)) return [];
-  return fs4.readdirSync(dir).filter((f2) => f2.endsWith(".md")).map((f2) => `${t2}/${f2.slice(0, -3)}`);
-}
+// src/index.mjs
+init_paths();
 
 // src/core/state.mjs
-import fs5 from "node:fs";
-import path5 from "node:path";
-var EMPTY = () => ({ version: 1, task: null, history: [] });
-function statePath(cwd) {
-  return path5.join(projectDripDir(cwd), "state.json");
+init_paths();
+import fs3 from "node:fs";
+import path3 from "node:path";
+var EMPTY = () => ({ version: 2, tasks: {}, sessions: {}, history: [] });
+var me = { session: process.env.CLAUDE_CODE_SESSION_ID || null, server: false, taskId: null };
+function setIdentity({ session, server: server2 } = {}) {
+  if (session) me.session = session;
+  if (server2 !== void 0) me.server = server2;
 }
-function loadState(cwd) {
+function alive(pid) {
+  if (!pid) return false;
   try {
-    return { ...EMPTY(), ...JSON.parse(fs5.readFileSync(statePath(cwd), "utf8")) };
+    process.kill(pid, 0);
+    return true;
+  } catch (e2) {
+    return e2.code === "EPERM";
+  }
+}
+function statePath(cwd) {
+  return path3.join(projectDripDir(cwd), "state.json");
+}
+function readRaw(cwd) {
+  let raw;
+  try {
+    raw = JSON.parse(fs3.readFileSync(statePath(cwd), "utf8"));
   } catch {
     return EMPTY();
   }
+  const out = { ...EMPTY(), ...raw, tasks: { ...raw.tasks || {} }, sessions: { ...raw.sessions || {} }, history: raw.history || [] };
+  if (raw.task) out.tasks[raw.task.id] = raw.task;
+  delete out.task;
+  return out;
 }
-function saveState(state, cwd) {
+function ownedByOther(t2, raw) {
+  if (me.session && t2.ownerSession && t2.ownerSession !== me.session && alive(t2.ownerPid)) return true;
+  const boundTo = Object.entries(raw.sessions).filter(([, id]) => id === t2.id).map(([sid]) => sid);
+  if (me.session && boundTo.length && !boundTo.includes(me.session) && alive(t2.ownerPid)) return true;
+  if (me.server && t2.ownerPid && t2.ownerPid !== process.pid && alive(t2.ownerPid)) return true;
+  return false;
+}
+function resolveId(raw) {
+  if (me.taskId && raw.tasks[me.taskId]) return me.taskId;
+  if (me.session) {
+    const id = raw.sessions[me.session];
+    if (id && raw.tasks[id]) return id;
+    const own2 = Object.values(raw.tasks).find((t2) => t2.ownerSession === me.session);
+    if (own2) return own2.id;
+  }
+  const free = Object.values(raw.tasks).filter((t2) => !ownedByOther(t2, raw));
+  return free.length === 1 ? free[0].id : null;
+}
+function claim2(raw, task) {
+  if (!me.server) return;
+  me.taskId = task.id;
+  task.ownerPid = process.pid;
+  if (me.session) {
+    task.ownerSession = me.session;
+    raw.sessions[me.session] = task.id;
+  }
+}
+function otherTasks(cwd) {
+  const raw = readRaw(cwd);
+  const mine = resolveId(raw);
+  return Object.values(raw.tasks).filter((t2) => t2.id !== mine && ownedByOther(t2, raw));
+}
+function loadState(cwd) {
+  const raw = readRaw(cwd);
+  const id = resolveId(raw);
+  return { history: raw.history, task: id ? raw.tasks[id] : null };
+}
+function writeRaw(raw, cwd) {
   ensureProjectDrip(cwd);
   const file4 = statePath(cwd);
-  const tmp = `${file4}.${process.pid}.tmp`;
-  fs5.writeFileSync(tmp, JSON.stringify(state, null, 2));
-  fs5.renameSync(tmp, file4);
+  const tmp = `${file4}.${process.pid}.${Date.now()}.tmp`;
+  fs3.writeFileSync(tmp, JSON.stringify(raw, null, 2));
+  try {
+    fs3.renameSync(tmp, file4);
+  } catch {
+    fs3.writeFileSync(file4, JSON.stringify(raw, null, 2));
+    fs3.rmSync(tmp, { force: true });
+  }
+}
+function merge3(raw, id, view) {
+  if (id && (!view.task || view.task.id !== id)) {
+    delete raw.tasks[id];
+    for (const [sid, tid] of Object.entries(raw.sessions)) if (tid === id) delete raw.sessions[sid];
+    if (me.taskId === id) me.taskId = null;
+  }
+  if (view.task) {
+    if (view.task.id !== id || me.taskId !== view.task.id) claim2(raw, view.task);
+    view.task.touchedAt = (/* @__PURE__ */ new Date()).toISOString();
+    raw.tasks[view.task.id] = view.task;
+  }
+  const old = Date.now() - 14 * 864e5;
+  for (const t2 of Object.values(raw.tasks)) if (t2.id !== view.task?.id && Date.parse(t2.touchedAt || t2.startedAt) < old) delete raw.tasks[t2.id];
+  raw.history = (view.history || raw.history).slice(-30);
+  return raw;
 }
 function updateState(fn, cwd) {
-  const state = loadState(cwd);
-  const ret = fn(state);
-  const out = ret && typeof ret === "object" && "history" in ret ? ret : state;
-  saveState(out, cwd);
+  const raw = readRaw(cwd);
+  const id = resolveId(raw);
+  const view = { history: [...raw.history], task: id ? raw.tasks[id] : null };
+  const ret = fn(view);
+  const out = ret && typeof ret === "object" && "history" in ret ? ret : view;
+  writeRaw(merge3(raw, id, out), cwd);
   return out;
 }
 function newTask({ title, size, surface, guides, mode = "design", packs = [] }) {
@@ -83126,7 +83517,7 @@ function needsCritic(task, config2) {
   if (!task || task.skipped || !config2.gates.enforce || !config2.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
   const rec = lastCritique(task, "build");
   const rounds = (task.critic?.records || []).filter((r2) => r2.kind === "build").length;
-  if (rounds >= config2.gates.maxCriticRounds) return false;
+  if (rounds >= config2.gates.maxCriticRounds + (task.critic?.extraRounds || 0)) return false;
   return !rec || rec.at < task.lastUiWriteAt || rec.verdict !== "pass";
 }
 function checklist(task, config2) {
@@ -83155,6 +83546,241 @@ function checklist(task, config2) {
   return lines.join("\n");
 }
 
+// src/core/guides.mjs
+import fs5 from "node:fs";
+import path5 from "node:path";
+
+// src/core/packs.mjs
+init_paths();
+import fs4 from "node:fs";
+import path4 from "node:path";
+var PACK_FILES = ["guide.md", "genres.md", "artists.md", "queries.md", "critic.md", "sources.md", "refs.json", "slop.json", "catalogue.json"];
+function roots(cwd) {
+  return [path4.join(projectDripDir(cwd), "packs"), path4.join(homeDripDir, "packs")];
+}
+function packDir(id, cwd) {
+  for (const r2 of roots(cwd)) if (fs4.existsSync(path4.join(r2, id, "pack.json"))) return path4.join(r2, id);
+  return null;
+}
+function listPacks(cwd) {
+  const out = /* @__PURE__ */ new Map();
+  for (const r2 of roots(cwd).reverse()) {
+    if (!fs4.existsSync(r2)) continue;
+    for (const id of fs4.readdirSync(r2)) {
+      try {
+        const meta3 = JSON.parse(fs4.readFileSync(path4.join(r2, id, "pack.json"), "utf8"));
+        out.set(id, { ...meta3, id, dir: path4.join(r2, id), shared: r2.startsWith(projectDripDir(cwd)) });
+      } catch {
+      }
+    }
+  }
+  return [...out.values()];
+}
+function createPack({ id, name, niche, keywords, summary, shared: shared2 }, cwd) {
+  const dir = ensureDir(path4.join(shared2 ? path4.join(projectDripDir(cwd), "packs") : path4.join(homeDripDir, "packs"), id));
+  const file4 = path4.join(dir, "pack.json");
+  const prev = fs4.existsSync(file4) ? JSON.parse(fs4.readFileSync(file4, "utf8")) : {};
+  const meta3 = { ...prev, id, name, niche, keywords, summary, createdAt: prev.createdAt || (/* @__PURE__ */ new Date()).toISOString(), updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
+  fs4.writeFileSync(file4, JSON.stringify(meta3, null, 2));
+  return { ...meta3, dir };
+}
+function writePackFile(id, file4, content, cwd) {
+  if (!PACK_FILES.includes(file4)) throw new Error(`Pack files are: ${PACK_FILES.join(", ")}`);
+  const dir = packDir(id, cwd);
+  if (!dir) throw new Error(`No pack "${id}". Create it with pack_create first.`);
+  if (file4.endsWith(".json")) JSON.parse(content);
+  fs4.writeFileSync(path4.join(dir, file4), content);
+  const metaFile = path4.join(dir, "pack.json");
+  const meta3 = JSON.parse(fs4.readFileSync(metaFile, "utf8"));
+  meta3.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
+  fs4.writeFileSync(metaFile, JSON.stringify(meta3, null, 2));
+  return path4.join(dir, file4);
+}
+function readPackFile(id, file4, cwd) {
+  const dir = packDir(id, cwd);
+  if (!dir) return null;
+  const f2 = path4.join(dir, file4);
+  return fs4.existsSync(f2) ? fs4.readFileSync(f2, "utf8") : null;
+}
+function matchPacks(text2, cwd) {
+  const t2 = text2.toLowerCase();
+  return listPacks(cwd).filter((p2) => (p2.keywords || []).some((k) => k && t2.includes(String(k).toLowerCase())));
+}
+
+// src/core/guides.mjs
+init_paths();
+function topicFile(topic) {
+  const t2 = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
+  if (t2 === "loop" || t2 === "drip") return path5.join(skillsDir, "drip", "guide.md");
+  if (t2 === "playbook") return path5.join(skillsDir, "drip", "playbook.md");
+  if (t2.startsWith("rules/")) return path5.join(rulesDir, `${t2.slice(6)}.md`);
+  if (t2.startsWith("examples/")) return path5.join(examplesDir, `${t2.slice(9)}.md`);
+  const [skill, ...rest] = t2.split("/");
+  const dir = path5.join(skillsDir, `drip-${skill}`);
+  return rest.length ? path5.join(dir, "reference", `${rest.join("/")}.md`) : path5.join(dir, "guide.md");
+}
+function normalizeTopic(topic) {
+  if (/^pack:/.test(topic.trim())) return topic.trim();
+  const t2 = topic.trim().replace(/^drip-/, "").replace(/\.md$/, "");
+  return t2 === "drip" ? "loop" : t2;
+}
+function readGuide(topic) {
+  const pk = topic.trim().match(/^pack:([a-z0-9-]+)(?:\/([a-z-]+))?$/);
+  if (pk) {
+    const file5 = pk[2] ? pk[2].includes(".") ? pk[2] : `${pk[2]}.md` : "guide.md";
+    return readPackFile(pk[1], file5);
+  }
+  const file4 = topicFile(topic);
+  if (!fs5.existsSync(file4)) return null;
+  return fs5.readFileSync(file4, "utf8");
+}
+function listGuides() {
+  const out = [];
+  const add2 = (topic, file4) => {
+    const first = fs5.readFileSync(file4, "utf8").split("\n").find((l2) => l2.startsWith("# ")) || "";
+    out.push({ topic, title: first.replace(/^#\s*/, "") });
+  };
+  if (fs5.existsSync(examplesDir)) for (const f2 of fs5.readdirSync(examplesDir).filter((f3) => f3.endsWith(".md"))) add2(`examples/${f2.slice(0, -3)}`, path5.join(examplesDir, f2));
+  if (fs5.existsSync(rulesDir)) for (const f2 of fs5.readdirSync(rulesDir).filter((f3) => f3.endsWith(".md"))) add2(`rules/${f2.slice(0, -3)}`, path5.join(rulesDir, f2));
+  if (fs5.existsSync(skillsDir))
+    for (const d of fs5.readdirSync(skillsDir)) {
+      const topic = d === "drip" ? "loop" : d.replace(/^drip-/, "");
+      const guide = path5.join(skillsDir, d, "guide.md");
+      if (fs5.existsSync(guide)) add2(topic, guide);
+      if (d === "drip" && fs5.existsSync(path5.join(skillsDir, d, "playbook.md"))) add2("playbook", path5.join(skillsDir, d, "playbook.md"));
+      const ref = path5.join(skillsDir, d, "reference");
+      if (fs5.existsSync(ref)) for (const f2 of fs5.readdirSync(ref).filter((f3) => f3.endsWith(".md"))) add2(`${topic}/${f2.slice(0, -3)}`, path5.join(ref, f2));
+    }
+  return out;
+}
+function subTopics(topic) {
+  const t2 = normalizeTopic(topic);
+  if (t2.includes("/")) return [];
+  const dir = path5.join(skillsDir, t2 === "loop" ? "drip" : `drip-${t2}`, "reference");
+  if (!fs5.existsSync(dir)) return [];
+  return fs5.readdirSync(dir).filter((f2) => f2.endsWith(".md")).map((f2) => `${t2}/${f2.slice(0, -3)}`);
+}
+
+// src/modules/workflow.mjs
+init_serve();
+init_browser();
+
+// src/core/skills.mjs
+init_paths();
+import fs9 from "node:fs";
+import os3 from "node:os";
+import path8 from "node:path";
+var DESIGN_MD = ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md", "docs/design/DESIGN.md", ".drip/DESIGN.md"];
+function designDoc(cwd = projectDir()) {
+  for (const rel of DESIGN_MD) {
+    const f2 = path8.join(cwd, rel);
+    if (fs9.existsSync(f2)) return { file: f2, rel, text: fs9.readFileSync(f2, "utf8") };
+  }
+  return null;
+}
+function frontmatter(text2) {
+  const m = text2.match(/^---\s*\n([\s\S]*?)\n---/);
+  if (!m) return {};
+  const get2 = (k) => (m[1].match(new RegExp(`^${k}:\\s*(.+)$`, "m")) || [])[1]?.trim().replace(/^["']|["']$/g, "");
+  return { name: get2("name"), description: get2("description") || "" };
+}
+function findSkillFiles(root, depth, out) {
+  if (depth < 0 || out.length > 400) return;
+  let entries;
+  try {
+    entries = fs9.readdirSync(root, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const e2 of entries) {
+    if (e2.isFile() && e2.name === "SKILL.md") out.push(path8.join(root, e2.name));
+    else if (e2.isDirectory() && !/^(node_modules|\.git|drip)$/.test(e2.name)) findSkillFiles(path8.join(root, e2.name), depth - 1, out);
+  }
+}
+var cache = null;
+function allSkills(cwd) {
+  if (cache && cache.cwd === cwd && Date.now() - cache.at < 6e4) return cache.list;
+  const files = [];
+  findSkillFiles(path8.join(cwd, ".claude", "skills"), 2, files);
+  const projectCount = files.length;
+  findSkillFiles(path8.join(os3.homedir(), ".claude", "skills"), 2, files);
+  findSkillFiles(path8.join(os3.homedir(), ".claude", "plugins", "cache"), 6, files);
+  const seen = /* @__PURE__ */ new Set();
+  const list = [];
+  for (const [i2, f2] of files.entries()) {
+    let fm;
+    try {
+      fm = frontmatter(fs9.readFileSync(f2, "utf8").slice(0, 3e3));
+    } catch {
+      continue;
+    }
+    const name = fm.name || path8.basename(path8.dirname(f2));
+    if (seen.has(name) || /drip/i.test(f2.replace(/\\/g, "/").split("/plugins/cache/")[1]?.split("/")[0] || "")) continue;
+    seen.add(name);
+    list.push({ name, description: fm.description, file: f2, project: i2 < projectCount });
+  }
+  cache = { cwd, at: Date.now(), list };
+  return list;
+}
+var STOP = new Set("the a an and or for of to in on with my our your this that page site app design make new build redesign landing screen ui ux web website".split(" "));
+function relevantSkills(task, cwd = projectDir()) {
+  if (!task) return [];
+  const words2 = `${task.title} ${task.brief?.what || ""} ${task.brief?.constraints || ""}`.toLowerCase().match(/[a-z][a-z0-9-]{2,}/g) || [];
+  const keys = [...new Set(words2.filter((w) => !STOP.has(w)))];
+  const scored = allSkills(cwd).map((s2) => {
+    const hay = `${s2.name} ${s2.description}`.toLowerCase();
+    let score2 = keys.filter((k) => hay.includes(k)).length * 3;
+    if (/invariant|brand|product rule|design system|style guide|voice/.test(hay)) score2 += 1;
+    if (s2.project) score2 += 1;
+    return { ...s2, score: score2 };
+  });
+  return scored.filter((s2) => s2.score >= 3).sort((a2, b) => b.score - a2.score).slice(0, 5);
+}
+
+// src/core/keys.mjs
+init_paths();
+import fs10 from "node:fs";
+import path9 from "node:path";
+var KEY_ENV = {
+  openai: ["OPENAI_API_KEY"],
+  gemini: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
+  unsplash: ["UNSPLASH_ACCESS_KEY"],
+  pexels: ["PEXELS_API_KEY"],
+  openverse: ["OPENVERSE_TOKEN"],
+  pixabay: ["PIXABAY_API_KEY"]
+};
+var file2 = path9.join(homeDripDir, "keys.json");
+function readFile() {
+  try {
+    return JSON.parse(fs10.readFileSync(file2, "utf8"));
+  } catch {
+    return {};
+  }
+}
+function getKey(name) {
+  for (const env of KEY_ENV[name] || [`${name.toUpperCase()}_API_KEY`]) if (process.env[env]) return process.env[env];
+  return readFile()[name] || null;
+}
+function setKey(name, value) {
+  ensureDir(homeDripDir);
+  const keys = readFile();
+  if (value) keys[name] = value.trim();
+  else delete keys[name];
+  fs10.writeFileSync(file2, JSON.stringify(keys, null, 2), { mode: 384 });
+}
+function keyStatus(names3) {
+  const stored = readFile();
+  return names3.map((n2) => {
+    const env = (KEY_ENV[n2] || []).find((e2) => process.env[e2]);
+    return { name: n2, set: !!(env || stored[n2]), from: env ? `env ${env}` : stored[n2] ? "~/.drip/keys.json" : null };
+  });
+}
+function logUsage(entry) {
+  ensureDir(homeDripDir);
+  fs10.appendFileSync(path9.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
+`);
+}
+
 // src/core/result.mjs
 function text(body, isError = false) {
   return { content: [{ type: "text", text: body }], ...isError ? { isError: true } : {} };
@@ -83173,8 +83799,9 @@ function safe(handler) {
 }
 
 // src/modules/workflow.mjs
-import fs6 from "node:fs";
-import path6 from "node:path";
+init_paths();
+import fs11 from "node:fs";
+import path10 from "node:path";
 var SURFACE_WORDS = {
   landing: /\b(landing|marketing|homepage|home page|hero|website|site|pricing page|waitlist|portfolio|company)\b/i,
   app: /\b(dashboard|admin|app|table|settings|crm|analytics|panel|console|inbox|editor|tool)\b/i,
@@ -83276,14 +83903,21 @@ function register(server2, ctx2) {
       const t2 = newTask({ title: task, size: s2, surface: sf, guides, mode: m, packs: pk });
       const bodies = guides.map((x2) => [x2, readGuide(x2)]).filter(([, b]) => b);
       for (const [x2] of bodies) t2.guidesRead.push(x2);
+      const others = otherTasks();
+      if (["design", "logo", "board", "polish"].includes(m)) warmBrowser(ctx2.config());
+      const skills = relevantSkills(t2);
+      const redesignUrl = /redesign|rework|refresh|revamp/i.test(task) ? (task.match(/\b(?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:io|com|dev|app|co|net|org|ai|so|xyz|design|studio)\b[^\s,)]*/i) || [])[0] : null;
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: (/* @__PURE__ */ new Date()).toISOString(), endedBy: "new task" });
         st.task = t2;
       });
       const config2 = ctx2.config();
       return text(
-        `Drip task started: mode ${m}, ${s2} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.
-` + (m === "polish" ? `Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode "design".
+        `Drip task started (task id ${t2.id}): mode ${m}, ${s2} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.
+` + (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o2) => `"${o2.title}"`).join(", ")}). They are separate: never drip_end, edit or judge them.
+` : "") + (skills.length ? `The workspace has its own rules for this: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them now (Skill tool, or Read the file); the critic judges against them too.
+` : "") + (redesignUrl ? `Redesign of a live site: first refs_site({ urls: ["${redesignUrl}"], before: true }) to shoot the before and pull its logo, fonts and colours.
+` : "") + (s2 === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "No photo keys yet (Unsplash/Pexels): if the page needs photos, ask the user to add one now (keys_open, free, 2 minutes); without them use images_search (openverse, wikimedia, cleveland for public-domain art), or gradient_mesh.\n" : "") + (m === "polish" ? `Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode "design".
 ` : "") + `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x2]) => x2).join(", ")}.
 
 ` + (s2 === "full" && config2.gates.requireBrief ? `${INTAKE}
@@ -83303,19 +83937,25 @@ ${b}`).join("\n\n")
     "drip_kit",
     {
       title: "Copy the base kit into the project",
-      description: `Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: "src/styles/base.css" })`,
+      description: `Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: "src/styles/base.css" }). Other templates: template "design-md" (DESIGN.md skeleton the critic and fitcheck_lint check against), "comp" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), "brand-board" (the HTML board_brand fills).`,
       inputSchema: {
-        out: external_exports.string().optional().describe("Path in the project (default styles/drip-base.css, or src/styles/drip-base.css when src/ exists)"),
+        template: external_exports.enum(["base-css", "design-md", "comp", "brand-board"]).optional().describe("Default base-css"),
+        out: external_exports.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html)"),
         overwrite: external_exports.boolean().optional()
       }
     },
-    async ({ out, overwrite }) => {
+    async ({ template = "base-css", out, overwrite }) => {
       const root = projectDir();
-      const rel = out || (fs6.existsSync(path6.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css");
-      const dest = path6.resolve(root, rel);
-      if (fs6.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
-      fs6.mkdirSync(path6.dirname(dest), { recursive: true });
-      fs6.copyFileSync(path6.join(kitDir, "base.css"), dest);
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html" };
+      const DEF = { "base-css": fs11.existsSync(path10.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html" };
+      const rel = out || DEF[template];
+      const dest = path10.resolve(root, rel);
+      if (fs11.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
+      fs11.mkdirSync(path10.dirname(dest), { recursive: true });
+      fs11.copyFileSync(path10.join(kitDir, SRC[template]), dest);
+      if (template === "design-md") return text(`Wrote ${rel}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
+      if (template === "comp") return text(`Wrote ${rel}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
+      if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then DESIGN.md and drip_mark system.`
       );
@@ -83390,6 +84030,18 @@ Deeper guides for this topic: ${subs.join(", ")}` : ""}${tail}`);
       return text(`${checklist(task, ctx2.config())}
 
 ${nextStep(task, ctx2.config())}`);
+    }
+  );
+  server2.registerTool(
+    "drip_serve",
+    {
+      title: "Preview a static build",
+      description: 'Serves a folder of plain HTML/CSS/JS on a free local port (no dev server, no port clashes) and returns the URL for fitcheck_shot, critic_prepare and the user. fitcheck_shot and critic_prepare also accept a local .html path directly. Example: drip_serve({ dir: "site" }) -> http://127.0.0.1:53121/',
+      inputSchema: { dir: external_exports.string().optional().describe("Folder to serve (default: the project)") }
+    },
+    async ({ dir }) => {
+      const url2 = await serveDir(dir);
+      return text(`Serving ${dir || "the project"} at ${url2}/ (stays up while this session runs).`);
     }
   );
   server2.registerTool(
@@ -86776,10 +87428,10 @@ var methods4 = {
 var import_await_to_js = __toESM(require_await_to_js_umd(), 1);
 
 // node_modules/@jimp/file-ops/dist/esm/index.js
-import { promises as fs7 } from "fs";
+import { promises as fs12 } from "fs";
 import { existsSync } from "fs";
-var readFile = fs7.readFile;
-var writeFile = fs7.writeFile;
+var readFile2 = fs12.readFile;
+var writeFile = fs12.writeFile;
 
 // node_modules/@jimp/core/dist/esm/index.js
 var import_lite = __toESM(require_lite(), 1);
@@ -87195,7 +87847,7 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
         return this.fromBuffer(url2);
       }
       if (existsSync(url2)) {
-        return this.fromBuffer(await readFile(url2));
+        return this.fromBuffer(await readFile2(url2));
       }
       const [fetchErr, response] = await (0, import_await_to_js.to)(fetch(url2));
       if (fetchErr) {
@@ -87386,9 +88038,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path28, options) {
-      const mimeType = import_lite.default.getType(path28);
-      await writeFile(path28, await this.getBuffer(mimeType, options));
+    async write(path34, options) {
+      const mimeType = import_lite.default.getType(path34);
+      await writeFile(path34, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -88330,9 +88982,9 @@ var methods7 = {
     w = Math.round(w);
     h = Math.round(h);
     if (x2 === 0 && w === image2.bitmap.width) {
-      const start = w * y2 + x2 << 2;
-      const end = start + (h * w << 2);
-      image2.bitmap.data = image2.bitmap.data.slice(start, end);
+      const start2 = w * y2 + x2 << 2;
+      const end = start2 + (h * w << 2);
+      image2.bitmap.data = image2.bitmap.data.slice(start2, end);
     } else {
       const bitmap = Buffer.allocUnsafe(w * h * 4);
       let offset = 0;
@@ -92281,68 +92933,70 @@ var Jimp = createJimp({
 });
 
 // src/modules/board/store.mjs
-import fs10 from "node:fs";
-import path7 from "node:path";
-var boardsDir = () => ensureDir(path7.join(ensureProjectDrip(), "boards"));
+init_paths();
+import fs15 from "node:fs";
+import path11 from "node:path";
+var boardsDir = () => ensureDir(path11.join(ensureProjectDrip(), "boards"));
 function slug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "board";
 }
 function boardFile(id) {
-  return path7.join(boardsDir(), id, "board.json");
+  return path11.join(boardsDir(), id, "board.json");
 }
 function loadBoard(id) {
   try {
-    return JSON.parse(fs10.readFileSync(boardFile(id), "utf8"));
+    return JSON.parse(fs15.readFileSync(boardFile(id), "utf8"));
   } catch {
     return null;
   }
 }
 function saveBoard(board) {
-  ensureDir(path7.dirname(boardFile(board.id)));
+  ensureDir(path11.dirname(boardFile(board.id)));
   board.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
-  fs10.writeFileSync(boardFile(board.id), JSON.stringify(board, null, 2));
+  fs15.writeFileSync(boardFile(board.id), JSON.stringify(board, null, 2));
   return board;
 }
 function createBoard(name, brief) {
   let id = slug(name);
   let n2 = 2;
-  while (fs10.existsSync(path7.join(boardsDir(), id))) id = `${slug(name)}-${n2++}`;
+  while (fs15.existsSync(path11.join(boardsDir(), id))) id = `${slug(name)}-${n2++}`;
   return saveBoard({ id, name, brief, createdAt: (/* @__PURE__ */ new Date()).toISOString(), items: [], directions: [], chosen: null, feedback: [], feedbackReadAt: null });
 }
 function listBoards() {
-  return fs10.readdirSync(boardsDir()).map((id) => loadBoard(id)).filter(Boolean).sort((a2, b) => (b.updatedAt || "").localeCompare(a2.updatedAt || ""));
+  return fs15.readdirSync(boardsDir()).map((id) => loadBoard(id)).filter(Boolean).sort((a2, b) => (b.updatedAt || "").localeCompare(a2.updatedAt || ""));
 }
 function liveItems(board) {
   return board.items.filter((it) => !it.removed);
 }
 
 // src/core/images.mjs
-import fs12 from "node:fs";
+import fs18 from "node:fs";
 
 // src/core/http.mjs
+init_paths();
 import crypto from "node:crypto";
-import fs11 from "node:fs";
-import path8 from "node:path";
-var cacheDir = path8.join(homeDripDir, "cache");
+import fs16 from "node:fs";
+import path12 from "node:path";
+var cacheDir = path12.join(homeDripDir, "cache");
 var lastHit = /* @__PURE__ */ new Map();
 var queues = /* @__PURE__ */ new Map();
 var DAY = 24 * 60 * 60 * 1e3;
 function cacheFile(key, ext) {
   const hash2 = crypto.createHash("sha1").update(key).digest("hex");
-  return path8.join(cacheDir, hash2.slice(0, 2), `${hash2}.${ext}`);
+  return path12.join(cacheDir, hash2.slice(0, 2), `${hash2}.${ext}`);
 }
 function readCache(file4, ttlMs) {
   try {
-    const st = fs11.statSync(file4);
+    const st = fs16.statSync(file4);
     if (Date.now() - st.mtimeMs > ttlMs) return null;
-    return fs11.readFileSync(file4);
+    return fs16.readFileSync(file4);
   } catch {
     return null;
   }
 }
 function writeCache(file4, buf) {
-  ensureDir(path8.dirname(file4));
-  fs11.writeFileSync(file4, buf);
+  ensureDir(path12.dirname(file4));
+  fs16.writeFileSync(file4, buf);
 }
 function throttle(host, delayMs, fn) {
   const prev = queues.get(host) || Promise.resolve();
@@ -92434,7 +93088,7 @@ function textBlock(text2) {
   return { type: "text", text: text2 };
 }
 async function fetchImage(url2, opts = {}) {
-  if (!/^https?:/i.test(url2)) return { buf: fs12.readFileSync(url2.replace(/^file:\/\/\/?/i, "")), mime: /\.png$/i.test(url2) ? "image/png" : "image/jpeg" };
+  if (!/^https?:/i.test(url2)) return { buf: fs18.readFileSync(url2.replace(/^file:\/\/\/?/i, "")), mime: /\.png$/i.test(url2) ? "image/png" : "image/jpeg" };
   const { body, contentType } = await get(url2, { as: "buffer", ttlMs: 7 * 24 * 36e5, ...opts });
   const mime2 = contentType.split(";")[0] || "image/jpeg";
   return { buf: body, mime: mime2 };
@@ -92475,7 +93129,12 @@ function drawLabel(img, x2, y2, label, scale = 3) {
     );
   });
 }
-async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1 } = {}) {
+async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, fit: fit2 = "cover" } = {}) {
+  try {
+    const { sheetInBrowser: sheetInBrowser2 } = await Promise.resolve().then(() => (init_imaging(), imaging_exports));
+    return await sheetInBrowser2(buffers, { cols, tileW, tileH, gap, first, fit: fit2 });
+  } catch {
+  }
   const rows = Math.ceil(buffers.length / cols);
   const sheet = new Jimp({ width: cols * tileW + (cols + 1) * gap, height: rows * tileH + (rows + 1) * gap, color: 4076008191 });
   for (let i2 = 0; i2 < buffers.length; i2++) {
@@ -92494,19 +93153,20 @@ async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap =
 }
 
 // src/core/seen.mjs
-import fs13 from "node:fs";
-import path9 from "node:path";
-var file2 = () => path9.join(ensureDir(path9.join(ensureProjectDrip(), "cache")), "seen.json");
+init_paths();
+import fs19 from "node:fs";
+import path14 from "node:path";
+var file3 = () => path14.join(ensureDir(path14.join(ensureProjectDrip(), "cache")), "seen.json");
 function load() {
   try {
-    const db = JSON.parse(fs13.readFileSync(file2(), "utf8"));
+    const db = JSON.parse(fs19.readFileSync(file3(), "utf8"));
     return { items: {}, last: [], listings: {}, counter: 0, ...db };
   } catch {
     return { items: {}, last: [], listings: {}, counter: 0 };
   }
 }
 function save(db) {
-  fs13.writeFileSync(file2(), JSON.stringify(db));
+  fs19.writeFileSync(file3(), JSON.stringify(db));
 }
 function rememberListing(items, from = null) {
   const db = load();
@@ -92549,8 +93209,8 @@ function lookup(key) {
 }
 
 // src/modules/refs/index.mjs
-import fs17 from "node:fs";
-import path12 from "node:path";
+import fs21 from "node:fs";
+import path16 from "node:path";
 
 // src/core/cdp.mjs
 init_browser();
@@ -92605,18 +93265,20 @@ var AUDIT = `(() => {
     for (const [t, b] of spans) { const s0 = Math.max(t, cur), s1 = Math.min(b, end); if (s1 > s0) { covered += s1 - s0; cur = s1; } }
     screens.push(+(1 - covered / (end - y)).toFixed(2));
   }
-  return { width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
+  const skeletons = [...document.querySelectorAll('[class*="skeleton" i], [class*="shimmer" i], [class*="placeholder" i]:not(input):not(textarea), [aria-busy="true"], [class*="spinner" i], [class*="loading" i]')].filter(visible).length;
+  return { skeletons, viewportMeta: !!document.querySelector('meta[name=viewport]'), width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
 })()`;
-async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, scale = 1, config: config2 } = {}) {
+async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, scale = 1, idle = false, brand = false, config: config2 } = {}) {
   return withTab(config2, async (tab) => {
     const { s: s2 } = tab;
-    await openPage(tab, url2, { width, height });
+    await openPage(tab, url2, { width, height, idle });
     await s2("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
     await settle2(s2, 800);
     const { result } = await s2("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
     const audit = result.value;
+    if (brand) audit.brand = (await s2("Runtime.evaluate", { expression: BRAND, returnByValue: true })).result.value;
     const total = Math.min(audit.height, 3e4);
     const count = Math.max(1, Math.ceil(total / height));
     const picks = count <= maxSlices ? [...Array(count).keys()] : maxSlices <= 1 ? [0] : [...Array(maxSlices).keys()].map((i2) => Math.round(i2 * (count - 1) / (maxSlices - 1)));
@@ -92635,6 +93297,7 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   const warnings = [];
   const desk = a2.width >= 1e3;
   const phone = a2.width < 600;
+  if (phone && a2.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
   if (a2.overflowX) blockers.push(`horizontal overflow at ${a2.width}px: page is ${a2.scrollWidth}px wide (${a2.offenders.join(", ") || "unknown element"})`);
   if (persuade && a2.hero) {
     const want = Math.round(displayPx(a2.width));
@@ -92677,44 +93340,147 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   const bigGaps = a2.gaps.filter(([t2, b]) => b - t2 > 900);
   if (bigGaps.length) warnings.push(`${bigGaps.length} empty stretch(es) taller than a screen: ${bigGaps.map(([t2, b]) => `${t2}-${b}px`).join(", ")}`);
   if (a2.media === 0) (persuade ? blockers : warnings).push("no images, video or illustration anywhere on the page");
+  if (a2.skeletons > 2) warnings.push(`${a2.skeletons} loading placeholders (skeleton/spinner) still visible: this shot may show a loading state, not the page`);
   return { blockers, warnings };
 }
 function formatAudit(a2, j) {
   return `${a2.width}px: ${a2.screens} screens tall \xB7 text sizes ${a2.fontSizes.slice(0, 8).map(([s2, n2]) => `${s2}px\xD7${n2}`).join(" ")} \xB7 families ${a2.families.map(([f2, n2]) => `${f2}\xD7${n2}`).join(", ")} \xB7 ${Math.round(a2.smallShare * 100)}% words <14px \xB7 h1 ${a2.h1 ?? "-"}px \xB7 h2 ${a2.h2 ?? "-"}px \xB7 paragraphs ${a2.bodyText ?? "-"}px \xB7 media ${a2.media}` + (a2.hero ? `
   first viewport: h1 ${a2.hero.h1w}px wide \xB7 biggest picture ${a2.hero.pic.w}x${a2.hero.pic.h}px \xB7 ${a2.hero.emptyBelow}px empty at the bottom \xB7 ${a2.hero.actions} action(s)` : "") + (a2.empty?.length > 1 ? `
-  empty per screen: ${a2.empty.map((e2) => Math.round(e2 * 100) + "%").join(" ")}` : "") + (a2.sections?.length ? ` \xB7 sections with a picture: ${a2.sections.filter((s2) => s2.pic).length}/${a2.sections.length}` : "") + (j.blockers.length ? `
+  empty per screen: ${a2.empty.map((e2) => Math.round(e2 * 100) + "%").join(" ")}` : "") + (a2.sections?.length ? ` \xB7 sections with a picture: ${a2.sections.filter((s2) => s2.pic).length}/${a2.sections.length}` : "") + (a2.skeletons > 2 ? `
+  LOADING STATE? ${a2.skeletons} skeleton/spinner elements visible` : "") + (j.blockers.length ? `
   BLOCKERS: ${j.blockers.join(" | ")}` : "") + (j.warnings.length ? `
   warnings: ${j.warnings.join(" | ")}` : "");
+}
+var BRAND = `(() => {
+  const abs = (u) => { try { return new URL(u, location.href).href; } catch { return null; } };
+  const logos = [];
+  const head = document.querySelector('header, [role=banner], nav') || document.body;
+  for (const el of head.querySelectorAll('img, svg, [class*="logo" i], [id*="logo" i], a[href="/"] img, a[href="/"] svg')) {
+    const r = el.getBoundingClientRect(); if (!r.width || r.top > 200) continue;
+    if (el.tagName === 'IMG') logos.push({ kind: 'img', src: abs(el.currentSrc || el.src), w: Math.round(r.width), h: Math.round(r.height), alt: el.alt || '' });
+    else if (el.tagName.toLowerCase() === 'svg') logos.push({ kind: 'svg', svg: el.outerHTML.slice(0, 20000), w: Math.round(r.width), h: Math.round(r.height) });
+    if (logos.length >= 4) break;
+  }
+  const icons = [...document.querySelectorAll('link[rel*="icon" i], link[rel="apple-touch-icon"], meta[property="og:image"]')].map((l) => abs(l.href || l.content)).filter(Boolean).slice(0, 5);
+  const fam = {}; const col = {}; const bg = {};
+  for (const el of document.querySelectorAll('body *')) {
+    const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+    const cs = getComputedStyle(el); const area = r.width * r.height;
+    const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+    if (hasText) { const f = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(); fam[f] = (fam[f] || 0) + 1; col[cs.color] = (col[cs.color] || 0) + 1; }
+    if (cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)') bg[cs.backgroundColor] = (bg[cs.backgroundColor] || 0) + area;
+  }
+  bg[getComputedStyle(document.body).backgroundColor] = (bg[getComputedStyle(document.body).backgroundColor] || 0) + innerWidth * innerHeight;
+  const hex = (c) => { const m = c.match(/\\d+(\\.\\d+)?/g); if (!m || (m[3] !== undefined && +m[3] < 0.5)) return null; return '#' + m.slice(0, 3).map((x) => (+x).toString(16).padStart(2, '0')).join(''); };
+  const top = (o, n) => Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k]) => hex(k)).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).slice(0, n);
+  const faces = [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/["']/g, '')).filter((v, i, a) => a.indexOf(v) === i);
+  return { title: document.title, logos, icons, fonts: Object.entries(fam).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([f]) => f), webfonts: faces.slice(0, 6), backgrounds: top(bg, 5), textColors: top(col, 5) };
+})()`;
+function formatBrand(b) {
+  if (!b) return "";
+  return `BRAND (as shipped): fonts ${b.fonts.join(", ") || "?"}${b.webfonts.length ? ` (web fonts: ${b.webfonts.join(", ")})` : ""} \xB7 backgrounds ${b.backgrounds.join(" ")} \xB7 text ${b.textColors.join(" ")}
+  logo: ${b.logos.map((l2) => l2.kind === "img" ? `${l2.src} (${l2.w}x${l2.h})` : `inline SVG ${l2.w}x${l2.h}`).join(" \xB7 ") || "none found in the header"}` + (b.icons.length ? `
+  icons/og: ${b.icons.join(" \xB7 ")}` : "");
+}
+var STEP = external_exports.object({
+  do: external_exports.enum(["click", "hover", "drag", "type", "key", "scroll", "wait", "shot"]),
+  selector: external_exports.string().optional().describe("CSS selector of the element to act on"),
+  to: external_exports.union([external_exports.string(), external_exports.object({ x: external_exports.number(), y: external_exports.number() })]).optional().describe("drag: a selector to drop on, or an offset {x, y} in px from the start"),
+  text: external_exports.string().optional().describe("type: the text; key: a key name (Enter, Escape, Tab, ArrowDown)"),
+  y: external_exports.number().optional().describe("scroll: page y in px"),
+  ms: external_exports.number().optional().describe("wait: milliseconds (max 5000)"),
+  label: external_exports.string().optional().describe("What this state shows, for the critic"),
+  shot: external_exports.boolean().optional().describe("Screenshot after this step (default true; false to chain steps)")
+});
+var KEYS = { Enter: 13, Escape: 27, Tab: 9, ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39, Space: 32, Backspace: 8 };
+async function captureStates(url2, steps, { width = 1440, height = 900, quality: quality2 = 80, config: config2 } = {}) {
+  return withTab(config2, async (tab) => {
+    const { s: s2 } = tab;
+    await openPage(tab, url2, { width, height });
+    const center = async (sel) => {
+      const { result } = await s2("Runtime.evaluate", {
+        expression: `(() => { const el = document.querySelector(${JSON.stringify(sel)}); if (!el) return null; el.scrollIntoView({ block: 'center', inline: 'center' }); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`,
+        returnByValue: true
+      });
+      if (!result.value) throw new Error(`no element matches ${sel}`);
+      return result.value;
+    };
+    const mouse = (type, x2, y2, extra = {}) => s2("Input.dispatchMouseEvent", { type, x: x2, y: y2, button: "left", pointerType: "mouse", ...extra });
+    const out = [];
+    for (const [i2, st] of steps.slice(0, 12).entries()) {
+      let error62 = null;
+      try {
+        if (st.do === "click" || st.do === "hover") {
+          const p2 = await center(st.selector);
+          await mouse("mouseMoved", p2.x, p2.y, { buttons: 0 });
+          if (st.do === "click") {
+            await mouse("mousePressed", p2.x, p2.y, { clickCount: 1, buttons: 1 });
+            await mouse("mouseReleased", p2.x, p2.y, { clickCount: 1, buttons: 0 });
+          }
+        } else if (st.do === "drag") {
+          const a2 = await center(st.selector);
+          const b = typeof st.to === "string" ? await center(st.to) : { x: a2.x + (st.to?.x || 0), y: a2.y + (st.to?.y || 0) };
+          await mouse("mouseMoved", a2.x, a2.y, { buttons: 0 });
+          await mouse("mousePressed", a2.x, a2.y, { clickCount: 1, buttons: 1 });
+          for (let k = 1; k <= 12; k++) {
+            await mouse("mouseMoved", a2.x + (b.x - a2.x) * k / 12, a2.y + (b.y - a2.y) * k / 12, { buttons: 1 });
+            await new Promise((r2) => setTimeout(r2, 16));
+          }
+          await mouse("mouseReleased", b.x, b.y, { clickCount: 1, buttons: 0 });
+        } else if (st.do === "type") {
+          if (st.selector) await s2("Runtime.evaluate", { expression: `document.querySelector(${JSON.stringify(st.selector)})?.focus()` });
+          await s2("Input.insertText", { text: st.text || "" });
+        } else if (st.do === "key") {
+          const key = st.text || "Enter";
+          const code = KEYS[key] || key.toUpperCase().charCodeAt(0);
+          await s2("Input.dispatchKeyEvent", { type: "keyDown", key, windowsVirtualKeyCode: code, code: key });
+          await s2("Input.dispatchKeyEvent", { type: "keyUp", key, windowsVirtualKeyCode: code, code: key });
+        } else if (st.do === "scroll") {
+          await s2("Runtime.evaluate", { expression: st.selector ? `document.querySelector(${JSON.stringify(st.selector)})?.scrollIntoView({ block: 'start' })` : `scrollTo(0, ${Number(st.y) || 0})` });
+        } else if (st.do === "wait") {
+          await new Promise((r2) => setTimeout(r2, Math.min(5e3, st.ms || 500)));
+        }
+      } catch (e2) {
+        error62 = e2.message;
+      }
+      if (st.shot === false) continue;
+      await settle2(s2, 900);
+      const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: quality2, clip: { x: 0, y: 0, width, height, scale: width > 1200 ? 1200 / width : 1 } });
+      out.push({ label: st.label || `${i2 + 1}. ${st.do}${st.selector ? ` ${st.selector}` : ""}`, buf: Buffer.from(data, "base64"), error: error62 });
+    }
+    return out;
+  });
 }
 
 // src/core/render.mjs
 init_chrome();
-import fs16 from "node:fs";
-import os3 from "node:os";
-import path11 from "node:path";
+init_paths();
+import fs20 from "node:fs";
+import os5 from "node:os";
+import path15 from "node:path";
 import { pathToFileURL } from "node:url";
 function rendersDir(sub = "") {
-  return ensureDir(path11.join(ensureProjectDrip(), "renders", sub));
+  return ensureDir(path15.join(ensureProjectDrip(), "renders", sub));
 }
 function stamp() {
   return (/* @__PURE__ */ new Date()).toISOString().replace(/[-:T]/g, "").slice(0, 14);
 }
-async function renderUrl(url2, file4, { width = 1440, height = 900, dark = false, config: config2 } = {}) {
-  const png2 = await screenshot(url2, { width, height, dark, config: config2 });
-  ensureDir(path11.dirname(file4));
-  fs16.writeFileSync(file4, png2);
+async function renderUrl(url2, file4, { width = 1440, height = 900, dark = false, format = "png", quality: quality2 = 82, config: config2 } = {}) {
+  const png2 = await screenshot(url2, { width, height, dark, format, quality: quality2, config: config2 });
+  ensureDir(path15.dirname(file4));
+  fs20.writeFileSync(file4, png2);
   return png2;
 }
-async function renderHtml(html, file4, { width = 1200, height = 800, config: config2 } = {}) {
-  const dir = fs16.mkdtempSync(path11.join(os3.tmpdir(), "drip-render-"));
-  const page2 = path11.join(dir, "page.html");
+async function renderHtml(html, file4, { width = 1200, height = 800, format = "png", quality: quality2 = 82, config: config2 } = {}) {
+  const dir = fs20.mkdtempSync(path15.join(os5.tmpdir(), "drip-render-"));
+  const page2 = path15.join(dir, "page.html");
   const doc = /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`;
-  fs16.writeFileSync(page2, doc);
+  fs20.writeFileSync(page2, doc);
   try {
-    return await renderUrl(pathToFileURL(page2).href, file4, { width, height, config: config2 });
+    return await renderUrl(pathToFileURL(page2).href, file4, { width, height, format, quality: quality2, config: config2 });
   } finally {
     try {
-      fs16.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      fs20.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
     } catch {
     }
   }
@@ -92788,15 +93554,15 @@ async function listing(kind, params, config2) {
 function jsonAfter(html, marker) {
   const at = html.indexOf(marker);
   if (at < 0) return null;
-  const start = html.indexOf("{", at);
+  const start2 = html.indexOf("{", at);
   let depth = 0;
   let inStr = false;
-  let esc6 = false;
-  for (let k = start; k < html.length; k++) {
+  let esc7 = false;
+  for (let k = start2; k < html.length; k++) {
     const ch = html[k];
     if (inStr) {
-      if (esc6) esc6 = false;
-      else if (ch === "\\") esc6 = true;
+      if (esc7) esc7 = false;
+      else if (ch === "\\") esc7 = true;
       else if (ch === '"') inStr = false;
       continue;
     }
@@ -92804,7 +93570,7 @@ function jsonAfter(html, marker) {
     else if (ch === "{") depth++;
     else if (ch === "}" && --depth === 0) {
       try {
-        return JSON.parse(html.slice(start, k + 1));
+        return JSON.parse(html.slice(start2, k + 1));
       } catch {
         return null;
       }
@@ -92902,6 +93668,7 @@ ${lines.join("\n")}
   if (params.sheet !== false) content.push(imageBlock(await sheetFor(items, { cols: items.length > 30 ? 8 : 6, tileW: items.length > 30 ? 240 : 300, tileH: items.length > 30 ? 180 : 225 })));
   return blocks(content);
 }
+var SITE_MEMO = /* @__PURE__ */ new Map();
 function register2(server2, ctx2) {
   const page2 = external_exports.number().int().min(1).max(50).optional().describe("Page number, starts at 1");
   const sheet = external_exports.boolean().optional().describe("Include the contact sheet image (default true)");
@@ -93036,25 +93803,29 @@ ${s2.description.slice(0, 1500)}
     "refs_site",
     {
       title: "Study shipped sites",
-      description: 'Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. The best references for a page: what strong studios actually ship, at real scale (Dribbble shots are concepts whose type sizes are fiction). Pick sites in the category and a notch above it. Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: ["https://linear.app", "https://www.figma.com"] })',
+      description: `Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. The best references for a page: what strong studios actually ship, at real scale (Dribbble shots are concepts whose type sizes are fiction). Pick sites in the category and a notch above it. Waits for app content to load (network idle) and warns when the shot still shows skeletons. Also reads each site's brand as shipped: logo (img src or inline SVG), fonts, colours. For a REDESIGN, pass the current site with before: true first: it becomes the 'before' and its logo, fonts and colours go into the brief. Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: ["https://linear.app", "https://www.figma.com"] })`,
       inputSchema: {
         urls: external_exports.array(external_exports.string()).min(1).max(4),
-        screens: external_exports.number().int().min(1).max(4).optional().describe("Screens per site from the top (default 2)")
+        screens: external_exports.number().int().min(1).max(4).optional().describe("Screens per site from the top (default 2)"),
+        before: external_exports.boolean().optional().describe("The first url is the client's current site (redesign): saved as the 'before', its brand recorded on the task")
       }
     },
-    safe(async ({ urls, screens = 2 }) => {
+    safe(async ({ urls, screens = 2, before = false }) => {
       const config2 = ctx2.config();
       const dir = rendersDir(`sites-${stamp()}`);
       const results = await Promise.all(
         urls.map(async (raw) => {
           const url2 = /^https?:/i.test(raw) ? raw : `https://${raw}`;
           try {
-            const r2 = await capture(url2, { width: 1440, height: 900, maxSlices: screens, config: config2 });
+            const memo2 = `${url2}|${screens}`;
+            const hit = SITE_MEMO.get(memo2);
+            const r2 = hit && Date.now() - hit.at < 30 * 6e4 ? hit.r : await capture(url2, { width: 1440, height: 900, maxSlices: screens, idle: true, brand: true, config: config2 });
+            SITE_MEMO.set(memo2, { r: r2, at: Date.now() });
             const key = siteKey(url2);
             const slug2 = key.slice(5).replace(/[^a-z0-9]+/gi, "-");
             const files = r2.slices.map((sl, i2) => {
-              const f2 = path12.join(dir, `${slug2}-${i2 + 1}.jpg`);
-              fs17.writeFileSync(f2, sl.buf);
+              const f2 = path16.join(dir, `${slug2}-${i2 + 1}.jpg`);
+              fs21.writeFileSync(f2, sl.buf);
               return f2;
             });
             const host = key.slice(5).split("/")[0];
@@ -93075,11 +93846,20 @@ ${s2.description.slice(0, 1500)}
           out.push(textBlock(`${r2.url}: could not open (${r2.err}).`));
           continue;
         }
-        out.push(textBlock(`=== ${r2.audit.title || r2.url} (${r2.key}) \xB7 ${r2.slices.length} of ${r2.total} screens
-${formatAudit(r2.audit, { blockers: [], warnings: [] })}`));
+        out.push(textBlock(`=== ${r2.audit.title || r2.url} (${r2.key}) \xB7 ${r2.slices.length} of ${r2.total} screens${before && r2 === results[0] ? " \xB7 THE BEFORE" : ""}
+${formatAudit(r2.audit, { blockers: [], warnings: [] })}
+${formatBrand(r2.audit.brand)}`));
         for (const sl of r2.slices) out.push(imageBlock(sl.buf));
       }
       const ok = results.filter((r2) => r2.ok);
+      if (before && results[0]?.ok) {
+        const b = results[0];
+        updateState((st) => {
+          if (st.task) st.task.before = { url: b.url, files: b.slices.length, brand: b.audit.brand, at: (/* @__PURE__ */ new Date()).toISOString() };
+        });
+        const logo = b.audit.brand?.logos?.[0];
+        out.push(textBlock(`Recorded ${b.url} as the BEFORE (the critic compares against it). Keep what the brand owns: ${logo ? logo.kind === "img" ? `save the logo with images_save({ url: "${logo.src}", out: "public/logo${/\.svg/i.test(logo.src) ? ".svg" : ".png"}" })` : "the logo is inline SVG: copy it from the page source" : "no logo found in the header; ask the user for the file"}, its fonts (${b.audit.brand?.fonts?.join(", ") || "?"}) unless the user wants new ones.`));
+      }
       if (ok.length)
         out.push(
           textBlock(
@@ -93158,7 +93938,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     },
     safe(async ({ shot: shot2, region, image: image2 = 1 }) => {
       const key = resolve(shot2);
-      let item = lookup(key);
+      const item = lookup(key);
       let images = item?.images;
       if (!images?.length) {
         try {
@@ -93180,6 +93960,15 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     })
   );
   const VAGUE = /^(clean|modern|nice|good|great|minimal|sleek|cool|beautiful|simple|bold|elegant)\.?$/i;
+  const STUDY_EXAMPLE = {
+    layout: '"12-col, headline spans cols 1-8, picture bleeds right at 55% width"',
+    type: '"condensed grotesk caps ~140px, body 18px, ratio ~8:1"',
+    color: '"#F3EFE6 ground, #141414 ink, one #2340FF accent on the CTA only"',
+    density: '"~30 words above the fold, 1 section per screen"',
+    detail: '"nav in the body face at 15px, aligned to the h1 baseline"',
+    take: '"the 8:1 type ratio and the single accent"',
+    leave: '"the stock 3D render and the tracked caps labels"'
+  };
   const CONCRETE = /(\d|#[0-9a-f]{3,6}\b|px|%|ratio|col|grid|serif|sans|mono|weight|caps|uppercase|lowercase|italic|leading|tracking)/i;
   server2.registerTool(
     "refs_study",
@@ -93218,7 +94007,10 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
       const weak = fields.filter((f2) => !n2[f2] || n2[f2].trim().length < 12 || VAGUE.test(n2[f2].trim()));
       const concrete = fields.filter((f2) => CONCRETE.test(n2[f2] || "")).length;
       if (weak.length || concrete < 3)
-        return { ok: false, msg: `${n2.shot}: too vague. ${weak.length ? `Rewrite: ${weak.join(", ")}. ` : ""}${concrete < 3 ? "Give at least 3 fields concrete values (sizes, ratios, hex, counts, named type classes)." : ""}` };
+        return {
+          ok: false,
+          msg: `${n2.shot}: too vague. ` + weak.map((f2) => `${f2}: ${!n2[f2] ? "missing" : VAGUE.test(n2[f2].trim()) ? `"${n2[f2].trim()}" is a vibe, not a fact` : `"${n2[f2].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f2]}`).join(" \xB7 ") + (concrete < 3 ? `${weak.length ? " \xB7 " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : "")
+        };
       const note = `${n2.take} \xB7 layout: ${n2.layout} \xB7 type: ${n2.type} \xB7 colour: ${n2.color} \xB7 density: ${n2.density} \xB7 detail: ${n2.detail} \xB7 leave: ${n2.leave}`;
       remember({ ...item, study: { ...n2, at: (/* @__PURE__ */ new Date()).toISOString() } });
       const st = updateState((s2) => {
@@ -93259,8 +94051,10 @@ var board_exports = {};
 __export(board_exports, {
   register: () => register3
 });
-import fs19 from "node:fs";
-import path13 from "node:path";
+import fs23 from "node:fs";
+import path17 from "node:path";
+init_paths();
+import { pathToFileURL as pathToFileURL2 } from "node:url";
 
 // src/modules/assets/color.mjs
 var clamp = (x2, a2 = 0, b = 1) => Math.min(b, Math.max(a2, x2));
@@ -93404,7 +94198,7 @@ p{font-size:21px;line-height:1.45;max-width:36ch;margin:0 0 32px}
 init_chrome();
 
 // src/modules/board/render.mjs
-import fs18 from "node:fs";
+import fs22 from "node:fs";
 var esc3 = (s2) => String(s2 ?? "").replace(/[&<>"']/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c3]);
 async function imageSrc(item, inline) {
   if (!item.image) return null;
@@ -93447,7 +94241,7 @@ async function renderBoard(board, { mode = "live", inline = false } = {}) {
       ${d.type ? `<span class="type">${esc3(d.type)}</span>` : ""}
     </div>
   </header>
-  ${d.tile && fs18.existsSync(d.tile) ? `<img class="tile" alt="Style tile for ${esc3(d.name)}" src="data:image/png;base64,${fs18.readFileSync(d.tile).toString("base64")}">` : ""}
+  ${d.tile && fs22.existsSync(d.tile) ? `<img class="tile" alt="Style tile for ${esc3(d.name)}" src="data:image/png;base64,${fs22.readFileSync(d.tile).toString("base64")}">` : ""}
   ${d.critic ? `<p class="critic"><b>Critic:</b> ${esc3(d.critic)}</p>` : ""}
   <div class="grid">${cards.join("")}</div>
 </section>`);
@@ -93512,14 +94306,14 @@ document.getElementById('fbcopy').onclick=()=>{const t='Moodboard feedback ('+BO
 }
 
 // src/modules/board/server.mjs
-import http from "node:http";
+import http2 from "node:http";
 var server = null;
 var port = null;
 async function ensureServer(preferredPort) {
   if (server) return port;
   for (let p2 = preferredPort; p2 < preferredPort + 20; p2++) {
     const ok = await new Promise((resolve2) => {
-      const s2 = http.createServer(handle);
+      const s2 = http2.createServer(handle);
       s2.once("error", () => resolve2(false));
       s2.listen(p2, "127.0.0.1", () => {
         server = s2;
@@ -93618,7 +94412,7 @@ NEXT: board_directions: 2 directions that differ in idea, each with a thesis (ma
       inputSchema: {
         board: external_exports.string().optional(),
         copy: external_exports.object({ brand: external_exports.string().optional(), headline: external_exports.string().optional(), body: external_exports.string().optional(), cta: external_exports.string().optional() }).optional().describe("Real copy for the tiles (defaults from the brief)"),
-        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string().describe("A full HTML document or fragment for this direction's tile (fonts via Google Fonts links)") })).optional().describe("Your own comp per direction when the template can't show the idea. Rendered at 1440x1000 (900 viewport + 100 spec strip) so options stay at equal fidelity.")
+        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string().optional().describe("A full HTML document (fonts via Google Fonts links)"), file: external_exports.string().optional().describe("Path to an HTML file, e.g. .drip/comps/live-wire.html (.drip/ is never gated). Relative assets and fonts load from its folder.") })).optional().describe("Your own comp per direction when the template can't show the idea. Rendered at 1440x1000 (900 viewport + 100 spec strip) so options stay at equal fidelity.")
       }
     },
     safe(async ({ board: bid, copy = {}, custom: custom2 = [] }) => {
@@ -93630,13 +94424,18 @@ NEXT: board_directions: 2 directions that differ in idea, each with a thesis (ma
   async function renderTiles(board, copy = {}, custom2 = []) {
     {
       const brief = loadState().task?.brief;
-      const dir = path13.join(path13.dirname(boardFile(board.id)), "tiles");
-      fs19.mkdirSync(dir, { recursive: true });
+      const dir = path17.join(path17.dirname(boardFile(board.id)), "tiles");
+      fs23.mkdirSync(dir, { recursive: true });
       const content = [];
       const files = [];
       const pngs = await Promise.all(board.directions.map((d) => {
-        const file4 = path13.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
+        const file4 = path17.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.jpg`);
         const own2 = custom2.find((c3) => c3.direction.toLowerCase() === d.name.toLowerCase());
+        if (own2?.file) {
+          const abs = path17.resolve(projectDir(), own2.file);
+          if (!fs23.existsSync(abs)) throw new Error(`Comp file not found: ${own2.file}`);
+          return renderUrl(pathToFileURL2(abs).href, file4, { width: COMP.width, height: COMP.height, format: "jpeg", quality: 85, config: ctx2.config() }).then((png2) => ({ png: png2, file: file4 }));
+        }
         return renderHtml(
           own2 ? own2.html : tileHtml(d, {
             brand: copy.brand || board.name,
@@ -93645,14 +94444,14 @@ NEXT: board_directions: 2 directions that differ in idea, each with a thesis (ma
             cta: copy.cta || "See the work"
           }),
           file4,
-          { width: COMP.width, height: COMP.height, config: ctx2.config() }
+          { width: COMP.width, height: COMP.height, format: "jpeg", quality: 85, config: ctx2.config() }
         ).then((png2) => ({ png: png2, file: file4 }));
       }));
       for (const [k, d] of board.directions.entries()) {
         const { png: png2, file: file4 } = pngs[k];
         d.tile = file4;
         files.push(file4);
-        content.push(textBlock(`Comp: ${d.name} \u2014 ${d.adjectives.join(", ")} \xB7 ${d.type}`), imageBlock(await toJpeg(png2, 1200, 840)));
+        content.push(textBlock(`Comp: ${d.name} \u2014 ${d.adjectives.join(", ")} \xB7 ${d.type}`), imageBlock(png2));
       }
       board.tilesAt = (/* @__PURE__ */ new Date()).toISOString();
       saveBoard(board);
@@ -93744,7 +94543,7 @@ NEXT: keep collecting (${n2}/${min} before directions).` : "\nNEXT: group the bo
         ).min(2).max(4),
         criteria: external_exports.array(external_exports.string()).optional().describe("3-5 choice criteria from the brief, written BEFORE the tiles (thresholds or trade-offs)"),
         copy: external_exports.object({ brand: external_exports.string().optional(), headline: external_exports.string().optional(), body: external_exports.string().optional(), cta: external_exports.string().optional() }).optional().describe("Real copy for the comps: brand, the sentence (body), the action (cta)"),
-        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string() })).optional().describe("Your own comp HTML per direction (rendered at 1440x1000)"),
+        custom: external_exports.array(external_exports.object({ direction: external_exports.string(), html: external_exports.string().optional().describe("A full HTML document (fonts via Google Fonts links)"), file: external_exports.string().optional().describe("Path to an HTML file, e.g. .drip/comps/live-wire.html (.drip/ is never gated). Relative assets and fonts load from its folder.") })).optional().describe("Your own comp per direction (rendered at 1440x1000 after its web fonts load). Write each to .drip/comps/<name>.html and pass { direction, file }: no HTML inside JSON."),
         board: external_exports.string().optional()
       }
     },
@@ -93778,11 +94577,11 @@ NEXT: keep collecting (${n2}/${min} before directions).` : "\nNEXT: group the bo
       if (gate) return text(gate, true);
       const port2 = await ensureServer(ctx2.config().board.port);
       const url2 = `http://localhost:${port2}/b/${board.id}`;
-      const dir = path13.dirname(boardFile(board.id));
+      const dir = path17.dirname(boardFile(board.id));
       let file4 = null;
       if (stat) {
-        file4 = path13.join(dir, "board.html");
-        fs19.writeFileSync(file4, await renderBoard(board, { mode: "static", inline: true }));
+        file4 = path17.join(dir, "board.html");
+        fs23.writeFileSync(file4, await renderBoard(board, { mode: "static", inline: true }));
       }
       const content = [
         textBlock(
@@ -93875,23 +94674,25 @@ Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7
 // src/modules/components/index.mjs
 var components_exports = {};
 __export(components_exports, {
+  KINDS: () => KINDS,
   loadCatalogue: () => loadCatalogue,
   register: () => register4
 });
-import fs20 from "node:fs";
-import path14 from "node:path";
+import fs24 from "node:fs";
+import path18 from "node:path";
+init_paths();
 var WEEK = 7 * 24 * 36e5;
 var DIRECTORY = "https://ui.shadcn.com/r/registries.json";
 function loadCatalogue() {
   const read2 = (f2) => {
     try {
-      return JSON.parse(fs20.readFileSync(f2, "utf8"));
+      return JSON.parse(fs24.readFileSync(f2, "utf8"));
     } catch {
       return {};
     }
   };
-  const base = read2(path14.join(dataDir, "catalogue.json"));
-  const extra = read2(path14.join(projectDripDir(), "catalogue.json"));
+  const base = read2(path18.join(dataDir, "catalogue.json"));
+  const extra = read2(path18.join(projectDripDir(), "catalogue.json"));
   return { ...base, entries: [...base.entries || [], ...extra.entries || []] };
 }
 var words = (s2) => (s2 || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
@@ -93899,33 +94700,68 @@ function score(hay, query) {
   const h = hay.toLowerCase();
   return words(query).reduce((n2, w) => n2 + (h.includes(w) ? h.includes(` ${w}`) ? 2 : 1 : 0), 0);
 }
+var KINDS = {
+  background: "background backgrounds aurora beams particles grid waves wave noise gradient shader silk iridescence chrome galaxy threads lightning orb squares dots ballpit hyperspeed plasma prism ripple meteors spotlight lamp vortex sparkles starfield stars dither liquid balatro veil rays light pixel glitch globe flickering mesh blob smoke fog field lines boxes warp shape grain halftone",
+  hero: "hero header landing splash intro headline above fold showcase spotlight lamp parallax scroll macbook container scroll",
+  text: "text type typing typewriter scramble shuffle split blur rotate rotating flip morph gradient shiny glitch decrypt countup counter number ticker marquee velocity curved circular highlight word letter fuzzy",
+  "3d": "3d three webgl canvas globe model cube card tilt perspective orbit lanyard ballpit fluid",
+  cursor: "cursor pointer follow magnet magnetic trail splash crosshair blob ribbons",
+  cards: "card cards bento grid tilt spotlight stack deck masonry gallery",
+  scroll: "scroll parallax reveal sticky stack velocity progress timeline marquee infinite",
+  button: "button cta shimmer rainbow ripple pulse magnetic star border glow",
+  nav: "nav navbar menu dock tabs sidebar header floating",
+  media: "image gallery carousel video lens zoom compare masonry slider marquee logos"
+};
 async function registryItems(entry) {
   const { body } = await get(entry.registry.index, { as: "json", ttlMs: WEEK, timeoutMs: 3e4 });
   const items = Array.isArray(body) ? body : body.items || [];
-  return items.filter((it) => it.name && !/^(index|utils|style|theme)$/.test(it.name) && it.type !== "registry:style").map((it) => ({ library: entry.id, name: it.name, title: it.title || it.name, description: it.description || "", deps: it.dependencies || [], url: entry.registry.item.replace("{name}", it.name) }));
+  const seen = /* @__PURE__ */ new Map();
+  for (const it of items) {
+    if (!it.name || /^(index|utils|style|theme)$/.test(it.name) || /^registry:(style|example|theme|lib|hook)$/.test(it.type || "") || /(^|-)(demo|example|examples)(-\d+)?$/i.test(it.name)) continue;
+    const m = it.name.match(/^(.*?)-(JS|TS)-(CSS|TW)$/i);
+    const base = m ? m[1] : it.name;
+    const rank = m ? (m[2].toUpperCase() === "TS" ? 2 : 0) + (m[3].toUpperCase() === "TW" ? 1 : 0) : 3;
+    const prev = seen.get(base);
+    if (prev && prev.rank >= rank) {
+      prev.variants++;
+      continue;
+    }
+    seen.set(base, { rank, variants: (prev?.variants || 0) + 1, library: entry.id, license: entry.license, name: it.name, base, title: it.title || base.replace(/([a-z])([A-Z])/g, "$1 $2"), description: it.description || "", deps: it.dependencies || [], url: entry.registry.item.replace("{name}", it.name) });
+  }
+  return [...seen.values()];
 }
+var HEAVY = /^(three|@react-three\/.+|ogl|gsap|matter-js|@paper-design\/.+|postprocessing|lenis|cobe|p5)$/;
 function register4(server2) {
   server2.registerTool(
     "components_find",
     {
       title: "Find a component to install",
       description: "Search the curated libraries AND their live registries (shadcn, coss ui, Kibo, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI) for a component. Describe the need: 'data table with filters', 'animated number counter', 'pricing toggle', 'command palette', 'marquee of logos'. Returns install commands. Prefer this over writing components from scratch.",
-      inputSchema: { need: external_exports.string(), limit: external_exports.number().int().min(3).max(40).optional() }
+      inputSchema: {
+        need: external_exports.string().optional().describe("What it should do or look like. Optional with kind"),
+        kind: external_exports.enum(Object.keys(KINDS)).optional().describe("background (aurora, beams, shaders, grids...), hero, text effects, 3d, cursor, cards, scroll, button, nav, media. Widens the search to everything of that kind"),
+        limit: external_exports.number().int().min(3).max(40).optional()
+      }
     },
-    safe(async ({ need, limit = 15 }) => {
+    safe(async ({ need: rawNeed = "", kind, limit = 15 }) => {
+      if (!rawNeed && !kind) return text("Pass need, kind, or both.", true);
+      const need = `${rawNeed} ${kind ? KINDS[kind] : ""}`.trim();
       const cat = loadCatalogue();
       const libs = cat.entries.map((e2) => ({ e: e2, s: score(`${e2.name} ${e2.what} ${e2.useWhen} ${e2.category}`, need) })).filter((x2) => x2.s > 0).sort((a2, b) => b.s - a2.s).slice(0, 5);
       const all = (await Promise.all(cat.entries.filter((e2) => e2.registry).map((e2) => registryItems(e2).catch(() => [])))).flat();
-      const items = all.map((it) => ({ it, s: score(`${it.name.replace(/[-_]/g, " ")} ${it.title} ${it.description}`, need) })).filter((x2) => x2.s > 0).sort((a2, b) => b.s - a2.s).slice(0, limit);
+      const items = all.map((it) => ({ it, s: score(`${it.base.replace(/[-_]/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")} ${it.title} ${it.description}`, need) + (rawNeed ? score(`${it.base} ${it.title} ${it.description}`, rawNeed) * 2 : 0) })).filter((x2) => x2.s > 0).sort((a2, b) => b.s - a2.s).slice(0, limit);
       return text(
-        `Libraries that fit "${need}":
+        `Libraries that fit "${rawNeed || kind}":
 ${libs.map(({ e: e2 }) => `- ${e2.name} (${e2.category}, ${e2.price}, ${e2.license}): ${e2.what} Use when: ${e2.useWhen}${e2.avoidWhen ? ` Avoid: ${e2.avoidWhen}` : ""}`).join("\n") || "- none matched by description"}
 
-Installable components (${all.length} searched):
-${items.map(({ it }) => `- [${it.library}] ${it.title}: ${it.description.slice(0, 140)}
-    npx shadcn@latest add ${it.url}`).join("\n") || "- none matched; try other words, or components_registries for 500+ more registries"}
+Installable components (${all.length} searched${kind ? `, kind ${kind}` : ""}):
+${items.map(({ it }) => {
+          const heavy = it.deps.filter((d) => HEAVY.test(d));
+          return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` \xB7 needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` \xB7 deps ${it.deps.slice(0, 3).join(", ")}` : ""}
+    npx shadcn@latest add ${it.url}`;
+        }).join("\n") || "- none matched; try other words, or components_registries for 500+ more registries"}
 
-Read a component's code with components_get before installing. After installing, restyle it to the project's tokens (DESIGN.md); never leave library defaults.`
+` + (kind === "background" || kind === "hero" ? "A background is a material, not the idea: tint it to the palette, keep the text zone calm, cap it to the hero, pause it off-screen and under reduced motion. For a static, licence-free one: gradient_mesh.\n" : "") + "Licences: React Bits is MIT + Commons Clause (use in the product, never redistribute the source); Aceternity's free items allow commercial end products, not resale.\nRead a component's code with components_get before installing. After installing, restyle it to the project's tokens (DESIGN.md); never leave library defaults."
       );
     })
   );
@@ -93934,9 +94770,14 @@ Read a component's code with components_get before installing. After installing,
     {
       title: "Read a registry component",
       description: "Fetch a registry component's files, dependencies and install command (library id from components_find, e.g. 'kibo', plus the item name), or pass a full registry item URL.",
-      inputSchema: { library: external_exports.string().optional(), item: external_exports.string().describe("Item name, or a full https URL to the item JSON") }
+      inputSchema: {
+        library: external_exports.string().optional(),
+        item: external_exports.string().describe("Item name, or a full https URL to the item JSON"),
+        filesOnly: external_exports.boolean().optional().describe("List the files and deps without their code"),
+        maxChars: external_exports.number().int().min(500).max(2e4).optional().describe("Code shown per file (default 6000)")
+      }
     },
-    safe(async ({ library, item }) => {
+    safe(async ({ library, item, filesOnly = false, maxChars = 6e3 }) => {
       let url2 = item;
       if (!/^https?:/.test(item)) {
         const entry = loadCatalogue().entries.find((e2) => e2.id === library);
@@ -93944,8 +94785,10 @@ Read a component's code with components_get before installing. After installing,
         url2 = entry.registry.item.replace("{name}", item);
       }
       const { body } = await get(url2, { as: "json", ttlMs: WEEK });
-      const files = (body.files || []).map((f2) => `--- ${f2.path} ---
-${(f2.content || "(no inline content)").slice(0, 7e3)}${(f2.content || "").length > 7e3 ? "\n\u2026(truncated)" : ""}`);
+      const all = body.files || [];
+      const files = (filesOnly ? [] : all).map((f2) => `--- ${f2.path} ---
+${(f2.content || "(no inline content)").slice(0, maxChars)}${(f2.content || "").length > maxChars ? "\n\u2026(truncated)" : ""}`);
+      if (filesOnly) files.push(`Files: ${all.map((f2) => `${f2.path} (${(f2.content || "").length} chars)`).join(", ")}`);
       return text(
         `${body.title || body.name}: ${body.description || ""}
 Install: npx shadcn@latest add ${url2}
@@ -94003,7 +94846,7 @@ ${cat.references.map((r2) => `  - ${r2.name}: ${r2.what} (${r2.access})`).join("
 // src/modules/assets/index.mjs
 var assets_exports = {};
 __export(assets_exports, {
-  register: () => register10
+  register: () => register11
 });
 
 // src/modules/assets/palette.mjs
@@ -94014,22 +94857,22 @@ __export(palette_exports2, {
 
 // src/core/preview.mjs
 init_chrome();
-import fs21 from "node:fs";
-import os4 from "node:os";
-import path15 from "node:path";
-import { pathToFileURL as pathToFileURL2 } from "node:url";
+import fs25 from "node:fs";
+import os6 from "node:os";
+import path19 from "node:path";
+import { pathToFileURL as pathToFileURL3 } from "node:url";
 async function previewHtml(html, { width = 1200, height = 700, config: config2 } = {}) {
-  const dir = fs21.mkdtempSync(path15.join(os4.tmpdir(), "drip-preview-"));
-  const file4 = path15.join(dir, "preview.html");
-  fs21.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
+  const dir = fs25.mkdtempSync(path19.join(os6.tmpdir(), "drip-preview-"));
+  const file4 = path19.join(dir, "preview.html");
+  fs25.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
   try {
-    const png2 = await screenshot(pathToFileURL2(file4).href, { width, height, waitMs: 2500, config: config2 });
+    const png2 = await screenshot(pathToFileURL3(file4).href, { width, height, waitMs: 2500, config: config2 });
     return imageBlock(await toJpeg(png2, width, height));
   } catch {
     return null;
   } finally {
     try {
-      fs21.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      fs25.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
     } catch {
     }
   }
@@ -94168,76 +95011,112 @@ __export(gradient_exports, {
   meshGradient: () => meshGradient,
   register: () => register6
 });
-import fs22 from "node:fs";
-import path16 from "node:path";
+import fs26 from "node:fs";
+import path20 from "node:path";
+init_imaging();
+init_paths();
 function rng(seed) {
   let s2 = seed >>> 0 || 1;
   return () => (s2 = s2 * 1664525 + 1013904223 >>> 0) / 4294967296;
 }
-function meshGradient({ colors, base, seed = 7, blobs, softness = 0.6, grain = 0.12, width = 1600, height = 900 }) {
+var ZONES = {
+  none: [[5, 95], [5, 95]],
+  left: [[45, 100], [0, 100]],
+  right: [[0, 55], [0, 100]],
+  center: null,
+  // ring around the middle
+  top: [[0, 100], [50, 100]],
+  bottom: [[0, 100], [0, 50]]
+};
+function meshGradient({ colors, base, seed = 7, blobs, softness = 0.6, grain = 0.12, calm = "none", style = "mesh", width = 1600, height = 900 }) {
   const r2 = rng(seed);
   const n2 = blobs || Math.max(3, colors.length + 1);
-  const spots = Array.from({ length: n2 }, (_, i2) => ({
-    color: colors[i2 % colors.length],
-    x: Math.round(5 + r2() * 90),
-    y: Math.round(5 + r2() * 90),
-    size: Math.round(35 + r2() * 35 + softness * 20)
-  }));
+  const zone = ZONES[calm];
+  const place = () => {
+    if (!zone) {
+      const a2 = r2() * Math.PI * 2;
+      return [50 + Math.cos(a2) * (38 + r2() * 12), 50 + Math.sin(a2) * (38 + r2() * 12)];
+    }
+    return [zone[0][0] + r2() * (zone[0][1] - zone[0][0]), zone[1][0] + r2() * (zone[1][1] - zone[1][0])];
+  };
+  const spots = Array.from({ length: n2 }, (_, i2) => {
+    const [x2, y2] = place();
+    return { color: colors[i2 % colors.length], x: Math.round(x2), y: Math.round(y2), size: Math.round((calm === "none" ? 35 : 28) + r2() * 30 + softness * 20), rx: style === "aurora" ? 1.8 + r2() : 1, angle: Math.round(-30 + r2() * 60) };
+  });
   const bg = base || colors[colors.length - 1];
+  const grad = (s2) => style === "aurora" ? `radial-gradient(${Math.round(s2.size * s2.rx)}% ${Math.round(s2.size * 0.45)}% at ${s2.x}% ${s2.y}%, ${s2.color} 0%, transparent 100%)` : `radial-gradient(at ${s2.x}% ${s2.y}%, ${s2.color} 0px, transparent ${s2.size}%)`;
   const css = `background-color: ${bg};
 background-image:
-${spots.map((s2) => `  radial-gradient(at ${s2.x}% ${s2.y}%, ${s2.color} 0px, transparent ${s2.size}%)`).join(",\n")};`;
+${spots.map((s2) => `  ${grad(s2)}`).join(",\n")};`;
   const blur = Math.round(Math.min(width, height) * (0.08 + softness * 0.12));
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid slice">
   <defs>
     <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${blur}"/></filter>
     <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
   </defs>
   <rect width="100%" height="100%" fill="${bg}"/>
   <g filter="url(#blur)">
-${spots.map((s2) => `    <ellipse cx="${s2.x / 100 * width}" cy="${s2.y / 100 * height}" rx="${s2.size / 100 * width * 0.6}" ry="${s2.size / 100 * height * 0.6}" fill="${s2.color}"/>`).join("\n")}
+${spots.map((s2) => `    <ellipse cx="${s2.x / 100 * width}" cy="${s2.y / 100 * height}" rx="${s2.size / 100 * width * 0.6 * s2.rx}" ry="${s2.size / 100 * height * (style === "aurora" ? 0.3 : 0.6)}" fill="${s2.color}" transform="rotate(${style === "aurora" ? s2.angle : 0} ${s2.x / 100 * width} ${s2.y / 100 * height})"/>`).join("\n")}
   </g>
   ${grain > 0 ? `<rect width="100%" height="100%" filter="url(#grain)" opacity="${grain}" style="mix-blend-mode:overlay"/>` : ""}
 </svg>`;
-  const grainCss = grain > 0 ? `
-/* grain overlay: put on a ::after with pointer-events:none */
-background-image: url("data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(#n)' opacity='${grain}'/></svg>`)}");
-mix-blend-mode: overlay;` : "";
-  return { css, grainCss, svg };
+  const noise = `url("data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`)}")`;
+  const grainCss = grain > 0 ? `/* grain: on the same element */
+.hero-bg::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: ${noise}; opacity: ${grain}; mix-blend-mode: overlay; }` : "";
+  return { css, grainCss, svg, noise, bg };
 }
 function register6(server2, ctx2) {
   server2.registerTool(
     "gradient_mesh",
     {
       title: "Mesh gradient + grain",
-      description: "Generates a mesh gradient (soft colour blobs) with optional film grain, as CSS and as an SVG file, with a preview. Use the direction's palette, 2-4 colours, close in hue for calm, contrasting for energy. Change `seed` for a different arrangement. Pass `out` (project path ending .svg) to save the SVG.",
+      description: `Generates a mesh (soft colour blobs) or aurora (long soft streaks) gradient with optional film grain, as CSS, an SVG, or a WebP/PNG rendered at any size, with a preview. Local and licence-free. Use the direction's palette: 2-4 colours, close in hue for calm, contrasting for energy. calm keeps the zone behind your headline quiet (base colour). animate adds a slow drift (CSS, respects reduced motion). Change seed for another arrangement. Example: gradient_mesh({ colors: ["#FF5B2E", "#FFB199", "#2B1B17"], base: "#140D0B", calm: "left", grain: 0.14, out: "public/img/hero-bg.webp" })`,
       inputSchema: {
         colors: external_exports.array(external_exports.string()).min(2).max(6),
-        base: external_exports.string().optional().describe("Background colour under the blobs"),
+        base: external_exports.string().optional().describe("Background colour under the blobs (and in the calm zone)"),
+        style: external_exports.enum(["mesh", "aurora"]).optional(),
+        calm: external_exports.enum(["none", "left", "right", "center", "top", "bottom"]).optional().describe("Keep this zone quiet for text"),
         seed: external_exports.number().int().optional(),
         softness: external_exports.number().min(0).max(1).optional(),
         grain: external_exports.number().min(0).max(0.5).optional().describe("0 = none, 0.1 subtle, 0.25 strong"),
-        out: external_exports.string().optional()
+        animate: external_exports.boolean().optional(),
+        width: external_exports.number().int().min(200).max(4e3).optional().describe("Raster/SVG width (default 2400)"),
+        height: external_exports.number().int().min(200).max(4e3).optional().describe("Default 1350"),
+        out: external_exports.string().optional().describe("Project path: .svg (vector), .webp or .png (rendered by the browser, grain included)")
       }
     },
     safe(async (args) => {
-      const g = meshGradient(args);
+      const width = args.width || 2400;
+      const height = args.height || 1350;
+      const g = meshGradient({ ...args, width, height });
+      const anim = args.animate ? `
+/* slow drift */
+.hero-bg { background-size: 160% 160%; animation: drip-mesh 24s ease-in-out infinite alternate; }
+@keyframes drip-mesh { to { background-position: 100% 60%; } }
+@media (prefers-reduced-motion: reduce) { .hero-bg { animation: none; } }` : "";
+      const div = (w, h) => `<div style="position:relative;width:${w}px;height:${h}px;${g.css.replace(/\n/g, " ")}">${args.grain ?? 0.12 ? `<div style="position:absolute;inset:0;background-image:${g.noise.replace(/"/g, "'")};opacity:${args.grain ?? 0.12};mix-blend-mode:overlay"></div>` : ""}</div>`;
       let saved = "";
       if (args.out) {
-        const file4 = path16.resolve(projectDir(), args.out);
-        fs22.mkdirSync(path16.dirname(file4), { recursive: true });
-        fs22.writeFileSync(file4, g.svg);
-        saved = `Saved SVG: ${file4}
+        const file4 = path20.resolve(projectDir(), args.out);
+        fs26.mkdirSync(path20.dirname(file4), { recursive: true });
+        if (/\.svg$/i.test(file4)) fs26.writeFileSync(file4, g.svg);
+        else {
+          const png2 = await renderHtml(div(width, height), path20.join(rendersDir("gradients"), `mesh-${stamp()}.png`), { width, height, config: ctx2.config() });
+          if (/\.png$/i.test(file4)) fs26.writeFileSync(file4, png2);
+          else {
+            const r2 = await processImage(png2, { outputs: [{ name: "", width, format: "webp" }], focus: { x: 0.5, y: 0.5 }, maxKB: 300, config: ctx2.config() });
+            fs26.writeFileSync(file4, r2.files[0].buf);
+          }
+        }
+        saved = `Saved ${args.out} (${Math.round(fs26.statSync(file4).size / 1024)} KB, ${width}x${height}).
 
 `;
       }
-      const content = [{ type: "text", text: `${saved}CSS:
+      const content = [{ type: "text", text: `${saved}CSS (put on .hero-bg, position: relative):
 ${g.css}
-${g.grainCss}
-
-SVG (${g.svg.length} chars) ${args.out ? "saved" : "available: pass out to save"}.` }];
-      const img = await previewHtml(`<div style="width:1200px;height:675px;${g.css.replace(/\n/g, " ")}"></div>`, { width: 1200, height: 675, config: ctx2.config() });
-      if (img) content.push(img);
+${g.grainCss}${anim}` }];
+      const preview = await renderHtml(div(1200, Math.round(1200 * height / width)), path20.join(rendersDir("gradients"), `preview-${stamp()}.jpg`), { width: 1200, height: Math.round(1200 * height / width), format: "jpeg", config: ctx2.config() }).catch(() => null);
+      if (preview) content.push(imageBlock(preview));
       return blocks(content);
     })
   );
@@ -94248,8 +95127,9 @@ var icons_exports = {};
 __export(icons_exports, {
   register: () => register7
 });
-import fs23 from "node:fs";
-import path17 from "node:path";
+import fs27 from "node:fs";
+import path21 from "node:path";
+init_paths();
 var API = "https://api.iconify.design";
 function register7(server2, ctx2) {
   server2.registerTool(
@@ -94284,21 +95164,23 @@ Get SVG / install: icons_get. React: lucide-react / @phosphor-icons/react / @tab
       inputSchema: { icons: external_exports.array(external_exports.string()).min(1).max(40), size: external_exports.number().int().optional(), dir: external_exports.string().optional().describe("Project folder to save .svg files into") }
     },
     safe(async ({ icons, size, dir }) => {
-      const out = [];
-      for (const name of icons) {
-        const [prefix, icon] = name.split(":");
-        const { body } = await get(`${API}/${prefix}/${icon}.svg${size ? `?height=${size}` : ""}`, { ttlMs: 30 * 24 * 36e5 });
-        if (dir) {
-          const target = path17.resolve(projectDir(), dir, `${icon}.svg`);
-          fs23.mkdirSync(path17.dirname(target), { recursive: true });
-          fs23.writeFileSync(target, body);
-        }
-        out.push(`${name}:
-${body}`);
-      }
-      return text(`${dir ? `Saved to ${dir}
-
-` : ""}${out.join("\n\n")}`);
+      const out = await Promise.all(
+        icons.map(async (name) => {
+          const [prefix, icon] = name.split(":");
+          const { body } = await get(`${API}/${prefix}/${icon}.svg${size ? `?height=${size}` : ""}`, { ttlMs: 30 * 24 * 36e5 });
+          if (dir) {
+            const target = path21.resolve(projectDir(), dir, `${icon}.svg`);
+            fs27.mkdirSync(path21.dirname(target), { recursive: true });
+            fs27.writeFileSync(target, body);
+            return `${name} -> ${path21.join(dir, `${icon}.svg`)}`;
+          }
+          return `${name}:
+${body}`;
+        })
+      );
+      if (dir) return text(`Saved ${out.length} icon(s) to ${dir} (currentColor):
+${out.join("\n")}`);
+      return text(out.join("\n\n"));
     })
   );
 }
@@ -94308,12 +95190,13 @@ var fonts_exports = {};
 __export(fonts_exports, {
   register: () => register8
 });
-import fs24 from "node:fs";
-import path18 from "node:path";
+import fs28 from "node:fs";
+import path22 from "node:path";
+init_paths();
 var LIST = "https://api.fontsource.org/v1/fonts";
 function pairs() {
   try {
-    return JSON.parse(fs24.readFileSync(path18.join(dataDir, "font-pairs.json"), "utf8")).pairs;
+    return JSON.parse(fs28.readFileSync(path22.join(dataDir, "font-pairs.json"), "utf8")).pairs;
   } catch {
     return [];
   }
@@ -94385,147 +95268,245 @@ var images_exports = {};
 __export(images_exports, {
   register: () => register9
 });
-import fs26 from "node:fs";
-import path20 from "node:path";
-
-// src/core/keys.mjs
-import fs25 from "node:fs";
-import path19 from "node:path";
-var KEY_ENV = {
-  openai: ["OPENAI_API_KEY"],
-  gemini: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
-  unsplash: ["UNSPLASH_ACCESS_KEY"],
-  pexels: ["PEXELS_API_KEY"],
-  openverse: ["OPENVERSE_TOKEN"]
-};
-var file3 = path19.join(homeDripDir, "keys.json");
-function readFile2() {
-  try {
-    return JSON.parse(fs25.readFileSync(file3, "utf8"));
-  } catch {
-    return {};
-  }
-}
-function getKey(name) {
-  for (const env of KEY_ENV[name] || [`${name.toUpperCase()}_API_KEY`]) if (process.env[env]) return process.env[env];
-  return readFile2()[name] || null;
-}
-function setKey(name, value) {
-  ensureDir(homeDripDir);
-  const keys = readFile2();
-  if (value) keys[name] = value.trim();
-  else delete keys[name];
-  fs25.writeFileSync(file3, JSON.stringify(keys, null, 2), { mode: 384 });
-}
-function keyStatus(names3) {
-  const stored = readFile2();
-  return names3.map((n2) => {
-    const env = (KEY_ENV[n2] || []).find((e2) => process.env[e2]);
-    return { name: n2, set: !!(env || stored[n2]), from: env ? `env ${env}` : stored[n2] ? "~/.drip/keys.json" : null };
-  });
-}
-function logUsage(entry) {
-  ensureDir(homeDripDir);
-  fs25.appendFileSync(path19.join(homeDripDir, "usage.jsonl"), `${JSON.stringify({ at: (/* @__PURE__ */ new Date()).toISOString(), ...entry })}
-`);
-}
-
-// src/modules/assets/images.mjs
+import fs29 from "node:fs";
+import path23 from "node:path";
+init_imaging();
+init_paths();
 var strip = (s2) => (s2 || "").replace(/<[^>]+>/g, "").trim();
+var UA = { "User-Agent": "drip-design-mcp/0.4 (design tool; https://github.com/8bitgfx/drip)" };
+var fitsOrientation = (r2, o2) => !o2 || (o2 === "landscape" ? r2.width > r2.height : o2 === "portrait" ? r2.height > r2.width : Math.abs(r2.width / r2.height - 1) < 0.25);
 var SOURCES = {
+  async unsplash({ query, orientation, limit, color }) {
+    const key = getKey("unsplash");
+    if (!key) throw new Error("No Unsplash key. Get a free one at unsplash.com/developers, then keys_open (or set UNSPLASH_ACCESS_KEY).");
+    const { body } = await get(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${limit}${orientation ? `&orientation=${orientation === "square" ? "squarish" : orientation}` : ""}${color ? `&color=${color}` : ""}`, { as: "json", headers: { Authorization: `Client-ID ${key}` } });
+    return body.results.map((p2) => ({
+      title: p2.alt_description || p2.description || query,
+      thumb: p2.urls.small,
+      full: `${p2.urls.raw}&w=2600&q=85&fm=jpg&fit=max`,
+      width: p2.width,
+      height: p2.height,
+      color: p2.color,
+      page: p2.links.html,
+      author: p2.user?.name,
+      license: "Unsplash License (free for commercial use; credit the photographer)",
+      ping: p2.links.download_location
+    }));
+  },
+  async pexels({ query, orientation, limit, color }) {
+    const key = getKey("pexels");
+    if (!key) throw new Error("No Pexels key. Get a free one at pexels.com/api, then keys_open (or set PEXELS_API_KEY).");
+    const { body } = await get(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${limit}${orientation ? `&orientation=${orientation}` : ""}${color ? `&color=${color}` : ""}`, { as: "json", headers: { Authorization: key } });
+    return body.photos.map((p2) => ({ title: p2.alt || query, thumb: p2.src.medium, full: `${p2.src.original}?auto=compress&cs=tinysrgb&w=2600`, width: p2.width, height: p2.height, color: p2.avg_color, page: p2.url, author: p2.photographer, license: "Pexels License (free for commercial use; link to Pexels)" }));
+  },
+  async pixabay({ query, orientation, limit, color, kind }) {
+    const key = getKey("pixabay");
+    if (!key) throw new Error("No Pixabay key. Get a free one at pixabay.com/api/docs, then keys_open (or set PIXABAY_API_KEY).");
+    const type = kind === "illustration" ? "illustration" : kind === "vector" ? "vector" : "photo";
+    const { body } = await get(`https://pixabay.com/api/?key=${key}&q=${encodeURIComponent(query)}&per_page=${Math.max(3, limit)}&image_type=${type}&safesearch=true${orientation ? `&orientation=${orientation === "landscape" ? "horizontal" : "vertical"}` : ""}${color ? `&colors=${color}` : ""}`, { as: "json", ttlMs: 24 * 36e5 });
+    return body.hits.map((p2) => ({ title: p2.tags || query, thumb: p2.webformatURL, full: p2.largeImageURL, width: p2.imageWidth, height: p2.imageHeight, page: p2.pageURL, author: p2.user, license: "Pixabay Content License (free for commercial use; may include AI-generated uploads: check)" }));
+  },
+  async openverse({ query, limit, orientation }) {
+    const token = getKey("openverse");
+    const { body } = await get(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${limit}&license_type=commercial,modification${orientation ? `&aspect_ratio=${orientation === "landscape" ? "wide" : orientation === "portrait" ? "tall" : "square"}` : ""}`, { as: "json", headers: { ...UA, ...token ? { Authorization: `Bearer ${token}` } : {} } });
+    return body.results.map((p2) => ({ title: p2.title, thumb: p2.thumbnail, full: p2.url, width: p2.width, height: p2.height, page: p2.foreign_landing_url, author: p2.creator, license: `${p2.license.toUpperCase()} ${p2.license_version || ""}`.trim() + (/^by/i.test(p2.license) ? " (credit required)" : "") }));
+  },
   async wikimedia({ query, orientation, limit }) {
-    const url2 = `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=${limit * 2}&gsrsearch=${encodeURIComponent(`${query} filetype:bitmap`)}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1600&origin=*`;
-    const { body } = await get(url2, { as: "json", headers: { "User-Agent": "drip-design-mcp/0.1 (design reference tool)" } });
+    const url2 = `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=${limit * 2}&gsrsearch=${encodeURIComponent(`${query} filetype:bitmap`)}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=2600&origin=*`;
+    const { body } = await get(url2, { as: "json", headers: UA });
     return Object.values(body.query?.pages || {}).map((p2) => {
       const ii = p2.imageinfo?.[0] || {};
       const m = ii.extmetadata || {};
-      return { title: p2.title.replace(/^File:/, "").replace(/\.\w+$/, ""), thumb: ii.thumburl, full: ii.url, width: ii.width, height: ii.height, page: ii.descriptionurl, author: strip(m.Artist?.value), license: strip(m.LicenseShortName?.value) || "see page" };
-    }).filter((r2) => r2.thumb && r2.width >= 1e3 && (!orientation || (orientation === "landscape" ? r2.width > r2.height : orientation === "portrait" ? r2.height > r2.width : true))).slice(0, limit);
+      return { title: p2.title.replace(/^File:/, "").replace(/\.\w+$/, ""), thumb: ii.thumburl?.replace(/\/\d+px-/, "/400px-"), full: ii.thumburl || ii.url, width: ii.width, height: ii.height, page: ii.descriptionurl, author: strip(m.Artist?.value), license: (strip(m.LicenseShortName?.value) || "see page") + (/SA/.test(m.LicenseShortName?.value || "") ? " (share-alike)" : "") };
+    }).filter((r2) => r2.thumb && r2.width >= 1e3 && fitsOrientation(r2, orientation)).slice(0, limit);
   },
-  async unsplash({ query, orientation, limit }) {
-    const key = getKey("unsplash");
-    if (!key) throw new Error("No Unsplash key. Get a free one at unsplash.com/developers, then keys_open (or set UNSPLASH_ACCESS_KEY).");
-    const { body } = await get(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${limit}${orientation ? `&orientation=${orientation === "square" ? "squarish" : orientation}` : ""}`, { as: "json", headers: { Authorization: `Client-ID ${key}` } });
-    return body.results.map((p2) => ({ title: p2.alt_description || p2.description || query, thumb: p2.urls.small, full: p2.urls.regular, width: p2.width, height: p2.height, page: p2.links.html, author: p2.user?.name, license: "Unsplash License (free, credit appreciated)" }));
+  async cleveland({ query, orientation, limit }) {
+    const { body } = await get(`https://openaccess-api.clevelandart.org/api/artworks/?q=${encodeURIComponent(query)}&cc0=1&has_image=1&limit=${limit * 2}`, { as: "json", headers: UA, ttlMs: 7 * 24 * 36e5 });
+    return (body.data || []).filter((a2) => a2.images?.web?.url).map((a2) => {
+      const big = a2.images.print || a2.images.web;
+      return { title: `${a2.title}${a2.creation_date ? ` (${a2.creation_date})` : ""}`, thumb: a2.images.web.url, full: big.url, width: +big.width || 0, height: +big.height || 0, page: a2.url, author: a2.creators?.[0]?.description?.split("(")[0].trim() || a2.culture?.[0] || "Unknown", license: "CC0 public domain (Cleveland Museum of Art)" };
+    }).filter((r2) => fitsOrientation(r2, orientation)).slice(0, limit);
   },
-  async pexels({ query, orientation, limit }) {
-    const key = getKey("pexels");
-    if (!key) throw new Error("No Pexels key. Get a free one at pexels.com/api, then keys_open (or set PEXELS_API_KEY).");
-    const { body } = await get(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${limit}${orientation ? `&orientation=${orientation}` : ""}`, { as: "json", headers: { Authorization: key } });
-    return body.photos.map((p2) => ({ title: p2.alt || query, thumb: p2.src.medium, full: p2.src.large2x, width: p2.width, height: p2.height, page: p2.url, author: p2.photographer, license: "Pexels License (free, credit appreciated)" }));
-  },
-  async openverse({ query, limit }) {
-    const token = getKey("openverse");
-    const { body } = await get(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${limit}`, { as: "json", headers: { "User-Agent": "drip-design-mcp/0.1", ...token ? { Authorization: `Bearer ${token}` } : {} } });
-    return body.results.map((p2) => ({ title: p2.title, thumb: p2.thumbnail, full: p2.url, width: p2.width, height: p2.height, page: p2.foreign_landing_url, author: p2.creator, license: `${p2.license} ${p2.license_version || ""}`.trim() }));
+  async nasa({ query, limit }) {
+    const { body } = await get(`https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image&page_size=${limit}`, { as: "json", headers: UA, ttlMs: 7 * 24 * 36e5 });
+    return (body.collection?.items || []).slice(0, limit).map((it) => {
+      const d = it.data?.[0] || {};
+      const thumb = it.links?.[0]?.href;
+      return { title: d.title || query, thumb, full: thumb?.replace(/~thumb\.jpg$/, "~large.jpg"), width: 0, height: 0, page: `https://images.nasa.gov/details/${d.nasa_id}`, author: d.center ? `NASA ${d.center}` : "NASA", license: "NASA media (generally no copyright; credit NASA; no endorsement, no NASA logos)" };
+    });
   }
 };
+var SOURCE_NOTES = "unsplash/pexels/pixabay: best photos (free keys) \xB7 openverse: CC licences, commercial-use only \xB7 wikimedia: everything, check each licence \xB7 cleveland: public-domain paintings, prints, woodblock and ukiyo-e, illustration (CC0, up to 3400px; the honest route to painterly and anime-adjacent heroes) \xB7 nasa: space, earth, science.";
 function register9(server2, ctx2) {
   server2.registerTool(
     "images_search",
     {
-      title: "Search photos (with licences)",
-      description: "Search real photography for heroes and sections, with author and licence for each. Sources: wikimedia (no key), unsplash and pexels (free keys, best quality), openverse. Returns a numbered list + contact sheet. Write art-directed queries ('architect at desk morning light', not 'business'). Read drip_guide imagery first.",
+      title: "Search photos and art (with licences)",
+      description: "Search photography and public-domain art for heroes and sections, with author, licence, size and colour for each. " + SOURCE_NOTES + " Returns a numbered list + contact sheet. Write art-directed queries ('architect at desk morning light', 'hokusai wave', not 'business'). Never use film or anime stills (e.g. Ghibli) or unlicensed art: no licence covers a commercial page; for an anime/illustrated look use cleveland ukiyo-e and prints, pixabay kind illustration, or gen_image.",
       inputSchema: {
         query: external_exports.string(),
-        source: external_exports.enum(["wikimedia", "unsplash", "pexels", "openverse"]).optional().describe("Default: unsplash if its key is set, else wikimedia"),
+        source: external_exports.enum(["unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: unsplash, else pexels, else pixabay, else openverse"),
         orientation: external_exports.enum(["landscape", "portrait", "square"]).optional(),
+        color: external_exports.string().optional().describe("unsplash/pexels/pixabay colour filter, e.g. 'blue', 'black_and_white', 'orange'"),
+        kind: external_exports.enum(["photo", "illustration", "vector"]).optional().describe("pixabay only"),
         limit: external_exports.number().int().min(4).max(30).optional()
       }
     },
-    safe(async ({ query, source, orientation, limit = 18 }) => {
-      const src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : "wikimedia");
-      const results = await SOURCES[src]({ query, orientation, limit });
-      if (!results.length) return text(`No images for "${query}" on ${src}. Try other words or another source.`);
-      const items = results.map((r2, i2) => ({ key: `image:${r2.full}`, source: src, id: `${src}-${i2}`, title: r2.title, url: r2.page, image: r2.full, thumb: r2.thumb, designer: r2.author, license: r2.license }));
+    safe(async ({ query, source, orientation, color, kind, limit = 18 }) => {
+      const src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : getKey("pixabay") ? "pixabay" : "openverse");
+      let results;
+      try {
+        results = await SOURCES[src]({ query, orientation, limit, color, kind });
+      } catch (e2) {
+        if (source) throw e2;
+        results = await SOURCES.wikimedia({ query, orientation, limit });
+      }
+      if (!results.length) return text(`No images for "${query}" on ${src}. Try other words or another source (${Object.keys(SOURCES).join(", ")}).`);
+      const items = results.map((r2, i2) => ({ key: `image:${r2.full}`, source: src, id: `${src}-${i2}`, title: r2.title, url: r2.page, image: r2.full, thumb: r2.thumb, designer: r2.author, license: r2.license, ping: r2.ping, width: r2.width, height: r2.height }));
       rememberListing(items);
       const bufs = await Promise.all(results.map((r2) => fetchImage(r2.thumb).then((x2) => x2.buf).catch(() => Buffer.alloc(0))));
+      const fmt = (r2) => {
+        if (!r2.width) return "size on save";
+        const big = Math.max(r2.width, r2.height);
+        return `${r2.width}x${r2.height} ${(r2.width / r2.height).toFixed(2)}:1${big >= 2400 ? " \xB7 hero-ready" : big < 1600 ? " \xB7 too small for a full-bleed hero" : ""}`;
+      };
       return blocks([
-        textBlock(`${src}: "${query}"
-${results.map((r2, i2) => `${i2 + 1}. ${r2.title.slice(0, 80)} \u2014 ${r2.author || "?"} \xB7 ${r2.license} \xB7 ${r2.width}x${r2.height}`).join("\n")}
+        textBlock(
+          `${src}: "${query}"${!getKey("unsplash") && !getKey("pexels") ? "  (no Unsplash/Pexels key: keys_open for better photos)" : ""}
+` + results.map((r2, i2) => `${i2 + 1}. ${r2.title.slice(0, 80)} \u2014 ${r2.author || "?"} \xB7 ${r2.license} \xB7 ${fmt(r2)}${r2.color ? ` \xB7 ${r2.color}` : ""}`).join("\n") + `
 
-Save one with images_save (logs the credit). Add to the board with board_add (ref = number).`),
-        imageBlock(await contactSheet(bufs, { cols: 6, tileW: 300, tileH: 225 }))
+Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3", dest: "public/img/hero", slots: [{ name: "desktop", ar: "16:9", width: 2400 }, { name: "phone", ar: "4:5", width: 1200 }] }).`
+        ),
+        imageBlock(await contactSheet(bufs, { cols: 6, tileW: 300, tileH: 225, fit: "contain" }))
       ]);
     })
   );
   server2.registerTool(
     "images_save",
     {
-      title: "Save an image into the project",
-      description: "Downloads an image (number from the last images_search, or a URL) into the project and records source, author and licence in .drip/assets.json, so credits can be shipped.",
-      inputSchema: { image: external_exports.string(), dest: external_exports.string().describe("Project path, e.g. public/images/hero.jpg"), credit: external_exports.string().optional() }
+      title: "Save web-ready images into the project",
+      description: `Downloads an image (number from the last images_search, a URL, or a project file) and writes WEB copies: resized, cropped to each slot's ratio around the focal point (auto-detected from where the detail is, or yours), encoded WebP (default) or JPEG under maxKB. Returns the files, their sizes and a ready <picture> snippet. Logs source, author and licence in .drip/assets.json, and sends Unsplash's required download ping. Never ship a 7 MB original. Example: images_save({ image: "3", dest: "public/img/hero", slots: [{ name: "desktop", ar: "16:9", width: 2400 }, { name: "phone", ar: "4:5", width: 1200 }] })`,
+      inputSchema: {
+        image: external_exports.string().describe("Number from the last images_search, a URL, or a path in the project"),
+        dest: external_exports.string().describe("Project path without extension (public/img/hero) or with one (public/img/hero.webp)"),
+        slots: external_exports.array(external_exports.object({ name: external_exports.string(), ar: external_exports.string().optional().describe("'16:9', '4:5', '1:1', '21:9'; omit to keep the image's ratio"), width: external_exports.number().int().min(64).max(4e3).optional() })).optional().describe("One file per slot: dest-<name>.<ext>. Default: one copy, 2400px wide, original ratio"),
+        format: external_exports.enum(["webp", "jpeg", "png"]).optional().describe("Default webp (png for graphics with transparency)"),
+        focus: external_exports.union([external_exports.literal("auto"), external_exports.object({ x: external_exports.number().min(0).max(1), y: external_exports.number().min(0).max(1) })]).optional().describe("Crop centre: 'auto' (default) or fractions"),
+        maxKB: external_exports.number().int().min(30).max(3e3).optional().describe("Size budget per file (default 400)"),
+        keepOriginal: external_exports.boolean().optional(),
+        credit: external_exports.string().optional()
+      }
     },
-    safe(async ({ image: image2, dest, credit }) => {
-      const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : lookup(resolve(image2, "image"));
-      if (!item?.image) return text("Unknown image. Use a number from the last images_search or a URL.", true);
+    safe(async ({ image: image2, dest, slots, format, focus = "auto", maxKB = 400, keepOriginal, credit }) => {
+      const local = !/^https?:/.test(image2) && fs29.existsSync(path23.resolve(projectDir(), image2));
+      const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : local ? { image: path23.resolve(projectDir(), image2), url: image2 } : lookup(resolve(image2, "image"));
+      if (!item?.image) return text("Unknown image. Use a number from the last images_search, a URL or a project file.", true);
       const { buf } = await fetchImage(item.image, { ttlMs: 0 });
-      const file4 = path20.resolve(projectDir(), dest);
-      fs26.mkdirSync(path20.dirname(file4), { recursive: true });
-      fs26.writeFileSync(file4, buf);
-      const log = path20.join(ensureProjectDrip(), "assets.json");
-      const list = fs26.existsSync(log) ? JSON.parse(fs26.readFileSync(log, "utf8")) : [];
-      list.push({ file: dest, source: item.url, author: item.designer || null, license: item.license || "unknown \u2014 check before shipping", credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs26.writeFileSync(log, JSON.stringify(list, null, 2));
-      return text(`Saved ${dest} (${Math.round(buf.length / 1024)} KB). Licence: ${item.license || "UNKNOWN \u2014 confirm before shipping"}. Logged in .drip/assets.json.
-Serve it at the size it displays (srcset / next/image), with real alt text.`);
+      if (item.ping && getKey("unsplash")) get(item.ping, { as: "json", ttlMs: 0, headers: { Authorization: `Client-ID ${getKey("unsplash")}` } }).catch(() => {
+      });
+      const ext0 = path23.extname(dest).slice(1).toLowerCase();
+      const fmt = format || (["jpg", "jpeg"].includes(ext0) ? "jpeg" : ext0 === "png" ? "png" : "webp");
+      const stem = ext0 ? dest.slice(0, -ext0.length - 1) : dest;
+      const list = slots?.length ? slots : [{ name: "", width: 2400 }];
+      const res = await processImage(buf, { outputs: list.map((s2) => ({ name: s2.name, ar: s2.ar, width: s2.width || 2400, format: fmt })), focus, maxKB, config: ctx2.config() });
+      const ext = fmt === "jpeg" ? "jpg" : fmt;
+      const written = res.files.map((f2) => {
+        const rel = `${stem}${f2.name ? `-${f2.name}` : ""}.${ext}`;
+        const abs = path23.resolve(projectDir(), rel);
+        fs29.mkdirSync(path23.dirname(abs), { recursive: true });
+        fs29.writeFileSync(abs, f2.buf);
+        return { ...f2, rel };
+      });
+      if (keepOriginal) {
+        const o2 = path23.resolve(projectDir(), `${stem}-original${path23.extname(new URL(item.image, "file:///").pathname) || ".jpg"}`);
+        fs29.writeFileSync(o2, buf);
+      }
+      const log = path23.join(ensureProjectDrip(), "assets.json");
+      const prev = fs29.existsSync(log) ? JSON.parse(fs29.readFileSync(log, "utf8")) : [];
+      for (const w of written) prev.push({ file: w.rel, source: item.url, author: item.designer || null, license: item.license || "unknown \u2014 check before shipping", credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
+      fs29.writeFileSync(log, JSON.stringify(prev, null, 2));
+      const web = (rel) => "/" + rel.replace(/\\/g, "/").replace(/^public\//, "");
+      const phone = written.find((w) => w.height > w.width);
+      const desk = written.find((w) => w.width >= w.height) || written[0];
+      const picture = phone && desk && phone !== desk ? `<picture>
+  <source media="(max-width: 640px)" srcset="${web(phone.rel)}" width="${phone.width}" height="${phone.height}">
+  <img src="${web(desk.rel)}" width="${desk.width}" height="${desk.height}" alt="DESCRIBE WHAT IT SHOWS" fetchpriority="high">
+</picture>` : `<img src="${web(desk.rel)}" width="${desk.width}" height="${desk.height}" alt="DESCRIBE WHAT IT SHOWS">`;
+      return text(
+        `Original ${res.width}x${res.height} (${Math.round(buf.length / 1024)} KB), focal point ${Math.round(res.focus.x * 100)}% ${Math.round(res.focus.y * 100)}%.
+` + written.map((w) => `- ${w.rel}: ${w.width}x${w.height}, ${w.kb} KB${w.kb > maxKB ? " (over budget: try a smaller width)" : ""}`).join("\n") + `
+Licence: ${item.license || "UNKNOWN: confirm before shipping"}${item.designer ? ` \xB7 credit ${item.designer}` : ""}. Logged in .drip/assets.json.
+
+${picture}
+(Hero: fetchpriority="high", no lazy loading. Below the fold: loading="lazy".)`
+      );
+    })
+  );
+}
+
+// src/modules/assets/optical.mjs
+var optical_exports = {};
+__export(optical_exports, {
+  register: () => register10
+});
+import fs30 from "node:fs";
+import path24 from "node:path";
+init_imaging();
+init_paths();
+var pct = (v) => `${(v * 100).toFixed(1)}%`;
+function register10(server2, ctx2) {
+  server2.registerTool(
+    "optical_center",
+    {
+      title: "Find the optical centre and pivot",
+      description: 'Finds where the eye puts the centre of a mark, icon, illustration or object (SVG, PNG, WebP, JPG on a plain or transparent background), versus the bounding-box centre maths gives. It strips thin details (drips, antennae, tails, sparkles, strokes sticking out) to find the BODY, and returns: the box centre, the ink centroid, the body centre and box, the CSS to centre it optically in a container, and the transform-origin for rotating, scaling or swinging it. Returns an overlay (red dashed = bounding box, green = body). Use it before centring a logo in a lockup, an icon in a button, a product cut-out in a hero, or animating anything around a pivot. Example: optical_center({ file: "public/logo.svg" })',
+      inputSchema: {
+        file: external_exports.string().optional().describe("Project path or URL of the image"),
+        svg: external_exports.string().optional().describe("Inline SVG markup instead of a file"),
+        detail: external_exports.number().min(0.01).max(0.2).optional().describe("How thick a part must be to count as body, as a share of the image's short side (default 0.06). Raise it to ignore thicker drips/limbs"),
+        width: external_exports.number().optional().describe("Rendered width in px of the element on the page, to get px offsets")
+      }
+    },
+    safe(async ({ file: file4, svg, detail, width }) => {
+      let buf;
+      if (svg) buf = Buffer.from(svg);
+      else if (file4) buf = /^https?:/.test(file4) ? (await fetchImage(file4)).buf : fs30.readFileSync(path24.resolve(projectDir(), file4));
+      else return text("Pass file or svg.", true);
+      const o2 = await opticalCenter(buf, { detail, config: ctx2.config() });
+      if (o2.empty) return text("No shape found (the image is one flat colour?).", true);
+      const W = width || o2.size.w;
+      const H = W * o2.size.h / o2.size.w;
+      const dx = (o2.box.x - o2.body.x) * W;
+      const dy = (o2.box.y - o2.body.y) * H;
+      const small = Math.abs(dx) < W * 0.01 && Math.abs(dy) < H * 0.01;
+      const lines = [
+        `Bounding box centre (maths): ${pct(o2.box.x)} ${pct(o2.box.y)}`,
+        `Ink centroid (all of it):    ${pct(o2.mass.x)} ${pct(o2.mass.y)}`,
+        `BODY centre (what the eye calls the centre): ${pct(o2.body.x)} ${pct(o2.body.y)} \xB7 body box x ${pct(o2.bodyBox.x0)}-${pct(o2.bodyBox.x1)}, y ${pct(o2.bodyBox.y0)}-${pct(o2.bodyBox.y1)} (${Math.round(o2.bodyArea / o2.inkArea * 100)}% of the ink)`,
+        "",
+        small ? "The body sits on the box centre: centre it normally." : `To centre it optically in a container: centre the element, then nudge it by translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) at ${Math.round(W)}px wide (= translate(${pct(o2.box.x - o2.body.x)}, ${pct(o2.box.y - o2.body.y)}) of its own size). Align lockup text to the body box, not the drips.`,
+        `Pivot for rotate / scale / swing: transform-origin: ${pct(o2.body.x)} ${pct(o2.body.y)};  (a hanging or swinging thing pivots at its top attachment instead: transform-origin: 50% ${pct(o2.bodyBox.y0)})`,
+        "Then trust your eye over the numbers: a centred circle or triangle still reads low, so lift the body ~1-3% above the container's centre."
+      ];
+      return blocks([textBlock(lines.join("\n")), imageBlock(o2.overlay, "image/png")]);
     })
   );
 }
 
 // src/modules/assets/index.mjs
-function register10(server2, ctx2) {
-  for (const m of [palette_exports2, gradient_exports, icons_exports, fonts_exports, images_exports]) m.register(server2, ctx2);
+function register11(server2, ctx2) {
+  for (const m of [palette_exports2, gradient_exports, icons_exports, fonts_exports, images_exports, optical_exports]) m.register(server2, ctx2);
 }
 
 // src/modules/gen/index.mjs
 var gen_exports = {};
 __export(gen_exports, {
-  register: () => register11
+  register: () => register12
 });
-import fs27 from "node:fs";
-import path21 from "node:path";
-import { pathToFileURL as pathToFileURL3 } from "node:url";
+import fs31 from "node:fs";
+import path25 from "node:path";
+import { pathToFileURL as pathToFileURL4 } from "node:url";
+init_paths();
 
 // src/modules/gen/providers/gemini.mjs
 var RATIO = { landscape: "16:9", portrait: "9:16", square: "1:1" };
@@ -94566,7 +95547,7 @@ var openai_default = {
 
 // src/modules/gen/keypage.mjs
 import crypto2 from "node:crypto";
-import http2 from "node:http";
+import http3 from "node:http";
 var running = null;
 var esc4 = (s2) => String(s2).replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
 function page(names3, token, msg = "") {
@@ -94585,7 +95566,7 @@ ${msg ? `<p class="msg">${esc4(msg)}</p>` : ""}
 async function openKeyPage(names3) {
   if (running) return running.url;
   const token = crypto2.randomBytes(12).toString("hex");
-  const server2 = http2.createServer(async (req, res) => {
+  const server2 = http3.createServer(async (req, res) => {
     const u2 = new URL(req.url, "http://x");
     if (u2.searchParams.get("t") !== token) return res.writeHead(403).end("Forbidden");
     if (req.method === "POST" && u2.pathname === "/save") {
@@ -94611,19 +95592,19 @@ async function openKeyPage(names3) {
 var BUILT_IN = [openai_default, gemini_default];
 async function providers() {
   const list = [...BUILT_IN];
-  const dir = path21.join(homeDripDir, "providers");
-  if (fs27.existsSync(dir))
-    for (const f2 of fs27.readdirSync(dir).filter((f3) => f3.endsWith(".mjs"))) {
+  const dir = path25.join(homeDripDir, "providers");
+  if (fs31.existsSync(dir))
+    for (const f2 of fs31.readdirSync(dir).filter((f3) => f3.endsWith(".mjs"))) {
       try {
-        const mod = await import(pathToFileURL3(path21.join(dir, f2)).href);
+        const mod = await import(pathToFileURL4(path25.join(dir, f2)).href);
         if (mod.default?.id && mod.default?.generate) list.push(mod.default);
       } catch {
       }
     }
   return list;
 }
-var KEY_NAMES = ["openai", "gemini", "unsplash", "pexels", "openverse"];
-function register11(server2, ctx2) {
+var KEY_NAMES = ["openai", "gemini", "unsplash", "pexels", "pixabay", "openverse"];
+function register12(server2, ctx2) {
   server2.registerTool(
     "gen_image",
     {
@@ -94651,14 +95632,14 @@ function register11(server2, ctx2) {
       }
       const refImgs = await Promise.all(refs.map((u2) => fetchImage(u2)));
       const imgs = await p2.generate({ prompt, aspect, model: model || config2.gen.providers?.[p2.id]?.model, refs: refImgs }, key);
-      const file4 = path21.resolve(projectDir(), out);
-      fs27.mkdirSync(path21.dirname(file4), { recursive: true });
-      fs27.writeFileSync(file4, imgs[0].buf);
+      const file4 = path25.resolve(projectDir(), out);
+      fs31.mkdirSync(path25.dirname(file4), { recursive: true });
+      fs31.writeFileSync(file4, imgs[0].buf);
       logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
-      const log = path21.join(ensureProjectDrip(), "assets.json");
-      const list = fs27.existsSync(log) ? JSON.parse(fs27.readFileSync(log, "utf8")) : [];
+      const log = path25.join(ensureProjectDrip(), "assets.json");
+      const list = fs31.existsSync(log) ? JSON.parse(fs31.readFileSync(log, "utf8")) : [];
       list.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs27.writeFileSync(log, JSON.stringify(list, null, 2));
+      fs31.writeFileSync(log, JSON.stringify(list, null, 2));
       return blocks([{ type: "text", text: `Saved ${out} via ${p2.label}. Judge it against the direction; if it misses, change one thing in the prompt and regenerate.` }, imageBlock(await toJpeg(imgs[0].buf, 1400, 1400))]);
     })
   );
@@ -94689,27 +95670,239 @@ function register11(server2, ctx2) {
 // src/modules/fitcheck/index.mjs
 var fitcheck_exports = {};
 __export(fitcheck_exports, {
-  register: () => register12
+  register: () => register14
 });
-import path23 from "node:path";
-import fs29 from "node:fs";
+import path29 from "node:path";
+init_paths();
+import fs35 from "node:fs";
+
+// src/modules/fitcheck/drift.mjs
+import fs32 from "node:fs";
+import path26 from "node:path";
+var HEX = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
+var norm2 = (h) => {
+  h = h.toLowerCase();
+  return h.length === 4 ? `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}` : h;
+};
+function cssFiles(root, out = [], depth = 4) {
+  if (depth < 0 || out.length > 60) return out;
+  let entries;
+  try {
+    entries = fs32.readdirSync(root, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const e2 of entries) {
+    if (/^(node_modules|\.git|\.next|dist|build|\.drip|out|coverage)$/.test(e2.name)) continue;
+    const f2 = path26.join(root, e2.name);
+    if (e2.isDirectory()) cssFiles(f2, out, depth - 1);
+    else if (/\.(css|scss|html)$/i.test(e2.name) || /tailwind\.config\.(js|ts|mjs|cjs)$/.test(e2.name)) out.push(f2);
+  }
+  return out;
+}
+function tokens(src) {
+  const out = {};
+  for (const block of src.match(/(?::root|\[data-theme[^\]]*\]|\.dark|html)[^{]*\{[^}]*\}/g) || []) {
+    for (const m of block.matchAll(/(--[\w-]+)\s*:\s*([^;}]+)/g)) out[m[1]] = m[2].trim();
+  }
+  return out;
+}
+function designDrift(root, docFile) {
+  const doc = fs32.readFileSync(docFile, "utf8");
+  const docHex = new Set((doc.match(HEX) || []).map(norm2));
+  const files = cssFiles(root);
+  const defined = {};
+  const used = /* @__PURE__ */ new Set();
+  const families = /* @__PURE__ */ new Set();
+  for (const f2 of files) {
+    const src = fs32.readFileSync(f2, "utf8");
+    Object.assign(defined, tokens(src));
+    for (const h of src.match(HEX) || []) used.add(norm2(h));
+    for (const m of src.matchAll(/font-family\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
+    for (const m of src.matchAll(/--font[\w-]*\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
+    for (const m of src.matchAll(/fonts\.googleapis\.com\/css2?\?family=([^&"')]+)/gi)) families.add(decodeURIComponent(m[1]).replace(/\+/g, " ").split(":")[0]);
+  }
+  const tokenHex = new Set(Object.values(defined).flatMap((v) => (v.match(HEX) || []).map(norm2)));
+  const issues = [];
+  const missing = [...docHex].filter((h) => !used.has(h));
+  if (missing.length) issues.push(`DESIGN.md names ${missing.join(" ")} but no stylesheet uses ${missing.length > 1 ? "them" : "it"}: update DESIGN.md or the tokens`);
+  const undocumented = [...tokenHex].filter((h) => !docHex.has(h) && !["#ffffff", "#000000", "#fff", "#000"].includes(h));
+  if (undocumented.length) issues.push(`tokens define ${undocumented.slice(0, 8).join(" ")} which DESIGN.md never mentions: add ${undocumented.length > 1 ? "them" : "it"} with a role, or remove`);
+  const placeholder = Object.entries(defined).filter(([, v]) => /DISPLAY FACE|TEXT FACE/.test(v));
+  if (placeholder.length) issues.push(`kit placeholders still in the CSS: ${placeholder.map(([k]) => k).join(", ")} \u2014 set the real faces`);
+  const docFaces = [...families].filter((f2) => !/^(ui-|system-ui|sans-serif|serif|monospace|inherit|var\()/i.test(f2));
+  const notInDoc = docFaces.filter((f2) => !doc.toLowerCase().includes(f2.toLowerCase()));
+  if (notInDoc.length) issues.push(`fonts in the code but not in DESIGN.md: ${notInDoc.slice(0, 5).join(", ")}`);
+  return { issues, files: files.length, docHex: docHex.size, tokenCount: Object.keys(defined).length };
+}
+
+// src/modules/fitcheck/index.mjs
+init_serve();
+
+// src/modules/fitcheck/compare.mjs
+import fs33 from "node:fs";
+import path27 from "node:path";
+init_paths();
+init_serve();
+init_chrome();
+var esc5 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
+var dataUrl = (buf, mime2 = "image/jpeg") => `data:${mime2};base64,${buf.toString("base64")}`;
+var mimeOf = (buf) => buf[0] === 137 ? "image/png" : /<svg/i.test(buf.subarray(0, 300).toString()) ? "image/svg+xml" : buf.subarray(8, 12).toString() === "WEBP" ? "image/webp" : "image/jpeg";
+async function sourceImage(src, { width, height, config: config2 }) {
+  const task = loadState().task;
+  if (src === "before") {
+    if (!task?.before?.url) throw new Error("No 'before' recorded: refs_site({ urls: [<current site>], before: true }) first.");
+    src = task.before.url;
+  }
+  const comp = src.match(/^comp:(.+)$/i);
+  if (comp) {
+    const board = task?.board?.id && loadBoard(task.board.id);
+    const d = board?.directions?.find((x2) => x2.name.toLowerCase() === comp[1].trim().toLowerCase()) || comp[1] === "chosen" && board?.directions?.find((x2) => x2.name === board.chosen);
+    if (!d?.tile || !fs33.existsSync(d.tile)) throw new Error(`No rendered comp for "${comp[1]}" (board_directions renders them).`);
+    return fs33.readFileSync(d.tile);
+  }
+  if (/^https?:/i.test(src) || /\.html?$/i.test(src)) return screenshot(await toUrl(src), { width, height, format: "jpeg", quality: 82, config: config2 });
+  if (/^data:/.test(src)) return Buffer.from(src.split(",")[1], "base64");
+  const abs = path27.resolve(projectDir(), src);
+  if (fs33.existsSync(abs)) return fs33.readFileSync(abs);
+  return (await fetchImage(src)).buf;
+}
+function register13(server2, ctx2) {
+  server2.registerTool(
+    "drip_compare",
+    {
+      title: "Compare things side by side",
+      description: `Puts 2-6 things on one labelled sheet so you, the user or the critic can compare them: pages (URL or local .html, shot at the same size), image files, rendered comps ("comp:<direction>" or "comp:chosen"), the redesign's "before". Uses: before vs after, build vs the chosen comp, your hero vs 3 competitors, two logo or crop options. Saves the sheet for critic_prepare. Example: drip_compare({ items: [{ src: "before", label: "Today" }, { src: "index.html", label: "Redesign" }] })`,
+      inputSchema: {
+        items: external_exports.array(external_exports.object({ src: external_exports.string(), label: external_exports.string().optional(), note: external_exports.string().optional() })).min(2).max(6),
+        width: external_exports.number().int().optional().describe("Page shot width (default 1440)"),
+        height: external_exports.number().int().optional().describe("Page shot height (default 900: the first viewport)"),
+        title: external_exports.string().optional()
+      }
+    },
+    safe(async ({ items, width = 1440, height = 900, title }) => {
+      const config2 = ctx2.config();
+      const imgs = await Promise.all(items.map((it) => sourceImage(it.src, { width, height, config: config2 }).then((buf) => ({ ...it, buf })).catch((e2) => ({ ...it, err: e2.message }))));
+      const cols = imgs.length <= 3 ? imgs.length : imgs.length === 4 ? 2 : 3;
+      const W = 1800;
+      const cellW = Math.floor((W - 48 - (cols - 1) * 20) / cols);
+      const cellH = Math.round(cellW * (height / width));
+      const rows = Math.ceil(imgs.length / cols);
+      const H = 48 + (title ? 44 : 0) + rows * (cellH + 70) + 20;
+      const html = `<style>body{margin:0;background:#ECEBE7;font:15px system-ui;color:#111;padding:24px}h1{font:600 22px system-ui;margin:0 0 20px}.g{display:grid;grid-template-columns:repeat(${cols},${cellW}px);gap:20px}figure{margin:0}.i{width:${cellW}px;height:${cellH}px;background:#fff;border-radius:10px;overflow:hidden;display:grid;place-items:center;border:1px solid #d6d3cb}.i img{width:100%;height:100%;object-fit:contain;display:block}figcaption{margin-top:8px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}.e{color:#b3261e;padding:20px}</style>
+${title ? `<h1>${esc5(title)}</h1>` : ""}<div class="g">${imgs.map((it, i2) => `<figure><div class="i">${it.buf ? `<img src="${dataUrl(it.buf, mimeOf(it.buf))}">` : `<div class="e">${esc5(it.err)}</div>`}</div><figcaption><b>${String.fromCharCode(65 + i2)}</b>${esc5(it.label || it.src)}${it.note ? ` \xB7 ${esc5(it.note)}` : ""}</figcaption></figure>`).join("")}</div>`;
+      const file4 = path27.join(rendersDir("compare"), `compare-${stamp()}.jpg`);
+      const sheet = await renderHtml(html, file4, { width: W, height: H, format: "jpeg", quality: 85, config: config2 });
+      return blocks([
+        textBlock(`Saved ${file4}
+${imgs.map((it, i2) => `${String.fromCharCode(65 + i2)}. ${it.label || it.src}${it.err ? ` \u2014 FAILED: ${it.err}` : ""}`).join("\n")}
+Judge: which one would a stranger remember? What does the winner do that the others don't? Give the critic this file: critic_prepare({ kind: "any", targets: ["${file4.replace(/\\/g, "/")}"] }).`),
+        imageBlock(sheet)
+      ]);
+    })
+  );
+  server2.registerTool(
+    "board_brand",
+    {
+      title: "Brand board",
+      description: `Renders the brand on one 1600x1000 board from Drip's template (kit/brand-board.html): the mark on its ground, the palette with roles and shares, the type pair at real sizes, 1-4 images, voice lines, do / don't. For identity work, a hand-off, or to check that the system holds together before building. Saves HTML + JPG in .drip/brand/. Example: board_brand({ name: "Crumb", logo: "brand/mark.svg", palette: [{ hex: "#F3EFE6", role: "ground", share: 60 }, { hex: "#2B1B17", role: "ink", share: 25 }, { hex: "#E8452C", role: "accent", share: 5 }], display: "Fraunces", text: "Inter", headline: "Bread, honestly", voice: ["We say crumb, not artisan."] })`,
+      inputSchema: {
+        name: external_exports.string(),
+        tagline: external_exports.string().optional(),
+        logo: external_exports.string().optional().describe("SVG markup, or a project path / URL to an SVG or image"),
+        palette: external_exports.array(external_exports.object({ hex: external_exports.string(), role: external_exports.string(), share: external_exports.number().optional() })).min(2).max(8),
+        display: external_exports.string().describe("Display family (Google Fonts name)"),
+        text: external_exports.string().describe("Text family (Google Fonts name)"),
+        displayWeight: external_exports.number().int().optional(),
+        headline: external_exports.string().optional(),
+        body: external_exports.string().optional(),
+        images: external_exports.array(external_exports.string()).max(4).optional().describe("Project paths or URLs"),
+        voice: external_exports.array(external_exports.string()).max(4).optional(),
+        do: external_exports.array(external_exports.string()).max(5).optional(),
+        dont: external_exports.array(external_exports.string()).max(5).optional()
+      }
+    },
+    safe(async (a2) => {
+      const config2 = ctx2.config();
+      const tpl = fs33.readFileSync(path27.join(kitDir, "brand-board.html"), "utf8");
+      const byRole = (r2) => a2.palette.find((p2) => p2.role.toLowerCase().includes(r2))?.hex;
+      const ground = byRole("ground") || byRole("background") || a2.palette[0].hex;
+      const ink = byRole("ink") || byRole("text") || a2.palette[1].hex;
+      const lum = (h) => {
+        const n2 = parseInt(h.replace("#", "").padEnd(6, "0").slice(0, 6), 16);
+        return 0.2126 * (n2 >> 16 & 255) + 0.7152 * (n2 >> 8 & 255) + 0.0722 * (n2 & 255);
+      };
+      let logo = "";
+      if (a2.logo) {
+        if (/^\s*<svg/i.test(a2.logo)) logo = a2.logo;
+        else {
+          const abs = path27.resolve(projectDir(), a2.logo);
+          const buf = fs33.existsSync(abs) ? fs33.readFileSync(abs) : (await fetchImage(a2.logo)).buf;
+          logo = /<svg/i.test(buf.subarray(0, 400).toString()) ? buf.toString("utf8").replace(/<\?xml[^>]*>/, "") : `<img src="${dataUrl(buf, mimeOf(buf))}">`;
+        }
+      }
+      const total = a2.palette.reduce((t2, p2) => t2 + (p2.share || 10), 0);
+      const swatches = a2.palette.map((p2) => `<div class="sw" style="flex:${p2.share || 10};background:${p2.hex};color:${lum(p2.hex) > 150 ? "#111" : "#fff"}"><b>${esc5(p2.role)}</b><span>${esc5(p2.hex.toUpperCase())}${p2.share ? ` \xB7 ${Math.round((p2.share || 10) / total * 100)}%` : ""}</span></div>`).join("");
+      const imgs = await Promise.all((a2.images || []).map(async (src) => {
+        const abs = path27.resolve(projectDir(), src);
+        const buf = fs33.existsSync(abs) ? fs33.readFileSync(abs) : (await fetchImage(src)).buf;
+        return `<img src="${dataUrl(buf, mimeOf(buf))}">`;
+      }));
+      const fam = (f2, w) => `family=${encodeURIComponent(f2).replace(/%20/g, "+")}:wght@${w}`;
+      const fill = {
+        fontsLink: `<link href="https://fonts.googleapis.com/css2?${fam(a2.display, a2.displayWeight || 700)}&${fam(a2.text, "400;600")}&display=swap" rel="stylesheet">`,
+        displayFamily: `"${a2.display}", serif`,
+        textFamily: `"${a2.text}", sans-serif`,
+        ink,
+        ground,
+        // The mark on the brand's own ground (a coloured mark on a ground of the same colour vanishes).
+        markGround: ground,
+        markInk: ink,
+        logo: logo || `<div style="font:700 120px/1 var(--display);letter-spacing:-0.04em">${esc5(a2.name)}</div>`,
+        name: esc5(a2.name),
+        tagline: esc5(a2.tagline || ""),
+        swatches,
+        headline: esc5(a2.headline || a2.tagline || a2.name),
+        bodyCopy: esc5(a2.body || "Body copy at 18px in the text face: what a visitor reads after the headline, set at the real size and measure."),
+        typeMeta: `${esc5(a2.display)} ${a2.displayWeight || 700} \xB7 ${esc5(a2.text)} 400/600`,
+        images: imgs.join("") || `<div style="display:grid;place-items:center;border-radius:14px;background:color-mix(in srgb,var(--ink) 6%,var(--ground));font-size:14px;opacity:.6">Imagery: add 1-4 images</div>`,
+        voice: (a2.voice || ["Add 2-3 lines in the brand's voice."]).map((v) => `<p>${esc5(v)}</p>`).join(""),
+        rules: `<div><h4>Do</h4><ul>${(a2.do || ["\u2026"]).map((x2) => `<li>${esc5(x2)}</li>`).join("")}</ul></div><div><h4>Don't</h4><ul>${(a2.dont || ["\u2026"]).map((x2) => `<li>${esc5(x2)}</li>`).join("")}</ul></div>`
+      };
+      const html = tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => fill[k] ?? "");
+      const dir = rendersDir("brand");
+      const base = path27.join(dir, `brand-${a2.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+      fs33.writeFileSync(`${base}.html`, html);
+      const jpg = await renderHtml(html, `${base}.jpg`, { width: 1600, height: 1e3, format: "jpeg", quality: 88, config: config2 });
+      const doc = designDoc();
+      return blocks([
+        textBlock(`Saved ${base}.html and ${base}.jpg.${doc ? "" : ' No DESIGN.md yet: drip_kit({ template: "design-md" }) and write the same palette and type into it.'}
+Check: does the mark hold on its ground? Do the shares feel like the direction (one committed colour, not five equal chips)? Is the display face doing work at 150px?`),
+        imageBlock(jpg)
+      ]);
+    })
+  );
+}
+
+// src/modules/fitcheck/index.mjs
 init_chrome();
 
 // src/modules/fitcheck/lint.mjs
-import fs28 from "node:fs";
-import path22 from "node:path";
+import fs34 from "node:fs";
+import path28 from "node:path";
+init_paths();
 function readRules(file4) {
   try {
-    return JSON.parse(fs28.readFileSync(file4, "utf8")).rules || [];
+    return JSON.parse(fs34.readFileSync(file4, "utf8")).rules || [];
   } catch {
     return [];
   }
 }
 function loadRules(cwd) {
-  const rules = [...readRules(path22.join(dataDir, "slop.json")), ...readRules(path22.join(projectDripDir(cwd), "slop.json"))];
+  const rules = [...readRules(path28.join(dataDir, "slop.json")), ...readRules(path28.join(projectDripDir(cwd), "slop.json"))];
   for (const id of loadState(cwd).task?.packs || []) {
     const dir = packDir(id, cwd);
-    if (dir) rules.push(...readRules(path22.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
+    if (dir) rules.push(...readRules(path28.join(dir, "slop.json")).map((r2) => ({ ...r2, id: `${id}:${r2.id}` })));
   }
   return rules;
 }
@@ -94743,7 +95936,7 @@ function lintFiles(files, cwd) {
   for (const f2 of files) {
     let src;
     try {
-      src = fs28.readFileSync(f2, "utf8");
+      src = fs34.readFileSync(f2, "utf8");
     } catch {
       continue;
     }
@@ -94754,27 +95947,32 @@ function lintFiles(files, cwd) {
 function formatIssues(issues, cwd) {
   if (!issues.length) return "No slop or polish issues found by the static checks (that does not replace looking at it).";
   const order = { error: 0, warn: 1, info: 2 };
-  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path22.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
+  return issues.sort((a2, b) => order[a2.severity] - order[b.severity]).map((i2) => `${i2.severity.toUpperCase()} ${path28.relative(cwd || process.cwd(), i2.file)}:${i2.line} [${i2.id}${i2.count > 1 ? ` x${i2.count}` : ""}] ${i2.message} -> ${i2.fix}`).join("\n");
 }
 
 // src/modules/fitcheck/index.mjs
 var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
-function register12(server2, ctx2) {
+function register14(server2, ctx2) {
+  register13(server2, ctx2);
   server2.registerTool(
     "fitcheck_shot",
     {
       title: "Screenshot the result",
-      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. Start the dev server first. hero: true shoots only the first viewport and runs the hero gate (playbook P31): do it after building nav + hero, before any section. Example: fitcheck_shot({ url: "http://localhost:3000", hero: true })',
+      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. url can be a dev-server URL or a local .html file / folder (served for you on a free port; no dev server needed). hero: true shoots only the first viewport and runs the hero gate (playbook P31): do it after building nav + hero, before any section. Example: fitcheck_shot({ url: "http://localhost:3000", hero: true })',
       inputSchema: {
-        url: external_exports.string().describe("e.g. http://localhost:3000/pricing"),
+        url: external_exports.string().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
         sizes: external_exports.array(external_exports.object({ name: external_exports.string(), width: external_exports.number(), height: external_exports.number() })).optional(),
         maxSlices: external_exports.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
         hero: external_exports.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
+        steps: external_exports.array(STEP).max(12).optional().describe(
+          'Interactions to capture as states, with real mouse and keyboard input (drag handlers fire). Each step screenshots the desktop viewport. e.g. [{ do: "drag", selector: ".sheet:nth-child(1)", to: { x: 400, y: 60 }, label: "sheets dragged apart" }, { do: "click", selector: "[data-work=2]", label: "work 2 open" }, { do: "key", text: "Escape" }]'
+        ),
         app: external_exports.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface")
       }
     },
-    safe(async ({ url: url2, sizes, maxSlices, hero, app }) => {
+    safe(async ({ url: target, sizes, maxSlices, hero, app, steps }) => {
       const config2 = ctx2.config();
+      const url2 = await toUrl(target);
       const persuade = app === void 0 ? isPersuade(loadState().task) : !app;
       const list = sizes || config2.fitcheck.sizes;
       const dir = rendersDir(`fitcheck-${stamp()}`);
@@ -94789,10 +95987,20 @@ function register12(server2, ctx2) {
         content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${r2.slices.length} of ${r2.sliceCount} screens
 ${formatAudit(r2.audit, j)}`));
         for (const [i2, sl] of r2.slices.entries()) {
-          const f2 = path23.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-          fs29.writeFileSync(f2, sl.buf);
+          const f2 = path29.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+          fs35.writeFileSync(f2, sl.buf);
           files.push(f2);
           content.push(imageBlock(sl.buf));
+        }
+      }
+      if (steps?.length && !hero) {
+        const desk = list.find((s2) => s2.width >= 1e3) || list.at(-1);
+        const states = await captureStates(url2, steps, { width: desk.width, height: desk.height, config: config2 });
+        for (const [i2, st] of states.entries()) {
+          const f2 = path29.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+          fs35.writeFileSync(f2, st.buf);
+          files.push(f2);
+          content.push(textBlock(`State ${i2 + 1}: ${st.label}${st.error ? ` \xB7 STEP FAILED: ${st.error}` : ""}`), imageBlock(st.buf));
         }
       }
       const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
@@ -94858,20 +96066,31 @@ ${items.map((it, i2) => `${i2 + 1}. ${it.note}`).join("\n")}`),
     "fitcheck_lint",
     {
       title: "Static slop and polish checks",
-      description: "Scans UI files for AI-slop tells and polish problems (purple gradients, emoji icons, filler copy, removed focus rings, transition-all, 100vh, fake stats\u2026). Defaults to the files changed in this task.",
+      description: "Scans UI files for AI-slop tells and polish problems (purple gradients, emoji icons, filler copy, removed focus rings, transition-all, 100vh, fake stats\u2026), and checks DESIGN.md against the code (colours, fonts, kit placeholders). Defaults to the files changed in this task.",
       inputSchema: { files: external_exports.array(external_exports.string()).optional() }
     },
     safe(async ({ files }) => {
       const { task } = loadState();
       const root = projectDir();
-      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path23.resolve(root, f2));
+      const list = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f2) => path29.resolve(root, f2));
       if (!list.length) return text("No files given and none recorded for this task.", true);
       const issues = lintFiles(list, root);
       updateState((st) => {
         if (st.task) st.task.fitcheck.lintAt = (/* @__PURE__ */ new Date()).toISOString();
       });
+      const doc = designDoc(root);
+      let drift = "";
+      if (doc) {
+        const d = designDrift(root, doc.file);
+        drift = d.issues.length ? `
+
+${doc.rel} vs the code (${d.files} style files, ${d.tokenCount} tokens):
+- ${d.issues.join("\n- ")}` : `
+
+${doc.rel} matches the code's colours and fonts.`;
+      }
       return text(`${list.length} file(s) checked.
-${formatIssues(issues, root)}`);
+${formatIssues(issues, root)}${drift}`);
     })
   );
   server2.registerTool(
@@ -94913,10 +96132,12 @@ Fix them (drip_guide type / layout), fitcheck_shot again, then record the verdic
 // src/modules/critic/index.mjs
 var critic_exports = {};
 __export(critic_exports, {
-  register: () => register13
+  register: () => register15
 });
-import fs30 from "node:fs";
-import path24 from "node:path";
+import fs36 from "node:fs";
+import path30 from "node:path";
+init_paths();
+init_serve();
 var KIND_BRIEF = {
   directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it a real, distinctive idea or a template in a costume? Could it be any brand's hero? Is the h1 big enough (the Display role is ~127px at 1440) and does the picture slot show the subject's real thing at a real size? Would anyone remember or screenshot it? Does it fit the brief? Cut anything generic. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it distinctive, crafted and finished, or a competent template? Name every place it looks amateur, generic or AI-made.",
@@ -94947,7 +96168,7 @@ function briefBlock(task) {
   ].filter(Boolean).join("\n");
 }
 var isUrl = (s2) => /^https?:\/\//i.test(s2) || /^file:/i.test(s2);
-function register13(server2, ctx2) {
+function register15(server2, ctx2) {
   server2.registerTool(
     "critic_prepare",
     {
@@ -94956,12 +96177,22 @@ function register13(server2, ctx2) {
       inputSchema: {
         kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
         targets: external_exports.array(external_exports.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id"),
-        context: external_exports.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses.")
+        context: external_exports.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses."),
+        steps: external_exports.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (drag, click, open...), same as fitcheck_shot steps"),
+        extraRound: external_exports.boolean().optional().describe("Only when the user chose 'one more round' after the round limit")
       }
     },
-    safe(async ({ kind, targets = [], context }) => {
+    safe(async ({ kind, targets = [], context, steps, extraRound }) => {
       const config2 = ctx2.config();
       const { task } = loadState();
+      const prevRounds = (task?.critic?.records || []).filter((r2) => r2.kind === kind);
+      if (kind === "build" && prevRounds.length >= config2.gates.maxCriticRounds + (task?.critic?.extraRounds || 0) && !extraRound)
+        return text(
+          `Round limit: the critic has judged this build ${prevRounds.length} times (last: ${prevRounds.at(-1).verdict.toUpperCase()}, ${prevRounds.at(-1).summary}).
+Ask the user now with AskUserQuestion: "Ship it with the open points listed" or "One more critic round". Show the open points first. If they pick another round, call critic_prepare again with extraRound: true; if they ship, fitcheck_done and hand off with the open points.`,
+          true
+        );
+      if (extraRound) updateState((st) => st.task && (st.task.critic.extraRounds = (st.task.critic.extraRounds || 0) + 1));
       const dir = rendersDir(`critic-${stamp()}`);
       const files = [];
       const notes = [];
@@ -94969,7 +96200,7 @@ function register13(server2, ctx2) {
       if (kind === "directions") {
         const board = task?.board?.id && loadBoard(task.board.id);
         if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
-        const missing = board.directions.filter((d) => !d.tile || !fs30.existsSync(d.tile));
+        const missing = board.directions.filter((d) => !d.tile || !fs36.existsSync(d.tile));
         if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
         board.directions.forEach((d, i2) => {
           files.push(d.tile);
@@ -94978,7 +96209,8 @@ function register13(server2, ctx2) {
 ` : ""}Choice criteria (written before the tiles): ${board.criteria.join("; ")}`;
         });
       }
-      for (const t2 of kind === "directions" || kind === "pack" ? [] : targets) {
+      for (const t0 of kind === "directions" || kind === "pack" ? [] : targets) {
+        const t2 = kind === "build" && /\.html?$/i.test(t0) && !isUrl(t0) ? await toUrl(t0) : t0;
         if (isUrl(t2)) {
           const sizes = config2.fitcheck.sizes;
           const caps = await Promise.all(sizes.map((s2) => capture(t2, { width: s2.width, height: s2.height, maxSlices: s2.width < 600 ? 4 : 6, config: config2 })));
@@ -94987,25 +96219,35 @@ function register13(server2, ctx2) {
             const j = judgeAudit(r2.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
             r2.slices.forEach((sl, i2) => {
-              const f2 = path24.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-              fs30.writeFileSync(f2, sl.buf);
+              const f2 = path30.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs36.writeFileSync(f2, sl.buf);
               files.push(f2);
               notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
             });
           }
+          if (steps?.length) {
+            const desk = sizes.find((s2) => s2.width >= 1e3) || sizes.at(-1);
+            const states = await captureStates(t2, steps, { width: desk.width, height: desk.height, config: config2 });
+            states.forEach((st, i2) => {
+              const f2 = path30.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs36.writeFileSync(f2, st.buf);
+              files.push(f2);
+              notes.push(`interaction state ${i2 + 1}: ${st.label}${st.error ? ` (step failed: ${st.error})` : ""}`);
+            });
+          }
         } else {
-          const abs = path24.resolve(projectDir(), t2);
-          if (!fs30.existsSync(abs)) return text(`File not found: ${t2}`, true);
+          const abs = path30.resolve(projectDir(), t2);
+          if (!fs36.existsSync(abs)) return text(`File not found: ${t2}`, true);
           if (/\.svg$/i.test(abs)) {
-            const svg = fs30.readFileSync(abs, "utf8");
+            const svg = fs36.readFileSync(abs, "utf8");
             for (const [bg, label, size] of [["#FFFFFF", "light", 1024], ["#111111", "dark", 1024], ["#FFFFFF", "small 64px", 64], ["#FFFFFF", "tiny 24px", 24]]) {
-              const f2 = path24.join(dir, `${path24.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
+              const f2 = path30.join(dir, `${path30.basename(abs, ".svg")}-${label.replace(/\W+/g, "")}.png`);
               await renderSvg(svg, f2, { size, bg, config: config2 });
               files.push(f2);
               notes.push(`${t2} on ${label}`);
             }
           } else if (/\.html?$/i.test(abs)) {
-            const f2 = path24.join(dir, `${path24.basename(abs)}.png`);
+            const f2 = path30.join(dir, `${path30.basename(abs)}.png`);
             await renderUrl(`file:///${abs.replace(/\\/g, "/")}`, f2, { width: 1440, height: 900, config: config2 });
             files.push(f2);
             notes.push(`${t2} rendered`);
@@ -95025,6 +96267,17 @@ ${c3.slice(0, 9e3)}`).join("\n\n");
       }
       if (kind !== "pack" && !files.length) return text("Nothing to judge: pass targets (URLs or files).", true);
       const rubric = (task?.packs || []).map((p2) => readPackFile(p2, "critic.md")).filter(Boolean).join("\n\n");
+      const doc = kind === "build" || kind === "any" ? designDoc() : null;
+      const skills = relevantSkills(task);
+      const prev = prevRounds.at(-1);
+      const prevBlock = prev ? [
+        `
+PREVIOUS ROUND (round ${prevRounds.length}: ${prev.verdict.toUpperCase()}, scores ${Object.entries(prev.scores).map(([k, v]) => `${k} ${v}`).join(", ")})`,
+        `Worst then: ${prev.worst}`,
+        `Fixes asked for:
+${prev.fixes.map((f2, i2) => `  ${i2 + 1}. ${f2}`).join("\n")}`,
+        "START your answer with a PROGRESS line per fix above: FIXED / PARTLY / NOT FIXED, from what you see. Then new problems. Scores must reflect progress: an axis whose problems are fixed goes up unless something visibly got worse; do not swap in fresh nitpicks to hold a score down."
+      ].join("\n") : "";
       const id = `c${Date.now().toString(36)}`;
       const prompt = [
         `DRIP CRITIC REVIEW ${id} \xB7 kind: ${kind}`,
@@ -95033,6 +96286,13 @@ ${c3.slice(0, 9e3)}`).join("\n\n");
         "THE BRIEF",
         briefBlock(task),
         task?.board?.chosen && kind === "build" ? `Chosen direction: ${task.board.chosen}` : "",
+        doc ? `
+THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; the client chose this. Judge the build against it. A suggestion that breaks one of its rules, e.g. a second accent in a one-accent system, is allowed only labelled [OFF-DIRECTION] in FIXES and never lowers Fit or System):
+${doc.text.slice(0, 4e3)}` : "",
+        skills.length ? `
+THE PRODUCT'S OWN RULES (Claude skills in this workspace; Read each SKILL.md and flag any violation as S1):
+${skills.map((k) => `- ${k.name}: ${k.file}`).join("\n")}` : "",
+        prevBlock,
         context ? `Context: ${context}` : "",
         measured.length ? `
 MEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):
@@ -95110,7 +96370,7 @@ Then critic_record the verdict and show the user the critic's own words.`
       }
       const rounds = (st.task?.critic?.records || []).filter((x2) => x2.kind === rec.kind).length;
       const max = ctx2.config().gates.maxCriticRounds;
-      const next = rec.verdict === "pass" ? rec.kind === "directions" ? "NEXT: board_open and present the ranking + your pick to the user (buttons)." : rec.kind === "build" ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)." : "NEXT: continue." : rounds >= max && rec.kind === "build" ? `That's ${rounds} critic rounds: fix what you can, then hand off and list the critic's open points honestly.` : rec.verdict === "reject" ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review." : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";
+      const next = rec.verdict === "pass" ? rec.kind === "directions" ? "NEXT: board_open and present the ranking + your pick to the user (buttons)." : rec.kind === "build" ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)." : "NEXT: continue." : rounds >= max + (st.task?.critic?.extraRounds || 0) && rec.kind === "build" ? `That's ${rounds} critic rounds, the limit. Fix what you can, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round" (critic_prepare with extraRound: true). Don't stop silently.` : rec.verdict === "reject" ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review." : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";
       return text(`Recorded critic verdict: ${rec.verdict.toUpperCase()} (${rec.kind}, round ${rounds}). Worst: ${rec.worst}
 ${next}
 Show the user the critic's own summary and scores, not a softened version.`);
@@ -95122,19 +96382,21 @@ Show the user the critic's own summary and scores, not a softened version.`);
 var logo_exports = {};
 __export(logo_exports, {
   pathStats: () => pathStats,
-  register: () => register14
+  register: () => register16
 });
-import fs32 from "node:fs";
-import path26 from "node:path";
+import fs38 from "node:fs";
+import path32 from "node:path";
+init_paths();
 
 // src/modules/logo/outline.mjs
 var import_opentype = __toESM(require_opentype(), 1);
-import fs31 from "node:fs";
-import path25 from "node:path";
+import fs37 from "node:fs";
+import path31 from "node:path";
+init_paths();
 async function loadFont2(font, weight = 400, style = "normal") {
-  const local = path25.resolve(projectDir(), font);
-  if (/\.(ttf|otf|woff)$/i.test(font) && fs31.existsSync(local)) {
-    const b = fs31.readFileSync(local);
+  const local = path31.resolve(projectDir(), font);
+  if (/\.(ttf|otf|woff)$/i.test(font) && fs37.existsSync(local)) {
+    const b = fs37.readFileSync(local);
     return import_opentype.default.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
   }
   const id = font.trim().toLowerCase().replace(/\s+/g, "-");
@@ -95186,12 +96448,12 @@ function outline(font, text2, { size = 200, letterSpacing = 0, kerning = true } 
 }
 
 // src/modules/logo/index.mjs
-var esc5 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
+var esc6 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
 function loadSvg(src) {
   if (/^\s*<svg/i.test(src)) return src;
-  const abs = path26.resolve(projectDir(), src);
-  if (!fs32.existsSync(abs)) throw new Error(`SVG not found: ${src}`);
-  return fs32.readFileSync(abs, "utf8");
+  const abs = path32.resolve(projectDir(), src);
+  if (!fs38.existsSync(abs)) throw new Error(`SVG not found: ${src}`);
+  return fs38.readFileSync(abs, "utf8");
 }
 var fit = (svg) => svg.replace(/<\?xml[^>]*>/, "").replace(/<svg/, '<svg style="width:100%;height:100%;display:block"');
 var LIGHT = /^(#f{3}|#f{6}|white|#fff[0-9a-f]{3}|#f[0-9a-f]f[0-9a-f]f[0-9a-f])$/i;
@@ -95202,7 +96464,7 @@ var isLight2 = (c3) => {
   const n2 = parseInt(m[1], 16);
   return 0.2126 * (n2 >> 16 & 255) + 0.7152 * (n2 >> 8 & 255) + 0.0722 * (n2 & 255) > 215;
 };
-var mono = (svg, ink, ground) => svg.replace(/<(linear|radial)Gradient[\s\S]*?<\/\1Gradient>/g, "").replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr, c3) => `${attr}="${isLight2(c3.trim()) ? ground : ink}"`);
+var mono = (svg, ink, ground) => svg.replace(/<(linear|radial)Gradient[\s\S]*?<\/\1Gradient>/g, "").replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr, c3) => `${attr}="${isLight2(c3.trim()) ? ground : ink}"`).replace(/(fill|stroke)\s*:\s*(?!none)([^;"']+)/g, (_, attr, c3) => `${attr}:${isLight2(c3.trim()) ? ground : ink}`).replace(/currentColor/g, ink).replace(/<svg([^>]*)>/, (m, a2) => /\sfill=/.test(a2) ? m : `<svg${a2} fill="${ink}">`);
 function pathStats(svg) {
   const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
   return paths.map((d, i2) => {
@@ -95215,7 +96477,7 @@ function pathStats(svg) {
     return { path: i2 + 1, commands: cmds.length, shapes, curves: cmds.filter((c3) => /[cCsSqQtTaA]/.test(c3)).length, shortSegments: short, decimals };
   });
 }
-function register14(server2, ctx2) {
+function register16(server2, ctx2) {
   server2.registerTool(
     "logo_outline",
     {
@@ -95236,21 +96498,21 @@ function register14(server2, ctx2) {
       const o2 = outline(f2, str, { size, letterSpacing });
       let saved = "";
       if (out) {
-        const abs = path26.resolve(projectDir(), out);
-        fs32.mkdirSync(path26.dirname(abs), { recursive: true });
-        fs32.writeFileSync(abs, o2.svg);
+        const abs = path32.resolve(projectDir(), out);
+        fs38.mkdirSync(path32.dirname(abs), { recursive: true });
+        fs38.writeFileSync(abs, o2.svg);
         saved = `Saved ${out}
 `;
       }
       const m = o2.metrics;
-      const file4 = path26.join(rendersDir("logo"), `outline-${stamp()}.png`);
+      const file4 = path32.join(rendersDir("logo"), `outline-${stamp()}.jpg`);
       const png2 = await renderHtml(
         `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o2.width}px;height:${o2.height}px">${o2.svg}
 <div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
 ${m.xHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.xHeight}px;border-top:1px dashed #2340ff"></div>` : ""}
 ${m.capHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.capHeight}px;border-top:1px dashed #999"></div>` : ""}</div></div>`,
         file4,
-        { width: Math.min(1800, o2.width + 80), height: o2.height + 80, config: ctx2.config() }
+        { width: Math.min(1800, o2.width + 80), height: o2.height + 80, format: "jpeg", config: ctx2.config() }
       ).catch(() => null);
       return blocks([
         textBlock(
@@ -95260,7 +96522,7 @@ Glyphs: ${o2.glyphs.map((g) => `${g.char}@${g.x} w${g.advance}`).join(" \xB7 ")}
 Now customise like a designer: kern by eye, cut or extend one letter, and make one detail the brand. Then logo_test.
 Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to save it)"}.`
         ),
-        ...png2 ? [imageBlock(await toJpeg(png2, 1800, 900))] : []
+        ...png2 ? [imageBlock(png2)] : []
       ]);
     })
   );
@@ -95281,19 +96543,19 @@ Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to 
       const cell = (c3, i2) => `<figure>
   <div class="big light">${fit(c3.markup)}</div>
   <div class="row"><div class="small dark">${fit(c3.markup)}</div><div class="s64">${fit(c3.markup)}</div><div class="tiny">${fit(c3.markup)}</div><div class="s16">${fit(c3.markup)}</div><div class="tiny">${fit(mono(c3.markup, "#111", "#fff"))}</div></div>
-  <figcaption><b>${i2 + 1}</b> ${esc5(c3.name)}</figcaption></figure>`;
+  <figcaption><b>${i2 + 1}</b> ${esc6(c3.name)}</figcaption></figure>`;
       const html = `<style>body{font:14px system-ui;background:#ECEBE7;color:#111;margin:0;padding:28px}h1{font:600 20px system-ui;margin:0 0 18px}
 .grid{display:grid;grid-template-columns:repeat(${cols},1fr);gap:18px}figure{margin:0;background:#fff;border-radius:12px;padding:14px;border:1px solid #d9d7d0}
 .big{height:220px;display:grid;place-items:center;padding:24px}.light{background:#fff}.row{display:flex;gap:10px;align-items:center;margin-top:10px}
 .small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
-<h1>${esc5(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
+<h1>${esc6(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
       const rows = Math.ceil(svgs.length / cols);
-      const file4 = path26.join(rendersDir("logo"), `sheet-${stamp()}.png`);
-      const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, config: ctx2.config() });
+      const file4 = path32.join(rendersDir("logo"), `sheet-${stamp()}.jpg`);
+      const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, format: "jpeg", quality: 88, config: ctx2.config() });
       return blocks([
         textBlock(`Concept sheet saved: ${file4}
 Judge ideas first (one clear thought each, no clich\xE9s), then have the critic rank them: critic_prepare({ kind: "logo", targets: ["${file4.replace(/\\/g, "/")}"] }). Refine only the top 2-3, then logo_test each.`),
-        imageBlock(await toJpeg(png2, 1600, 1600))
+        imageBlock(png2)
       ]);
     })
   );
@@ -95315,8 +96577,8 @@ Judge ideas first (one clear thought each, no clich\xE9s), then have the critic 
 <p class="label">Sizes 16 / 24 / 32 / 64 / 128 \u2014 light, dark, one colour, inverse, busy ground</p>
 ${strip2("#fff", svg)}${strip2(dark, svg)}${strip2("#fff", mono(svg, "#111", "#fff"))}${strip2("#111", mono(svg, "#fff", "#111"))}
 ${strip2("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
-      const file4 = path26.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
-      const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, config: ctx2.config() });
+      const file4 = path32.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.jpg`);
+      const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, format: "jpeg", quality: 88, config: ctx2.config() });
       const stats = pathStats(svg);
       const hints = [];
       for (const s2 of stats) {
@@ -95332,7 +96594,72 @@ Paths: ${stats.length} \xB7 ${stats.map((s2) => `#${s2.path} ${s2.commands} cmds
 - ${hints.join("\n- ")}
 ` : "Construction: no obvious path problems.\n") + "Check: does it read at 16-32px? Same weight on dark (optically lighter there)? Survive one colour? Then critic_prepare({ kind: 'logo', targets: [this file] })."
         ),
-        imageBlock(await toJpeg(png2, 1140, 1340))
+        imageBlock(png2)
+      ]);
+    })
+  );
+  server2.registerTool(
+    "logo_export",
+    {
+      title: "Favicons and app icons from the logo",
+      description: 'Writes the icon set a site needs from one SVG mark: favicon.svg (copy), favicon.ico (16/32/48), apple-touch-icon.png (180, on a solid ground), icon-192.png and icon-512.png (PWA), plus the <link> tags to paste. Use the simplified mark (no wordmark) for small sizes. Example: logo_export({ svg: "brand/mark.svg", out: "public", ground: "#F3EFE6" })',
+      inputSchema: {
+        svg: external_exports.string().describe("SVG markup or a project path to the mark"),
+        out: external_exports.string().optional().describe("Project folder (default public)"),
+        ground: external_exports.string().optional().describe("Background for the apple-touch icon (iOS fills transparency with black). Default #ffffff"),
+        padding: external_exports.number().min(0).max(0.3).optional().describe("Inner padding as a share of the icon (default 0.08; apple-touch uses 0.14)")
+      }
+    },
+    safe(async ({ svg: src, out = "public", ground = "#ffffff", padding = 0.08 }) => {
+      const { rasterSizes: rasterSizes2 } = await Promise.resolve().then(() => (init_imaging(), imaging_exports));
+      const svg = loadSvg(src);
+      const buf = Buffer.from(svg);
+      const dir = path32.resolve(projectDir(), out);
+      fs38.mkdirSync(dir, { recursive: true });
+      const [p16, p32, p48, p192, p512] = await rasterSizes2(buf, [16, 32, 48, 192, 512], { padding, config: ctx2.config() });
+      const [apple] = await rasterSizes2(buf, [180], { padding: 0.14, bg: ground, config: ctx2.config() });
+      const pngs = [[16, p16], [32, p32], [48, p48]];
+      const head = Buffer.alloc(6 + 16 * pngs.length);
+      head.writeUInt16LE(0, 0);
+      head.writeUInt16LE(1, 2);
+      head.writeUInt16LE(pngs.length, 4);
+      let offset = head.length;
+      pngs.forEach(([s2, b], i2) => {
+        const e2 = 6 + i2 * 16;
+        head.writeUInt8(s2, e2);
+        head.writeUInt8(s2, e2 + 1);
+        head.writeUInt16LE(1, e2 + 4);
+        head.writeUInt16LE(32, e2 + 6);
+        head.writeUInt32LE(b.length, e2 + 8);
+        head.writeUInt32LE(offset, e2 + 12);
+        offset += b.length;
+      });
+      const files = {
+        "favicon.svg": Buffer.from(svg),
+        "favicon.ico": Buffer.concat([head, ...pngs.map(([, b]) => b)]),
+        "apple-touch-icon.png": apple,
+        "icon-192.png": p192,
+        "icon-512.png": p512
+      };
+      for (const [n2, b] of Object.entries(files)) fs38.writeFileSync(path32.join(dir, n2), b);
+      const base = out.replace(/\\/g, "/").replace(/^public\/?/, "");
+      const href = (n2) => `/${base ? `${base}/` : ""}${n2}`;
+      const sheet = await renderHtml(
+        `<div style="display:flex;gap:28px;align-items:end;padding:28px;background:#ECEBE7;font:13px system-ui">${[16, 32, 48].map((s2) => `<img src="data:image/png;base64,${pngs.find(([n2]) => n2 === s2)[1].toString("base64")}" width="${s2}" height="${s2}">`).join("")}<img src="data:image/png;base64,${apple.toString("base64")}" width="90" height="90" style="border-radius:20px"><img src="data:image/png;base64,${p192.toString("base64")}" width="96" height="96"></div>`,
+        path32.join(rendersDir("logo"), `icons-${stamp()}.png`),
+        { width: 520, height: 170, config: ctx2.config() }
+      );
+      return blocks([
+        textBlock(
+          `Wrote ${Object.keys(files).map((n2) => `${out}/${n2}`).join(", ")}.
+Paste into <head>:
+<link rel="icon" href="${href("favicon.ico")}" sizes="32x32">
+<link rel="icon" href="${href("favicon.svg")}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${href("apple-touch-icon.png")}">
+Web manifest icons: ${href("icon-192.png")} (192x192), ${href("icon-512.png")} (512x512).
+Check the 16px one: if it is mush, export a simpler mark for small sizes.`
+        ),
+        imageBlock(sheet, "image/png")
       ]);
     })
   );
@@ -95341,9 +96668,9 @@ Paths: ${stats.length} \xB7 ${stats.map((s2) => `#${s2.path} ${s2.commands} cmds
 // src/modules/packs/index.mjs
 var packs_exports = {};
 __export(packs_exports, {
-  register: () => register15
+  register: () => register17
 });
-function register15(server2) {
+function register17(server2) {
   server2.registerTool(
     "pack_create",
     {
@@ -95399,7 +96726,7 @@ Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack
 }
 
 // src/index.mjs
-var VERSION = "0.3.4";
+var VERSION = "0.4.0";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
@@ -95426,16 +96753,16 @@ async function cli(argv) {
     process.exit(2);
   }
   const outIdx = rest.indexOf("--out");
-  const outDir = path27.resolve(outIdx >= 0 ? rest[outIdx + 1] : path27.join(projectDripDir(), "cli"));
+  const outDir = path33.resolve(outIdx >= 0 ? rest[outIdx + 1] : path33.join(projectDripDir(), "cli"));
   const args = external_exports.object(tool.meta.inputSchema || {}).parse(json2 ? JSON.parse(json2) : {});
   const res = await tool.handler(args, {});
   let n2 = 0;
   for (const c3 of res.content || []) {
     if (c3.type === "text") console.log(c3.text);
     if (c3.type === "image") {
-      fs33.mkdirSync(outDir, { recursive: true });
-      const file4 = path27.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
-      fs33.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs39.mkdirSync(outDir, { recursive: true });
+      const file4 = path33.join(outDir, `${cmd}-${Date.now()}-${++n2}.${c3.mimeType === "image/png" ? "png" : "jpg"}`);
+      fs39.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       console.log(`[image] ${file4}`);
     }
   }
@@ -95446,5 +96773,6 @@ if (process.argv.length > 2) {
 } else {
   const server2 = new McpServer({ name: "drip", version: VERSION }, { instructions: INSTRUCTIONS });
   registerAll(server2);
+  setIdentity({ server: true });
   await server2.connect(new StdioServerTransport());
 }

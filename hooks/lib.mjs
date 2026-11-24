@@ -1,16 +1,21 @@
 // Shared bits for the hook scripts. Hooks must be fast and must never crash the session:
 // on any unexpected error they exit 0 with no output (= allow).
 export { loadConfig } from "../mcp/src/core/config.mjs";
-export { checklist, isUiFile, loadState, missingBeforeUi, needsFitcheck, saveState, updateState } from "../mcp/src/core/state.mjs";
+export { bindSession, checklist, isUiFile, loadState, missingBeforeUi, needsFitcheck, otherTasks, saveState, updateState } from "../mcp/src/core/state.mjs";
+import { setIdentity } from "../mcp/src/core/state.mjs";
 
 export async function readInput() {
   let raw = "";
   for await (const chunk of process.stdin) raw += chunk;
+  let input = {};
   try {
-    return JSON.parse(raw || "{}");
+    input = JSON.parse(raw || "{}");
   } catch {
-    return {};
+    /* empty */
   }
+  // Each session sees only its own Drip task (several sessions can share a folder).
+  setIdentity({ session: input.session_id });
+  return input;
 }
 
 export function out(obj) {

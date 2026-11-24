@@ -126,3 +126,41 @@ test("strict: prompt hook nudges design prompts only", () => {
   assert.match(runHook("prompt.mjs", { prompt: "redesign the pricing page" }, p).hookSpecificOutput.additionalContext, /drip_start/);
   assert.equal(runHook("prompt.mjs", { prompt: "fix the failing unit test in the parser" }, p), null);
 });
+
+test("two sessions in one folder never see or change each other's task", () => {
+  const p = project({ strict: false });
+  const t = newTask({ title: "README polish", size: "full", surface: "landing", guides: ["loop"] });
+  t.ownerSession = "session-A";
+  t.ownerPid = process.pid; // a live process
+  fs.mkdirSync(path.join(p, ".drip"), { recursive: true });
+  fs.writeFileSync(path.join(p, ".drip", "state.json"), JSON.stringify({ version: 2, tasks: { [t.id]: t }, sessions: { "session-A": t.id }, history: [] }));
+  const write = { tool_name: "Write", tool_input: { file_path: path.join(p, "src/P.tsx"), content: "<div/>" } };
+  assert.ok(deny(runHook("pre-write.mjs", { session_id: "session-A", ...write }, p)), "the owner is gated by its task");
+  assert.equal(runHook("pre-write.mjs", { session_id: "session-B", ...write }, p), null, "another session is not");
+  const ss = runHook("session-start.mjs", { session_id: "session-B" }, p);
+  assert.match(ss.hookSpecificOutput.additionalContext, /README polish.*they are theirs/s);
+  assert.doesNotMatch(ss.hookSpecificOutput.additionalContext, /still open/);
+  // B's hooks record nothing into A's task.
+  runHook("post-write.mjs", { session_id: "session-B", ...write }, p);
+  const raw = JSON.parse(fs.readFileSync(path.join(p, ".drip", "state.json"), "utf8"));
+  assert.equal(raw.tasks[t.id].uiWrites.length, 0);
+});
+
+test("a task whose session is gone is picked up by the next session", () => {
+  const p = project({ strict: false });
+  const t = newTask({ title: "old", size: "full", surface: "landing", guides: ["loop"] });
+  t.ownerSession = "gone";
+  t.ownerPid = 999999; // not running
+  fs.mkdirSync(path.join(p, ".drip"), { recursive: true });
+  fs.writeFileSync(path.join(p, ".drip", "state.json"), JSON.stringify({ version: 2, tasks: { [t.id]: t }, sessions: { gone: t.id }, history: [] }));
+  const ss = runHook("session-start.mjs", { session_id: "new" }, p);
+  assert.match(ss.hookSpecificOutput.additionalContext, /still open/);
+});
+
+test("a v1 state file still loads", () => {
+  const p = project({ strict: false });
+  fs.mkdirSync(path.join(p, ".drip"), { recursive: true });
+  const t = newTask({ title: "legacy", size: "quick", surface: "app", guides: [] });
+  fs.writeFileSync(path.join(p, ".drip", "state.json"), JSON.stringify({ version: 1, task: t, history: [] }));
+  assert.equal(loadState(p).task.title, "legacy");
+});

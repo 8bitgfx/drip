@@ -1,6 +1,7 @@
 // Full-page capture and a measured page audit through the Chrome DevTools Protocol (no Puppeteer:
 // the user's Chrome/Edge + Node's built-in WebSocket). Used by fitcheck_shot and critic_prepare so
 // judgements see the WHOLE page and rest on measured facts, not just the first screen.
+import { z } from "zod";
 import { openPage, settle, withTab } from "./browser.mjs";
 
 /** The audit script, run inside the page. Returns plain JSON. */
@@ -55,7 +56,8 @@ const AUDIT = `(() => {
     for (const [t, b] of spans) { const s0 = Math.max(t, cur), s1 = Math.min(b, end); if (s1 > s0) { covered += s1 - s0; cur = s1; } }
     screens.push(+(1 - covered / (end - y)).toFixed(2));
   }
-  return { width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
+  const skeletons = [...document.querySelectorAll('[class*="skeleton" i], [class*="shimmer" i], [class*="placeholder" i]:not(input):not(textarea), [aria-busy="true"], [class*="spinner" i], [class*="loading" i]')].filter(visible).length;
+  return { skeletons, viewportMeta: !!document.querySelector('meta[name=viewport]'), width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
 })()`;
@@ -64,15 +66,16 @@ const AUDIT = `(() => {
  * Open `url` at `width` x `height`, return { audit, slices: [Buffer jpeg…] } where slices cover the whole page,
  * one viewport each (max `maxSlices`, evenly spaced if the page is longer).
  */
-export async function capture(url, { width = 1440, height = 900, maxSlices = 6, quality = 78, scale = 1, config } = {}) {
+export async function capture(url, { width = 1440, height = 900, maxSlices = 6, quality = 78, scale = 1, idle = false, brand = false, config } = {}) {
   return withTab(config, async (tab) => {
     const { s } = tab;
-    await openPage(tab, url, { width, height });
+    await openPage(tab, url, { width, height, idle });
     // Scroll through once so lazy content and scroll-triggered reveals render, then back to the top.
     await s("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
     await settle(s, 800);
     const { result } = await s("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
     const audit = result.value;
+    if (brand) audit.brand = (await s("Runtime.evaluate", { expression: BRAND, returnByValue: true })).result.value;
     const total = Math.min(audit.height, 30000);
     const count = Math.max(1, Math.ceil(total / height));
     const picks = count <= maxSlices ? [...Array(count).keys()] : maxSlices <= 1 ? [0] : [...Array(maxSlices).keys()].map((i) => Math.round((i * (count - 1)) / (maxSlices - 1)));
@@ -98,6 +101,7 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   const warnings = [];
   const desk = a.width >= 1000;
   const phone = a.width < 600;
+  if (phone && a.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
   if (a.overflowX) blockers.push(`horizontal overflow at ${a.width}px: page is ${a.scrollWidth}px wide (${a.offenders.join(", ") || "unknown element"})`);
   // ---- hero gate (playbook P31): runs on every shot of a Persuade page ----
   if (persuade && a.hero) {
@@ -142,6 +146,7 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   const bigGaps = a.gaps.filter(([t, b]) => b - t > 900);
   if (bigGaps.length) warnings.push(`${bigGaps.length} empty stretch(es) taller than a screen: ${bigGaps.map(([t, b]) => `${t}-${b}px`).join(", ")}`);
   if (a.media === 0) (persuade ? blockers : warnings).push("no images, video or illustration anywhere on the page");
+  if (a.skeletons > 2) warnings.push(`${a.skeletons} loading placeholders (skeleton/spinner) still visible: this shot may show a loading state, not the page`);
   return { blockers, warnings };
 }
 
@@ -152,7 +157,121 @@ export function formatAudit(a, j) {
     (a.hero ? `\n  first viewport: h1 ${a.hero.h1w}px wide · biggest picture ${a.hero.pic.w}x${a.hero.pic.h}px · ${a.hero.emptyBelow}px empty at the bottom · ${a.hero.actions} action(s)` : "") +
     (a.empty?.length > 1 ? `\n  empty per screen: ${a.empty.map((e) => Math.round(e * 100) + "%").join(" ")}` : "") +
     (a.sections?.length ? ` · sections with a picture: ${a.sections.filter((s) => s.pic).length}/${a.sections.length}` : "") +
+    (a.skeletons > 2 ? `\n  LOADING STATE? ${a.skeletons} skeleton/spinner elements visible` : "") +
     (j.blockers.length ? `\n  BLOCKERS: ${j.blockers.join(" | ")}` : "") +
     (j.warnings.length ? `\n  warnings: ${j.warnings.join(" | ")}` : "")
   );
+}
+
+/** A site's own brand, read from the live page: logo candidates, fonts, colours by area. For redesigns. */
+const BRAND = `(() => {
+  const abs = (u) => { try { return new URL(u, location.href).href; } catch { return null; } };
+  const logos = [];
+  const head = document.querySelector('header, [role=banner], nav') || document.body;
+  for (const el of head.querySelectorAll('img, svg, [class*="logo" i], [id*="logo" i], a[href="/"] img, a[href="/"] svg')) {
+    const r = el.getBoundingClientRect(); if (!r.width || r.top > 200) continue;
+    if (el.tagName === 'IMG') logos.push({ kind: 'img', src: abs(el.currentSrc || el.src), w: Math.round(r.width), h: Math.round(r.height), alt: el.alt || '' });
+    else if (el.tagName.toLowerCase() === 'svg') logos.push({ kind: 'svg', svg: el.outerHTML.slice(0, 20000), w: Math.round(r.width), h: Math.round(r.height) });
+    if (logos.length >= 4) break;
+  }
+  const icons = [...document.querySelectorAll('link[rel*="icon" i], link[rel="apple-touch-icon"], meta[property="og:image"]')].map((l) => abs(l.href || l.content)).filter(Boolean).slice(0, 5);
+  const fam = {}; const col = {}; const bg = {};
+  for (const el of document.querySelectorAll('body *')) {
+    const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+    const cs = getComputedStyle(el); const area = r.width * r.height;
+    const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+    if (hasText) { const f = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(); fam[f] = (fam[f] || 0) + 1; col[cs.color] = (col[cs.color] || 0) + 1; }
+    if (cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)') bg[cs.backgroundColor] = (bg[cs.backgroundColor] || 0) + area;
+  }
+  bg[getComputedStyle(document.body).backgroundColor] = (bg[getComputedStyle(document.body).backgroundColor] || 0) + innerWidth * innerHeight;
+  const hex = (c) => { const m = c.match(/\\d+(\\.\\d+)?/g); if (!m || (m[3] !== undefined && +m[3] < 0.5)) return null; return '#' + m.slice(0, 3).map((x) => (+x).toString(16).padStart(2, '0')).join(''); };
+  const top = (o, n) => Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k]) => hex(k)).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).slice(0, n);
+  const faces = [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/["']/g, '')).filter((v, i, a) => a.indexOf(v) === i);
+  return { title: document.title, logos, icons, fonts: Object.entries(fam).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([f]) => f), webfonts: faces.slice(0, 6), backgrounds: top(bg, 5), textColors: top(col, 5) };
+})()`;
+
+export function formatBrand(b) {
+  if (!b) return "";
+  return (
+    `BRAND (as shipped): fonts ${b.fonts.join(", ") || "?"}${b.webfonts.length ? ` (web fonts: ${b.webfonts.join(", ")})` : ""} · backgrounds ${b.backgrounds.join(" ")} · text ${b.textColors.join(" ")}\n` +
+    `  logo: ${b.logos.map((l) => (l.kind === "img" ? `${l.src} (${l.w}x${l.h})` : `inline SVG ${l.w}x${l.h}`)).join(" · ") || "none found in the header"}` +
+    (b.icons.length ? `\n  icons/og: ${b.icons.join(" · ")}` : "")
+  );
+}
+
+/** One interaction step for fitcheck_shot / critic_prepare. */
+export const STEP = z.object({
+  do: z.enum(["click", "hover", "drag", "type", "key", "scroll", "wait", "shot"]),
+  selector: z.string().optional().describe("CSS selector of the element to act on"),
+  to: z.union([z.string(), z.object({ x: z.number(), y: z.number() })]).optional().describe("drag: a selector to drop on, or an offset {x, y} in px from the start"),
+  text: z.string().optional().describe("type: the text; key: a key name (Enter, Escape, Tab, ArrowDown)"),
+  y: z.number().optional().describe("scroll: page y in px"),
+  ms: z.number().optional().describe("wait: milliseconds (max 5000)"),
+  label: z.string().optional().describe("What this state shows, for the critic"),
+  shot: z.boolean().optional().describe("Screenshot after this step (default true; false to chain steps)"),
+});
+
+const KEYS = { Enter: 13, Escape: 27, Tab: 9, ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39, Space: 32, Backspace: 8 };
+
+/**
+ * Load `url`, then run `steps` with real input events (the browser's own mouse, so pointer, mouse and drag
+ * handlers all fire) and screenshot the viewport after each. Returns [{ label, buf, error? }].
+ */
+export async function captureStates(url, steps, { width = 1440, height = 900, quality = 80, config } = {}) {
+  return withTab(config, async (tab) => {
+    const { s } = tab;
+    await openPage(tab, url, { width, height });
+    const center = async (sel) => {
+      const { result } = await s("Runtime.evaluate", {
+        expression: `(() => { const el = document.querySelector(${JSON.stringify(sel)}); if (!el) return null; el.scrollIntoView({ block: 'center', inline: 'center' }); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`,
+        returnByValue: true,
+      });
+      if (!result.value) throw new Error(`no element matches ${sel}`);
+      return result.value;
+    };
+    const mouse = (type, x, y, extra = {}) => s("Input.dispatchMouseEvent", { type, x, y, button: "left", pointerType: "mouse", ...extra });
+    const out = [];
+    for (const [i, st] of steps.slice(0, 12).entries()) {
+      let error = null;
+      try {
+        if (st.do === "click" || st.do === "hover") {
+          const p = await center(st.selector);
+          await mouse("mouseMoved", p.x, p.y, { buttons: 0 });
+          if (st.do === "click") {
+            await mouse("mousePressed", p.x, p.y, { clickCount: 1, buttons: 1 });
+            await mouse("mouseReleased", p.x, p.y, { clickCount: 1, buttons: 0 });
+          }
+        } else if (st.do === "drag") {
+          const a = await center(st.selector);
+          const b = typeof st.to === "string" ? await center(st.to) : { x: a.x + (st.to?.x || 0), y: a.y + (st.to?.y || 0) };
+          await mouse("mouseMoved", a.x, a.y, { buttons: 0 });
+          await mouse("mousePressed", a.x, a.y, { clickCount: 1, buttons: 1 });
+          for (let k = 1; k <= 12; k++) {
+            await mouse("mouseMoved", a.x + ((b.x - a.x) * k) / 12, a.y + ((b.y - a.y) * k) / 12, { buttons: 1 });
+            await new Promise((r) => setTimeout(r, 16));
+          }
+          await mouse("mouseReleased", b.x, b.y, { clickCount: 1, buttons: 0 });
+        } else if (st.do === "type") {
+          if (st.selector) await s("Runtime.evaluate", { expression: `document.querySelector(${JSON.stringify(st.selector)})?.focus()` });
+          await s("Input.insertText", { text: st.text || "" });
+        } else if (st.do === "key") {
+          const key = st.text || "Enter";
+          const code = KEYS[key] || key.toUpperCase().charCodeAt(0);
+          await s("Input.dispatchKeyEvent", { type: "keyDown", key, windowsVirtualKeyCode: code, code: key });
+          await s("Input.dispatchKeyEvent", { type: "keyUp", key, windowsVirtualKeyCode: code, code: key });
+        } else if (st.do === "scroll") {
+          await s("Runtime.evaluate", { expression: st.selector ? `document.querySelector(${JSON.stringify(st.selector)})?.scrollIntoView({ block: 'start' })` : `scrollTo(0, ${Number(st.y) || 0})` });
+        } else if (st.do === "wait") {
+          await new Promise((r) => setTimeout(r, Math.min(5000, st.ms || 500)));
+        }
+      } catch (e) {
+        error = e.message;
+      }
+      if (st.shot === false) continue;
+      await settle(s, 900);
+      const { data } = await s("Page.captureScreenshot", { format: "jpeg", quality, clip: { x: 0, y: 0, width, height, scale: width > 1200 ? 1200 / width : 1 } });
+      out.push({ label: st.label || `${i + 1}. ${st.do}${st.selector ? ` ${st.selector}` : ""}`, buf: Buffer.from(data, "base64"), error });
+    }
+    return out;
+  });
 }

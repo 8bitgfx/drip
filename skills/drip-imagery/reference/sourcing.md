@@ -48,7 +48,16 @@ Use `images_search` with the orientation the slot needs (landscape for bands, po
 | Wikimedia Commons | Real places, landmarks, crafts, tools, documentary, historic | Polished lifestyle, product on white | CC0, public domain, CC BY, CC BY-SA: check each |
 | Unsplash | Editorial lifestyle, interiors, food, landscapes, textures | Specific tools and trades, anything not photogenic | Unsplash licence |
 | Pexels | Lifestyle, people at work, video | Same as Unsplash; more posed | Pexels licence |
-| Openverse | Searches many CC sources at once, illustrations, museum work | Mixed quality | Per result; often CC BY/BY-SA |
+| Openverse | Searches many CC sources at once, illustrations, museum work | Mixed quality | Per result (Drip asks for commercial-use licences only); CC BY needs a credit |
+| Pixabay (`pixabay`, free key) | Photos, illustrations and vectors (`kind`) | Includes AI-generated uploads with no filter: check | Pixabay Content License (commercial OK) |
+| Cleveland Museum of Art (`cleveland`, no key) | Public-domain paintings, prints, woodblocks, ukiyo-e, illustration, up to 3400px | Anything modern | CC0 |
+| NASA (`nasa`, no key) | Space, earth from orbit, rockets, labs | People, products | Generally no copyright; credit NASA, never imply endorsement, no NASA logos |
+
+**Painterly, illustrated or anime looks.** There is no licensed source of anime film stills: Studio Ghibli's free stills are a "use within common sense" courtesy, not a licence, and are off-limits for a commercial page. Honest routes: public-domain ukiyo-e and woodblock prints (`images_search({ source: "cleveland", query: "hiroshige rain" })`), Pixabay illustrations (`kind: "illustration"`), a commissioned or generated image (`gen_image`, in the direction's style), or a built scene (gradient, shader, type).
+
+**Backgrounds you generate instead of find** (licence-free, on-palette, instant): `gradient_mesh` (mesh or aurora, grain, a calm zone for the headline, WebP out, optional slow drift); a shader or effect component (`components_find({ kind: "background" })`: aurora, beams, silk, grids, dither; heavy ones need a static fallback); Paper Shaders (`@paper-design/shaders-react`, Apache-2.0) for mesh and grain gradients in code.
+
+**Never fetched automatically:** unDraw (its licence bans automated access and AI use), Absurd (non-commercial), Haikei and SVG Backgrounds (no automated use), Hero Patterns (needs a credit: fine, but credit it), React Bits source in a package you publish (Commons Clause).
 
 ## 4. Judging a candidate
 

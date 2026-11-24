@@ -11,8 +11,11 @@ drip/
   data/                catalogue.json, font-pairs.json, slop.json
   mcp/
     src/index.mjs      server: instructions + module registration
-    src/core/          paths, config, state (+ gates), guides, http (throttle + cache), images (contact sheets),
-                       keys, seen (listing numbers), preview (HTML -> picture via headless Chrome), result helpers
+    src/core/          paths, config, state (+ gates, one task per session), guides, http (throttle + cache),
+                       browser (ONE shared headless Chrome over CDP: tabs ~100 ms, closes after 10 idle min),
+                       cdp (whole-page capture + audit + brand + interaction states), imaging (crop/resize/WebP,
+                       contact sheets, optical centre, icon sizes: all in the browser), serve (static preview server),
+                       skills (DESIGN.md + the workspace's own skills), images, keys, seen, preview, result helpers
     src/modules/
       workflow.mjs     drip_start / guide / status / mark / skip / end
       refs/            dribbble.mjs (source adapter) + index.mjs (tools)
@@ -20,15 +23,23 @@ drip/
       components/      catalogue + shadcn-style registries
       assets/          color (OKLCH maths), palette, gradient, icons (Iconify), fonts (Fontsource), images (photos)
       gen/             providers/ (openai, gemini, template) + keypage (local key form) + index
-      fitcheck/        chrome (headless screenshots), lint (slop rules), index (tools)
+      fitcheck/        chrome (screenshot via the shared browser), lint (slop rules), drift (DESIGN.md vs CSS),
+                       compare (drip_compare, board_brand), index (tools)
     dist/drip-mcp.mjs  the bundle (committed)
-    test/              hooks.test.mjs (unit), smoke.mjs (end to end)
+    test/              unit + hooks + skills + browser.test.mjs (browser tools, offline, runs in CI);
+                       smoke.mjs / smoke-03.mjs (end to end, hit Dribbble and other services)
+  kit/                 base.css (7 type roles, grid, floor), DESIGN.template.md, comp.html, brand-board.html
+  .github/workflows/   ci.yml: lint, build, stale-bundle check, tests on Linux + Windows; manifest versions agree
 ```
 
 ## How enforcement works
 
-1. **State.** The MCP keeps the active task in `<project>/.drip/state.json`: the loop size, required guides
-   and which were read, references studied, the board and chosen direction, UI writes, fit-check results.
+1. **State.** `<project>/.drip/state.json` holds one task PER SESSION (`tasks`, `sessions`): the loop size,
+   required guides and which were read, references studied, the board and chosen direction, UI writes, fit-check
+   results. The server (one per Claude session) remembers its task and its `CLAUDE_CODE_SESSION_ID`; hooks get
+   `session_id` from Claude Code; `hooks/bind.mjs` binds a session to the task its `drip_start` created. A session
+   never sees, gates on, records into or closes another live session's task; a task whose session is gone is
+   picked up by the next one.
 2. **Guides through a tool.** `drip_guide` returns a guide and records the read. Skill files hold only the
    first-screen rules; the depth lives behind the tool call, so "I read the skill" can be checked.
 0. **Opt-in.** With `gates.mode: "task"` (default) every hook is silent unless a Drip task is open

@@ -9,7 +9,7 @@ import { blocks, safe, text } from "../../core/result.mjs";
 import { lookup, remember, rememberListing, resolve, siteKey } from "../../core/seen.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { capture, formatAudit } from "../../core/cdp.mjs";
+import { capture, formatAudit, formatBrand } from "../../core/cdp.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import * as dribbble from "./dribbble.mjs";
@@ -66,6 +66,8 @@ async function listingResult(kind, params, ctx, label) {
   if (params.sheet !== false) content.push(imageBlock(await sheetFor(items, { cols: items.length > 30 ? 8 : 6, tileW: items.length > 30 ? 240 : 300, tileH: items.length > 30 ? 180 : 225 })));
   return blocks(content);
 }
+
+const SITE_MEMO = new Map();
 
 export function register(server, ctx) {
   const page = z.number().int().min(1).max(50).optional().describe("Page number, starts at 1");
@@ -221,20 +223,27 @@ export function register(server, ctx) {
       description:
         "Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. " +
         "The best references for a page: what strong studios actually ship, at real scale (Dribbble shots are concepts whose type sizes are fiction). Pick sites in the category and a notch above it. " +
+        "Waits for app content to load (network idle) and warns when the shot still shows skeletons. Also reads each site's brand as shipped: logo (img src or inline SVG), fonts, colours. " +
+        "For a REDESIGN, pass the current site with before: true first: it becomes the 'before' and its logo, fonts and colours go into the brief. " +
         "Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: [\"https://linear.app\", \"https://www.figma.com\"] })",
       inputSchema: {
         urls: z.array(z.string()).min(1).max(4),
         screens: z.number().int().min(1).max(4).optional().describe("Screens per site from the top (default 2)"),
+        before: z.boolean().optional().describe("The first url is the client's current site (redesign): saved as the 'before', its brand recorded on the task"),
       },
     },
-    safe(async ({ urls, screens = 2 }) => {
+    safe(async ({ urls, screens = 2, before = false }) => {
       const config = ctx.config();
       const dir = rendersDir(`sites-${stamp()}`);
       const results = await Promise.all(
         urls.map(async (raw) => {
           const url = /^https?:/i.test(raw) ? raw : `https://${raw}`;
           try {
-            const r = await capture(url, { width: 1440, height: 900, maxSlices: screens, config });
+            // Shipped sites don't change within a session: repeat calls are instant.
+            const memo = `${url}|${screens}`;
+            const hit = SITE_MEMO.get(memo);
+            const r = hit && Date.now() - hit.at < 30 * 60000 ? hit.r : await capture(url, { width: 1440, height: 900, maxSlices: screens, idle: true, brand: true, config });
+            SITE_MEMO.set(memo, { r, at: Date.now() });
             const key = siteKey(url);
             const slug = key.slice(5).replace(/[^a-z0-9]+/gi, "-");
             const files = r.slices.map((sl, i) => {
@@ -260,10 +269,18 @@ export function register(server, ctx) {
           out.push(textBlock(`${r.url}: could not open (${r.err}).`));
           continue;
         }
-        out.push(textBlock(`=== ${r.audit.title || r.url} (${r.key}) · ${r.slices.length} of ${r.total} screens\n${formatAudit(r.audit, { blockers: [], warnings: [] })}`));
+        out.push(textBlock(`=== ${r.audit.title || r.url} (${r.key}) · ${r.slices.length} of ${r.total} screens${before && r === results[0] ? " · THE BEFORE" : ""}\n${formatAudit(r.audit, { blockers: [], warnings: [] })}\n${formatBrand(r.audit.brand)}`));
         for (const sl of r.slices) out.push(imageBlock(sl.buf));
       }
       const ok = results.filter((r) => r.ok);
+      if (before && results[0]?.ok) {
+        const b = results[0];
+        updateState((st) => {
+          if (st.task) st.task.before = { url: b.url, files: b.slices.length, brand: b.audit.brand, at: new Date().toISOString() };
+        });
+        const logo = b.audit.brand?.logos?.[0];
+        out.push(textBlock(`Recorded ${b.url} as the BEFORE (the critic compares against it). Keep what the brand owns: ${logo ? (logo.kind === "img" ? `save the logo with images_save({ url: "${logo.src}", out: "public/logo${/\.svg/i.test(logo.src) ? ".svg" : ".png"}" })` : "the logo is inline SVG: copy it from the page source") : "no logo found in the header; ask the user for the file"}, its fonts (${b.audit.brand?.fonts?.join(", ") || "?"}) unless the user wants new ones.`));
+      }
       if (ok.length)
         out.push(
           textBlock(
@@ -345,7 +362,7 @@ export function register(server, ctx) {
     },
     safe(async ({ shot, region, image = 1 }) => {
       const key = resolve(shot);
-      let item = lookup(key);
+      const item = lookup(key);
       let images = item?.images;
       if (!images?.length) {
         try {
@@ -368,6 +385,15 @@ export function register(server, ctx) {
   );
 
   const VAGUE = /^(clean|modern|nice|good|great|minimal|sleek|cool|beautiful|simple|bold|elegant)\.?$/i;
+  const STUDY_EXAMPLE = {
+    layout: '"12-col, headline spans cols 1-8, picture bleeds right at 55% width"',
+    type: '"condensed grotesk caps ~140px, body 18px, ratio ~8:1"',
+    color: '"#F3EFE6 ground, #141414 ink, one #2340FF accent on the CTA only"',
+    density: '"~30 words above the fold, 1 section per screen"',
+    detail: '"nav in the body face at 15px, aligned to the h1 baseline"',
+    take: '"the 8:1 type ratio and the single accent"',
+    leave: '"the stock 3D render and the tracked caps labels"',
+  };
   const CONCRETE = /(\d|#[0-9a-f]{3,6}\b|px|%|ratio|col|grid|serif|sans|mono|weight|caps|uppercase|lowercase|italic|leading|tracking)/i;
 
   server.registerTool(
@@ -410,7 +436,13 @@ export function register(server, ctx) {
       const weak = fields.filter((f) => !n[f] || n[f].trim().length < 12 || VAGUE.test(n[f].trim()));
       const concrete = fields.filter((f) => CONCRETE.test(n[f] || "")).length;
       if (weak.length || concrete < 3)
-        return { ok: false, msg: `${n.shot}: too vague. ${weak.length ? `Rewrite: ${weak.join(", ")}. ` : ""}${concrete < 3 ? "Give at least 3 fields concrete values (sizes, ratios, hex, counts, named type classes)." : ""}` };
+        return {
+          ok: false,
+          msg:
+            `${n.shot}: too vague. ` +
+            weak.map((f) => `${f}: ${!n[f] ? "missing" : VAGUE.test(n[f].trim()) ? `"${n[f].trim()}" is a vibe, not a fact` : `"${n[f].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f]}`).join(" · ") +
+            (concrete < 3 ? `${weak.length ? " · " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : ""),
+        };
       const note = `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · density: ${n.density} · detail: ${n.detail} · leave: ${n.leave}`;
       remember({ ...item, study: { ...n, at: new Date().toISOString() } });
       const st = updateState((s) => {

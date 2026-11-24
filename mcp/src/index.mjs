@@ -12,6 +12,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { loadConfig } from "./core/config.mjs";
 import { projectDripDir } from "./core/paths.mjs";
+import { setIdentity } from "./core/state.mjs";
 import * as workflow from "./modules/workflow.mjs";
 import * as refs from "./modules/refs/index.mjs";
 import * as board from "./modules/board/index.mjs";
@@ -23,7 +24,7 @@ import * as critic from "./modules/critic/index.mjs";
 import * as logo from "./modules/logo/index.mjs";
 import * as packs from "./modules/packs/index.mjs";
 
-const VERSION = "0.3.4";
+const VERSION = "0.4.0";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
@@ -76,5 +77,6 @@ if (process.argv.length > 2) {
 } else {
   const server = new McpServer({ name: "drip", version: VERSION }, { instructions: INSTRUCTIONS });
   registerAll(server);
+  setIdentity({ server: true }); // one server per Claude session: it owns at most one task
   await server.connect(new StdioServerTransport());
 }

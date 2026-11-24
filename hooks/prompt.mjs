@@ -13,7 +13,7 @@ run(async () => {
     return out({
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: `[Drip] Active design task:\n${checklist(task, config)}\nContinue it (drip_status gives the next call). If this message is unrelated or ends the design work, call drip_end. ${LOAD}`,
+        additionalContext: `[Drip] Active design task:\n${checklist(task, config)}\nContinue it (drip_status gives the next call). If the user says the design work is finished, call drip_end (it only closes this session's task). ${LOAD}`,
       },
     });
   }

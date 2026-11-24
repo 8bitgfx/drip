@@ -1,5 +1,5 @@
 // SessionStart: only speaks when there is something to say — an unfinished Drip task, or strict mode.
-import { allow, checklist, loadConfig, loadState, out, readInput, run } from "./lib.mjs";
+import { allow, checklist, loadConfig, loadState, otherTasks, out, readInput, run } from "./lib.mjs";
 
 run(async () => {
   const input = await readInput();
@@ -7,13 +7,16 @@ run(async () => {
   const { task } = loadState(dir);
   const config = loadConfig(dir);
   const load = "Load its tools with ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide.";
+  const others = otherTasks(dir);
+  const busy = others.length ? `\nOther live sessions are working on Drip tasks here (${others.map((o) => `"${o.title}"`).join(", ")}): they are theirs. Never drip_end them; drip_start your own task if you need one.` : "";
   if (task)
     return out({
       hookSpecificOutput: {
         hookEventName: "SessionStart",
-        additionalContext: `[Drip] A design task is still open:\n${checklist(task, config)}\nIf the user continues it, follow drip_status; if they move on, call drip_end. ${load}`,
+        additionalContext: `[Drip] A design task from an earlier session is still open:\n${checklist(task, config)}\nIf the user continues it, follow drip_status. If they move on, leave it (it blocks nothing until UI is written) or drip_end it when the user says it is finished.${busy} ${load}`,
       },
     });
+  if (busy) return out({ hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: `[Drip]${busy}` } });
   if (config.gates.mode !== "always") return allow();
   out({
     hookSpecificOutput: {

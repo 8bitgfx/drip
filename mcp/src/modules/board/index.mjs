@@ -2,11 +2,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import { imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
+import { imageBlock, textBlock } from "../../core/images.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { lookup, resolve } from "../../core/seen.mjs";
 import { lastCritique, loadState, updateState } from "../../core/state.mjs";
-import { renderHtml } from "../../core/render.mjs";
+import { renderHtml, renderUrl } from "../../core/render.mjs";
+import { projectDir } from "../../core/paths.mjs";
+import { pathToFileURL } from "node:url";
 import { readGuide } from "../../core/guides.mjs";
 import { COMP, tileHtml } from "./tile.mjs";
 import { screenshot } from "../fitcheck/chrome.mjs";
@@ -78,7 +80,7 @@ export function register(server, ctx) {
         board: z.string().optional(),
         copy: z.object({ brand: z.string().optional(), headline: z.string().optional(), body: z.string().optional(), cta: z.string().optional() }).optional().describe("Real copy for the tiles (defaults from the brief)"),
         custom: z
-          .array(z.object({ direction: z.string(), html: z.string().describe("A full HTML document or fragment for this direction's tile (fonts via Google Fonts links)") }))
+          .array(z.object({ direction: z.string(), html: z.string().optional().describe("A full HTML document (fonts via Google Fonts links)"), file: z.string().optional().describe("Path to an HTML file, e.g. .drip/comps/live-wire.html (.drip/ is never gated). Relative assets and fonts load from its folder.") }))
           .optional()
           .describe("Your own comp per direction when the template can't show the idea. Rendered at 1440x1000 (900 viewport + 100 spec strip) so options stay at equal fidelity."),
       },
@@ -98,8 +100,13 @@ export function register(server, ctx) {
       const content = [];
       const files = [];
       const pngs = await Promise.all(board.directions.map((d) => {
-        const file = path.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`);
+        const file = path.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.jpg`);
         const own = custom.find((c) => c.direction.toLowerCase() === d.name.toLowerCase());
+        if (own?.file) {
+          const abs = path.resolve(projectDir(), own.file);
+          if (!fs.existsSync(abs)) throw new Error(`Comp file not found: ${own.file}`);
+          return renderUrl(pathToFileURL(abs).href, file, { width: COMP.width, height: COMP.height, format: "jpeg", quality: 85, config: ctx.config() }).then((png) => ({ png, file }));
+        }
         return renderHtml(
           own
             ? own.html
@@ -110,14 +117,14 @@ export function register(server, ctx) {
                 cta: copy.cta || "See the work",
               }),
           file,
-          { width: COMP.width, height: COMP.height, config: ctx.config() },
+          { width: COMP.width, height: COMP.height, format: "jpeg", quality: 85, config: ctx.config() },
         ).then((png) => ({ png, file }));
       }));
       for (const [k, d] of board.directions.entries()) {
         const { png, file } = pngs[k];
         d.tile = file;
         files.push(file);
-        content.push(textBlock(`Comp: ${d.name} — ${d.adjectives.join(", ")} · ${d.type}`), imageBlock(await toJpeg(png, 1200, 840)));
+        content.push(textBlock(`Comp: ${d.name} — ${d.adjectives.join(", ")} · ${d.type}`), imageBlock(png));
       }
       board.tilesAt = new Date().toISOString();
       saveBoard(board);
@@ -216,7 +223,7 @@ export function register(server, ctx) {
           .max(4),
         criteria: z.array(z.string()).optional().describe("3-5 choice criteria from the brief, written BEFORE the tiles (thresholds or trade-offs)"),
         copy: z.object({ brand: z.string().optional(), headline: z.string().optional(), body: z.string().optional(), cta: z.string().optional() }).optional().describe("Real copy for the comps: brand, the sentence (body), the action (cta)"),
-        custom: z.array(z.object({ direction: z.string(), html: z.string() })).optional().describe("Your own comp HTML per direction (rendered at 1440x1000)"),
+        custom: z.array(z.object({ direction: z.string(), html: z.string().optional().describe("A full HTML document (fonts via Google Fonts links)"), file: z.string().optional().describe("Path to an HTML file, e.g. .drip/comps/live-wire.html (.drip/ is never gated). Relative assets and fonts load from its folder.") })).optional().describe("Your own comp per direction (rendered at 1440x1000 after its web fonts load). Write each to .drip/comps/<name>.html and pass { direction, file }: no HTML inside JSON."),
         board: z.string().optional(),
       },
     },

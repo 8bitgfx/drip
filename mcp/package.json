@@ -1,6 +1,6 @@
 {
   "name": "drip-mcp",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Drip's MCP server: design references, moodboards, components, assets, image generation and fit checks for coding agents.",
   "type": "module",
   "private": true,
@@ -13,10 +13,12 @@
     "build": "node build.mjs",
     "start": "node src/index.mjs",
     "test": "node --test test/*.test.mjs",
-    "smoke": "node test/smoke.mjs"
+    "smoke": "node test/smoke.mjs",
+    "lint": "cd .. && eslint mcp/src mcp/test mcp/build.mjs hooks",
+    "check": "npm run lint && npm run build && npm test"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
@@ -25,6 +27,9 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "esbuild": "^0.28.2"
+    "@eslint/js": "^9.39.5",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "globals": "^17.14.0"
   }
 }

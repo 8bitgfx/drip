@@ -67,7 +67,14 @@ function drawLabel(img, x, y, label, scale = 3) {
  * Contact sheet: thumbnails (buffers) in a grid, each labelled with its number (start at `first`).
  * Returns a JPEG buffer. Failed images become grey tiles so numbering stays right.
  */
-export async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1 } = {}) {
+export async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, fit = "cover" } = {}) {
+  // The browser decodes and lays out all tiles at once (fast); Jimp is the fallback without Chrome.
+  try {
+    const { sheetInBrowser } = await import("./imaging.mjs");
+    return await sheetInBrowser(buffers, { cols, tileW, tileH, gap, first, fit });
+  } catch {
+    /* no browser: slow path */
+  }
   const rows = Math.ceil(buffers.length / cols);
   const sheet = new Jimp({ width: cols * tileW + (cols + 1) * gap, height: rows * tileH + (rows + 1) * gap, color: 0xf2f2f2ff });
   for (let i = 0; i < buffers.length; i++) {

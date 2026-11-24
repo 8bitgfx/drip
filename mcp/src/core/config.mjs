@@ -50,7 +50,7 @@ export const DEFAULTS = {
 
   fitcheck: {
     sizes: [
-      { name: "phone", width: 390, height: 844 },
+      { name: "phone", width: 375, height: 812 },
       { name: "desktop", width: 1440, height: 900 },
     ],
     chromePath: "",

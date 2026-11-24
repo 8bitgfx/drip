@@ -3,10 +3,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import { imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
+import { imageBlock, textBlock } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { renderHtml, rendersDir, stamp } from "../../core/render.mjs";
-import { blocks, safe, text } from "../../core/result.mjs";
+import { blocks, safe } from "../../core/result.mjs";
 import { loadFont, outline } from "./outline.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -31,7 +31,11 @@ const isLight = (c) => {
 const mono = (svg, ink, ground) =>
   svg
     .replace(/<(linear|radial)Gradient[\s\S]*?<\/\1Gradient>/g, "")
-    .replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr, c) => `${attr}="${isLight(c.trim()) ? ground : ink}"`);
+    .replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr, c) => `${attr}="${isLight(c.trim()) ? ground : ink}"`)
+    .replace(/(fill|stroke)\s*:\s*(?!none)([^;"']+)/g, (_, attr, c) => `${attr}:${isLight(c.trim()) ? ground : ink}`)
+    .replace(/currentColor/g, ink)
+    // Shapes with no fill at all paint black by default: make that the ink.
+    .replace(/<svg([^>]*)>/, (m, a) => (/\sfill=/.test(a) ? m : `<svg${a} fill="${ink}">`));
 
 /** Rough construction stats per path: commands, short segments (lumpiness), coordinate precision. */
 export function pathStats(svg) {
@@ -77,14 +81,14 @@ export function register(server, ctx) {
         saved = `Saved ${out}\n`;
       }
       const m = o.metrics;
-      const file = path.join(rendersDir("logo"), `outline-${stamp()}.png`);
+      const file = path.join(rendersDir("logo"), `outline-${stamp()}.jpg`);
       const png = await renderHtml(
         `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o.width}px;height:${o.height}px">${o.svg}
 <div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
 ${m.xHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.xHeight}px;border-top:1px dashed #2340ff"></div>` : ""}
 ${m.capHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.capHeight}px;border-top:1px dashed #999"></div>` : ""}</div></div>`,
         file,
-        { width: Math.min(1800, o.width + 80), height: o.height + 80, config: ctx.config() },
+        { width: Math.min(1800, o.width + 80), height: o.height + 80, format: "jpeg", config: ctx.config() },
       ).catch(() => null);
       return blocks([
         textBlock(
@@ -94,7 +98,7 @@ ${m.capHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.ba
             "Now customise like a designer: kern by eye, cut or extend one letter, and make one detail the brand. Then logo_test.\n" +
             `Path data (${o.d.length} chars) is in the saved SVG${out ? "" : " (pass out to save it)"}.`,
         ),
-        ...(png ? [imageBlock(await toJpeg(png, 1800, 900))] : []),
+        ...(png ? [imageBlock(png)] : []),
       ]);
     }),
   );
@@ -126,11 +130,11 @@ ${m.capHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.ba
 .small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
 <h1>${esc(title)} — ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
       const rows = Math.ceil(svgs.length / cols);
-      const file = path.join(rendersDir("logo"), `sheet-${stamp()}.png`);
-      const png = await renderHtml(html, file, { width: cols * 330 + 60, height: rows * 400 + 90, config: ctx.config() });
+      const file = path.join(rendersDir("logo"), `sheet-${stamp()}.jpg`);
+      const png = await renderHtml(html, file, { width: cols * 330 + 60, height: rows * 400 + 90, format: "jpeg", quality: 88, config: ctx.config() });
       return blocks([
         textBlock(`Concept sheet saved: ${file}\nJudge ideas first (one clear thought each, no clichés), then have the critic rank them: critic_prepare({ kind: "logo", targets: ["${file.replace(/\\/g, "/")}"] }). Refine only the top 2-3, then logo_test each.`),
-        imageBlock(await toJpeg(png, 1600, 1600)),
+        imageBlock(png),
       ]);
     }),
   );
@@ -155,8 +159,8 @@ ${m.capHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.ba
 <p class="label">Sizes 16 / 24 / 32 / 64 / 128 — light, dark, one colour, inverse, busy ground</p>
 ${strip("#fff", svg)}${strip(dark, svg)}${strip("#fff", mono(svg, "#111", "#fff"))}${strip("#111", mono(svg, "#fff", "#111"))}
 ${strip("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
-      const file = path.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.png`);
-      const png = await renderHtml(html, file, { width: 1140, height: 1340, config: ctx.config() });
+      const file = path.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.jpg`);
+      const png = await renderHtml(html, file, { width: 1140, height: 1340, format: "jpeg", quality: 88, config: ctx.config() });
       const stats = pathStats(svg);
       const hints = [];
       for (const s of stats) {
@@ -170,7 +174,72 @@ ${strip("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d
             (hints.length ? `Construction hints:\n- ${hints.join("\n- ")}\n` : "Construction: no obvious path problems.\n") +
             "Check: does it read at 16-32px? Same weight on dark (optically lighter there)? Survive one colour? Then critic_prepare({ kind: 'logo', targets: [this file] }).",
         ),
-        imageBlock(await toJpeg(png, 1140, 1340)),
+        imageBlock(png),
+      ]);
+    }),
+  );
+
+  server.registerTool(
+    "logo_export",
+    {
+      title: "Favicons and app icons from the logo",
+      description:
+        "Writes the icon set a site needs from one SVG mark: favicon.svg (copy), favicon.ico (16/32/48), apple-touch-icon.png (180, on a solid ground), icon-192.png and icon-512.png (PWA), " +
+        "plus the <link> tags to paste. Use the simplified mark (no wordmark) for small sizes. Example: logo_export({ svg: \"brand/mark.svg\", out: \"public\", ground: \"#F3EFE6\" })",
+      inputSchema: {
+        svg: z.string().describe("SVG markup or a project path to the mark"),
+        out: z.string().optional().describe("Project folder (default public)"),
+        ground: z.string().optional().describe("Background for the apple-touch icon (iOS fills transparency with black). Default #ffffff"),
+        padding: z.number().min(0).max(0.3).optional().describe("Inner padding as a share of the icon (default 0.08; apple-touch uses 0.14)"),
+      },
+    },
+    safe(async ({ svg: src, out = "public", ground = "#ffffff", padding = 0.08 }) => {
+      const { rasterSizes } = await import("../../core/imaging.mjs");
+      const svg = loadSvg(src);
+      const buf = Buffer.from(svg);
+      const dir = path.resolve(projectDir(), out);
+      fs.mkdirSync(dir, { recursive: true });
+      const [p16, p32, p48, p192, p512] = await rasterSizes(buf, [16, 32, 48, 192, 512], { padding, config: ctx.config() });
+      const [apple] = await rasterSizes(buf, [180], { padding: 0.14, bg: ground, config: ctx.config() });
+      // ICO: a header, one directory entry per size, then the PNGs as they are (supported since Vista).
+      const pngs = [[16, p16], [32, p32], [48, p48]];
+      const head = Buffer.alloc(6 + 16 * pngs.length);
+      head.writeUInt16LE(0, 0);
+      head.writeUInt16LE(1, 2);
+      head.writeUInt16LE(pngs.length, 4);
+      let offset = head.length;
+      pngs.forEach(([s, b], i) => {
+        const e = 6 + i * 16;
+        head.writeUInt8(s, e);
+        head.writeUInt8(s, e + 1);
+        head.writeUInt16LE(1, e + 4);
+        head.writeUInt16LE(32, e + 6);
+        head.writeUInt32LE(b.length, e + 8);
+        head.writeUInt32LE(offset, e + 12);
+        offset += b.length;
+      });
+      const files = {
+        "favicon.svg": Buffer.from(svg),
+        "favicon.ico": Buffer.concat([head, ...pngs.map(([, b]) => b)]),
+        "apple-touch-icon.png": apple,
+        "icon-192.png": p192,
+        "icon-512.png": p512,
+      };
+      for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(dir, n), b);
+      const base = out.replace(/\\/g, "/").replace(/^public\/?/, "");
+      const href = (n) => `/${base ? `${base}/` : ""}${n}`;
+      const sheet = await renderHtml(
+        `<div style="display:flex;gap:28px;align-items:end;padding:28px;background:#ECEBE7;font:13px system-ui">${[16, 32, 48].map((s) => `<img src="data:image/png;base64,${pngs.find(([n]) => n === s)[1].toString("base64")}" width="${s}" height="${s}">`).join("")}<img src="data:image/png;base64,${apple.toString("base64")}" width="90" height="90" style="border-radius:20px"><img src="data:image/png;base64,${p192.toString("base64")}" width="96" height="96"></div>`,
+        path.join(rendersDir("logo"), `icons-${stamp()}.png`),
+        { width: 520, height: 170, config: ctx.config() },
+      );
+      return blocks([
+        textBlock(
+          `Wrote ${Object.keys(files).map((n) => `${out}/${n}`).join(", ")}.\nPaste into <head>:\n` +
+            `<link rel="icon" href="${href("favicon.ico")}" sizes="32x32">\n<link rel="icon" href="${href("favicon.svg")}" type="image/svg+xml">\n<link rel="apple-touch-icon" href="${href("apple-touch-icon.png")}">\n` +
+            `Web manifest icons: ${href("icon-192.png")} (192x192), ${href("icon-512.png")} (512x512).\nCheck the 16px one: if it is mush, export a simpler mark for small sizes.`,
+        ),
+        imageBlock(sheet, "image/png"),
       ]);
     }),
   );

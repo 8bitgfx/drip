@@ -1,7 +1,7 @@
 // Moodboards on disk: <project>/.drip/boards/<id>/board.json (+ board.html when rendered).
 import fs from "node:fs";
 import path from "node:path";
-import { ensureDir, ensureProjectDrip, projectDripDir } from "../../core/paths.mjs";
+import { ensureDir, ensureProjectDrip } from "../../core/paths.mjs";
 
 export const boardsDir = () => ensureDir(path.join(ensureProjectDrip(), "boards"));
 

@@ -106,6 +106,7 @@ Build from this. It covers Persuade (landing pages, product sites) and Experienc
     - the picture is at least 6 columns wide and at least 60% of the screen tall, or, with no picture, the h1 spans 8 or more columns;
     - an action is visible;
     - there are at most 160px of nothing under the content.
+30b. Centre by eye, not by maths. The centre of a thing is where a viewer puts it: a box with drips hanging off it is centred on the box, a play triangle on its mass, a mark with a tail or sparkle on its body. Bounding boxes lie. Run `optical_center` on any mark, icon, cut-out or illustration you centre in a container, align in a lockup, or rotate/scale/swing; use the body centre it returns for the offset and for `transform-origin` (a hanging or swinging thing pivots where it attaches). Then nudge by eye: centred shapes read low, so lift them 1-3%.
 31. Then build the sections in plan order. Commit every atom: buttons, links, inputs, nav and footer all speak the direction's language. Restyle library components to the tokens.
 32. Floor (the kit has it; keep it):
     - Every colour and font comes from a token.

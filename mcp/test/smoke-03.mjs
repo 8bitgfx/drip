@@ -33,7 +33,8 @@ async function call(name, args = {}, ok = (r) => !r.isError) {
 const statePath = path.join(project, ".drip", "state.json");
 const fakeCriticRun = () => {
   const s = JSON.parse(fs.readFileSync(statePath, "utf8"));
-  s.task.critic.runs.push(new Date(Date.now() + 5).toISOString());
+  const task = s.task || Object.values(s.tasks)[0]; // v2: one task per session
+  task.critic.runs.push(new Date(Date.now() + 5).toISOString());
   fs.writeFileSync(statePath, JSON.stringify(s));
 };
 
@@ -62,7 +63,7 @@ await call("board_directions", {
 });
 await call("board_open", {}, (r, t) => r.isError && /critic hasn't ranked/.test(t));
 await call("board_tile", {}, (r) => r.content.filter((c) => c.type === "image").length === 2);
-const prep = await call("critic_prepare", { kind: "directions" }, (r, t) => /drip:critic/.test(t) && /\.png/.test(t));
+await call("critic_prepare", { kind: "directions" }, (r, t) => /drip:critic/.test(t) && /\.(png|jpg)/.test(t));
 await call("critic_record", { kind: "directions", verdict: "pass", scores: { concept: 7 }, worst: "x", fixes: ["y"], summary: "z" }, (r, t) => r.isError && /No drip:critic run/.test(t));
 fakeCriticRun();
 await call("critic_record", { kind: "directions", verdict: "pass", scores: { concept: 8, distinctiveness: 8 }, worst: "Live Wire's body copy is timid", fixes: ["set body at 20px"], summary: "Live Wire wins", perDirection: [{ name: "Live Wire", score: 8, verdict: "keep", note: "the only one with an idea" }, { name: "Margin Notes", score: 6, verdict: "rework", note: "safe" }] });
@@ -79,6 +80,19 @@ fs.writeFileSync(path.join(project, "bold.html"), page("", `<main class="contain
 const url = (f) => `file:///${path.join(project, f).replace(/\\/g, "/")}`;
 await call("fitcheck_shot", { url: url("timid.html"), hero: true }, (r, t) => /HERO GATE FAILED/.test(t) && /h1 is 56px/.test(t));
 await call("fitcheck_shot", { url: url("bold.html"), hero: true }, (r, t) => /HERO GATE PASSED/.test(t));
+// 0.4: local files are served, interactions are captured as states with real input.
+fs.writeFileSync(path.join(project, "drag.html"), `<!doctype html><meta name=viewport content="width=device-width"><link rel=stylesheet href="styles/drip-base.css"><main class=container><h1>Drag the sheet</h1><div id=s style="position:absolute;left:100px;top:300px;width:200px;height:120px;background:#c33"></div><p id=o>not moved</p></main><script>let d=null;s.onpointerdown=e=>{d=[e.clientX-s.offsetLeft,e.clientY-s.offsetTop];s.setPointerCapture(e.pointerId)};s.onpointermove=e=>{if(d){s.style.left=e.clientX-d[0]+'px';s.style.top=e.clientY-d[1]+'px'}};s.onpointerup=()=>{d=null;o.textContent='moved to '+s.style.left}</script>`);
+await call("fitcheck_shot", { url: "drag.html", app: true, steps: [{ do: "drag", selector: "#s", to: { x: 400, y: 0 }, label: "sheet dragged" }] }, (r, t) => /State 1: sheet dragged/.test(t) && !/STEP FAILED/.test(t));
+await call("drip_serve", {}, (r, t) => /http:\/\/127\.0\.0\.1:\d+/.test(t));
+const mark = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect x="100" y="120" width="200" height="140" fill="#e5322d"/><rect x="190" y="260" width="20" height="120" fill="#e5322d"/></svg>`;
+await call("optical_center", { svg: mark }, (r, t) => /BODY centre/.test(t) && /transform-origin/.test(t) && r.content.some((c) => c.type === "image"));
+fs.writeFileSync(path.join(project, "mark.svg"), mark);
+await call("logo_export", { svg: "mark.svg", out: "public" }, () => fs.existsSync(path.join(project, "public", "favicon.ico")) && fs.existsSync(path.join(project, "public", "apple-touch-icon.png")));
+await call("gradient_mesh", { colors: ["#FF5B2E", "#FFB199"], base: "#140D0B", calm: "left", out: "public/bg.webp" }, () => fs.existsSync(path.join(project, "public", "bg.webp")));
+await call("drip_compare", { items: [{ src: "bold.html", label: "Bold" }, { src: "timid.html", label: "Timid" }] }, (r) => r.content.some((c) => c.type === "image"));
+await call("board_brand", { name: "Test", logo: "mark.svg", palette: [{ hex: "#F3EFE6", role: "ground" }, { hex: "#141414", role: "ink" }, { hex: "#E5322D", role: "accent" }], display: "Fraunces", text: "Inter" }, (r) => r.content.some((c) => c.type === "image"));
+await call("drip_kit", { template: "design-md" }, () => fs.existsSync(path.join(project, "DESIGN.md")));
+await call("fitcheck_lint", { files: ["bold.html"] }, (r, t) => /DESIGN\.md/.test(t));
 
 const svgA = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="18" y="18" width="64" height="64" rx="10" fill="#2340FF"/><path d="M30 70 C 40 40, 60 40, 70 70" stroke="#fff" stroke-width="8" fill="none"/></svg>`;
 const svgB = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="#111"/><circle cx="62" cy="40" r="9" fill="#D4FF3A"/></svg>`;

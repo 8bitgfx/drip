@@ -10,6 +10,7 @@ export const KEY_ENV = {
   unsplash: ["UNSPLASH_ACCESS_KEY"],
   pexels: ["PEXELS_API_KEY"],
   openverse: ["OPENVERSE_TOKEN"],
+  pixabay: ["PIXABAY_API_KEY"],
 };
 
 const file = path.join(homeDripDir, "keys.json");
