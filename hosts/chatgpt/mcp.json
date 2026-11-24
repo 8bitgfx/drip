@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "drip": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${PLUGIN_ROOT}/mcp/dist/drip-mcp.mjs"
+      ],
+      "env": {
+        "DRIP_HOST": "chatgpt"
+      }
+    }
+  }
+}

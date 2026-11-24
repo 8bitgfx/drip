@@ -118,6 +118,17 @@ Link, one line per direction with the critic's score and its words, your pick an
 | "A's colours with B's type" grafted on silently | Ask, then build and re-check the merged direction |
 | Delegated picks described as the user's taste | Keep them labelled Agent Pick |
 
+## The project's master board (memory across tasks)
+
+The first board of a project is its **master**: it keeps what the project looks like, the approved direction and what was learned. Later boards are **feature** boards (inherit the brand, never change it) or **concept** boards (alternatives).
+
+- **Start**: `drip_start` prints the compact context (also `project_context`). No board yet? `board_project({ action: "bootstrap" })` builds one from the repo's logos, tokens, fonts, DESIGN.md, pages and (with `url`) screenshots of the running app. Imported items are status `current`: existing UI is evidence, not an approved look. `board_import` adds specific files; never replace a board, `board_update` patches with `expect: <revision>`.
+- **Fidelity vs redesign**: fidelity extends the approved system. `board_choose` on the master with another direction in redesign mode stores a *proposal* (a style revision); the approved one stays until the user says yes (`board_update({ style: { promote: "sr2" }, approved: true })`; `style: { rollback: true }` goes back). Archive, fork and reset also need the user's yes.
+- **Reuse never passes gates**: `board_attach({ adopt: true })` counts the approved direction only if the critic's review of it is on record; `carry: true` counts complete, fresh, same-surface studies. Brief, new research, the build critic and the fit check are still yours.
+- **Taste**: `feedback_record` with the user's words, scope (page / feature / brand), source (user-explicit, user-selection, critic, agent-inference) and, when clear, a rule `{ topic, value, avoid }`. Explicit brand feedback becomes an approved rule; anything else is a proposal; a contradiction comes back as a question for the user. `project_learn` lists, approves, rejects and records exceptions. The latest explicit instruction wins over learned defaults.
+- **Measured style**: `style_extract` (CSS/tokens and rendered pages) then `style_update` refreshes `.drip/skills/project-design/SKILL.md` (undo with `undo: true`). `style_export` / `style_import` move a style pack between repositories (project-owned material only, no private feedback).
+- **Sharing**: `board_project({ share: true })` tracks the memory in Git; feedback stays personal unless `shareFeedback`.
+
 ---
 
 ## Done when

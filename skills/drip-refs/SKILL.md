@@ -32,6 +32,8 @@ what it chose not to do, so the build is made of decisions you saw work.
 - `refs_tag` — deep paging through one tag (20+ pages). The main way past the keyword cap.
 - `refs_designer` — everything by a designer whose shot stopped you.
 - `refs_feed` — popular or recent, by category. Once per task, for calibration, never as the source.
+- `refs_gallery` — curated galleries beyond Dribbble in one call: Awwwards, One Page Love (sites and sections), Minimal Gallery, 21st.dev (components), feeds. Numbered sheet; the numbers work in `refs_pick`, `refs_view`, `refs_study`, `board_add` (with `kind: "shot"` for tagged numbers).
+- `refs_sources` — which sources exist, what each is for, which work right now.
 - `refs_sheet` — a contact sheet of a 6-24 shot shortlist, side by side.
 - `refs_pick` — commit to a shortlist from the last sheet, a reason each.
 - `refs_view` — one shot full size (images, palette, tags, notes).

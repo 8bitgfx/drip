@@ -1,33 +1,38 @@
 {
   "name": "drip-mcp",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Drip's MCP server: design references, moodboards, components, assets, image generation and fit checks for coding agents.",
   "type": "module",
   "private": true,
   "license": "MIT",
   "main": "dist/drip-mcp.mjs",
   "bin": {
-    "drip-mcp": "dist/drip-mcp.mjs"
+    "drip-mcp": "dist/drip-mcp.mjs",
+    "drip": "dist/drip-mcp.mjs"
   },
   "scripts": {
     "build": "node build.mjs",
+    "build:hosts": "node build-hosts.mjs",
     "start": "node src/index.mjs",
     "test": "node --test test/*.test.mjs",
     "smoke": "node test/smoke.mjs",
-    "lint": "cd .. && eslint mcp/src mcp/test mcp/build.mjs hooks",
+    "lint": "cd .. && eslint mcp/src mcp/test mcp/build.mjs mcp/build-hosts.mjs hooks",
     "check": "npm run lint && npm run build && npm test"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
+    "@jitl/quickjs-singlefile-mjs-release-sync": "^0.32.0",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "jimp": "^1.7.0",
     "opentype.js": "^2.0.0",
+    "quickjs-emscripten-core": "^0.32.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "axe-core": "^4.10.2",
     "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "globals": "^17.14.0"

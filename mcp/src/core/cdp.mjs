@@ -275,3 +275,63 @@ export async function captureStates(url, steps, { width = 1440, height = 900, qu
     return out;
   });
 }
+
+const KEY_CODES = { Enter: 13, Escape: 27, Tab: 9, ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39, Space: 32, Backspace: 8, Home: 36, End: 35 };
+
+/** The step kinds runStep understands: STEP's plus press / release (hold the mouse button down) and focus. */
+export const STEP_KINDS = ["click", "hover", "drag", "type", "key", "scroll", "wait", "shot", "press", "release", "focus"];
+
+/**
+ * Perform one interaction step with real input on a tab ({ s } from withTab), without taking a screenshot.
+ * Same semantics as captureStates, plus "press" (mouse down and hold: the :active state), "release" and
+ * "focus" (keyboard-style focus on a selector). Throws when a selector matches nothing.
+ */
+export async function runStep(s, st) {
+  const center = async (sel) => {
+    const { result } = await s("Runtime.evaluate", {
+      expression: `(() => { const el = document.querySelector(${JSON.stringify(sel)}); if (!el) return null; el.scrollIntoView({ block: 'center', inline: 'center' }); const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`,
+      returnByValue: true,
+    });
+    if (!result.value) throw new Error(`no element matches ${sel}`);
+    return result.value;
+  };
+  const mouse = (type, x, y, extra = {}) => s("Input.dispatchMouseEvent", { type, x, y, button: "left", pointerType: "mouse", ...extra });
+  const kind = st.do;
+  if (kind === "click" || kind === "hover" || kind === "press") {
+    const p = await center(st.selector);
+    await mouse("mouseMoved", p.x, p.y, { buttons: 0 });
+    if (kind === "click") {
+      await mouse("mousePressed", p.x, p.y, { clickCount: 1, buttons: 1 });
+      await mouse("mouseReleased", p.x, p.y, { clickCount: 1, buttons: 0 });
+    } else if (kind === "press") await mouse("mousePressed", p.x, p.y, { clickCount: 1, buttons: 1 });
+  } else if (kind === "release") {
+    const p = st.selector ? await center(st.selector) : { x: 0, y: 0 };
+    await mouse("mouseReleased", p.x, p.y, { clickCount: 1, buttons: 0 });
+  } else if (kind === "drag") {
+    const a = await center(st.selector);
+    const b = typeof st.to === "string" ? await center(st.to) : { x: a.x + (st.to?.x || 0), y: a.y + (st.to?.y || 0) };
+    await mouse("mouseMoved", a.x, a.y, { buttons: 0 });
+    await mouse("mousePressed", a.x, a.y, { clickCount: 1, buttons: 1 });
+    for (let k = 1; k <= 12; k++) {
+      await mouse("mouseMoved", a.x + ((b.x - a.x) * k) / 12, a.y + ((b.y - a.y) * k) / 12, { buttons: 1 });
+      await new Promise((r) => setTimeout(r, 16));
+    }
+    await mouse("mouseReleased", b.x, b.y, { clickCount: 1, buttons: 0 });
+  } else if (kind === "type") {
+    if (st.selector) await s("Runtime.evaluate", { expression: `document.querySelector(${JSON.stringify(st.selector)})?.focus()` });
+    await s("Input.insertText", { text: st.text || "" });
+  } else if (kind === "focus") {
+    const { result } = await s("Runtime.evaluate", { expression: `(() => { const el = document.querySelector(${JSON.stringify(st.selector)}); if (!el) return false; el.focus(); return true; })()`, returnByValue: true });
+    if (!result.value) throw new Error(`no element matches ${st.selector}`);
+  } else if (kind === "key") {
+    const key = st.text || "Enter";
+    const code = KEY_CODES[key] || key.toUpperCase().charCodeAt(0);
+    const text = key === "Space" ? " " : key.length === 1 ? key : undefined;
+    await s("Input.dispatchKeyEvent", { type: text ? "keyDown" : "rawKeyDown", key: key === "Space" ? " " : key, windowsVirtualKeyCode: code, code: key === "Space" ? "Space" : key, ...(text ? { text } : {}) });
+    await s("Input.dispatchKeyEvent", { type: "keyUp", key: key === "Space" ? " " : key, windowsVirtualKeyCode: code, code: key === "Space" ? "Space" : key });
+  } else if (kind === "scroll") {
+    await s("Runtime.evaluate", { expression: st.selector ? `document.querySelector(${JSON.stringify(st.selector)})?.scrollIntoView({ block: 'start' })` : `scrollTo(0, ${Number(st.y) || 0})` });
+  } else if (kind === "wait") {
+    await new Promise((r) => setTimeout(r, Math.min(5000, st.ms || 500)));
+  }
+}

@@ -1,7 +1,7 @@
 // Stop: Claude may not end its turn after changing UI until a fit check was recorded
 // (full loop: fitcheck_shot + fitcheck_done; quick loop: fitcheck_done or at least fitcheck_lint).
 // Gives up after 3 blocks in a row so a session can never get stuck.
-import { allow, loadConfig, loadState, needsFitcheck, out, readInput, run, updateState } from "./lib.mjs";
+import { allow, evidenceStale, loadConfig, loadState, needsFitcheck, out, readInput, reconcileWorkspace, run, updateState } from "./lib.mjs";
 
 const MAX_BLOCKS = 3;
 
@@ -9,6 +9,8 @@ run(async () => {
   const input = await readInput();
   const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
   const config = loadConfig(dir);
+  // UI files changed without any hook seeing it (a shell edit, another tool) are folded in as UI writes first.
+  const unseen = loadState(dir).task && config.gates.enforce ? reconcileWorkspace(dir) : [];
   const { task } = loadState(dir);
   if (!task || !needsFitcheck(task, config)) {
     if (task?.stopBlocks) updateState((st) => st.task && (st.task.stopBlocks = 0), dir);
@@ -30,6 +32,6 @@ run(async () => {
       : "Call fitcheck_lint on the changed files and look at the change (fitcheck_shot if the page runs), then fitcheck_done.";
   out({
     decision: "block",
-    reason: `[Drip] You changed UI (${files}) after the last fit check. ${how} If you are waiting on the user (e.g. a direction choice), say so and they can reply; if the user said to skip, call drip_skip with their words.`,
+    reason: `[Drip] You changed UI (${files}) after the last fit check${unseen.length ? ` (${unseen.length} edit(s) Drip never saw: ${unseen.slice(0, 5).map((u) => u.file).join(", ")})` : ""}${evidenceStale(task).length ? `; the evidence is stale (${evidenceStale(task).join("; ")})` : ""}. ${how} If you are waiting on the user (e.g. a direction choice), say so and they can reply; if the user said to skip, call drip_skip with their words.`,
   });
 });

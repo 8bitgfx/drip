@@ -1,0 +1,82 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<DRIP_ROOT>/hooks/hosts/codex.mjs\" SessionStart",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<DRIP_ROOT>/hooks/hosts/codex.mjs\" UserPromptSubmit",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<DRIP_ROOT>/hooks/hosts/codex.mjs\" PreToolUse",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<DRIP_ROOT>/hooks/hosts/codex.mjs\" PostToolUse",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "drip_start",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<DRIP_ROOT>/hooks/hosts/codex.mjs\" PostToolUse",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<DRIP_ROOT>/hooks/hosts/codex.mjs\" Stop",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<DRIP_ROOT>/hooks/hosts/codex.mjs\" SubagentStop",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

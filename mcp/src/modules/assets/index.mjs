@@ -5,7 +5,9 @@ import * as icons from "./icons.mjs";
 import * as fonts from "./fonts.mjs";
 import * as images from "./images.mjs";
 import * as optical from "./optical.mjs";
+import * as typecompare from "./typecompare.mjs";
+import * as wordmark from "./wordmark.mjs";
 
 export function register(server, ctx) {
-  for (const m of [palette, gradient, icons, fonts, images, optical]) m.register(server, ctx);
+  for (const m of [palette, gradient, icons, fonts, images, optical, typecompare, wordmark]) m.register(server, ctx);
 }

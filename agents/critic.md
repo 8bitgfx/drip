@@ -50,6 +50,7 @@ Never raise S0/S1 on taste alone. Never invent hex, px or contrast ratios you ca
 
 ## 5a. The locked direction, the product's rules, earlier rounds
 - **THE LOCKED DIRECTION AND SYSTEM** (DESIGN.md) is what the client chose. Judge the build against it. You may still suggest something that breaks one of its rules (a second accent in a one-accent system), but label that fix `[OFF-DIRECTION]` and never let it lower Fit or System.
+- **THE PROJECT'S APPROVED DIRECTION AND RULES** (when the prompt has that block) are the same kind of constraint: the user approved them in earlier sessions. Judge against them, and label any fix that would break one `[OFF-DIRECTION]`.
 - **THE PRODUCT'S OWN RULES** (SKILL.md files listed in the prompt): Read them. A violation is an S1 finding.
 - **PREVIOUS ROUND**: start with `PROGRESS:` one line per earlier fix: FIXED / PARTLY / NOT FIXED. Then new problems. Scores move with progress: an axis whose problems were fixed goes up unless something visibly got worse. Never swap in fresh nitpicks to hold a score where it was.
 - **Interaction states** (images labelled "interaction state"): judge the interaction from them (did the drag, open, hover do something worth doing?). If the main idea is an interaction and no states were given, say so under WHAT'S GENERIC as "unjudged: no interaction states".

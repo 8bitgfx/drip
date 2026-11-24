@@ -4,7 +4,8 @@ import { z } from "zod";
 import { fetchImage, contactSheet, imageBlock, textBlock } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
-import { isPersuade, loadState, updateState } from "../../core/state.mjs";
+import { isPersuade, loadState, reconcileWorkspace, updateState } from "../../core/state.mjs";
+import { artifactRev } from "../../core/evidence.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
 import { loadBoard } from "../board/store.mjs";
 import fs from "node:fs";
@@ -85,6 +86,7 @@ export function register(server, ctx) {
           if (hero) return; // a hero shot is not a fit check of the page
           st.task.fitcheck.shots += files.length;
           st.task.fitcheck.lastShotAt = new Date().toISOString();
+          st.task.fitcheck.shotRev = artifactRev(st.task); // what this shot (and its measured blockers) is evidence of
           st.task.fitcheck.blockers = blockers;
           st.task.fitcheck.files = files;
         }
@@ -176,9 +178,11 @@ export function register(server, ctx) {
     },
     safe(async ({ scores, verdict, fixes, acceptedByUser }) => {
       const low = Object.entries(scores).filter(([, v]) => v < 4);
+      reconcileWorkspace(); // UI edits no hook saw (shell, other tools) count as changes after the shot
       const { task: t0 } = loadState();
       if (t0 && !t0.fitcheck?.lastShotAt) return text("Shoot the page first: fitcheck_shot({ url }). A fit check needs the measured, full-page capture.", true);
       if (t0 && t0.lastUiWriteAt && t0.fitcheck.lastShotAt < t0.lastUiWriteAt) return text("The UI changed after the last fitcheck_shot. Shoot it again so the verdict is about the current page.", true);
+      if (t0 && t0.fitcheck.shotRev && t0.fitcheck.shotRev !== artifactRev(t0)) return text("The files, DESIGN.md or direction changed after the last fitcheck_shot (the evidence belongs to an earlier version). Shoot it again so the verdict is about what exists now.", true);
       const blockers = t0?.fitcheck?.blockers || [];
       if (verdict === "pass" && blockers.length && !acceptedByUser)
         return text(`Can't pass with measured blockers:\n- ${blockers.join("\n- ")}\nFix them (drip_guide type / layout), fitcheck_shot again, then record the verdict.`, true);
@@ -186,7 +190,10 @@ export function register(server, ctx) {
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.fitcheck.score = Object.entries(scores).map(([k, v]) => `${k} ${v}`).join(", ");
-        if (pass || acceptedByUser) s.task.fitcheck.doneAt = new Date().toISOString();
+        if (pass || acceptedByUser) {
+          s.task.fitcheck.doneAt = new Date().toISOString();
+          s.task.fitcheck.doneRev = artifactRev(s.task);
+        }
       });
       if (!st.task) return text("No Drip task is active.", true);
       if (pass) return text("Fit check passed. Polish last (drip_guide polish), then drip_end when the work is done.");

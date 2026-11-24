@@ -1,0 +1,141 @@
+{
+  "id": "claude-portfolio",
+  "name": "Claude portfolio",
+  "brief": "portfolio site for Claude, for developers",
+  "createdAt": "2026-11-24T12:15:43.409Z",
+  "items": [
+    {
+      "key": "color:#E8452C",
+      "kind": "color",
+      "value": "#E8452C",
+      "title": "#E8452C",
+      "note": "accent for the one primary action only",
+      "addedAt": "2026-11-24T12:15:43.642Z",
+      "starred": true
+    },
+    {
+      "key": "color:#F4F1EA",
+      "kind": "color",
+      "value": "#F4F1EA",
+      "title": "#F4F1EA",
+      "note": "paper ground used for the whole page",
+      "addedAt": "2026-11-24T12:15:43.642Z"
+    },
+    {
+      "key": "color:#16140F",
+      "kind": "color",
+      "value": "#16140F",
+      "title": "#16140F",
+      "note": "ink for text and rules at 90%",
+      "addedAt": "2026-11-24T12:15:43.642Z"
+    },
+    {
+      "key": "font:Fraunces",
+      "kind": "font",
+      "value": "Fraunces",
+      "title": "Fraunces",
+      "note": "serif display at 96px over photo for the hero",
+      "addedAt": "2026-11-24T12:15:43.643Z",
+      "userNote": "a bit less soft"
+    },
+    {
+      "key": "font:Inter Tight",
+      "kind": "font",
+      "value": "Inter Tight",
+      "title": "Inter Tight",
+      "note": "text face at 16/24 for body copy",
+      "addedAt": "2026-11-24T12:15:43.643Z"
+    },
+    {
+      "key": "image:https://example.com/shot1.jpg",
+      "kind": "image",
+      "image": "https://example.com/shot1.jpg",
+      "url": "https://example.com/shot1.jpg",
+      "title": "Linear hero",
+      "source": "linear.app screenshot",
+      "note": "left nav density with monochrome icons",
+      "addedAt": "2026-11-24T12:15:43.643Z",
+      "removed": true
+    }
+  ],
+  "directions": [
+    {
+      "name": "Live Wire",
+      "summary": "Kinetic type on a paper ground",
+      "adjectives": [
+        "loud",
+        "playful"
+      ],
+      "palette": [
+        "#F4F1EA",
+        "#16140F",
+        "#E8452C",
+        "#9A8F7A"
+      ],
+      "type": "Fraunces + Inter Tight",
+      "headline": "Claude makes things",
+      "layout": "type",
+      "items": [
+        "color:#E8452C",
+        "color:#F4F1EA",
+        "color:#16140F",
+        "font:Fraunces"
+      ],
+      "tile": "C:\\Users\\someone\\site\\.drip\\boards\\claude-portfolio\\tiles\\live-wire.jpg"
+    },
+    {
+      "name": "Door Counter",
+      "summary": "A quiet counter where work is handed over",
+      "adjectives": [
+        "calm",
+        "crafted"
+      ],
+      "palette": [
+        "#101214",
+        "#EDEDED",
+        "#6EE7B7",
+        "#2A2D31"
+      ],
+      "type": "Söhne + Inter",
+      "headline": "Work, handed over",
+      "layout": "split",
+      "items": [
+        "color:#16140F",
+        "font:Fraunces",
+        "font:Inter Tight",
+        "image:https://example.com/shot1.jpg"
+      ],
+      "tile": "C:\\Users\\someone\\site\\.drip\\boards\\claude-portfolio\\tiles\\door-counter.jpg"
+    }
+  ],
+  "chosen": "Live Wire",
+  "feedback": [
+    {
+      "key": "color:#E8452C",
+      "action": "star",
+      "value": true,
+      "at": "2026-11-24T12:15:48.140Z"
+    },
+    {
+      "key": "image:https://example.com/shot1.jpg",
+      "action": "remove",
+      "value": true,
+      "at": "2026-11-24T12:15:48.141Z"
+    },
+    {
+      "key": "font:Fraunces",
+      "action": "note",
+      "value": "a bit less soft",
+      "at": "2026-11-24T12:16:08.946Z"
+    }
+  ],
+  "feedbackReadAt": "2026-11-24T12:15:48.141Z",
+  "updatedAt": "2026-11-24T12:15:48.364Z",
+  "criteria": [
+    "h1 at least 120px",
+    "one accent only"
+  ],
+  "directionsAt": "2026-11-24T12:15:43.877Z",
+  "tilesAt": "2026-11-24T12:15:47.898Z",
+  "chosenReason": "user picked it: loud and playful"
+}

@@ -15,6 +15,10 @@ AI-made UI looks AI-made because it skips straight to code with the defaults it 
 
 When in doubt between polish and design on something the user sees first (a hero, a landing page, an onboarding screen), choose **design**. `/drip:critic` reviews any URL, file or image on its own; `/drip:adapt` builds a niche pack; `/drip:settings` holds status, keys, skip and stop.
 
+## Project memory
+
+A project keeps its design memory in `.drip/` (master board, approved direction, rules, measured tokens, a generated project skill). `drip_start` loads it for design tasks and says what is inherited and what the task still has to do; `project_context` shows it any time. Evidence is bound to what it reviewed: a fit check, shot or critic verdict goes stale when the UI files, DESIGN.md or direction change, and `drip_end` (and the Stop hook) also catch UI edits Drip never saw. See `drip_guide moodboard` (master board, fidelity vs redesign, feedback) and docs/PROJECT_MEMORY.md.
+
 ## How lazy agents fail, and Drip's answer
 
 | Shortcut | What it produces | Drip's answer |

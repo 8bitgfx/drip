@@ -2,13 +2,17 @@
 // These are what make Drip enforce the designer loop instead of hoping Claude reads a skill.
 import { z } from "zod";
 import { listGuides, normalizeTopic, readGuide, subTopics } from "../core/guides.mjs";
-import { checklist, loadState, missingBeforeUi, newTask, otherTasks, updateState } from "../core/state.mjs";
+import { checklist, evidenceStale, loadState, missingBeforeUi, needsFitcheck, newTask, otherTasks, reconcileWorkspace, updateState } from "../core/state.mjs";
+import { takeSnapshot } from "../core/evidence.mjs";
+import { graphOf, indexProject } from "../core/indexer/index.mjs";
+import { buildTaskMemory, hasMemory, projectContext } from "../core/project.mjs";
+import { writeProjectSkill } from "../core/memory.mjs";
 import { serveDir } from "../core/serve.mjs";
 import { warmBrowser } from "../core/browser.mjs";
 import { relevantSkills } from "../core/skills.mjs";
 import { getKey } from "../core/keys.mjs";
 import { text } from "../core/result.mjs";
-import { matchPacks } from "../core/packs.mjs";
+import { isProjectPack, matchPacks } from "../core/packs.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { kitDir, projectDir } from "../core/paths.mjs";
@@ -67,7 +71,7 @@ function requiredGuides(size, surface, task, mode, packs) {
     const topics = Object.entries(TOPIC_WORDS).filter(([, re]) => re.test(task)).map(([t]) => t);
     g.push("rules/hard-rules", ...(topics.length ? topics.slice(0, 2) : ["polish"]));
   }
-  for (const p of packs) g.push(`pack:${p}`);
+  for (const p of packs) if (!isProjectPack(p)) g.push(`pack:${p}`); // a project's own style pack reaches the agent through project_context, not pasted in full
   return [...new Set(g)];
 }
 
@@ -135,9 +139,10 @@ export function register(server, ctx) {
         size: z.enum(["full", "quick"]).optional().describe("Overrides the loop size. Omit normally."),
         surface: z.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
         packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
+        memory: z.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
       },
     },
-    async ({ task, mode, size, surface, packs }) => {
+    async ({ task, mode, size, surface, packs, memory }) => {
       const g = guess(task);
       const m = mode || guessMode(task) || (g.size === "quick" ? "polish" : "design");
       const s = size || (m === "polish" ? "quick" : "full");
@@ -145,6 +150,11 @@ export function register(server, ctx) {
       const pk = packs || matchPacks(task).map((p) => p.id);
       const guides = requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
+      // Design tasks load the project's design memory (compact) and remember which revision they started from. Reusing it
+      // never passes this task's own gates: research gaps, the critic and the fit check still run.
+      const designTask = ["design", "logo", "board", "polish"].includes(m);
+      if (designTask && memory !== "fresh") t.memory = buildTaskMemory({ taskText: task, mode: memory });
+      const memCtx = t.memory ? projectContext({ task: t }) : null;
       // Every required guide is short now, so all of them come inline: zero extra calls.
       const bodies = guides.map((x) => [x, readGuide(x)]).filter(([, b]) => b);
       for (const [x] of bodies) t.guidesRead.push(x);
@@ -152,14 +162,34 @@ export function register(server, ctx) {
       if (["design", "logo", "board", "polish"].includes(m)) warmBrowser(ctx.config()); // ready before the first shot
       const skills = relevantSkills(t);
       const redesignUrl = /redesign|rework|refresh|revamp/i.test(task) ? (task.match(/\b(?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:io|com|dev|app|co|net|org|ai|so|xyz|design|studio)\b[^\s,)]*/i) || [])[0] : null;
+      if (["app", "mobile", "component", "landing"].includes(sf) && m !== "logo") {
+        try {
+          const comps = graphOf(indexProject({}).index).components.length;
+          if (comps) t.components = { count: comps };
+        } catch {
+          /* no index: nothing to reuse */
+        }
+      }
       updateState((st) => {
         if (st.task) st.history.push({ ...st.task, endedAt: new Date().toISOString(), endedBy: "new task" });
         st.task = t;
       });
+      if (["design", "logo", "polish"].includes(m)) {
+        try {
+          takeSnapshot(t); // the UI files as they are now: edits no hook sees show up at the end (drip_end, the Stop hook)
+        } catch {
+          /* a read-only project must not stop the task */
+        }
+      }
       const config = ctx.config();
       return text(
         `Drip task started (task id ${t.id}): mode ${m}, ${s} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.\n` +
           (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}). They are separate: never drip_end, edit or judge them.\n` : "") +
+          (memCtx
+            ? `PROJECT MEMORY (${t.memory.mode} mode: ${t.memory.mode === "redesign" ? "propose a new direction; the approved one stays until the user approves the change" : t.memory.mode === "fresh" ? "no inherited direction" : "extend the approved system, new content only"}):\n${memCtx.text}\nInherited: ${t.memory.inherited.join(", ") || "nothing yet"}. Still needed from this task: ${t.memory.needed.join("; ")}.\n`
+            : designTask && memory !== "fresh" && !hasMemory()
+              ? "No project design memory yet: board_project({ action: \"bootstrap\" }) can build the master board from this repo; the first approved direction becomes the project's identity.\n"
+              : "") +
           (skills.length ? `The workspace has its own rules for this: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them now (Skill tool, or Read the file); the critic judges against them too.\n` : "") +
           (redesignUrl ? `Redesign of a live site: first refs_site({ urls: ["${redesignUrl}"], before: true }) to shoot the before and pull its logo, fonts and colours.\n` : "") +
           (s === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "No photo keys yet (Unsplash/Pexels): if the page needs photos, ask the user to add one now (keys_open, free, 2 minutes); without them use images_search (openverse, wikimedia, cleveland for public-domain art), or gradient_mesh.\n" : "") +
@@ -275,7 +305,13 @@ export function register(server, ctx) {
     async () => {
       const { task } = loadState();
       if (!task) return text("No Drip task is active. Call drip_start with what you are designing.");
-      return text(`${checklist(task, ctx.config())}\n\n${nextStep(task, ctx.config())}`);
+      const config = ctx.config();
+      const unseen = reconcileWorkspace();
+      const cur = loadState().task;
+      const ctxLine = cur.memory || hasMemory() ? `\n\nProject context: ${projectContext({ task: cur, maxChars: 600 }).text.split("\n").join(" | ")}` : "";
+      const stale = evidenceStale(cur);
+      const warn = (unseen.length ? `\nUI edits Drip never saw (counted as changes after your last fit check): ${unseen.slice(0, 6).map((u) => u.file).join(", ")}.` : "") + (stale.length ? `\nStale evidence: ${stale.join("; ")}. Shoot and review again.` : "");
+      return text(`${checklist(cur, config)}${warn}${ctxLine}\n\n${nextStep(cur, config)}`);
     },
   );
 
@@ -331,16 +367,38 @@ export function register(server, ctx) {
     "drip_end",
     {
       title: "Finish the task",
-      description: "Close the active task once the work is done and fit-checked. Starts a clean slate for the next design task.",
-      inputSchema: { summary: z.string().optional() },
+      description:
+        "Close the active task once the work is done and fit-checked. Starts a clean slate for the next design task. " +
+        "It first checks the workspace: UI files changed without Drip seeing it (a shell edit, a host without write hooks) count as changes, and a fit check or critic verdict that reviewed an earlier version is stale; " +
+        "either blocks the close until it is reviewed again, unless the user accepts the open points (acceptOpen, their words). Closing a task never deletes its board or the project's memory; it refreshes the project skill.",
+      inputSchema: { summary: z.string().optional(), acceptOpen: z.string().optional().describe("The user's words accepting the open points (stale or missing checks), quoted. Never your own decision.") },
     },
-    async ({ summary }) => {
+    async ({ summary, acceptOpen }) => {
+      const config = ctx.config();
+      const unseen = reconcileWorkspace();
+      const cur = loadState().task;
+      if (cur && !cur.skipped && config.gates.enforce && !acceptOpen) {
+        const open = [];
+        if (needsFitcheck(cur, config)) open.push("the UI changed after the last passing fit check (or the critic has not passed the latest build)");
+        for (const s of evidenceStale(cur)) open.push(s);
+        if (unseen.length) open.push(`UI edits Drip never saw: ${unseen.slice(0, 6).map((u) => u.file).join(", ")}`);
+        if (open.length) return text(`Not closed: ${[...new Set(open)].join("; ")}.\nShoot the page again (fitcheck_shot), fix, review, fitcheck_done; or, if the user accepts shipping as is, drip_end with acceptOpen quoting their words.`, true);
+      }
       const st = updateState((s) => {
-        if (s.task) s.history.push({ ...s.task, endedAt: new Date().toISOString(), summary });
+        if (s.task) s.history.push({ ...s.task, endedAt: new Date().toISOString(), summary, ...(acceptOpen ? { acceptedOpen: acceptOpen } : {}) });
         s.task = null;
         s.history = s.history.slice(-30);
       });
-      return text(`Task closed. ${st.history.length} tasks in history.`);
+      let skill = "";
+      if (hasMemory()) {
+        try {
+          const r = writeProjectSkill({});
+          if (r.changed) skill = ` Project skill updated (v${r.version}).`;
+        } catch {
+          /* the skill is regenerated on the next approval */
+        }
+      }
+      return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}`);
     },
   );
 }

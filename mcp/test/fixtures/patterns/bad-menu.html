@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A div-and-onclick menu</title>
+<style>
+  body { margin: 0; padding: 48px 24px; font: 16px/1.4 system-ui, sans-serif; background: #f6f4ef; }
+  #demo { position: relative; display: inline-block; }
+  .b { padding: 12px 18px; border: 1px solid #333; background: #fff; cursor: pointer; }
+  .l { display: none; position: absolute; top: 100%; left: 0; min-width: 200px; background: #fff; border: 1px solid #ccc; }
+  .l div { padding: 10px 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="demo">
+  <div class="b" onclick="document.querySelector('.l').style.display = 'block'">Actions</div>
+  <div class="l"><div>Rename</div><div>Duplicate</div><div>Archive</div></div>
+</div>
+</body>
+</html>

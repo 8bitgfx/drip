@@ -1,0 +1,16 @@
+{
+  "mcp": {
+    "drip": {
+      "type": "local",
+      "command": [
+        "node",
+        "<DRIP_ROOT>/mcp/dist/drip-mcp.mjs"
+      ],
+      "environment": {
+        "CLAUDE_PLUGIN_ROOT": "<DRIP_ROOT>",
+        "DRIP_HOST": "opencode"
+      },
+      "enabled": true
+    }
+  }
+}

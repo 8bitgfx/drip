@@ -3,13 +3,32 @@
 //   mode "static": a file to publish anywhere (e.g. a Claude artifact). Images are inlined; feedback is
 //                  kept in the page and copied as text for the user to paste back.
 import fs from "node:fs";
+import path from "node:path";
 import { fetchImage } from "../../core/images.mjs";
+import { projectDir } from "../../core/paths.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
-import { liveItems } from "./store.mjs";
+import { listBoards, liveItems } from "./store.mjs";
+
+const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif", ".avif": "image/avif", ".svg": "image/svg+xml" };
+
+/** A project file an item points at: its absolute path when it exists and stays inside the project, else null (flagged unavailable). */
+export function localFile(item) {
+  if (!item.path) return null;
+  const root = projectDir();
+  const abs = path.resolve(root, item.path);
+  return (abs === root || abs.startsWith(root + path.sep)) && fs.existsSync(abs) ? abs : null;
+}
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-async function imageSrc(item, inline) {
+async function imageSrc(item, inline, boardId) {
+  if (item.path) {
+    const abs = localFile(item);
+    const ext = path.extname(item.path).toLowerCase();
+    if (!abs || !MIME[ext]) return null;
+    if (!inline) return `/b/${boardId}/file/${encodeURIComponent(item.path)}`;
+    return `data:${MIME[ext]};base64,${fs.readFileSync(abs).toString("base64")}`;
+  }
   if (!item.image) return null;
   const src = item.source === "dribbble" ? thumbUrl(item.image, 800, 600) : item.image;
   if (!inline) return src;
@@ -21,8 +40,13 @@ async function imageSrc(item, inline) {
   }
 }
 
-async function card(item, n, inline) {
-  const src = await imageSrc(item, inline);
+const BADGE = { current: "current", proposed: "proposed", approved: "approved", rejected: "rejected" };
+
+async function card(item, n, inline, boardId) {
+  const src = await imageSrc(item, inline, boardId);
+  const missing = item.path && !localFile(item);
+  const prov = item.provenance;
+  const where = prov?.path || prov?.url || "";
   const media =
     item.kind === "color"
       ? `<div class="swatch" style="background:${esc(item.value)}"><span>${esc(item.value)}</span></div>`
@@ -30,10 +54,10 @@ async function card(item, n, inline) {
         ? `<div class="fontcard"><span>${esc(item.value)}</span><small>Aa Bb Cc 123</small></div>`
         : src
           ? `<img src="${src}" alt="${esc(item.title)}" loading="lazy">`
-          : `<div class="noimg">${esc(item.title || item.value || "note")}</div>`;
+          : `<div class="noimg">${esc(item.title || item.value || "note")}${item.excerpt ? `<br><small>${esc(item.excerpt.slice(0, 160))}</small>` : ""}${missing ? "<br><small>unavailable: the file is not in this checkout</small>" : ""}</div>`;
   return `<figure class="item${item.starred ? " starred" : ""}" data-key="${esc(item.key)}">
-  <div class="media">${media}<span class="num">${n}</span></div>
-  <figcaption>
+  <div class="media">${media}<span class="num">${n}</span>${BADGE[item.status] ? `<span class="st st-${item.status}">${BADGE[item.status]}</span>` : ""}</div>
+  <figcaption>${prov?.source && prov.source !== "reference" ? `<span class="by">${esc(prov.source)}${where ? ` · ${esc(where)}` : ""}</span>` : ""}${missing ? '<span class="by">unavailable here</span>' : ""}
     ${item.title ? `<a class="title" href="${esc(item.url || "#")}" target="_blank" rel="noopener">${esc(item.title)}</a>` : ""}
     ${item.designer ? `<span class="by">${esc(item.designer)}</span>` : ""}
     ${item.note ? `<p class="note">${esc(item.note)}</p>` : ""}
@@ -49,7 +73,7 @@ export async function renderBoard(board, { mode = "live", inline = false } = {})
   const sections = [];
   for (const d of board.directions) {
     const its = d.items.map((k) => byKey.get(k)).filter(Boolean);
-    const cards = await Promise.all(its.map((it) => card(it, numbers.get(it.key), inline)));
+    const cards = await Promise.all(its.map((it) => card(it, numbers.get(it.key), inline, board.id)));
     sections.push(`<section class="direction${board.chosen === d.name ? " chosen" : ""}">
   <header>
     <div><h2>${esc(d.name)}${board.chosen === d.name ? ' <span class="pill">chosen</span>' : ""}</h2><p>${esc(d.summary)}</p>${d.manifesto ? `<p class="manifesto">${esc(d.manifesto)}</p>` : ""}${d.pairing ? `<p class="manifesto">Unexpected pairing: ${esc(d.pairing)}</p>` : ""}</div>
@@ -66,10 +90,21 @@ export async function renderBoard(board, { mode = "live", inline = false } = {})
   }
   const grouped = new Set(board.directions.flatMap((d) => d.items));
   const loose = items.filter((it) => !grouped.has(it.key));
-  if (loose.length) {
-    const cards = await Promise.all(loose.map((it) => card(it, numbers.get(it.key), inline)));
-    sections.push(`<section class="direction"><header><div><h2>${board.directions.length ? "Not grouped" : "Picks"}</h2><p>${loose.length} references</p></div></header><div class="grid">${cards.join("")}</div></section>`);
+  // Not in a direction: what exists today, what is approved or proposed, and plain inspiration, kept apart.
+  const GROUPS = [
+    ["current", "Current implementation", "what the project looks like today (evidence, not an approved look)"],
+    ["approved", "Approved", "the user approved these"],
+    ["proposed", "Proposed", "exploration waiting for a decision"],
+    ["inspiration", board.directions.length ? "Not grouped" : "Picks", "references"],
+    ["rejected", "Rejected", "turned down; kept so they are not proposed again"],
+  ];
+  for (const [st, title, sub] of GROUPS) {
+    const its = loose.filter((it) => (it.status || "inspiration") === st);
+    if (!its.length) continue;
+    const cards = await Promise.all(its.map((it) => card(it, numbers.get(it.key), inline, board.id)));
+    sections.push(`<section class="direction"><header><div><h2>${title}</h2><p>${its.length} items · ${sub}</p></div></header><div class="grid">${cards.join("")}</div></section>`);
   }
+  const related = listBoards().filter((b) => b.id !== board.id && (b.id === board.parent || b.parent === board.id || b.forkedFrom?.id === board.id || board.forkedFrom?.id === b.id));
 
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -102,13 +137,13 @@ main{padding:8px clamp(16px,4vw,48px) 80px;max-width:1600px;margin:auto}
 .fontcard{aspect-ratio:4/3;display:flex;flex-direction:column;justify-content:center;padding:16px;font-size:26px}.fontcard small{font-size:15px;color:var(--muted)}
 .noimg{aspect-ratio:4/3;display:grid;place-items:center;color:var(--muted);padding:16px;text-align:center}
 figcaption{padding:10px 12px 12px}.title{color:var(--ink);font-weight:600;text-decoration:none;display:block}.title:hover{text-decoration:underline}
-.by{color:var(--muted);font-size:13px}.note{margin:8px 0 0;font-size:14px;border-left:2px solid var(--accent);padding-left:8px}
+.by{color:var(--muted);font-size:13px;display:block}.st{position:absolute;top:8px;right:8px;background:var(--card);color:var(--ink);border:1px solid var(--line);font:600 11px/1 ui-sans-serif,system-ui;padding:4px 7px;border-radius:99px}.st-approved{background:var(--accent);color:#fff;border-color:var(--accent)}.st-rejected{opacity:.7;text-decoration:line-through}.note{margin:8px 0 0;font-size:14px;border-left:2px solid var(--accent);padding-left:8px}
 .actions{display:flex;gap:6px;margin-top:10px}.actions button{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:2px 9px;font-size:13px;color:var(--muted)}
 .actions button:hover{color:var(--ink);border-color:var(--muted)}.actions button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .fb{position:fixed;right:16px;bottom:16px;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;font-size:14px;display:none;gap:10px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.2)}
 .fb button{all:unset;cursor:pointer;background:var(--accent);color:#fff;border-radius:8px;padding:4px 10px}
 </style></head><body>
-<div class="top"><small>Moodboard · ${items.length} references${board.directions.length ? ` · ${board.directions.length} directions` : ""}</small><h1>${esc(board.name)}</h1><p>${esc(board.brief || "")}</p>${board.criteria?.length ? `<p class="criteria"><b>Choosing by:</b> ${board.criteria.map(esc).join(" · ")}</p>` : ""}</div>
+<div class="top"><small>Moodboard · ${esc(board.scope || "board")} · r${board.revision || 0} · ${items.length} items${board.directions.length ? ` · ${board.directions.length} directions` : ""}${board.approved ? ` · approved: ${esc(board.approved.direction)}` : ""}${related.length ? ` · related: ${related.map((b) => esc(b.name)).join(", ")}` : ""}</small><h1>${esc(board.name)}</h1><p>${esc(board.brief || "")}</p>${board.criteria?.length ? `<p class="criteria"><b>Choosing by:</b> ${board.criteria.map(esc).join(" · ")}</p>` : ""}</div>
 <main>${sections.join("\n")}</main>
 <div class="fb" id="fb"><span id="fbtext"></span><button id="fbcopy">Copy feedback for Claude</button></div>
 <script>

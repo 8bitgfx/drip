@@ -2,6 +2,20 @@
 
 Dribbble is strong for composition, type and colour, and weak for evidence: its shots are concepts. Real sites and shipped apps show what survives real content, real states and real users. Use these when the surface is Operate or Read, when a flow matters more than a frame, when you need type in real use, or when Dribbble's results for a niche are thin.
 
+## Searchable from Drip: refs_gallery
+
+`refs_gallery({ query, source?, kind?, limit })` searches several of the sources below at once and returns a contact sheet with tagged numbers (`L4-7`) that `refs_pick`, `refs_view`, `refs_study` and `board_add` accept. `refs_sources` shows what works right now.
+
+| kind | Use it for | Sources |
+|---|---|---|
+| `site` (default) | shipped pages: real copy, real sections, how a category looks now | Awwwards, One Page Love (with the hero copy), Minimal Gallery; feeds: Httpster, Dark Mode Design |
+| `section` | one section done well: pricing table, FAQ, testimonials, footer, header navigation | One Page Love |
+| `component` | behaviour and structure of a UI part (toggle pricing, command palette, accordion) | 21st.dev community components |
+| `motion` | animated UI moves | Godly (a latest feed, filtered by title) |
+
+Feeds have no text search: results are ranked by title match, the rest are the newest. Land-book, Lapa Ninja, Siteinspire, Behance and Mobbin answer scripted requests with a block or need a login; open them in your own browser if you want them.
+For a component, study the preview (what moves, in what order, at what duration, what the keyboard does), then build your own version on the project's primitives and tokens; take one move, not the whole.
+
 ## When to leave Dribbble
 
 | Situation | Go to |
@@ -49,7 +63,7 @@ Some galleries change address or access rules. If one does not load or asks for 
    - `source`: where the image came from and that it is a reference only, e.g. `"Land-book screenshot of example.com; reference only, not for use"`.
    - `note`: the six-field note, same standard as a shot.
 5. **Count them in the spread**: shipped sites and apps satisfy "at least 2 shipped products" for Operate and Read surfaces.
-6. **They don't count toward the gate.** `refs_pick`, `refs_zoom` and `refs_study` work on shots from a Drip listing, so the 6 studies from 3 designers still come from `refs_search` / `refs_tag` / `refs_designer`. Sites from this list are evidence on top, labelled with their attribution (`Candidate`, `Agent Pick` or `User Selected`) like any other item.
+6. **Studies from `refs_gallery` go through the same protocol.** `refs_pick`, `refs_view` and `refs_study` take its numbers and count like any other study (a gallery site counts as a real example of the surface; its author is the site's own address, so three studies from one site's pages count as one designer). Everything is labelled with its attribution (`Candidate`, `Agent Pick` or `User Selected`).
 
 ## Browser rules
 

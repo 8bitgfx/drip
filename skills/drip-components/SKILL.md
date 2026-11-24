@@ -10,7 +10,7 @@ user-invocable: false
 during a Drip task the hooks block UI writes until it is read. If `drip_guide` is not in your tools, load it: ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.
 
 ## Rules you must not break
-1. Search before you build: call `components_find` for every component with behaviour (focus, keyboard, overlays, selection, drag). Hand-roll only when nothing fits, and say why.
+1. Look at this project first: `components_local_find` for every component you are about to write; reuse or extend what exists. Then search outside: `components_find` for every component with behaviour (focus, keyboard, overlays, selection, drag). Hand-roll only when nothing fits, and say why.
 2. Read the code before installing (`components_get`). Reject components with `<div onClick>`, missing keyboard support, `transition-all`, or a licence you cannot ship.
 3. Behaviour from an accessible primitive (Radix, Base UI, React Aria, Ark); look from the project's tokens. Never build a dialog, menu, select, combobox, tooltip or date picker from scratch.
 4. Restyle every installed component to the project's tokens before it ships. Library defaults (zinc greys, `rounded-md` everywhere, stock shadows, stock focus ring) are a slop tell.
@@ -33,6 +33,12 @@ during a Drip task the hooks block UI writes until it is read. If `drip_guide` i
 | One marketing signature moment | Magic UI, Aceternity, React Bits (licence: check), Cult UI |
 
 ## Tools
+- `components_local_find` — the project's OWN components first (props, variants, usage, file:line) plus approved patterns. `components_index` refreshes the index (the others do it for you).
+- `components_plan` — a page as sections, product components and primitives: what to reuse, what is new, card-grid and needless-abstraction warnings.
+- `components_preview` — one component alone: sizes, states, keyboard walk, stress cells (narrow, long, RTL, dark, zoom), in your Storybook / Ladle or a generated page.
+- `components_audit` — near-duplicate components and CSS, token drift, import cycles, with file:line and the component to reuse.
+- `components_save` — record an approved component in `.drip/patterns/` for later tasks.
+- `drip_check` — project lint / typecheck / tests + `fitcheck_lint` + the audit (+ dry-lint when it can run); receipts skip unchanged work.
 - `components_find` — "what's the best X for this stack": ranked picks from the curated catalogue and live registries, with licence and install command.
 - `components_get` — read a component's source and install command before you add it.
 - `components_registries` — search 500+ shadcn-style registries when the catalogue has nothing.

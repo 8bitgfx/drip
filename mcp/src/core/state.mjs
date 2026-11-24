@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ensureProjectDrip, projectDripDir } from "./paths.mjs";
 import { loadConfig } from "./config.mjs";
+import { artifactRev, refreshSnapshot, workspaceDiff } from "./evidence.mjs";
 
 // Several Claude sessions can work in one folder at once, so the file holds one task PER SESSION:
 // { version: 2, tasks: { <id>: task }, sessions: { <session id>: <task id> }, history: [] }.
@@ -17,6 +18,17 @@ const me = { session: process.env.CLAUDE_CODE_SESSION_ID || null, server: false,
 export function setIdentity({ session, server } = {}) {
   if (session) me.session = session;
   if (server !== undefined) me.server = server;
+}
+
+/** Who is acting, for provenance on boards, feedback and decisions: this session's task id and session id. */
+export function actor(cwd) {
+  let task = null;
+  try {
+    task = loadState(cwd).task?.id || null;
+  } catch {
+    /* no state yet */
+  }
+  return { task, session: me.session || null };
 }
 
 function alive(pid) {
@@ -163,7 +175,8 @@ export function newTask({ title, size, surface, guides, mode = "design", packs =
     packs, // niche pack ids in use
     brief: null, // set by drip_brief
     refs: { searches: 0, seen: 0, viewed: [], picked: [], studied: [] }, // studied: [{ key, designer, at }]
-    board: null, // { id, items, directions, chosen, critiquedAt }
+    board: null, // { id, items, directions, chosen, critiquedAt, adopted? }
+    memory: null, // project memory this task started from: { mode, masterId, masterRevision, styleRevision, approved, inherited, needed }
     system: false,
     uiWrites: [], // [{ file, at }]
     lastUiWriteAt: null,
@@ -216,9 +229,14 @@ export function missingBeforeUi(task, config) {
         need: "references",
         how: `study ${Math.max(0, g.minRefsStudied - studied)} more references from at least ${g.minDesigners} designers or sites (now ${studied} studied, ${designers}): refs_site for shipped sites, or refs_tag -> refs_view -> refs_study; batch them`,
       });
-    if (g.requireDirection && !task.board?.chosen)
+    const adoptedStale = task.board?.adopted && task.board.adopted.styleRevision !== currentStyleRevision(task);
+    if (adoptedStale)
+      missing.push({ need: "direction", how: `the project's approved direction changed since this task adopted it (${task.board.adopted.direction} -> ${currentStyleRevision(task) || "none"}): board_attach({ adopt: true }) again, or board_choose a direction of this task's own` });
+    else if (g.requireDirection && !task.board?.chosen)
       missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), board_open, then board_choose" : "board_create, board_directions (2 first-viewport comps), critic review, board_open, board_choose" });
-    if (g.requireCritic && task.board?.chosen && !lastCritique(task, "directions"))
+    if (g.requireComponentSearch !== false && pageWork && task.components?.count > 0 && !task.components.search)
+      missing.push({ need: "reuse", how: `this project already has ${task.components.count} components: components_local_find for what you're about to build (and components_plan for a page) before writing new ones` });
+    if (g.requireCritic && task.board?.chosen && !task.board?.adopted && !lastCritique(task, "directions"))
       missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
   }
   return missing;
@@ -228,9 +246,27 @@ export function missingBeforeUi(task, config) {
 export function needsCritic(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
   const rec = lastCritique(task, "build");
-  const rounds = (task.critic?.records || []).filter((r) => r.kind === "build").length;
-  if (rounds >= config.gates.maxCriticRounds + (task.critic?.extraRounds || 0)) return false; // never loop forever; the hand-off lists what's left
+  if (rec?.rev && rec.rev !== artifactRev(task)) return !(isCriticCapped(task, config)); // reviewed something else: stale
+  if (isCriticCapped(task, config)) return false; // never loop forever; the hand-off lists what's left
   return !rec || rec.at < task.lastUiWriteAt || rec.verdict !== "pass";
+}
+
+function isCriticCapped(task, config) {
+  const rounds = (task.critic?.records || []).filter((r) => r.kind === "build").length;
+  return rounds >= config.gates.maxCriticRounds + (task.critic?.extraRounds || 0);
+}
+
+/** The fit check or critic verdict on record reviewed something other than what exists now (UI files, DESIGN.md, direction). */
+export function evidenceStale(task) {
+  if (!task) return [];
+  const now = artifactRev(task);
+  const stale = [];
+  const fc = task.fitcheck || {};
+  if (fc.doneRev && fc.doneRev !== now) stale.push("the fit check passed on an earlier version");
+  if (fc.shotRev && fc.shotRev !== now) stale.push("the last fitcheck_shot shows an earlier version");
+  const b = lastCritique(task, "build");
+  if (b?.rev && b.rev !== now) stale.push("the critic reviewed an earlier version");
+  return stale;
 }
 
 /** True when UI changed after the last fit check (so Claude must not end its turn yet). */
@@ -238,6 +274,7 @@ export function needsFitcheck(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireFitcheck) return false;
   if (!task.lastUiWriteAt) return false;
   const last = task.size === "full" ? task.fitcheck.doneAt : task.fitcheck.doneAt || task.fitcheck.lintAt;
+  if (task.fitcheck.doneRev && task.fitcheck.doneRev !== artifactRev(task)) return true; // checked a different version
   return !last || last < task.lastUiWriteAt || needsCritic(task, config);
 }
 
@@ -254,11 +291,14 @@ export function checklist(task, config) {
   const tick = (ok) => (ok ? "[x]" : "[ ]");
   const g = config.gates;
   const lines = [`Task: ${task.title}  (${task.mode || "design"}, ${task.size} loop, ${task.surface})${task.packs?.length ? `  packs: ${task.packs.join(", ")}` : ""}${task.skipped ? `  SKIPPED: ${task.skipped}` : ""}`];
+  const mem = memoryLine(task);
+  if (mem) lines.push(mem);
   if (task.size === "full") lines.push(`${tick(!!task.brief)} brief${task.brief ? `: ${task.brief.what} · ambition ${task.brief.ambition}` : " (ask up to 4 clickable questions, then drip_brief)"}`);
   for (const x of task.requiredGuides) lines.push(`${tick(task.guidesRead.includes(x))} guide: ${x}`);
   if (task.size === "full") {
     const st = (task.refs.studied || []).length;
     lines.push(`${tick(st >= g.minRefsStudied && studiedDesigners(task) >= g.minDesigners)} references studied: ${st}/${g.minRefsStudied} from ${studiedDesigners(task)}/${g.minDesigners} designers (picked ${(task.refs.picked || []).length}, viewed ${task.refs.viewed.length}, scanned ${task.refs.seen}, searches ${task.refs.searches})`);
+    if (task.components?.count) lines.push(`${tick(!!task.components.search)} searched the project's own ${task.components.count} components first (components_local_find)`);
     lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);
     lines.push(`${tick(!!lastCritique(task, "directions"))} critic ranked the directions${lastCritique(task, "directions") ? `: ${lastCritique(task, "directions").summary}` : ""}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
@@ -273,4 +313,49 @@ export function checklist(task, config) {
     lines.push(`${tick(!needsCritic(task, config) && !!b)} critic passed the build${b ? `: ${b.verdict} (${b.summary})` : ""}`);
   }
   return lines.join("\n");
+}
+
+/** The approved style revision in force for this task's brand (read straight from boards/index.json; null when none). */
+export function currentStyleRevision(task, cwd) {
+  try {
+    const idx = JSON.parse(fs.readFileSync(path.join(projectDripDir(cwd), "boards", "index.json"), "utf8"));
+    return idx.approved?.[task?.memory?.brand || "default"]?.revision || null;
+  } catch {
+    return null;
+  }
+}
+
+/** One line for drip_status and the hooks: what this task inherited from the project and what it still needs. */
+export function memoryLine(task) {
+  const m = task?.memory;
+  if (!m) return "";
+  const parts = [`Project memory: ${m.mode || "fidelity"} mode`];
+  if (m.masterId) parts.push(`master board ${m.masterId} r${m.masterRevision ?? "?"}`);
+  parts.push(m.approved ? `approved direction "${m.approved}"` : "no approved direction yet");
+  if (m.inherited?.length) parts.push(`inherited: ${m.inherited.join(", ")}`);
+  if (m.needed?.length) parts.push(`still needed: ${m.needed.join(", ")}`);
+  return parts.join(" · ");
+}
+
+/**
+ * Fold UI edits Drip never saw (shell edits, hosts without write hooks) into the task as UI writes, so the existing
+ * gates (fit check after the last change, critic on the current build) apply to them. Returns the list folded in.
+ */
+export function reconcileWorkspace(cwd) {
+  const { task } = loadState(cwd);
+  if (!task || task.skipped) return [];
+  const { unseen } = workspaceDiff(task, cwd);
+  const posix = (f) => f.replace(/\\/g, "/"); // hooks record native separators on Windows
+  const fresh = unseen.filter((u) => u.status !== "deleted" || !task.uiWrites.some((w) => posix(w.file) === u.file));
+  if (!fresh.length) return [];
+  updateState((st) => {
+    if (!st.task) return;
+    for (const u of fresh) {
+      const at = new Date(u.mtime).toISOString();
+      st.task.uiWrites = [...st.task.uiWrites.filter((w) => posix(w.file) !== u.file), { file: u.file, at, unseen: true }].slice(-200);
+      if (!st.task.lastUiWriteAt || st.task.lastUiWriteAt < at) st.task.lastUiWriteAt = at;
+    }
+  }, cwd);
+  refreshSnapshot(task, cwd);
+  return fresh;
 }

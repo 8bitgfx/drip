@@ -43,6 +43,7 @@ function allSkills(cwd) {
   if (cache && cache.cwd === cwd && Date.now() - cache.at < 60000) return cache.list;
   const files = [];
   findSkillFiles(path.join(cwd, ".claude", "skills"), 2, files);
+  findSkillFiles(path.join(cwd, ".drip", "skills"), 2, files); // the project's own design memory (core/memory.mjs)
   const projectCount = files.length;
   findSkillFiles(path.join(os.homedir(), ".claude", "skills"), 2, files);
   findSkillFiles(path.join(os.homedir(), ".claude", "plugins", "cache"), 6, files);
@@ -76,6 +77,7 @@ export function relevantSkills(task, cwd = projectDir()) {
     let score = keys.filter((k) => hay.includes(k)).length * 3;
     if (/invariant|brand|product rule|design system|style guide|voice/.test(hay)) score += 1;
     if (s.project) score += 1;
+    if (s.project && s.name === "project-design") score += 100; // Drip's generated project skill always applies to design work here
     return { ...s, score };
   });
   return scored.filter((s) => s.score >= 3).sort((a, b) => b.score - a.score).slice(0, 5);

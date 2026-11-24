@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node \"<DRIP_ROOT>/hooks/hosts/cursor.mjs\" sessionStart",
+        "timeout": 30
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "node \"<DRIP_ROOT>/hooks/hosts/cursor.mjs\" preToolUse",
+        "timeout": 30,
+        "matcher": "Write"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "node \"<DRIP_ROOT>/hooks/hosts/cursor.mjs\" postToolUse",
+        "timeout": 30,
+        "matcher": "Write"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "node \"<DRIP_ROOT>/hooks/hosts/cursor.mjs\" afterFileEdit",
+        "timeout": 30
+      }
+    ],
+    "stop": [
+      {
+        "command": "node \"<DRIP_ROOT>/hooks/hosts/cursor.mjs\" stop",
+        "timeout": 30
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "node \"<DRIP_ROOT>/hooks/hosts/cursor.mjs\" subagentStop",
+        "timeout": 30
+      }
+    ],
+    "afterMCPExecution": [
+      {
+        "command": "node \"<DRIP_ROOT>/hooks/hosts/cursor.mjs\" afterMCPExecution",
+        "timeout": 30,
+        "matcher": "drip_start"
+      }
+    ]
+  }
+}

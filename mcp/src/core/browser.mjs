@@ -245,3 +245,11 @@ export async function settle(s, ms = 1500) {
     awaitPromise: true,
   });
 }
+export { findChrome } from "../modules/fitcheck/chrome.mjs";
+
+/** Evaluate `expression` in the tab (awaiting promises) and return its JSON value; page exceptions become Errors. */
+export async function evalJson(s, expression) {
+  const { result, exceptionDetails } = await s("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
+  if (exceptionDetails) throw new Error(exceptionDetails.exception?.description?.split("\n")[0] || exceptionDetails.text || "page script failed");
+  return result.value;
+}

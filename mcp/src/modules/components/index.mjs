@@ -6,6 +6,7 @@ import { z } from "zod";
 import { get } from "../../core/http.mjs";
 import { dataDir, projectDripDir } from "../../core/paths.mjs";
 import { safe, text } from "../../core/result.mjs";
+import { register as registerLocal } from "./local.mjs";
 
 const WEEK = 7 * 24 * 3600e3;
 const DIRECTORY = "https://ui.shadcn.com/r/registries.json";
@@ -66,7 +67,7 @@ async function registryItems(entry) {
 
 const HEAVY = /^(three|@react-three\/.+|ogl|gsap|matter-js|@paper-design\/.+|postprocessing|lenis|cobe|p5)$/;
 
-export function register(server) {
+export function register(server, ctx) {
   server.registerTool(
     "components_find",
     {
@@ -177,4 +178,7 @@ export function register(server) {
       );
     }),
   );
+
+  // This project's own components: index, find, plan, preview, audit, save, and drip_check (local.mjs).
+  registerLocal(server, ctx);
 }

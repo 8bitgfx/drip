@@ -1,7 +1,8 @@
 // Shared bits for the hook scripts. Hooks must be fast and must never crash the session:
 // on any unexpected error they exit 0 with no output (= allow).
 export { loadConfig } from "../mcp/src/core/config.mjs";
-export { bindSession, checklist, isUiFile, loadState, missingBeforeUi, needsFitcheck, otherTasks, saveState, updateState } from "../mcp/src/core/state.mjs";
+export { bindSession, checklist, evidenceStale, isUiFile, loadState, missingBeforeUi, needsFitcheck, otherTasks, reconcileWorkspace, saveState, updateState } from "../mcp/src/core/state.mjs";
+export { markSeen } from "../mcp/src/core/evidence.mjs";
 import { setIdentity } from "../mcp/src/core/state.mjs";
 
 export async function readInput() {

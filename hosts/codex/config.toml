@@ -1,0 +1,10 @@
+# Add to ~/.codex/config.toml (drip install --agent codex does this and fills in <DRIP_ROOT>).
+[mcp_servers.drip]
+command = "node"
+args = ["<DRIP_ROOT>/mcp/dist/drip-mcp.mjs"]
+startup_timeout_sec = 30
+tool_timeout_sec = 300
+
+[mcp_servers.drip.env]
+CLAUDE_PLUGIN_ROOT = "<DRIP_ROOT>"
+DRIP_HOST = "codex"

@@ -18,6 +18,8 @@ Build from this. It covers Persuade (landing pages, product sites) and Experienc
 ## Look (fast)
 8. `refs_site` on 3-4 shipped sites in the category or a notch above it, in one call. It shows their first screens with measured h1, h2 and body px. Then `refs_study` them all in one call, with numbers. Add Dribbble (`refs_tag` → `refs_view` → `refs_study`) only for a gap the sites don't cover. Studies must BE what you are building.
 
+If `drip_start` printed PROJECT MEMORY, the project already has a master board and maybe an approved direction and rules. Fidelity mode (default): extend that system, research only what is new, `board_attach({ adopt: true, carry: true })`; the brief, the references gate, the critic and the fit check are still this task's own. Redesign mode: propose, never replace. Write what the user says about taste with `feedback_record` (scope page, feature or brand), not into chat memory. Details: `drip_guide moodboard`.
+
 ## Direction
 9. Write the thesis: one sentence naming the idea this page owns and the category default it refuses. Add one sentence of physical scene (who, where, what light), and let it decide light or dark.
 10. Refuse these defaults unless the brief pinned one:

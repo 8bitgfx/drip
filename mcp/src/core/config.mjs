@@ -7,7 +7,7 @@ import { homeDripDir, projectDripDir } from "./paths.mjs";
 
 export const DEFAULTS = {
   // Turn whole tool groups on or off.
-  modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true, critic: true, logo: true, packs: true },
+  modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true, critic: true, logo: true, packs: true, project: true },
 
   // What the hooks enforce.
   //   mode "task"   (default) Drip only acts while a Drip task is active (/drip:design or drip_start).
@@ -39,6 +39,18 @@ export const DEFAULTS = {
   refs: { delayMs: 2000, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36" },
 
   board: { port: 4567 },
+
+  // Project design memory (docs/PROJECT_MEMORY.md).
+  //   freshDays      a study older than this is not carried into a new task as inherited evidence
+  //   contextChars   size of the compact project context drip_start and session start print
+  memory: { freshDays: 90, contextChars: 1800 },
+
+  // Opt-in Git sharing of the design memory (boards, decisions, project skill, patterns metadata, packs).
+  //   boards:true   track board metadata, boards/index.json, memory/decisions.json, the project skill, packs, patterns metadata
+  //   feedback:true also track memory/feedback.jsonl (personal by default)
+  //   assets:true   also track small images saved under boards/<id>/assets
+  // Apply it with board_project({ share: true }) or by editing .drip/config.json; both rewrite .drip/.gitignore.
+  share: { boards: false, feedback: false, assets: false },
 
   gen: {
     defaultProvider: "openai",

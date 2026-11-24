@@ -11,7 +11,10 @@ import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
 import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
 import { isPersuade, loadState, updateState } from "../../core/state.mjs";
-import { loadBoard, saveBoard } from "../board/store.mjs";
+import { artifactRev } from "../../core/evidence.mjs";
+import { offDirectionFixes, recordFeedback } from "../../core/memory.mjs";
+import { projectContext } from "../../core/project.mjs";
+import { loadBoard, updateBoard } from "../board/store.mjs";
 import { designDoc, relevantSkills } from "../../core/skills.mjs";
 import { toUrl } from "../../core/serve.mjs";
 
@@ -164,6 +167,9 @@ export function register(server, ctx) {
 
       const rubric = (task?.packs || []).map((p) => readPackFile(p, "critic.md")).filter(Boolean).join("\n\n");
       const doc = kind === "build" || kind === "any" ? designDoc() : null;
+      // The project's approved direction and the rules the user approved: the critic judges against them, and a fix that
+      // would break one is labelled [OFF-DIRECTION] (it never lowers Fit or System), like a DESIGN.md rule.
+      const memory = kind === "build" || kind === "any" || kind === "directions" ? projectContext({ task, maxChars: 1500 }) : null;
       const skills = relevantSkills(task);
       const prev = prevRounds.at(-1);
       const prevBlock = prev
@@ -187,6 +193,9 @@ export function register(server, ctx) {
           ? `\nTHE LOCKED DIRECTION AND SYSTEM (${doc.rel}; the client chose this. Judge the build against it. A suggestion that breaks one of its rules, e.g. a second accent in a one-accent system, is allowed only labelled [OFF-DIRECTION] in FIXES and never lowers Fit or System):\n${doc.text.slice(0, 4000)}`
           : "",
         skills.length ? `\nTHE PRODUCT'S OWN RULES (Claude skills in this workspace; Read each SKILL.md and flag any violation as S1):\n${skills.map((k) => `- ${k.name}: ${k.file}`).join("\n")}` : "",
+        memory?.approved
+          ? `\nTHE PROJECT'S APPROVED DIRECTION AND RULES (approved by the user, style ${memory.approved.revision}; ${kind === "directions" ? "a direction that ignores them must justify itself as a redesign" : "judge the work against them. A suggestion that breaks one is allowed only labelled [OFF-DIRECTION] in FIXES"}):\n${memory.text}`
+          : "",
         prevBlock,
         context ? `Context: ${context}` : "",
         measured.length ? `\nMEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):\n${measured.join("\n")}` : "",
@@ -201,7 +210,7 @@ export function register(server, ctx) {
         .filter((x) => x !== "")
         .join("\n");
       updateState((st) => {
-        if (st.task) st.task.critic.pending = { id, kind, files, at: new Date().toISOString(), blockers: measured.filter((m) => /BLOCKERS:/.test(m)).map((m) => m.split("BLOCKERS:")[1].split("\n")[0].trim()) };
+        if (st.task) st.task.critic.pending = { id, kind, files, rev: artifactRev(st.task), at: new Date().toISOString(), blockers: measured.filter((m) => /BLOCKERS:/.test(m)).map((m) => m.split("BLOCKERS:")[1].split("\n")[0].trim()) };
       });
       return text(
         `Prepared ${id}: ${files.length} image(s) in ${dir}.\n\nNOW: launch the critic with exactly this prompt (do not edit it, do not add your opinion):\nAgent({ subagent_type: "drip:critic", description: "Critic review ${kind}", prompt: <the text between the lines> })\n\n` +
@@ -239,21 +248,32 @@ export function register(server, ctx) {
       // Measured blockers outrank any verdict: a page with tiny text or 12 type sizes can't PASS.
       const measuredBlockers = task?.critic?.pending?.blockers || [];
       if (rec.verdict === "pass" && measuredBlockers.length) rec.verdict = "revise";
-      const r = { ...rec, at: new Date().toISOString(), measuredBlockers };
+      // Fixes that would break an approved rule are marked, not applied blindly. The verdict is bound to what was reviewed.
+      rec.fixes = offDirectionFixes(rec.fixes).map((m) => (m.off ? `[OFF-DIRECTION: breaks "${m.rule.topic}: ${m.rule.value}"] ${m.fix}` : m.fix));
+      const r = { ...rec, at: new Date().toISOString(), measuredBlockers, rev: task?.critic?.pending?.rev || null };
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.critic.records.push(r);
         s.task.critic.pending = null;
       });
       if (rec.kind === "directions" && st.task?.board?.id && rec.perDirection) {
-        const board = loadBoard(st.task.board.id);
-        if (board) {
-          for (const pd of rec.perDirection) {
-            const d = board.directions.find((x) => x.name.toLowerCase() === pd.name.toLowerCase());
-            if (d) d.critic = `${pd.score}/10 · ${pd.verdict} — ${pd.note}`;
-          }
-          saveBoard(board);
-        }
+        if (loadBoard(st.task.board.id))
+          updateBoard(
+            st.task.board.id,
+            (board) => {
+              for (const pd of rec.perDirection) {
+                const d = board.directions.find((x) => x.name.toLowerCase() === pd.name.toLowerCase());
+                if (d) d.critic = `${pd.score}/10 · ${pd.verdict} — ${pd.note}`;
+              }
+            },
+            { op: "critic", summary: "ranking" },
+          );
+      }
+      // The critic's opinion is evidence, never an approved rule: stored as feedback with its source.
+      try {
+        recordFeedback({ scope: rec.kind === "directions" ? "feature" : "page", source: "critic", kind: "critic", target: rec.kind, board: st.task?.board?.id, text: `${rec.verdict}: ${rec.summary} Worst: ${rec.worst}` });
+      } catch {
+        /* best effort */
       }
       const rounds = (st.task?.critic?.records || []).filter((x) => x.kind === rec.kind).length;
       const max = ctx.config().gates.maxCriticRounds;

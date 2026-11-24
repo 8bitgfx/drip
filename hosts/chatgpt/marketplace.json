@@ -1,0 +1,16 @@
+{
+  "name": "local",
+  "plugins": [
+    {
+      "name": "drip",
+      "source": {
+        "source": "local",
+        "path": "./.drip/hosts/chatgpt-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Design"
+    }
+  ]
+}

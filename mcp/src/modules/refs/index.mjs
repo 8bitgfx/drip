@@ -3,7 +3,7 @@
 // in one image and open the good ones by number.
 import { Jimp } from "jimp";
 import { z } from "zod";
-import { loadBoard, saveBoard } from "../board/store.mjs";
+import { addItem, loadBoard, makeProvenance, updateBoard } from "../board/store.mjs";
 import { contactSheet, fetchImage, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { lookup, remember, rememberListing, resolve, siteKey } from "../../core/seen.mjs";
@@ -165,7 +165,10 @@ export function register(server, ctx) {
       const id = key.split(":")[1];
       let s;
       let degraded = "";
-      try {
+      const listed = lookup(key);
+      const foreign = listed?.source && listed.source !== "dribbble"; // a gallery source (refs_gallery): no Dribbble page to open
+      if (foreign) s = { id, url: listed.url, title: listed.title, designer: listed.designer || listed.author, designerUrl: listed.designerUrl, likes: null, saves: null, views: null, tags: listed.tags || [], palette: [], description: "", images: listed.images?.length ? listed.images : [listed.image].filter(Boolean), videos: [], isVideo: false };
+      else try {
         s = await dribbble.shot(id, ctx.config());
       } catch (err) {
         // Shot pages are rate-limited much harder than listings. The image CDN is not, and the listing
@@ -175,7 +178,7 @@ export function register(server, ctx) {
         s = { id, url: known.url, title: known.title, designer: known.designer, designerUrl: known.designerUrl, postedOn: null, likes: known.likes, saves: null, views: known.views, tags: [], palette: [], description: "", images: [known.image], videos: [], isVideo: false };
         degraded = `\n(Details unavailable: ${String(err.message).includes("429") ? "Dribbble rate-limited the shot page" : "shot page failed"}; showing the cover image from the listing. Space out refs_view calls.)`;
       }
-      remember({ key, source: "dribbble", id: s.id, title: s.title, url: s.url, image: s.images[0] || lookup(key)?.image, images: s.images, designer: s.designer || lookup(key)?.designer, designerUrl: s.designerUrl, tags: s.tags, palette: s.palette });
+      remember({ key, source: foreign ? listed.source : "dribbble", id: s.id, title: s.title, url: s.url, image: s.images[0] || lookup(key)?.image, images: s.images, designer: s.designer || lookup(key)?.designer, designerUrl: s.designerUrl, tags: s.tags, palette: s.palette });
       updateState((st) => {
         if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
         if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
@@ -183,7 +186,7 @@ export function register(server, ctx) {
       // Originals at 1600px wide. Tall images (full landing pages) are cut into ~4:3 sections so each one is
       // readable at full width instead of being shrunk to fit one tile. At most 8 images in total.
       const imgs = [];
-      const fetched = await Promise.all(s.images.slice(0, maxImages).map((url) => fetchImage(dribbble.fullUrl(url, 1600)).catch(() => null)));
+      const fetched = await Promise.all(s.images.slice(0, maxImages).map((url) => fetchImage(foreign ? url : dribbble.fullUrl(url, 1600)).catch(() => null)));
       for (const f of fetched) {
         if (!f || imgs.length >= 8) continue;
         const { buf, mime } = f;
@@ -444,7 +447,9 @@ export function register(server, ctx) {
             (concrete < 3 ? `${weak.length ? " · " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : ""),
         };
       const note = `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · density: ${n.density} · detail: ${n.detail} · leave: ${n.leave}`;
-      remember({ ...item, study: { ...n, at: new Date().toISOString() } });
+      const surface = st0.task?.surface;
+      const studyRec = { ...n, at: new Date().toISOString(), surface, onSurface: onSurface(item) };
+      remember({ ...item, study: studyRec });
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.refs.studied = (s.task.refs.studied || []).filter((x) => x.key !== key);
@@ -455,10 +460,16 @@ export function register(server, ctx) {
       if (bid) {
         const board = loadBoard(bid);
         if (board) {
-          const existing = board.items.find((x) => x.key === key);
-          if (existing) Object.assign(existing, { note, study: n });
-          else board.items.push({ ...item, kind: "shot", note, study: n, addedAt: new Date().toISOString() });
-          saveBoard(board);
+          // Same source again refreshes its study (the user's stars and notes stay); a new one is added with its provenance.
+          updateBoard(
+            bid,
+            (b) => {
+              const existing = b.items.find((x) => x.key === key);
+              if (existing) Object.assign(existing, { note, study: studyRec });
+              else addItem(b, { ...item, kind: "shot", note, study: studyRec }, { provenance: makeProvenance({ source: "reference", label: item.designer || item.title || "", url: item.url || item.image || null, by: { task: st.task?.id || null } }), status: "inspiration" });
+            },
+            { op: "study", summary: item.title || key },
+          );
           boardNote = `Added to board "${board.name}".`;
         }
       }

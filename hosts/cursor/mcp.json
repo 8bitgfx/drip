@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "drip": {
+      "command": "node",
+      "args": [
+        "<DRIP_ROOT>/mcp/dist/drip-mcp.mjs"
+      ],
+      "env": {
+        "CLAUDE_PLUGIN_ROOT": "<DRIP_ROOT>",
+        "DRIP_HOST": "cursor",
+        "DRIP_PROJECT_DIR": "${workspaceFolder}"
+      }
+    }
+  }
+}

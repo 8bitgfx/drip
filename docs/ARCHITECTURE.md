@@ -15,7 +15,12 @@ drip/
                        browser (ONE shared headless Chrome over CDP: tabs ~100 ms, closes after 10 idle min),
                        cdp (whole-page capture + audit + brand + interaction states), imaging (crop/resize/WebP,
                        contact sheets, optical centre, icon sizes: all in the browser), serve (static preview server),
-                       skills (DESIGN.md + the workspace's own skills), images, keys, seen, preview, result helpers
+                       skills (DESIGN.md + the workspace's own skills), images, keys, seen, preview, result helpers,
+                       registry (ONE tool list for MCP, CLI, Code Mode and host adapters), jsonstore (lock + atomic
+                       write + revision check), project + memory + evidence (design memory, artifact revisions),
+                       check + indexer/ (component index, drip check), cli + doctor + vendor, codemode/ (QuickJS),
+                       apps (MCP Apps views)
+    src/hosts/         install / uninstall / doctor per host (Codex, Cursor, OpenCode, Claude Desktop, ChatGPT)
     src/modules/
       workflow.mjs     drip_start / guide / status / mark / skip / end
       refs/            dribbble.mjs (source adapter) + index.mjs (tools)
@@ -25,9 +30,16 @@ drip/
       gen/             providers/ (openai, gemini, template) + keypage (local key form) + index
       fitcheck/        chrome (screenshot via the shared browser), lint (slop rules), drift (DESIGN.md vs CSS),
                        compare (drip_compare, board_brand), index (tools)
+      project/         master board, project_context, feedback, learned rules, style extract/export/import
+      patterns/        refs_extract, pattern study / spec / preview / compare / save
+      inspire/         gallery sources (refs_gallery), catalogue ranking
+      studio/          art_generate, shader_hero, scene_render, 3D assets, blender_render, motion_render
+      codemode/        drip_search, drip_execute
     dist/drip-mcp.mjs  the bundle (committed)
     test/              unit + hooks + skills + browser.test.mjs (browser tools, offline, runs in CI);
                        smoke.mjs / smoke-03.mjs (end to end, hit Dribbble and other services)
+  hooks/hosts/         hook adapters: translate Codex / Cursor / OpenCode payloads to the hooks above
+  hosts/               generated per-host packages (npm run build:hosts)
   kit/                 base.css (7 type roles, grid, floor), DESIGN.template.md, comp.html, brand-board.html
   .github/workflows/   ci.yml: lint, build, stale-bundle check, tests on Linux + Windows; manifest versions agree
 ```

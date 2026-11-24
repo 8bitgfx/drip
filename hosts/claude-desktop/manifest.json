@@ -1,0 +1,52 @@
+{
+  "manifest_version": "0.3",
+  "name": "drip",
+  "display_name": "Drip",
+  "version": "0.5.0",
+  "description": "Give Claude drip: a real designer's process for coding agents. Run /drip:design and Claude studies Dribbble references, builds a moodboard for you to pick a direction from, writes a design system, builds with real components and fit-checks its own work on screenshots. Opt-in: it only steps in when you start it.",
+  "long_description": "Drip runs locally on your machine: design references, moodboards, design systems, asset tools and fit checks for your coding agent. Nothing is sent to a Drip server (there is none). Needs Chrome or Edge for screenshots.",
+  "author": {
+    "name": "Drip contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "design",
+    "ui",
+    "ux",
+    "frontend",
+    "moodboard",
+    "design-system"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "mcp/dist/drip-mcp.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/mcp/dist/drip-mcp.mjs"
+      ],
+      "env": {
+        "DRIP_HOST": "claude-desktop",
+        "DRIP_PROJECT_DIR": "${user_config.project_dir}"
+      }
+    }
+  },
+  "user_config": {
+    "project_dir": {
+      "type": "directory",
+      "title": "Project folder",
+      "description": "The project Drip should work in (its .drip folder, DESIGN.md and boards live there). Leave empty to use the folder Claude starts Drip in.",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=22.0.0"
+    }
+  }
+}

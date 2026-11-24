@@ -1,7 +1,7 @@
 // PostToolUse (Write | Edit | MultiEdit): record UI changes (so the Stop hook can demand a fit check)
 // and run the static slop checks on the file that just changed.
 import path from "node:path";
-import { allow, isUiFile, loadConfig, loadState, looksVisual, out, readInput, run, updateState } from "./lib.mjs";
+import { allow, isUiFile, loadConfig, loadState, looksVisual, markSeen, out, readInput, run, updateState } from "./lib.mjs";
 
 run(async () => {
   const input = await readInput();
@@ -15,6 +15,7 @@ run(async () => {
 
   const { task } = loadState(dir);
   const config = loadConfig(dir);
+  if (task) markSeen(task, rel, dir); // an edit this hook saw is known: only edits that bypass it count as unseen at the end
   if (!task && config.gates.mode !== "always") return allow();
   if (task && visual)
     updateState((st) => {

@@ -22,6 +22,10 @@ would be equally true for any niche, it doesn't belong.
   with its rubric. So **keywords matter**: include the niche's own words, abbreviations and product names
   ("roblox", "rbx", "obby", "simulator ui"), not generic ones ("game" would hijack every game task).
 
+### Project style packs and workflows
+
+`pack_create({ type: "project" })` makes this project's own pack (`.drip/packs/project-style`, committed with the project, applies to every design task here with no keywords). `style_update` fills its `guide.md` and `critic.md` from the approved decisions; a file you edited by hand is left alone. `workflow: { stages: [{ id, title, requires, gate, criteria }], criteria }` adds declarative stages (a `gate` names an existing Drip gate: brief, references, direction, critic, system, hero, fitcheck, user). It is versioned (a change bumps `workflowVersion`, the old one is kept) and data only: `command`, `script` and the like are rejected. Existing packs are unchanged.
+
 ## The procedure
 
 1. **Check what exists.** `pack_list`. If the niche has a pack, `pack_show` it and switch to refresh (step 12).

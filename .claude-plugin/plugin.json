@@ -1,7 +1,7 @@
 {
   "name": "drip",
   "displayName": "Drip",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Give Claude drip: a real designer's process for coding agents. Run /drip:design and Claude studies Dribbble references, builds a moodboard for you to pick a direction from, writes a design system, builds with real components and fit-checks its own work on screenshots. Opt-in: it only steps in when you start it.",
   "author": {
     "name": "Drip contributors"
@@ -43,7 +43,25 @@
       "reactbits.dev",
       "motion-primitives.com",
       "animate-ui.com",
-      "www.cult-ui.com"
+      "www.cult-ui.com",
+      "www.awwwards.com",
+      "assets.awwwards.com",
+      "onepagelove.com",
+      "api.onepagelove.com",
+      "minimal.gallery",
+      "httpster.net",
+      "www.darkmodedesign.com",
+      "godly.website",
+      "api.are.na",
+      "21st.dev",
+      "cdn.jsdelivr.net",
+      "api.polyhaven.com",
+      "cdn.polyhaven.com",
+      "dl.polyhaven.org",
+      "ambientcg.com",
+      "pixabay.com",
+      "images-assets.nasa.gov",
+      "openaccess-api.clevelandart.org"
     ]
   },
   "skills": [

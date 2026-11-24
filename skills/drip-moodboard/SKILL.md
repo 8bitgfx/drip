@@ -34,7 +34,8 @@ independent critic, with Drip's pick and its risk. The user chooses with one cli
 - `critic_prepare` (kind `directions`) → Agent `drip:critic` → `critic_record` (with `perDirection`) — the ranking shown on the board.
 - `board_open` — live link, shareable `board.html`, preview screenshot. Blocked until the critic ranked and didn't reject.
 - `board_read` — the user's stars, removals and notes (or pasted feedback).
-- `board_choose` — lock the direction with its reason; unlocks the system step.
+- `board_choose` — lock the direction with its reason; unlocks the system step. On the master board it is also the approval of the project's identity (`approved: false` if you chose for the user).
+- `board_project`, `board_import`, `board_attach`, `board_update`, `board_history`, `project_context` — the project's master board, importing the repo's own material, attaching a task, safe changes and the log. `feedback_record`, `project_learn`, `style_extract`, `style_update`, `style_export`, `style_import` — what the project learns. Read `moodboard` ("The project's master board") first.
 - `palette_check`, `fonts_pair`, `fonts_preview` — verify each direction's palette and type before tiling.
 
 ## Read deeper when
@@ -43,3 +44,4 @@ independent critic, with Drip's pick and its risk. The user chooses with one cli
 | Criteria, forming directions that differ in idea, manifestos, pairings, tiles, reworking | `drip_guide moodboard/directions` |
 | The critic's ranking, publishing, the message, buttons, reading reactions, locking | `drip_guide moodboard/presenting` |
 | Naming the genre and its `breaks_if` list, turning the choice into a world | `drip_guide direction` |
+| The project already has a master board, approved direction or rules; redesign vs fidelity; feedback | `drip_guide moodboard` ("The project's master board") |

@@ -75,6 +75,11 @@ Then a polish pass for the details nobody notices until they're missing. Small t
 | uses proven parts | **3,700+ components** from shadcn, coss ui, Kibo UI, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI, plus 500+ registries |
 | sources real assets | **200k icons**, every open font, **photos with licences**, **mesh gradients** and grain, **image generation** with your own OpenAI or Gemini key |
 | checks the work with fresh eyes | **Fit checks**: phone and desktop screenshots, side by side with the chosen direction, a slop lint and an honest 8-axis score |
+| remembers the brand between projects | **Project design memory**: one master moodboard per project, the approved direction, your feedback and the rules it taught, a project skill any session loads ([docs](docs/PROJECT_MEMORY.md)) |
+| learns from work they admire | **Pattern study**: measure a live component or page (layout, type, states, timings, keyboard), build your own, compare with a pixel diff and an accessibility check ([docs](docs/PATTERNS.md)) |
+| reuses what the product already has | **Your own components first**: an index of the project's components, a reuse plan per page, duplicate and token-drift audits, `drip check` ([docs](docs/COMPONENTS.md)) |
+| looks beyond one gallery | **More sources**: Awwwards, One Page Love, Minimal Gallery, Godly, Httpster, Dark Mode Design, Are.na, 21st.dev, plus font comparison sheets and outlined wordmarks ([docs](docs/SOURCES.md)) |
+| makes original pictures | **Studio**: procedural SVG art, shader heroes, three.js mockups, Poly Haven and ambientCG assets, Blender renders, motion capture ([docs](docs/STUDIO.md)) |
 
 Behind it are **22 skills** fusing the best design guidance out there (Impeccable, Taste Skill, Emil Kowalski, Make Interfaces Feel Better, UI UX Pro Max, Hallmark, unslop-ui, Stageshow and more), rewritten into one voice and organised by craft. See [CREDITS.md](CREDITS.md).
 
@@ -117,9 +122,15 @@ flowchart TD
 > [!TIP]
 > Teams that want the checks on every UI change, not just during a Drip task, can set `"gates": { "mode": "always" }` in `.drip/config.json`.
 
+## Other agents and the CLI
+
+The same local engine runs outside Claude Code. `drip install --agent codex` (or `cursor`, `opencode`, `claude-desktop`, `chatgpt`) adds Drip to that app, with its hooks where the app has them. [docs/HOSTS.md](docs/HOSTS.md) says what each app enforces and what it can't. Nothing is hosted: every host starts Drip on your machine.
+
+Every tool is also a command: `drip doctor`, `drip tools list`, `drip call <tool> --input '{...}'`, `drip check --changed`, `drip run --file script.js` ([docs/CLI.md](docs/CLI.md)). Agents can batch many calls into one with Code Mode (`drip_search`, `drip_execute`, [docs/CODEMODE.md](docs/CODEMODE.md)).
+
 ## Requirements
 
-- Claude Code with plugin support
+- Claude Code with plugin support, or another agent app (see [docs/HOSTS.md](docs/HOSTS.md))
 - Node.js 22+
 - Chrome or Edge, for screenshots and previews (optional but strongly recommended)
 - No API keys for the core. Optional keys: OpenAI or Gemini (image generation), Unsplash or Pexels (better photo search)

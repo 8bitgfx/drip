@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reference menu</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; padding: 48px 24px; font: 16px/1.4 system-ui, sans-serif; background: #f6f4ef; color: #1b1b18; }
+  #demo { position: relative; display: inline-block; }
+  #trigger { font: 600 15px/1 system-ui; padding: 12px 18px; border: 1px solid #1b1b18; border-radius: 10px; background: #fff; color: #1b1b18; cursor: pointer; transition: background-color 120ms ease-out, transform 120ms ease-out; }
+  #trigger:hover { background: #ecdcc2; }
+  #trigger:active { transform: scale(0.97); }
+  #trigger:focus-visible { outline: 2px solid #c2410c; outline-offset: 2px; }
+  #menu { position: absolute; top: calc(100% + 8px); left: 0; min-width: 200px; margin: 0; padding: 6px; list-style: none; background: #fff; border: 1px solid #d8d3c6; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.14); opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.98); transform-origin: top left; transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s linear 160ms; }
+  #menu.open { opacity: 1; visibility: visible; transform: none; transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s; }
+  [role=menuitem] { display: block; padding: 10px 12px; border-radius: 8px; font-size: 15px; cursor: pointer; transition: background-color 100ms ease-out; }
+  [role=menuitem]:hover, [role=menuitem]:focus { background: #f1e7d4; outline: none; }
+  @media (prefers-reduced-motion: reduce) { #menu, #trigger { transition: none; } }
+</style>
+</head>
+<body>
+<div id="demo">
+  <button id="trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="menu">Actions</button>
+  <ul id="menu" role="menu" aria-labelledby="trigger">
+    <li role="menuitem" tabindex="-1">Rename</li>
+    <li role="menuitem" tabindex="-1">Duplicate</li>
+    <li role="menuitem" tabindex="-1">Archive</li>
+  </ul>
+</div>
+<script>
+  const t = document.getElementById('trigger'), m = document.getElementById('menu');
+  const items = () => [...m.querySelectorAll('[role=menuitem]')];
+  const open = (focusFirst) => { m.classList.add('open'); t.setAttribute('aria-expanded', 'true'); if (focusFirst) items()[0].focus(); };
+  const close = () => { m.classList.remove('open'); t.setAttribute('aria-expanded', 'false'); t.focus(); };
+  t.addEventListener('click', () => (m.classList.contains('open') ? close() : open(false)));
+  t.addEventListener('keydown', (e) => { if (e.key === 'ArrowDown') { e.preventDefault(); open(true); } });
+  m.addEventListener('keydown', (e) => {
+    const i = items().indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items()[(i + 1) % 3].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); items()[(i + 2) % 3].focus(); }
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && m.classList.contains('open')) close(); });
+</script>
+</body>
+</html>

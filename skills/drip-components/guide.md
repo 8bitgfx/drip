@@ -6,13 +6,14 @@ A designer-built component library looks like it was made for this product and n
 
 1. **Read the project.** What stack (React? Tailwind v4? which version of shadcn, if any)? Is there a `components/ui` folder, a `DESIGN.md`, tokens in `@theme` or `:root`? Which primitive family is already used (Radix, Base UI, React Aria)? Stay inside it. Mixing primitive families doubles bundle size and gives two keyboard models.
 2. **Name the need precisely.** Not "a table" but "sortable, filterable table with row selection, 2,000 rows, sticky header". Not "a picker" but "date range picker with presets".
-3. **Search.** `components_find` with the precise need. It ranks the curated catalogue (shadcn, coss ui, Kibo, Radix, Base UI, React Aria, Magic UI, Motion Primitives, Animate UI, Cult UI, Aceternity, React Bits, Sonner, Vaul, cmdk, TanStack Table, Recharts, Tremor) and live registries. Nothing good? `components_registries` to search wider. See `components/choosing-libraries` for which library for what.
+3. **Search the project, then the world.** `components_local_find` with the precise need: an existing component (or an approved pattern from `.drip/patterns/`) beats a new one. Plan a whole page with `components_plan` (sections, product components, primitives; it says what is reused and warns about a page of identical cards). Then `components_find` with the precise need. It ranks the curated catalogue (shadcn, coss ui, Kibo, Radix, Base UI, React Aria, Magic UI, Motion Primitives, Animate UI, Cult UI, Aceternity, React Bits, Sonner, Vaul, cmdk, TanStack Table, Recharts, Tremor) and live registries. Nothing good? `components_registries` to search wider. See `components/choosing-libraries` for which library for what.
 4. **Read before installing.** `components_get` for the top one or two candidates. Check: semantic elements, keyboard support, state attributes, how it animates, dependencies it pulls in, licence. Reject anything that fails; don't plan to "fix it later".
 5. **Install** with the command `components_get` returns (`npx shadcn@latest add ...` for registry items). Commit the untouched install separately if the project uses git, so the restyle diff is readable.
 6. **Restyle to the tokens.** Replace every default colour, radius, shadow, focus ring, font size and motion value with the project's tokens. Delete what the design doesn't need. See `components/restyling`.
 7. **Complete the anatomy.** Variants, sizes, states, slots, content resilience. See `components/anatomy` and `drip_guide interaction/states`.
 8. **Compose, don't fork.** Build product components (a `PlanCard`, an `InviteDialog`) by composing the base ones; don't copy-paste a base component to change one class.
-9. **Check.** Render every variant x size x state on one scratch page or story, `fitcheck_shot` it in light and dark, `fitcheck_lint`, then use it in the real screen and `fitcheck_done`.
+9. **Check.** `components_preview` the component alone (sizes, states, a Tab walk, narrow / long / RTL / dark / zoom cells), then render every variant x size x state on one scratch page or story, `fitcheck_shot` it in light and dark, `fitcheck_lint`, then use it in the real screen and `fitcheck_done`.
+10. **Reuse audit.** `components_audit` (or `drip_check`): near-duplicate components, repeated CSS, hard-coded values that equal a token, import cycles. Fix what is a real duplicate; if two things only look alike, record why in `.drip/check/exceptions.json`. When the user accepts a component, `components_save` it so the next task reuses it.
 
 ## The craft
 
@@ -132,6 +133,7 @@ export function Button({ className, intent, size, asChild, type = "button", ...p
 - [ ] APIs pass native props, `className` and `ref`, and compose with `asChild`/`render` rather than booleans.
 - [ ] Components hold up with empty, long, numeric, RTL and zoomed content.
 - [ ] `fitcheck_lint` is clean and `fitcheck_done` has run.
+- [ ] `components_local_find` was run for every new component and `components_audit` shows no high findings (or each has a recorded reason).
 
 ## Reference files
 

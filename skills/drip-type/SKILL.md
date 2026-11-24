@@ -31,6 +31,8 @@ On a tweak: keep the project's faces; fix roles, sizes and spacing inside the ex
 ## Tools
 - `fonts_pair` — pairings ranked by the direction's mood words, with a specimen (flags overused ones)
 - `fonts_search` — every open font (Fontsource/Google) by name, category, variable-only; gives the npm package
+- `fonts_compare` — 2-6 candidate faces on ONE sheet with your real headline and body, plus numbers from the files (x-height, cap height, width per em, stroke contrast, stem). Use it to choose between faces; open fonts by name or the project's own font files
+- `wordmark_build` — a name outlined in a real font as an SVG, with tracking, per-pair kerning and a gap report, an editable spec in `.drip/wordmarks/`, and a preview at 64/32/18 px and reversed
 - `fonts_preview` — specimen of a pairing with your real headline; judge with your eyes before choosing
 - `refs_view` — study a reference's type full size: sizes, weights, spacing, case
 
