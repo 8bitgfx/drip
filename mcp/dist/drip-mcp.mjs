@@ -87354,6 +87354,7 @@ var EMPTY = () => ({ version: 2, tasks: {}, sessions: {}, history: [] });
 var me = { session: process.env.CLAUDE_CODE_SESSION_ID || null, server: false, taskId: null };
 function setIdentity({ session, server: server2 } = {}) {
   if (session) me.session = session;
+  else if (session === null) me.session = null;
   if (server2 !== void 0) me.server = server2;
 }
 function actor(cwd) {
@@ -87403,7 +87404,8 @@ function resolveId(raw) {
     const own2 = Object.values(raw.tasks).find((t2) => t2.ownerSession === me.session);
     if (own2) return own2.id;
   }
-  const free = Object.values(raw.tasks).filter((t2) => !ownedByOther(t2, raw));
+  const foreign = (t2) => !me.server && me.session && (t2.ownerSession && t2.ownerSession !== me.session || Object.entries(raw.sessions).some(([sid, id]) => id === t2.id && sid !== me.session));
+  const free = Object.values(raw.tasks).filter((t2) => !foreign(t2) && !ownedByOther(t2, raw));
   return free.length === 1 ? free[0].id : null;
 }
 function claim2(raw, task) {
