@@ -87064,10 +87064,12 @@ var DEFAULTS = {
     // full loop: references studied with refs_study before UI is written
     minDesigners: 3,
     // ...from at least this many different designers
-    minTaste: 3,
-    // full loop: studied picks from galleries / Dribbble (ideas, ambition) before UI is written
-    minReality: 2,
-    // landing pages: shipped sites measured with refs_site (real sizes)
+    minStyle: 2,
+    // full loop: studied references for the look you're aiming for (role "style")
+    minCompetitors: 2,
+    // full loop: similar products' shipped sites (role "competitor")
+    minPage: 2,
+    // full loop: the same kind of page you're making (role "page")
     freshLooks: true,
     // board_directions refuses faces and palettes Drip just used in other projects
     minOnSurface: 3,
@@ -87512,16 +87514,18 @@ function missingBeforeUi(task, config2) {
         how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects. Fastest and best: refs_site with 2-4 shipped sites in the category (measured type sizes); or refs_tag "landing page" / "hero section" (now ${onSurfaceCount}/${g.minOnSurface})`
       });
     }
-    const passCount = (p2) => (task.refs.studied || []).filter((x2) => (x2.pass || (String(x2.key).startsWith("site:") ? "reality" : "taste")) === p2).length;
-    const taste = passCount("taste");
-    const reality = passCount("reality");
-    if ((pageWork || task.surface === "readme") && taste < (g.minTaste ?? 3))
-      missing.push({
-        need: "taste references",
-        how: `study ${(g.minTaste ?? 3) - taste} more from galleries, where the ambitious work is: refs_gallery({ query: "<category>" }) (Awwwards, Godly, One Page Love, Minimal Gallery\u2026) and refs_tag on Dribbble's popular shots; refs_view the best, refs_study them (now ${taste}/${g.minTaste ?? 3})`
-      });
-    if (["landing", "other"].includes(task.surface) && reality < (g.minReality ?? 2))
-      missing.push({ need: "reality references", how: `refs_site on ${(g.minReality ?? 2) - reality} shipped site(s) known for their design (not docs or GitHub) for real type sizes, then refs_study them (now ${reality}/${g.minReality ?? 2})` });
+    const roleOf = (x2) => x2.role || (String(x2.key).startsWith("site:") ? "page" : "style");
+    const roles2 = { style: 0, competitor: 0, page: 0 };
+    for (const x2 of task.refs.studied || []) if (roleOf(x2) in roles2) roles2[roleOf(x2)]++;
+    const need = { style: g.minStyle ?? 2, competitor: g.minCompetitors ?? 2, page: g.minPage ?? 2 };
+    if (pageWork || task.surface === "readme") {
+      if (roles2.style < need.style)
+        missing.push({ need: "style references", how: `study ${need.style - roles2.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("brutalist", "playful 3d", "editorial dark"), never mixed with the subject (now ${roles2.style}/${need.style})` });
+      if (roles2.competitor < need.competitor && task.surface !== "readme")
+        missing.push({ need: "competitor references", how: `study ${need.competitor - roles2.competitor} similar product(s) (role "competitor"): name the 3-4 products people compare this with and refs_site their shipped sites (now ${roles2.competitor}/${need.competitor})` });
+      if (roles2.page < need.page)
+        missing.push({ need: "page references", how: `study ${need.page - roles2.page} more of the SAME kind of page you're making (role "page"): refs_search("<subject> ${task.surface === "app" ? "dashboard" : task.surface === "mobile" ? "app" : "landing page"}"), refs_tag "${task.surface === "app" ? "web app" : "landing page"}", or shipped pages of that type (now ${roles2.page}/${need.page})` });
+    }
     if (studied < g.minRefsStudied || designers < g.minDesigners)
       missing.push({
         need: "references",
@@ -87579,8 +87583,12 @@ function checklist(task, config2) {
   for (const x2 of task.requiredGuides) lines.push(`${tick(task.guidesRead.includes(x2))} guide: ${x2}`);
   if (task.size === "full") {
     const st = (task.refs.studied || []).length;
-    const tasteN = (task.refs.studied || []).filter((x2) => (x2.pass || (String(x2.key).startsWith("site:") ? "reality" : "taste")) === "taste").length;
-    lines.push(`${tick(tasteN >= (g.minTaste ?? 3))} taste pass: ${tasteN}/${g.minTaste ?? 3} from galleries and Dribbble \xB7 reality pass: ${st - tasteN} shipped sites measured`);
+    const rc = { style: 0, competitor: 0, page: 0 };
+    for (const x2 of task.refs.studied || []) {
+      const r2 = x2.role || (String(x2.key).startsWith("site:") ? "page" : "style");
+      if (r2 in rc) rc[r2]++;
+    }
+    lines.push(`${tick(rc.style >= (g.minStyle ?? 2) && rc.competitor >= (g.minCompetitors ?? 2) && rc.page >= (g.minPage ?? 2))} references by role: style ${rc.style}/${g.minStyle ?? 2} \xB7 competitors ${rc.competitor}/${g.minCompetitors ?? 2} \xB7 same page ${rc.page}/${g.minPage ?? 2}`);
     lines.push(`${tick(st >= g.minRefsStudied && studiedDesigners(task) >= g.minDesigners)} references studied: ${st}/${g.minRefsStudied} from ${studiedDesigners(task)}/${g.minDesigners} designers (picked ${(task.refs.picked || []).length}, viewed ${task.refs.viewed.length}, scanned ${task.refs.seen}, searches ${task.refs.searches})`);
     if (task.components?.count) lines.push(`${tick(!!task.components.search)} searched the project's own ${task.components.count} components first (components_local_find)`);
     lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);
@@ -89865,11 +89873,12 @@ function refPlan(task, surface, mode) {
     return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark", refs_tag "${subject.split(" ")[0]} logo", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
   if (surface === "readme")
     return `REFERENCE PLAN (README): TASTE first: refs_gallery({ query: "${subject} landing page" }) and refs_tag "landing page" (popular): the hero art, bentos and diagrams worth stealing ideas from; refs_view the 3-4 best, refs_study them. REALITY: refs_site on 1 GitHub README known for its design (it shows the 830px column and what GitHub strips). Judge the README's images, not GitHub's own type.`;
-  if (PERSUADE(surface, mode)) {
+  if (PERSUADE(surface, mode) || ["app", "mobile"].includes(surface)) {
     const words3 = subjectWords(task, 2).join(" ");
-    const redesign = /(redesign|rework|refresh|revamp)/i.test(task) || /[a-z0-9-]+\.[a-z]{2,}/i.test(task);
-    const subj = words3 || '<what the product is, 1-2 words: "ai tool", "gaming", "coffee">';
-    return "REFERENCE PLAN, two passes. " + (redesign && !words3 ? "First refs_site({ urls: [<the current site>], before: true }) and name what the product is in 1-2 words; search with THAT, never with the task sentence or the domain. " : "") + `TASTE (the ideas): refs_search("${subj} landing page") and refs_gallery({ query: "${subj}" }) (Awwwards, Minimal Gallery, One Page Love\u2026): the subject's own world, liked work only. For craft beyond the subject: refs_tag "landing page" (popular, well made, not about your subject). Pick the 3-4 strongest that fit the brief, refs_view, refs_study in one call. REALITY (the sizes): refs_site with 2 shipped sites known for their design (${/portfolio/i.test(task) ? "studio, designer and artist portfolios" : "the best product and brand sites in or near this space"}); it measures h1, h2 and body px. Never docs, wikis or GitHub pages. Take the idea from taste, the numbers from reality.`;
+    const redesign = /(redesign|rework|refresh|revamp)/i.test(task) || /[a-z0-9-]+\.[a-z]{2,}/i.test(task);
+    const subj = words3 || "<what the product is, 1-2 words>";
+    const pageKind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : "landing page";
+    return "REFERENCE PLAN: three roles, each its own searches (never mix a style word into a subject search). Set role on every refs_study. " + (redesign ? 'First refs_site({ urls: [<the current site>], before: true }) (role "before") and name what the product is in 1-2 words. ' : "") + `1) COMPETITORS (role "competitor"): name the 3-4 products people compare this with (direct rivals and the best-designed similar tools) and refs_site their shipped sites. 2) THE PAGE (role "page"): the same kind of page you're making: refs_search("${subj} ${pageKind}"), refs_tag "${pageKind}", refs_gallery({ query: "${subj}" }). 3) STYLE (role "style"): the look you're aiming for, from the brief's feel: refs_search / refs_tag / refs_gallery with style words only ("playful 3d", "brutalist", "editorial dark"). Never docs, wikis or GitHub pages. Each direction later names which style and page references it builds on.`;
   }
   const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";
   return `REFERENCE PLAN: refs_site on 1-2 shipped products with a strong ${kind} (real screens, measured), then refs_tag "${kind}" and refs_search "${subject} ${kind}" category "product-design"; refs_view the 2-3 best in one call and refs_study them in one call. Refer to shots by their tagged number (L3-7).`;
@@ -99176,6 +99185,57 @@ var AUDIT = `(() => {
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
 })()`;
+var CLEAR_OVERLAYS = `(async () => {
+  const txt = (document.title + ' ' + (document.body ? document.body.innerText.slice(0, 600) : '')).toLowerCase();
+  if (/just a moment|performing security verification|verify you are human|attention required|checking your browser|access denied|are you a robot|captcha/.test(txt)) return { blocked: document.title || 'bot check' };
+  const words = /^(reject all|reject|decline|decline all|deny|necessary only|only necessary|essential only|no thanks|no, thanks|not now|close|dismiss|got it|ok|okay|accept|accept all|i agree|agree|allow all|continue)$/i;
+  const box = (el) => el.closest('[id*=cookie i],[class*=cookie i],[id*=consent i],[class*=consent i],[id*=gdpr i],[class*=gdpr i],[class*=banner i],[role=dialog],[aria-modal=true],[class*=modal i],[class*=popup i],[id*=onetrust i],[class*=cmp i]');
+  let clicked = 0;
+  for (let round = 0; round < 2; round++) {
+    const btns = [...document.querySelectorAll('button, [role=button], a')].filter((b) => words.test((b.innerText || b.getAttribute('aria-label') || '').trim()) && box(b));
+    const pick = btns.find((b) => /reject|decline|deny|necessary|essential|no thanks|not now|close|dismiss/i.test(b.innerText || b.getAttribute('aria-label') || '')) || btns[0];
+    if (!pick) break;
+    pick.click(); clicked++;
+    await new Promise((r) => setTimeout(r, 400));
+  }
+  let hidden = 0;
+  for (const el of document.querySelectorAll('body *')) {
+    const cs = getComputedStyle(el);
+    if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+    const r = el.getBoundingClientRect();
+    const covers = r.width * r.height > innerWidth * innerHeight * 0.3;
+    const consent = box(el) && !el.closest('header, nav');
+    if ((covers && +cs.zIndex > 10 && !el.closest('header, nav')) || (consent && r.height < innerHeight * 0.6 && r.top > innerHeight * 0.4)) { el.style.setProperty('display', 'none', 'important'); hidden++; }
+  }
+  document.documentElement.style.overflow = ''; document.body && (document.body.style.overflow = '');
+  return { clicked, hidden };
+})()`;
+var TYPE_CHECK = `(() => {
+  const out = []; const seen = new Set();
+  const faces = [...document.fonts].filter((f) => f.status === 'loaded');
+  const famKey = (s) => s.split(',')[0].replace(/["']/g, '').trim().toLowerCase();
+  const generic = /^(serif|sans-serif|monospace|system-ui|ui-sans-serif|ui-serif|ui-monospace|cursive|fantasy|-apple-system|blinkmacsystemfont|arial|helvetica|georgia|times new roman|segoe ui|roboto)$/;
+  const weights = (fam) => faces.filter((f) => f.family.replace(/["']/g, '').trim().toLowerCase() === fam).flatMap((f) => String(f.weight).split(' ').map(Number)).filter((n) => !isNaN(n));
+  for (const el of document.querySelectorAll('h1, h2, h3, p, a, button, span, div, li, strong, em, b')) {
+    if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1)) continue;
+    const cs = getComputedStyle(el); const r = el.getBoundingClientRect();
+    if (!r.width || cs.visibility === 'hidden' || +cs.opacity < 0.1) continue;
+    const size = parseFloat(cs.fontSize); if (size < 20) continue;
+    const fam = famKey(cs.fontFamily); const w = parseInt(cs.fontWeight, 10);
+    const sample = el.textContent.trim().slice(0, 30); const id = fam + '|' + w + '|' + Math.round(size);
+    if (!generic.test(fam)) {
+      const ws = weights(fam);
+      const declared = [...document.fonts].some((f) => f.family.replace(/["']/g, '').trim().toLowerCase() === fam);
+      if (!ws.length) { if (declared && !seen.has('missing' + fam)) { seen.add('missing' + fam); out.push({ kind: 'font-missing', text: sample, detail: cs.fontFamily.split(',')[0] + ' never loaded: the text falls back to another face' }); } }
+      else if (cs.fontSynthesis !== 'none' && w - Math.max(...ws) >= 100 && !seen.has('syn' + id)) { seen.add('syn' + id); out.push({ kind: 'fake-bold', text: sample, detail: cs.fontFamily.split(',')[0] + ' has no ' + w + ' weight (max ' + Math.max(...ws) + '): the browser smears a fake bold. Use a weight the face has' }); }
+    }
+    const ls = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing) / size;
+    if ((ls < -0.06 || (ls < -0.045 && w >= 800)) && !seen.has('ls' + id)) { seen.add('ls' + id); out.push({ kind: 'letters-touch', text: sample, detail: 'letter-spacing ' + ls.toFixed(3) + 'em at weight ' + w + ': letters run into each other' }); }
+    const lh = cs.lineHeight === 'normal' ? 1.2 : parseFloat(cs.lineHeight) / size;
+    if (lh < 0.88 && r.height > size * 1.6 && !seen.has('lh' + id)) { seen.add('lh' + id); out.push({ kind: 'lines-touch', text: sample, detail: 'line-height ' + lh.toFixed(2) + ' on ' + Math.round(size) + 'px text over several lines: ascenders hit the line above' }); }
+  }
+  return out.slice(0, 12);
+})()`;
 var COVERED = `(async () => {
   const st = document.createElement('style'); st.textContent = '* { pointer-events: auto !important; }'; document.head.appendChild(st);
   const name = (el) => (el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.classList.length ? '.' + [...el.classList].slice(0, 2).join('.') : ''));
@@ -99220,15 +99280,24 @@ var COVERED = `(async () => {
   scrollTo(0, 0); st.remove();
   return out;
 })()`;
+async function typeIssues(url2, { width = 1440, height = 900, config: config2 } = {}) {
+  return withTab(config2, async (tab) => {
+    await openPage(tab, url2, { width, height, settleMs: 300 });
+    return (await tab.s("Runtime.evaluate", { expression: TYPE_CHECK, returnByValue: true })).result?.value || [];
+  });
+}
 async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, scale = 1, idle = false, brand = false, config: config2 } = {}) {
   return withTab(config2, async (tab) => {
     const { s: s2 } = tab;
     await openPage(tab, url2, { width, height, idle });
+    const cleared = (await s2("Runtime.evaluate", { expression: CLEAR_OVERLAYS, awaitPromise: true, returnByValue: true })).result?.value || {};
+    if (cleared.blocked) return { audit: { blocked: cleared.blocked, height }, slices: [], sliceCount: 0, blocked: cleared.blocked };
     await s2("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
     await settle2(s2, 800);
     const { result } = await s2("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
     const audit = result.value;
     audit.covered = (await s2("Runtime.evaluate", { expression: COVERED, awaitPromise: true, returnByValue: true })).result?.value || [];
+    audit.type = (await s2("Runtime.evaluate", { expression: TYPE_CHECK, returnByValue: true })).result?.value || [];
     if (brand) audit.brand = (await s2("Runtime.evaluate", { expression: BRAND, returnByValue: true })).result.value;
     const total = Math.min(audit.height, 3e4);
     const count = Math.max(1, Math.ceil(total / height));
@@ -99249,6 +99318,7 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   const desk = a2.width >= 1e3;
   const phone = a2.width < 600;
   if (phone && a2.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
+  for (const t2 of a2.type || []) blockers.push(`unreadable type (${t2.kind}): "${t2.text}": ${t2.detail}`);
   const shapes = (a2.covered || []).filter((c3) => !c3.image);
   const pics = (a2.covered || []).filter((c3) => c3.image);
   if (pics.length) warnings.push(`images over text: ${pics.slice(0, 3).map((c3) => `"${c3.text}" under ${c3.by}`).join("; ")}. Fine in a deliberate collage; check the words still read`);
@@ -99258,7 +99328,12 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   if (persuade && a2.hero) {
     const want = Math.round(displayPx(a2.width));
     if (!a2.h1) blockers.push("no h1: the hero needs its headline as the h1");
-    else if (a2.h1 < want * 0.85) blockers.push(`h1 is ${a2.h1}px; the Display token at ${a2.width}px is ~${want}px (kit/base.css --t-display). Go bigger, fewer words`);
+    else {
+      const container = Math.min(a2.width - 128, 1312);
+      const bigPicture = a2.hero.pic && a2.hero.pic.w >= container * 0.45 && a2.hero.pic.h >= (a2.vh || 900) * 0.5;
+      if (a2.h1 < want * (bigPicture ? 0.45 : 0.7)) blockers.push(`h1 is ${a2.h1}px; ${bigPicture ? `even beside a big picture a headline needs ~${Math.round(want * 0.45)}px+` : `with no big picture the type carries the hero: ~${Math.round(want * 0.7)}px+ (Display token ~${want}px)`}`);
+      else if (!bigPicture && a2.h1 < want * 0.85) warnings.push(`h1 ${a2.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
+    }
     if (a2.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
     if (desk) {
       const container = Math.min(a2.width - 128, 1312);
@@ -99632,7 +99707,7 @@ async function shot(id, config2) {
 }
 
 // src/modules/refs/index.mjs
-var NEXT_STUDY = `NEXT: the sheet is only for choosing. refs_pick the 2-5 that solve THIS brief best (use the tagged numbers, e.g. "L3-7"; one reason each), then refs_view each: the ORIGINAL full-size images, every section of the page; study the whole design, then refs_study with values. refs_zoom is optional, for one small detail. Fan out with refs_tag and refs_designer. Target: 6-12 studied from 3+ designers, most of them real examples of what you're building.`;
+var NEXT_STUDY = `NEXT: the sheet is only for choosing. refs_pick the 2-5 that solve THIS brief best (use the tagged numbers, e.g. "L3-7"; one reason each), then refs_view each: the ORIGINAL full-size images, every section of the page; study the whole design, then refs_study with values and a role (style, competitor, page). refs_zoom is optional, for one small detail. Fan out with refs_tag and refs_designer. Target: 6-12 studied from 3+ designers, most of them real examples of what you're building.`;
 var DULL_SITE = /(^|\/\/|\.)(docs?|developer|developers|wiki|api|reference|readthedocs|gitbook|mintlify)\.|readthedocs\.io|gitbook\.io|github\.com|gitlab\.com|npmjs\.com|pypi\.org|wikipedia\.org|\/docs?(\/|$)/i;
 var passOf = (key) => String(key).startsWith("site:") ? "reality" : "taste";
 function onSurface(item) {
@@ -99755,7 +99830,7 @@ function register2(server2, ctx2) {
       const out = [];
       const views = await Promise.all(list4.map((one) => viewOne(one, per).catch((err) => ({ info: `${one}: ${err.message}`, imgs: [] }))));
       for (const r2 of views) out.push(textBlock(r2.info), ...r2.imgs);
-      if (list4.length > 1) out.push(textBlock(`NEXT: refs_study all ${list4.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, \u2026] }).`));
+      if (list4.length > 1) out.push(textBlock(`NEXT: refs_study (with role: "competitor", "page", "style" or "before") all ${list4.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, \u2026] }).`));
       return blocks(out);
     })
   );
@@ -99812,7 +99887,7 @@ Images: ${s2.images.length} originals (showing ${imgs.length} pictures; tall pag
 ` + (s2.description ? `
 Designer's notes:
 ${s2.description.slice(0, 1500)}
-` : "") + `Study the whole design (every section), then refs_study with values. More from this designer: refs_designer("${s2.designerUrl}").${degraded}`;
+` : "") + `Study the whole design (every section), then refs_study with values and a role (style, competitor, page). More from this designer: refs_designer("${s2.designerUrl}").${degraded}`;
       return { info, imgs };
     }
   }
@@ -99844,6 +99919,7 @@ ${s2.description.slice(0, 1500)}
             const memo3 = `${url2}|${screens}`;
             const hit = SITE_MEMO.get(memo3);
             const r2 = hit && Date.now() - hit.at < 30 * 6e4 ? hit.r : await capture(url2, { width: 1440, height: 900, maxSlices: screens, idle: true, brand: true, config: config2 });
+            if (r2.blocked) throw new Error(`${url2} answered with a bot check ("${r2.blocked}"), not the page: it can't be a reference. Pick another site.`);
             SITE_MEMO.set(memo3, { r: r2, at: Date.now() });
             const key = siteKey(url2);
             const slug5 = key.slice(5).replace(/[^a-z0-9]+/gi, "-");
@@ -100037,12 +100113,12 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
         };
       const note = `${n3.take} \xB7 layout: ${n3.layout} \xB7 type: ${n3.type} \xB7 colour: ${n3.color} \xB7 density: ${n3.density} \xB7 detail: ${n3.detail} \xB7 leave: ${n3.leave}`;
       const surface = st0.task?.surface;
-      const studyRec = { ...n3, at: (/* @__PURE__ */ new Date()).toISOString(), surface, onSurface: onSurface(item), pass: passOf(key) };
+      const studyRec = { ...n3, at: (/* @__PURE__ */ new Date()).toISOString(), surface, onSurface: onSurface(item), pass: passOf(key), role: n3.role };
       remember({ ...item, study: studyRec });
       const st = updateState((s2) => {
         if (!s2.task) return;
         s2.task.refs.studied = (s2.task.refs.studied || []).filter((x2) => x2.key !== key);
-        s2.task.refs.studied.push({ key, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: (/* @__PURE__ */ new Date()).toISOString() });
+        s2.task.refs.studied.push({ key, role: n3.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: (/* @__PURE__ */ new Date()).toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -100067,6 +100143,7 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
 }
 var STUDY_SHAPE = {
   shot: external_exports.string(),
+  role: external_exports.enum(["style", "competitor", "page", "before"]).describe("Why it's here: style = the look you're aiming for; competitor = a similar product (its shipped site); page = the same kind of page you're making (a landing page, an app home screen); before = the current version being redesigned"),
   layout: external_exports.string(),
   type: external_exports.string(),
   color: external_exports.string(),
@@ -100296,6 +100373,7 @@ p{font-size:21px;line-height:1.45;max-width:36ch;margin:0 0 32px}
 
 // src/modules/board/index.mjs
 init_chrome();
+init_serve();
 
 // src/modules/board/render.mjs
 import fs28 from "node:fs";
@@ -100728,6 +100806,9 @@ function directionsGate(board, config2) {
     return `The critic hasn't ranked these directions yet. Render the comps (board_directions does), then critic_prepare({ kind: "directions" }), launch the drip:critic subagent with the prompt it returns, and critic_record its verdict.`;
   if (rec.verdict === "reject")
     return `The critic rejected this set ("${rec.summary}"). Rework the weak directions (or replace them with bolder ones), board_directions again, re-render tiles and get a new ranking.`;
+  const weak = (rec.perDirection || []).filter((p2) => typeof p2.score === "number" && p2.score < (config2.gates.minDirectionScore ?? 6));
+  if (weak.length)
+    return `Not ready to show: ${weak.map((p2) => `"${p2.name}" scored ${p2.score}/10 (${p2.note || p2.verdict || "weak"})`).join(", ")}. Rework or replace ${weak.length > 1 ? "them" : "it"} so every option is one you'd defend, board_directions again, and get a new ranking.`;
   return null;
 }
 function syncTask(board) {
@@ -100853,17 +100934,39 @@ NEXT: board_directions: 2 directions that differ in idea, each with a thesis (ma
         ).then((png2) => ({ png: png2, file: file4 }));
       })
     );
+    const checks = await Promise.all(
+      board0.directions.map(async (d) => {
+        const own2 = custom2.find((c3) => c3.direction.toLowerCase() === d.name.toLowerCase());
+        const target = own2?.file ? path28.resolve(projectDir(), own2.file) : path28.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.html`);
+        if (!own2?.file)
+          fs31.writeFileSync(target, own2 ? own2.html : tileHtml(d, { brand: copy.brand || board0.name, headline: copy.headline || d.headline || d.summary, body: copy.body || d.adjectives.join(" \xB7 "), cta: copy.cta || "See the work" }));
+        return typeIssues(await toUrl(target), { width: COMP.width, height: 900, config: ctx2.config() }).catch(() => []);
+      })
+    );
     const tiles = /* @__PURE__ */ new Map();
+    let broken = 0;
     for (const [k, d] of board0.directions.entries()) {
       const { png: png2, file: file4 } = pngs[k];
-      tiles.set(d.name, file4);
+      tiles.set(d.name, { file: file4, typeIssues: checks[k] });
+      if (checks[k].length) broken++;
       files.push(file4);
-      content.push(textBlock(`Comp: ${d.name} \u2014 ${d.adjectives.join(", ")} \xB7 ${d.type}`), imageBlock(png2));
+      content.push(
+        textBlock(`Comp: ${d.name} \u2014 ${d.adjectives.join(", ")} \xB7 ${d.type}${checks[k].length ? `
+MEASURED PROBLEMS (fix before the critic):
+- ${checks[k].map((t2) => `"${t2.text}": ${t2.detail}`).join("\n- ")}` : ""}`),
+        imageBlock(png2)
+      );
     }
+    content.push(
+      textBlock(
+        `${broken ? `${broken} comp(s) have unreadable type: fix them and board_tile again; the critic won't review this set until they're clean.
+` : ""}YOUR OWN PASS FIRST, as the comp's designer: can you read every word at a glance? Does each face look like itself (not smeared, not a fallback)? Is anything cut off by an edge that shouldn't be? Is the picture the real thing? Fix what you find, then the critic.`
+      )
+    );
     const board = updateBoard(
       board0.id,
       (b) => {
-        for (const d of b.directions) if (tiles.has(d.name)) d.tile = tiles.get(d.name);
+        for (const d of b.directions) if (tiles.has(d.name)) Object.assign(d, { tile: tiles.get(d.name).file, typeIssues: tiles.get(d.name).typeIssues });
         b.tilesAt = (/* @__PURE__ */ new Date()).toISOString();
       },
       { op: "tiles", summary: `${files.length} comps rendered` }
@@ -102909,6 +103012,7 @@ See it before choosing: fonts_preview.`
 // src/modules/assets/images.mjs
 var images_exports = {};
 __export(images_exports, {
+  parseImageory: () => parseImageory,
   register: () => register10
 });
 import fs42 from "node:fs";
@@ -102918,7 +103022,32 @@ init_paths();
 var strip2 = (s2) => (s2 || "").replace(/<[^>]+>/g, "").trim();
 var UA = { "User-Agent": "drip-design-mcp/0.4 (design tool; https://github.com/8bitgfx/drip)" };
 var fitsOrientation = (r2, o2) => !o2 || (o2 === "landscape" ? r2.width > r2.height : o2 === "portrait" ? r2.height > r2.width : Math.abs(r2.width / r2.height - 1) < 0.25);
+function parseImageory(html) {
+  const s2 = String(html).replace(/\\"/g, '"');
+  const out = [];
+  const re = /\{"id":"[0-9a-f-]{36}","slug":"/g;
+  let m;
+  while (m = re.exec(s2)) {
+    let depth = 0;
+    let i2 = m.index;
+    for (; i2 < s2.length; i2++) {
+      if (s2[i2] === "{") depth++;
+      else if (s2[i2] === "}" && --depth === 0) break;
+    }
+    try {
+      const o2 = JSON.parse(s2.slice(m.index, i2 + 1));
+      if (o2.src && !o2.premium) out.push(o2);
+    } catch {
+    }
+  }
+  return out;
+}
 var SOURCES2 = {
+  async imageory({ query, orientation, limit }) {
+    const { body } = await get("https://imageory.in/gallery", { as: "text", headers: { "User-Agent": "Mozilla/5.0 (drip design tool)" }, ttlMs: 24 * 36e5 });
+    const words3 = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+    return parseImageory(body).map((o2) => ({ o: o2, hits: words3.filter((w) => `${o2.title} ${(o2.tags || []).join(" ")} ${o2.prompt || ""}`.toLowerCase().includes(w)).length })).filter((x2) => !words3.length || x2.hits).sort((a2, b) => b.hits - a2.hits).map(({ o: o2 }) => ({ title: o2.title, thumb: o2.src, full: o2.src, width: o2.width || 0, height: o2.height || 0, page: "https://imageory.in/gallery", author: "Imageory", license: "free to use (Imageory)", prompt: o2.prompt })).filter((r2) => fitsOrientation(r2, orientation)).slice(0, limit);
+  },
   async unsplash({ query, orientation, limit, color: color2 }) {
     const key = getKey("unsplash");
     if (!key) throw new Error("No Unsplash key. Get a free one at unsplash.com/developers, then keys_open (or set UNSPLASH_ACCESS_KEY).");
@@ -102979,7 +103108,7 @@ var SOURCES2 = {
     });
   }
 };
-var SOURCE_NOTES = "unsplash/pexels/pixabay: best photos (free keys) \xB7 openverse: CC licences, commercial-use only \xB7 wikimedia: everything, check each licence \xB7 cleveland: public-domain paintings, prints, woodblock and ukiyo-e, illustration (CC0, up to 3400px; the honest route to painterly and anime-adjacent heroes) \xB7 nasa: space, earth, science.";
+var SOURCE_NOTES = "imageory: FIRST CHOICE for hero and background images: curated, free to use, each with the prompt that made it (surreal landscapes, sky art, gradients, noise, cosmic, flowers, illustration) \xB7 unsplash/pexels/pixabay: best photos (free keys) \xB7 openverse: CC licences, commercial-use only \xB7 wikimedia: everything, check each licence \xB7 cleveland: public-domain paintings, prints, woodblock and ukiyo-e, illustration (CC0, up to 3400px; the honest route to painterly and anime-adjacent heroes) \xB7 nasa: space, earth, science.";
 function register10(server2, ctx2) {
   server2.registerTool(
     "images_search",
@@ -102988,7 +103117,7 @@ function register10(server2, ctx2) {
       description: "Search photography and public-domain art for heroes and sections, with author, licence, size and colour for each. " + SOURCE_NOTES + " Returns a numbered list + contact sheet. Write art-directed queries ('architect at desk morning light', 'hokusai wave', not 'business'). Never use film or anime stills (e.g. Ghibli) or unlicensed art: no licence covers a commercial page; for an anime/illustrated look use cleveland ukiyo-e and prints, pixabay kind illustration, or gen_image.",
       inputSchema: {
         query: external_exports.string(),
-        source: external_exports.enum(["unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: unsplash, else pexels, else pixabay, else openverse"),
+        source: external_exports.enum(["imageory", "unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: imageory when it has matches, else unsplash, pexels, pixabay, openverse"),
         orientation: external_exports.enum(["landscape", "portrait", "square"]).optional(),
         color: external_exports.string().optional().describe("unsplash/pexels/pixabay colour filter, e.g. 'blue', 'black_and_white', 'orange'"),
         kind: external_exports.enum(["photo", "illustration", "vector"]).optional().describe("pixabay only"),
@@ -102996,10 +103125,17 @@ function register10(server2, ctx2) {
       }
     },
     safe(async ({ query, source, orientation, color: color2, kind, limit = 18 }) => {
-      const src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : getKey("pixabay") ? "pixabay" : "openverse");
+      let src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : getKey("pixabay") ? "pixabay" : "openverse");
       let results;
+      if (!source) {
+        const im = await SOURCES2.imageory({ query, orientation, limit }).catch(() => []);
+        if (im.length >= 4) {
+          src = "imageory";
+          results = im;
+        }
+      }
       try {
-        results = await SOURCES2[src]({ query, orientation, limit, color: color2, kind });
+        if (!results) results = await SOURCES2[src]({ query, orientation, limit, color: color2, kind });
       } catch (e2) {
         if (source) throw e2;
         results = await SOURCES2.wikimedia({ query, orientation, limit });
@@ -103016,7 +103152,8 @@ function register10(server2, ctx2) {
       return blocks([
         textBlock(
           `${src}: "${query}"${!getKey("unsplash") && !getKey("pexels") ? "  (no Unsplash/Pexels key: keys_open for better photos)" : ""}
-` + results.map((r2, i2) => `${i2 + 1}. ${r2.title.slice(0, 80)} \u2014 ${r2.author || "?"} \xB7 ${r2.license} \xB7 ${fmt(r2)}${r2.color ? ` \xB7 ${r2.color}` : ""}`).join("\n") + `
+` + results.map((r2, i2) => `${i2 + 1}. ${r2.title.slice(0, 80)} \u2014 ${r2.author || "?"} \xB7 ${r2.license} \xB7 ${fmt(r2)}${r2.color ? ` \xB7 ${r2.color}` : ""}${r2.prompt ? `
+   prompt: ${r2.prompt.slice(0, 220)}${r2.prompt.length > 220 ? "\u2026" : ""}` : ""}`).join("\n") + (src === "imageory" ? "\nEach Imageory image comes with its prompt: reuse or adapt it with gen_image for a variation in the brand's colours." : "") + `
 
 Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3", dest: "public/img/hero", slots: [{ name: "desktop", ar: "16:9", width: 2400 }, { name: "phone", ar: "4:5", width: 1200 }] }).`
         ),
@@ -104374,6 +104511,9 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
         if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
         const missing = board.directions.filter((d) => !d.tile || !fs51.existsSync(d.tile));
         if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
+        const unreadable = board.directions.filter((d) => d.typeIssues?.length);
+        if (unreadable.length)
+          return text(`Not ready for the critic: ${unreadable.map((d) => `"${d.name}" (${d.typeIssues.map((t2) => t2.detail).join("; ")})`).join(" \xB7 ")}. Fix the comps and board_tile again; a critic's time goes on ideas, not on broken type.`, true);
         board.directions.forEach((d, i2) => {
           files.push(d.tile);
           notes.push(`Direction ${i2 + 1} "${d.name}" (${files.length}): ${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} \xB7 ${d.adjectives.join(", ")} \xB7 palette ${d.palette.join(" ")} \xB7 type ${d.type}`);
@@ -111660,7 +111800,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.6.1";
+var VERSION = "0.6.2";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.

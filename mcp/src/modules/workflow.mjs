@@ -145,17 +145,18 @@ function refPlan(task, surface, mode) {
       `REFERENCE PLAN (README): TASTE first: refs_gallery({ query: "${subject} landing page" }) and refs_tag "landing page" (popular): the hero art, bentos and diagrams worth stealing ideas from; refs_view the 3-4 best, refs_study them. ` +
       "REALITY: refs_site on 1 GitHub README known for its design (it shows the 830px column and what GitHub strips). Judge the README's images, not GitHub's own type."
     );
-  if (PERSUADE(surface, mode)) {
+  if (PERSUADE(surface, mode) || ["app", "mobile"].includes(surface)) {
     const words = subjectWords(task, 2).join(" ");
-    const redesign = /(redesign|rework|refresh|revamp)/i.test(task) || /[a-z0-9-]+\.[a-z]{2,}/i.test(task);
-    const subj = words || "<what the product is, 1-2 words: \"ai tool\", \"gaming\", \"coffee\">";
+    const redesign = /(redesign|rework|refresh|revamp)/i.test(task) || /[a-z0-9-]+\.[a-z]{2,}/i.test(task);
+    const subj = words || "<what the product is, 1-2 words>";
+    const pageKind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : "landing page";
     return (
-      "REFERENCE PLAN, two passes. " +
-      (redesign && !words ? "First refs_site({ urls: [<the current site>], before: true }) and name what the product is in 1-2 words; search with THAT, never with the task sentence or the domain. " : "") +
-      `TASTE (the ideas): refs_search("${subj} landing page") and refs_gallery({ query: "${subj}" }) (Awwwards, Minimal Gallery, One Page Love…): the subject's own world, liked work only. ` +
-      "For craft beyond the subject: refs_tag \"landing page\" (popular, well made, not about your subject). Pick the 3-4 strongest that fit the brief, refs_view, refs_study in one call. " +
-      `REALITY (the sizes): refs_site with 2 shipped sites known for their design (${/portfolio/i.test(task) ? "studio, designer and artist portfolios" : "the best product and brand sites in or near this space"}); it measures h1, h2 and body px. ` +
-      "Never docs, wikis or GitHub pages. Take the idea from taste, the numbers from reality."
+      "REFERENCE PLAN: three roles, each its own searches (never mix a style word into a subject search). Set role on every refs_study. " +
+      (redesign ? "First refs_site({ urls: [<the current site>], before: true }) (role \"before\") and name what the product is in 1-2 words. " : "") +
+      `1) COMPETITORS (role "competitor"): name the 3-4 products people compare this with (direct rivals and the best-designed similar tools) and refs_site their shipped sites. ` +
+      `2) THE PAGE (role "page"): the same kind of page you're making: refs_search("${subj} ${pageKind}"), refs_tag "${pageKind}", refs_gallery({ query: "${subj}" }). ` +
+      "3) STYLE (role \"style\"): the look you're aiming for, from the brief's feel: refs_search / refs_tag / refs_gallery with style words only (\"playful 3d\", \"brutalist\", \"editorial dark\"). " +
+      "Never docs, wikis or GitHub pages. Each direction later names which style and page references it builds on."
     );
   }
   const kind = surface === "app" ? "dashboard" : surface === "mobile" ? "mobile app" : surface === "component" ? "ui component" : "website";

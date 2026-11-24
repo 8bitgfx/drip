@@ -87,9 +87,10 @@ test("full task blocks until guides, references and direction are done", () => {
   task.refs.studied = task.refs.studied.map((x, i) => ({ ...x, onSurface: i < 4 }));
   saveState({ version: 1, task, history: [] }, p);
   const tasteOnly = runHook("pre-write.mjs", { tool_name: "Write", tool_input: { file_path: path.join(p, "src/Pricing.tsx"), content: "<div/>" } }, p);
-  assert.ok(deny(tasteOnly), "a landing page needs the reality pass: shipped sites measured");
-  assert.match(tasteOnly.hookSpecificOutput.permissionDecisionReason, /reality references/);
-  task.refs.studied.push({ key: "site:linear.app", pass: "reality", designer: "linear.app", onSurface: true }, { key: "site:stripe.com", pass: "reality", designer: "stripe.com", onSurface: true });
+  assert.ok(deny(tasteOnly), "a landing page needs competitors and the same kind of page, not only style");
+  assert.match(tasteOnly.hookSpecificOutput.permissionDecisionReason, /competitor references/);
+  task.refs.studied.push({ key: "site:linear.app", role: "competitor", designer: "linear.app", onSurface: true }, { key: "site:height.app", role: "competitor", designer: "height.app", onSurface: true });
+  task.refs.studied.push({ key: "site:stripe.com", role: "page", designer: "stripe.com", onSurface: true }, { key: "site:vercel.com", role: "page", designer: "vercel.com", onSurface: true });
   task.critic.records = [];
   task.board = { id: "b", items: 9, directions: 2, chosen: "Terminal Calm" };
   task.critic.records.push({ kind: "directions", verdict: "pass", summary: "ok", at: new Date().toISOString() });

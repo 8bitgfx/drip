@@ -19,7 +19,41 @@ const strip = (s) => (s || "").replace(/<[^>]+>/g, "").trim();
 const UA = { "User-Agent": "drip-design-mcp/0.4 (design tool; https://github.com/8bitgfx/drip)" };
 const fitsOrientation = (r, o) => !o || (o === "landscape" ? r.width > r.height : o === "portrait" ? r.height > r.width : Math.abs(r.width / r.height - 1) < 0.25);
 
+/** Imageory (imageory.in): a curated gallery of free-to-use hero and background images, each with the prompt that made it. */
+export function parseImageory(html) {
+  const s = String(html).replace(/\\"/g, '"');
+  const out = [];
+  const re = /\{"id":"[0-9a-f-]{36}","slug":"/g;
+  let m;
+  while ((m = re.exec(s))) {
+    let depth = 0;
+    let i = m.index;
+    for (; i < s.length; i++) {
+      if (s[i] === "{") depth++;
+      else if (s[i] === "}" && --depth === 0) break;
+    }
+    try {
+      const o = JSON.parse(s.slice(m.index, i + 1));
+      if (o.src && !o.premium) out.push(o);
+    } catch {
+      /* a fragment, not a record */
+    }
+  }
+  return out;
+}
+
 const SOURCES = {
+  async imageory({ query, orientation, limit }) {
+    const { body } = await get("https://imageory.in/gallery", { as: "text", headers: { "User-Agent": "Mozilla/5.0 (drip design tool)" }, ttlMs: 24 * 3600e3 });
+    const words = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+    return parseImageory(body)
+      .map((o) => ({ o, hits: words.filter((w) => `${o.title} ${(o.tags || []).join(" ")} ${o.prompt || ""}`.toLowerCase().includes(w)).length }))
+      .filter((x) => !words.length || x.hits)
+      .sort((a, b) => b.hits - a.hits)
+      .map(({ o }) => ({ title: o.title, thumb: o.src, full: o.src, width: o.width || 0, height: o.height || 0, page: "https://imageory.in/gallery", author: "Imageory", license: "free to use (Imageory)", prompt: o.prompt }))
+      .filter((r) => fitsOrientation(r, orientation))
+      .slice(0, limit);
+  },
   async unsplash({ query, orientation, limit, color }) {
     const key = getKey("unsplash");
     if (!key) throw new Error("No Unsplash key. Get a free one at unsplash.com/developers, then keys_open (or set UNSPLASH_ACCESS_KEY).");
@@ -91,7 +125,7 @@ const SOURCES = {
 };
 
 const SOURCE_NOTES =
-  "unsplash/pexels/pixabay: best photos (free keys) · openverse: CC licences, commercial-use only · wikimedia: everything, check each licence · " +
+  "imageory: FIRST CHOICE for hero and background images: curated, free to use, each with the prompt that made it (surreal landscapes, sky art, gradients, noise, cosmic, flowers, illustration) · unsplash/pexels/pixabay: best photos (free keys) · openverse: CC licences, commercial-use only · wikimedia: everything, check each licence · " +
   "cleveland: public-domain paintings, prints, woodblock and ukiyo-e, illustration (CC0, up to 3400px; the honest route to painterly and anime-adjacent heroes) · nasa: space, earth, science.";
 
 export function register(server, ctx) {
@@ -106,7 +140,7 @@ export function register(server, ctx) {
         "Never use film or anime stills (e.g. Ghibli) or unlicensed art: no licence covers a commercial page; for an anime/illustrated look use cleveland ukiyo-e and prints, pixabay kind illustration, or gen_image.",
       inputSchema: {
         query: z.string(),
-        source: z.enum(["unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: unsplash, else pexels, else pixabay, else openverse"),
+        source: z.enum(["imageory", "unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: imageory when it has matches, else unsplash, pexels, pixabay, openverse"),
         orientation: z.enum(["landscape", "portrait", "square"]).optional(),
         color: z.string().optional().describe("unsplash/pexels/pixabay colour filter, e.g. 'blue', 'black_and_white', 'orange'"),
         kind: z.enum(["photo", "illustration", "vector"]).optional().describe("pixabay only"),
@@ -114,10 +148,18 @@ export function register(server, ctx) {
       },
     },
     safe(async ({ query, source, orientation, color, kind, limit = 18 }) => {
-      const src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : getKey("pixabay") ? "pixabay" : "openverse");
+      let src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : getKey("pixabay") ? "pixabay" : "openverse");
       let results;
+      // Imageory leads: curated, free, hero-shaped, with prompts. Other sources fill in when it has nothing for the words.
+      if (!source) {
+        const im = await SOURCES.imageory({ query, orientation, limit }).catch(() => []);
+        if (im.length >= 4) {
+          src = "imageory";
+          results = im;
+        }
+      }
       try {
-        results = await SOURCES[src]({ query, orientation, limit, color, kind });
+        if (!results) results = await SOURCES[src]({ query, orientation, limit, color, kind });
       } catch (e) {
         if (source) throw e;
         results = await SOURCES.wikimedia({ query, orientation, limit }); // Openverse is sometimes down
@@ -134,7 +176,8 @@ export function register(server, ctx) {
       return blocks([
         textBlock(
           `${src}: "${query}"${!getKey("unsplash") && !getKey("pexels") ? "  (no Unsplash/Pexels key: keys_open for better photos)" : ""}\n` +
-            results.map((r, i) => `${i + 1}. ${r.title.slice(0, 80)} — ${r.author || "?"} · ${r.license} · ${fmt(r)}${r.color ? ` · ${r.color}` : ""}`).join("\n") +
+            results.map((r, i) => `${i + 1}. ${r.title.slice(0, 80)} — ${r.author || "?"} · ${r.license} · ${fmt(r)}${r.color ? ` · ${r.color}` : ""}${r.prompt ? `\n   prompt: ${r.prompt.slice(0, 220)}${r.prompt.length > 220 ? "…" : ""}` : ""}`).join("\n") +
+            (src === "imageory" ? "\nEach Imageory image comes with its prompt: reuse or adapt it with gen_image for a variation in the brand's colours." : "") +
             `\n\nTiles are letterboxed (whole image shown). Save one with images_save({ image: "3", dest: "public/img/hero", slots: [{ name: "desktop", ar: "16:9", width: 2400 }, { name: "phone", ar: "4:5", width: 1200 }] }).`,
         ),
         imageBlock(await contactSheet(bufs, { cols: 6, tileW: 300, tileH: 225, fit: "contain" })),

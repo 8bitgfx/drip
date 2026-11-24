@@ -336,3 +336,13 @@ test.after(async () => {
   const { closeBrowser } = await import("../src/core/browser.mjs");
   await closeBrowser();
 });
+
+test("Imageory gallery records are read from the page data, premium ones left out", async () => {
+  const { parseImageory } = await import("../src/modules/assets/images.mjs");
+  const rec = (id, premium) => `{\\"id\\":\\"${id}\\",\\"slug\\":\\"s-${id.slice(0, 4)}\\",\\"title\\":\\"Surreal Canyon\\",\\"src\\":\\"https://x.r2.dev/a/1.webp\\",\\"width\\":1672,\\"height\\":941,\\"prompt\\":\\"A surreal canyon {at dawn}\\",\\"tags\\":[\\"surreal\\"],\\"premium\\":${premium}}`;
+  const html = `<script>self.__next_f.push([1,"${rec("11111111-1111-1111-1111-111111111111", false)},${rec("22222222-2222-2222-2222-222222222222", true)}"])</script>`;
+  const out = parseImageory(html);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].prompt, "A surreal canyon {at dawn}");
+  assert.equal(out[0].width, 1672);
+});

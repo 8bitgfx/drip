@@ -225,17 +225,19 @@ export function missingBeforeUi(task, config) {
         how: `study ${g.minOnSurface - onSurfaceCount} more references that ARE what you're building (${what}), not print, posters or objects. Fastest and best: refs_site with 2-4 shipped sites in the category (measured type sizes); or refs_tag "landing page" / "hero section" (now ${onSurfaceCount}/${g.minOnSurface})`,
       });
     }
-    // Two passes: taste (galleries, Dribbble: the ideas) and reality (shipped sites, measured: the sizes).
-    const passCount = (p) => (task.refs.studied || []).filter((x) => (x.pass || (String(x.key).startsWith("site:") ? "reality" : "taste")) === p).length;
-    const taste = passCount("taste");
-    const reality = passCount("reality");
-    if ((pageWork || task.surface === "readme") && taste < (g.minTaste ?? 3))
-      missing.push({
-        need: "taste references",
-        how: `study ${(g.minTaste ?? 3) - taste} more from galleries, where the ambitious work is: refs_gallery({ query: "<category>" }) (Awwwards, Godly, One Page Love, Minimal Gallery…) and refs_tag on Dribbble's popular shots; refs_view the best, refs_study them (now ${taste}/${g.minTaste ?? 3})`,
-      });
-    if (["landing", "other"].includes(task.surface) && reality < (g.minReality ?? 2))
-      missing.push({ need: "reality references", how: `refs_site on ${(g.minReality ?? 2) - reality} shipped site(s) known for their design (not docs or GitHub) for real type sizes, then refs_study them (now ${reality}/${g.minReality ?? 2})` });
+    // Three roles: STYLE (the look you're aiming for), COMPETITOR (similar products, shipped), PAGE (the same kind of page).
+    const roleOf = (x) => x.role || (String(x.key).startsWith("site:") ? "page" : "style");
+    const roles = { style: 0, competitor: 0, page: 0 };
+    for (const x of task.refs.studied || []) if (roleOf(x) in roles) roles[roleOf(x)]++;
+    const need = { style: g.minStyle ?? 2, competitor: g.minCompetitors ?? 2, page: g.minPage ?? 2 };
+    if (pageWork || task.surface === "readme") {
+      if (roles.style < need.style)
+        missing.push({ need: "style references", how: `study ${need.style - roles.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("brutalist", "playful 3d", "editorial dark"), never mixed with the subject (now ${roles.style}/${need.style})` });
+      if (roles.competitor < need.competitor && task.surface !== "readme")
+        missing.push({ need: "competitor references", how: `study ${need.competitor - roles.competitor} similar product(s) (role "competitor"): name the 3-4 products people compare this with and refs_site their shipped sites (now ${roles.competitor}/${need.competitor})` });
+      if (roles.page < need.page)
+        missing.push({ need: "page references", how: `study ${need.page - roles.page} more of the SAME kind of page you're making (role "page"): refs_search("<subject> ${task.surface === "app" ? "dashboard" : task.surface === "mobile" ? "app" : "landing page"}"), refs_tag "${task.surface === "app" ? "web app" : "landing page"}", or shipped pages of that type (now ${roles.page}/${need.page})` });
+    }
     if (studied < g.minRefsStudied || designers < g.minDesigners)
       missing.push({
         need: "references",
@@ -309,8 +311,9 @@ export function checklist(task, config) {
   for (const x of task.requiredGuides) lines.push(`${tick(task.guidesRead.includes(x))} guide: ${x}`);
   if (task.size === "full") {
     const st = (task.refs.studied || []).length;
-    const tasteN = (task.refs.studied || []).filter((x) => (x.pass || (String(x.key).startsWith("site:") ? "reality" : "taste")) === "taste").length;
-    lines.push(`${tick(tasteN >= (g.minTaste ?? 3))} taste pass: ${tasteN}/${g.minTaste ?? 3} from galleries and Dribbble · reality pass: ${st - tasteN} shipped sites measured`);
+    const rc = { style: 0, competitor: 0, page: 0 };
+    for (const x of task.refs.studied || []) { const r = x.role || (String(x.key).startsWith("site:") ? "page" : "style"); if (r in rc) rc[r]++; }
+    lines.push(`${tick(rc.style >= (g.minStyle ?? 2) && rc.competitor >= (g.minCompetitors ?? 2) && rc.page >= (g.minPage ?? 2))} references by role: style ${rc.style}/${g.minStyle ?? 2} · competitors ${rc.competitor}/${g.minCompetitors ?? 2} · same page ${rc.page}/${g.minPage ?? 2}`);
     lines.push(`${tick(st >= g.minRefsStudied && studiedDesigners(task) >= g.minDesigners)} references studied: ${st}/${g.minRefsStudied} from ${studiedDesigners(task)}/${g.minDesigners} designers (picked ${(task.refs.picked || []).length}, viewed ${task.refs.viewed.length}, scanned ${task.refs.seen}, searches ${task.refs.searches})`);
     if (task.components?.count) lines.push(`${tick(!!task.components.search)} searched the project's own ${task.components.count} components first (components_local_find)`);
     lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);

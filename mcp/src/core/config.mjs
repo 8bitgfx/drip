@@ -20,8 +20,9 @@ export const DEFAULTS = {
     requireBrief: true,      // full loop: the user's answers recorded with drip_brief
     minRefsStudied: 4,       // full loop: references studied with refs_study before UI is written
     minDesigners: 3,         // ...from at least this many different designers
-    minTaste: 3,             // full loop: studied picks from galleries / Dribbble (ideas, ambition) before UI is written
-    minReality: 2,           // landing pages: shipped sites measured with refs_site (real sizes)
+    minStyle: 2,             // full loop: studied references for the look you're aiming for (role "style")
+    minCompetitors: 2,       // full loop: similar products' shipped sites (role "competitor")
+    minPage: 2,              // full loop: the same kind of page you're making (role "page")
     freshLooks: true,        // board_directions refuses faces and palettes Drip just used in other projects
     minOnSurface: 3,         // ...and at least this many must show the thing being built (real landing pages, app screens), not print or objects
     minBoardItems: 4,        // items on the moodboard before directions can be formed

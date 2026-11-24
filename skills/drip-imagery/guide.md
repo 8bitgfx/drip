@@ -2,6 +2,8 @@
 
 Good imagery shows the real thing: the place, the food, the object, the hands at work, the product running. Every picture has a job a sentence could not do, sits at a size that lets it do that job, and shares one light, one grade and one treatment with every other picture on the page. Nothing is a placeholder, nothing is a mood standing in for a subject, every file has a known licence, and the page still loads fast on a phone. A visitor who covers the copy should still be able to tell what the business is from the pictures alone.
 
+**First stop for hero and background images: Imageory** (`images_search` tries it first): curated, free-to-use images (surreal landscapes, sky art, luminous gradients, noise, cosmic, flowers, illustration), each with the prompt that made it. Reuse or adapt the prompt with `gen_image` for a variation in the direction's colours.
+
 ## The procedure
 
 1. **Write the shot list before touching a tool.** One line per image slot: what it shows, why it is there (the fact it adds), its ratio and its displayed size. A slot you cannot name a subject for is cut, not filled.

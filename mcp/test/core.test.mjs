@@ -78,9 +78,9 @@ test("page audit: measured blockers for tiny text, too many sizes, overflow", as
 test("hero gate: small h1, small picture and empty bottom block; page checks are skipped", async () => {
   const { judgeAudit, displayPx } = await import("../src/core/cdp.mjs");
   assert.ok(Math.abs(displayPx(1440) - 127) < 2 && Math.abs(displayPx(390) - 48.5) < 1);
-  const small = { width: 1440, vh: 900, overflowX: false, fontSizes: [[12, 900]], families: [["A", 9], ["B", 9], ["C", 9]], words: 900, smallShare: 0.9, gaps: [], media: 0, h1: 89, hero: { h1w: 500, h1Visible: true, pic: { w: 400, h: 300 }, emptyBelow: 300, actions: 1 } };
+  const small = { width: 1440, vh: 900, overflowX: false, fontSizes: [[12, 900]], families: [["A", 9], ["B", 9], ["C", 9]], words: 900, smallShare: 0.9, gaps: [], media: 0, h1: 70, hero: { h1w: 500, h1Visible: true, pic: { w: 400, h: 300 }, emptyBelow: 300, actions: 1 } };
   const j = judgeAudit(small, { hero: true });
-  assert.ok(j.blockers.some((b) => /h1 is 89px/.test(b)));
+  assert.ok(j.blockers.some((b) => /h1 is 70px/.test(b)));
   assert.ok(j.blockers.some((b) => /hero is small/.test(b)));
   assert.ok(j.blockers.some((b) => /300px of nothing/.test(b)));
   assert.ok(!j.blockers.some((b) => /under 14px|families/.test(b)));

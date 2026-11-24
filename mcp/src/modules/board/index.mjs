@@ -16,6 +16,8 @@ import { approveDirection, recordFeedback, writeProjectSkill } from "../../core/
 import { facesOf, isOverused, recentLooks, recordLook, sameFace, samePalette } from "../../core/looks.mjs";
 import { COMP, tileHtml } from "./tile.mjs";
 import { screenshot } from "../fitcheck/chrome.mjs";
+import { typeIssues } from "../../core/cdp.mjs";
+import { toUrl } from "../../core/serve.mjs";
 import { renderBoard } from "./render.mjs";
 import { ensureServer } from "./server.mjs";
 import { ITEM_STATUS, addItem, boardFile, createBoard, listBoards, liveItems, loadBoard, makeProvenance, resolveBoard, updateBoard } from "./store.mjs";
@@ -39,6 +41,10 @@ function directionsGate(board, config) {
     return "The critic hasn't ranked these directions yet. Render the comps (board_directions does), then critic_prepare({ kind: \"directions\" }), launch the drip:critic subagent with the prompt it returns, and critic_record its verdict.";
   if (rec.verdict === "reject")
     return `The critic rejected this set ("${rec.summary}"). Rework the weak directions (or replace them with bolder ones), board_directions again, re-render tiles and get a new ranking.`;
+  // Never show the user a direction the critic scored as weak: rework it or replace it first.
+  const weak = (rec.perDirection || []).filter((p) => typeof p.score === "number" && p.score < (config.gates.minDirectionScore ?? 6));
+  if (weak.length)
+    return `Not ready to show: ${weak.map((p) => `"${p.name}" scored ${p.score}/10 (${p.note || p.verdict || "weak"})`).join(", ")}. Rework or replace ${weak.length > 1 ? "them" : "it"} so every option is one you'd defend, board_directions again, and get a new ranking.`;
   return null;
 }
 
@@ -187,17 +193,39 @@ export function register(server, ctx) {
         ).then((png) => ({ png, file }));
       }),
     );
+    // Read each comp as its designer would before anyone else sees it: fake bolds, missing fonts, letters or lines that
+    // touch. Measured problems block the critic until they're fixed.
+    const checks = await Promise.all(
+      board0.directions.map(async (d) => {
+        const own = custom.find((c) => c.direction.toLowerCase() === d.name.toLowerCase());
+        const target = own?.file ? path.resolve(projectDir(), own.file) : path.join(dir, `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.html`);
+        if (!own?.file)
+          fs.writeFileSync(target, own ? own.html : tileHtml(d, { brand: copy.brand || board0.name, headline: copy.headline || d.headline || d.summary, body: copy.body || d.adjectives.join(" · "), cta: copy.cta || "See the work" }));
+        return typeIssues(await toUrl(target), { width: COMP.width, height: 900, config: ctx.config() }).catch(() => []);
+      }),
+    );
     const tiles = new Map();
+    let broken = 0;
     for (const [k, d] of board0.directions.entries()) {
       const { png, file } = pngs[k];
-      tiles.set(d.name, file);
+      tiles.set(d.name, { file, typeIssues: checks[k] });
+      if (checks[k].length) broken++;
       files.push(file);
-      content.push(textBlock(`Comp: ${d.name} — ${d.adjectives.join(", ")} · ${d.type}`), imageBlock(png));
+      content.push(
+        textBlock(`Comp: ${d.name} — ${d.adjectives.join(", ")} · ${d.type}${checks[k].length ? `\nMEASURED PROBLEMS (fix before the critic):\n- ${checks[k].map((t) => `"${t.text}": ${t.detail}`).join("\n- ")}` : ""}`),
+        imageBlock(png),
+      );
     }
+    content.push(
+      textBlock(
+        `${broken ? `${broken} comp(s) have unreadable type: fix them and board_tile again; the critic won't review this set until they're clean.\n` : ""}` +
+          "YOUR OWN PASS FIRST, as the comp's designer: can you read every word at a glance? Does each face look like itself (not smeared, not a fallback)? Is anything cut off by an edge that shouldn't be? Is the picture the real thing? Fix what you find, then the critic.",
+      ),
+    );
     const board = updateBoard(
       board0.id,
       (b) => {
-        for (const d of b.directions) if (tiles.has(d.name)) d.tile = tiles.get(d.name);
+        for (const d of b.directions) if (tiles.has(d.name)) Object.assign(d, { tile: tiles.get(d.name).file, typeIssues: tiles.get(d.name).typeIssues });
         b.tilesAt = new Date().toISOString();
       },
       { op: "tiles", summary: `${files.length} comps rendered` },

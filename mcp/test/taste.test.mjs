@@ -58,8 +58,8 @@ test("taste guards through the server", { skip, timeout: 240000 }, async (t) => 
       assert.match(r.t, /Not references[\s\S]*refs_gallery/);
     });
 
-    await t.test("status shows both reference passes", async () => {
-      assert.match((await call("drip_status")).t, /taste pass: 0\/3[\s\S]*reality pass: 0/);
+    await t.test("status shows the three reference roles", async () => {
+      assert.match((await call("drip_status")).t, /references by role: style 0\/2 · competitors 0\/2 · same page 0\/2/);
     });
 
     // Board with enough items (the gate checks happen before saving directions).

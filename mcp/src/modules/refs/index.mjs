@@ -16,7 +16,7 @@ import * as dribbble from "./dribbble.mjs";
 
 const NEXT_STUDY =
   "NEXT: the sheet is only for choosing. refs_pick the 2-5 that solve THIS brief best (use the tagged numbers, e.g. \"L3-7\"; one reason each), " +
-  "then refs_view each: the ORIGINAL full-size images, every section of the page; study the whole design, then refs_study with values. " +
+  "then refs_view each: the ORIGINAL full-size images, every section of the page; study the whole design, then refs_study with values and a role (style, competitor, page). " +
   "refs_zoom is optional, for one small detail. Fan out with refs_tag and refs_designer. Target: 6-12 studied from 3+ designers, most of them real examples of what you're building.";
 
 // Pages that are almost never good design references: docs, wikis, package registries, repo pages.
@@ -166,7 +166,7 @@ export function register(server, ctx) {
       // Shot pages still queue 2 s apart (Dribbble rate limits); image downloads and resizing overlap that wait.
       const views = await Promise.all(list.map((one) => viewOne(one, per).catch((err) => ({ info: `${one}: ${err.message}`, imgs: [] }))));
       for (const r of views) out.push(textBlock(r.info), ...r.imgs);
-      if (list.length > 1) out.push(textBlock(`NEXT: refs_study all ${list.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, …] }).`));
+      if (list.length > 1) out.push(textBlock(`NEXT: refs_study (with role: "competitor", "page", "style" or "before") all ${list.length} in one call: refs_study({ studies: [{ shot, layout, type, color, density, detail, take, leave }, …] }).`));
       return blocks(out);
     }),
   );
@@ -227,7 +227,7 @@ export function register(server, ctx) {
         `Tags: ${s.tags.join(", ") || "—"}\n` +
         `Images: ${s.images.length} originals (showing ${imgs.length} pictures; tall pages split into top-to-bottom sections)${s.videos.length ? ` · ${s.videos.length} video(s), still frame shown` : ""}\n` +
         (s.description ? `\nDesigner's notes:\n${s.description.slice(0, 1500)}\n` : "") +
-        `Study the whole design (every section), then refs_study with values. More from this designer: refs_designer("${s.designerUrl}").${degraded}`;
+        `Study the whole design (every section), then refs_study with values and a role (style, competitor, page). More from this designer: refs_designer("${s.designerUrl}").${degraded}`;
       return { info, imgs };
     }
   }
@@ -267,6 +267,7 @@ export function register(server, ctx) {
             const memo = `${url}|${screens}`;
             const hit = SITE_MEMO.get(memo);
             const r = hit && Date.now() - hit.at < 30 * 60000 ? hit.r : await capture(url, { width: 1440, height: 900, maxSlices: screens, idle: true, brand: true, config });
+            if (r.blocked) throw new Error(`${url} answered with a bot check ("${r.blocked}"), not the page: it can't be a reference. Pick another site.`);
             SITE_MEMO.set(memo, { r, at: Date.now() });
             const key = siteKey(url);
             const slug = key.slice(5).replace(/[^a-z0-9]+/gi, "-");
@@ -469,12 +470,12 @@ export function register(server, ctx) {
         };
       const note = `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · density: ${n.density} · detail: ${n.detail} · leave: ${n.leave}`;
       const surface = st0.task?.surface;
-      const studyRec = { ...n, at: new Date().toISOString(), surface, onSurface: onSurface(item), pass: passOf(key) };
+      const studyRec = { ...n, at: new Date().toISOString(), surface, onSurface: onSurface(item), pass: passOf(key), role: n.role };
       remember({ ...item, study: studyRec });
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.refs.studied = (s.task.refs.studied || []).filter((x) => x.key !== key);
-        s.task.refs.studied.push({ key, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: new Date().toISOString() });
+        s.task.refs.studied.push({ key, role: n.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), at: new Date().toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -501,6 +502,7 @@ export function register(server, ctx) {
 
 const STUDY_SHAPE = {
   shot: z.string(),
+  role: z.enum(["style", "competitor", "page", "before"]).describe("Why it's here: style = the look you're aiming for; competitor = a similar product (its shipped site); page = the same kind of page you're making (a landing page, an app home screen); before = the current version being redesigned"),
   layout: z.string(),
   type: z.string(),
   color: z.string(),

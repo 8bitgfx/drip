@@ -98,6 +98,9 @@ export function register(server, ctx) {
         if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
         const missing = board.directions.filter((d) => !d.tile || !fs.existsSync(d.tile));
         if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
+        const unreadable = board.directions.filter((d) => d.typeIssues?.length);
+        if (unreadable.length)
+          return text(`Not ready for the critic: ${unreadable.map((d) => `"${d.name}" (${d.typeIssues.map((t) => t.detail).join("; ")})`).join(" · ")}. Fix the comps and board_tile again; a critic's time goes on ideas, not on broken type.`, true);
         board.directions.forEach((d, i) => {
           files.push(d.tile);
           notes.push(`Direction ${i + 1} "${d.name}" (${files.length}): ${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} · ${d.adjectives.join(", ")} · palette ${d.palette.join(" ")} · type ${d.type}`);

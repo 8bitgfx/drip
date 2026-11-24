@@ -62,6 +62,64 @@ const AUDIT = `(() => {
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, empty: screens, title: document.title };
 })()`;
 
+// Before anything is measured or shot: refuse bot checks, and clear consent banners and pop-ups so the page is what's
+// photographed, not a cookie dialog. Clicks a reject/accept/close control inside a consent or modal container, then
+// hides what still covers most of the screen from a fixed layer. Embedded as text: no backslashes, no placeholders.
+const CLEAR_OVERLAYS = `(async () => {
+  const txt = (document.title + ' ' + (document.body ? document.body.innerText.slice(0, 600) : '')).toLowerCase();
+  if (/just a moment|performing security verification|verify you are human|attention required|checking your browser|access denied|are you a robot|captcha/.test(txt)) return { blocked: document.title || 'bot check' };
+  const words = /^(reject all|reject|decline|decline all|deny|necessary only|only necessary|essential only|no thanks|no, thanks|not now|close|dismiss|got it|ok|okay|accept|accept all|i agree|agree|allow all|continue)$/i;
+  const box = (el) => el.closest('[id*=cookie i],[class*=cookie i],[id*=consent i],[class*=consent i],[id*=gdpr i],[class*=gdpr i],[class*=banner i],[role=dialog],[aria-modal=true],[class*=modal i],[class*=popup i],[id*=onetrust i],[class*=cmp i]');
+  let clicked = 0;
+  for (let round = 0; round < 2; round++) {
+    const btns = [...document.querySelectorAll('button, [role=button], a')].filter((b) => words.test((b.innerText || b.getAttribute('aria-label') || '').trim()) && box(b));
+    const pick = btns.find((b) => /reject|decline|deny|necessary|essential|no thanks|not now|close|dismiss/i.test(b.innerText || b.getAttribute('aria-label') || '')) || btns[0];
+    if (!pick) break;
+    pick.click(); clicked++;
+    await new Promise((r) => setTimeout(r, 400));
+  }
+  let hidden = 0;
+  for (const el of document.querySelectorAll('body *')) {
+    const cs = getComputedStyle(el);
+    if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+    const r = el.getBoundingClientRect();
+    const covers = r.width * r.height > innerWidth * innerHeight * 0.3;
+    const consent = box(el) && !el.closest('header, nav');
+    if ((covers && +cs.zIndex > 10 && !el.closest('header, nav')) || (consent && r.height < innerHeight * 0.6 && r.top > innerHeight * 0.4)) { el.style.setProperty('display', 'none', 'important'); hidden++; }
+  }
+  document.documentElement.style.overflow = ''; document.body && (document.body.style.overflow = '');
+  return { clicked, hidden };
+})()`;
+
+// Type that can't be read, measured: a fake (synthesized) bold because the face lacks that weight, a web font that never
+// loaded, tracking tight enough that letters touch, line-height tight enough that lines touch. Embedded as text.
+export const TYPE_CHECK = `(() => {
+  const out = []; const seen = new Set();
+  const faces = [...document.fonts].filter((f) => f.status === 'loaded');
+  const famKey = (s) => s.split(',')[0].replace(/["']/g, '').trim().toLowerCase();
+  const generic = /^(serif|sans-serif|monospace|system-ui|ui-sans-serif|ui-serif|ui-monospace|cursive|fantasy|-apple-system|blinkmacsystemfont|arial|helvetica|georgia|times new roman|segoe ui|roboto)$/;
+  const weights = (fam) => faces.filter((f) => f.family.replace(/["']/g, '').trim().toLowerCase() === fam).flatMap((f) => String(f.weight).split(' ').map(Number)).filter((n) => !isNaN(n));
+  for (const el of document.querySelectorAll('h1, h2, h3, p, a, button, span, div, li, strong, em, b')) {
+    if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1)) continue;
+    const cs = getComputedStyle(el); const r = el.getBoundingClientRect();
+    if (!r.width || cs.visibility === 'hidden' || +cs.opacity < 0.1) continue;
+    const size = parseFloat(cs.fontSize); if (size < 20) continue;
+    const fam = famKey(cs.fontFamily); const w = parseInt(cs.fontWeight, 10);
+    const sample = el.textContent.trim().slice(0, 30); const id = fam + '|' + w + '|' + Math.round(size);
+    if (!generic.test(fam)) {
+      const ws = weights(fam);
+      const declared = [...document.fonts].some((f) => f.family.replace(/["']/g, '').trim().toLowerCase() === fam);
+      if (!ws.length) { if (declared && !seen.has('missing' + fam)) { seen.add('missing' + fam); out.push({ kind: 'font-missing', text: sample, detail: cs.fontFamily.split(',')[0] + ' never loaded: the text falls back to another face' }); } }
+      else if (cs.fontSynthesis !== 'none' && w - Math.max(...ws) >= 100 && !seen.has('syn' + id)) { seen.add('syn' + id); out.push({ kind: 'fake-bold', text: sample, detail: cs.fontFamily.split(',')[0] + ' has no ' + w + ' weight (max ' + Math.max(...ws) + '): the browser smears a fake bold. Use a weight the face has' }); }
+    }
+    const ls = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing) / size;
+    if ((ls < -0.06 || (ls < -0.045 && w >= 800)) && !seen.has('ls' + id)) { seen.add('ls' + id); out.push({ kind: 'letters-touch', text: sample, detail: 'letter-spacing ' + ls.toFixed(3) + 'em at weight ' + w + ': letters run into each other' }); }
+    const lh = cs.lineHeight === 'normal' ? 1.2 : parseFloat(cs.lineHeight) / size;
+    if (lh < 0.88 && r.height > size * 1.6 && !seen.has('lh' + id)) { seen.add('lh' + id); out.push({ kind: 'lines-touch', text: sample, detail: 'line-height ' + lh.toFixed(2) + ' on ' + Math.round(size) + 'px text over several lines: ascenders hit the line above' }); }
+  }
+  return out.slice(0, 12);
+})()`;
+
 // Text something else is drawn over (decoration, a sticker, paint, a badge): the browser is asked what is on top at
 // points along each line of text, a screen at a time. pointer-events are forced on while it looks, because decoration is
 // usually pointer-events: none. Written without backslashes or template placeholders: it is embedded as text.
@@ -114,16 +172,27 @@ const COVERED = `(async () => {
  * Open `url` at `width` x `height`, return { audit, slices: [Buffer jpeg…] } where slices cover the whole page,
  * one viewport each (max `maxSlices`, evenly spaced if the page is longer).
  */
+/** The type check on its own (comps): open the page, return what TYPE_CHECK finds. */
+export async function typeIssues(url, { width = 1440, height = 900, config } = {}) {
+  return withTab(config, async (tab) => {
+    await openPage(tab, url, { width, height, settleMs: 300 });
+    return (await tab.s("Runtime.evaluate", { expression: TYPE_CHECK, returnByValue: true })).result?.value || [];
+  });
+}
+
 export async function capture(url, { width = 1440, height = 900, maxSlices = 6, quality = 78, scale = 1, idle = false, brand = false, config } = {}) {
   return withTab(config, async (tab) => {
     const { s } = tab;
     await openPage(tab, url, { width, height, idle });
+    const cleared = (await s("Runtime.evaluate", { expression: CLEAR_OVERLAYS, awaitPromise: true, returnByValue: true })).result?.value || {};
+    if (cleared.blocked) return { audit: { blocked: cleared.blocked, height: height }, slices: [], sliceCount: 0, blocked: cleared.blocked };
     // Scroll through once so lazy content and scroll-triggered reveals render, then back to the top.
     await s("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
     await settle(s, 800);
     const { result } = await s("Runtime.evaluate", { expression: AUDIT, returnByValue: true });
     const audit = result.value;
     audit.covered = (await s("Runtime.evaluate", { expression: COVERED, awaitPromise: true, returnByValue: true })).result?.value || [];
+    audit.type = (await s("Runtime.evaluate", { expression: TYPE_CHECK, returnByValue: true })).result?.value || [];
     if (brand) audit.brand = (await s("Runtime.evaluate", { expression: BRAND, returnByValue: true })).result.value;
     const total = Math.min(audit.height, 30000);
     const count = Math.max(1, Math.ceil(total / height));
@@ -151,6 +220,7 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   const desk = a.width >= 1000;
   const phone = a.width < 600;
   if (phone && a.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
+  for (const t of a.type || []) blockers.push(`unreadable type (${t.kind}): "${t.text}": ${t.detail}`);
   const shapes = (a.covered || []).filter((c) => !c.image);
   const pics = (a.covered || []).filter((c) => c.image);
   if (pics.length) warnings.push(`images over text: ${pics.slice(0, 3).map((c) => `"${c.text}" under ${c.by}`).join("; ")}. Fine in a deliberate collage; check the words still read`);
@@ -161,7 +231,13 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   if (persuade && a.hero) {
     const want = Math.round(displayPx(a.width));
     if (!a.h1) blockers.push("no h1: the hero needs its headline as the h1");
-    else if (a.h1 < want * 0.85) blockers.push(`h1 is ${a.h1}px; the Display token at ${a.width}px is ~${want}px (kit/base.css --t-display). Go bigger, fewer words`);
+    else {
+      const container = Math.min(a.width - 128, 1312);
+      const bigPicture = a.hero.pic && a.hero.pic.w >= container * 0.45 && a.hero.pic.h >= (a.vh || 900) * 0.5;
+      // A big picture can carry the hero; then the h1 only has to be clearly a headline, not Display-size.
+      if (a.h1 < want * (bigPicture ? 0.45 : 0.7)) blockers.push(`h1 is ${a.h1}px; ${bigPicture ? `even beside a big picture a headline needs ~${Math.round(want * 0.45)}px+` : `with no big picture the type carries the hero: ~${Math.round(want * 0.7)}px+ (Display token ~${want}px)`}`);
+      else if (!bigPicture && a.h1 < want * 0.85) warnings.push(`h1 ${a.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
+    }
     if (a.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
     if (desk) {
       const container = Math.min(a.width - 128, 1312);
