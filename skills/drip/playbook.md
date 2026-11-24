@@ -41,6 +41,24 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
     - Never more than 10% of the page's text in mono.
 13. Name the signature: the subject's strongest real thing, shown at its best on the first screen. Then name how the thesis shows in each section below, in a different form each time. An idea that lives only in the hero is a sticker.
 
+## The kind of business decides the pictures
+| Kind | Leads the page | Effects and scenes |
+|---|---|---|
+| software (app, SaaS, AI, dev tool, fintech app) | its own UI as live HTML showing real work, in one app window; feature cards with UI fragments, pulsing diagrams, real icons | one effect (a shader ground in the hero or one frame) and one or two moments; 0-1 scroll scene |
+| gaming | its world as full-bleed key art, its name in the h1 | one effect at most, never in the art's place |
+| tech (hardware) | the device in photographs (stand-ins of its kind when there are none), big and whole | one effect or a render only when the brief asks for 3D |
+| product (physical goods) | photographs: the product big, a different view each section | none; flat grounds, one brand band |
+| service (clinic, agency, studio) | photographs of the people, rooms and work | none |
+| place (cafe, shop, hotel) | 12-20 photographs, the place itself | none: photographs, flat colour, type |
+`layout_deal` deals the set for the kind; `parts_list` has the ready-made effects, scenes, moments, UI fragments and cards.
+
+## House rules (from taste-skill, they hold everywhere)
+- One section per screen: the hero alone on the first screen, every section one or two screens tall at 1440x900.
+- Equal left and right content edges; no caption under an image (credits go in one footer line).
+- The hover layer on everything: a linked card lifts 2px, a photo zooms 1.02-1.03 inside its frame, buttons step on hover and press on click, underlines draw. `parts_get` copies the motion layer (motion/motion.css + motion.js) with any part.
+- Every hero enters once on load; every page has one dealt moment, two on a long page.
+- Real full-colour icons of real products, never drawn ones.
+
 ## Compose in pixels before CSS
 14. References first, then `board_create` → `board_directions` with 3 directions that are different IDEAS (not one idea in three colours). Read the gold page closest to yours first (`drip_guide examples/gold`). Each direction needs:
     - its `idea` in one line, and what it `takes` from which studied references (a decision, never only colours);

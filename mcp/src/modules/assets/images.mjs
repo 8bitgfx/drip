@@ -1,4 +1,4 @@
-// Photos, art and images with their licences, and web-ready saving.
+// Photos and art for drafts, and web-ready saving. Licences are the user's call: sources are logged, never gated.
 // Sources: Unsplash / Pexels / Pixabay (free keys, best photos), Openverse (commercial-use filter),
 // Wikimedia Commons, the Cleveland Museum of Art (public-domain CC0 paintings, prints, woodblocks and
 // illustration: the safe source for painterly / illustrated heroes), NASA (space, earth, science).
@@ -14,6 +14,41 @@ import { getKey } from "../../core/keys.mjs";
 import { ensureProjectDrip, projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { rememberListing, resolve, lookup } from "../../core/seen.mjs";
+import { installTaste, tasteAssets, tasteReady } from "../parts/index.mjs";
+
+/** Resolve within ms or give up with []: one slow source never holds the search. */
+const within = (p, ms) => Promise.race([p.catch(() => []), new Promise((r) => setTimeout(() => r([]), ms))]);
+const ABSTRACT = /\b(abstract|gradient|texture|noise|grain|sky|cloud|cosmic|space|nebula|surreal|dreamy|background|wallpaper|pattern|aurora|light leak|bokeh|flowers?|illustration|painting|art)\b/i;
+const BROWSER_UA = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9" };
+const decode = (x) => String(x).replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+
+/** Bing image results (plain HTML, no key): murl = the image, turl = its thumbnail, purl = the page it is on. */
+export function parseBing(html) {
+  const out = [];
+  for (const m of String(html).matchAll(/m="(\{[^"]*?\})"|m='(\{[^']*?\})'/g)) {
+    const raw = decode(m[1] || m[2] || "");
+    const get = (k) => (raw.match(new RegExp(`"${k}":"(.*?)"`)) || [])[1];
+    const full = get("murl");
+    if (full) out.push({ title: get("t") || "", full, thumb: get("turl") || full, page: get("purl") || full });
+  }
+  return out;
+}
+
+let library = null;
+/** taste-skill's vetted photo library (413 tagged photographs, Unsplash ones served by picsum.photos): instant, no key. */
+function libraryPhotos() {
+  if (library) return library;
+  if (!tasteReady()) {
+    installTaste().catch(() => {});
+    return [];
+  }
+  try {
+    library = JSON.parse(fs.readFileSync(path.join(tasteAssets(), "photos", "photos.json"), "utf8")).photos || [];
+  } catch {
+    library = [];
+  }
+  return library;
+}
 
 const strip = (s) => (s || "").replace(/<[^>]+>/g, "").trim();
 const UA = { "User-Agent": "drip-design-mcp/0.4 (design tool; https://github.com/8bitgfx/drip)" };
@@ -43,6 +78,29 @@ export function parseImageory(html) {
 }
 
 const SOURCES = {
+  async library({ query, orientation, limit }) {
+    const words = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+    return libraryPhotos()
+      .filter((p) => p.url && !(p.people === "figure"))
+      .map((p) => ({ p, hits: words.filter((w) => `${p.alt} ${p.subject} ${p.motif} ${(p.trades || []).join(" ")} ${(p.colours || []).join(" ")} ${p.set || ""} ${p.tone || ""}`.toLowerCase().includes(w)).length }))
+      .filter((x) => x.hits >= Math.min(2, words.length))
+      .sort((a, b) => b.hits - a.hits || (b.p.quality || 0) - (a.p.quality || 0))
+      .map(({ p }) => {
+        const r = p.ratio || p.width / p.height || 1.5;
+        const pic = /picsum\.photos/.test(p.url);
+        return { title: p.alt, thumb: pic ? `${p.url}/480/${Math.round(480 / r)}` : p.url, full: pic ? `${p.url}/2400/${Math.round(2400 / r)}` : p.url, width: p.width, height: p.height, page: p.page, author: p.by, license: p.licence };
+      })
+      .filter((r) => fitsOrientation(r, orientation))
+      .slice(0, limit);
+  },
+  async web({ query, orientation, limit }) {
+    const { body } = await get(`https://www.bing.com/images/async?q=${encodeURIComponent(query)}&first=0&count=${Math.max(limit * 3, 35)}&qft=+filterui:imagesize-large${orientation === "landscape" ? "+filterui:aspect-wide" : orientation === "portrait" ? "+filterui:aspect-tall" : ""}&adlt=moderate`, { as: "text", headers: BROWSER_UA, ttlMs: 24 * 3600e3 });
+    // Stock agencies serve watermarked previews: useless even as a draft.
+    const STOCK = /(alamy|dreamstime|istockphoto|gettyimages|shutterstock|stock.adobe|adobestock|vecteezy|123rf|depositphotos|bigstockphoto|canstockphoto|stocksy|pond5|agefotostock|superstock)./i;
+    const perHost = {};
+    const host = (u) => { try { return new URL(u).hostname; } catch { return u; } };
+    return parseBing(body).filter((r) => !STOCK.test(r.page) && !STOCK.test(r.full) && (perHost[host(r.page)] = (perHost[host(r.page)] || 0) + 1) <= 3).slice(0, limit).map((r) => ({ ...r, width: 0, height: 0, author: (() => { try { return new URL(r.page).hostname.replace(/^www\./, ""); } catch { return "web"; } })(), license: "web find (draft: check before shipping)" }));
+  },
   async imageory({ query, orientation, limit }) {
     const { body } = await get("https://imageory.in/gallery", { as: "text", headers: { "User-Agent": "Mozilla/5.0 (drip design tool)" }, ttlMs: 24 * 3600e3 });
     const words = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
@@ -86,7 +144,7 @@ const SOURCES = {
   },
   async openverse({ query, limit, orientation }) {
     const token = getKey("openverse");
-    const { body } = await get(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${limit}&license_type=commercial,modification${orientation ? `&aspect_ratio=${orientation === "landscape" ? "wide" : orientation === "portrait" ? "tall" : "square"}` : ""}`, { as: "json", headers: { ...UA, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
+    const { body } = await get(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${limit}${orientation ? `&aspect_ratio=${orientation === "landscape" ? "wide" : orientation === "portrait" ? "tall" : "square"}` : ""}`, { as: "json", headers: { ...UA, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
     return body.results.map((p) => ({ title: p.title, thumb: p.thumbnail, full: p.url, width: p.width, height: p.height, page: p.foreign_landing_url, author: p.creator, license: `${p.license.toUpperCase()} ${p.license_version || ""}`.trim() + (/^by/i.test(p.license) ? " (credit required)" : "") }));
   },
   async wikimedia({ query, orientation, limit }) {
@@ -125,49 +183,49 @@ const SOURCES = {
 };
 
 const SOURCE_NOTES =
-  "imageory: FIRST CHOICE for hero and background images: curated, free to use, each with the prompt that made it (surreal landscapes, sky art, gradients, noise, cosmic, flowers, illustration) · unsplash/pexels/pixabay: best photos (free keys) · openverse: CC licences, commercial-use only · wikimedia: everything, check each licence · " +
-  "cleveland: public-domain paintings, prints, woodblock and ukiyo-e, illustration (CC0, up to 3400px; the honest route to painterly and anime-adjacent heroes) · nasa: space, earth, science.";
+  "By default ONE call searches every source at once (each gives up after a few seconds) and merges them: library (taste-skill's vetted, tagged photos: instant), unsplash/pexels/pixabay (when their free keys are set: the best photos), web (an image search of the whole web), openverse, wikimedia, and imageory for abstract, sky and background art. " +
+  "Pass source for one: cleveland (public-domain paintings, prints, ukiyo-e), nasa (space, earth, science). These are drafts: licences are the user's call, every saved file's source is logged in .drip/assets.json.";
 
 export function register(server, ctx) {
   server.registerTool(
     "images_search",
     {
-      title: "Search photos and art (with licences)",
+      title: "Search photos and art (every source at once)",
       description:
-        "Search photography and public-domain art for heroes and sections, with author, licence, size and colour for each. " +
+        "Search photography and art for heroes and sections, with author, size and colour for each. " +
         SOURCE_NOTES +
-        " Returns a numbered list + contact sheet. Write art-directed queries ('architect at desk morning light', 'hokusai wave', not 'business'). " +
-        "Never use film or anime stills (e.g. Ghibli) or unlicensed art: no licence covers a commercial page; for an anime/illustrated look use cleveland ukiyo-e and prints, pixabay kind illustration, or gen_image.",
+        " Returns a numbered list + contact sheet. Write art-directed queries ('aerial vineyard rows morning', 'architect at desk morning light', not 'business'). Several queries: pass queries (up to 4) in the same call.",
       inputSchema: {
-        query: z.string(),
-        source: z.enum(["imageory", "unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: imageory when it has matches, else unsplash, pexels, pixabay, openverse"),
+        query: z.string().optional(),
+        queries: z.array(z.string()).max(4).optional().describe("Several searches in one call, e.g. ['aerial vineyard', 'grapes close up', 'winemaker hands']"),
+        source: z.enum(["library", "web", "imageory", "unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: all at once, merged"),
         orientation: z.enum(["landscape", "portrait", "square"]).optional(),
         color: z.string().optional().describe("unsplash/pexels/pixabay colour filter, e.g. 'blue', 'black_and_white', 'orange'"),
         kind: z.enum(["photo", "illustration", "vector"]).optional().describe("pixabay only"),
         limit: z.number().int().min(4).max(30).optional(),
       },
     },
-    safe(async ({ query, source, orientation, color, kind, limit = 18 }) => {
-      let src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : getKey("pixabay") ? "pixabay" : "openverse");
-      let results;
-      // Imageory leads: curated, free, hero-shaped, with prompts. Other sources fill in when it has nothing for the words.
-      if (!source) {
-        const im = await SOURCES.imageory({ query, orientation, limit }).catch(() => []);
-        if (im.length >= 4) {
-          src = "imageory";
-          results = im;
-        }
-      }
-      try {
-        if (!results) results = await SOURCES[src]({ query, orientation, limit, color, kind });
-      } catch (e) {
-        if (source) throw e;
-        results = await SOURCES.wikimedia({ query, orientation, limit }); // Openverse is sometimes down
-      }
-      if (!results.length) return text(`No images for "${query}" on ${src}. Try other words or another source (${Object.keys(SOURCES).join(", ")}).`);
-      const items = results.map((r, i) => ({ key: `image:${r.full}`, source: src, id: `${src}-${i}`, title: r.title, url: r.page, image: r.full, thumb: r.thumb, designer: r.author, license: r.license, ping: r.ping, width: r.width, height: r.height }));
+    safe(async ({ query, queries, source, orientation, color, kind, limit = 18 }) => {
+      const qs = [...new Set([query, ...(queries || [])].filter(Boolean))];
+      if (!qs.length) return text("Pass query (or queries).", true);
+      const keyed = ["unsplash", "pexels", "pixabay"].filter((k) => getKey(k));
+      const each = Math.max(4, Math.ceil(limit / qs.length));
+      const runOne = async (q) => {
+        if (source) return (await SOURCES[source]({ query: q, orientation, limit: each, color, kind })).map((r) => ({ ...r, src: source }));
+        // Every source at once, each given a few seconds; merged round-robin so the best sources lead.
+        const order = ["library", ...keyed, ...(ABSTRACT.test(q) ? ["imageory"] : []), "web", "openverse", "wikimedia"];
+        const lists = await Promise.all(order.map((k) => within(SOURCES[k]({ query: q, orientation, limit: each, color, kind }), k === "library" ? 3000 : 7000).then((l) => l.map((r) => ({ ...r, src: k })))));
+        const merged = [];
+        for (let i = 0; merged.length < each && lists.some((l) => l[i]); i++) for (const l of lists) if (l[i] && merged.length < each) merged.push(l[i]);
+        return merged;
+      };
+      const seen = new Set();
+      const results = (await Promise.all(qs.map(runOne))).flat().filter((r) => r.full && !seen.has(r.full) && seen.add(r.full)).slice(0, limit);
+      const src = source || "all";
+      if (!results.length) return text(`No images for "${qs.join('", "')}"${source ? ` on ${source}` : ""}. Try other words.`);
+      const items = results.map((r, i) => ({ key: `image:${r.full}`, source: r.src, id: `${r.src}-${i}`, title: r.title, url: r.page, image: r.full, thumb: r.thumb, designer: r.author, license: r.license, ping: r.ping, width: r.width, height: r.height }));
       rememberListing(items);
-      const bufs = await Promise.all(results.map((r) => fetchImage(r.thumb).then((x) => x.buf).catch(() => Buffer.alloc(0))));
+      const bufs = await Promise.all(results.map((r) => Promise.race([fetchImage(r.thumb).then((x) => x.buf).catch(() => Buffer.alloc(0)), new Promise((ok) => setTimeout(() => ok(Buffer.alloc(0)), 5000))])));
       const fmt = (r) => {
         if (!r.width) return "size on save";
         const big = Math.max(r.width, r.height);
@@ -175,9 +233,9 @@ export function register(server, ctx) {
       };
       return blocks([
         textBlock(
-          `${src}: "${query}"${!getKey("unsplash") && !getKey("pexels") ? "  (no Unsplash/Pexels key: keys_open for better photos)" : ""}\n` +
-            results.map((r, i) => `${i + 1}. ${r.title.slice(0, 80)} — ${r.author || "?"} · ${r.license} · ${fmt(r)}${r.color ? ` · ${r.color}` : ""}${r.prompt ? `\n   prompt: ${r.prompt.slice(0, 220)}${r.prompt.length > 220 ? "…" : ""}` : ""}`).join("\n") +
-            (src === "imageory" ? "\nEach Imageory image comes with its prompt: reuse or adapt it with gen_image for a variation in the brand's colours." : "") +
+          `${src}: "${qs.join('", "')}"${!keyed.length ? "  (no Unsplash/Pexels/Pixabay key: free keys via keys_open give the best photos)" : ""}\n` +
+            results.map((r, i) => `${i + 1}. ${String(r.title || "").slice(0, 80)} — ${r.src} · ${r.author || "?"} · ${fmt(r)}${r.color ? ` · ${r.color}` : ""}${r.prompt ? `\n   prompt: ${r.prompt.slice(0, 220)}${r.prompt.length > 220 ? "…" : ""}` : ""}`).join("\n") +
+            (results.some((r) => r.src === "imageory") ? "\nImageory images come with their prompt: adapt it with gen_image for a variation in the brand's colours." : "") +
             `\n\nTiles are letterboxed (whole image shown). Save one with images_save({ image: "3", dest: "public/img/hero", slots: [{ name: "desktop", ar: "16:9", width: 2400 }, { name: "phone", ar: "4:5", width: 1200 }] }).`,
         ),
         imageBlock(await contactSheet(bufs, { cols: 6, tileW: 300, tileH: 225, fit: "contain" })),
@@ -233,7 +291,7 @@ export function register(server, ctx) {
       }
       const log = path.join(ensureProjectDrip(), "assets.json");
       const prev = fs.existsSync(log) ? JSON.parse(fs.readFileSync(log, "utf8")) : [];
-      for (const w of written) prev.push({ file: w.rel, source: item.url, author: item.designer || null, license: item.license || "unknown — check before shipping", credit: credit || null, savedAt: new Date().toISOString() });
+      for (const w of written) prev.push({ file: w.rel, source: item.url, author: item.designer || null, license: item.license || null, credit: credit || null, savedAt: new Date().toISOString() });
       fs.writeFileSync(log, JSON.stringify(prev, null, 2));
       const web = (rel) => "/" + rel.replace(/\\/g, "/").replace(/^public\//, "");
       const phone = written.find((w) => w.height > w.width);
@@ -244,7 +302,7 @@ export function register(server, ctx) {
       return text(
         `Original ${res.width}x${res.height} (${Math.round(buf.length / 1024)} KB), focal point ${Math.round(res.focus.x * 100)}% ${Math.round(res.focus.y * 100)}%.\n` +
           written.map((w) => `- ${w.rel}: ${w.width}x${w.height}, ${w.kb} KB${w.kb > maxKB ? " (over budget: try a smaller width)" : ""}`).join("\n") +
-          `\nLicence: ${item.license || "UNKNOWN: confirm before shipping"}${item.designer ? ` · credit ${item.designer}` : ""}. Logged in .drip/assets.json.\n\n${picture}\n(Hero: fetchpriority="high", no lazy loading. Below the fold: loading="lazy".)`,
+          `\nSource logged in .drip/assets.json${item.designer ? ` (${item.designer})` : ""}.\n\n${picture}\n(Hero: fetchpriority="high", no lazy loading. Below the fold: loading="lazy".)`,
       );
     }),
   );

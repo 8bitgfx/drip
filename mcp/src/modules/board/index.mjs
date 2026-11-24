@@ -83,15 +83,17 @@ export function freshLooksGate(directions, task, config) {
   // Another project, or another task in this folder that is not this brand (several products share one folder), counts as a repeat.
   const brand = !!task.memory?.styleRevision;
   const others = recentLooks(8).filter((l) => l.project !== here || (!brand && l.task && l.task !== task.id));
+  // Only the display face is a voice; text faces repeat across good pages all the time. And only the last few looks.
+  const lately = others.slice(0, 3);
   for (const d of directions) {
-    const faces = facesOf(d.type);
+    const faces = facesOf(d.type).slice(0, 1);
     for (const f of faces) {
-      const hit = others.find((l) => (l.faces || []).some((x) => sameFace(x, f)));
+      const hit = lately.find((l) => (l.faces || [])[0] && sameFace(l.faces[0], f));
       if (hit) problems.push(`"${d.name}": ${f} was the face of "${hit.direction}" in another project (${hit.at.slice(0, 10)}). Drip just used it: find a different one with fonts_search / fonts_compare.`);
       else if (isOverused(f) && (d.typeReason || "").trim().length < 25)
         problems.push(`"${d.name}": ${f} is what every agent reaches for once Inter is banned. Keep it only with typeReason saying why it fits THIS subject (25+ characters), or find another with fonts_search.`);
     }
-    const twin = others.find((l) => samePalette(d.palette, l.palette));
+    const twin = lately.find((l) => samePalette(d.palette, l.palette));
     if (twin) problems.push(`"${d.name}": ground ${d.palette[0]} + accent ${d.palette[2] || "?"} is the palette of "${twin.direction}" in another project. Take the colours from this subject's world instead.`);
   }
   return problems.length ? `Directions not saved. They repeat Drip's defaults:\n- ${problems.join("\n- ")}` : null;

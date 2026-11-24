@@ -58,3 +58,5 @@ All under the MIT License (text above). Tastemaker's knowledge base is CC BY 4.0
 Impeccable, frontend-design, canvas-design (Anthropic), Design-review-skill (vip999611-ai) and designer-skills (Julian Oczkowski)
 are licensed under the Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0). Drip's texts derived from them are modified.
 Drip's guides contain modified, rewritten adaptations of their ideas.
+
+- **taste-skill** (https://github.com/Leonxlnx/taste-skill, MIT): Drip clones it on first use (pinned commit) for its ready-made parts (effects, scenes, moments, UI fragments, cards, diagrams, objects, hero layouts), its photo library and its layout, palette and type dealers (`parts_*`, `layout_deal`, images_search source `library`). Not copied into this repo.

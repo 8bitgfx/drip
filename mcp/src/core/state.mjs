@@ -337,11 +337,11 @@ export function missingBeforeUi(task, config) {
     if (g.requireSources !== false && pageWork && task.board?.chosen && !task.board?.adopted) {
       const used = task.toolUse || {};
       const any = (re) => Object.keys(used).some((k) => re.test(k));
-      if (!any(/^(components_|catalogue_)/))
+      if (!any(/^(components_|catalogue_|parts_)/))
         missing.push({ need: "components", how: "components_find for the page's interactive and eye-candy pieces (a prompt box, a gallery or marquee, a bento, pricing, a footer, a chart): build on the best one found, or say why none fits" });
       // The plan may say every picture is the project's own (real outputs, product UI built in code): that is a source too.
       const ownPictures = task.plan?.sections?.length && task.plan.sections.every((x) => ["user-files", "product-ui", "code-visual", "none"].includes(x.picture?.source));
-      if (!ownPictures && !any(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
+      if (!ownPictures && !any(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|parts_get)/))
         missing.push({ need: "pictures", how: "pick a picture source for each section that needs one: images_search (Imageory first), art_generate, shader_hero, mockup_render for screens, or the user's real files; never fill the product's place with a drawing you improvised" });
     }
     // Sections come from the references too, not only the hero: the plan names each section's borrowed move and picture.

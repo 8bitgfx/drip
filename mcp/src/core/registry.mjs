@@ -19,15 +19,16 @@ import * as project from "../modules/project/index.mjs";
 import * as inspire from "../modules/inspire/index.mjs";
 import * as studio from "../modules/studio/index.mjs";
 import * as swarm from "../modules/swarm/index.mjs";
+import * as parts from "../modules/parts/index.mjs";
 
 export const ctx = { config: () => loadConfig() };
 
 // Order matters only for listings. A module can be turned off in .drip/config.json ("modules": { "<name>": false }).
-export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm };
+export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm, parts };
 
 // Which tools a task used (task.toolUse): lets gates ask for steps no prose can enforce, such as searching
 // components and picture sources before building. Counting never fails a call.
-const TRACKED = /^(components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
+const TRACKED = /^(parts_|components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
 function tracked(name, handler) {
   if (!TRACKED.test(name)) return handler;
   return async (...args) => {

@@ -412,3 +412,12 @@ test("the section plan borrows from studied references and varies its forms", as
   ];
   assert.deepEqual(planGate(good, task), []);
 });
+
+test("web image results parse from Bing's markup", async () => {
+  const { parseBing } = await import("../src/modules/assets/images.mjs");
+  const html = '<a class="iusc" m="{&quot;purl&quot;:&quot;https://site.example/p&quot;,&quot;murl&quot;:&quot;https://site.example/a.jpg&quot;,&quot;turl&quot;:&quot;https://tse.example/t&quot;,&quot;t&quot;:&quot;Vineyard rows&quot;}">';
+  const r = parseBing(html);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].full, "https://site.example/a.jpg");
+  assert.equal(r[0].title, "Vineyard rows");
+});

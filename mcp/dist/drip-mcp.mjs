@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path74) {
-      let input2 = path74;
+    function removeDotSegments(path75) {
+      let input2 = path75;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path74) {
-      if (path74 === "" || path74[0] === "/") {
-        return removeDotSegments(path74);
+    function removeDotSegmentsRelative(path75) {
+      if (path75 === "" || path75[0] === "/") {
+        return removeDotSegments(path75);
       }
-      const segments = path74.split("/");
+      const segments = path75.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path74 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path74 && path74 !== "/" ? path74 : void 0;
+        const path75 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path75 && path75 !== "/" ? path75 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -7257,12 +7257,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f3;
     };
-    function addFormats(ajv, list4, fs77, exportName) {
+    function addFormats(ajv, list4, fs78, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f3 of list4)
-        ajv.addFormat(f3, fs77[f3]);
+        ajv.addFormat(f3, fs78[f3]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -11548,7 +11548,7 @@ var require_gifframe = __commonJS({
 var require_gifutil = __commonJS({
   "node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
-    var fs77 = __require("fs");
+    var fs78 = __require("fs");
     var ImageQ = require_image_q();
     var BitmapImage2 = require_bitmapimage();
     var { GifFrame: GifFrame2 } = require_gifframe();
@@ -11663,14 +11663,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path74, frames, spec, encoder) {
+    exports.write = function(path75, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches2 = path74.match(/\.[a-zA-Z]+$/);
+      const matches2 = path75.match(/\.[a-zA-Z]+$/);
       if (matches2 !== null && INVALID_SUFFIXES.includes(matches2[0].toLowerCase())) {
-        throw new Error(`GIF '${path74}' has an unexpected suffix`);
+        throw new Error(`GIF '${path75}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path74, gif2.buffer).then(() => {
+        return _writeBinary(path75, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -11742,9 +11742,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path74) {
+    function _readBinary(path75) {
       return new Promise((resolve2, reject) => {
-        fs77.readFile(path74, (err, buffer) => {
+        fs78.readFile(path75, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -11752,9 +11752,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path74, buffer) {
+    function _writeBinary(path75, buffer) {
       return new Promise((resolve2, reject) => {
-        fs77.writeFile(path74, buffer, (err) => {
+        fs78.writeFile(path75, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -13499,21 +13499,21 @@ var require_decoder = __commonJS({
               successiveACState = 0;
           }
         }
-        function decodeMcu(component2, decode9, mcu2, row, col) {
+        function decodeMcu(component2, decode10, mcu2, row, col) {
           var mcuRow = mcu2 / mcusPerLine | 0;
           var mcuCol = mcu2 % mcusPerLine;
           var blockRow = mcuRow * component2.v + row;
           var blockCol = mcuCol * component2.h + col;
           if (component2.blocks[blockRow] === void 0 && opts.tolerantDecoding)
             return;
-          decode9(component2, component2.blocks[blockRow][blockCol]);
+          decode10(component2, component2.blocks[blockRow][blockCol]);
         }
-        function decodeBlock(component2, decode9, mcu2) {
+        function decodeBlock(component2, decode10, mcu2) {
           var blockRow = mcu2 / component2.blocksPerLine | 0;
           var blockCol = mcu2 % component2.blocksPerLine;
           if (component2.blocks[blockRow] === void 0 && opts.tolerantDecoding)
             return;
-          decode9(component2, component2.blocks[blockRow][blockCol]);
+          decode10(component2, component2.blocks[blockRow][blockCol]);
         }
         var componentsLength = components.length;
         var component, i2, j, k, n3;
@@ -13733,9 +13733,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path74) {
+        load: function load2(path75) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path74, true);
+          xhr.open("GET", path75, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -14236,12 +14236,12 @@ var require_decoder = __commonJS({
       return constructor;
     })();
     if (typeof module !== "undefined") {
-      module.exports = decode8;
+      module.exports = decode9;
     } else if (typeof window !== "undefined") {
       window["jpeg-js"] = window["jpeg-js"] || {};
-      window["jpeg-js"].decode = decode8;
+      window["jpeg-js"].decode = decode9;
     }
-    function decode8(jpegData, userOpts = {}) {
+    function decode9(jpegData, userOpts = {}) {
       var defaultOpts = {
         // "undefined" means "Choose whether to transform colors based on the image’s color model."
         colorTransform: void 0,
@@ -14293,10 +14293,10 @@ var require_decoder = __commonJS({
 var require_jpeg_js = __commonJS({
   "node_modules/jpeg-js/index.js"(exports, module) {
     var encode6 = require_encoder();
-    var decode8 = require_decoder();
+    var decode9 = require_decoder();
     module.exports = {
       encode: encode6,
-      decode: decode8
+      decode: decode9
     };
   }
 });
@@ -24162,11 +24162,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path74) {
-      path74 = String(path74);
-      let last = path74.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path75) {
+      path75 = String(path75);
+      let last = path75.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path74.length;
+      let hasPath = last.length < path75.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -26419,9 +26419,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path74) {
-        super(`Not a regular file: ${path74}`);
-        this.path = path74;
+      constructor(path75) {
+        super(`Not a regular file: ${path75}`);
+        this.path = path75;
         this.name = "NotRegularFileError";
       }
     };
@@ -30883,8 +30883,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path74, options) {
-  return new FileTypeParser2(options).fromFile(path74, options);
+async function fileTypeFromFile(path75, options) {
+  return new FileTypeParser2(options).fromFile(path75, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -30915,9 +30915,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path74) {
+      async fromFile(path75) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs25.open(path74, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs25.open(path75, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -30926,7 +30926,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path74,
+            path: path75,
             size: fileStat.size
           }
         });
@@ -38371,9 +38371,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path74, options) {
+      Path.fromSVG = function(path75, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path74, options);
+        return newPath.fromSVG(path75, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -38639,7 +38639,7 @@ var require_opentype = __commonJS({
       var LIMIT32 = 2147483648;
       var MIN_16_16 = -(1 << 15);
       var MAX_16_16 = (1 << 15) - 1 + 1 / (1 << 16);
-      var decode8 = {};
+      var decode9 = {};
       var encode6 = {};
       var sizeOf = {};
       function constant(v) {
@@ -38799,7 +38799,7 @@ var require_opentype = __commonJS({
       sizeOf.NAME = sizeOf.CHARARRAY;
       encode6.STRING = encode6.CHARARRAY;
       sizeOf.STRING = sizeOf.CHARARRAY;
-      decode8.UTF8 = function(data, offset, numBytes) {
+      decode9.UTF8 = function(data, offset, numBytes) {
         const codePoints = [];
         const numChars = numBytes;
         for (let j = 0; j < numChars; j++, offset += 1) {
@@ -38807,7 +38807,7 @@ var require_opentype = __commonJS({
         }
         return String.fromCharCode.apply(null, codePoints);
       };
-      decode8.UTF16 = function(data, offset, numBytes) {
+      decode9.UTF16 = function(data, offset, numBytes) {
         const codePoints = [];
         const numChars = numBytes / 2;
         for (let j = 0; j < numChars; j++, offset += 2) {
@@ -38869,7 +38869,7 @@ var require_opentype = __commonJS({
           "\xC4\xC5\xC7\xC9\xD1\xD6\xDC\xE1\xE0\xE2\xE4\xE3\xE5\xE7\xE9\xE8\xEA\xEB\xED\xEC\xEE\xEF\xF1\xF3\xF2\xF4\xF6\xF5\xFA\xF9\xFB\xFC\u2020\xB0\xA2\xA3\xA7\u2022\xB6\xDF\xAE\xA9\u2122\xB4\xA8\u2260\xC6\xD8\u221E\xB1\u2264\u2265\xA5\xB5\u2202\u2211\u220F\u03C0\u222B\xAA\xBA\u03A9\xE6\xF8\xBF\xA1\xAC\u221A\u0192\u2248\u2206\xAB\xBB\u2026\xA0\xC0\xC3\xD5\u0152\u0153\u2013\u2014\u201C\u201D\u2018\u2019\xF7\u25CA\xFF\u0178\u011E\u011F\u0130\u0131\u015E\u015F\u2021\xB7\u201A\u201E\u2030\xC2\xCA\xC1\xCB\xC8\xCD\xCE\xCF\xCC\xD3\xD4\uF8FF\xD2\xDA\xDB\xD9\uF8A0\u02C6\u02DC\xAF\u02D8\u02D9\u02DA\xB8\u02DD\u02DB\u02C7"
         )
       };
-      decode8.MACSTRING = function(dataView, offset, dataLength, encoding) {
+      decode9.MACSTRING = function(dataView, offset, dataLength, encoding) {
         const table = eightBitMacEncodings[encoding];
         if (table === void 0) {
           return void 0;
@@ -41010,9 +41010,9 @@ var require_opentype = __commonJS({
           if (encoding !== void 0 && language !== void 0 && platformName !== void 0) {
             let text2;
             if (encoding === utf16) {
-              text2 = decode8.UTF16(data, stringOffset + offset, byteLength);
+              text2 = decode9.UTF16(data, stringOffset + offset, byteLength);
             } else {
-              text2 = decode8.MACSTRING(data, stringOffset + offset, byteLength, encoding);
+              text2 = decode9.MACSTRING(data, stringOffset + offset, byteLength, encoding);
             }
             if (text2) {
               let platform = name[platformName];
@@ -43538,8 +43538,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path74) {
-        let _path = path74 || new path_default();
+      function getPathDefinition(glyph, path75) {
+        let _path = path75 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -43767,8 +43767,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path74 = this.getPath(x2, y2, fontSize, options, font);
-        path74.draw(ctx2);
+        const path75 = this.getPath(x2, y2, fontSize, options, font);
+        path75.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -43797,8 +43797,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path74 = this.path;
-        let commands = path74.commands;
+        const path75 = this.path;
+        let commands = path75.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -43945,9 +43945,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path74 = buildPath2(font.glyphs, glyph);
-            path74.unitsPerEm = font.unitsPerEm;
-            return path74;
+            const path75 = buildPath2(font.glyphs, glyph);
+            path75.unitsPerEm = font.unitsPerEm;
+            return path75;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -43962,9 +43962,9 @@ var require_opentype = __commonJS({
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path74 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path74.unitsPerEm = font.unitsPerEm;
-            return path74;
+            const path75 = parseCFFCharstring2(font, glyph, charstring, version2);
+            path75.unitsPerEm = font.unitsPerEm;
+            return path75;
           };
           return glyph;
         };
@@ -44431,12 +44431,12 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path74) {
+      function applyPaintType(font, path75) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path74.fill = null;
-          path74.stroke = "black";
-          path74.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path75.fill = null;
+          path75.stroke = "black";
+          path75.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
@@ -45199,16 +45199,16 @@ var require_opentype = __commonJS({
       }
       function glyphToOps(glyph, version2) {
         const ops = [];
-        const path74 = glyph.path;
+        const path75 = glyph.path;
         if (version2 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path74.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path75.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path74.commands[i2];
+          let cmd = path75.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -46322,7 +46322,7 @@ var require_opentype = __commonJS({
           const dataLength = p2.parseULong();
           if (tag === "appl" || tag === "bild")
             continue;
-          const text2 = decode8.UTF8(data, start2 + dataOffset, dataLength);
+          const text2 = decode9.UTF8(data, start2 + dataOffset, dataLength);
           tags[tag] = text2;
         }
         return tags;
@@ -53216,8 +53216,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path74 = this.getPath(text2, x2, y2, fontSize, options);
-        path74.draw(ctx2);
+        const path75 = this.getPath(text2, x2, y2, fontSize, options);
+        path75.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -55239,7 +55239,7 @@ async function QuickJSRaw(moduleArg = {}) {
     throw d;
   }, v = import.meta.url;
   if (n3) {
-    var fs77 = require2("node:fs");
+    var fs78 = require2("node:fs");
     v.startsWith("file:") && require2("node:path").dirname(require2("node:url").fileURLToPath(v)), 1 < process.argv.length && (t2 = process.argv[1].replace(/\\/g, "/")), process.argv.slice(2), u2 = (b, d) => {
       throw process.exitCode = b, d;
     };
@@ -58013,8 +58013,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path74, errorMaps, issueData } = params;
-  const fullPath = [...path74, ...issueData.path || []];
+  const { data, path: path75, errorMaps, issueData } = params;
+  const fullPath = [...path75, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -58129,11 +58129,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path74, key) {
+  constructor(parent, value, path75, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path74;
+    this._path = path75;
     this._key = key;
   }
   get path() {
@@ -62088,10 +62088,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path74) {
-  if (!path74)
+function getElementAtPath(obj, path75) {
+  if (!path75)
     return obj;
-  return path74.reduce((acc, key) => acc?.[key], obj);
+  return path75.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -62431,11 +62431,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path74, issues) {
+function prefixIssues(path75, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path74);
+    iss.path.unshift(path75);
     return iss;
   });
 }
@@ -62897,16 +62897,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path74 = []) => {
+  const processError = (error63, path75 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path74, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path75, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path74, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path75, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path74, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path75, ...issue2.path]);
       } else {
-        const fullpath = [...path74, ...issue2.path];
+        const fullpath = [...path75, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -62945,17 +62945,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path74 = []) => {
+  const processError = (error63, path75 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path74, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path75, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path74, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path75, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path74, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path75, ...issue2.path]);
       } else {
-        const fullpath = [...path74, ...issue2.path];
+        const fullpath = [...path75, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -62994,8 +62994,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path74 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path74) {
+  const path75 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path75) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -78315,7 +78315,7 @@ function visit(schema, fnOrHandlers) {
     return h ? h(node2, rewritten) : node2;
   };
   const cache3 = /* @__PURE__ */ new Map();
-  function run3(s2) {
+  function run4(s2) {
     const cached2 = cache3.get(s2);
     if (cached2 === RESOLVING) {
       return new $ZodLazy({
@@ -78341,21 +78341,21 @@ function visit(schema, fnOrHandlers) {
         let changed = false;
         const newShape = {};
         for (const k of keys) {
-          const mapped = run3(oldShape[k]);
+          const mapped = run4(oldShape[k]);
           if (mapped !== oldShape[k])
             changed = true;
           newShape[k] = mapped;
         }
         let newCatchall = def.catchall;
         if (def.catchall) {
-          newCatchall = run3(def.catchall);
+          newCatchall = run4(def.catchall);
           if (newCatchall !== def.catchall)
             changed = true;
         }
         return changed ? clone(s2, { ...def, shape: newShape, catchall: newCatchall }) : s2;
       }
       case "array": {
-        const mapped = run3(def.element);
+        const mapped = run4(def.element);
         return mapped === def.element ? s2 : clone(s2, { ...def, element: mapped });
       }
       case "tuple": {
@@ -78363,14 +78363,14 @@ function visit(schema, fnOrHandlers) {
         let changed = false;
         const newItems = [];
         for (const item of oldItems) {
-          const mapped = run3(item);
+          const mapped = run4(item);
           if (mapped !== item)
             changed = true;
           newItems.push(mapped);
         }
         let newRest = def.rest;
         if (def.rest) {
-          newRest = run3(def.rest);
+          newRest = run4(def.rest);
           if (newRest !== def.rest)
             changed = true;
         }
@@ -78378,12 +78378,12 @@ function visit(schema, fnOrHandlers) {
       }
       case "record":
       case "map": {
-        const newKey = run3(def.keyType);
-        const newVal = run3(def.valueType);
+        const newKey = run4(def.keyType);
+        const newVal = run4(def.valueType);
         return newKey === def.keyType && newVal === def.valueType ? s2 : clone(s2, { ...def, keyType: newKey, valueType: newVal });
       }
       case "set": {
-        const newVal = run3(def.valueType);
+        const newVal = run4(def.valueType);
         return newVal === def.valueType ? s2 : clone(s2, { ...def, valueType: newVal });
       }
       case "union": {
@@ -78391,7 +78391,7 @@ function visit(schema, fnOrHandlers) {
         let changed = false;
         const newOptions = [];
         for (const opt of oldOptions) {
-          const mapped = run3(opt);
+          const mapped = run4(opt);
           if (mapped !== opt)
             changed = true;
           newOptions.push(mapped);
@@ -78399,8 +78399,8 @@ function visit(schema, fnOrHandlers) {
         return changed ? clone(s2, { ...def, options: newOptions }) : s2;
       }
       case "intersection": {
-        const newLeft = run3(def.left);
-        const newRight = run3(def.right);
+        const newLeft = run4(def.left);
+        const newRight = run4(def.right);
         return newLeft === def.left && newRight === def.right ? s2 : clone(s2, { ...def, left: newLeft, right: newRight });
       }
       case "optional":
@@ -78412,23 +78412,23 @@ function visit(schema, fnOrHandlers) {
       case "nonoptional":
       case "promise":
       case "success": {
-        const newInner = run3(def.innerType);
+        const newInner = run4(def.innerType);
         return newInner === def.innerType ? s2 : clone(s2, { ...def, innerType: newInner });
       }
       case "pipe": {
-        const newIn = run3(def.in);
-        const newOut = run3(def.out);
+        const newIn = run4(def.in);
+        const newOut = run4(def.out);
         return newIn === def.in && newOut === def.out ? s2 : clone(s2, { ...def, in: newIn, out: newOut });
       }
       case "function": {
-        const newInput = run3(def.input);
-        const newOutput = run3(def.output);
+        const newInput = run4(def.input);
+        const newOutput = run4(def.output);
         return newInput === def.input && newOutput === def.output ? s2 : clone(s2, { ...def, input: newInput, output: newOutput });
       }
       case "lazy": {
         const original = def.getter;
         const { _cachedInner, ...rest } = def;
-        return clone(s2, { ...rest, getter: () => run3(original()) });
+        return clone(s2, { ...rest, getter: () => run4(original()) });
       }
       // A leaf by choice: `parts` are regex fragments, not data positions.
       case "template_literal":
@@ -78459,7 +78459,7 @@ function visit(schema, fnOrHandlers) {
       }
     }
   }
-  return run3(schema);
+  return run4(schema);
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
@@ -78546,11 +78546,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path74) {
-  if (path74.length === 0) {
+function getDotPath(path75) {
+  if (path75.length === 0) {
     return "object root";
   }
-  return path74.reduce((acc, seg, index) => {
+  return path75.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -80777,13 +80777,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path74 = ref.slice(1).split("/").filter(Boolean);
-  if (path74.length === 0) {
+  const path75 = ref.slice(1).split("/").filter(Boolean);
+  if (path75.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path74[0] === defsKey) {
-    const key = path74[1] === void 0 ? void 0 : decodeJSONPointerSegment(path74[1]);
+  if (path75[0] === defsKey) {
+    const key = path75[1] === void 0 ? void 0 : decodeJSONPointerSegment(path75[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -87215,11 +87215,11 @@ function relevantSkills(task, cwd = projectDir()) {
   const keys = [...new Set(words3.filter((w) => !STOP.has(w)))];
   const scored = allSkills(cwd).map((s2) => {
     const hay = `${s2.name} ${s2.description}`.toLowerCase();
-    let score2 = keys.filter((k) => hay.includes(k)).length * 3;
-    if (/invariant|brand|product rule|design system|style guide|voice/.test(hay)) score2 += 1;
-    if (s2.project) score2 += 1;
-    if (s2.project && s2.name === "project-design") score2 += 100;
-    return { ...s2, score: score2 };
+    let score3 = keys.filter((k) => hay.includes(k)).length * 3;
+    if (/invariant|brand|product rule|design system|style guide|voice/.test(hay)) score3 += 1;
+    if (s2.project) score3 += 1;
+    if (s2.project && s2.name === "project-design") score3 += 100;
+    return { ...s2, score: score3 };
   });
   return scored.filter((s2) => s2.score >= 3).sort((a2, b) => b.score - a2.score).slice(0, 5);
 }
@@ -87598,10 +87598,10 @@ function missingBeforeUi(task, config2) {
     if (g.requireSources !== false && pageWork && task.board?.chosen && !task.board?.adopted) {
       const used = task.toolUse || {};
       const any2 = (re) => Object.keys(used).some((k) => re.test(k));
-      if (!any2(/^(components_|catalogue_)/))
+      if (!any2(/^(components_|catalogue_|parts_)/))
         missing.push({ need: "components", how: "components_find for the page's interactive and eye-candy pieces (a prompt box, a gallery or marquee, a bento, pricing, a footer, a chart): build on the best one found, or say why none fits" });
       const ownPictures = task.plan?.sections?.length && task.plan.sections.every((x2) => ["user-files", "product-ui", "code-visual", "none"].includes(x2.picture?.source));
-      if (!ownPictures && !any2(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_)/))
+      if (!ownPictures && !any2(/^(images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|parts_get)/))
         missing.push({ need: "pictures", how: "pick a picture source for each section that needs one: images_search (Imageory first), art_generate, shader_hero, mockup_render for screens, or the user's real files; never fill the product's place with a drawing you improvised" });
     }
     if (g.requirePlan !== false && ["landing", "app", "mobile"].includes(task.surface) && task.board?.chosen && !task.board?.adopted && !task.plan)
@@ -88815,8 +88815,8 @@ async function get(url2, { headers: headers2 = {}, delayMs = 0, ttlMs = DAY, as 
     if (hit) return { body: decode3(hit, as), contentType: meta3?.toString() || "", cached: true };
   }
   const host = new URL(url2).host;
-  const run3 = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
-  return run3(async () => {
+  const run4 = delayMs > 0 ? (fn) => throttle(host, delayMs, fn) : (fn) => pooled(fn);
+  return run4(async () => {
     let res;
     for (let attempt = 0; ; attempt++) {
       res = await fetch(url2, { headers: headers2, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
@@ -94516,9 +94516,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path74, options) {
-      const mimeType = import_lite.default.getType(path74);
-      await writeFile(path74, await this.getBuffer(mimeType, options));
+    async write(path75, options) {
+      const mimeType = import_lite.default.getType(path75);
+      await writeFile(path75, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -99764,21 +99764,21 @@ function sectionSlices({ total, height, sections = [], maxSlices = 6, hardMax = 
 async function capture(url2, { width = 1440, height = 900, maxSlices = 6, quality: quality2 = 78, scale = 1, idle = false, brand = false, slicing = "sections", shots = true, section = null, config: config2 } = {}) {
   return withTab(config2, async (tab) => {
     const { s: s2 } = tab;
-    const run3 = async (expression, awaitPromise = false) => (await s2("Runtime.evaluate", { expression, awaitPromise, returnByValue: true })).result?.value;
+    const run4 = async (expression, awaitPromise = false) => (await s2("Runtime.evaluate", { expression, awaitPromise, returnByValue: true })).result?.value;
     await openPage(tab, url2, { width, height, idle });
-    const cleared = await run3(CLEAR_OVERLAYS, true) || {};
+    const cleared = await run4(CLEAR_OVERLAYS, true) || {};
     if (cleared.blocked) return { audit: { blocked: cleared.blocked, height }, slices: [], sliceCount: 0, blocked: cleared.blocked };
     await s2("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
     await settle2(s2, 800);
-    const again = await run3(CLEAR_OVERLAYS, true) || {};
+    const again = await run4(CLEAR_OVERLAYS, true) || {};
     if (again.clicked || again.hidden) await settle2(s2, 400);
-    const result = { value: await run3(AUDIT) };
+    const result = { value: await run4(AUDIT) };
     const audit = result.value;
     audit.cleared = { clicked: (cleared.clicked || 0) + (again.clicked || 0), hidden: (cleared.hidden || 0) + (again.hidden || 0), unlocked: !!(cleared.unlocked || again.unlocked), texts: [...cleared.texts || [], ...again.texts || []].slice(0, 6) };
-    audit.overlayLeft = await run3(OVERLAY_PROBE) || [];
-    audit.covered = await run3(COVERED, true) || [];
-    audit.type = await run3(TYPE_CHECK) || [];
-    if (brand) audit.brand = await run3(BRAND);
+    audit.overlayLeft = await run4(OVERLAY_PROBE) || [];
+    audit.covered = await run4(COVERED, true) || [];
+    audit.type = await run4(TYPE_CHECK) || [];
+    if (brand) audit.brand = await run4(BRAND);
     if (shots) await new Promise((r2) => setTimeout(r2, 450));
     const total = Math.min(audit.height, 3e4);
     const count = Math.max(1, Math.ceil(total / height));
@@ -99788,7 +99788,7 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
       return { y: y2, buf: Buffer.from(data, "base64") };
     };
     if (section) {
-      const box = await run3("(() => { const el = document.querySelector(" + JSON.stringify(section) + "); if (!el) return null; const r = el.getBoundingClientRect(); return { top: Math.round(r.top + scrollY), h: Math.round(r.height) }; })()");
+      const box = await run4("(() => { const el = document.querySelector(" + JSON.stringify(section) + "); if (!el) return null; const r = el.getBoundingClientRect(); return { top: Math.round(r.top + scrollY), h: Math.round(r.height) }; })()");
       audit.section = box ? { selector: section, ...box } : { selector: section, missing: true };
       const slices2 = [];
       if (box && shots) for (let y2 = box.top, k = 0; y2 < box.top + box.h && k < Math.max(1, maxSlices); y2 += height, k++) slices2.push(await shoot2(y2, Math.min(height, box.top + box.h - y2)));
@@ -101373,15 +101373,16 @@ function freshLooksGate(directions, task, config2) {
   const here2 = projectDir();
   const brand = !!task.memory?.styleRevision;
   const others = recentLooks(8).filter((l2) => l2.project !== here2 || !brand && l2.task && l2.task !== task.id);
+  const lately = others.slice(0, 3);
   for (const d of directions) {
-    const faces = facesOf(d.type);
+    const faces = facesOf(d.type).slice(0, 1);
     for (const f3 of faces) {
-      const hit = others.find((l2) => (l2.faces || []).some((x2) => sameFace(x2, f3)));
+      const hit = lately.find((l2) => (l2.faces || [])[0] && sameFace(l2.faces[0], f3));
       if (hit) problems.push(`"${d.name}": ${f3} was the face of "${hit.direction}" in another project (${hit.at.slice(0, 10)}). Drip just used it: find a different one with fonts_search / fonts_compare.`);
       else if (isOverused(f3) && (d.typeReason || "").trim().length < 25)
         problems.push(`"${d.name}": ${f3} is what every agent reaches for once Inter is banned. Keep it only with typeReason saying why it fits THIS subject (25+ characters), or find another with fonts_search.`);
     }
-    const twin = others.find((l2) => samePalette(d.palette, l2.palette));
+    const twin = lately.find((l2) => samePalette(d.palette, l2.palette));
     if (twin) problems.push(`"${d.name}": ground ${d.palette[0]} + accent ${d.palette[2] || "?"} is the palette of "${twin.direction}" in another project. Take the colours from this subject's world instead.`);
   }
   return problems.length ? `Directions not saved. They repeat Drip's defaults:
@@ -102525,11 +102526,11 @@ function discoverScripts(root) {
   const pkg = readJson2(path34.join(root, "package.json"), null);
   if (!pkg?.scripts) return [];
   const s2 = pkg.scripts;
-  const pick4 = (names3) => names3.find((n3) => s2[n3]);
+  const pick5 = (names3) => names3.find((n3) => s2[n3]);
   const out = [];
-  const lint = pick4(["lint", "eslint"]);
-  const typecheck = pick4(["typecheck", "type-check", "check-types", "tsc"]);
-  const test = pick4(["test"]);
+  const lint = pick5(["lint", "eslint"]);
+  const typecheck = pick5(["typecheck", "type-check", "check-types", "tsc"]);
+  const test = pick5(["test"]);
   if (lint) out.push({ name: "lint", script: lint, timeoutMs: 18e4 });
   if (typecheck) out.push({ name: "typecheck", script: typecheck, timeoutMs: 24e4 });
   if (test && !/no test specified/.test(s2[test])) out.push({ name: "test", script: test, timeoutMs: 3e5 });
@@ -103209,11 +103210,11 @@ ${items.map(({ it }) => {
         maxChars: external_exports.number().int().min(500).max(2e4).optional().describe("Code shown per file (default 6000)")
       }
     },
-    safe(async ({ library, item, filesOnly = false, maxChars = 6e3 }) => {
+    safe(async ({ library: library2, item, filesOnly = false, maxChars = 6e3 }) => {
       let url2 = item;
       if (!/^https?:/.test(item)) {
-        const entry = loadCatalogue().entries.find((e2) => e2.id === library);
-        if (!entry?.registry) return text(`Unknown library "${library}". Libraries with registries: ${loadCatalogue().entries.filter((e2) => e2.registry).map((e2) => e2.id).join(", ")}`, true);
+        const entry = loadCatalogue().entries.find((e2) => e2.id === library2);
+        if (!entry?.registry) return text(`Unknown library "${library2}". Libraries with registries: ${loadCatalogue().entries.filter((e2) => e2.registry).map((e2) => e2.id).join(", ")}`, true);
         url2 = entry.registry.item.replace("{name}", item);
       }
       const { body } = await get(url2, { as: "json", ttlMs: WEEK });
@@ -103279,7 +103280,7 @@ ${cat.references.map((r2) => `  - ${r2.name}: ${r2.what} (${r2.access})`).join("
 // src/modules/assets/index.mjs
 var assets_exports = {};
 __export(assets_exports, {
-  register: () => register15
+  register: () => register16
 });
 
 // src/modules/assets/palette.mjs
@@ -103717,13 +103718,307 @@ See it before choosing: fonts_preview.`
 // src/modules/assets/images.mjs
 var images_exports = {};
 __export(images_exports, {
+  parseBing: () => parseBing,
   parseImageory: () => parseImageory,
-  register: () => register11
+  register: () => register12
 });
-import fs45 from "node:fs";
-import path41 from "node:path";
+import fs46 from "node:fs";
+import path42 from "node:path";
 init_imaging();
 init_paths();
+
+// src/modules/parts/index.mjs
+var parts_exports = {};
+__export(parts_exports, {
+  FAMILIES: () => FAMILIES,
+  KINDS: () => KINDS2,
+  TASTE: () => TASTE,
+  familyItems: () => familyItems,
+  installTaste: () => installTaste,
+  register: () => register11,
+  registerDeal: () => registerDeal,
+  tasteAssets: () => tasteAssets,
+  tasteDir: () => tasteDir,
+  tasteReady: () => tasteReady
+});
+import { execFile as execFile4 } from "node:child_process";
+import fs45 from "node:fs";
+import path41 from "node:path";
+init_chrome();
+init_serve();
+init_paths();
+var TASTE = { repo: "https://github.com/Leonxlnx/taste-skill.git", sha: "6c0b5c78f5d31776e2210305abaa210cdc0030bf" };
+var tasteDir = () => path41.join(vendor0(), "taste-skill");
+var tasteAssets = () => path41.join(tasteDir(), "skills", "taste-skill", "assets");
+var tasteReady = () => fs45.existsSync(path41.join(tasteAssets(), "effects", "index.json"));
+var run = (file4, args, opts = {}) => new Promise((res, rej) => execFile4(file4, args, { windowsHide: true, maxBuffer: 1 << 26, ...opts }, (e2, out, err) => e2 ? rej(new Error(`${file4} ${args[0]}: ${String(err || e2.message).slice(0, 300)}`)) : res(out)));
+var installing2 = null;
+async function installTaste() {
+  if (tasteReady()) return tasteDir();
+  installing2 ||= (async () => {
+    const dir = tasteDir();
+    fs45.mkdirSync(path41.dirname(dir), { recursive: true });
+    if (!fs45.existsSync(path41.join(dir, ".git"))) await run("git", ["clone", "--filter=blob:none", "--quiet", TASTE.repo, dir]);
+    await run("git", ["-C", dir, "fetch", "--quiet", "origin", TASTE.sha]).catch(() => {
+    });
+    await run("git", ["-C", dir, "checkout", "--quiet", "--force", TASTE.sha]);
+    return dir;
+  })().finally(() => installing2 = null);
+  return installing2;
+}
+var FAMILIES = {
+  effect: { dir: "effects", ref: "effects-usage.md", about: "shader grounds for a hero frame, a card or a band (WebGL, palette from the page)" },
+  scene: { dir: "scenes", ref: "scenes.md", about: "award-site scroll scenes (powers-of-ten pullback, object through giant type...)" },
+  moment: { dir: "moments", ref: "moments.md", about: "one dealt moment per page: word highlight, pinned chapters, counter rolls, liquid hover..." },
+  ui: { dir: "ui", ref: "cards.md", file: "fragment", about: "live product UI fragments to paste and rewrite (chat, diff review, pipeline board, terminal...)" },
+  component: { dir: "components", ref: "effects-creative.md", file: "component", about: "creative feature cards (globe, map, chart, spotlight, pricing, prompt...)" },
+  diagram: { dir: "diagrams", ref: "diagrams.md", about: "pulsing diagram cards (hub with branches, lanes, ring of apps)" },
+  object: { dir: "objects", ref: "effects-objects.md", about: "printed and rendered objects (dot object, exploded layers, product turntable, halftone photo)" },
+  hero: { dir: "layout", ref: "layout-v4.md", about: "hero layouts (centred, split, collage, film, product, statement, word...)" }
+};
+var readJson3 = (f3) => {
+  try {
+    return JSON.parse(fs45.readFileSync(f3, "utf8"));
+  } catch {
+    return null;
+  }
+};
+var describe4 = (m) => String(m.look || m.for || m.shows || m.job || m.what || m.title || m.name || "").replace(/\s+/g, " ");
+function familyItems(family) {
+  const F = FAMILIES[family];
+  const root = path41.join(tasteAssets(), F.dir);
+  if (!fs45.existsSync(root)) return [];
+  if (family === "effect") return (readJson3(path41.join(root, "index.json"))?.effects || []).map((e2) => ({ id: e2.id, name: e2.name, about: describe4(e2), tags: [e2.family, ...e2.bestOn || []].join(" ") }));
+  if (family === "diagram") return Object.entries(readJson3(path41.join(root, "presets.json"))?.presets || {}).map(([id, p2]) => ({ id, name: id, about: describe4(p2) || `${p2.layout || ""} diagram` }));
+  if (family === "hero")
+    return (readJson3(path41.join(root, "heroes.json")) || []).map((h) => ({ id: h.id, name: h.name, about: describe4(h), demo: h.demo ? path41.join(root, h.demo) : null }));
+  return fs45.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory() && !d.name.startsWith("_") && fs45.existsSync(path41.join(root, d.name, "meta.json"))).map((d) => {
+    const m = readJson3(path41.join(root, d.name, "meta.json")) || {};
+    const demo = ["demo.html", "index.html"].map((f3) => path41.join(root, d.name, f3)).find((f3) => fs45.existsSync(f3)) || null;
+    return { id: m.id || m.name || d.name, folder: d.name, name: m.title || m.name || d.name, about: describe4(m), tags: [...m.useFor || [], ...m.bestOn || []].join(" "), demo };
+  });
+}
+var score2 = (it, words3) => words3.reduce((s2, w) => s2 + (`${it.id} ${it.name} ${it.about} ${it.tags || ""}`.toLowerCase().includes(w) ? 1 : 0), 0);
+function previewPage(family, it) {
+  const F = FAMILIES[family];
+  const root = path41.join(tasteAssets(), F.dir);
+  const file4 = path41.join(root, `_drip_${family}_${it.id}.html`);
+  const palette2 = ":root{--bg:#0B0C10;--surface:#15171D;--ink:#F2F3F5;--muted:#9AA0AA;--accent:#5B8CFF;--accent-ink:#0B0C10}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui}";
+  let body = "";
+  if (family === "effect")
+    body = `<style>${palette2}.f{position:relative;isolation:isolate;width:100vw;height:100vh}</style><div class="f" data-fx="${it.id}" data-fx-seed="7"></div><script type="module">import fx from './fx.js';fx.mountAll(document);</script>`;
+  else if (family === "diagram")
+    body = `<style>${palette2}.panel{width:900px;margin:80px auto;padding:40px;background:var(--surface);border-radius:20px}</style><div class="panel"><div class="dg" data-diagram="${it.id}"></div></div><link rel="stylesheet" href="./diagram.css"><script type="module" src="./mount.js"></script>`;
+  else {
+    const dir = path41.join(root, it.folder || it.id);
+    const index = fs45.existsSync(path41.join(root, "index.html")) ? fs45.readFileSync(path41.join(root, "index.html"), "utf8") : "";
+    const head = index.includes("</head>") ? index.slice(0, index.indexOf("</head>")).replace(/<script[\s\S]*?<\/script>/g, "") : `<!doctype html><html><head><meta charset="utf-8"><style>${palette2}</style>`;
+    const html = fs45.existsSync(path41.join(dir, `${F.file}.html`)) ? fs45.readFileSync(path41.join(dir, `${F.file}.html`), "utf8") : "";
+    const lib = ["ui.js", "shared.js"].filter((f3) => fs45.existsSync(path41.join(root, f3))).map((f3) => `<script type="module" src="./${f3}"></script>`).join("");
+    return fs45.writeFileSync(
+      file4,
+      `${head}<link rel="stylesheet" href="./${it.folder || it.id}/${F.file}.css"></head><body><div style="max-width:1100px;margin:64px auto;padding:0 32px">${html}</div>${lib}<script type="module" src="./${it.folder || it.id}/${F.file}.js"></script></body></html>`
+    ), file4;
+  }
+  fs45.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"></head><body>${body}</body></html>`);
+  return file4;
+}
+var ITEM = external_exports.object({ kind: external_exports.enum(Object.keys(FAMILIES)), id: external_exports.string() });
+function register11(server2, ctx2) {
+  registerDeal(server2, ctx2);
+  server2.registerTool(
+    "parts_list",
+    {
+      title: "Browse ready-made eye candy",
+      description: "Lists taste-skill's ready-made parts, every family in ONE call by default: shader effects, scroll scenes, moments, live UI fragments, creative feature cards, diagram cards, objects and hero layouts. Use it while planning (board_plan), then parts_preview the candidates and parts_get the ones you use. Installs the parts library on first use (one git clone).",
+      inputSchema: {
+        kinds: external_exports.array(external_exports.enum(Object.keys(FAMILIES))).optional().describe("Default: every family"),
+        query: external_exports.string().optional().describe("Words to rank by, e.g. 'globe network', 'chat assistant', 'scroll reveal'"),
+        limit: external_exports.number().int().min(1).max(40).optional().describe("Items per family (default 8 with a query, else all)")
+      }
+    },
+    safe(async ({ kinds, query, limit }) => {
+      await installTaste();
+      const words3 = String(query || "").toLowerCase().split(/\W+/).filter((w) => w.length > 2);
+      const out = [];
+      for (const k of kinds?.length ? kinds : Object.keys(FAMILIES)) {
+        let items = familyItems(k);
+        if (words3.length) items = items.map((it) => ({ it, s: score2(it, words3) })).sort((a2, b) => b.s - a2.s).map((x2) => x2.it);
+        items = items.slice(0, limit || (words3.length ? 8 : 60));
+        out.push(`## ${k} (${FAMILIES[k].about})`, ...items.map((it) => `- ${it.id}: ${it.about.slice(0, 170)}`));
+      }
+      return text(`${out.join("\n")}
+
+Next: parts_preview({ items: [{ kind, id }, ...] }) to see several at once, parts_get to copy the chosen ones in.`);
+    })
+  );
+  server2.registerTool(
+    "parts_preview",
+    {
+      title: "See several parts at once",
+      description: "Renders up to 8 parts in ONE call (each live in Chrome, 1200x750) so you can compare them side by side before choosing. Effects use a neutral dark palette here; on the page they take the page's colours.",
+      inputSchema: { items: external_exports.array(ITEM).min(1).max(8) }
+    },
+    safe(async ({ items }) => {
+      await installTaste();
+      const base = await serveDir(tasteAssets());
+      const content = [];
+      const shots = await Promise.all(
+        items.map(async ({ kind, id }) => {
+          const it = familyItems(kind).find((x2) => x2.id === id || x2.folder === id);
+          if (!it) return { kind, id, err: `no ${kind} "${id}" (parts_list)` };
+          const file4 = it.demo || previewPage(kind, it);
+          const rel3 = path41.relative(tasteAssets(), file4).replace(/\\/g, "/");
+          try {
+            const png2 = await screenshot(`${base}/${rel3}`, { width: 1200, height: 750, config: ctx2.config(), waitMs: 1500 });
+            return { kind, id, buf: await toJpeg(png2, 1200, 1200, 78) };
+          } catch (e2) {
+            return { kind, id, err: e2.message };
+          }
+        })
+      );
+      for (const s2 of shots) {
+        content.push(textBlock(`${s2.kind} ${s2.id}${s2.err ? `: ${s2.err}` : ""}`));
+        if (s2.buf) content.push(imageBlock(s2.buf));
+      }
+      return blocks(content);
+    })
+  );
+  server2.registerTool(
+    "parts_get",
+    {
+      title: "Copy parts into the project",
+      description: "Copies the chosen parts (several in one call) into the project with what they need to run (the family's shared scripts and styles, the kit's system.css / motion layer), plus the family's mounting guide as README.md. Then rewrite every label, number and name to the client's, and give effects the page's palette (--bg, --surface, --ink, --muted, --accent).",
+      inputSchema: {
+        items: external_exports.array(ITEM).min(1).max(12),
+        out: external_exports.string().optional().describe("Folder for the parts, relative to the project (default: assets beside the page, e.g. saas-award/assets)")
+      }
+    },
+    safe(async ({ items, out }) => {
+      await installTaste();
+      const src = tasteAssets();
+      const dest = path41.resolve(projectDir(), out || "assets");
+      const copied = /* @__PURE__ */ new Set();
+      const copy = (rel3) => {
+        if (copied.has(rel3)) return;
+        copied.add(rel3);
+        const from = path41.join(src, rel3);
+        if (!fs45.existsSync(from)) return;
+        fs45.cpSync(from, path41.join(dest, rel3), { recursive: true, filter: (f3) => !path41.basename(f3).startsWith("_drip_") });
+      };
+      const lines = [];
+      for (const rel3 of ["system.css", "system.js", "motion"]) copy(rel3);
+      for (const { kind, id } of items) {
+        const F = FAMILIES[kind];
+        const it = familyItems(kind).find((x2) => x2.id === id || x2.folder === id);
+        if (!it) {
+          lines.push(`- ${kind} ${id}: not found (parts_list)`);
+          continue;
+        }
+        const root = path41.join(src, F.dir);
+        for (const f3 of fs45.readdirSync(root, { withFileTypes: true })) if (f3.isFile() && /\.(js|css|json|mjs)$/.test(f3.name)) copy(path41.join(F.dir, f3.name));
+        if (it.folder || fs45.existsSync(path41.join(root, it.id))) copy(path41.join(F.dir, it.folder || it.id));
+        if (kind === "hero" && it.demo) copy(path41.join(F.dir, path41.basename(it.demo)));
+        const guide = path41.join(tasteDir(), "skills", "taste-skill", "references", F.ref);
+        if (fs45.existsSync(guide)) fs45.writeFileSync(path41.join(dest, F.dir, "README.md"), fs45.readFileSync(guide, "utf8"));
+        lines.push(`- ${kind} ${it.id} -> ${path41.relative(projectDir(), path41.join(dest, F.dir, it.folder || ""))}${it.demo ? ` (demo: ${path41.basename(it.demo)})` : ""}`);
+      }
+      fs45.writeFileSync(path41.join(dest, "CREDITS-taste-skill.md"), `Parts from taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
+`);
+      return text(`Copied into ${path41.relative(projectDir(), dest) || "."}:
+${lines.join("\n")}
+Each family folder has a README.md with how to mount it. Rewrite every label and number to the client's; never ship the demo copy.`);
+    })
+  );
+}
+var KINDS2 = ["software", "gaming", "tech", "product", "service", "place"];
+var PAGE_TYPE = { software: "software", gaming: "software", tech: "product", product: "product", service: "service", place: "place" };
+var LISTS = {
+  software: ["nav-mega|nav-cards|nav-centre", "footer-dark|footer-statement|footer-columns", "close-type|close-word", "dark-band|surface-pairs|space", "solid|pill|tonal|arrow", "wordmark|initial|arc|ring|stack|dots"],
+  gaming: ["nav-mega|nav-centre|nav-cards", "footer-dark|footer-statement", "close-word|close-type", "dark-band|media-band|space", "solid|pill|block", "wordmark|initial|arc|ring|stack|dots"],
+  product: ["nav-cards|nav-split|nav-mega", "footer-columns|footer-dark", "close-photo|close-type|close-word", "dark-band|brand-band", "arrow|solid|block|pill", "wordmark|initial|arc|ring|stack|dots"],
+  service: ["nav-mega|nav-split|nav-centre", "footer-visit|footer-dark|footer-columns", "close-type|close-photo", "surface-pairs|dark-band|space", "solid|tonal|block|arrow", "wordmark|initial|arc|ring|stack|dots"]
+};
+LISTS.tech = LISTS.product;
+LISTS.place = ["nav-split|nav-centre", "footer-visit|footer-columns", "close-photo|close-type", "brand-band|space", "solid|block", "wordmark|initial"];
+var pick3 = (opts) => {
+  const o2 = opts.split("|");
+  return o2[Math.floor(Math.random() * o2.length)];
+};
+function registerDeal(server2, ctx2) {
+  server2.registerTool(
+    "layout_deal",
+    {
+      title: "Deal a page set (hero, palette, type, sections)",
+      description: "Deals a starting set for a page from taste-skill's dealers, with a history so pages differ: a hero layout (with its exact grid, sizes and motion at 1440 and 390), three palettes made for the trade, three font pairings, and the nav, footer, closing section, rhythm, button style and mark. directions: 3 deals three different sets in ONE call, one per board direction. Build on a set; the brief and the client's own brand win where they speak.",
+      inputSchema: {
+        kind: external_exports.enum(KINDS2).describe("software (app, SaaS, AI, dev tool, fintech app) \xB7 gaming \xB7 tech (hardware) \xB7 product (physical goods) \xB7 service (clinic, agency, studio) \xB7 place (cafe, shop, hotel)"),
+        trade: external_exports.string().describe("What is sold, in a few words, e.g. 'vineyard operations saas'"),
+        has: external_exports.array(external_exports.enum(["photo", "ui", "film", "object", "setting"])).optional().describe("Material the page has: ui (its product UI), photo, film, object (a render or cut-out), setting (a game's world)"),
+        directions: external_exports.number().int().min(1).max(3).optional().describe("How many different sets (default 1; 3 for the board's directions)")
+      }
+    },
+    safe(async ({ kind, trade, has, directions = 1 }) => {
+      await installTaste();
+      const skill = path41.join(tasteDir(), "skills", "taste-skill");
+      const work = path41.join(projectDir(), ".drip", "deal");
+      fs45.mkdirSync(work, { recursive: true });
+      const hist = path41.join(work, "history.json");
+      const out = [];
+      for (let i2 = 0; i2 < directions; i2++) {
+        const heroArgs = [path41.join(skill, "assets", "layout", "deal.mjs"), "--type", PAGE_TYPE[kind], "--history", path41.join(work, "layout-history.json")];
+        if (kind === "gaming" || kind === "tech") heroArgs.push("--kind", kind);
+        if (has?.length) heroArgs.push("--has", has.join(","));
+        const [hero, look] = await Promise.all([
+          run(process.execPath, heroArgs, { cwd: work }).catch((e2) => `hero deal failed: ${e2.message}`),
+          run(process.execPath, [path41.join(skill, "scripts", "start.mjs"), "deal", "--page", kind === "tech" ? "product" : kind, "--trade", trade, "--history", hist], { cwd: work }).catch((e2) => `palette deal failed: ${e2.message}`)
+        ]);
+        const [nav, footer, close, rhythm, buttons, mark] = LISTS[kind].map(pick3);
+        const clean2 = (s2) => String(s2).replace(/<skill>/g, skill.replace(/\\/g, "/")).split("\n").filter((l2) => !/finish gate is armed|^then: node|plan line 2/.test(l2)).join("\n").trim();
+        out.push(`===== SET ${i2 + 1}${directions > 1 ? ` (direction ${i2 + 1})` : ""} =====
+${clean2(hero)}
+
+${clean2(look)}
+
+SECTIONS: nav ${nav} \xB7 footer ${footer} \xB7 close ${close} \xB7 rhythm ${rhythm} \xB7 buttons ${buttons} \xB7 mark ${mark}`);
+      }
+      return text(`${out.join("\n\n")}
+
+The hero demos and section recipes: parts_get({ items: [{ kind: "hero", id: "<hero id>" }] }) copies the hero's demo; its README (layout-v4) has the recipes. Take the first palette and pairing unless they clash with the client's own colours.`);
+    })
+  );
+}
+
+// src/modules/assets/images.mjs
+var within = (p2, ms) => Promise.race([p2.catch(() => []), new Promise((r2) => setTimeout(() => r2([]), ms))]);
+var ABSTRACT = /\b(abstract|gradient|texture|noise|grain|sky|cloud|cosmic|space|nebula|surreal|dreamy|background|wallpaper|pattern|aurora|light leak|bokeh|flowers?|illustration|painting|art)\b/i;
+var BROWSER_UA = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9" };
+var decode8 = (x2) => String(x2).replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+function parseBing(html) {
+  const out = [];
+  for (const m of String(html).matchAll(/m="(\{[^"]*?\})"|m='(\{[^']*?\})'/g)) {
+    const raw = decode8(m[1] || m[2] || "");
+    const get2 = (k) => (raw.match(new RegExp(`"${k}":"(.*?)"`)) || [])[1];
+    const full = get2("murl");
+    if (full) out.push({ title: get2("t") || "", full, thumb: get2("turl") || full, page: get2("purl") || full });
+  }
+  return out;
+}
+var library = null;
+function libraryPhotos() {
+  if (library) return library;
+  if (!tasteReady()) {
+    installTaste().catch(() => {
+    });
+    return [];
+  }
+  try {
+    library = JSON.parse(fs46.readFileSync(path42.join(tasteAssets(), "photos", "photos.json"), "utf8")).photos || [];
+  } catch {
+    library = [];
+  }
+  return library;
+}
 var strip2 = (s2) => (s2 || "").replace(/<[^>]+>/g, "").trim();
 var UA = { "User-Agent": "drip-design-mcp/0.4 (design tool; https://github.com/8bitgfx/drip)" };
 var fitsOrientation = (r2, o2) => !o2 || (o2 === "landscape" ? r2.width > r2.height : o2 === "portrait" ? r2.height > r2.width : Math.abs(r2.width / r2.height - 1) < 0.25);
@@ -103748,6 +104043,33 @@ function parseImageory(html) {
   return out;
 }
 var SOURCES2 = {
+  async library({ query, orientation, limit }) {
+    const words3 = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+    return libraryPhotos().filter((p2) => p2.url && !(p2.people === "figure")).map((p2) => ({ p: p2, hits: words3.filter((w) => `${p2.alt} ${p2.subject} ${p2.motif} ${(p2.trades || []).join(" ")} ${(p2.colours || []).join(" ")} ${p2.set || ""} ${p2.tone || ""}`.toLowerCase().includes(w)).length })).filter((x2) => x2.hits >= Math.min(2, words3.length)).sort((a2, b) => b.hits - a2.hits || (b.p.quality || 0) - (a2.p.quality || 0)).map(({ p: p2 }) => {
+      const r2 = p2.ratio || p2.width / p2.height || 1.5;
+      const pic = /picsum\.photos/.test(p2.url);
+      return { title: p2.alt, thumb: pic ? `${p2.url}/480/${Math.round(480 / r2)}` : p2.url, full: pic ? `${p2.url}/2400/${Math.round(2400 / r2)}` : p2.url, width: p2.width, height: p2.height, page: p2.page, author: p2.by, license: p2.licence };
+    }).filter((r2) => fitsOrientation(r2, orientation)).slice(0, limit);
+  },
+  async web({ query, orientation, limit }) {
+    const { body } = await get(`https://www.bing.com/images/async?q=${encodeURIComponent(query)}&first=0&count=${Math.max(limit * 3, 35)}&qft=+filterui:imagesize-large${orientation === "landscape" ? "+filterui:aspect-wide" : orientation === "portrait" ? "+filterui:aspect-tall" : ""}&adlt=moderate`, { as: "text", headers: BROWSER_UA, ttlMs: 24 * 36e5 });
+    const STOCK = /(alamy|dreamstime|istockphoto|gettyimages|shutterstock|stock.adobe|adobestock|vecteezy|123rf|depositphotos|bigstockphoto|canstockphoto|stocksy|pond5|agefotostock|superstock)./i;
+    const perHost = {};
+    const host = (u2) => {
+      try {
+        return new URL(u2).hostname;
+      } catch {
+        return u2;
+      }
+    };
+    return parseBing(body).filter((r2) => !STOCK.test(r2.page) && !STOCK.test(r2.full) && (perHost[host(r2.page)] = (perHost[host(r2.page)] || 0) + 1) <= 3).slice(0, limit).map((r2) => ({ ...r2, width: 0, height: 0, author: (() => {
+      try {
+        return new URL(r2.page).hostname.replace(/^www\./, "");
+      } catch {
+        return "web";
+      }
+    })(), license: "web find (draft: check before shipping)" }));
+  },
   async imageory({ query, orientation, limit }) {
     const { body } = await get("https://imageory.in/gallery", { as: "text", headers: { "User-Agent": "Mozilla/5.0 (drip design tool)" }, ttlMs: 24 * 36e5 });
     const words3 = String(query || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
@@ -103785,7 +104107,7 @@ var SOURCES2 = {
   },
   async openverse({ query, limit, orientation }) {
     const token2 = getKey("openverse");
-    const { body } = await get(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${limit}&license_type=commercial,modification${orientation ? `&aspect_ratio=${orientation === "landscape" ? "wide" : orientation === "portrait" ? "tall" : "square"}` : ""}`, { as: "json", headers: { ...UA, ...token2 ? { Authorization: `Bearer ${token2}` } : {} } });
+    const { body } = await get(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${limit}${orientation ? `&aspect_ratio=${orientation === "landscape" ? "wide" : orientation === "portrait" ? "tall" : "square"}` : ""}`, { as: "json", headers: { ...UA, ...token2 ? { Authorization: `Bearer ${token2}` } : {} } });
     return body.results.map((p2) => ({ title: p2.title, thumb: p2.thumbnail, full: p2.url, width: p2.width, height: p2.height, page: p2.foreign_landing_url, author: p2.creator, license: `${p2.license.toUpperCase()} ${p2.license_version || ""}`.trim() + (/^by/i.test(p2.license) ? " (credit required)" : "") }));
   },
   async wikimedia({ query, orientation, limit }) {
@@ -103813,42 +104135,43 @@ var SOURCES2 = {
     });
   }
 };
-var SOURCE_NOTES = "imageory: FIRST CHOICE for hero and background images: curated, free to use, each with the prompt that made it (surreal landscapes, sky art, gradients, noise, cosmic, flowers, illustration) \xB7 unsplash/pexels/pixabay: best photos (free keys) \xB7 openverse: CC licences, commercial-use only \xB7 wikimedia: everything, check each licence \xB7 cleveland: public-domain paintings, prints, woodblock and ukiyo-e, illustration (CC0, up to 3400px; the honest route to painterly and anime-adjacent heroes) \xB7 nasa: space, earth, science.";
-function register11(server2, ctx2) {
+var SOURCE_NOTES = "By default ONE call searches every source at once (each gives up after a few seconds) and merges them: library (taste-skill's vetted, tagged photos: instant), unsplash/pexels/pixabay (when their free keys are set: the best photos), web (an image search of the whole web), openverse, wikimedia, and imageory for abstract, sky and background art. Pass source for one: cleveland (public-domain paintings, prints, ukiyo-e), nasa (space, earth, science). These are drafts: licences are the user's call, every saved file's source is logged in .drip/assets.json.";
+function register12(server2, ctx2) {
   server2.registerTool(
     "images_search",
     {
-      title: "Search photos and art (with licences)",
-      description: "Search photography and public-domain art for heroes and sections, with author, licence, size and colour for each. " + SOURCE_NOTES + " Returns a numbered list + contact sheet. Write art-directed queries ('architect at desk morning light', 'hokusai wave', not 'business'). Never use film or anime stills (e.g. Ghibli) or unlicensed art: no licence covers a commercial page; for an anime/illustrated look use cleveland ukiyo-e and prints, pixabay kind illustration, or gen_image.",
+      title: "Search photos and art (every source at once)",
+      description: "Search photography and art for heroes and sections, with author, size and colour for each. " + SOURCE_NOTES + " Returns a numbered list + contact sheet. Write art-directed queries ('aerial vineyard rows morning', 'architect at desk morning light', not 'business'). Several queries: pass queries (up to 4) in the same call.",
       inputSchema: {
-        query: external_exports.string(),
-        source: external_exports.enum(["imageory", "unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: imageory when it has matches, else unsplash, pexels, pixabay, openverse"),
+        query: external_exports.string().optional(),
+        queries: external_exports.array(external_exports.string()).max(4).optional().describe("Several searches in one call, e.g. ['aerial vineyard', 'grapes close up', 'winemaker hands']"),
+        source: external_exports.enum(["library", "web", "imageory", "unsplash", "pexels", "pixabay", "openverse", "wikimedia", "cleveland", "nasa"]).optional().describe("Default: all at once, merged"),
         orientation: external_exports.enum(["landscape", "portrait", "square"]).optional(),
         color: external_exports.string().optional().describe("unsplash/pexels/pixabay colour filter, e.g. 'blue', 'black_and_white', 'orange'"),
         kind: external_exports.enum(["photo", "illustration", "vector"]).optional().describe("pixabay only"),
         limit: external_exports.number().int().min(4).max(30).optional()
       }
     },
-    safe(async ({ query, source, orientation, color: color2, kind, limit = 18 }) => {
-      let src = source || (getKey("unsplash") ? "unsplash" : getKey("pexels") ? "pexels" : getKey("pixabay") ? "pixabay" : "openverse");
-      let results;
-      if (!source) {
-        const im = await SOURCES2.imageory({ query, orientation, limit }).catch(() => []);
-        if (im.length >= 4) {
-          src = "imageory";
-          results = im;
-        }
-      }
-      try {
-        if (!results) results = await SOURCES2[src]({ query, orientation, limit, color: color2, kind });
-      } catch (e2) {
-        if (source) throw e2;
-        results = await SOURCES2.wikimedia({ query, orientation, limit });
-      }
-      if (!results.length) return text(`No images for "${query}" on ${src}. Try other words or another source (${Object.keys(SOURCES2).join(", ")}).`);
-      const items = results.map((r2, i2) => ({ key: `image:${r2.full}`, source: src, id: `${src}-${i2}`, title: r2.title, url: r2.page, image: r2.full, thumb: r2.thumb, designer: r2.author, license: r2.license, ping: r2.ping, width: r2.width, height: r2.height }));
+    safe(async ({ query, queries, source, orientation, color: color2, kind, limit = 18 }) => {
+      const qs = [...new Set([query, ...queries || []].filter(Boolean))];
+      if (!qs.length) return text("Pass query (or queries).", true);
+      const keyed = ["unsplash", "pexels", "pixabay"].filter((k) => getKey(k));
+      const each = Math.max(4, Math.ceil(limit / qs.length));
+      const runOne = async (q2) => {
+        if (source) return (await SOURCES2[source]({ query: q2, orientation, limit: each, color: color2, kind })).map((r2) => ({ ...r2, src: source }));
+        const order = ["library", ...keyed, ...ABSTRACT.test(q2) ? ["imageory"] : [], "web", "openverse", "wikimedia"];
+        const lists = await Promise.all(order.map((k) => within(SOURCES2[k]({ query: q2, orientation, limit: each, color: color2, kind }), k === "library" ? 3e3 : 7e3).then((l2) => l2.map((r2) => ({ ...r2, src: k })))));
+        const merged = [];
+        for (let i2 = 0; merged.length < each && lists.some((l2) => l2[i2]); i2++) for (const l2 of lists) if (l2[i2] && merged.length < each) merged.push(l2[i2]);
+        return merged;
+      };
+      const seen = /* @__PURE__ */ new Set();
+      const results = (await Promise.all(qs.map(runOne))).flat().filter((r2) => r2.full && !seen.has(r2.full) && seen.add(r2.full)).slice(0, limit);
+      const src = source || "all";
+      if (!results.length) return text(`No images for "${qs.join('", "')}"${source ? ` on ${source}` : ""}. Try other words.`);
+      const items = results.map((r2, i2) => ({ key: `image:${r2.full}`, source: r2.src, id: `${r2.src}-${i2}`, title: r2.title, url: r2.page, image: r2.full, thumb: r2.thumb, designer: r2.author, license: r2.license, ping: r2.ping, width: r2.width, height: r2.height }));
       rememberListing(items);
-      const bufs = await Promise.all(results.map((r2) => fetchImage(r2.thumb).then((x2) => x2.buf).catch(() => Buffer.alloc(0))));
+      const bufs = await Promise.all(results.map((r2) => Promise.race([fetchImage(r2.thumb).then((x2) => x2.buf).catch(() => Buffer.alloc(0)), new Promise((ok) => setTimeout(() => ok(Buffer.alloc(0)), 5e3))])));
       const fmt = (r2) => {
         if (!r2.width) return "size on save";
         const big = Math.max(r2.width, r2.height);
@@ -103856,9 +104179,9 @@ function register11(server2, ctx2) {
       };
       return blocks([
         textBlock(
-          `${src}: "${query}"${!getKey("unsplash") && !getKey("pexels") ? "  (no Unsplash/Pexels key: keys_open for better photos)" : ""}
-` + results.map((r2, i2) => `${i2 + 1}. ${r2.title.slice(0, 80)} \u2014 ${r2.author || "?"} \xB7 ${r2.license} \xB7 ${fmt(r2)}${r2.color ? ` \xB7 ${r2.color}` : ""}${r2.prompt ? `
-   prompt: ${r2.prompt.slice(0, 220)}${r2.prompt.length > 220 ? "\u2026" : ""}` : ""}`).join("\n") + (src === "imageory" ? "\nEach Imageory image comes with its prompt: reuse or adapt it with gen_image for a variation in the brand's colours." : "") + `
+          `${src}: "${qs.join('", "')}"${!keyed.length ? "  (no Unsplash/Pexels/Pixabay key: free keys via keys_open give the best photos)" : ""}
+` + results.map((r2, i2) => `${i2 + 1}. ${String(r2.title || "").slice(0, 80)} \u2014 ${r2.src} \xB7 ${r2.author || "?"} \xB7 ${fmt(r2)}${r2.color ? ` \xB7 ${r2.color}` : ""}${r2.prompt ? `
+   prompt: ${r2.prompt.slice(0, 220)}${r2.prompt.length > 220 ? "\u2026" : ""}` : ""}`).join("\n") + (results.some((r2) => r2.src === "imageory") ? "\nImageory images come with their prompt: adapt it with gen_image for a variation in the brand's colours." : "") + `
 
 Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3", dest: "public/img/hero", slots: [{ name: "desktop", ar: "16:9", width: 2400 }, { name: "phone", ar: "4:5", width: 1200 }] }).`
         ),
@@ -103883,13 +104206,13 @@ Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3
       }
     },
     safe(async ({ image: image2, dest, slots, format, focus = "auto", maxKB = 400, keepOriginal, credit }) => {
-      const local = !/^https?:/.test(image2) && fs45.existsSync(path41.resolve(projectDir(), image2));
-      const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : local ? { image: path41.resolve(projectDir(), image2), url: image2 } : lookup(resolve(image2, "image"));
+      const local = !/^https?:/.test(image2) && fs46.existsSync(path42.resolve(projectDir(), image2));
+      const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : local ? { image: path42.resolve(projectDir(), image2), url: image2 } : lookup(resolve(image2, "image"));
       if (!item?.image) return text("Unknown image. Use a number from the last images_search, a URL or a project file.", true);
       const { buf } = await fetchImage(item.image, { ttlMs: 0 });
       if (item.ping && getKey("unsplash")) get(item.ping, { as: "json", ttlMs: 0, headers: { Authorization: `Client-ID ${getKey("unsplash")}` } }).catch(() => {
       });
-      const ext0 = path41.extname(dest).slice(1).toLowerCase();
+      const ext0 = path42.extname(dest).slice(1).toLowerCase();
       const fmt = format || (["jpg", "jpeg"].includes(ext0) ? "jpeg" : ext0 === "png" ? "png" : "webp");
       const stem2 = ext0 ? dest.slice(0, -ext0.length - 1) : dest;
       const list4 = slots?.length ? slots : [{ name: "", width: 2400 }];
@@ -103897,19 +104220,19 @@ Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3
       const ext = fmt === "jpeg" ? "jpg" : fmt;
       const written = res.files.map((f3) => {
         const rel3 = `${stem2}${f3.name ? `-${f3.name}` : ""}.${ext}`;
-        const abs2 = path41.resolve(projectDir(), rel3);
-        fs45.mkdirSync(path41.dirname(abs2), { recursive: true });
-        fs45.writeFileSync(abs2, f3.buf);
+        const abs2 = path42.resolve(projectDir(), rel3);
+        fs46.mkdirSync(path42.dirname(abs2), { recursive: true });
+        fs46.writeFileSync(abs2, f3.buf);
         return { ...f3, rel: rel3 };
       });
       if (keepOriginal) {
-        const o2 = path41.resolve(projectDir(), `${stem2}-original${path41.extname(new URL(item.image, "file:///").pathname) || ".jpg"}`);
-        fs45.writeFileSync(o2, buf);
+        const o2 = path42.resolve(projectDir(), `${stem2}-original${path42.extname(new URL(item.image, "file:///").pathname) || ".jpg"}`);
+        fs46.writeFileSync(o2, buf);
       }
-      const log2 = path41.join(ensureProjectDrip(), "assets.json");
-      const prev = fs45.existsSync(log2) ? JSON.parse(fs45.readFileSync(log2, "utf8")) : [];
-      for (const w of written) prev.push({ file: w.rel, source: item.url, author: item.designer || null, license: item.license || "unknown \u2014 check before shipping", credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs45.writeFileSync(log2, JSON.stringify(prev, null, 2));
+      const log2 = path42.join(ensureProjectDrip(), "assets.json");
+      const prev = fs46.existsSync(log2) ? JSON.parse(fs46.readFileSync(log2, "utf8")) : [];
+      for (const w of written) prev.push({ file: w.rel, source: item.url, author: item.designer || null, license: item.license || null, credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
+      fs46.writeFileSync(log2, JSON.stringify(prev, null, 2));
       const web = (rel3) => "/" + rel3.replace(/\\/g, "/").replace(/^public\//, "");
       const phone = written.find((w) => w.height > w.width);
       const desk = written.find((w) => w.width >= w.height) || written[0];
@@ -103920,7 +104243,7 @@ Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3
       return text(
         `Original ${res.width}x${res.height} (${Math.round(buf.length / 1024)} KB), focal point ${Math.round(res.focus.x * 100)}% ${Math.round(res.focus.y * 100)}%.
 ` + written.map((w) => `- ${w.rel}: ${w.width}x${w.height}, ${w.kb} KB${w.kb > maxKB ? " (over budget: try a smaller width)" : ""}`).join("\n") + `
-Licence: ${item.license || "UNKNOWN: confirm before shipping"}${item.designer ? ` \xB7 credit ${item.designer}` : ""}. Logged in .drip/assets.json.
+Source logged in .drip/assets.json${item.designer ? ` (${item.designer})` : ""}.
 
 ${picture}
 (Hero: fetchpriority="high", no lazy loading. Below the fold: loading="lazy".)`
@@ -103932,14 +104255,14 @@ ${picture}
 // src/modules/assets/optical.mjs
 var optical_exports = {};
 __export(optical_exports, {
-  register: () => register12
+  register: () => register13
 });
-import fs46 from "node:fs";
-import path42 from "node:path";
+import fs47 from "node:fs";
+import path43 from "node:path";
 init_imaging();
 init_paths();
 var pct = (v) => `${(v * 100).toFixed(1)}%`;
-function register12(server2, ctx2) {
+function register13(server2, ctx2) {
   server2.registerTool(
     "optical_center",
     {
@@ -103955,7 +104278,7 @@ function register12(server2, ctx2) {
     safe(async ({ file: file4, svg, detail, width }) => {
       let buf;
       if (svg) buf = Buffer.from(svg);
-      else if (file4) buf = /^https?:/.test(file4) ? (await fetchImage(file4)).buf : fs46.readFileSync(path42.resolve(projectDir(), file4));
+      else if (file4) buf = /^https?:/.test(file4) ? (await fetchImage(file4)).buf : fs47.readFileSync(path43.resolve(projectDir(), file4));
       else return text("Pass file or svg.", true);
       const o2 = await opticalCenter(buf, { detail, config: ctx2.config() });
       if (o2.empty) return text("No shape found (the image is one flat colour?).", true);
@@ -103986,15 +104309,15 @@ __export(typecompare_exports, {
   loadFontFile: () => loadFontFile,
   metricsTable: () => metricsTable,
   parseFont: () => parseFont,
-  register: () => register13,
+  register: () => register14,
   sheetHtml: () => sheetHtml,
   stemWidth: () => stemWidth,
   strokeContrast: () => strokeContrast
 });
 var import_opentype = __toESM(require_opentype(), 1);
-import fs47 from "node:fs";
+import fs48 from "node:fs";
 import os9 from "node:os";
-import path43 from "node:path";
+import path44 from "node:path";
 import { pathToFileURL as pathToFileURL4 } from "node:url";
 init_browser();
 init_paths();
@@ -104008,10 +104331,10 @@ function familyName(font) {
 var parseFont = (buf) => import_opentype.default.parse(toArrayBuffer(Buffer.from(buf)));
 async function loadFontFile(spec, weight = 400) {
   const s2 = String(spec).trim();
-  const local = path43.resolve(projectDir(), s2);
+  const local = path44.resolve(projectDir(), s2);
   if (/\.(ttf|otf|woff)$/i.test(s2)) {
-    if (!fs47.existsSync(local)) throw new Error(`Font file not found: ${local}`);
-    return { buf: fs47.readFileSync(local), family: path43.basename(s2).replace(/\.[^.]+$/, ""), weight, id: local, local: true, format: path43.extname(s2).slice(1).toLowerCase() };
+    if (!fs48.existsSync(local)) throw new Error(`Font file not found: ${local}`);
+    return { buf: fs48.readFileSync(local), family: path44.basename(s2).replace(/\.[^.]+$/, ""), weight, id: local, local: true, format: path44.extname(s2).slice(1).toLowerCase() };
   }
   if (/\.woff2$/i.test(s2)) throw new Error("woff2 files can't be read for metrics; pass the .ttf, .otf or .woff of the same font");
   const id = s2.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -104157,9 +104480,9 @@ p{margin:0 0 18px;line-height:1.55;color:#3d3a33;max-width:62ch}
 footer{color:#77716a;font-size:12px;border-top:1px solid #e6e3da;padding-top:10px}</style><div class=g style="width:${width}px">${html}</div>`;
 }
 async function renderSheet(html, { width, config: config2 }) {
-  const dir = fs47.mkdtempSync(path43.join(os9.tmpdir(), "drip-fonts-"));
-  const file4 = path43.join(dir, "sheet.html");
-  fs47.writeFileSync(file4, html);
+  const dir = fs48.mkdtempSync(path44.join(os9.tmpdir(), "drip-fonts-"));
+  const file4 = path44.join(dir, "sheet.html");
+  fs48.writeFileSync(file4, html);
   try {
     return await withTab(config2, async (tab) => {
       await openPage(tab, pathToFileURL4(file4).href, { width, height: 900, settleMs: 400 });
@@ -104170,7 +104493,7 @@ async function renderSheet(html, { width, config: config2 }) {
     });
   } finally {
     try {
-      fs47.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      fs48.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
     } catch {
     }
   }
@@ -104180,7 +104503,7 @@ function metricsTable(cards) {
   const rows = cards.map((c3) => `${c3.label} | ${c3.files.map((f3) => f3.weight).join("/")} | ${c3.metrics.xHeight} | ${c3.metrics.capHeight} | ${c3.metrics.xToCap} | ${c3.metrics.avgWidth} ${c3.metrics.width} | ${c3.metrics.contrast ? `${c3.metrics.contrast}:1 ${c3.metrics.contrastClass}` : "?"} | ${c3.metrics.stem}`);
   return [head, ...rows].join("\n");
 }
-function register13(server2, ctx2) {
+function register14(server2, ctx2) {
   server2.registerTool(
     "fonts_compare",
     {
@@ -104223,8 +104546,8 @@ ${failed.join("\n")}`, true);
       const width = cards.length === 1 ? 900 : cards.length === 2 ? 1400 : 1500;
       const png2 = await renderSheet(sheetHtml(cards, { headline, body, sizes, width }), { width, config: ctx2.config() });
       const dir = rendersDir();
-      const file4 = path43.join(dir, `fonts-${stamp()}.png`);
-      fs47.writeFileSync(file4, png2);
+      const file4 = path44.join(dir, `fonts-${stamp()}.png`);
+      fs48.writeFileSync(file4, png2);
       return blocks([
         textBlock(`Compared ${cards.length} font${cards.length > 1 ? "s" : ""} (saved ${file4}):
 ${metricsTable(cards)}${failed.length ? `
@@ -104246,13 +104569,13 @@ __export(wordmark_exports, {
   checkPairs: () => checkPairs,
   gapReport: () => gapReport,
   pathData: () => pathData,
-  register: () => register14
+  register: () => register15
 });
-import fs48 from "node:fs";
-import path44 from "node:path";
+import fs49 from "node:fs";
+import path45 from "node:path";
 init_paths();
 var slug3 = (s2) => String(s2).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "wordmark";
-var wordmarksDir = () => path44.join(ensureProjectDrip(), "wordmarks");
+var wordmarksDir = () => path45.join(ensureProjectDrip(), "wordmarks");
 var n2 = (v) => +v.toFixed(2);
 function pathData(p2) {
   return p2.commands.map((c3) => c3.type === "Z" ? "Z" : c3.type === "M" || c3.type === "L" ? `${c3.type}${n2(c3.x)} ${n2(c3.y)}` : c3.type === "Q" ? `Q${n2(c3.x1)} ${n2(c3.y1)} ${n2(c3.x)} ${n2(c3.y)}` : `C${n2(c3.x1)} ${n2(c3.y1)} ${n2(c3.x2)} ${n2(c3.y2)} ${n2(c3.x)} ${n2(c3.y)}`).join("");
@@ -104327,7 +104650,7 @@ function previewHtml2(svg, { color: color2, background, width = 1400 }) {
 <div style="display:flex;gap:56px;align-items:center;padding:28px 72px;border-top:1px solid #0001">${sized(64)}${sized(32)}${sized(18)}</div>
 <div style="display:flex;gap:56px;align-items:center;padding:28px 72px;background:${color2 || "#111111"}">${sizedRev(64)}${sizedRev(32)}${sizedRev(18)}</div></div>`;
 }
-function register14(server2, ctx2) {
+function register15(server2, ctx2) {
   server2.registerTool(
     "wordmark_build",
     {
@@ -104351,9 +104674,9 @@ function register14(server2, ctx2) {
     safe(async (args) => {
       let base = {};
       if (args.from) {
-        const f3 = path44.join(wordmarksDir(), slug3(args.from), "wordmark.json");
-        if (!fs48.existsSync(f3)) return text(`No saved wordmark "${args.from}" (looked for ${f3}). Build it first, or drop "from".`, true);
-        base = JSON.parse(fs48.readFileSync(f3, "utf8"));
+        const f3 = path45.join(wordmarksDir(), slug3(args.from), "wordmark.json");
+        if (!fs49.existsSync(f3)) return text(`No saved wordmark "${args.from}" (looked for ${f3}). Build it first, or drop "from".`, true);
+        base = JSON.parse(fs49.readFileSync(f3, "utf8"));
       }
       const spec = {
         text: args.text ?? base.text,
@@ -104375,10 +104698,10 @@ function register14(server2, ctx2) {
       if (missing.length) return text(`${file4.family} has no glyph for: ${[...new Set(missing)].join(" ")}. Pick another font or change the text.`, true);
       const out = buildWordmark(font, spec);
       const name = slug3(args.name || args.from || spec.text);
-      const dir = ensureDir(path44.join(wordmarksDir(), name));
+      const dir = ensureDir(path45.join(wordmarksDir(), name));
       const saved = { version: 1, ...spec, family: file4.family, usedWeight: file4.weight, fontFile: file4.local ? spec.font : void 0, savedAt: (/* @__PURE__ */ new Date()).toISOString() };
-      fs48.writeFileSync(path44.join(dir, "wordmark.svg"), out.svg);
-      fs48.writeFileSync(path44.join(dir, "wordmark.json"), JSON.stringify(saved, null, 2));
+      fs49.writeFileSync(path45.join(dir, "wordmark.svg"), out.svg);
+      fs49.writeFileSync(path45.join(dir, "wordmark.json"), JSON.stringify(saved, null, 2));
       const report = gapReport(out.gaps);
       const lines = [
         `Wordmark "${spec.text}" in ${file4.family} ${file4.weight}${file4.weight !== spec.weight ? ` (nearest to ${spec.weight})` : ""}: ${out.ink.w}x${out.ink.h} px ink at size ${spec.size}.`,
@@ -104389,7 +104712,7 @@ function register14(server2, ctx2) {
       ];
       const content = [textBlock(lines.join("\n"))];
       try {
-        const png2 = await renderHtml(previewHtml2(out.svg, spec), path44.join(dir, "preview.png"), { width: 1400, height: 572, config: ctx2.config() });
+        const png2 = await renderHtml(previewHtml2(out.svg, spec), path45.join(dir, "preview.png"), { width: 1400, height: 572, config: ctx2.config() });
         content.push(imageBlock(await toJpeg(png2, 1400, 600, 86)));
       } catch (err) {
         content.push(textBlock(`(No preview: ${String(err.message || err).slice(0, 120)})`));
@@ -104400,17 +104723,17 @@ function register14(server2, ctx2) {
 }
 
 // src/modules/assets/index.mjs
-function register15(server2, ctx2) {
+function register16(server2, ctx2) {
   for (const m of [palette_exports2, gradient_exports, icons_exports, fonts_exports, images_exports, optical_exports, typecompare_exports, wordmark_exports]) m.register(server2, ctx2);
 }
 
 // src/modules/gen/index.mjs
 var gen_exports = {};
 __export(gen_exports, {
-  register: () => register16
+  register: () => register17
 });
-import fs49 from "node:fs";
-import path45 from "node:path";
+import fs50 from "node:fs";
+import path46 from "node:path";
 import { pathToFileURL as pathToFileURL5 } from "node:url";
 init_paths();
 
@@ -104498,11 +104821,11 @@ async function openKeyPage(names3) {
 var BUILT_IN = [openai_default, gemini_default];
 async function providers() {
   const list4 = [...BUILT_IN];
-  const dir = path45.join(homeDripDir, "providers");
-  if (fs49.existsSync(dir))
-    for (const f3 of fs49.readdirSync(dir).filter((f4) => f4.endsWith(".mjs"))) {
+  const dir = path46.join(homeDripDir, "providers");
+  if (fs50.existsSync(dir))
+    for (const f3 of fs50.readdirSync(dir).filter((f4) => f4.endsWith(".mjs"))) {
       try {
-        const mod = await import(pathToFileURL5(path45.join(dir, f3)).href);
+        const mod = await import(pathToFileURL5(path46.join(dir, f3)).href);
         if (mod.default?.id && mod.default?.generate) list4.push(mod.default);
       } catch {
       }
@@ -104510,7 +104833,7 @@ async function providers() {
   return list4;
 }
 var KEY_NAMES = ["openai", "gemini", "unsplash", "pexels", "pixabay", "openverse"];
-function register16(server2, ctx2) {
+function register17(server2, ctx2) {
   server2.registerTool(
     "gen_image",
     {
@@ -104538,14 +104861,14 @@ function register16(server2, ctx2) {
       }
       const refImgs = await Promise.all(refs.map((u2) => fetchImage(u2)));
       const imgs = await p2.generate({ prompt, aspect, model: model || config2.gen.providers?.[p2.id]?.model, refs: refImgs }, key);
-      const file4 = path45.resolve(projectDir(), out);
-      fs49.mkdirSync(path45.dirname(file4), { recursive: true });
-      fs49.writeFileSync(file4, imgs[0].buf);
+      const file4 = path46.resolve(projectDir(), out);
+      fs50.mkdirSync(path46.dirname(file4), { recursive: true });
+      fs50.writeFileSync(file4, imgs[0].buf);
       logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
-      const log2 = path45.join(ensureProjectDrip(), "assets.json");
-      const list4 = fs49.existsSync(log2) ? JSON.parse(fs49.readFileSync(log2, "utf8")) : [];
+      const log2 = path46.join(ensureProjectDrip(), "assets.json");
+      const list4 = fs50.existsSync(log2) ? JSON.parse(fs50.readFileSync(log2, "utf8")) : [];
       list4.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs49.writeFileSync(log2, JSON.stringify(list4, null, 2));
+      fs50.writeFileSync(log2, JSON.stringify(list4, null, 2));
       return blocks([{ type: "text", text: `Saved ${out} via ${p2.label}. Judge it against the direction; if it misses, change one thing in the prompt and regenerate.` }, imageBlock(await toJpeg(imgs[0].buf, 1400, 1400))]);
     })
   );
@@ -104576,15 +104899,15 @@ function register16(server2, ctx2) {
 // src/modules/fitcheck/index.mjs
 var fitcheck_exports = {};
 __export(fitcheck_exports, {
-  register: () => register19
+  register: () => register20
 });
-import path49 from "node:path";
+import path50 from "node:path";
 init_paths();
-import fs53 from "node:fs";
+import fs54 from "node:fs";
 
 // src/modules/fitcheck/drift.mjs
-import fs50 from "node:fs";
-import path46 from "node:path";
+import fs51 from "node:fs";
+import path47 from "node:path";
 var HEX = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
 var norm4 = (h) => {
   h = h.toLowerCase();
@@ -104594,13 +104917,13 @@ function cssFiles(root, out = [], depth = 4) {
   if (depth < 0 || out.length > 60) return out;
   let entries;
   try {
-    entries = fs50.readdirSync(root, { withFileTypes: true });
+    entries = fs51.readdirSync(root, { withFileTypes: true });
   } catch {
     return out;
   }
   for (const e2 of entries) {
     if (/^(node_modules|\.git|\.next|dist|build|\.drip|out|coverage)$/.test(e2.name)) continue;
-    const f3 = path46.join(root, e2.name);
+    const f3 = path47.join(root, e2.name);
     if (e2.isDirectory()) cssFiles(f3, out, depth - 1);
     else if (/\.(css|scss|html)$/i.test(e2.name) || /tailwind\.config\.(js|ts|mjs|cjs)$/.test(e2.name)) out.push(f3);
   }
@@ -104614,14 +104937,14 @@ function tokens(src) {
   return out;
 }
 function designDrift(root, docFile) {
-  const doc = fs50.readFileSync(docFile, "utf8");
+  const doc = fs51.readFileSync(docFile, "utf8");
   const docHex = new Set((doc.match(HEX) || []).map(norm4));
   const files = cssFiles(root);
   const defined = {};
   const used = /* @__PURE__ */ new Set();
   const families = /* @__PURE__ */ new Set();
   for (const f3 of files) {
-    const src = fs50.readFileSync(f3, "utf8");
+    const src = fs51.readFileSync(f3, "utf8");
     Object.assign(defined, tokens(src));
     for (const h of src.match(HEX) || []) used.add(norm4(h));
     for (const m of src.matchAll(/font-family\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
@@ -104646,8 +104969,8 @@ function designDrift(root, docFile) {
 init_serve();
 
 // src/modules/fitcheck/compare.mjs
-import fs51 from "node:fs";
-import path47 from "node:path";
+import fs52 from "node:fs";
+import path48 from "node:path";
 init_paths();
 init_serve();
 init_chrome();
@@ -104664,16 +104987,16 @@ async function sourceImage(src, { width, height, config: config2 }) {
   if (comp) {
     const board = task?.board?.id && loadBoard(task.board.id);
     const d = board?.directions?.find((x2) => x2.name.toLowerCase() === comp[1].trim().toLowerCase()) || comp[1] === "chosen" && board?.directions?.find((x2) => x2.name === board.chosen);
-    if (!d?.tile || !fs51.existsSync(d.tile)) throw new Error(`No rendered comp for "${comp[1]}" (board_directions renders them).`);
-    return fs51.readFileSync(d.tile);
+    if (!d?.tile || !fs52.existsSync(d.tile)) throw new Error(`No rendered comp for "${comp[1]}" (board_directions renders them).`);
+    return fs52.readFileSync(d.tile);
   }
   if (/^https?:/i.test(src) || /\.html?$/i.test(src)) return screenshot(await toUrl(src), { width, height, format: "jpeg", quality: 82, config: config2 });
   if (/^data:/.test(src)) return Buffer.from(src.split(",")[1], "base64");
-  const abs2 = path47.resolve(projectDir(), src);
-  if (fs51.existsSync(abs2)) return fs51.readFileSync(abs2);
+  const abs2 = path48.resolve(projectDir(), src);
+  if (fs52.existsSync(abs2)) return fs52.readFileSync(abs2);
   return (await fetchImage(src)).buf;
 }
-function register17(server2, ctx2) {
+function register18(server2, ctx2) {
   server2.registerTool(
     "drip_compare",
     {
@@ -104697,7 +105020,7 @@ function register17(server2, ctx2) {
       const H = 48 + (title ? 44 : 0) + rows * (cellH + 70) + 20;
       const html = `<style>body{margin:0;background:#ECEBE7;font:15px system-ui;color:#111;padding:24px}h1{font:600 22px system-ui;margin:0 0 20px}.g{display:grid;grid-template-columns:repeat(${cols},${cellW}px);gap:20px}figure{margin:0}.i{width:${cellW}px;height:${cellH}px;background:#fff;border-radius:10px;overflow:hidden;display:grid;place-items:center;border:1px solid #d6d3cb}.i img{width:100%;height:100%;object-fit:contain;display:block}figcaption{margin-top:8px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}.e{color:#b3261e;padding:20px}</style>
 ${title ? `<h1>${esc6(title)}</h1>` : ""}<div class="g">${imgs.map((it, i2) => `<figure><div class="i">${it.buf ? `<img src="${dataUrl(it.buf, mimeOf(it.buf))}">` : `<div class="e">${esc6(it.err)}</div>`}</div><figcaption><b>${String.fromCharCode(65 + i2)}</b>${esc6(it.label || it.src)}${it.note ? ` \xB7 ${esc6(it.note)}` : ""}</figcaption></figure>`).join("")}</div>`;
-      const file4 = path47.join(rendersDir("compare"), `compare-${stamp()}.jpg`);
+      const file4 = path48.join(rendersDir("compare"), `compare-${stamp()}.jpg`);
       const sheet = await renderHtml(html, file4, { width: W, height: H, format: "jpeg", quality: 85, config: config2 });
       return blocks([
         textBlock(`Saved ${file4}
@@ -104730,7 +105053,7 @@ Judge: which one would a stranger remember? What does the winner do that the oth
     },
     safe(async (a2) => {
       const config2 = ctx2.config();
-      const tpl = fs51.readFileSync(path47.join(kitDir, "brand-board.html"), "utf8");
+      const tpl = fs52.readFileSync(path48.join(kitDir, "brand-board.html"), "utf8");
       const byRole = (r2) => a2.palette.find((p2) => p2.role.toLowerCase().includes(r2))?.hex;
       const ground = byRole("ground") || byRole("background") || a2.palette[0].hex;
       const ink2 = byRole("ink") || byRole("text") || a2.palette[1].hex;
@@ -104742,16 +105065,16 @@ Judge: which one would a stranger remember? What does the winner do that the oth
       if (a2.logo) {
         if (/^\s*<svg/i.test(a2.logo)) logo = a2.logo;
         else {
-          const abs2 = path47.resolve(projectDir(), a2.logo);
-          const buf = fs51.existsSync(abs2) ? fs51.readFileSync(abs2) : (await fetchImage(a2.logo)).buf;
+          const abs2 = path48.resolve(projectDir(), a2.logo);
+          const buf = fs52.existsSync(abs2) ? fs52.readFileSync(abs2) : (await fetchImage(a2.logo)).buf;
           logo = /<svg/i.test(buf.subarray(0, 400).toString()) ? buf.toString("utf8").replace(/<\?xml[^>]*>/, "") : `<img src="${dataUrl(buf, mimeOf(buf))}">`;
         }
       }
       const total = a2.palette.reduce((t2, p2) => t2 + (p2.share || 10), 0);
       const swatches = a2.palette.map((p2) => `<div class="sw" style="flex:${p2.share || 10};background:${p2.hex};color:${lum(p2.hex) > 150 ? "#111" : "#fff"}"><b>${esc6(p2.role)}</b><span>${esc6(p2.hex.toUpperCase())}${p2.share ? ` \xB7 ${Math.round((p2.share || 10) / total * 100)}%` : ""}</span></div>`).join("");
       const imgs = await Promise.all((a2.images || []).map(async (src) => {
-        const abs2 = path47.resolve(projectDir(), src);
-        const buf = fs51.existsSync(abs2) ? fs51.readFileSync(abs2) : (await fetchImage(src)).buf;
+        const abs2 = path48.resolve(projectDir(), src);
+        const buf = fs52.existsSync(abs2) ? fs52.readFileSync(abs2) : (await fetchImage(src)).buf;
         return `<img src="${dataUrl(buf, mimeOf(buf))}">`;
       }));
       const fam = (f3, w) => `family=${encodeURIComponent(f3).replace(/%20/g, "+")}:wght@${w}`;
@@ -104777,8 +105100,8 @@ Judge: which one would a stranger remember? What does the winner do that the oth
       };
       const html = tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => fill[k] ?? "");
       const dir = rendersDir("brand");
-      const base = path47.join(dir, `brand-${a2.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
-      fs51.writeFileSync(`${base}.html`, html);
+      const base = path48.join(dir, `brand-${a2.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+      fs52.writeFileSync(`${base}.html`, html);
       const jpg = await renderHtml(html, `${base}.jpg`, { width: 1600, height: 1e3, format: "jpeg", quality: 88, config: config2 });
       const doc = designDoc();
       return blocks([
@@ -104791,8 +105114,8 @@ Check: does the mark hold on its ground? Do the shares feel like the direction (
 }
 
 // src/modules/fitcheck/readme.mjs
-import fs52 from "node:fs";
-import path48 from "node:path";
+import fs53 from "node:fs";
+import path49 from "node:path";
 init_browser();
 init_paths();
 init_serve();
@@ -104841,12 +105164,12 @@ function readmeImages(md) {
 }
 function localData(src, base) {
   if (/^(https?:)?\/\//i.test(src)) return { url: src, bytes: null };
-  const file4 = path48.resolve(base, src.replace(/^\.?\//, ""));
-  if (!fs52.existsSync(file4)) return { url: null, bytes: null, missing: file4 };
-  const buf = fs52.readFileSync(file4);
-  return { url: `data:${MIME3[path48.extname(file4).toLowerCase()] || "image/png"};base64,${buf.toString("base64")}`, bytes: buf.length };
+  const file4 = path49.resolve(base, src.replace(/^\.?\//, ""));
+  if (!fs53.existsSync(file4)) return { url: null, bytes: null, missing: file4 };
+  const buf = fs53.readFileSync(file4);
+  return { url: `data:${MIME3[path49.extname(file4).toLowerCase()] || "image/png"};base64,${buf.toString("base64")}`, bytes: buf.length };
 }
-function register18(server2, ctx2) {
+function register19(server2, ctx2) {
   server2.registerTool(
     "render_html",
     {
@@ -104866,16 +105189,16 @@ function register18(server2, ctx2) {
     },
     safe(async ({ file: file4, html, out, width = 830, height = 600, scale = 2, fullPage = true, transparent = false, dark = false }) => {
       if (!file4 && !html) return text("Pass file or html.", true);
-      let src = file4 && path48.resolve(projectDir(), file4);
+      let src = file4 && path49.resolve(projectDir(), file4);
       if (!src) {
-        src = path48.join(rendersDir(`html-${stamp()}`), "page.html");
-        fs52.writeFileSync(src, /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
+        src = path49.join(rendersDir(`html-${stamp()}`), "page.html");
+        fs53.writeFileSync(src, /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
       }
-      if (!fs52.existsSync(src)) return text(`No such file: ${file4}`, true);
+      if (!fs53.existsSync(src)) return text(`No such file: ${file4}`, true);
       const { buf, height: h } = await shoot(await toUrl(src), { width, height, scale, transparent, dark, fullPage, config: ctx2.config() });
-      const dest = path48.resolve(projectDir(), out);
-      fs52.mkdirSync(path48.dirname(dest), { recursive: true });
-      fs52.writeFileSync(dest, buf);
+      const dest = path49.resolve(projectDir(), out);
+      fs53.mkdirSync(path49.dirname(dest), { recursive: true });
+      fs53.writeFileSync(dest, buf);
       const preview = await toJpeg(buf, 1200, 1600, 80);
       return blocks([textBlock(`Wrote ${out}: ${width * scale}x${Math.round(h * scale)} px (${width}x${h} CSS px at ${scale}x), ${Math.round(buf.length / 1024)} KB${transparent ? ", transparent background" : ""}.`), imageBlock(preview)]);
     })
@@ -104888,11 +105211,11 @@ function register18(server2, ctx2) {
       inputSchema: { file: external_exports.string().optional().describe("Default README.md") }
     },
     safe(async ({ file: file4 = "README.md" }) => {
-      const abs2 = path48.resolve(projectDir(), file4);
-      if (!fs52.existsSync(abs2)) return text(`No README at ${file4}.`, true);
-      const md = fs52.readFileSync(abs2, "utf8");
+      const abs2 = path49.resolve(projectDir(), file4);
+      if (!fs53.existsSync(abs2)) return text(`No README at ${file4}.`, true);
+      const md = fs53.readFileSync(abs2, "utf8");
       const imgs = readmeImages(md);
-      const base = path48.dirname(abs2);
+      const base = path49.dirname(abs2);
       const findings = [];
       if (/```mermaid/i.test(md)) findings.push({ level: "warn", msg: "mermaid block: GitHub draws it in its own style (and it renders blank in screenshots). An image you design reads better as a hero diagram." });
       const rows = imgs.map((im, i2) => {
@@ -104909,10 +105232,10 @@ function register18(server2, ctx2) {
       const page2 = `<!doctype html><html><head><meta charset="utf-8"><style>
         body{margin:0;background:#8b8f96;font:13px/1.3 system-ui;color:#111} .row{display:flex;gap:16px;align-items:flex-start;padding:16px;border-bottom:2px solid #6e737a}
         .lab{width:130px;color:#fff;font-weight:600} .c{padding:12px;box-sizing:content-box} .c img{width:100%;display:block}
-      </style></head><body>${rows.map((r2) => `<div class="row"><div class="lab">${r2.i}. ${path48.basename(r2.src)}<br><span style="font-weight:400">830 light \xB7 830 dark \xB7 309 phone</span></div>${cell(r2, "light", 830)}${cell(r2, "dark", 830)}${cell(r2, "light", 309)}</div>`).join("")}</body></html>`;
+      </style></head><body>${rows.map((r2) => `<div class="row"><div class="lab">${r2.i}. ${path49.basename(r2.src)}<br><span style="font-weight:400">830 light \xB7 830 dark \xB7 309 phone</span></div>${cell(r2, "light", 830)}${cell(r2, "dark", 830)}${cell(r2, "light", 309)}</div>`).join("")}</body></html>`;
       const dir = rendersDir(`readme-${stamp()}`);
-      const pageFile = path48.join(dir, "check.html");
-      fs52.writeFileSync(pageFile, page2);
+      const pageFile = path49.join(dir, "check.html");
+      fs53.writeFileSync(pageFile, page2);
       const config2 = ctx2.config();
       const { sizes, buf } = await withTab(config2, async (tab) => {
         const { s: s2 } = tab;
@@ -104934,8 +105257,8 @@ function register18(server2, ctx2) {
         if (sz && !sz.w) findings.push({ level: "error", msg: `image ${r2.i} (${r2.src}): did not load` });
         if (!r2.dark) findings.push({ level: "info", msg: `image ${r2.i} (${r2.src}): one variant for both themes; check its edges and text on the dark ground in the sheet (or add a <picture> with a prefers-color-scheme: dark source)` });
       }
-      const sheet = path48.join(dir, "readme-check.jpg");
-      fs52.writeFileSync(sheet, buf);
+      const sheet = path49.join(dir, "readme-check.jpg");
+      fs53.writeFileSync(sheet, buf);
       const errors = findings.filter((f3) => f3.level === "error");
       updateState((st) => {
         if (!st.task || st.task.surface !== "readme") return;
@@ -104959,9 +105282,9 @@ function register18(server2, ctx2) {
 // src/modules/fitcheck/index.mjs
 init_chrome();
 var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
-function register19(server2, ctx2) {
-  register17(server2, ctx2);
+function register20(server2, ctx2) {
   register18(server2, ctx2);
+  register19(server2, ctx2);
   server2.registerTool(
     "fitcheck_shot",
     {
@@ -105013,8 +105336,8 @@ function register19(server2, ctx2) {
       content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${numbersOnly ? "numbers only" : section ? `section ${section} (${r2.audit.section?.missing ? "not found" : `y ${r2.audit.section?.top}, ${r2.audit.section?.h}px tall`})` : `${r2.slices.length} of ${r2.sliceCount} screens${r2.audit.sliceYs ? ` at y ${r2.audit.sliceYs.join(", ")}` : ""}`}
 ${formatAudit(r2.audit, j)}`));
       for (const [i2, sl] of r2.slices.entries()) {
-        const f3 = path49.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-        fs53.writeFileSync(f3, sl.buf);
+        const f3 = path50.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+        fs54.writeFileSync(f3, sl.buf);
         files.push(f3);
         content.push(imageBlock(sl.buf));
       }
@@ -105025,8 +105348,8 @@ ${formatAudit(r2.audit, j)}`));
       for (const [i2, st] of states.entries()) {
         content.push(textBlock(`State ${i2 + 1}: ${st.label}${st.error ? ` \xB7 STEP FAILED: ${st.error}` : ""}`));
         if (!st.buf?.length) continue;
-        const f3 = path49.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
-        fs53.writeFileSync(f3, st.buf);
+        const f3 = path50.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+        fs54.writeFileSync(f3, st.buf);
         files.push(f3);
         content.push(imageBlock(st.buf));
       }
@@ -105090,7 +105413,7 @@ ${judge}`;
       const dir = board?.directions.find((d) => d.name === board.chosen);
       const content = [];
       const shot3 = await screenshot(target, { width: 1440, height: 900, format: "jpeg", quality: 80, config: ctx2.config() });
-      const tile = dir?.tile && fs53.existsSync(dir.tile) ? fs53.readFileSync(dir.tile) : null;
+      const tile = dir?.tile && fs54.existsSync(dir.tile) ? fs54.readFileSync(dir.tile) : null;
       if (dir && tile) {
         const sheet = await contactSheet([shot3, tile], { cols: 2, tileW: 720, tileH: 450, fit: "contain", gap: 12 });
         content.push(
@@ -105126,7 +105449,7 @@ ${items.map((it, i2) => `${i2 + 1}. ${it.note}`).join("\n")}`),
     safe(async ({ files }) => {
       const { task } = loadState();
       const root = projectDir();
-      const list4 = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f3) => path49.resolve(root, f3));
+      const list4 = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f3) => path50.resolve(root, f3));
       if (!list4.length) return text("No files given and none recorded for this task.", true);
       const issues = lintFiles(list4, root);
       updateState((st) => {
@@ -105192,10 +105515,10 @@ Fix them (drip_guide type / layout), fitcheck_shot again, then record the verdic
 var critic_exports = {};
 __export(critic_exports, {
   goldFor: () => goldFor,
-  register: () => register20
+  register: () => register21
 });
-import fs54 from "node:fs";
-import path50 from "node:path";
+import fs55 from "node:fs";
+import path51 from "node:path";
 init_paths();
 init_serve();
 var KIND_BRIEF = {
@@ -105232,10 +105555,10 @@ function goldFor(task) {
   const t2 = `${task?.title || ""} ${task?.brief?.what || ""}`.toLowerCase();
   const kind = /\b(walker|device|hardware|speaker|bike|camera|furniture|toy|gadget|appliance|wearable|shoe|bottle|stroller)\b/.test(t2) && !/\b(saas|software|app|platform)\b/.test(t2) ? "hardware" : /\b(ai|generator|thumbnail|image|video|creative tool|model)\b/.test(t2) ? "ai-tool" : /\b(portfolio|studio|agency|designer|artist|photographer)\b/.test(t2) ? "studio" : task?.surface === "landing" || task?.surface === "app" ? "saas" : null;
   const labels = { hardware: "teenage.engineering, OP-1 product page", "ai-tool": "krea.ai", studio: "locomotive.ca", saas: "linear.app" };
-  const file4 = kind && path50.join(examplesDir, "gold", kind, "1.jpg");
-  return file4 && fs54.existsSync(file4) ? { kind, file: file4, label: labels[kind] } : null;
+  const file4 = kind && path51.join(examplesDir, "gold", kind, "1.jpg");
+  return file4 && fs55.existsSync(file4) ? { kind, file: file4, label: labels[kind] } : null;
 }
-function register20(server2, ctx2) {
+function register21(server2, ctx2) {
   server2.registerTool(
     "critic_prepare",
     {
@@ -105269,7 +105592,7 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
       if (kind === "directions") {
         const board = task?.board?.id && loadBoard(task.board.id);
         if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
-        const missing = board.directions.filter((d) => !d.tile || !fs54.existsSync(d.tile));
+        const missing = board.directions.filter((d) => !d.tile || !fs55.existsSync(d.tile));
         if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
         const unreadable = board.directions.filter((d) => d.typeIssues?.length);
         if (unreadable.length)
@@ -105300,8 +105623,8 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
             const j = judgeAudit(r2.audit, { persuade: isPersuade(loadState().task) });
             measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
             r2.slices.forEach((sl, i2) => {
-              const f3 = path50.join(dir, `${tag}${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-              fs54.writeFileSync(f3, sl.buf);
+              const f3 = path51.join(dir, `${tag}${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs55.writeFileSync(f3, sl.buf);
               files.push(f3);
               notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
             });
@@ -105310,25 +105633,25 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
             const desk = sizes.find((s2) => s2.width >= 1e3) || sizes.at(-1);
             const states = await captureStates(t2, steps, { width: desk.width, height: desk.height, config: config2 });
             states.forEach((st, i2) => {
-              const f3 = path50.join(dir, `${tag}state-${String(i2 + 1).padStart(2, "0")}.jpg`);
-              fs54.writeFileSync(f3, st.buf);
+              const f3 = path51.join(dir, `${tag}state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs55.writeFileSync(f3, st.buf);
               files.push(f3);
               notes.push(`interaction state ${i2 + 1}: ${st.label}${st.error ? ` (step failed: ${st.error})` : ""}`);
             });
           }
         } else {
-          const abs2 = path50.resolve(projectDir(), t2);
-          if (!fs54.existsSync(abs2)) return text(`File not found: ${t2}`, true);
+          const abs2 = path51.resolve(projectDir(), t2);
+          if (!fs55.existsSync(abs2)) return text(`File not found: ${t2}`, true);
           if (/\.svg$/i.test(abs2)) {
-            const svg = fs54.readFileSync(abs2, "utf8");
+            const svg = fs55.readFileSync(abs2, "utf8");
             for (const [bg, label, size] of [["#FFFFFF", "light", 1024], ["#111111", "dark", 1024], ["#FFFFFF", "small 64px", 64], ["#FFFFFF", "tiny 24px", 24]]) {
-              const f3 = path50.join(dir, `${path50.basename(abs2, ".svg")}-${label.replace(/\W+/g, "")}.png`);
+              const f3 = path51.join(dir, `${path51.basename(abs2, ".svg")}-${label.replace(/\W+/g, "")}.png`);
               await renderSvg(svg, f3, { size, bg, config: config2 });
               files.push(f3);
               notes.push(`${t2} on ${label}`);
             }
           } else if (/\.html?$/i.test(abs2)) {
-            const f3 = path50.join(dir, `${path50.basename(abs2)}.png`);
+            const f3 = path51.join(dir, `${path51.basename(abs2)}.png`);
             await renderUrl(`file:///${abs2.replace(/\\/g, "/")}`, f3, { width: 1440, height: 900, config: config2 });
             files.push(f3);
             notes.push(`${t2} rendered`);
@@ -105480,21 +105803,21 @@ Show the user the critic's own summary and scores, not a softened version.`);
 var logo_exports = {};
 __export(logo_exports, {
   pathStats: () => pathStats,
-  register: () => register21
+  register: () => register22
 });
-import fs56 from "node:fs";
-import path52 from "node:path";
+import fs57 from "node:fs";
+import path53 from "node:path";
 init_paths();
 
 // src/modules/logo/outline.mjs
 var import_opentype2 = __toESM(require_opentype(), 1);
-import fs55 from "node:fs";
-import path51 from "node:path";
+import fs56 from "node:fs";
+import path52 from "node:path";
 init_paths();
 async function loadFont2(font, weight = 400, style = "normal") {
-  const local = path51.resolve(projectDir(), font);
-  if (/\.(ttf|otf|woff)$/i.test(font) && fs55.existsSync(local)) {
-    const b = fs55.readFileSync(local);
+  const local = path52.resolve(projectDir(), font);
+  if (/\.(ttf|otf|woff)$/i.test(font) && fs56.existsSync(local)) {
+    const b = fs56.readFileSync(local);
     return import_opentype2.default.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
   }
   const id = font.trim().toLowerCase().replace(/\s+/g, "-");
@@ -105549,9 +105872,9 @@ function outline(font, text2, { size = 200, letterSpacing = 0, kerning = true } 
 var esc7 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
 function loadSvg(src) {
   if (/^\s*<svg/i.test(src)) return src;
-  const abs2 = path52.resolve(projectDir(), src);
-  if (!fs56.existsSync(abs2)) throw new Error(`SVG not found: ${src}`);
-  return fs56.readFileSync(abs2, "utf8");
+  const abs2 = path53.resolve(projectDir(), src);
+  if (!fs57.existsSync(abs2)) throw new Error(`SVG not found: ${src}`);
+  return fs57.readFileSync(abs2, "utf8");
 }
 var fit = (svg) => svg.replace(/<\?xml[^>]*>/, "").replace(/<svg/, '<svg style="width:100%;height:100%;display:block"');
 var LIGHT = /^(#f{3}|#f{6}|white|#fff[0-9a-f]{3}|#f[0-9a-f]f[0-9a-f]f[0-9a-f])$/i;
@@ -105575,7 +105898,7 @@ function pathStats(svg) {
     return { path: i2 + 1, commands: cmds.length, shapes, curves: cmds.filter((c3) => /[cCsSqQtTaA]/.test(c3)).length, shortSegments: short, decimals };
   });
 }
-function register21(server2, ctx2) {
+function register22(server2, ctx2) {
   server2.registerTool(
     "logo_outline",
     {
@@ -105596,14 +105919,14 @@ function register21(server2, ctx2) {
       const o2 = outline(f3, str, { size, letterSpacing });
       let saved = "";
       if (out) {
-        const abs2 = path52.resolve(projectDir(), out);
-        fs56.mkdirSync(path52.dirname(abs2), { recursive: true });
-        fs56.writeFileSync(abs2, o2.svg);
+        const abs2 = path53.resolve(projectDir(), out);
+        fs57.mkdirSync(path53.dirname(abs2), { recursive: true });
+        fs57.writeFileSync(abs2, o2.svg);
         saved = `Saved ${out}
 `;
       }
       const m = o2.metrics;
-      const file4 = path52.join(rendersDir("logo"), `outline-${stamp()}.jpg`);
+      const file4 = path53.join(rendersDir("logo"), `outline-${stamp()}.jpg`);
       const png2 = await renderHtml(
         `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o2.width}px;height:${o2.height}px">${o2.svg}
 <div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
@@ -105648,7 +105971,7 @@ Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to 
 .small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
 <h1>${esc7(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
       const rows = Math.ceil(svgs.length / cols);
-      const file4 = path52.join(rendersDir("logo"), `sheet-${stamp()}.jpg`);
+      const file4 = path53.join(rendersDir("logo"), `sheet-${stamp()}.jpg`);
       const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, format: "jpeg", quality: 88, config: ctx2.config() });
       return blocks([
         textBlock(`Concept sheet saved: ${file4}
@@ -105675,7 +105998,7 @@ Judge ideas first (one clear thought each, no clich\xE9s), then have the critic 
 <p class="label">Sizes 16 / 24 / 32 / 64 / 128 \u2014 light, dark, one colour, inverse, busy ground</p>
 ${strip4("#fff", svg)}${strip4(dark, svg)}${strip4("#fff", mono(svg, "#111", "#fff"))}${strip4("#111", mono(svg, "#fff", "#111"))}
 ${strip4("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
-      const file4 = path52.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.jpg`);
+      const file4 = path53.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.jpg`);
       const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, format: "jpeg", quality: 88, config: ctx2.config() });
       const stats = pathStats(svg);
       const hints = [];
@@ -105712,8 +106035,8 @@ Paths: ${stats.length} \xB7 ${stats.map((s2) => `#${s2.path} ${s2.commands} cmds
       const { rasterSizes: rasterSizes2 } = await Promise.resolve().then(() => (init_imaging(), imaging_exports));
       const svg = loadSvg(src);
       const buf = Buffer.from(svg);
-      const dir = path52.resolve(projectDir(), out);
-      fs56.mkdirSync(dir, { recursive: true });
+      const dir = path53.resolve(projectDir(), out);
+      fs57.mkdirSync(dir, { recursive: true });
       const [p16, p32, p48, p192, p512] = await rasterSizes2(buf, [16, 32, 48, 192, 512], { padding, config: ctx2.config() });
       const [apple] = await rasterSizes2(buf, [180], { padding: 0.14, bg: ground, config: ctx2.config() });
       const pngs = [[16, p16], [32, p32], [48, p48]];
@@ -105739,12 +106062,12 @@ Paths: ${stats.length} \xB7 ${stats.map((s2) => `#${s2.path} ${s2.commands} cmds
         "icon-192.png": p192,
         "icon-512.png": p512
       };
-      for (const [n3, b] of Object.entries(files)) fs56.writeFileSync(path52.join(dir, n3), b);
+      for (const [n3, b] of Object.entries(files)) fs57.writeFileSync(path53.join(dir, n3), b);
       const base = out.replace(/\\/g, "/").replace(/^public\/?/, "");
       const href = (n3) => `/${base ? `${base}/` : ""}${n3}`;
       const sheet = await renderHtml(
         `<div style="display:flex;gap:28px;align-items:end;padding:28px;background:#ECEBE7;font:13px system-ui">${[16, 32, 48].map((s2) => `<img src="data:image/png;base64,${pngs.find(([n3]) => n3 === s2)[1].toString("base64")}" width="${s2}" height="${s2}">`).join("")}<img src="data:image/png;base64,${apple.toString("base64")}" width="90" height="90" style="border-radius:20px"><img src="data:image/png;base64,${p192.toString("base64")}" width="96" height="96"></div>`,
-        path52.join(rendersDir("logo"), `icons-${stamp()}.png`),
+        path53.join(rendersDir("logo"), `icons-${stamp()}.png`),
         { width: 520, height: 170, config: ctx2.config() }
       );
       return blocks([
@@ -105766,9 +106089,9 @@ Check the 16px one: if it is mush, export a simpler mark for small sizes.`
 // src/modules/packs/index.mjs
 var packs_exports = {};
 __export(packs_exports, {
-  register: () => register22
+  register: () => register23
 });
-function register22(server2) {
+function register23(server2) {
   server2.registerTool(
     "pack_create",
     {
@@ -105833,14 +106156,14 @@ Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack
 // src/modules/codemode/index.mjs
 var codemode_exports = {};
 __export(codemode_exports, {
-  register: () => register23
+  register: () => register24
 });
-import fs58 from "node:fs";
-import path54 from "node:path";
+import fs59 from "node:fs";
+import path55 from "node:path";
 
 // src/core/codemode/execute.mjs
-import fs57 from "node:fs";
-import path53 from "node:path";
+import fs58 from "node:fs";
+import path54 from "node:path";
 init_paths();
 
 // src/core/codemode/allowlist.mjs
@@ -106167,7 +106490,7 @@ var RESULT_TYPE = "type ToolResult = { text: string; data?: any /* parsed when t
 // src/core/codemode/execute.mjs
 var MAX_CALL_TEXT = 2e5;
 function codemodeOutDir() {
-  return path53.join(projectDripDir(), "cli", "codemode");
+  return path54.join(projectDripDir(), "cli", "codemode");
 }
 function scriptTools(tools = collectTools(), config2 = loadConfig()) {
   const names3 = allowedTools([...tools.keys()], config2);
@@ -106188,9 +106511,9 @@ async function callForScript(name, args, { allowed, outDir, images, signal }) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs57.mkdirSync(outDir, { recursive: true });
-      const file4 = path53.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs57.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs58.mkdirSync(outDir, { recursive: true });
+      const file4 = path54.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs58.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       files.push(file4);
     }
   }
@@ -106234,15 +106557,15 @@ function searchTools(query, limit = 8) {
   const scored = [];
   for (const [name, { meta: meta3, module }] of allowed) {
     const hay = `${name} ${module} ${meta3.title || ""} ${meta3.description || ""} ${Object.keys(meta3.inputSchema || {}).join(" ")}`.toLowerCase();
-    let score2 = 0;
+    let score3 = 0;
     for (const w of words3) {
-      if (name === w) score2 += 10;
-      else if (name.includes(w)) score2 += 5;
-      else if ((meta3.title || "").toLowerCase().includes(w)) score2 += 3;
-      else if (hay.includes(w)) score2 += 1;
+      if (name === w) score3 += 10;
+      else if (name.includes(w)) score3 += 5;
+      else if ((meta3.title || "").toLowerCase().includes(w)) score3 += 3;
+      else if (hay.includes(w)) score3 += 1;
     }
-    if (!words3.length) score2 = 1;
-    if (score2 > 0) scored.push({ name, meta: meta3, score: score2 });
+    if (!words3.length) score3 = 1;
+    if (score3 > 0) scored.push({ name, meta: meta3, score: score3 });
   }
   scored.sort((a2, b) => b.score - a2.score || a2.name.localeCompare(b.name));
   return scored.slice(0, limit).map(({ name, meta: meta3 }) => ({
@@ -106255,7 +106578,7 @@ function searchTools(query, limit = 8) {
 
 // src/modules/codemode/index.mjs
 var MAX_OUTPUT = 12e3;
-function register23(server2) {
+function register24(server2) {
   server2.registerTool(
     "drip_search",
     {
@@ -106307,7 +106630,7 @@ Only the first ${maxImages} are attached.` : ""}`);
       const content = [{ type: "text", text: parts.join("\n\n") }];
       for (const f3 of r2.images.slice(0, maxImages)) {
         try {
-          content.push(imageBlock(fs58.readFileSync(f3), /\.png$/i.test(f3) ? "image/png" : /\.webp$/i.test(f3) ? "image/webp" : "image/jpeg"));
+          content.push(imageBlock(fs59.readFileSync(f3), /\.png$/i.test(f3) ? "image/png" : /\.webp$/i.test(f3) ? "image/webp" : "image/jpeg"));
         } catch {
         }
       }
@@ -106318,9 +106641,9 @@ Only the first ${maxImages} are attached.` : ""}`);
 function bound(s2) {
   if (s2.length <= MAX_OUTPUT) return s2;
   const dir = codemodeOutDir();
-  fs58.mkdirSync(dir, { recursive: true });
-  const file4 = path54.join(dir, `result-${Date.now()}.json`);
-  fs58.writeFileSync(file4, s2);
+  fs59.mkdirSync(dir, { recursive: true });
+  const file4 = path55.join(dir, `result-${Date.now()}.json`);
+  fs59.writeFileSync(file4, s2);
   return `${s2.slice(0, MAX_OUTPUT)}
 [truncated: ${s2.length} characters, full result in ${file4}]`;
 }
@@ -106328,30 +106651,30 @@ function bound(s2) {
 // src/modules/patterns/index.mjs
 var patterns_exports = {};
 __export(patterns_exports, {
-  register: () => register24
+  register: () => register25
 });
-import fs62 from "node:fs";
-import path59 from "node:path";
+import fs63 from "node:fs";
+import path60 from "node:path";
 init_paths();
 
 // src/modules/patterns/diff.mjs
 init_browser();
-import fs59 from "node:fs";
-import path55 from "node:path";
+import fs60 from "node:fs";
+import path56 from "node:path";
 init_paths();
 var AXE_VERSION = "4.10.2";
 var AXE_URL = `https://cdn.jsdelivr.net/npm/axe-core@${AXE_VERSION}/axe.min.js`;
 async function loadAxe() {
   const local = process.env.DRIP_AXE_PATH;
   if (local) {
-    if (fs59.existsSync(local)) return { src: fs59.readFileSync(local, "utf8"), from: local };
+    if (fs60.existsSync(local)) return { src: fs60.readFileSync(local, "utf8"), from: local };
     return { src: null, reason: `DRIP_AXE_PATH points at ${local}, which does not exist` };
   }
-  const cached2 = path55.join(ensureDir(path55.join(homeDripDir, "vendor")), `axe-core-${AXE_VERSION}.min.js`);
-  if (fs59.existsSync(cached2)) return { src: fs59.readFileSync(cached2, "utf8"), from: cached2 };
+  const cached2 = path56.join(ensureDir(path56.join(homeDripDir, "vendor")), `axe-core-${AXE_VERSION}.min.js`);
+  if (fs60.existsSync(cached2)) return { src: fs60.readFileSync(cached2, "utf8"), from: cached2 };
   try {
     const { body } = await get(AXE_URL, { ttlMs: 0, timeoutMs: 2e4, retries: 0 });
-    fs59.writeFileSync(cached2, body);
+    fs60.writeFileSync(cached2, body);
     return { src: body, from: AXE_URL };
   } catch (e2) {
     return { src: null, reason: `axe-core ${AXE_VERSION} could not be downloaded (${e2.message}). Set DRIP_AXE_PATH to a local axe.min.js to run it offline` };
@@ -106434,11 +106757,11 @@ async function diffSheet(pairs2, { threshold = 0.1, config: config2 } = {}) {
 // src/modules/patterns/extract.mjs
 init_browser();
 init_serve();
-import path57 from "node:path";
+import path58 from "node:path";
 
 // src/modules/patterns/run.mjs
-import fs60 from "node:fs";
-import path56 from "node:path";
+import fs61 from "node:fs";
+import path57 from "node:path";
 init_browser();
 init_paths();
 init_serve();
@@ -106495,7 +106818,7 @@ function installLib() {
     }
     return [255, 255, 255, 1];
   };
-  const describe5 = (el) => {
+  const describe6 = (el) => {
     if (!el || el.nodeType !== 1) return "?";
     let s2 = el.tagName.toLowerCase();
     const role = el.getAttribute("role");
@@ -106641,23 +106964,23 @@ function installLib() {
       const vis = visible(el);
       const t2 = textOf(el);
       if (structure.length < maxNodes && (vis || key === "root")) {
-        structure.push({ path: key, tag: describe5(el), depth, text: t2.slice(0, 60) || void 0, rect: { x: round(r2.left + scrollX - rr.x), y: round(r2.top + scrollY - rr.y), w: round(r2.width), h: round(r2.height) }, ...styleOf(el, cs) });
+        structure.push({ path: key, tag: describe6(el), depth, text: t2.slice(0, 60) || void 0, rect: { x: round(r2.left + scrollX - rr.x), y: round(r2.top + scrollY - rr.y), w: round(r2.width), h: round(r2.height) }, ...styleOf(el, cs) });
       }
       const tr = splitList(cs.transitionProperty).map((p2, i2) => ({ property: p2, duration: secs(splitList(cs.transitionDuration)[i2 % splitList(cs.transitionDuration).length]), easing: splitList(cs.transitionTimingFunction)[i2 % splitList(cs.transitionTimingFunction).length], delay: secs(splitList(cs.transitionDelay)[i2 % splitList(cs.transitionDelay).length]) })).filter((x2) => x2.duration > 0 || x2.delay > 0);
       const an = cs.animationName !== "none" ? splitList(cs.animationName).map((n3, i2) => ({ name: n3, duration: secs(splitList(cs.animationDuration)[i2 % splitList(cs.animationDuration).length]), easing: splitList(cs.animationTimingFunction)[i2 % splitList(cs.animationTimingFunction).length], iterations: splitList(cs.animationIterationCount)[i2 % splitList(cs.animationIterationCount).length], delay: secs(splitList(cs.animationDelay)[i2 % splitList(cs.animationDelay).length]) })) : [];
       an.forEach((a2) => names3.add(a2.name));
-      if ((tr.length || an.length) && motion2.length < 24) motion2.push({ target: describe5(el), transitions: tr.length ? tr : void 0, animations: an.length ? an : void 0 });
+      if ((tr.length || an.length) && motion2.length < 24) motion2.push({ target: describe6(el), transitions: tr.length ? tr : void 0, animations: an.length ? an : void 0 });
       if (!vis) continue;
       if (t2) {
         const words3 = t2.split(" ").length;
-        const fs77 = round(parseFloat(cs.fontSize));
-        const tk = `${fs77}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
-        const e2 = typeMap.get(tk) || { px: fs77, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs77, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs77, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
+        const fs78 = round(parseFloat(cs.fontSize));
+        const tk = `${fs78}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
+        const e2 = typeMap.get(tk) || { px: fs78, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs78, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs78, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
         e2.count += words3;
         typeMap.set(tk, e2);
         const tc = rgba(cs.color);
         addColor(tc, "text", words3);
-        heads.push({ text: t2.slice(0, 50), size: fs77, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
+        heads.push({ text: t2.slice(0, 50), size: fs78, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
       }
       const bg = rgba(cs.backgroundColor);
       if (bg[3] > 0.1) addColor(bg, "background", Math.max(1, Math.min(60, Math.round(r2.width * r2.height / 4e3))));
@@ -106709,13 +107032,13 @@ function installLib() {
     const nameOf = (e2) => (e2.getAttribute("aria-label") || (e2.getAttribute("aria-labelledby") ? [...e2.getAttribute("aria-labelledby").split(" ")].map((i2) => document.getElementById(i2)?.textContent || "").join(" ") : "") || e2.getAttribute("title") || e2.getAttribute("alt") || e2.labels && e2.labels[0]?.textContent || e2.textContent || e2.getAttribute("placeholder") || "").trim();
     const unnamed = interactive.filter((e2) => !nameOf(e2));
     const issues = [];
-    if (unnamed.length) issues.push(`${unnamed.length} interactive element(s) without an accessible name: ${unnamed.slice(0, 3).map(describe5).join(", ")}`);
-    all.filter((e2) => e2.hasAttribute("aria-controls") && !document.getElementById(e2.getAttribute("aria-controls"))).slice(0, 3).forEach((e2) => issues.push(`${describe5(e2)} has aria-controls pointing at a missing id`));
-    all.filter((e2) => e2.matches("img:not([alt])")).slice(0, 3).forEach((e2) => issues.push(`${describe5(e2)} has no alt`));
+    if (unnamed.length) issues.push(`${unnamed.length} interactive element(s) without an accessible name: ${unnamed.slice(0, 3).map(describe6).join(", ")}`);
+    all.filter((e2) => e2.hasAttribute("aria-controls") && !document.getElementById(e2.getAttribute("aria-controls"))).slice(0, 3).forEach((e2) => issues.push(`${describe6(e2)} has aria-controls pointing at a missing id`));
+    all.filter((e2) => e2.matches("img:not([alt])")).slice(0, 3).forEach((e2) => issues.push(`${describe6(e2)} has no alt`));
     const small = interactive.filter((e2) => Math.min(e2.getBoundingClientRect().width, e2.getBoundingClientRect().height) < 24);
-    if (small.length) issues.push(`${small.length} interactive element(s) under 24px (WCAG 2.2 target size): ${small.slice(0, 3).map(describe5).join(", ")}`);
+    if (small.length) issues.push(`${small.length} interactive element(s) under 24px (WCAG 2.2 target size): ${small.slice(0, 3).map(describe6).join(", ")}`);
     return {
-      root: { selector: selector || null, tag: describe5(root), role: root.getAttribute("role") || void 0, rect: rr, background: hex4(rootBg) },
+      root: { selector: selector || null, tag: describe6(root), role: root.getAttribute("role") || void 0, rect: rr, background: hex4(rootBg) },
       structure,
       type: { families: hist([...typeMap.values()].flatMap((t2) => Array(t2.count).fill(t2.family)), 4), scale: typeScale.slice(0, 12) },
       hierarchy: heads.slice(0, 6),
@@ -106743,17 +107066,17 @@ function installLib() {
         if (v === "none" || v === "normal" || v === "auto" || v === "rgba(0, 0, 0, 0)" || v === "0px" || v === "") continue;
         p2[k] = v;
       }
-      out[key] = { d: describe5(el), v: vis, r: { x: round(r2.left + scrollX), y: round(r2.top + scrollY), w: round(r2.width), h: round(r2.height) }, p: p2, a: { expanded: el.getAttribute("aria-expanded") ?? void 0, selected: el.getAttribute("aria-selected") ?? void 0, pressed: el.getAttribute("aria-pressed") ?? void 0, checked: el.getAttribute("aria-checked") ?? void 0, disabled: el.hasAttribute("disabled") || el.getAttribute("aria-disabled") === "true" || void 0, state: el.getAttribute("data-state") ?? void 0, hidden: el.hasAttribute("hidden") || void 0 } };
+      out[key] = { d: describe6(el), v: vis, r: { x: round(r2.left + scrollX), y: round(r2.top + scrollY), w: round(r2.width), h: round(r2.height) }, p: p2, a: { expanded: el.getAttribute("aria-expanded") ?? void 0, selected: el.getAttribute("aria-selected") ?? void 0, pressed: el.getAttribute("aria-pressed") ?? void 0, checked: el.getAttribute("aria-checked") ?? void 0, disabled: el.hasAttribute("disabled") || el.getAttribute("aria-disabled") === "true" || void 0, state: el.getAttribute("data-state") ?? void 0, hidden: el.hasAttribute("hidden") || void 0 } };
       if (vis && r2.width * r2.height > 0 && r2.width * r2.height < 4e6) {
         const b = { x1: r2.left + scrollX, y1: r2.top + scrollY, x2: r2.right + scrollX, y2: r2.bottom + scrollY };
         u2 = u2 ? { x1: Math.min(u2.x1, b.x1), y1: Math.min(u2.y1, b.y1), x2: Math.max(u2.x2, b.x2), y2: Math.max(u2.y2, b.y2) } : b;
       }
     }
-    return { nodes: out, bounds: u2 ? { x: Math.max(0, Math.floor(u2.x1 - 12)), y: Math.max(0, Math.floor(u2.y1 - 12)), w: Math.ceil(u2.x2 - u2.x1 + 24), h: Math.ceil(u2.y2 - u2.y1 + 24) } : null, active: describe5(document.activeElement) };
+    return { nodes: out, bounds: u2 ? { x: Math.max(0, Math.floor(u2.x1 - 12)), y: Math.max(0, Math.floor(u2.y1 - 12)), w: Math.ceil(u2.x2 - u2.x1 + 24), h: Math.ceil(u2.y2 - u2.y1 + 24) } : null, active: describe6(document.activeElement) };
   };
   const events = [];
   for (const type of ["transitionrun", "transitionend", "animationstart", "animationend"]) {
-    document.addEventListener(type, (e2) => events.push({ type, name: e2.propertyName || e2.animationName, elapsed: e2.elapsedTime, target: describe5(e2.target), at: performance.now() }), true);
+    document.addEventListener(type, (e2) => events.push({ type, name: e2.propertyName || e2.animationName, elapsed: e2.elapsedTime, target: describe6(e2.target), at: performance.now() }), true);
   }
   const bits = (el) => {
     const cs = getComputedStyle(el);
@@ -106783,7 +107106,7 @@ function installLib() {
         for (const [p2, v] of Object.entries(k)) if (!["offset", "computedOffset", "easing", "composite"].includes(p2)) o2[p2] = String(v).slice(0, 60);
         return o2;
       });
-      info.push({ kind: a2.constructor.name, name: a2.transitionProperty || a2.animationName || a2.id || "", target: describe5(tg), durationMs: round(+timing.duration || 0), delayMs: round(timing.delay || 0), easing: timing.easing, iterations: timing.iterations === Infinity ? "infinite" : timing.iterations, keyframes: kf });
+      info.push({ kind: a2.constructor.name, name: a2.transitionProperty || a2.animationName || a2.id || "", target: describe6(tg), durationMs: round(+timing.duration || 0), delayMs: round(timing.delay || 0), easing: timing.easing, iterations: timing.iterations === Infinity ? "infinite" : timing.iterations, keyframes: kf });
       if (targets.size < 6 && !targets.has(tg)) targets.set(tg, []);
     }
     const first = new Map([...targets.keys()].map((t2) => [t2, bits(t2)]));
@@ -106806,7 +107129,7 @@ function installLib() {
     for (const e2 of evs) if (!info.some((i2) => i2.name === e2.name && i2.target === e2.target) && (ends.find((x2) => x2.name === e2.name && x2.target === e2.target)?.elapsed || 0) > 0) info.push({ ...e2, durationMs: round((ends.find((x2) => x2.name === e2.name && x2.target === e2.target)?.elapsed || 0) * 1e3), note: "finished before sampling" });
     const traces = [...samples.entries()].map(([el, list4]) => {
       const keep = list4.length <= 10 ? list4 : list4.filter((_, i2) => i2 % Math.ceil(list4.length / 10) === 0 || i2 === list4.length - 1);
-      return { target: describe5(el), from: { opacity: first.get(el).o, transform: matrixSummary(first.get(el).tf), w: first.get(el).w, h: first.get(el).h }, to: (() => {
+      return { target: describe6(el), from: { opacity: first.get(el).o, transform: matrixSummary(first.get(el).tf), w: first.get(el).w, h: first.get(el).h }, to: (() => {
         const b = bits(el);
         return { opacity: b.o, transform: matrixSummary(b.tf), w: b.w, h: b.h };
       })(), samples: keep.map((s2) => ({ t: s2.t, opacity: s2.o, transform: matrixSummary(s2.tf), w: s2.w, h: s2.h })) };
@@ -106840,7 +107163,7 @@ function installLib() {
     if (!el || el === document.body) return { d: "body", inside: false };
     const cs = getComputedStyle(el);
     const ring = cs.outlineStyle !== "none" && px(cs.outlineWidth) > 0 || cs.boxShadow !== "none" && el.matches(":focus-visible");
-    return { d: describe5(el), inside: root.contains(el) || extraRoots(root).some((p2) => p2.contains(el)), focusVisible: el.matches(":focus-visible"), ring, expanded: el.getAttribute("aria-expanded") ?? void 0, role: el.getAttribute("role") || void 0 };
+    return { d: describe6(el), inside: root.contains(el) || extraRoots(root).some((p2) => p2.contains(el)), focusVisible: el.matches(":focus-visible"), ring, expanded: el.getAttribute("aria-expanded") ?? void 0, role: el.getAttribute("role") || void 0 };
   };
   const sentinel = ({ selector, where = "before" } = {}) => {
     const root = pickRoot(selector);
@@ -106857,7 +107180,7 @@ function installLib() {
   const triggers = ({ selector } = {}) => {
     const root = pickRoot(selector);
     const t2 = [...root.querySelectorAll("[aria-expanded],[aria-haspopup],summary")].filter(visible);
-    return t2.slice(0, 3).map((e2, i2) => (e2.setAttribute("data-drip-probe", String(i2)), { sel: `[data-drip-probe="${i2}"]`, d: describe5(e2), expanded: e2.getAttribute("aria-expanded") }));
+    return t2.slice(0, 3).map((e2, i2) => (e2.setAttribute("data-drip-probe", String(i2)), { sel: `[data-drip-probe="${i2}"]`, d: describe6(e2), expanded: e2.getAttribute("aria-expanded") }));
   };
   window.__drip = { spec, snap, motion, responsive, active: active2, sentinel, dropSentinel, triggers, events, version: 1 };
   return "installed";
@@ -106878,15 +107201,15 @@ var IMAGE = /\.(png|jpe?g|webp|gif|avif)$/i;
 var isImagePath = (p2) => IMAGE.test(p2 || "");
 async function resolveTarget({ url: url2, file: file4, html, css, js, dir }) {
   if (html !== void 0) {
-    const base = dir || path56.join(ensureProjectDrip(), "cache", `harness-${Date.now().toString(36)}`);
-    fs60.mkdirSync(base, { recursive: true });
-    fs60.writeFileSync(path56.join(base, "index.html"), harness({ html, css, js }));
-    return { url: `${await serveDir(base)}/index.html`, kind: "local", file: path56.join(base, "index.html") };
+    const base = dir || path57.join(ensureProjectDrip(), "cache", `harness-${Date.now().toString(36)}`);
+    fs61.mkdirSync(base, { recursive: true });
+    fs61.writeFileSync(path57.join(base, "index.html"), harness({ html, css, js }));
+    return { url: `${await serveDir(base)}/index.html`, kind: "local", file: path57.join(base, "index.html") };
   }
   const t2 = url2 || file4;
   if (!t2) throw new Error("Give url, file or html.");
-  if (!/^https?:/i.test(t2) && isImagePath(t2)) return { kind: "screenshot", file: path56.resolve(projectDir(), t2) };
-  return { url: await toUrl(t2), kind: /^https?:/i.test(t2) ? "live" : "local", file: /^https?:/i.test(t2) ? void 0 : path56.resolve(projectDir(), t2) };
+  if (!/^https?:/i.test(t2) && isImagePath(t2)) return { kind: "screenshot", file: path57.resolve(projectDir(), t2) };
+  return { url: await toUrl(t2), kind: /^https?:/i.test(t2) ? "live" : "local", file: /^https?:/i.test(t2) ? void 0 : path57.resolve(projectDir(), t2) };
 }
 function harness({ html, css = "", js = "" }) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drip pattern preview</title><style>*,*::before,*::after{box-sizing:border-box}body{margin:0;padding:24px;font-family:system-ui,sans-serif}${css}</style></head><body>${html}${js ? `<script>${js}</script>` : ""}</body></html>`;
@@ -107045,8 +107368,8 @@ async function extractSpec(target, { selector, states = [], sizes = SIZES2, conf
   return { spec, shots };
 }
 async function inferFromImage(file4, { config: config2, source }) {
-  const base = await serveDir(path57.dirname(file4));
-  const src = `${base}/${encodeURIComponent(path57.basename(file4))}`;
+  const base = await serveDir(path58.dirname(file4));
+  const src = `${base}/${encodeURIComponent(path58.basename(file4))}`;
   const data = await withTab(config2, async (tab) => {
     await openPage(tab, `${base}/__drip_blank__`, { width: 800, height: 600, settleMs: 50 });
     return evalJson(
@@ -107229,14 +107552,14 @@ function compareSpecs(ref, impl) {
 
 // src/modules/patterns/store.mjs
 init_paths();
-import fs61 from "node:fs";
-import path58 from "node:path";
-var KINDS2 = ["component", "section", "page", "motion", "style"];
-var patternsRoot = () => ensureDir(path58.join(ensureProjectDrip(), "patterns"));
-var indexFile3 = () => path58.join(patternsRoot(), "index.json");
-var patternDir = (id) => ensureDir(path58.join(patternsRoot(), id));
+import fs62 from "node:fs";
+import path59 from "node:path";
+var KINDS3 = ["component", "section", "page", "motion", "style"];
+var patternsRoot = () => ensureDir(path59.join(ensureProjectDrip(), "patterns"));
+var indexFile3 = () => path59.join(patternsRoot(), "index.json");
+var patternDir = (id) => ensureDir(path59.join(patternsRoot(), id));
 var slug4 = (s2) => String(s2 || "pattern").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "pattern";
-var rel2 = (p2) => path58.relative(projectDir(), p2).split(path58.sep).join("/");
+var rel2 = (p2) => path59.relative(projectDir(), p2).split(path59.sep).join("/");
 function listPatterns({ status, kind, tag } = {}) {
   const idx = readJson2(indexFile3(), { patterns: [] });
   return (idx.patterns || []).filter((p2) => (!status || p2.status === status) && (!kind || p2.kind === kind) && (!tag || (p2.tags || []).includes(tag)));
@@ -107244,7 +107567,7 @@ function listPatterns({ status, kind, tag } = {}) {
 function getPattern(id) {
   const entry = listPatterns().find((p2) => p2.id === id);
   if (!entry) return null;
-  return { entry, dir: path58.join(patternsRoot(), id), spec: readJson2(path58.join(patternsRoot(), id, "spec.json"), null) };
+  return { entry, dir: path59.join(patternsRoot(), id), spec: readJson2(path59.join(patternsRoot(), id, "spec.json"), null) };
 }
 function upsertPattern(entry) {
   return updateJson(
@@ -107261,14 +107584,14 @@ function upsertPattern(entry) {
 }
 function writeSpec(id, spec) {
   const dir = patternDir(id);
-  writeJsonAtomic(path58.join(dir, "spec.json"), spec);
+  writeJsonAtomic(path59.join(dir, "spec.json"), spec);
   return dir;
 }
 function saveImages(dir, sub, items) {
-  const out = ensureDir(path58.join(dir, sub));
+  const out = ensureDir(path59.join(dir, sub));
   return items.map(({ name, buf }) => {
-    const f3 = path58.join(out, name);
-    fs61.writeFileSync(f3, buf);
+    const f3 = path59.join(out, name);
+    fs62.writeFileSync(f3, buf);
     return f3;
   });
 }
@@ -107286,7 +107609,7 @@ var trim = (s2, n3) => s2.length > n3 ? s2.slice(0, n3) + "\n... (trimmed; the f
 var stepsOf = (spec) => (spec.states || []).map((s2) => ({ ...s2.step, label: s2.label }));
 function patternPaths(id) {
   const dir = patternDir(id);
-  return { dir, spec: path59.join(dir, "spec.json"), md: path59.join(dir, "spec.md") };
+  return { dir, spec: path60.join(dir, "spec.json"), md: path60.join(dir, "spec.md") };
 }
 function writeEvidence(id, shots, widths) {
   const dir = patternDir(id);
@@ -107298,7 +107621,7 @@ function writeEvidence(id, shots, widths) {
   }
   return files;
 }
-function register24(server2, ctx2) {
+function register25(server2, ctx2) {
   server2.registerTool(
     "refs_extract",
     {
@@ -107309,8 +107632,8 @@ function register24(server2, ctx2) {
     safe(async ({ url: url2, file: file4, selector, states, sizes }) => {
       const target = await resolveTarget({ url: url2, file: file4 });
       const { spec, shots } = await extractSpec(target, { selector, states, sizes, config: ctx2.config() });
-      const out = path59.join(ensureDir(path59.join(projectDripDir(), "cache")), `extract-${stamp()}.json`);
-      fs62.writeFileSync(out, JSON.stringify(spec, null, 2));
+      const out = path60.join(ensureDir(path60.join(projectDripDir(), "cache")), `extract-${stamp()}.json`);
+      fs63.writeFileSync(out, JSON.stringify(spec, null, 2));
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const desktop = shots[widths[widths.length - 1]];
       const content = [textBlock(`${trim(specToMarkdown(spec), 7e3)}
@@ -107328,7 +107651,7 @@ Next: pattern_study (save it with evidence), or build your own version and patte
       inputSchema: {
         name: external_exports.string(),
         ...TARGET,
-        kind: external_exports.enum(KINDS2).optional(),
+        kind: external_exports.enum(KINDS3).optional(),
         states: STATES,
         sizes: SIZE_LIST,
         tags: external_exports.array(external_exports.string()).optional(),
@@ -107345,19 +107668,19 @@ Next: pattern_study (save it with evidence), or build your own version and patte
       if (notes) spec.notes = notes;
       const { dir, md } = patternPaths(id);
       writeSpec(id, spec);
-      fs62.writeFileSync(md, specToMarkdown(spec, { name, notes }));
+      fs63.writeFileSync(md, specToMarkdown(spec, { name, notes }));
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const files = writeEvidence(id, shots, widths);
       if (target.kind === "screenshot") {
-        const keep = path59.join(dir, "reference", `source${path59.extname(target.file)}`);
-        ensureDir(path59.dirname(keep));
-        fs62.copyFileSync(target.file, keep);
+        const keep = path60.join(dir, "reference", `source${path60.extname(target.file)}`);
+        ensureDir(path60.dirname(keep));
+        fs63.copyFileSync(target.file, keep);
         files.push(keep);
       }
-      upsertPattern({ id, name, kind, files: [], spec: rel2(path59.join(dir, "spec.json")), previews: files.map(rel2), source: { ...spec.source, file: spec.source.file ? rel2(spec.source.file) : void 0 }, status: "proposed", tags });
+      upsertPattern({ id, name, kind, files: [], spec: rel2(path60.join(dir, "spec.json")), previews: files.map(rel2), source: { ...spec.source, file: spec.source.file ? rel2(spec.source.file) : void 0 }, status: "proposed", tags });
       const desktop = shots[widths[widths.length - 1]];
       const phone = shots[widths[0]];
-      const content = [textBlock(`Studied "${name}" as ${id}. Spec ${rel2(path59.join(dir, "spec.json"))}, readable ${rel2(md)}, evidence in ${rel2(path59.join(dir, "reference"))} (${files.length} files). Status: proposed.
+      const content = [textBlock(`Studied "${name}" as ${id}. Spec ${rel2(path60.join(dir, "spec.json"))}, readable ${rel2(md)}, evidence in ${rel2(path60.join(dir, "reference"))} (${files.length} files). Status: proposed.
 
 ${trim(specToMarkdown(spec, { name }), 5e3)}
 Next: write your own implementation from this spec (primitives + your tokens, original styling), pattern_preview it, then pattern_compare({ id: "${id}", ... }).`)];
@@ -107400,7 +107723,7 @@ Next: write your own implementation from this spec (primitives + your tokens, or
       }
       writeSpec(id, spec);
       const { md } = patternPaths(id);
-      fs62.writeFileSync(md, specToMarkdown(spec, { name: cur.entry.name, notes: spec.notes }));
+      fs63.writeFileSync(md, specToMarkdown(spec, { name: cur.entry.name, notes: spec.notes }));
       upsertPattern({ id });
       return text(`Updated ${rel2(md)} and spec.json for ${id}.`);
     })
@@ -107423,7 +107746,7 @@ Next: write your own implementation from this spec (primitives + your tokens, or
     safe(async ({ id, url: url2, file: file4, selector, html, css, js, states, sizes }) => {
       const ref = id ? getPattern(id) : null;
       if (id && !ref) return text(`No pattern "${id}". pattern_list shows what exists.`, true);
-      const outDir = ref ? ensureDir(path59.join(ref.dir, "preview")) : ensureDir(path59.join(projectDripDir(), "cache", `preview-${stamp()}`));
+      const outDir = ref ? ensureDir(path60.join(ref.dir, "preview")) : ensureDir(path60.join(projectDripDir(), "cache", `preview-${stamp()}`));
       const target = await resolveTarget({ url: url2, file: file4, html, css, js, dir: outDir });
       const useStates = states || (ref?.spec ? stepsOf(ref.spec) : []);
       const useSel = selector || ref?.spec?.source?.selector;
@@ -107431,8 +107754,8 @@ Next: write your own implementation from this spec (primitives + your tokens, or
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const files = [];
       for (const w of widths) files.push(...saveImages(outDir, ".", [{ name: `impl-base-${w}.png`, buf: shots[w].base }, ...shots[w].states.map((s2, i2) => ({ name: `impl-state-${i2 + 1}-${w}.png`, buf: s2.png }))]));
-      const specFile = path59.join(outDir, "impl-spec.json");
-      fs62.writeFileSync(specFile, JSON.stringify(spec, null, 2));
+      const specFile = path60.join(outDir, "impl-spec.json");
+      fs63.writeFileSync(specFile, JSON.stringify(spec, null, 2));
       const tiles = [];
       const legend = [];
       for (const w of widths) {
@@ -107477,15 +107800,15 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     safe(async ({ id, url: url2, file: file4, selector, html, css, js, threshold = 0.1, axe = true }) => {
       const ref = getPattern(id);
       if (!ref?.spec) return text(`No studied pattern "${id}". pattern_study first.`, true);
-      const outDir = ensureDir(path59.join(ref.dir, "preview"));
+      const outDir = ensureDir(path60.join(ref.dir, "preview"));
       const target = await resolveTarget({ url: url2, file: file4, html, css, js, dir: outDir });
       const refSpec = ref.spec;
       const widths = refSpec.responsive ? Object.keys(refSpec.responsive).map(Number) : SIZES2;
       const { spec: impl, shots } = await extractSpec(target, { selector: selector || refSpec.source?.selector, states: stepsOf(refSpec), sizes: widths, config: ctx2.config(), source: { title: "implementation" }, axe });
       const pairs2 = [];
       const readRef = (name) => {
-        const f3 = path59.join(ref.dir, "reference", name);
-        return fs62.existsSync(f3) ? fs62.readFileSync(f3) : null;
+        const f3 = path60.join(ref.dir, "reference", name);
+        return fs63.existsSync(f3) ? fs63.readFileSync(f3) : null;
       };
       for (const w of Object.keys(shots).map(Number).sort((a2, b) => a2 - b)) {
         const r2 = readRef(`base-${w}.png`);
@@ -107499,9 +107822,9 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
       let diffs = [];
       if (pairs2.length) ({ sheet, results: diffs } = await diffSheet(pairs2.slice(0, 14), { threshold, config: ctx2.config() }));
       const deltas = compareSpecs(refSpec, impl);
-      const file0 = path59.join(outDir, `compare-${stamp()}.jpg`);
-      if (sheet) fs62.writeFileSync(file0, sheet);
-      fs62.writeFileSync(path59.join(outDir, "impl-spec.json"), JSON.stringify(impl, null, 2));
+      const file0 = path60.join(outDir, `compare-${stamp()}.jpg`);
+      if (sheet) fs63.writeFileSync(file0, sheet);
+      fs63.writeFileSync(path60.join(outDir, "impl-spec.json"), JSON.stringify(impl, null, 2));
       const order = { high: 0, medium: 1, low: 2 };
       deltas.sort((a2, b) => order[a2.severity] - order[b.severity]);
       const L2 = [];
@@ -107531,7 +107854,7 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
       inputSchema: {
         id: external_exports.string(),
         name: external_exports.string().optional(),
-        kind: external_exports.enum(KINDS2).optional(),
+        kind: external_exports.enum(KINDS3).optional(),
         files: external_exports.array(external_exports.string()).optional().describe("Project paths of the implementation (your own code)"),
         status: external_exports.enum(["proposed", "approved"]).optional().describe("Set approved only after the user has accepted it"),
         tags: external_exports.array(external_exports.string()).optional(),
@@ -107541,16 +107864,16 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     },
     safe(async ({ id, name, kind, files = [], status, tags, notes, source }) => {
       const cur = getPattern(id);
-      const missing = files.filter((f3) => !fs62.existsSync(path59.resolve(projectDir(), f3)));
+      const missing = files.filter((f3) => !fs63.existsSync(path60.resolve(projectDir(), f3)));
       if (missing.length) return text(`These files do not exist: ${missing.join(", ")}`, true);
       const dir = patternDir(id);
-      const previews = fs62.readdirSync(dir, { recursive: true }).filter((f3) => /\.(png|jpe?g|webp)$/i.test(String(f3))).map((f3) => rel2(path59.join(dir, String(f3))));
+      const previews = fs63.readdirSync(dir, { recursive: true }).filter((f3) => /\.(png|jpe?g|webp)$/i.test(String(f3))).map((f3) => rel2(path60.join(dir, String(f3))));
       const entry = {
         id,
         name: name || cur?.entry.name || id,
         kind: kind || cur?.entry.kind || "component",
-        files: [.../* @__PURE__ */ new Set([...cur?.entry.files || [], ...files.map((f3) => rel2(path59.resolve(projectDir(), f3)))])],
-        spec: fs62.existsSync(path59.join(dir, "spec.json")) ? rel2(path59.join(dir, "spec.json")) : void 0,
+        files: [.../* @__PURE__ */ new Set([...cur?.entry.files || [], ...files.map((f3) => rel2(path60.resolve(projectDir(), f3)))])],
+        spec: fs63.existsSync(path60.join(dir, "spec.json")) ? rel2(path60.join(dir, "spec.json")) : void 0,
         previews,
         source: { ...cur?.entry.source || {}, ...source || {} },
         status: status || cur?.entry.status || "proposed",
@@ -107566,7 +107889,7 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     {
       title: "List the project's patterns",
       description: 'The reusable patterns saved in .drip/patterns/ (studied references and your implementations). Filter by status, kind, tag or words. Check it before building: an approved pattern is reused, not rebuilt. Example: pattern_list({ status: "approved", kind: "component" })',
-      inputSchema: { status: external_exports.enum(["proposed", "approved"]).optional(), kind: external_exports.enum(KINDS2).optional(), tag: external_exports.string().optional(), query: external_exports.string().optional() }
+      inputSchema: { status: external_exports.enum(["proposed", "approved"]).optional(), kind: external_exports.enum(KINDS3).optional(), tag: external_exports.string().optional(), query: external_exports.string().optional() }
     },
     safe(async ({ status, kind, tag, query }) => {
       let items = listPatterns({ status, kind, tag });
@@ -107588,10 +107911,10 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     safe(async ({ id }) => {
       const p2 = getPattern(id);
       if (!p2) return text(`No pattern "${id}". pattern_list shows what exists.`, true);
-      const md = path59.join(p2.dir, "spec.md");
+      const md = path60.join(p2.dir, "spec.md");
       return text(`${JSON.stringify(p2.entry, null, 2)}
 
-${fs62.existsSync(md) ? trim(fs62.readFileSync(md, "utf8"), 9e3) : "(no spec.md)"}`);
+${fs63.existsSync(md) ? trim(fs63.readFileSync(md, "utf8"), 9e3) : "(no spec.md)"}`);
     })
   );
 }
@@ -107599,23 +107922,23 @@ ${fs62.existsSync(md) ? trim(fs62.readFileSync(md, "utf8"), 9e3) : "(no spec.md)
 // src/modules/project/index.mjs
 var project_exports = {};
 __export(project_exports, {
-  register: () => register25
+  register: () => register26
 });
-import fs65 from "node:fs";
-import path62 from "node:path";
+import fs66 from "node:fs";
+import path63 from "node:path";
 init_paths();
 init_serve();
 
 // src/modules/project/exchange.mjs
 init_paths();
 import crypto7 from "node:crypto";
-import fs64 from "node:fs";
-import path61 from "node:path";
+import fs65 from "node:fs";
+import path62 from "node:path";
 
 // src/modules/project/style.mjs
 init_browser();
-import fs63 from "node:fs";
-import path60 from "node:path";
+import fs64 from "node:fs";
+import path61 from "node:path";
 init_paths();
 var HEX2 = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3})\b/gi;
 var FUNC_COLOR = /\b(?:rgba?|hsla?|oklch|oklab|lab|lch|color)\([^)]*\)/gi;
@@ -107687,7 +108010,7 @@ function parseCss(src) {
   };
 }
 function parseTokenFile(file4) {
-  const src = fs63.readFileSync(file4, "utf8");
+  const src = fs64.readFileSync(file4, "utf8");
   if (/\.json$/i.test(file4)) {
     let j;
     try {
@@ -107809,11 +108132,11 @@ async function measurePage(url2, { width = 1440, height = 900, config: config2 }
 function measureFiles(rels, root = projectDir()) {
   const out = [];
   for (const rel3 of rels) {
-    if (SECRET_FILE.test(path60.basename(rel3))) continue;
-    const abs2 = path60.resolve(root, rel3);
-    if (!abs2.startsWith(path60.resolve(root))) continue;
-    if (!fs63.existsSync(abs2)) continue;
-    const tokens2 = /\.(css|scss|sass|less)$/i.test(rel3) ? parseCss(fs63.readFileSync(abs2, "utf8")) : parseTokenFile(abs2);
+    if (SECRET_FILE.test(path61.basename(rel3))) continue;
+    const abs2 = path61.resolve(root, rel3);
+    if (!abs2.startsWith(path61.resolve(root))) continue;
+    if (!fs64.existsSync(abs2)) continue;
+    const tokens2 = /\.(css|scss|sass|less)$/i.test(rel3) ? parseCss(fs64.readFileSync(abs2, "utf8")) : parseTokenFile(abs2);
     out.push({ kind: "file", ref: rel3, hash: hashFile(abs2), tokens: tokens2 });
   }
   return out;
@@ -107850,16 +108173,16 @@ function describeTokens(t2) {
 // src/modules/project/exchange.mjs
 var SECRET_TEXT = /(-----BEGIN [A-Z ]*PRIVATE KEY-----|\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{16,}|\bAKIA[0-9A-Z]{16}\b|\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.|(?:api[_-]?key|secret|passw(?:or)?d|token)\s*[:=]\s*["'][A-Za-z0-9_\-/+=]{16,}["'])/i;
 var TEXT_EXT = /\.(css|scss|sass|less|json|md|txt|svg|html?|js|ts|mjs|cjs|tsx|jsx)$/i;
-var posix2 = (p2) => p2.split(path61.sep).join("/");
+var posix2 = (p2) => p2.split(path62.sep).join("/");
 var sha2 = (b) => crypto7.createHash("sha1").update(b).digest("hex");
 var safeName = (rel3) => rel3.replace(/^[./\\]+/, "").replace(/\.\.+/g, ".").replace(/[<>:"|?*]/g, "_");
 function whyNotShareable(abs2) {
-  if (SECRET_FILE.test(path61.basename(abs2))) return "looks like a secrets file";
+  if (SECRET_FILE.test(path62.basename(abs2))) return "looks like a secrets file";
   try {
-    const st = fs64.statSync(abs2);
+    const st = fs65.statSync(abs2);
     if (!st.isFile()) return "not a file";
     if (st.size > 12 * 1024 * 1024) return "larger than 12 MB";
-    if (TEXT_EXT.test(abs2) && st.size < 2 * 1024 * 1024 && SECRET_TEXT.test(fs64.readFileSync(abs2, "utf8"))) return "contains something that looks like a secret";
+    if (TEXT_EXT.test(abs2) && st.size < 2 * 1024 * 1024 && SECRET_TEXT.test(fs65.readFileSync(abs2, "utf8"))) return "contains something that looks like a secret";
   } catch {
     return "unreadable";
   }
@@ -107870,19 +108193,19 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
   const idx = loadIndex2();
   const mid = boardId || idx.masters.default || masterId(null);
   const board = mid ? loadBoard(mid) : null;
-  const projName = name || path61.basename(root);
-  const dest = path61.resolve(root, out || path61.join(".drip", "exports", `style-pack-${safeName(projName)}`));
-  fs64.mkdirSync(dest, { recursive: true });
+  const projName = name || path62.basename(root);
+  const dest = path62.resolve(root, out || path62.join(".drip", "exports", `style-pack-${safeName(projName)}`));
+  fs65.mkdirSync(dest, { recursive: true });
   const files = [];
   const skipped = [];
   const write2 = (rel3, data, kind) => {
-    const abs2 = path61.join(dest, rel3);
-    fs64.mkdirSync(path61.dirname(abs2), { recursive: true });
-    fs64.writeFileSync(abs2, data);
+    const abs2 = path62.join(dest, rel3);
+    fs65.mkdirSync(path62.dirname(abs2), { recursive: true });
+    fs65.writeFileSync(abs2, data);
     files.push({ path: rel3, sha1: sha2(data), size: Buffer.byteLength(data), kind });
   };
   const copy = (srcRel, kind) => {
-    const abs2 = path61.resolve(root, srcRel);
+    const abs2 = path62.resolve(root, srcRel);
     if (!abs2.startsWith(root)) {
       skipped.push({ path: srcRel, why: "outside the project" });
       return null;
@@ -107892,8 +108215,8 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
       skipped.push({ path: srcRel, why });
       return null;
     }
-    const rel3 = posix2(path61.join(kind === "font" ? "fonts" : kind === "code" ? "code" : "assets", safeName(srcRel)));
-    write2(rel3, fs64.readFileSync(abs2), kind);
+    const rel3 = posix2(path62.join(kind === "font" ? "fonts" : kind === "code" ? "code" : "assets", safeName(srcRel)));
+    write2(rel3, fs65.readFileSync(abs2), kind);
     return rel3;
   };
   let exportedBoard = null;
@@ -107919,7 +108242,7 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     }
     const directions = board.directions.map((d2) => {
       const o2 = { ...d2, tile: void 0 };
-      if (d2.tile && fs64.existsSync(d2.tile)) o2.tile = copy(posix2(path61.relative(root, d2.tile)), "asset");
+      if (d2.tile && fs65.existsSync(d2.tile)) o2.tile = copy(posix2(path62.relative(root, d2.tile)), "asset");
       return JSON.parse(JSON.stringify(o2));
     });
     exportedBoard = { schema: SCHEMA, name: board.name, brief: board.brief, scope: "master", items, directions, chosen: board.chosen, criteria: board.criteria || null, approved: idx.approved.default ? { direction: idx.approved.default.direction, snapshot: idx.approved.default.snapshot, reason: idx.approved.default.reason } : null };
@@ -107937,16 +108260,16 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
   if (style?.tokens) write2("style.json", JSON.stringify({ schema: 1, tokens: style.tokens, sources: (style.sources || []).map(({ kind, ref, at }) => ({ kind, ref, at })) }, null, 2), "style");
   write2("guide.md", skillBody(cwd, { brandOnly: true }), "guide");
   if (includePatterns) {
-    const pdir = path61.join(projectDripDir(cwd), "patterns");
-    const pidx = path61.join(pdir, "index.json");
-    if (fs64.existsSync(pidx)) {
+    const pdir = path62.join(projectDripDir(cwd), "patterns");
+    const pidx = path62.join(pdir, "index.json");
+    if (fs65.existsSync(pidx)) {
       try {
-        const index = JSON.parse(fs64.readFileSync(pidx, "utf8"));
+        const index = JSON.parse(fs65.readFileSync(pidx, "utf8"));
         const entries = (index.patterns || index.entries || []).filter((p2) => p2.status === "approved");
         write2("patterns/index.json", JSON.stringify({ schema: index.schema || 1, patterns: entries }, null, 2), "patterns");
         for (const p2 of entries) for (const f3 of ["spec.json", "spec.md"]) {
-          const abs2 = path61.join(pdir, p2.id, f3);
-          if (fs64.existsSync(abs2) && !whyNotShareable(abs2)) write2(`patterns/${p2.id}/${f3}`, fs64.readFileSync(abs2), "patterns");
+          const abs2 = path62.join(pdir, p2.id, f3);
+          if (fs65.existsSync(abs2) && !whyNotShareable(abs2)) write2(`patterns/${p2.id}/${f3}`, fs65.readFileSync(abs2), "patterns");
         }
       } catch {
         skipped.push({ path: ".drip/patterns/index.json", why: "unreadable" });
@@ -107959,7 +108282,7 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     kind: "drip-style-pack",
     name: projName,
     createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    source: { project: path61.basename(root), board: board?.id || null, styleRevision: idx.approved.default?.revision || null },
+    source: { project: path62.basename(root), board: board?.id || null, styleRevision: idx.approved.default?.revision || null },
     approvedDirection: idx.approved.default?.direction || null,
     fonts: fonts2.map((f3) => ({ family: f3, bundled: files.some((x2) => x2.kind === "font" && x2.path.toLowerCase().includes(f3.toLowerCase().replace(/\s+/g, "-"))) })),
     dependencies: [],
@@ -107967,15 +108290,15 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     skipped,
     notes: "Project-owned files only. Personal feedback and secrets are never included. Import copies assets into .drip/imports and creates an editable board; it never overwrites."
   };
-  fs64.writeFileSync(path61.join(dest, "manifest.json"), JSON.stringify(manifest, null, 2));
+  fs65.writeFileSync(path62.join(dest, "manifest.json"), JSON.stringify(manifest, null, 2));
   return { out: dest, manifest, skipped };
 }
 function importStylePack({ from, name, cwd } = {}) {
   const root = projectDir(cwd);
-  const src = path61.resolve(root, from);
+  const src = path62.resolve(root, from);
   let manifest;
   try {
-    manifest = JSON.parse(fs64.readFileSync(path61.join(src, "manifest.json"), "utf8"));
+    manifest = JSON.parse(fs65.readFileSync(path62.join(src, "manifest.json"), "utf8"));
   } catch {
     throw new Error(`${from} is not a style pack (no readable manifest.json).`);
   }
@@ -107983,19 +108306,19 @@ function importStylePack({ from, name, cwd } = {}) {
   const packName = name || manifest.name || "style";
   const slug5 = safeName(packName).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "style";
   ensureProjectDrip(cwd);
-  let dest = path61.join(projectDripDir(cwd), "imports", slug5);
-  for (let n3 = 2; fs64.existsSync(dest); n3++) dest = path61.join(projectDripDir(cwd), "imports", `${slug5}-${n3}`);
+  let dest = path62.join(projectDripDir(cwd), "imports", slug5);
+  for (let n3 = 2; fs65.existsSync(dest); n3++) dest = path62.join(projectDripDir(cwd), "imports", `${slug5}-${n3}`);
   const skipped = [];
   const copied = [];
   for (const f3 of manifest.files || []) {
-    const abs2 = path61.resolve(src, f3.path);
-    if (path61.isAbsolute(f3.path) || f3.path.split(/[\\/]/).includes("..") || !abs2.startsWith(src)) {
+    const abs2 = path62.resolve(src, f3.path);
+    if (path62.isAbsolute(f3.path) || f3.path.split(/[\\/]/).includes("..") || !abs2.startsWith(src)) {
       skipped.push({ path: f3.path, why: "path leaves the pack" });
       continue;
     }
     let data;
     try {
-      data = fs64.readFileSync(abs2);
+      data = fs65.readFileSync(abs2);
     } catch {
       skipped.push({ path: f3.path, why: "missing" });
       continue;
@@ -108004,15 +108327,15 @@ function importStylePack({ from, name, cwd } = {}) {
       skipped.push({ path: f3.path, why: "hash mismatch (changed since export)" });
       continue;
     }
-    const to2 = path61.join(dest, f3.path);
-    fs64.mkdirSync(path61.dirname(to2), { recursive: true });
-    fs64.writeFileSync(to2, data);
+    const to2 = path62.join(dest, f3.path);
+    fs65.mkdirSync(path62.dirname(to2), { recursive: true });
+    fs65.writeFileSync(to2, data);
     copied.push(f3.path);
   }
-  const relDest = posix2(path61.relative(root, dest));
+  const relDest = posix2(path62.relative(root, dest));
   const readIn = (rel3) => {
     try {
-      return JSON.parse(fs64.readFileSync(path61.join(dest, rel3), "utf8"));
+      return JSON.parse(fs65.readFileSync(path62.join(dest, rel3), "utf8"));
     } catch {
       return null;
     }
@@ -108031,11 +108354,11 @@ function importStylePack({ from, name, cwd } = {}) {
       b.items = (packBoard?.items || []).map((it) => ({
         ...it,
         status: asMaster ? it.status || "current" : "proposed",
-        ...it.path ? { path: posix2(path61.join(relDest, it.path)) } : {},
-        provenance: { source: "import", label: `${packName}${it.provenance?.label ? ` \xB7 ${it.provenance.label}` : ""}`, url: it.provenance?.url || null, path: it.path ? posix2(path61.join(relDest, it.path)) : null, addedBy: by, addedAt: (/* @__PURE__ */ new Date()).toISOString() },
+        ...it.path ? { path: posix2(path62.join(relDest, it.path)) } : {},
+        provenance: { source: "import", label: `${packName}${it.provenance?.label ? ` \xB7 ${it.provenance.label}` : ""}`, url: it.provenance?.url || null, path: it.path ? posix2(path62.join(relDest, it.path)) : null, addedBy: by, addedAt: (/* @__PURE__ */ new Date()).toISOString() },
         addedAt: (/* @__PURE__ */ new Date()).toISOString()
       }));
-      b.directions = (packBoard?.directions || []).map((d) => ({ ...d, tile: d.tile ? path61.resolve(root, relDest, d.tile) : void 0, items: d.items || [] }));
+      b.directions = (packBoard?.directions || []).map((d) => ({ ...d, tile: d.tile ? path62.resolve(root, relDest, d.tile) : void 0, items: d.items || [] }));
       b.criteria = packBoard?.criteria || void 0;
     },
     { op: "import", summary: `style pack "${packName}" (${copied.length} files)`, by }
@@ -108073,10 +108396,10 @@ function importStylePack({ from, name, cwd } = {}) {
 }
 
 // src/modules/project/index.mjs
-var posix3 = (p2) => p2.split(path62.sep).join("/");
+var posix3 = (p2) => p2.split(path63.sep).join("/");
 function setShare(patch) {
   const dir = ensureProjectDrip();
-  const file4 = path62.join(dir, "config.json");
+  const file4 = path63.join(dir, "config.json");
   const cfg = readJson2(file4, {}) || {};
   cfg.share = { ...cfg.share || {}, ...patch };
   writeJsonAtomic(file4, cfg);
@@ -108093,7 +108416,7 @@ async function shootApp(boardId, url2, config2, by) {
     const buf = cap.slices[0].buf;
     const hash2 = contentHash(buf);
     const { abs: abs2, rel: rel3 } = boardAssetPath(boardId, `app-${width}-${hash2}.jpg`, root);
-    fs65.writeFileSync(abs2, buf);
+    fs66.writeFileSync(abs2, buf);
     entries.push({ entry: { key: `screenshot:${target}@${width}`, kind: "screenshot", title: `${url2} at ${width}px`, path: rel3, hash: hash2, url: target, note: "the running app as it looks today (current implementation, not an approved look)" }, prov: makeProvenance({ source: "screenshot", label: `${url2} @${width}`, path: rel3, url: target, by }), status: "current" });
     shots.push(buf);
   }
@@ -108101,13 +108424,13 @@ async function shootApp(boardId, url2, config2, by) {
 }
 function entryForFile(boardId, input2, { by, status }) {
   const root = projectDir();
-  const abs2 = path62.resolve(root, input2);
-  const inside = abs2 === root || abs2.startsWith(root + path62.sep);
-  const name = path62.basename(abs2);
+  const abs2 = path63.resolve(root, input2);
+  const inside = abs2 === root || abs2.startsWith(root + path63.sep);
+  const name = path63.basename(abs2);
   if (SECRET_FILE.test(name)) return { skip: `${input2}: looks like a secrets file, never read` };
   let st;
   try {
-    st = fs65.statSync(abs2);
+    st = fs66.statSync(abs2);
   } catch {
     return { skip: `${input2}: not found` };
   }
@@ -108116,23 +108439,23 @@ function entryForFile(boardId, input2, { by, status }) {
   const why = whyNotShareable(abs2);
   if (why) return { skip: `${input2}: ${why}` };
   let rel3;
-  if (inside) rel3 = posix3(path62.relative(root, abs2));
+  if (inside) rel3 = posix3(path63.relative(root, abs2));
   else {
-    const a2 = boardAssetPath(boardId, `${contentHash(fs65.readFileSync(abs2)).slice(0, 8)}-${name}`, root);
-    fs65.copyFileSync(abs2, a2.abs);
+    const a2 = boardAssetPath(boardId, `${contentHash(fs66.readFileSync(abs2)).slice(0, 8)}-${name}`, root);
+    fs66.copyFileSync(abs2, a2.abs);
     rel3 = a2.rel;
   }
-  const hash2 = fileHash(path62.join(root, rel3));
-  const ext = path62.extname(name).toLowerCase();
+  const hash2 = fileHash(path63.join(root, rel3));
+  const ext = path63.extname(name).toLowerCase();
   const kind = /\.(png|jpe?g|webp|avif|gif|svg)$/.test(ext) ? /(logo|wordmark|brand|mark)/i.test(name) ? "logo" : "image" : /\.(woff2?|ttf|otf)$/.test(ext) ? "font" : /\.(css|scss|json)$/.test(ext) ? "tokens" : "doc";
   return {
-    entry: { key: kind === "font" ? `font:${name.replace(/\.[^.]+$/, "")}` : `file:${rel3}`, kind, title: name, path: rel3, hash: hash2, ...kind === "doc" ? { excerpt: fs65.readFileSync(abs2, "utf8").slice(0, 600).replace(/\s+/g, " ") } : {}, note: `a file you were given (${kind}), kept with its source path` },
+    entry: { key: kind === "font" ? `font:${name.replace(/\.[^.]+$/, "")}` : `file:${rel3}`, kind, title: name, path: rel3, hash: hash2, ...kind === "doc" ? { excerpt: fs66.readFileSync(abs2, "utf8").slice(0, 600).replace(/\s+/g, " ") } : {}, note: `a file you were given (${kind}), kept with its source path` },
     prov: makeProvenance({ source: inside ? "repo" : "user-file", label: inside ? "project file" : `given file, copied from ${name}`, path: rel3, by }),
     status
   };
 }
 var fmtRule = (r2) => `${r2.id} [${r2.status}${r2.scope !== "brand" ? ` ${r2.scope}${r2.target ? ` ${r2.target}` : ""}` : ""}] ${r2.topic}: ${r2.value}${r2.avoid?.length ? ` (refuses: ${r2.avoid.join("; ")})` : ""} \xB7 ${r2.source}${r2.conflictsWith?.length ? ` \xB7 CONTRADICTS ${r2.conflictsWith.join(", ")}` : ""}${r2.offDirection ? " \xB7 off-direction" : ""}`;
-function register25(server2, ctx2) {
+function register26(server2, ctx2) {
   server2.registerTool(
     "board_project",
     {
@@ -108165,7 +108488,7 @@ function register25(server2, ctx2) {
       if (action === "discover" || action === "status") {
         const boards = listBoards();
         const idx = hasMemory() ? loadIndex2() : null;
-        out.push(`Project ${path62.basename(root)}: ${boards.length} board(s).${idx?.masters?.default ? ` Master: ${idx.masters.default}.` : " No master board yet."}`);
+        out.push(`Project ${path63.basename(root)}: ${boards.length} board(s).${idx?.masters?.default ? ` Master: ${idx.masters.default}.` : " No master board yet."}`);
         if (boards.length) out.push(boards.slice(0, 8).map((b) => `- ${b.id} (${b.scope}${b.status === "archived" ? ", archived" : ""}) r${b.revision} \xB7 ${liveItems(b).length} items${b.chosen ? ` \xB7 chose ${b.chosen}` : ""}`).join("\n"));
         out.push(describeInventory(inv));
         out.push(idx?.masters?.default ? "NEXT: board_import refreshes changed repo files; project_context is what a design task starts from." : 'NEXT: board_project({ action: "bootstrap" }) creates the master board from this.');
@@ -108184,8 +108507,8 @@ function register25(server2, ctx2) {
         board = r2.board;
         counts = r2.counts;
       } else {
-        const brief = inv.readme?.summary || `${path62.basename(root)}: existing product`;
-        const b0 = createBoard(name || `${inv.stack.name || path62.basename(root)} design memory`, brief, { scope: "master", brand: brand || null });
+        const brief = inv.readme?.summary || `${path63.basename(root)}: existing product`;
+        const b0 = createBoard(name || `${inv.stack.name || path63.basename(root)} design memory`, brief, { scope: "master", brand: brand || null });
         const r2 = importInventory(b0.id, inv, { by });
         board = r2.board;
         counts = r2.counts;
@@ -108250,13 +108573,13 @@ function register25(server2, ctx2) {
       if (paths?.length) {
         const entries = [];
         for (const p2 of paths) {
-          const abs2 = path62.resolve(root, p2);
+          const abs2 = path63.resolve(root, p2);
           let list4 = [p2];
           try {
-            if (fs65.statSync(abs2).isDirectory()) {
+            if (fs66.statSync(abs2).isDirectory()) {
               const inv = scanRepo(abs2);
-              list4 = [...inv.logos, ...inv.images, ...inv.tokens, ...inv.css].map((x2) => posix3(path62.relative(root, path62.join(abs2, x2.rel)))).slice(0, 60);
-              for (const d of inv.designDocs) list4.push(posix3(path62.relative(root, path62.join(abs2, d.rel))));
+              list4 = [...inv.logos, ...inv.images, ...inv.tokens, ...inv.css].map((x2) => posix3(path63.relative(root, path63.join(abs2, x2.rel)))).slice(0, 60);
+              for (const d of inv.designDocs) list4.push(posix3(path63.relative(root, path63.join(abs2, d.rel))));
             }
           } catch {
           }
@@ -108420,7 +108743,7 @@ function register25(server2, ctx2) {
         }
         if (a2.reset) {
           const r2 = resetBoard(board.id, { approved: a2.approved, by });
-          return text(`Reset "${board.name}": items and directions cleared. The previous content is saved at ${posix3(path62.relative(projectDir(), r2.snapshot))}.`);
+          return text(`Reset "${board.name}": items and directions cleared. The previous content is saved at ${posix3(path63.relative(projectDir(), r2.snapshot))}.`);
         }
         if (a2.master) {
           if (a2.approved !== true) return text("Changing the project master needs the user's yes. Ask them, then call again with approved: true.", true);
@@ -108644,7 +108967,7 @@ NEXT: style_update puts this into the project skill; compare a new page's number
       }
       const r2 = writeProjectSkill({ dryRun });
       const L2 = [dryRun ? `Preview of the project skill block:
-${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path62.relative(projectDir(), r2.file)}. Previous version kept in .history.` : "Project skill already matches the approved decisions."];
+${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path63.relative(projectDir(), r2.file)}. Previous version kept in .history.` : "Project skill already matches the approved decisions."];
       if (pack && !dryRun) L2.push(...syncProjectPack());
       return text(L2.join("\n"));
     })
@@ -108655,14 +108978,14 @@ ${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path62.
     const out = [];
     const skill = skillBody();
     if (!packDir(id)) {
-      createPack({ id, name: `${path62.basename(projectDir())} style`, niche: "this project's own design language", keywords: [], summary: "Generated from the project's approved decisions and measured tokens.", type: "project" });
+      createPack({ id, name: `${path63.basename(projectDir())} style`, niche: "this project's own design language", keywords: [], summary: "Generated from the project's approved decisions and measured tokens.", type: "project" });
       out.push(`Created the project style pack "${id}".`);
     } else {
       const meta3 = listPacks().find((p2) => p2.id === id);
       if (meta3 && meta3.type !== "project") return [`Pack "${id}" exists and is not a project pack; left alone.`];
     }
     for (const [file4, body] of [["guide.md", `${marker}
-# ${path62.basename(projectDir())} design language
+# ${path63.basename(projectDir())} design language
 
 ${skill}
 `], ["critic.md", `${marker}
@@ -108734,7 +109057,7 @@ var inspire_exports = {};
 __export(inspire_exports, {
   defaultSources: () => defaultSources,
   interleave: () => interleave,
-  register: () => register26,
+  register: () => register27,
   toSeenItem: () => toSeenItem
 });
 
@@ -108995,12 +109318,12 @@ var onepagelove = {
   async search(query, { kind = "site", limit = 12, config: config2 }) {
     const opts = { userAgent: config2?.refs?.userAgent };
     const lim = Math.min(limit, MAX_LIMIT);
-    if (kind === "section") return parseOpl(await callTool("search_sections", { section_type: sectionType(query), ...pick3(toFilters(query), ["color", "genre"]), limit: lim, image_mode: "markdown" }, opts), "section");
+    if (kind === "section") return parseOpl(await callTool("search_sections", { section_type: sectionType(query), ...pick4(toFilters(query), ["color", "genre"]), limit: lim, image_mode: "markdown" }, opts), "section");
     const f3 = toFilters(query);
     return parseOpl(await callTool("search_inspiration", { ...f3, ...f3.query ? {} : { query: void 0 }, limit: lim, image_mode: "markdown" }, opts), "site");
   }
 };
-function pick3(o2, keys) {
+function pick4(o2, keys) {
   return Object.fromEntries(keys.filter((k) => o2[k]).map((k) => [k, o2[k]]));
 }
 
@@ -109077,17 +109400,17 @@ var NOT_USABLE = [
 
 // src/modules/inspire/rank.mjs
 init_paths();
-import fs66 from "node:fs";
-import path63 from "node:path";
+import fs67 from "node:fs";
+import path64 from "node:path";
 var read3 = (f3) => {
   try {
-    return JSON.parse(fs66.readFileSync(f3, "utf8"));
+    return JSON.parse(fs67.readFileSync(f3, "utf8"));
   } catch {
     return {};
   }
 };
 function loadEntries() {
-  return [...read3(path63.join(dataDir, "catalogue.json")).entries || [], ...read3(path63.join(projectDripDir(), "catalogue.json")).entries || []];
+  return [...read3(path64.join(dataDir, "catalogue.json")).entries || [], ...read3(path64.join(projectDripDir(), "catalogue.json")).entries || []];
 }
 function rankEntries(entries, { stack = [], fit: fit2 = [], category } = {}) {
   const stacks = stack.map((s2) => String(s2).toLowerCase());
@@ -109101,14 +109424,14 @@ function rankEntries(entries, { stack = [], fit: fit2 = [], category } = {}) {
     const tags = (e2.fit || []).map((s2) => s2.toLowerCase());
     const fitHits = wants.filter((w) => tags.includes(w) || tags.some((t2) => t2.includes(w) || w.includes(t2)));
     const quality2 = Number.isFinite(e2.quality) ? e2.quality : 2.5;
-    const score2 = quality2 + fitHits.length * 2 + stackHits.length * 0.5 + (tags.includes("any") ? 0.5 : 0);
-    out.push({ entry: e2, score: score2, why: [fitHits.length ? `fits ${fitHits.join(", ")}` : "", stackHits.length ? `stack ${stackHits.join(", ")}` : "", `quality ${quality2}/5`].filter(Boolean).join(" \xB7 ") });
+    const score3 = quality2 + fitHits.length * 2 + stackHits.length * 0.5 + (tags.includes("any") ? 0.5 : 0);
+    out.push({ entry: e2, score: score3, why: [fitHits.length ? `fits ${fitHits.join(", ")}` : "", stackHits.length ? `stack ${stackHits.join(", ")}` : "", `quality ${quality2}/5`].filter(Boolean).join(" \xB7 ") });
   }
   return out.sort((a2, b) => b.score - a2.score);
 }
 
 // src/modules/inspire/index.mjs
-var KINDS3 = ["site", "section", "component", "motion", "image"];
+var KINDS4 = ["site", "section", "component", "motion", "image"];
 var recent = /* @__PURE__ */ new Map();
 var NEXT = 'NEXT: the sheet is for choosing. refs_pick the 2-5 that solve THIS brief (tagged numbers like "L3-7", one reason each), then refs_view them and refs_study with values. Sites here are shipped work (good evidence for Operate and Read surfaces); components and sections are for behaviour and structure: build your own version, take one move, never the whole.';
 function defaultSources(kind) {
@@ -109158,7 +109481,7 @@ function toSeenItem(it, { query, kind }) {
     from: { kind: "gallery", query: query || "", tag: it.source, category: it.kind === "component" ? "product-design" : "web-design", wanted: kind }
   };
 }
-function register26(server2, ctx2) {
+function register27(server2, ctx2) {
   server2.registerTool(
     "refs_gallery",
     {
@@ -109167,7 +109490,7 @@ function register26(server2, ctx2) {
       inputSchema: {
         query: external_exports.string().optional().describe(`1-3 words naming WHAT the product is: "coffee", "ai tool", "gaming", "fintech". Not the task sentence, not the client's domain. Empty = the source's latest`),
         source: external_exports.union([external_exports.string(), external_exports.array(external_exports.string())]).optional().describe('One id or several ("awwwards", ["landbook", "lapaninja"]) or "all". See refs_sources'),
-        kind: external_exports.enum(KINDS3).optional().describe("What to look for (default site)"),
+        kind: external_exports.enum(KINDS4).optional().describe("What to look for (default site)"),
         limit: external_exports.number().int().min(4).max(48).optional().describe("Items on the sheet (default 24)"),
         page: external_exports.number().int().min(1).max(20).optional(),
         sheet: external_exports.boolean().optional().describe("Include the contact sheet image (default true)")
@@ -109295,17 +109618,17 @@ Also: Dribbble (refs_search, refs_tag, refs_feed, refs_designer) and any shipped
 // src/modules/studio/index.mjs
 var studio_exports = {};
 __export(studio_exports, {
-  register: () => register34
+  register: () => register35
 });
 
 // src/modules/studio/art-tool.mjs
 var art_tool_exports = {};
 __export(art_tool_exports, {
-  register: () => register27,
+  register: () => register28,
   specOf: () => specOf
 });
-import fs68 from "node:fs";
-import path65 from "node:path";
+import fs69 from "node:fs";
+import path66 from "node:path";
 init_paths();
 
 // src/modules/studio/rng.mjs
@@ -109761,13 +110084,13 @@ function dither(ctx2, p2) {
   const rows = Math.ceil(height / cell);
   const d = [];
   for (let j = 0; j < rows; j++) {
-    let run3 = -1;
+    let run4 = -1;
     for (let i2 = 0; i2 <= cols; i2++) {
       const on = i2 < cols && f3((i2 + 0.5) * cell, (j + 0.5) * cell) + bias > (BAYER[j % 8 * 8 + i2 % 8] + 0.5) / 64;
-      if (on && run3 < 0) run3 = i2;
-      if (!on && run3 >= 0) {
-        d.push(`M${num(run3 * cell)} ${num(j * cell)}h${num((i2 - run3) * cell)}v${num(cell)}h${num(-(i2 - run3) * cell)}z`);
-        run3 = -1;
+      if (on && run4 < 0) run4 = i2;
+      if (!on && run4 >= 0) {
+        d.push(`M${num(run4 * cell)} ${num(j * cell)}h${num((i2 - run4) * cell)}v${num(cell)}h${num(-(i2 - run4) * cell)}z`);
+        run4 = -1;
       }
     }
   }
@@ -109851,15 +110174,15 @@ function composition(mood = "calm", kind = "composition") {
   const list4 = COMPOSITIONS[mood] || COMPOSITIONS.calm;
   return list4.map(([type, params]) => ({ type, params }));
 }
-function describe4(art) {
+function describe5(art) {
   const bgL = luminance2(art.palette[0]);
   return `${art.width}x${art.height}, palette ${art.palette.join(" ")} (background ${bgL < 0.2 ? "dark" : "light"}), layers: ${art.layers.map((l2) => `${l2.type}${l2.info ? ` (${Object.entries(l2.info).map(([k, v]) => `${v} ${k}`).join(", ")})` : ""}`).join(" + ")}`;
 }
 
 // src/modules/studio/raster.mjs
-import fs67 from "node:fs";
+import fs68 from "node:fs";
 import os10 from "node:os";
-import path64 from "node:path";
+import path65 from "node:path";
 import { pathToFileURL as pathToFileURL6 } from "node:url";
 init_imaging();
 init_paths();
@@ -109868,11 +110191,11 @@ async function loadOptional(name) {
     return await import(name);
   } catch {
   }
-  const dir = path64.join(homeDripDir, "vendor", "node_modules", name);
+  const dir = path65.join(homeDripDir, "vendor", "node_modules", name);
   try {
-    const pkg = JSON.parse(fs67.readFileSync(path64.join(dir, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs68.readFileSync(path65.join(dir, "package.json"), "utf8"));
     const entry = typeof pkg.module === "string" ? pkg.module : typeof pkg.exports === "string" ? pkg.exports : pkg.exports?.["."]?.import || pkg.exports?.["."]?.default || pkg.exports?.["."] || pkg.main || "index.js";
-    return await import(pathToFileURL6(path64.join(dir, typeof entry === "string" ? entry : "index.js")).href);
+    return await import(pathToFileURL6(path65.join(dir, typeof entry === "string" ? entry : "index.js")).href);
   } catch {
     return null;
   }
@@ -109888,9 +110211,9 @@ async function optimizeSvg(svg) {
   }
 }
 function projectPath(out) {
-  const root = path64.resolve(projectDir());
-  const abs2 = path64.resolve(root, out);
-  if (abs2 !== root && !abs2.startsWith(root + path64.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
+  const root = path65.resolve(projectDir());
+  const abs2 = path65.resolve(root, out);
+  if (abs2 !== root && !abs2.startsWith(root + path65.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
   return abs2;
 }
 async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, rasterizer = "browser", config: config2 } = {}) {
@@ -109900,9 +110223,9 @@ async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, r
     const png3 = Buffer.from(new mod.Resvg(svg, { fitTo: { mode: "width", value: width } }).render().asPng());
     return format === "png" ? png3 : encode5(png3, { width, format, maxKB, config: config2 });
   }
-  const file4 = path64.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
+  const file4 = path65.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
   const png2 = await renderHtml(`<div style="width:${width}px;height:${height}px;overflow:hidden;line-height:0">${svg.replace(/<svg /, `<svg style="display:block;width:${width}px;height:${height}px" `)}</div>`, file4, { width, height, config: config2 });
-  fs67.rmSync(file4, { force: true });
+  fs68.rmSync(file4, { force: true });
   return format === "png" ? png2 : encode5(png2, { width, format, maxKB, config: config2 });
 }
 async function encode5(png2, { width, format, maxKB, config: config2 }) {
@@ -109911,12 +110234,12 @@ async function encode5(png2, { width, format, maxKB, config: config2 }) {
 }
 function saveFile(out, data) {
   const abs2 = projectPath(out);
-  fs67.mkdirSync(path64.dirname(abs2), { recursive: true });
-  fs67.writeFileSync(abs2, data);
-  return { abs: abs2, rel: path64.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs67.statSync(abs2).size / 1024)) };
+  fs68.mkdirSync(path65.dirname(abs2), { recursive: true });
+  fs68.writeFileSync(abs2, data);
+  return { abs: abs2, rel: path65.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs68.statSync(abs2).size / 1024)) };
 }
 function logAsset(entries) {
-  const log2 = path64.join(ensureProjectDrip(), "assets.json");
+  const log2 = path65.join(ensureProjectDrip(), "assets.json");
   withLock(log2, () => {
     const prev = readJson2(log2, []);
     for (const e2 of entries) prev.push({ credit: null, author: null, savedAt: (/* @__PURE__ */ new Date()).toISOString(), ...e2 });
@@ -109931,11 +110254,11 @@ async function previewBlock(buf, maxW = 1280, maxH = 900) {
   }
 }
 function tempDir(prefix = "drip-studio-") {
-  return fs67.mkdtempSync(path64.join(os10.tmpdir(), prefix));
+  return fs68.mkdtempSync(path65.join(os10.tmpdir(), prefix));
 }
 function cleanDir(dir) {
   try {
-    fs67.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+    fs68.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
   } catch {
   }
 }
@@ -110098,7 +110421,7 @@ var layerSchema = external_exports.object({ type: external_exports.enum(LAYER_TY
 function specOf(art, extra = {}) {
   return { version: 1, ...extra, width: art.width, height: art.height, palette: art.palette, layers: art.layers.map(({ type, seed, params }) => ({ type, seed, params })) };
 }
-function register27(server2, ctx2) {
+function register28(server2, ctx2) {
   registerViewer(server2);
   server2.registerTool(
     "art_generate",
@@ -110122,7 +110445,7 @@ function register27(server2, ctx2) {
       _meta: studioToolMeta()
     },
     safe(async (args) => {
-      const base = args.from ? JSON.parse(fs68.readFileSync(projectPath(args.from), "utf8")) : {};
+      const base = args.from ? JSON.parse(fs69.readFileSync(projectPath(args.from), "utf8")) : {};
       const kind = args.kind || "composition";
       const mood = args.mood || base.mood || "calm";
       let layers = args.layers || (kind !== "composition" || !base.layers ? null : base.layers);
@@ -110133,15 +110456,15 @@ function register27(server2, ctx2) {
       if (args.seed !== void 0 && layers) layers = layers.map(({ seed: _seed, ...rest }) => rest);
       const spec = { width: args.width || base.width || 1600, height: args.height || base.height || 900, seed: args.seed ?? base.seed ?? 1, palette: args.palette || base.palette, mood, layers };
       const art = buildArt(spec);
-      const lines = [`Artwork ${describe4(art)}.`];
+      const lines = [`Artwork ${describe5(art)}.`];
       const files = [];
       let optimizedNote = "";
       if (args.out) {
         const abs2 = projectPath(args.out);
-        const ext = path65.extname(abs2).slice(1).toLowerCase();
+        const ext = path66.extname(abs2).slice(1).toLowerCase();
         if (!["svg", "webp", "png"].includes(ext)) throw new Error("out must end in .svg, .webp or .png");
         const stem2 = abs2.slice(0, -(ext.length + 1));
-        const rel3 = (p2) => path65.relative(projectDir(), p2).replace(/\\/g, "/");
+        const rel3 = (p2) => path66.relative(projectDir(), p2).replace(/\\/g, "/");
         const opt = args.optimize === false ? { svg: art.svg, optimized: false } : await optimizeSvg(art.svg);
         optimizedNote = opt.optimized ? " (SVGO applied)" : "";
         files.push(saveFile(rel3(`${stem2}.svg`), opt.svg));
@@ -110160,7 +110483,7 @@ function register27(server2, ctx2) {
       const controls = [{ key: "seed", label: "Seed", type: "number", value: spec.seed, step: 1 }];
       stack.layers.forEach((l2, i2) => (KNOBS[l2.type] || []).forEach(([k, min, max, step]) => controls.push({ key: `layers.${i2}.params.${k}`, label: `${l2.type} ${k}`, type: "range", min, max, step, value: l2.params[k] ?? DEFAULTS2[l2.type][k] })));
       const result = { content };
-      return small ? studioResult(server2, result, { tool: "art_generate", args: { ...args, seed: spec.seed, width: art.width, height: art.height, palette: art.palette, layers: stack.layers, kind: void 0, mood: void 0 }, title: `Artwork: ${kind === "composition" ? mood : kind}`, summary: describe4(art), image: dataUrl2(small), controls }) : blocks(content);
+      return small ? studioResult(server2, result, { tool: "art_generate", args: { ...args, seed: spec.seed, width: art.width, height: art.height, palette: art.palette, layers: stack.layers, kind: void 0, mood: void 0 }, title: `Artwork: ${kind === "composition" ? mood : kind}`, summary: describe5(art), image: dataUrl2(small), controls }) : blocks(content);
     })
   );
 }
@@ -110171,11 +110494,11 @@ __export(assets3d_exports, {
   extractTo: () => extractTo,
   hdrBuffer: () => hdrBuffer,
   rankAssets: () => rankAssets,
-  register: () => register28,
+  register: () => register29,
   unzip: () => unzip
 });
-import fs69 from "node:fs";
-import path66 from "node:path";
+import fs70 from "node:fs";
+import path67 from "node:path";
 import zlib from "node:zlib";
 var UA2 = { "User-Agent": "drip-design-mcp/0.5 (design tool; https://github.com/8bitgfx/drip)" };
 var DAY2 = 24 * 36e5;
@@ -110211,13 +110534,13 @@ function unzip(buf) {
   return out;
 }
 function extractTo(entries, dir) {
-  const root = path66.resolve(dir);
+  const root = path67.resolve(dir);
   const written = [];
   for (const e2 of entries) {
-    const target = path66.resolve(root, e2.name);
-    if (target !== root && !target.startsWith(root + path66.sep)) throw new Error(`Refusing to write outside the folder: ${e2.name}`);
-    fs69.mkdirSync(path66.dirname(target), { recursive: true });
-    fs69.writeFileSync(target, e2.data);
+    const target = path67.resolve(root, e2.name);
+    if (target !== root && !target.startsWith(root + path67.sep)) throw new Error(`Refusing to write outside the folder: ${e2.name}`);
+    fs70.mkdirSync(path67.dirname(target), { recursive: true });
+    fs70.writeFileSync(target, e2.data);
     written.push(e2.name);
   }
   return written;
@@ -110274,14 +110597,14 @@ async function acgDownloads(id) {
 }
 var download = async (url2) => (await get(url2, { as: "buffer", headers: UA2, ttlMs: 30 * DAY2 })).body;
 async function hdrBuffer(idOrPath, res = "1k") {
-  if (/\.hdr$/i.test(idOrPath)) return fs69.readFileSync(projectPath(idOrPath));
+  if (/\.hdr$/i.test(idOrPath)) return fs70.readFileSync(projectPath(idOrPath));
   const files = await phFiles(idOrPath);
   const hit = files.hdri?.[res]?.hdr || files.hdri?.["1k"]?.hdr;
   if (!hit) throw new Error(`Poly Haven has no HDRI "${idOrPath}" (search with assets_3d_search type hdri).`);
   return download(hit.url);
 }
 var PH_TEXTURE_MAPS = { Diffuse: "diff", nor_gl: "nor_gl", Rough: "rough", AO: "ao", Displacement: "disp" };
-function register28(server2) {
+function register29(server2) {
   server2.registerTool(
     "assets_3d_search",
     {
@@ -110327,9 +110650,9 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
       const id = rest.join(":");
       if (!["polyhaven", "ambientcg"].includes(source) || !id) return text(`"${asset}" is not a Poly Haven or ambientCG asset. Use a number from assets_3d_search or source:id.`, true);
       const known = lookup(key);
-      const folder = path66.join(dest, source, id).replace(/\\/g, "/");
+      const folder = path67.join(dest, source, id).replace(/\\/g, "/");
       const abs2 = projectPath(folder);
-      fs69.mkdirSync(abs2, { recursive: true });
+      fs70.mkdirSync(abs2, { recursive: true });
       const files = [];
       let authors = [];
       let kind;
@@ -110340,15 +110663,15 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
         authors = Object.keys(info.authors || {});
         page2 = `https://polyhaven.com/a/${id}`;
         const put = async (url2, rel3) => {
-          const target = path66.join(abs2, rel3);
-          fs69.mkdirSync(path66.dirname(target), { recursive: true });
-          fs69.writeFileSync(target, await download(url2));
+          const target = path67.join(abs2, rel3);
+          fs70.mkdirSync(path67.dirname(target), { recursive: true });
+          fs70.writeFileSync(target, await download(url2));
           files.push(rel3.replace(/\\/g, "/"));
         };
         if (kind === "hdri") {
           const hit = listing2.hdri?.[resolution]?.hdr || listing2.hdri?.["1k"]?.hdr;
           if (!hit) throw new Error(`No .hdr file for ${id} at ${resolution}`);
-          await put(hit.url, path66.basename(new URL(hit.url).pathname));
+          await put(hit.url, path67.basename(new URL(hit.url).pathname));
         } else if (kind === "texture") {
           for (const [map2, short] of Object.entries(PH_TEXTURE_MAPS)) {
             const hit = listing2[map2]?.[resolution]?.jpg || listing2[map2]?.["1k"]?.jpg;
@@ -110366,12 +110689,12 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
         authors = ["ambientCG"];
         page2 = a2.shortLink || `https://ambientcg.com/view?id=${id}`;
         const want = resolution.toUpperCase();
-        const pick4 = downloads.find((d) => d.attribute?.toUpperCase().startsWith(`${want}-JPG`)) || downloads.find((d) => d.attribute?.toUpperCase().startsWith(want) && /JPG|HDR|PNG/i.test(d.attribute)) || downloads.find((d) => d.attribute?.toUpperCase().startsWith(want)) || downloads[0];
-        if (!pick4) throw new Error(`ambientCG lists no downloads for ${id}`);
-        files.push(...extractTo(unzip(await download(pick4.downloadLink || pick4.fullDownloadPath)), abs2));
+        const pick5 = downloads.find((d) => d.attribute?.toUpperCase().startsWith(`${want}-JPG`)) || downloads.find((d) => d.attribute?.toUpperCase().startsWith(want) && /JPG|HDR|PNG/i.test(d.attribute)) || downloads.find((d) => d.attribute?.toUpperCase().startsWith(want)) || downloads[0];
+        if (!pick5) throw new Error(`ambientCG lists no downloads for ${id}`);
+        files.push(...extractTo(unzip(await download(pick5.downloadLink || pick5.fullDownloadPath)), abs2));
       }
       const record2 = { source, id, kind, url: page2, authors, license: "CC0 1.0 (as stated by the source)", resolution, retrievedAt: (/* @__PURE__ */ new Date()).toISOString(), files };
-      fs69.writeFileSync(path66.join(abs2, "provenance.json"), JSON.stringify(record2, null, 2));
+      fs70.writeFileSync(path67.join(abs2, "provenance.json"), JSON.stringify(record2, null, 2));
       logAsset(files.slice(0, 40).map((f3) => ({ file: `${folder}/${f3}`, source: page2, author: authors.join(", ") || null, license: record2.license })));
       const hint = kind === "hdri" ? `Use it: scene_render({ scene: { environment: { hdri: "${source === "polyhaven" ? id : `${folder}/${files.find((f3) => /\.hdr$/i.test(f3)) || ""}`}" } ... } }).` : kind === "texture" ? `Use it: material: { pbrFolder: "${folder}" } in scene_render.` : `A glTF model: open it in blender_render (objects can import it) or a three.js page.`;
       return text(`Saved ${kind} "${id}" (${source}, ${resolution}) to ${folder}/ \u2014 ${files.length} file${files.length === 1 ? "" : "s"}: ${files.slice(0, 8).join(", ")}${files.length > 8 ? ", ..." : ""}.
@@ -110388,12 +110711,12 @@ __export(blender_exports, {
   blenderCandidates: () => blenderCandidates,
   blenderSpec: () => blenderSpec,
   findBlender: () => findBlender,
-  register: () => register30
+  register: () => register31
 });
-import { execFile as execFile4 } from "node:child_process";
-import fs71 from "node:fs";
+import { execFile as execFile5 } from "node:child_process";
+import fs72 from "node:fs";
 import os11 from "node:os";
-import path68 from "node:path";
+import path69 from "node:path";
 
 // src/modules/studio/scene.mjs
 var scene_exports = {};
@@ -110404,14 +110727,14 @@ __export(scene_exports, {
   findPbrMaps: () => findPbrMaps,
   mockupScene: () => mockupScene,
   prepareScene: () => prepareScene,
-  register: () => register29,
+  register: () => register30,
   renderScene: () => renderScene,
   resolveModel: () => resolveModel,
   scenePage: () => scenePage,
   sceneSchema: () => sceneSchema
 });
-import fs70 from "node:fs";
-import path67 from "node:path";
+import fs71 from "node:fs";
+import path68 from "node:path";
 init_browser();
 init_imaging();
 init_paths();
@@ -110538,18 +110861,18 @@ async function inlineImage(src, maxSide = 2048) {
   if (!src) return void 0;
   if (src.startsWith("data:")) return src;
   const local = !/^https?:/i.test(src);
-  const buf = local ? fs70.readFileSync(projectPath(src)) : (await fetchImage(src)).buf;
+  const buf = local ? fs71.readFileSync(projectPath(src)) : (await fetchImage(src)).buf;
   const jpeg2 = await toJpeg(buf, maxSide, maxSide, 90).catch(() => null);
   return jpeg2 ? dataUrl2(jpeg2) : dataUrl2(buf, "image/png");
 }
 var PBR_NAMES = { map: /(color|diff|albedo|basecolor)/i, normalMap: /(normalgl|nor_gl|normal)/i, roughnessMap: /(rough)/i, aoMap: /(ambientocclusion|_ao|ao_)/i };
 function findPbrMaps(folder) {
   const abs2 = projectPath(folder);
-  const files = fs70.readdirSync(abs2).filter((f3) => /\.(jpe?g|png)$/i.test(f3));
+  const files = fs71.readdirSync(abs2).filter((f3) => /\.(jpe?g|png)$/i.test(f3));
   const out = {};
   for (const [role, re] of Object.entries(PBR_NAMES)) {
     const hit = files.filter((f3) => re.test(f3) && !(role === "map" && /normal/i.test(f3)) && !(role === "normalMap" && /dx|directx/i.test(f3)));
-    if (hit.length) out[role] = path67.join(folder, hit[0]);
+    if (hit.length) out[role] = path68.join(folder, hit[0]);
   }
   return out;
 }
@@ -110557,32 +110880,32 @@ async function resolveModel(src) {
   const ph = /^polyhaven:([\w-]+)$/i.exec(src);
   if (ph) {
     const id = ph[1];
-    const dir = path67.join(homeDripDir, "cache", "models", id);
-    const main = path67.join(dir, `${id}.gltf`);
-    if (fs70.existsSync(main)) return main;
+    const dir = path68.join(homeDripDir, "cache", "models", id);
+    const main = path68.join(dir, `${id}.gltf`);
+    if (fs71.existsSync(main)) return main;
     const r2 = await fetch(`https://api.polyhaven.com/files/${id}`, { headers: { "user-agent": "drip" } });
     if (!r2.ok) throw new Error(`Poly Haven has no model "${id}" (assets_3d_search lists them)`);
     const g = (await r2.json()).gltf;
-    const pick4 = g?.["2k"]?.gltf || g?.["1k"]?.gltf;
-    if (!pick4) throw new Error(`Poly Haven "${id}" has no glTF download`);
+    const pick5 = g?.["2k"]?.gltf || g?.["1k"]?.gltf;
+    if (!pick5) throw new Error(`Poly Haven "${id}" has no glTF download`);
     const put = async (url2, rel3) => {
-      const target = path67.join(dir, rel3);
-      fs70.mkdirSync(path67.dirname(target), { recursive: true });
+      const target = path68.join(dir, rel3);
+      fs71.mkdirSync(path68.dirname(target), { recursive: true });
       const res = await fetch(url2, { headers: { "user-agent": "drip" } });
       if (!res.ok) throw new Error(`Download failed: ${url2}`);
-      fs70.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
+      fs71.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
     };
-    for (const [rel3, f3] of Object.entries(pick4.include || {})) await put(f3.url, rel3);
-    await put(pick4.url, `${id}.gltf`);
-    fs70.writeFileSync(path67.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
+    for (const [rel3, f3] of Object.entries(pick5.include || {})) await put(f3.url, rel3);
+    await put(pick5.url, `${id}.gltf`);
+    fs71.writeFileSync(path68.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
     return main;
   }
   const abs2 = projectPath(src);
-  if (!fs70.existsSync(abs2)) throw new Error(`Model not found: ${src}`);
-  if (fs70.statSync(abs2).isDirectory()) {
-    const f3 = fs70.readdirSync(abs2).find((n3) => /\.(glb|gltf)$/i.test(n3));
+  if (!fs71.existsSync(abs2)) throw new Error(`Model not found: ${src}`);
+  if (fs71.statSync(abs2).isDirectory()) {
+    const f3 = fs71.readdirSync(abs2).find((n3) => /\.(glb|gltf)$/i.test(n3));
     if (!f3) throw new Error(`No .glb or .gltf in ${src}`);
-    return path67.join(abs2, f3);
+    return path68.join(abs2, f3);
   }
   return abs2;
 }
@@ -110596,8 +110919,8 @@ async function prepareScene(spec) {
     if (o2.type === "model") {
       if (!o2.src) throw new Error("A model object needs src: a .glb/.gltf file, a folder from assets_3d_save, or polyhaven:<id>.");
       const file4 = await resolveModel(o2.src);
-      o2.modelDir = path67.dirname(file4);
-      o2.modelFile = path67.basename(file4);
+      o2.modelDir = path68.dirname(file4);
+      o2.modelFile = path68.basename(file4);
       if (o2.label) o2.label = { ...o2.label, image: await inlineImage(o2.label.image, 2048) };
     }
   }
@@ -110826,15 +111149,15 @@ async function renderScene(spec, { turntable, config: config2, timeout = 6e4 } =
   const width = prepared.width || 1600;
   const height = prepared.height || 1e3;
   const dir = tempDir("drip-scene-");
-  const file4 = path67.join(dir, "scene.html");
+  const file4 = path68.join(dir, "scene.html");
   prepared.objects.forEach((o2, i2) => {
     if (o2.type !== "model") return;
-    const to2 = path67.join(dir, "models", String(i2));
-    fs70.cpSync(o2.modelDir, to2, { recursive: true });
+    const to2 = path68.join(dir, "models", String(i2));
+    fs71.cpSync(o2.modelDir, to2, { recursive: true });
     o2.modelUrl = `models/${i2}/${encodeURIComponent(o2.modelFile)}`;
     delete o2.modelDir;
   });
-  fs70.writeFileSync(file4, scenePage(prepared));
+  fs71.writeFileSync(file4, scenePage(prepared));
   const toBuf = (u2) => Buffer.from(u2.split(",")[1], "base64");
   try {
     return await withTab(config2, async (tab) => {
@@ -110858,7 +111181,7 @@ async function renderScene(spec, { turntable, config: config2, timeout = 6e4 } =
     cleanDir(dir);
   }
 }
-function register29(server2, ctx2) {
+function register30(server2, ctx2) {
   registerViewer(server2);
   server2.registerTool(
     "scene_render",
@@ -110892,7 +111215,7 @@ function register29(server2, ctx2) {
       const seconds = ((Date.now() - t0) / 1e3).toFixed(1);
       const files = [];
       if (args.out) {
-        const ext = path67.extname(args.out).slice(1).toLowerCase();
+        const ext = path68.extname(args.out).slice(1).toLowerCase();
         if (!["png", "webp"].includes(ext)) throw new Error("out must end in .png or .webp");
         const buf = ext === "png" ? r2.still : (await processImage(r2.still, { outputs: [{ name: "", width: r2.width, format: "webp" }], focus: { x: 0.5, y: 0.5 }, maxKB: 600, config: ctx2.config() })).files[0].buf;
         files.push(saveFile(args.out, buf));
@@ -110911,8 +111234,8 @@ Scene (edit and pass back as scene): ${JSON.stringify({ ...spec, objects: spec.o
         imageBlock(flat)
       ];
       if (r2.frames.length) {
-        const pick4 = Array.from({ length: Math.min(8, r2.frames.length) }, (_, i2) => r2.frames[Math.round(i2 * (r2.frames.length - 1) / Math.max(1, Math.min(8, r2.frames.length) - 1))]);
-        const sheet = await contactSheet(pick4, { cols: 4, tileW: 320, tileH: Math.round(320 * r2.height / r2.width) }).catch(() => null);
+        const pick5 = Array.from({ length: Math.min(8, r2.frames.length) }, (_, i2) => r2.frames[Math.round(i2 * (r2.frames.length - 1) / Math.max(1, Math.min(8, r2.frames.length) - 1))]);
+        const sheet = await contactSheet(pick5, { cols: 4, tileW: 320, tileH: Math.round(320 * r2.height / r2.width) }).catch(() => null);
         if (sheet) content.push(imageBlock(sheet));
       }
       const camera = spec.camera || {};
@@ -110931,7 +111254,7 @@ Scene (edit and pass back as scene): ${JSON.stringify({ ...spec, objects: spec.o
 var byVersionDesc = (a2, b) => b.localeCompare(a2, void 0, { numeric: true });
 function listDir(dir) {
   try {
-    return fs71.readdirSync(dir);
+    return fs72.readdirSync(dir);
   } catch {
     return [];
   }
@@ -110940,25 +111263,25 @@ function blenderCandidates(env = process.env, platform = process.platform) {
   const out = [];
   if (env.DRIP_BLENDER) out.push(env.DRIP_BLENDER);
   const exe = platform === "win32" ? "blender.exe" : "blender";
-  for (const dir of (env.PATH || "").split(path68.delimiter).filter(Boolean)) out.push(path68.join(dir, exe));
+  for (const dir of (env.PATH || "").split(path69.delimiter).filter(Boolean)) out.push(path69.join(dir, exe));
   if (platform === "win32") {
-    for (const base of [env.ProgramFiles || "C:\\Program Files", env["ProgramFiles(x86)"] || "C:\\Program Files (x86)", env.LOCALAPPDATA && path68.join(env.LOCALAPPDATA, "Programs")].filter(Boolean)) {
-      const root = path68.join(base, "Blender Foundation");
-      for (const d of listDir(root).filter((n3) => /^Blender/i.test(n3)).sort(byVersionDesc)) out.push(path68.join(root, d, "blender.exe"));
+    for (const base of [env.ProgramFiles || "C:\\Program Files", env["ProgramFiles(x86)"] || "C:\\Program Files (x86)", env.LOCALAPPDATA && path69.join(env.LOCALAPPDATA, "Programs")].filter(Boolean)) {
+      const root = path69.join(base, "Blender Foundation");
+      for (const d of listDir(root).filter((n3) => /^Blender/i.test(n3)).sort(byVersionDesc)) out.push(path69.join(root, d, "blender.exe"));
     }
     out.push("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Blender\\blender.exe");
   } else if (platform === "darwin") {
-    out.push("/Applications/Blender.app/Contents/MacOS/Blender", path68.join(os11.homedir(), "Applications/Blender.app/Contents/MacOS/Blender"));
+    out.push("/Applications/Blender.app/Contents/MacOS/Blender", path69.join(os11.homedir(), "Applications/Blender.app/Contents/MacOS/Blender"));
   } else {
     out.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/var/lib/flatpak/exports/bin/org.blender.Blender");
-    for (const d of listDir("/opt").filter((n3) => /^blender/i.test(n3)).sort(byVersionDesc)) out.push(path68.join("/opt", d, "blender"));
+    for (const d of listDir("/opt").filter((n3) => /^blender/i.test(n3)).sort(byVersionDesc)) out.push(path69.join("/opt", d, "blender"));
   }
   return out;
 }
 function findBlender(config2, env = process.env, platform = process.platform) {
   const configured = config2?.blender?.path;
   const list4 = [...configured ? [configured] : [], ...blenderCandidates(env, platform)];
-  return list4.find((p2) => p2 && fs71.existsSync(p2)) || null;
+  return list4.find((p2) => p2 && fs72.existsSync(p2)) || null;
 }
 var BLENDER_SCRIPT = `
 import bpy, bmesh, sys, json, math, os
@@ -111293,14 +111616,14 @@ print("DRIP_DONE", out_path)
 `;
 async function localFile2(src, dir, name) {
   if (!src) return void 0;
-  const ext = (path68.extname(src.split("?")[0]) || ".png").toLowerCase();
-  const target = path68.join(dir, `${name}${ext}`);
+  const ext = (path69.extname(src.split("?")[0]) || ".png").toLowerCase();
+  const target = path69.join(dir, `${name}${ext}`);
   if (/^data:/.test(src)) {
-    fs71.writeFileSync(target, Buffer.from(src.split(",")[1], "base64"));
+    fs72.writeFileSync(target, Buffer.from(src.split(",")[1], "base64"));
     return target;
   }
   if (/^https?:/i.test(src)) {
-    fs71.writeFileSync(target, (await fetchImage(src)).buf);
+    fs72.writeFileSync(target, (await fetchImage(src)).buf);
     return target;
   }
   return projectPath(src);
@@ -111317,17 +111640,17 @@ async function blenderSpec(spec, dir, { samples = 48 } = {}) {
     if (o2.decal) o2.decal.image = await localFile2(o2.decal.image, dir, `decal${n3++}`);
   }
   if (out.environment?.hdri) {
-    const file4 = path68.join(dir, "env.hdr");
-    fs71.writeFileSync(file4, await hdrBuffer(out.environment.hdri, out.environment.resolution || "1k"));
+    const file4 = path69.join(dir, "env.hdr");
+    fs72.writeFileSync(file4, await hdrBuffer(out.environment.hdri, out.environment.resolution || "1k"));
     out.environment.hdriFile = file4;
   }
   out.samples = samples;
   return out;
 }
-var run = (file4, args, timeout) => new Promise((resolve2, reject) => {
-  execFile4(file4, args, { timeout, maxBuffer: 16 * 1024 * 1024, windowsHide: true }, (err, stdout, stderr) => err && !stdout?.includes("DRIP_DONE") ? reject(Object.assign(err, { stdout, stderr })) : resolve2({ stdout, stderr }));
+var run2 = (file4, args, timeout) => new Promise((resolve2, reject) => {
+  execFile5(file4, args, { timeout, maxBuffer: 16 * 1024 * 1024, windowsHide: true }, (err, stdout, stderr) => err && !stdout?.includes("DRIP_DONE") ? reject(Object.assign(err, { stdout, stderr })) : resolve2({ stdout, stderr }));
 });
-function register30(server2, ctx2) {
+function register31(server2, ctx2) {
   server2.registerTool(
     "blender_render",
     {
@@ -111358,22 +111681,22 @@ function register30(server2, ctx2) {
       const dir = tempDir("drip-blender-");
       try {
         const prepared = await blenderSpec(spec, dir, { samples: args.samples || 48 });
-        fs71.writeFileSync(path68.join(dir, "spec.json"), JSON.stringify(prepared));
-        fs71.writeFileSync(path68.join(dir, "render.py"), BLENDER_SCRIPT);
-        const png2 = path68.join(dir, "out.png");
+        fs72.writeFileSync(path69.join(dir, "spec.json"), JSON.stringify(prepared));
+        fs72.writeFileSync(path69.join(dir, "render.py"), BLENDER_SCRIPT);
+        const png2 = path69.join(dir, "out.png");
         const t0 = Date.now();
         let res;
         try {
-          res = await run(exe, ["-b", "--factory-startup", "-noaudio", "--python", path68.join(dir, "render.py"), "--", path68.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
+          res = await run2(exe, ["-b", "--factory-startup", "-noaudio", "--python", path69.join(dir, "render.py"), "--", path69.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
         } catch (err) {
           const tail2 = `${err.stdout || ""}
 ${err.stderr || ""}`.split("\n").filter((l2) => /Error|Traceback|File "|Exception/i.test(l2)).slice(-8).join("\n");
           throw new Error(`Blender failed (${err.killed ? "timed out" : `exit ${err.code}`}).${tail2 ? `
 ${tail2}` : ""}`);
         }
-        if (!fs71.existsSync(png2)) throw new Error(`Blender finished without writing an image.
+        if (!fs72.existsSync(png2)) throw new Error(`Blender finished without writing an image.
 ${res.stdout.split("\n").slice(-6).join("\n")}`);
-        let buf = fs71.readFileSync(png2);
+        let buf = fs72.readFileSync(png2);
         const bg = spec.background;
         if (bg && bg !== "transparent") {
           const img = await Jimp.read(buf);
@@ -111387,7 +111710,7 @@ ${res.stdout.split("\n").slice(-6).join("\n")}`);
           files.push(saveFile(args.out, buf));
           files.push(saveFile(args.out.replace(/\.png$/i, ".scene.json"), JSON.stringify(spec, null, 2)));
         }
-        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path68.basename(path68.dirname(exe)) || exe}).${files.length ? `
+        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path69.basename(path69.dirname(exe)) || exe}).${files.length ? `
 Saved: ${files.map((f3) => `${f3.rel} (${f3.kb} KB)`).join(", ")}.` : ""}`), imageBlock(await toJpeg(buf, 1280, 900, 86))]);
       } finally {
         cleanDir(dir);
@@ -111406,11 +111729,11 @@ __export(mockup_exports, {
   mergePatch: () => mergePatch,
   mockstudioDir: () => mockstudioDir,
   mockstudioReady: () => mockstudioReady2,
-  register: () => register31
+  register: () => register32
 });
-import { execFile as execFile5 } from "node:child_process";
-import fs72 from "node:fs";
-import path69 from "node:path";
+import { execFile as execFile6 } from "node:child_process";
+import fs73 from "node:fs";
+import path70 from "node:path";
 init_browser();
 init_serve();
 var MOCKSTUDIO = {
@@ -111425,22 +111748,22 @@ var MOCKSTUDIO = {
   aspects: ["16:9", "9:16", "1:1", "4:5", "3:2", "4:3", "match-frame"]
 };
 var SCREEN = { "iphone-17-pro": { width: 402, height: 874, scale: 3 }, "studio-display": { width: 1600, height: 900, scale: 2 }, slab: { width: 1440, height: 900, scale: 2 } };
-var mockstudioDir = () => path69.join(vendorDir(), "mockstudio");
-var presetsDir = () => path69.join(mockstudioDir(), "drip-presets");
-var mockstudioReady2 = () => fs72.existsSync(path69.join(mockstudioDir(), "dist", "index.html")) && fs72.existsSync(path69.join(presetsDir(), "look.studio.json"));
-function run2(file4, args, opts = {}) {
+var mockstudioDir = () => path70.join(vendorDir(), "mockstudio");
+var presetsDir = () => path70.join(mockstudioDir(), "drip-presets");
+var mockstudioReady2 = () => fs73.existsSync(path70.join(mockstudioDir(), "dist", "index.html")) && fs73.existsSync(path70.join(presetsDir(), "look.studio.json"));
+function run3(file4, args, opts = {}) {
   return new Promise((resolve2, reject) => {
-    execFile5(
+    execFile6(
       file4,
       args,
       { timeout: 9e5, windowsHide: true, maxBuffer: 32 * 1024 * 1024, ...opts },
-      (err, stdout, stderr) => err ? reject(new Error(`${path69.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
+      (err, stdout, stderr) => err ? reject(new Error(`${path70.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
     );
   });
 }
 function npx() {
-  const bin = path69.dirname(process.execPath);
-  for (const p2 of [path69.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path69.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs72.existsSync(p2)) return [process.execPath, [p2]];
+  const bin = path70.dirname(process.execPath);
+  for (const p2 of [path70.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path70.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs73.existsSync(p2)) return [process.execPath, [p2]];
   return [process.platform === "win32" ? "npx.cmd" : "npx", []];
 }
 function diffPatch(base, next) {
@@ -111468,40 +111791,40 @@ function mergePatch(target, patch) {
 async function installMockstudio(log2 = () => {
 }) {
   const dir = mockstudioDir();
-  fs72.mkdirSync(path69.dirname(dir), { recursive: true });
-  if (!fs72.existsSync(path69.join(dir, ".git"))) {
+  fs73.mkdirSync(path70.dirname(dir), { recursive: true });
+  if (!fs73.existsSync(path70.join(dir, ".git"))) {
     log2(`Cloning MockStudio ${MOCKSTUDIO.sha.slice(0, 7)} ...`);
-    await run2("git", ["clone", "--filter=blob:none", "--quiet", MOCKSTUDIO.repo, dir]);
+    await run3("git", ["clone", "--filter=blob:none", "--quiet", MOCKSTUDIO.repo, dir]);
   }
-  await run2("git", ["-C", dir, "fetch", "--quiet", "origin", MOCKSTUDIO.sha]).catch(() => {
+  await run3("git", ["-C", dir, "fetch", "--quiet", "origin", MOCKSTUDIO.sha]).catch(() => {
   });
-  await run2("git", ["-C", dir, "checkout", "--quiet", "--force", MOCKSTUDIO.sha]);
+  await run3("git", ["-C", dir, "checkout", "--quiet", "--force", MOCKSTUDIO.sha]);
   const [npxFile, npxPre] = npx();
   const env = { ...process.env, PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1", CI: "1" };
   log2("Installing its build dependencies (temporary) ...");
-  await run2(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "install", "--frozen-lockfile"], { cwd: dir, env });
+  await run3(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "install", "--frozen-lockfile"], { cwd: dir, env });
   log2("Building the static site ...");
-  await run2(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "build"], { cwd: dir, env });
+  await run3(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "build"], { cwd: dir, env });
   log2("Saving the Look / Camera / Motion presets ...");
   const pd = presetsDir();
-  fs72.mkdirSync(pd, { recursive: true });
-  const cli = path69.join(dir, "bin", "mockstudio.mjs");
+  fs73.mkdirSync(pd, { recursive: true });
+  const cli = path70.join(dir, "bin", "mockstudio.mjs");
   const compose = async (args, name) => {
-    const out = path69.join(pd, `${name}.json`);
-    await run2(process.execPath, [cli, "compose", ...args, "--out", out], { cwd: dir, env });
-    return JSON.parse(fs72.readFileSync(out, "utf8"));
+    const out = path70.join(pd, `${name}.json`);
+    await run3(process.execPath, [cli, "compose", ...args, "--out", out], { cwd: dir, env });
+    return JSON.parse(fs73.readFileSync(out, "utf8"));
   };
   const base = await compose(["--default"], "default");
   for (const l2 of MOCKSTUDIO.looks) await compose(["--look", l2], `look.${l2}`);
-  for (const c3 of MOCKSTUDIO.cameras) fs72.writeFileSync(path69.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
-  for (const m of MOCKSTUDIO.motions) fs72.writeFileSync(path69.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
-  fs72.rmSync(path69.join(pd, "tmp.json"), { force: true });
+  for (const c3 of MOCKSTUDIO.cameras) fs73.writeFileSync(path70.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
+  for (const m of MOCKSTUDIO.motions) fs73.writeFileSync(path70.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
+  fs73.rmSync(path70.join(pd, "tmp.json"), { force: true });
   log2("Removing the build dependencies (the built site is all Drip needs) ...");
-  fs72.rmSync(path69.join(dir, "node_modules"), { recursive: true, force: true });
+  fs73.rmSync(path70.join(dir, "node_modules"), { recursive: true, force: true });
   return { dir, ok: mockstudioReady2() };
 }
 var ASPECT = { "16:9": 16 / 9, "9:16": 9 / 16, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "4:3": 4 / 3 };
-function buildDocument(o2, presets = (n3) => JSON.parse(fs72.readFileSync(path69.join(presetsDir(), `${n3}.json`), "utf8"))) {
+function buildDocument(o2, presets = (n3) => JSON.parse(fs73.readFileSync(path70.join(presetsDir(), `${n3}.json`), "utf8"))) {
   let doc = presets(`look.${o2.look || "studio"}`);
   if (o2.camera) doc = mergePatch(doc, presets(`camera.${o2.camera}`));
   if (o2.motion) doc = mergePatch(doc, presets(`motion.${o2.motion}`));
@@ -111519,12 +111842,12 @@ function credits(device) {
   const lines = [`Rendered with MockStudio (Apache-2.0) ${MOCKSTUDIO.repo}`];
   if (device === "slab") return lines;
   try {
-    const notice = fs72.readFileSync(path69.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
+    const notice = fs73.readFileSync(path70.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
     const row = notice.split(/\r?\n/).find((l2) => l2.startsWith("|") && l2.split("|")[1]?.trim() === device);
     const [, , , title, author, license, source] = row.split("|").map((c3) => c3.trim());
     lines.push(`3D model: "${title}" by ${author}, ${license}, ${source}`);
   } catch {
-    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path69.join(mockstudioDir(), "public", "models", "NOTICE")})`);
+    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path70.join(mockstudioDir(), "public", "models", "NOTICE")})`);
   }
   return lines;
 }
@@ -111534,11 +111857,11 @@ async function screenBytes(image2, device, config2) {
     const { buf: buf2 } = await shoot(await toUrl(projectPath(image2)), { width: s2.width, height: s2.height, scale: s2.scale, transparent: false, dark: false, fullPage: false, config: config2 });
     return { buf: buf2, mime: "image/png", name: "screen.png" };
   }
-  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs72.readFileSync(projectPath(image2));
-  const ext = path69.extname(image2.split("?")[0]).toLowerCase();
+  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs73.readFileSync(projectPath(image2));
+  const ext = path70.extname(image2.split("?")[0]).toLowerCase();
   return { buf, mime: ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".webp" ? "image/webp" : "image/png", name: `screen${ext || ".png"}` };
 }
-function register31(server2, ctx2) {
+function register32(server2, ctx2) {
   server2.registerTool(
     "mockup_render",
     {
@@ -111566,7 +111889,7 @@ function register31(server2, ctx2) {
       if (!mockstudioReady2()) return text("MockStudio isn't installed yet. Run `drip doctor --install mockstudio` once (it clones a pinned version into ~/.drip/vendor and builds it; a few minutes), then call mockup_render again.", true);
       const config2 = ctx2.config();
       const device = o2.device || "iphone-17-pro";
-      const ext = path69.extname(o2.out).toLowerCase().slice(1);
+      const ext = path70.extname(o2.out).toLowerCase().slice(1);
       const video = ["mp4", "webm"].includes(ext);
       if (video && !o2.motion) return text("A clip needs a motion (orbit, dolly-in, reveal, drift).", true);
       const doc = buildDocument(o2);
@@ -111575,7 +111898,7 @@ function register31(server2, ctx2) {
       const W = o2.width || 1600;
       const aspect = ASPECT[doc.artboard?.aspect] || (device === "iphone-17-pro" ? 9 / 19.5 : 16 / 10);
       const H = Math.round(W / aspect / 2) * 2;
-      const base = await serveDir(path69.join(mockstudioDir(), "dist"));
+      const base = await serveDir(path70.join(mockstudioDir(), "dist"));
       const t0 = Date.now();
       const b64 = await withTab(config2, async (tab) => {
         await openPage(tab, `${base}/?render`, { width: 1280, height: 900, settleMs: 100 });
@@ -111627,10 +111950,10 @@ var motion_exports = {};
 __export(motion_exports, {
   captureFrames: () => captureFrames,
   naturalDuration: () => naturalDuration,
-  register: () => register32
+  register: () => register33
 });
-import fs73 from "node:fs";
-import path70 from "node:path";
+import fs74 from "node:fs";
+import path71 from "node:path";
 init_browser();
 init_serve();
 init_paths();
@@ -111683,7 +112006,7 @@ async function runStep2(tab, step) {
   }
   await wait(30);
 }
-function register32(server2, ctx2) {
+function register33(server2, ctx2) {
   server2.registerTool(
     "motion_render",
     {
@@ -111744,14 +112067,14 @@ function register32(server2, ctx2) {
         files.push(saveFile(out, animatedWebp(frames.map((f3) => f3.buf), { fps: realFps })));
         if (keepFrames) {
           const dir = abs2.replace(/\.webp$/i, "-frames");
-          fs73.mkdirSync(dir, { recursive: true });
-          frames.forEach((f3, i2) => fs73.writeFileSync(path70.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
-          files.push({ rel: path70.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
+          fs74.mkdirSync(dir, { recursive: true });
+          frames.forEach((f3, i2) => fs74.writeFileSync(path71.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
+          files.push({ rel: path71.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
         }
       }
-      const pick4 = Array.from({ length: Math.min(8, frames.length) }, (_, i2) => frames[Math.round(i2 * (frames.length - 1) / Math.max(1, Math.min(8, frames.length) - 1))]);
-      const sheet = await contactSheet(pick4.map((f3) => f3.buf), { cols: 4, tileW: clipTile(width, 4), tileH: Math.round(clipTile(width, 4) * (selector ? 0.75 : height / width)), fit: "contain" }).catch(() => null);
-      const times = pick4.map((f3, i2) => `${i2 + 1}: ${(frames.indexOf(f3) / realFps).toFixed(2)}s`).join("  ");
+      const pick5 = Array.from({ length: Math.min(8, frames.length) }, (_, i2) => frames[Math.round(i2 * (frames.length - 1) / Math.max(1, Math.min(8, frames.length) - 1))]);
+      const sheet = await contactSheet(pick5.map((f3) => f3.buf), { cols: 4, tileW: clipTile(width, 4), tileH: Math.round(clipTile(width, 4) * (selector ? 0.75 : height / width)), fit: "contain" }).catch(() => null);
+      const times = pick5.map((f3, i2) => `${i2 + 1}: ${(frames.indexOf(f3) / realFps).toFixed(2)}s`).join("  ");
       const list4 = anims.length ? anims.slice(0, 12).map((a2) => `- ${a2.kind} ${a2.name || ""} on ${a2.target}: ${Number.isFinite(a2.duration) ? `${Math.round(a2.duration)} ms` : "auto"}${a2.delay ? `, delay ${Math.round(a2.delay)} ms` : ""}, ${a2.easing}${a2.iterations !== 1 ? `, ${a2.iterations === Infinity ? "infinite" : `${a2.iterations}x`}` : ""}${a2.props.length ? ` \xB7 ${a2.props.join(", ")}` : ""}`).join("\n") : "- none found via the Web Animations API";
       const content = [
         textBlock(
@@ -111780,15 +112103,15 @@ __export(shader_exports, {
   PRESET_NAMES: () => PRESET_NAMES,
   SHADERS_URL: () => SHADERS_URL,
   SHADERS_VERSION: () => SHADERS_VERSION,
-  register: () => register33,
+  register: () => register34,
   resolveParams: () => resolveParams,
   shaderPage: () => shaderPage,
   snippets: () => snippets
 });
-import path71 from "node:path";
+import path72 from "node:path";
 init_browser();
 init_imaging();
-import fs74 from "node:fs";
+import fs75 from "node:fs";
 import { pathToFileURL as pathToFileURL7 } from "node:url";
 var SHADERS_VERSION = "0.0.80";
 var SHADERS_URL = `https://cdn.jsdelivr.net/npm/@paper-design/shaders@${SHADERS_VERSION}/+esm`;
@@ -111882,7 +112205,7 @@ import { ShaderMount, ${def.fragment}, getShaderColorFromString, ShaderFitOption
 new ShaderMount(document.querySelector("#hero"), ${def.fragment}, uniforms, undefined, ${p2.speed ?? 1});`;
   return { react, vanilla };
 }
-function register33(server2, ctx2) {
+function register34(server2, ctx2) {
   registerViewer(server2);
   server2.registerTool(
     "shader_hero",
@@ -111905,8 +112228,8 @@ function register33(server2, ctx2) {
       const { preset, params = {}, width = 1600, height = 900, time: time3 = 2, frames = 0, duration: duration3 = 3, out } = args;
       const html = shaderPage(preset, params, { width, height });
       const dir = tempDir("drip-shader-");
-      const file4 = path71.join(dir, "shader.html");
-      fs74.writeFileSync(file4, html);
+      const file4 = path72.join(dir, "shader.html");
+      fs75.writeFileSync(file4, html);
       try {
         const shot3 = await withTab(ctx2.config(), async (tab) => {
           await openPage(tab, pathToFileURL7(file4).href, { width, height, settleMs: 200, timeout: 2e4 });
@@ -111927,7 +112250,7 @@ function register33(server2, ctx2) {
         const snip = snippets(preset, params);
         const files = [];
         if (out) {
-          const ext = path71.extname(out).slice(1).toLowerCase();
+          const ext = path72.extname(out).slice(1).toLowerCase();
           if (!["webp", "png", "jpg", "jpeg"].includes(ext)) throw new Error("out must end in .webp, .png or .jpg");
           const still = ext === "png" ? shot3.png : processImage(shot3.png, { outputs: [{ name: "", width, format: ext === "webp" ? "webp" : "jpeg" }], focus: { x: 0.5, y: 0.5 }, maxKB: 500, config: ctx2.config() }).then((r2) => r2.files[0].buf);
           files.push(saveFile(out, await still));
@@ -111950,8 +112273,8 @@ Library: @paper-design/shaders ${SHADERS_VERSION} (Apache-2.0).`
           )
         ];
         if (shot3.seq.length > 1) {
-          const pick4 = Array.from({ length: Math.min(6, shot3.seq.length) }, (_, i2) => shot3.seq[Math.round(i2 * (shot3.seq.length - 1) / Math.max(1, Math.min(6, shot3.seq.length) - 1))].buf);
-          const sheet = await contactSheet(pick4, { cols: 3, tileW: 360, tileH: Math.round(360 * height / width) }).catch(() => null);
+          const pick5 = Array.from({ length: Math.min(6, shot3.seq.length) }, (_, i2) => shot3.seq[Math.round(i2 * (shot3.seq.length - 1) / Math.max(1, Math.min(6, shot3.seq.length) - 1))].buf);
+          const sheet = await contactSheet(pick5, { cols: 3, tileW: 360, tileH: Math.round(360 * height / width) }).catch(() => null);
           if (sheet) content.push(imageBlock(sheet));
         }
         if (small) content.push(small);
@@ -111970,14 +112293,14 @@ Library: @paper-design/shaders ${SHADERS_VERSION} (Apache-2.0).`
 }
 
 // src/modules/studio/index.mjs
-function register34(server2, ctx2) {
+function register35(server2, ctx2) {
   for (const m of [mockup_exports, art_tool_exports, shader_exports, scene_exports, assets3d_exports, blender_exports, motion_exports]) m.register(server2, ctx2);
 }
 
 // src/core/registry.mjs
 var ctx = { config: () => loadConfig() };
-var MODULES = { refs: refs_exports, board: board_exports, components: components_exports, assets: assets_exports, gen: gen_exports, fitcheck: fitcheck_exports, critic: critic_exports, logo: logo_exports, packs: packs_exports, codemode: codemode_exports, patterns: patterns_exports, project: project_exports, inspire: inspire_exports, studio: studio_exports, swarm: swarm_exports };
-var TRACKED = /^(components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
+var MODULES = { refs: refs_exports, board: board_exports, components: components_exports, assets: assets_exports, gen: gen_exports, fitcheck: fitcheck_exports, critic: critic_exports, logo: logo_exports, packs: packs_exports, codemode: codemode_exports, patterns: patterns_exports, project: project_exports, inspire: inspire_exports, studio: studio_exports, swarm: swarm_exports, parts: parts_exports };
+var TRACKED = /^(parts_|components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
 function tracked(name, handler) {
   if (!TRACKED.test(name)) return handler;
   return async (...args) => {
@@ -112024,25 +112347,25 @@ function collectTools() {
 }
 
 // src/core/cli.mjs
-import fs76 from "node:fs";
-import path73 from "node:path";
+import fs77 from "node:fs";
+import path74 from "node:path";
 import { fileURLToPath as fileURLToPath2, pathToFileURL as pathToFileURL8 } from "node:url";
 init_paths();
 
 // src/core/doctor.mjs
 init_browser();
-import fs75 from "node:fs";
+import fs76 from "node:fs";
 import os12 from "node:os";
-import path72 from "node:path";
+import path73 from "node:path";
 init_paths();
 function onPath(names3) {
   const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
-  for (const dir of (process.env.PATH || "").split(path72.delimiter).filter(Boolean)) {
+  for (const dir of (process.env.PATH || "").split(path73.delimiter).filter(Boolean)) {
     for (const n3 of names3) {
       for (const e2 of exts) {
-        const f3 = path72.join(dir, n3 + e2);
+        const f3 = path73.join(dir, n3 + e2);
         try {
-          if (fs75.statSync(f3).isFile()) return f3;
+          if (fs76.statSync(f3).isFile()) return f3;
         } catch {
         }
       }
@@ -112056,18 +112379,18 @@ function findBlender2() {
   const found = [];
   const scan2 = (base, rel3) => {
     try {
-      for (const d of fs75.readdirSync(base)) found.push(path72.join(base, d, rel3));
+      for (const d of fs76.readdirSync(base)) found.push(path73.join(base, d, rel3));
     } catch {
     }
   };
   if (process.platform === "win32") {
-    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path72.join(pf, "Blender Foundation"), "blender.exe");
+    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path73.join(pf, "Blender Foundation"), "blender.exe");
   } else if (process.platform === "darwin") {
     found.push("/Applications/Blender.app/Contents/MacOS/Blender");
   } else {
-    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path72.join(os12.homedir(), "blender", "blender"));
+    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path73.join(os12.homedir(), "blender", "blender"));
   }
-  return found.find((f3) => fs75.existsSync(f3)) || null;
+  return found.find((f3) => fs76.existsSync(f3)) || null;
 }
 var check2 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
 var BLENDER_GET = "download it from blender.org/download and put it on PATH.";
@@ -112081,8 +112404,8 @@ async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   const blender = findBlender2();
   checks.push(blender ? check2("blender", "Blender (optional)", "ok", blender) : check2("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
   const uvx = onPath(["uvx"]);
-  const ms = path72.join(vendor0(), "mockstudio", "dist", "index.html");
-  checks.push(fs75.existsSync(ms) ? check2("mockstudio", "MockStudio (device mockups)", "ok", path72.dirname(path72.dirname(ms))) : check2("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
+  const ms = path73.join(vendor0(), "mockstudio", "dist", "index.html");
+  checks.push(fs76.existsSync(ms) ? check2("mockstudio", "MockStudio (device mockups)", "ok", path73.dirname(path73.dirname(ms))) : check2("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
   checks.push(uvx ? check2("uvx", "uvx (optional)", "ok", uvx) : check2("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
   const vendor = vendorDir();
   const installed = Object.keys(VENDOR_DEPS).filter((n3) => vendorResolve(n3));
@@ -112093,15 +112416,15 @@ async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   checks.push(check2("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
   const proj = projectDir();
   const dripDir = projectDripDir();
-  const hasDrip = fs75.existsSync(dripDir);
+  const hasDrip = fs76.existsSync(dripDir);
   checks.push(check2("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
-  checks.push(check2("plugin", "Plugin root", fs75.existsSync(path72.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
+  checks.push(check2("plugin", "Plugin root", fs76.existsSync(path73.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
   checks.push(check2("home", "User folder", "ok", homeDripDir));
   let state = "no task";
   try {
-    const f3 = path72.join(dripDir, "state.json");
-    if (fs75.existsSync(f3)) {
-      const raw = JSON.parse(fs75.readFileSync(f3, "utf8"));
+    const f3 = path73.join(dripDir, "state.json");
+    if (fs76.existsSync(f3)) {
+      const raw = JSON.parse(fs76.readFileSync(f3, "utf8"));
       const n3 = Object.keys(raw.tasks || (raw.task ? { x: 1 } : {})).length;
       state = `${n3} open task${n3 === 1 ? "" : "s"}`;
     }
@@ -112254,14 +112577,14 @@ var PREREQ = /(Chrome\/Edge not found|not installed|isn't installed|no API key|A
 function bound2(text2, flags, name, outDir) {
   const max = flags["max-chars"] ? Number(flags["max-chars"]) : flags.__legacy ? Infinity : DEFAULT_MAX_CHARS;
   if (!(text2.length > max)) return { text: text2 };
-  fs76.mkdirSync(outDir, { recursive: true });
-  const file4 = path73.join(outDir, `${name}-${Date.now()}.txt`);
-  fs76.writeFileSync(file4, text2);
+  fs77.mkdirSync(outDir, { recursive: true });
+  const file4 = path74.join(outDir, `${name}-${Date.now()}.txt`);
+  fs77.writeFileSync(file4, text2);
   return { text: `${text2.slice(0, max)}
 [output cut at ${max} of ${text2.length} characters; full text: ${file4}]`, textFile: file4 };
 }
 function outDirFor(flags) {
-  return path73.resolve(flags.out || path73.join(projectDripDir(), "cli"));
+  return path74.resolve(flags.out || path74.join(projectDripDir(), "cli"));
 }
 async function invokeTool(name, args, flags = {}) {
   const tools = collectTools();
@@ -112285,9 +112608,9 @@ async function invokeTool(name, args, flags = {}) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs76.mkdirSync(outDir, { recursive: true });
-      const file4 = path73.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs76.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs77.mkdirSync(outDir, { recursive: true });
+      const file4 = path74.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs77.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       images.push(file4);
     }
   }
@@ -112303,7 +112626,7 @@ async function readInput(flags, pos) {
   if (flags.input !== void 0 && flags.input !== "-") raw = flags.input;
   else if (flags["input-file"]) {
     try {
-      raw = fs76.readFileSync(path73.resolve(flags["input-file"]), "utf8");
+      raw = fs77.readFileSync(path74.resolve(flags["input-file"]), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --input-file: ${e2.message}`);
     }
@@ -112322,9 +112645,9 @@ async function readInput(flags, pos) {
   }
 }
 async function loadHosts() {
-  const here2 = path73.dirname(fileURLToPath2(import.meta.url));
-  for (const f3 of [path73.resolve(here2, "..", "hosts", "index.mjs"), path73.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
-    if (fs76.existsSync(f3)) return import(pathToFileURL8(f3).href);
+  const here2 = path74.dirname(fileURLToPath2(import.meta.url));
+  for (const f3 of [path74.resolve(here2, "..", "hosts", "index.mjs"), path74.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
+    if (fs77.existsSync(f3)) return import(pathToFileURL8(f3).href);
   }
   return null;
 }
@@ -112433,11 +112756,11 @@ function basicProject() {
   const root = projectDir();
   const lines = [`Project: ${root}`];
   const drip = projectDripDir();
-  lines.push(fs76.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
-  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs76.existsSync(path73.join(root, f3))) lines.push(`Design doc: ${f3}`);
+  lines.push(fs77.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
+  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs77.existsSync(path74.join(root, f3))) lines.push(`Design doc: ${f3}`);
   try {
-    const boards = path73.join(drip, "boards");
-    const ids = fs76.existsSync(boards) ? fs76.readdirSync(boards).filter((d) => fs76.existsSync(path73.join(boards, d, "board.json"))) : [];
+    const boards = path74.join(drip, "boards");
+    const ids = fs77.existsSync(boards) ? fs77.readdirSync(boards).filter((d) => fs77.existsSync(path74.join(boards, d, "board.json"))) : [];
     lines.push(ids.length ? `Boards: ${ids.join(", ")}` : "Boards: none");
   } catch {
     lines.push("Boards: unreadable");
@@ -112448,8 +112771,8 @@ function basicProject() {
   } catch {
     lines.push("Task: state unreadable");
   }
-  const cfg = path73.join(drip, "config.json");
-  lines.push(fs76.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
+  const cfg = path74.join(drip, "config.json");
+  lines.push(fs77.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
   return lines.join("\n");
 }
 async function cmdProject(pos, flags) {
@@ -112489,12 +112812,12 @@ async function cmdRun(flags) {
   let code;
   if (flags.file) {
     try {
-      code = fs76.readFileSync(path73.resolve(flags.file), "utf8");
+      code = fs77.readFileSync(path74.resolve(flags.file), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --file: ${e2.message}`);
     }
   } else code = flags.code;
-  const r2 = await executeCode(code, { outDir: flags.out ? path73.resolve(flags.out) : void 0 });
+  const r2 = await executeCode(code, { outDir: flags.out ? path74.resolve(flags.out) : void 0 });
   const lines = [];
   if (r2.logs.length) lines.push(...r2.logs);
   if (r2.ok) lines.push(r2.value === void 0 ? "(no return value)" : JSON.stringify(r2.value, null, 2));
@@ -112525,7 +112848,7 @@ async function cmdHosts(sub, pos, flags) {
 ${pre.text}`), flags);
     if (pre.text) log(pre.text);
   }
-  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path73.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
+  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path74.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
   const fn = hosts[sub];
   if (typeof fn !== "function") return finish(failure2(sub, EXIT.PREREQ, "not_available", `${sub} is not available in this build.`), flags);
   try {
@@ -112536,8 +112859,8 @@ ${pre.text}`), flags);
 }
 function applyGlobals(flags) {
   if (flags.project) {
-    const p2 = path73.resolve(flags.project);
-    if (!fs76.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
+    const p2 = path74.resolve(flags.project);
+    if (!fs77.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
     process.env.DRIP_PROJECT_DIR = p2;
   }
   let session = flags.session;
@@ -112623,7 +112946,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.7.2";
+var VERSION = "0.7.3";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
