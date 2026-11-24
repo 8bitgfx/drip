@@ -294,7 +294,8 @@ export function missingBeforeUi(task, config) {
     const roleOf = (x) => x.role || (String(x.key).startsWith("site:") ? "page" : "style");
     const roles = { style: 0, competitor: 0, page: 0 };
     for (const x of task.refs.studied || []) if (roleOf(x) in roles) roles[roleOf(x)]++;
-    const need = { style: g.minStyle ?? 2, competitor: g.minCompetitors ?? 2, page: g.minPage ?? 2 };
+    const one = task.asap ? 1 : 2; // asap: one reference per role is enough
+    const need = { style: Math.min(g.minStyle ?? 2, one), competitor: Math.min(g.minCompetitors ?? 2, one), page: Math.min(g.minPage ?? 2, one) };
     if (pageWork || task.surface === "readme") {
       if (roles.style < need.style)
         missing.push({ need: "style references", how: `study ${need.style - roles.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("dark saas glow", "soft 3d", "clean product", "playful illustration"), never mixed with the subject (now ${roles.style}/${need.style})` });
@@ -353,6 +354,11 @@ export function missingBeforeUi(task, config) {
   return missing;
 }
 
+/** How many build critic rounds this task gets: one when the user asked for it asap. */
+export function criticRounds(task, config) {
+  return task?.asap ? 1 : config.gates.maxCriticRounds;
+}
+
 /** True when the build changed after the last passing critic verdict (full loop only). */
 export function needsCritic(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
@@ -366,7 +372,7 @@ export function needsCritic(task, config) {
 
 function isCriticCapped(task, config) {
   const rounds = (task.critic?.records || []).filter((r) => r.kind === "build").length;
-  return rounds >= config.gates.maxCriticRounds + (task.critic?.extraRounds || 0);
+  return rounds >= criticRounds(task, config) + (task.critic?.extraRounds || 0);
 }
 
 /** The fit check or critic verdict on record reviewed something other than what exists now (UI files, DESIGN.md, direction). */

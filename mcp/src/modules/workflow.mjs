@@ -111,7 +111,7 @@ export function intakePlan(taskText, t = {}) {
   if (has(MATERIAL_WORDS) || (brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText))) answered.push("material (the request or the project's brand says what to show)");
   else open.push("MATERIAL: what can it show? e.g. \"Real screenshots/photos I'll give you\" / \"The work itself, rebuilt in HTML\" / \"Generate pictures\" / \"Leave labelled slots\"");
   if (has(FEEL_WORDS) || (brand && t.memory?.mode === "fidelity")) answered.push(brand && t.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition polished)");
-  else open.push("FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus \"Surprise me (bold)\"");
+  else open.push("FEEL: 3-4 OPPOSED looks, each a vivid one-liner of the first screen: e.g. soft premium light (a fan of real cards on white), dark product glow (the UI rising out of a soft light), 3D or illustrated (a render or character in a scene), editorial (calm serif, big photography); plus \"Decide for me\"");
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t.mode) || t.surface === "readme") answered.push("audience and action (clear enough from the request)");
   else open.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
   // A redesign of a weak site must not inherit its look by accident: ask once whether to keep the brand or start fresh.
@@ -221,6 +221,7 @@ export function register(server, ctx) {
       const guides = requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
       if (typeof swarm === "boolean") t.swarm = swarm;
+      if (/\b(asap|as soon as possible|get it done|right now|in a hurry)\b/i.test(task)) t.asap = true;
       // Design tasks load the project's design memory (compact) and remember which revision they started from. Reusing it
       // never passes this task's own gates: research gaps, the critic and the fit check still run.
       const designTask = ["design", "logo", "board", "polish"].includes(m);
@@ -266,7 +267,7 @@ export function register(server, ctx) {
               : "") +
           (skills.length ? `The workspace has its own rules for this: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them now (Skill tool, or Read the file); the critic judges against them too.\n` : "") +
           (redesignUrl ? `Redesign of a live site: first refs_site({ urls: ["${redesignUrl}"], before: true }) to shoot the before and pull its logo, fonts and colours.\n` : "") +
-          (s === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "No photo keys yet (Unsplash/Pexels): if the page needs photos, ask the user to add one now (keys_open, free, 2 minutes); without them use images_search (openverse, wikimedia, cleveland for public-domain art), or gradient_mesh.\n" : "") +
+          (s === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "Pictures: images_search searches every source at once (a vetted photo library, the web, Openverse, Wikimedia; free Unsplash/Pexels/Pixabay keys via keys_open add the best photos). Never pick a type-only subject to avoid pictures: parts_list has shader effects and 3D objects, art_generate and scene_render make art.\n" : "") +
           (m === "polish" ? "Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode \"design\".\n" : "") +
           `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x]) => x).join(", ")}.\n\n` +
           (s === "full" && config.gates.requireBrief ? `${intakeText(t.intake)}\n\n` : "") +
@@ -330,7 +331,7 @@ export function register(server, ctx) {
       title: "Record the brief",
       description:
         "Record the user's answers to the intake questions (or your stated assumptions when they said 'decide for me'). Required before research on full loops. " +
-        "Example: drip_brief({ what: 'portfolio site for Claude', audience: 'developers and curious people meeting Claude', job: 'show what Claude makes and how it works', feel: ['loud & playful', 'crafted'], loves: ['kinetic type'], hates: ['corporate SaaS look'], ambition: 'bold' })",
+        "Example: drip_brief({ what: 'portfolio site for Claude', audience: 'developers and curious people meeting Claude', job: 'show what Claude makes and how it works', feel: ['calm', 'crafted', 'warm light'], loves: ['the real work shown big', 'smooth hover and entrance motion'], hates: ['empty template sections'], ambition: 'polished' })",
       inputSchema: {
         what: z.string(),
         audience: z.string(),

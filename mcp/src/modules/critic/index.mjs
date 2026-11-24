@@ -10,7 +10,7 @@ import { examplesDir, projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
 import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
-import { isPersuade, loadState, updateState } from "../../core/state.mjs";
+import { criticRounds, isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { artifactRev } from "../../core/evidence.mjs";
 import { offDirectionFixes, recordFeedback } from "../../core/memory.mjs";
 import { projectContext } from "../../core/project.mjs";
@@ -100,8 +100,8 @@ export function register(server, ctx) {
       const prevRounds = (task?.critic?.records || []).filter((r) => r.kind === kind);
       // The user said "decide for me": that standing answer covers one more round without a question.
       const decided = task?.intake?.max === 0;
-      if (kind === "build" && decided && !extraRound && !(task?.critic?.extraRounds) && prevRounds.length >= config.gates.maxCriticRounds) extraRound = true;
-      if (kind === "build" && prevRounds.length >= config.gates.maxCriticRounds + (task?.critic?.extraRounds || 0) && !extraRound)
+      if (kind === "build" && decided && !extraRound && !(task?.critic?.extraRounds) && prevRounds.length >= criticRounds(task, config)) extraRound = true;
+      if (kind === "build" && prevRounds.length >= criticRounds(task, config) + (task?.critic?.extraRounds || 0) && !extraRound)
         return text(
           decided
             ? `Round limit: ${prevRounds.length} critic rounds (last: ${prevRounds.at(-1).verdict.toUpperCase()}). The user told you to decide: ship it. fitcheck_done, then drip_end({ acceptOpen: "decide for me" }) and list the open points in the hand-off.`

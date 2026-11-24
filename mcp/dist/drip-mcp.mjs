@@ -87561,7 +87561,8 @@ function missingBeforeUi(task, config2) {
     const roleOf = (x2) => x2.role || (String(x2.key).startsWith("site:") ? "page" : "style");
     const roles2 = { style: 0, competitor: 0, page: 0 };
     for (const x2 of task.refs.studied || []) if (roleOf(x2) in roles2) roles2[roleOf(x2)]++;
-    const need = { style: g.minStyle ?? 2, competitor: g.minCompetitors ?? 2, page: g.minPage ?? 2 };
+    const one = task.asap ? 1 : 2;
+    const need = { style: Math.min(g.minStyle ?? 2, one), competitor: Math.min(g.minCompetitors ?? 2, one), page: Math.min(g.minPage ?? 2, one) };
     if (pageWork || task.surface === "readme") {
       if (roles2.style < need.style)
         missing.push({ need: "style references", how: `study ${need.style - roles2.style} more for the LOOK you're aiming for (role "style"): refs_search / refs_tag / refs_gallery with style words only ("dark saas glow", "soft 3d", "clean product", "playful illustration"), never mixed with the subject (now ${roles2.style}/${need.style})` });
@@ -87611,6 +87612,9 @@ function missingBeforeUi(task, config2) {
   }
   return missing;
 }
+function criticRounds(task, config2) {
+  return task?.asap ? 1 : config2.gates.maxCriticRounds;
+}
 function needsCritic(task, config2) {
   if (!task || task.skipped || !config2.gates.enforce || !config2.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
   const rec = lastCritique(task, "build");
@@ -87621,7 +87625,7 @@ function needsCritic(task, config2) {
 }
 function isCriticCapped(task, config2) {
   const rounds = (task.critic?.records || []).filter((r2) => r2.kind === "build").length;
-  return rounds >= config2.gates.maxCriticRounds + (task.critic?.extraRounds || 0);
+  return rounds >= criticRounds(task, config2) + (task.critic?.extraRounds || 0);
 }
 function evidenceStale(task) {
   if (!task) return [];
@@ -90231,7 +90235,7 @@ function intakePlan(taskText, t2 = {}) {
   if (has(MATERIAL_WORDS) || brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText)) answered.push("material (the request or the project's brand says what to show)");
   else open2.push(`MATERIAL: what can it show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Leave labelled slots"`);
   if (has(FEEL_WORDS) || brand && t2.memory?.mode === "fidelity") answered.push(brand && t2.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition polished)");
-  else open2.push('FEEL: 3-4 OPPOSED options, each a vivid one-liner of the first screen, plus "Surprise me (bold)"');
+  else open2.push('FEEL: 3-4 OPPOSED looks, each a vivid one-liner of the first screen: e.g. soft premium light (a fan of real cards on white), dark product glow (the UI rising out of a soft light), 3D or illustrated (a render or character in a scene), editorial (calm serif, big photography); plus "Decide for me"');
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t2.mode) || t2.surface === "readme") answered.push("audience and action (clear enough from the request)");
   else open2.push("ONLY IF two readings would build different things: who it's for / the one action, as 2-4 concrete readings");
   if (/(redesign|rework|refresh|revamp|redo)/i.test(taskText) || /[a-z0-9-]+\.[a-z]{2,}/i.test(taskText)) {
@@ -90308,6 +90312,7 @@ function register2(server2, ctx2) {
       const guides = requiredGuides(s2, sf, task, m, pk);
       const t2 = newTask({ title: task, size: s2, surface: sf, guides, mode: m, packs: pk });
       if (typeof swarm === "boolean") t2.swarm = swarm;
+      if (/\b(asap|as soon as possible|get it done|right now|in a hurry)\b/i.test(task)) t2.asap = true;
       const designTask = ["design", "logo", "board", "polish"].includes(m);
       if (designTask && memory !== "fresh") t2.memory = buildTaskMemory({ taskText: task, mode: memory });
       const memCtx = t2.memory ? projectContext({ task: t2 }) : null;
@@ -90345,7 +90350,7 @@ Inherited: ${t2.memory.inherited.join(", ") || "nothing yet"}. Still needed from
 ` : designTask && memory !== "fresh" && !hasMemory() ? `No project design memory yet: board_project({ action: "bootstrap" }) can build the master board from this repo; the first approved direction becomes the project's identity.
 ` : "") + (skills.length ? `The workspace has its own rules for this: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them now (Skill tool, or Read the file); the critic judges against them too.
 ` : "") + (redesignUrl ? `Redesign of a live site: first refs_site({ urls: ["${redesignUrl}"], before: true }) to shoot the before and pull its logo, fonts and colours.
-` : "") + (s2 === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "No photo keys yet (Unsplash/Pexels): if the page needs photos, ask the user to add one now (keys_open, free, 2 minutes); without them use images_search (openverse, wikimedia, cleveland for public-domain art), or gradient_mesh.\n" : "") + (m === "polish" ? `Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode "design".
+` : "") + (s2 === "full" && ["landing", "other"].includes(sf) && !getKey("unsplash") && !getKey("pexels") ? "Pictures: images_search searches every source at once (a vetted photo library, the web, Openverse, Wikimedia; free Unsplash/Pexels/Pixabay keys via keys_open add the best photos). Never pick a type-only subject to avoid pictures: parts_list has shader effects and 3D objects, art_generate and scene_render make art.\n" : "") + (m === "polish" ? `Quick loop: a change to existing UI. If it's really new UI or a redesign, call drip_start again with mode "design".
 ` : "") + `Guides included below (read them now; deeper ones on demand with drip_guide <topic>): ${bodies.map(([x2]) => x2).join(", ")}.
 
 ` + (s2 === "full" && config2.gates.requireBrief ? `${intakeText(t2.intake)}
@@ -90409,7 +90414,7 @@ ${b}`).join("\n\n")
     "drip_brief",
     {
       title: "Record the brief",
-      description: "Record the user's answers to the intake questions (or your stated assumptions when they said 'decide for me'). Required before research on full loops. Example: drip_brief({ what: 'portfolio site for Claude', audience: 'developers and curious people meeting Claude', job: 'show what Claude makes and how it works', feel: ['loud & playful', 'crafted'], loves: ['kinetic type'], hates: ['corporate SaaS look'], ambition: 'bold' })",
+      description: "Record the user's answers to the intake questions (or your stated assumptions when they said 'decide for me'). Required before research on full loops. Example: drip_brief({ what: 'portfolio site for Claude', audience: 'developers and curious people meeting Claude', job: 'show what Claude makes and how it works', feel: ['calm', 'crafted', 'warm light'], loves: ['the real work shown big', 'smooth hover and entrance motion'], hates: ['empty template sections'], ambition: 'polished' })",
       inputSchema: {
         what: external_exports.string(),
         audience: external_exports.string(),
@@ -105577,8 +105582,8 @@ function register21(server2, ctx2) {
       const { task } = loadState();
       const prevRounds = (task?.critic?.records || []).filter((r2) => r2.kind === kind);
       const decided = task?.intake?.max === 0;
-      if (kind === "build" && decided && !extraRound && !task?.critic?.extraRounds && prevRounds.length >= config2.gates.maxCriticRounds) extraRound = true;
-      if (kind === "build" && prevRounds.length >= config2.gates.maxCriticRounds + (task?.critic?.extraRounds || 0) && !extraRound)
+      if (kind === "build" && decided && !extraRound && !task?.critic?.extraRounds && prevRounds.length >= criticRounds(task, config2)) extraRound = true;
+      if (kind === "build" && prevRounds.length >= criticRounds(task, config2) + (task?.critic?.extraRounds || 0) && !extraRound)
         return text(
           decided ? `Round limit: ${prevRounds.length} critic rounds (last: ${prevRounds.at(-1).verdict.toUpperCase()}). The user told you to decide: ship it. fitcheck_done, then drip_end({ acceptOpen: "decide for me" }) and list the open points in the hand-off.` : `Round limit: the critic has judged this build ${prevRounds.length} times (last: ${prevRounds.at(-1).verdict.toUpperCase()}, ${prevRounds.at(-1).summary}).
 Ask the user now with AskUserQuestion: "Ship it with the open points listed" or "One more critic round". Show the open points first. If they pick another round, call critic_prepare again with extraRound: true; if they ship, fitcheck_done and hand off with the open points.`,
