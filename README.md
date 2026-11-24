@@ -1,207 +1,69 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/brand/wordmark-dark.png">
-    <img alt="drip" src="assets/brand/wordmark-light.png" width="340">
+    <img alt="Drip" src="assets/brand/wordmark-light.png" width="200">
   </picture>
-</p>
-
-<h3 align="center">Give Claude drip.</h3>
-
-<p align="center">
-  A design director for Claude Code: real references, moodboards, design systems and fit checks, so your UI stops looking AI-made.
 </p>
 
 <p align="center">
   <a href="https://github.com/8bitgfx/drip/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/8bitgfx/drip/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-2340FF?style=flat-square&labelColor=0D0E12"></a>
-  <a href="#quickstart"><img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude_Code-plugin-2340FF?style=flat-square&labelColor=0D0E12"></a>
-  <img alt="Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2F8bitgfx%2Fdrip%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&color=2340FF&labelColor=0D0E12&style=flat-square">
-  <img alt="No API key needed" src="https://img.shields.io/badge/API_key-not_needed-2340FF?style=flat-square&labelColor=0D0E12">
-  <a href="https://github.com/8bitgfx/drip/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/8bitgfx/drip?style=flat-square&color=2340FF&labelColor=0D0E12"></a>
+  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-2340FF">
+  <img alt="Works with any MCP agent" src="https://img.shields.io/badge/works%20with-any%20MCP%20agent-0D0E12">
 </p>
 
-<p align="center">
-  <a href="#quickstart">Quickstart</a> ·
-  <a href="#the-loop">The loop</a> ·
-  <a href="#what-claude-gets">What Claude gets</a> ·
-  <a href="#commands">Commands</a> ·
-  <a href="#how-it-stays-honest">How it stays honest</a> ·
-  <a href="#configuration">Configuration</a> ·
-  <a href="#troubleshooting">Troubleshooting</a>
-</p>
+<img alt="Taste for your coding agent. Works with Claude Code, Codex, Cursor and any MCP agent." src="assets/readme/hero.png" width="830">
 
-<br>
+Ask a coding agent for a landing page and you get the same one every time. Drip gives it a designer's process instead: it asks what you want, studies real work, shows you two directions, builds the one you pick, and has an independent critic review the result before anything is called done.
 
-Ask an agent for a landing page and you get the same page everyone gets: a purple gradient, a centred headline, three icon cards, "Unlock seamless growth". Not because the model can't design, but because it skips everything a designer does before touching code.
+## How it works
 
-**Drip makes it do those steps, and gives it the tools to do them well.**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/loop-dark.png">
+  <img alt="The Drip loop: it asks four questions first, makes two directions the critic ranks, locks UI files until the steps are done, checks phone and desktop, and a separate critic agent sends work back until it passes." src="assets/readme/loop-light.png" width="830">
+</picture>
 
-## Quickstart
+## What's in the box
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/tools-dark.png">
+  <img alt="The toolbox: 3,700+ components from shadcn/ui, Magic UI, Aceternity, React Bits and more; 200k icons; every open font; palettes checked for contrast; logo tools with favicons and app icons." src="assets/readme/tools-light.png" width="830">
+</picture>
+
+Also: design memory per project, pattern study from sites you admire, references from Dribbble, Awwwards, Godly and more, licensed photos, a Studio for original art, and image generation with your own OpenAI or Gemini key. No key is required.
+
+## Install
+
+**Claude Code** (full plugin: skills, the critic agent, and hooks that enforce the loop)
 
 ```text
 /plugin marketplace add 8bitgfx/drip
 /plugin install drip@drip-design
 ```
 
-Restart Claude Code (or run `/reload-plugins`), then:
+Restart Claude Code, then run `/drip:design a pricing page for my app`.
 
-```text
-/drip:start a pricing page for our dev-tools SaaS
+**Codex, Cursor, OpenCode, Claude Desktop, ChatGPT desktop**
+
+```bash
+git clone https://github.com/8bitgfx/drip ~/drip && cd ~/drip
+node mcp/dist/drip-mcp.mjs install --agent codex   # or cursor, opencode, claude-desktop, chatgpt
 ```
 
-That's it. Claude researches references on Dribbble, builds a moodboard with 2–3 directions for you to pick from, writes a design system, builds with real components and checks its own work on screenshots before it hands back.
+It registers Drip's local engine, copies the skills and the critic, and wires hooks where the app has them. Any other MCP client can run `node ~/drip/mcp/dist/drip-mcp.mjs` as a stdio server. What each app enforces: [docs/HOSTS.md](docs/HOSTS.md).
 
-> [!NOTE]
-> **Opt-in by default.** Drip only steps in while a Drip task is running (`/drip:start`). The rest of the time it stays out of your way: no blocking, no nudges.
+Needs Node 22+ and Chrome or Edge for screenshots.
 
-## The loop
-
-The same process a product designer runs, in order. During a Drip task Claude can't start building until the guides are read, the references studied and a direction chosen.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/loop-dark.png">
-  <img alt="The Drip loop: 01 Brief, 02 References, 03 Moodboard, 04 Direction, 05 System, 06 Assets, 07 Build, 08 Fit check" src="assets/brand/loop-light.png">
-</picture>
-
-Then a polish pass for the details nobody notices until they're missing. Small tweaks to existing UI get a **quick loop**: read the relevant guides, change, lint, fit check.
-
-## What Claude gets
-
-| A designer… | Drip gives Claude |
-|---|---|
-| looks at what good work in the space looks like | **Dribbble search without an account**: keywords, tags, feeds, designers, contact sheets of 48 shots, full-size study |
-| collects references and picks a direction with the client | **Moodboards** you can open, star and annotate, with 2–3 genuinely different directions |
-| writes the system down before building | **Palettes** (OKLCH, contrast-checked), **font pairings** with specimens, a `DESIGN.md` |
-| uses proven parts | **3,700+ components** from shadcn, coss ui, Kibo UI, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI, plus 500+ registries |
-| sources real assets | **200k icons**, every open font, **photos with licences**, **mesh gradients** and grain, **image generation** with your own OpenAI or Gemini key |
-| checks the work with fresh eyes | **Fit checks**: phone and desktop screenshots, side by side with the chosen direction, a slop lint and an honest 8-axis score |
-| remembers the brand between projects | **Project design memory**: one master moodboard per project, the approved direction, your feedback and the rules it taught, a project skill any session loads ([docs](docs/PROJECT_MEMORY.md)) |
-| learns from work they admire | **Pattern study**: measure a live component or page (layout, type, states, timings, keyboard), build your own, compare with a pixel diff and an accessibility check ([docs](docs/PATTERNS.md)) |
-| reuses what the product already has | **Your own components first**: an index of the project's components, a reuse plan per page, duplicate and token-drift audits, `drip check` ([docs](docs/COMPONENTS.md)) |
-| looks beyond one gallery | **More sources**: Awwwards, One Page Love, Minimal Gallery, Godly, Httpster, Dark Mode Design, Are.na, 21st.dev, plus font comparison sheets and outlined wordmarks ([docs](docs/SOURCES.md)) |
-| makes original pictures | **Studio**: procedural SVG art, shader heroes, three.js mockups, Poly Haven and ambientCG assets, Blender renders, motion capture ([docs](docs/STUDIO.md)) |
-
-Behind it are **22 skills** fusing the best design guidance out there (Impeccable, Taste Skill, Emil Kowalski, Make Interfaces Feel Better, UI UX Pro Max, Hallmark, unslop-ui, Stageshow and more), rewritten into one voice and organised by craft. See [CREDITS.md](CREDITS.md).
-
-## Commands
+## Commands (Claude Code)
 
 | Command | What it does |
 |---|---|
-| `/drip:start <what>` | Design something: a new page, a component, a redesign, or a polish pass |
-| `/drip:refs <subject>` | Find and study references |
-| `/drip:board <what>` | Build a moodboard with directions |
-| `/drip:fitcheck <url>` | Screenshot, compare, score and fix a page |
-| `/drip:status` | Where the current task stands |
-| `/drip:keys` | Add optional API keys (in a local page, never in chat) |
-| `/drip:skip` | Turn the checks off for the current task |
+| `/drip:design` | Design a page, screen, logo or polish pass |
+| `/drip:critic` | Independent review of any page, screenshot or image |
+| `/drip:adapt` | Teach it a niche: game UI, fintech, e-commerce… |
+| `/drip:settings` | Status, API keys, pause or stop a task |
 
-The craft skills (colour, type, layout, motion, copy, accessibility and the rest) don't clutter the menu. Claude loads them on its own when the work needs them.
+## Docs
 
-## How it stays honest
+[Architecture](docs/ARCHITECTURE.md) · [CLI](docs/CLI.md) · [Other agents](docs/HOSTS.md) · [Customise the rules](docs/CUSTOMISE.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Credits](CREDITS.md)
 
-Agents skim instructions. Drip doesn't rely on them reading.
-
-```mermaid
-flowchart TD
-  A["/drip:start"] --> B["drip_guide<br/>records each read"]
-  B --> C{"Claude writes<br/>a UI file"}
-  C -- "guides, refs or direction missing" --> D["Blocked<br/>with the exact next call"]
-  D --> B
-  C -- "requirements met" --> E["Write goes through<br/>+ slop lint on the file"]
-  E --> F{"Claude tries<br/>to finish"}
-  F -- "UI changed since<br/>the last fit check" --> G["Screenshot and score<br/>(fit check)"]
-  G --> F
-  F -- "fit check recorded" --> H["Done"]
-```
-
-- **Guides arrive through a tool.** The detailed guides come from `drip_guide`, which records the read. "I read the skill" becomes checkable.
-- **Gates.** During a Drip task, writing a UI file is blocked until the required guides are read, references are studied and a direction is chosen. The block message names the exact next call.
-- **Lint on every edit.** Each UI edit is scanned for slop tells (AI gradients, emoji icons, filler copy, removed focus rings, `transition: all`…) and the problems go straight back to Claude.
-- **No finishing blind.** After changing UI, Claude can't end its turn until it has screenshotted and scored the result. It gives up after three tries, so you never get stuck.
-
-> [!TIP]
-> Teams that want the checks on every UI change, not just during a Drip task, can set `"gates": { "mode": "always" }` in `.drip/config.json`.
-
-## Other agents and the CLI
-
-The same local engine runs outside Claude Code. `drip install --agent codex` (or `cursor`, `opencode`, `claude-desktop`, `chatgpt`) adds Drip to that app, with its hooks where the app has them. [docs/HOSTS.md](docs/HOSTS.md) says what each app enforces and what it can't. Nothing is hosted: every host starts Drip on your machine.
-
-Every tool is also a command: `drip doctor`, `drip tools list`, `drip call <tool> --input '{...}'`, `drip check --changed`, `drip run --file script.js` ([docs/CLI.md](docs/CLI.md)). Agents can batch many calls into one with Code Mode (`drip_search`, `drip_execute`, [docs/CODEMODE.md](docs/CODEMODE.md)).
-
-## Requirements
-
-- Claude Code with plugin support, or another agent app (see [docs/HOSTS.md](docs/HOSTS.md))
-- Node.js 22+
-- Chrome or Edge, for screenshots and previews (optional but strongly recommended)
-- No API keys for the core. Optional keys: OpenAI or Gemini (image generation), Unsplash or Pexels (better photo search)
-
-## Configuration
-
-Everything is plain files: gates and thresholds, which files count as UI, your own slop rules, your own component registries, custom image providers.
-
-<details>
-<summary><b>A taste of <code>.drip/config.json</code></b></summary>
-
-<br>
-
-```json
-{
-  "gates": {
-    "mode": "task",
-    "enforce": true,
-    "minRefsViewed": 6,
-    "minBoardItems": 8,
-    "requireDirection": true,
-    "requireFitcheck": true
-  },
-  "modules": { "refs": true, "board": true, "components": true, "assets": true, "gen": true, "fitcheck": true },
-  "fitcheck": { "chromePath": "" }
-}
-```
-
-- `gates.mode`: `"task"` (default) acts only while a Drip task is open; `"always"` applies to every UI write.
-- `gates.enforce: false` makes Drip advisory: no blocking, the guides and tools still work.
-- `modules` turns tool groups off (fewer tools in Claude's context).
-
-</details>
-
-Your own slop rules, component registries and image providers: [docs/CUSTOMISE.md](docs/CUSTOMISE.md).
-
-## Troubleshooting
-
-First check `/mcp` in Claude Code: `plugin:drip:drip` should be **connected**.
-
-> [!WARNING]
-> If the Drip log says `'node' is not recognized`, install Node.js 22+ so `node` is on the system PATH, then fully quit and reopen the Claude app.
-
-Rate limits, tool loading, blocked writes and more: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
-
-<details>
-<summary><b>Under the hood</b></summary>
-
-<br>
-
-| Folder | What's in it |
-|---|---|
-| `skills/` | The guides (Markdown): the director skill plus one per craft |
-| `rules/` | Shared rules: hard rules, slop tells, per-surface rules, licences |
-| `data/` | The component catalogue, font pairings and slop rules |
-| `mcp/` | The server, bundled into one file so it runs with plain `node`, with no install step |
-| `hooks/` | Small Node scripts: the write gate, the recorder and lint, the stop guard |
-
-Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-</details>
-
-> [!IMPORTANT]
-> References are for studying, never copying. Drip keeps credits on every board, logs licences for every asset it saves, and keeps its Dribbble traffic slow and cached.
-
-## Licence
-
-MIT. Drip's guides adapt MIT and Apache-2.0 sources with credit; see [CREDITS.md](CREDITS.md). Brand files and how they're made: [assets/brand/BRAND.md](assets/brand/BRAND.md).
-
-<br>
-
-<p align="center">
-  <img alt="" src="assets/brand/icon.png" width="44">
-</p>
+<sub>MIT. Design guides are written in our own words from open sources, credited in CREDITS.md. References are for study, never for copying.</sub>

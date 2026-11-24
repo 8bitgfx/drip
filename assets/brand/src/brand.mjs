@@ -27,19 +27,21 @@ const DRIPS = [
 const MAXLEN = Math.max(...DRIPS.map((d) => d.len)) + 8;
 export const MARK_BOUNDS = { x: -24, y: -24, w: S + 48, h: S + MAXLEN + 48 }; // incl. handles
 
-function paintPath() {
-  const f = FILLET;
-  let d = `M0,0 H${S} V${S}`;
-  [...DRIPS].sort((a, b) => b.x - a.x).forEach(({ x, w, len, s = SWELL }) => {
-    const n = w / 2, t = n * s, cy = S + len - t, y0 = S + f, h = cy - y0;
+/** Paint filling a W x H box and dripping out of its bottom edge (README panels reuse it at other sizes). */
+export function paint(W = S, H = S, drips = DRIPS, f = FILLET) {
+  // f: shoulder fillet radius (the mark uses FILLET)
+  let d = `M0,0 H${W} V${H}`;
+  [...drips].sort((a, b) => b.x - a.x).forEach(({ x, w, len, s = SWELL }) => {
+    const n = w / 2, t = n * s, cy = H + len - t, y0 = H + f, h = cy - y0;
     d += ` H${r1(x + n + f)} A${f},${f} 0 0 0 ${r1(x + n)},${y0}`;
     d += ` C${r1(x + n)},${r1(y0 + h * 0.55)} ${r1(x + t)},${r1(cy - h * 0.3)} ${r1(x + t)},${r1(cy)}`;
     d += ` A${r1(t)},${r1(t)} 0 0 1 ${r1(x - t)},${r1(cy)}`;
     d += ` C${r1(x - t)},${r1(cy - h * 0.3)} ${r1(x - n)},${r1(y0 + h * 0.55)} ${r1(x - n)},${y0}`;
-    d += ` A${f},${f} 0 0 0 ${r1(x - n - f)},${S}`;
+    d += ` A${f},${f} 0 0 0 ${r1(x - n - f)},${H}`;
   });
   return `${d} H0 Z`;
 }
+const paintPath = () => paint();
 
 /** The mark (no background) in mark space. */
 export function mark({ frame = COLORS.frameOnDark, handleFill = "#fff", hs = 40, sw = 6 } = {}) {

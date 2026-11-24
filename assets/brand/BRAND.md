@@ -9,7 +9,7 @@ Refuses: blood-red drops, water droplets, gradient AI orbs, sparkles, terminal g
 
 ## Mark
 - **Frame**: hairline selection box with seven white handles (corners, top and side midpoints). The bottom-middle handle is left out because the paint covers that edge.
-- **Paint**: flat ultramarine. It fills the frame, sits 5% past its bottom line, and falls in three drips of different weights. One small glint on the longest drip is the only highlight.
+- **Paint**: flat ultramarine, no highlights. It fills the frame and runs out of the bottom edge in three drips of different weights. Each drip leaves the box through a concave fillet, its neck swells slightly into a round tip, and every join is tangent: smooth liquid, not sticks or blobs.
 - **Lockup**: the frame's top sits on the ascender of "drip", its bottom on the baseline; the drips hang below like a descender.
 
 ## Colours
@@ -23,7 +23,7 @@ Refuses: blood-red drops, water droplets, gradient AI orbs, sparkles, terminal g
 Ink on paper ≈ 17:1. Paper on ultramarine ≈ 5.8:1 and white on ultramarine ≈ 6.5:1, so text on the paint passes AA at any size.
 
 ## Type
-**Bricolage Grotesque** Bold (SIL OFL 1.1) for the wordmark, outlined to paths in `src/glyphs.json` so it renders without the font. The same family at 400–800 for the social card and README panels.
+**Bricolage Grotesque** Bold (SIL OFL 1.1) for the wordmark, outlined to paths in `src/glyphs.json` so it renders without the font. The same family for the social card's line.
 
 ## Files (`assets/brand/`)
 | File | Use |
@@ -32,12 +32,12 @@ Ink on paper ≈ 17:1. Paper on ultramarine ≈ 5.8:1 and white on ultramarine �
 | `mark.svg` / `mark-dark.svg` | the mark alone, transparent, for light / dark grounds |
 | `wordmark-light.*` / `wordmark-dark.*` | README header and docs, light / dark themes (PNG at 2×) |
 | `social-preview.png` (1280×640) | GitHub social preview (repo Settings → Social preview) |
-| `loop-light.png` / `loop-dark.png` | README panel: the designer loop |
 
-Everything is generated: `src/brand.mjs` holds the geometry, `src/render.mjs` writes the files with headless Chrome or Edge.
+Everything is generated: `src/brand.mjs` holds the geometry; `src/render.mjs` writes the icon, mark and wordmarks, and `src/social.mjs` writes the social preview (both shoot with headless Chrome or Edge).
 
 ```
 node assets/brand/src/render.mjs
+node assets/brand/src/social.mjs
 ```
 
 ## Rules
