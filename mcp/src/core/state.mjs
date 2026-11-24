@@ -201,7 +201,7 @@ export function studiedDesigners(task) {
 // Words that say what a task or a reference is, not what the product IS.
 const NOT_TYPE = new Set("a an and the for with of to in on at by from that which who sells selling my our your their its new modern clean beautiful nice cool bold simple minimal great best design designs designed redesign redesigned make build create improve update refresh rework revamp landing page pages website websites site web homepage home main screen screens view ui ux app hero section sections layout template theme product products brand company startup business online store shop official".split(" "));
 const stem = (w) => w.replace(/(ing|ies|es|s)$/, "");
-const wordsOf = (text) => [...new Set(String(text || "").toLowerCase().replace(/https?:[^ ]+/g, " ").split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !NOT_TYPE.has(w)).map(stem).filter((w) => w.length > 2))];
+const wordsOf = (text) => [...new Set(String(text || "").toLowerCase().replace(/https?:[^ ]+/g, " ").replace(/[a-z0-9-]+[.][a-z]{2,}[^ ]*/g, " ").split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !NOT_TYPE.has(w)).map(stem).filter((w) => w.length > 2))];
 
 /** What the product IS, as words: from the task title and the brief ("walking trainer", "baby stroller"). */
 export function productTypeWords(task) {
