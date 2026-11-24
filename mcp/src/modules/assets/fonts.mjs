@@ -58,8 +58,15 @@ export function register(server, ctx) {
       const hits = body
         .filter((f) => (!q || f.family.toLowerCase().includes(q) || f.id.includes(q)) && (!category || f.category === category) && (variable === undefined || !!f.variable === variable))
         .slice(0, limit);
+      // Names rarely contain a style word ("grotesk"): when few names match, fill with other faces of the category.
+      const named = hits.length;
+      if (q && category && hits.length < Math.min(limit, 12))
+        for (const f of body) {
+          if (hits.length >= limit) break;
+          if (f.category === category && (variable === undefined || !!f.variable === variable) && !hits.includes(f)) hits.push(f);
+        }
       return text(
-        `${hits.length} fonts${body.length ? ` (of ${body.length})` : ""}:\n${hits.map((f) => `- ${f.family} (${f.category}${f.variable ? ", variable" : ""}) weights ${f.weights.join("/")} · ${f.license} · npm @fontsource${f.variable ? "-variable" : ""}/${f.id}`).join("\n")}\n\nSee it before choosing: fonts_preview.`,
+        `${hits.length} fonts${body.length ? ` (of ${body.length})` : ""}${named < hits.length ? ` (${named} named "${q}", then other ${category} faces)` : ""}:\n${hits.map((f) => `- ${f.family} (${f.category}${f.variable ? ", variable" : ""}) weights ${f.weights.join("/")} · ${f.license} · npm @fontsource${f.variable ? "-variable" : ""}/${f.id}`).join("\n")}\n\nSee it before choosing: fonts_preview.`,
       );
     }),
   );

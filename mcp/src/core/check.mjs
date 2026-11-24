@@ -17,6 +17,7 @@ import { readJson, updateJson } from "./jsonstore.mjs";
 import { pluginRoot, projectDir, projectDripDir } from "./paths.mjs";
 import { auditIndex } from "../modules/components/audit.mjs";
 import { evidenceStale, loadState, reconcileWorkspace, updateState } from "./state.mjs";
+import { lintableUiFiles } from "./evidence.mjs";
 import { lintFiles } from "../modules/fitcheck/lint.mjs";
 import { detectJudge, DRY_LINT_EXTS, dryLintInputs, judgePairs, runDryLint } from "../modules/components/drylint.mjs";
 
@@ -177,7 +178,9 @@ export async function runCheck({ changed = false, full = false, only, project, s
 
   // 2. Drip's fit-check lint on the UI files
   if (want("fitcheck-lint")) {
-    const ui = Object.keys(index.files).filter((r) => UI_RE.test(r) && !index.files[r].facts.isTest && !index.files[r].facts.isStory && (!scope || scope.has(r)));
+    const indexed = Object.keys(index.files).filter((r) => UI_RE.test(r) && !index.files[r].facts.isTest && !index.files[r].facts.isStory && (!scope || scope.has(r)));
+    // Files the component index doesn't cover (a root index.html, plain .html pages) are UI too.
+    const ui = [...new Set([...indexed, ...lintableUiFiles(root).filter((r) => UI_RE.test(r) && !(r in index.files) && (!scope || scope.has(r)))])];
     const slopHash = hashText(readIf(path.join(pluginRoot, "data", "slop.json")) + readIf(path.join(projectDripDir(root), "slop.json")));
     const designHash = hashText(["DESIGN.md", "design.md"].map((f) => readIf(path.join(root, f))).join(""));
     const hash = hashText([ui.map((r) => `${r}:${snapshot[r]}`).join(","), slopHash, designHash, assets, cfgHash].join("|"));
