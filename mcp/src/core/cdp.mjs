@@ -49,7 +49,22 @@ const AUDIT = `(() => {
   const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
   // First viewport (the page is scrolled to the top here).
   let bigPic = { w: 0, h: 0 };
-  for (const p of pics) { const h = Math.min(p.bottom, vh) - Math.max(p.top, 0); if (h > 0 && p.w * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(p.w), h: Math.round(h) }; }
+  let bigEl = null;
+  for (const p of pics) { const h = Math.min(p.bottom, vh) - Math.max(p.top, 0); if (h > 0 && p.w * h > bigPic.w * bigPic.h) { bigPic = { w: Math.round(p.w), h: Math.round(h) }; bigEl = p.el; } }
+  // A product window (browser / app frame, device, card with a border, shadow or its own ground) around the picture is
+  // the picture: measure the frame, not only the screenshot inside it.
+  if (bigEl) {
+    const bodyBg = getComputedStyle(document.body).backgroundColor;
+    let a = bigEl.parentElement;
+    for (let i = 0; i < 5 && a && a !== document.body; i++, a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      const framed = parseFloat(cs.borderTopWidth) > 0 || cs.boxShadow !== 'none' || (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== bodyBg);
+      const r = a.getBoundingClientRect();
+      if (r.width > innerWidth * 0.8 || r.width * r.height > innerWidth * vh * 0.8) break;
+      const h = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      if (framed && h > 0 && r.width * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(r.width), h: Math.round(h), frame: true };
+    }
+  }
   const inView = pics.filter((p) => p.top < vh && p.bottom > 0);
   if (inView.length >= 3) {
     const w = Math.max(...inView.map((p) => p.right)) - Math.min(...inView.map((p) => p.left));

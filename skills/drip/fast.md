@@ -23,6 +23,10 @@ Proven libraries (Magic UI, React Bits, Cult UI, Smooth UI, Aceternity, efferd, 
 ## Pass 1: the hero (about 3 minutes)
 1. **One message:** `refs_gallery` (one look, two or three decisions), `layout_deal({ kind, trade, has, out })` (the set, the pieces on offer, the page written), `images_search` if the hero needs a photo.
 2. **Choose** the nav's and hero's pieces (a ground, a headline effect, a showcase frame for the product UI, or one whole-hero block). Pick the pattern that shows the product best: a glowing product mockup, a fan of real output cards, a bento of live UI, a lit render on dark, a character in a scene.
+   - **A generator's outputs ARE the product** (thumbnails, images, icons, art, video, music covers): the hero shows MANY real outputs, big: a wall or marquee of them, a fan of cards, a before/after. Never one output in a small app window beside a headline: that is the default every AI page makes.
+   - **A redesign keeps the brand:** its colours, its ground (a light brand stays light), its logo and fonts. Changing the ground or the colour story is a proposal you show next to the faithful version, not a silent switch.
+   - **Pieces carry the eye candy,** not filler: spend them on what the visitor looks at (the outputs, the product), not on a badge shimmer or an avatar stack. A piece that is invisible on the page (light rays on a busy ground) is removed.
+   - **Every number and claim comes from the client** (their site, the user). An unknown is a `[bracket]` for the user to fill, never an invented "38s" or "under a minute".
 3. `pieces_install` (React), then ONE `build_prepare({ sections: [{ section: "hero", spec, piece }, { section: "nav", ... }] })` and the builder(s).
 4. `drip_serve`, `fitcheck_shot({ url, hero: true })` once. Fix what you see yourself (small) or send it back to the builder (SendMessage). Show the user the hero and stop, unless they asked for the whole page in one go. They may want another hero (deal again into a new folder).
 

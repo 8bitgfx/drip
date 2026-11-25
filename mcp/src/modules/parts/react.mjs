@@ -82,6 +82,9 @@ export function scaffoldReact({ dir, rel, title = "Page", head = "", radius = "s
     ),
   );
   w("vite.config.ts", `import path from "node:path";\nimport react from "@vitejs/plugin-react";\nimport tailwindcss from "@tailwindcss/vite";\nimport { defineConfig } from "vite";\n\nexport default defineConfig({\n  plugins: [react(), tailwindcss()],\n  resolve: { alias: { "@": path.resolve(__dirname, "./src") } },\n});\n`);
+  // Its own (empty) PostCSS config: without it Vite walks up and loads the parent project's (a Tailwind 3 setup in the
+  // repo around the page broke the first React page with a blank screen). Tailwind v4 runs through its Vite plugin.
+  w("postcss.config.mjs", "// Tailwind v4 runs through @tailwindcss/vite; this file stops a parent project's PostCSS config from applying here.\nexport default { plugins: {} };\n");
   const ts = { compilerOptions: { target: "ES2022", lib: ["ES2022", "DOM", "DOM.Iterable"], module: "ESNext", moduleResolution: "bundler", jsx: "react-jsx", strict: false, skipLibCheck: true, noEmit: true, allowImportingTsExtensions: true, baseUrl: ".", paths: { "@/*": ["./src/*"] } }, include: ["src"] };
   w("tsconfig.json", JSON.stringify(ts, null, 2));
   w("components.json", JSON.stringify({ $schema: "https://ui.shadcn.com/schema.json", style: "new-york", rsc: false, tsx: true, tailwind: { config: "", css: "src/index.css", baseColor: "neutral", cssVariables: true, prefix: "" }, aliases: { components: "@/components", utils: "@/lib/utils", ui: "@/components/ui", lib: "@/lib", hooks: "@/hooks" }, iconLibrary: "lucide", registries: REGISTRIES }, null, 2));

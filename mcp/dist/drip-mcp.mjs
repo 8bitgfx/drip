@@ -7507,6 +7507,7 @@ export default defineConfig({
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
 });
 `);
+  w("postcss.config.mjs", "// Tailwind v4 runs through @tailwindcss/vite; this file stops a parent project's PostCSS config from applying here.\nexport default { plugins: {} };\n");
   const ts = { compilerOptions: { target: "ES2022", lib: ["ES2022", "DOM", "DOM.Iterable"], module: "ESNext", moduleResolution: "bundler", jsx: "react-jsx", strict: false, skipLibCheck: true, noEmit: true, allowImportingTsExtensions: true, baseUrl: ".", paths: { "@/*": ["./src/*"] } }, include: ["src"] };
   w("tsconfig.json", JSON.stringify(ts, null, 2));
   w("components.json", JSON.stringify({ $schema: "https://ui.shadcn.com/schema.json", style: "new-york", rsc: false, tsx: true, tailwind: { config: "", css: "src/index.css", baseColor: "neutral", cssVariables: true, prefix: "" }, aliases: { components: "@/components", utils: "@/lib/utils", ui: "@/components/ui", lib: "@/lib", hooks: "@/hooks" }, iconLibrary: "lucide", registries: REGISTRIES }, null, 2));
@@ -90496,6 +90497,7 @@ function setupNotes(config2, { chrome, force = false } = {}) {
 var swarm_exports = {};
 __export(swarm_exports, {
   ROLES: () => ROLES,
+  buildGaps: () => buildGaps,
   buildPrompt: () => buildPrompt,
   checkerPrompt: () => checkerPrompt,
   hostHasSubagents: () => hostHasSubagents,
@@ -90590,6 +90592,19 @@ function sectionFiles(section, stack) {
   if (["nav", "hero", "footer"].includes(id)) return ["index.html"];
   return [`sections/${id}.html`, `styles/sections/${id}.css`];
 }
+function buildGaps(task, list4) {
+  const gaps = [];
+  const seen = new Set([...task.refs?.viewed || [], ...(task.refs?.studied || []).map((s2) => s2.key)].filter((k) => !task.before?.url || !String(task.before.url).replace(/^https?:\/\/(www\.)?/, "").startsWith(String(k).replace(/^site:(www\.)?/, "").split("/")[0])));
+  if (seen.size < 4)
+    gaps.push(`References: ${seen.size} looked at, 4 needed (the client's own site doesn't count). refs_site({ urls: [3-4 shipped sites people compare this with or the best in the category] }) and refs_gallery for the pattern; then take two or three decisions from them.`);
+  const used = task.toolUse || {};
+  const pieces = list4.filter((s2) => s2.piece && !/^custom/i.test(s2.piece));
+  if (pieces.length && !used.pieces_preview && !used.parts_preview)
+    gaps.push("Pieces: you haven't looked at any. pieces_preview({ items: [...] }) the candidates (several per section, one sheet) and choose by eye; components_find({ need }) when the shortlist has nothing good.");
+  const big = list4.filter((s2) => ["hero", "page", "whole-page", "index", "app"].includes(slug2(s2.section)));
+  for (const s2 of big) if (!s2.from || s2.from.length < 12) gaps.push(`${s2.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
+  return gaps;
+}
 function buildPrompt({ section, spec, files, url: url2, task, piece, page: page2 }) {
   const chosen = task?.board?.chosen;
   const pg = page2 || pageOf(task);
@@ -90617,7 +90632,7 @@ ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens 
     `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for this section)" : ""}.`,
     stack === "react" ? `${[...OWN, ...WHOLE].includes(slug2(section)) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${slug2(section)}">. `}Other builders write the other sections at the same time; the director stitches them into App.tsx.` : WHOLE.includes(slug2(section)) ? "You build the whole page: index.html and its own styles and scripts." : OWN.includes(slug2(section)) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${slug2(section)}"> element alone (no <html>/<head>), ${mine[1]} its styles. Other builders write the other sections at the same time; the director stitches them in.`,
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
-    "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers or quotes.",
+    "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers, times or quotes: a number the spec doesn't give is a [bracket].",
     url2 ? `The page runs at ${url2} if you need to look at it.` : "",
     "",
     "Answer in your standard format: changed files, the piece used, open points."
@@ -90675,6 +90690,7 @@ function register(server2, ctx2) {
     section: external_exports.string().describe("id: hero, nav, footer, features, pricing..."),
     spec: external_exports.string().min(20).describe("Its idea, real copy, layout, picture and motion, in the director's words"),
     piece: external_exports.string().optional().describe("The library piece it is built on (a registry URL or name from PIECES ON OFFER / components_find / parts_list), or 'custom: <why no piece fits>'"),
+    from: external_exports.string().optional().describe("What it takes from which studied reference ('linear.app: product shot rising out of light'). Required for the hero"),
     files: external_exports.array(external_exports.string()).optional()
   });
   server2.registerTool(
@@ -90697,6 +90713,12 @@ function register(server2, ctx2) {
       const list4 = sections?.length ? sections : section && spec ? [{ section, spec, files, piece }] : [];
       if (!list4.length) return text("Pass sections: [{ section, spec, piece }, ...].", true);
       const fast = task?.loop === "fast";
+      if (fast && !task.skipped) {
+        const gaps = buildGaps(task, list4);
+        if (gaps.length) return text(`Not yet: fast is no excuse to skip looking.
+${gaps.map((g) => `- ${g}`).join("\n")}
+Then build_prepare again.`, true);
+      }
       const bare = list4.filter((s2) => !s2.piece);
       if (fast && bare.length)
         return text(
@@ -90704,7 +90726,8 @@ function register(server2, ctx2) {
           true
         );
       const pg = pageOf(task, page2);
-      const prompts = list4.map((s2) => ({ s: s2, prompt: buildPrompt({ section: s2.section, spec: s2.spec, files: s2.files, url: url2, task, piece: s2.piece, page: pg }) }));
+      const prompts = list4.map((s2) => ({ s: s2, prompt: buildPrompt({ section: s2.section, spec: s2.from ? `${s2.spec}
+TAKES FROM: ${s2.from}` : s2.spec, files: s2.files, url: url2, task, piece: s2.piece, page: pg }) }));
       updateState((st) => {
         if (!st.task) return;
         st.task.built = [.../* @__PURE__ */ new Set([...st.task.built || [], ...list4.map((s2) => slug2(s2.section))])];
@@ -91273,7 +91296,7 @@ function register3(server2, ctx2) {
 ` + (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o2) => `"${o2.title}"`).join(", ")}): never touch them.
 ` : "") + (memCtx ? `PROJECT MEMORY (${t2.memory.mode}): ${memCtx.text}
 ` : "") + (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.
-` : "") + (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first.
+` : "") + (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.
 ` : "") + `No intake questions unless the request is truly ambiguous; state your assumptions in one line.
 ` + (pk.filter((p2) => !isProjectPack(p2)).length ? `Niche packs on: ${pk.filter((p2) => !isProjectPack(p2)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.
 ` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? `ROLES: you are the director. You look, decide, choose the pieces and write specs. drip:builder agents (Sonnet) write the code, drip:helper agents (Haiku) do small jobs (installs, downloads, copy swaps). You make fixes under 40 lines yourself; bigger writes are refused with a pointer to build_prepare.
@@ -100560,7 +100583,22 @@ var AUDIT = `(() => {
   const pics = [...document.querySelectorAll('body *')].filter((el) => visible(el) && (/^(IMG|PICTURE|VIDEO|CANVAS|SVG|IFRAME)$/i.test(el.tagName) || el.hasAttribute('data-visual') || getComputedStyle(el).backgroundImage.includes('url('))).map((el) => { const r = el.getBoundingClientRect(); return { el, top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, w: r.width, h: r.height }; }).filter((p) => p.w * p.h > 160 * 120);
   // First viewport (the page is scrolled to the top here).
   let bigPic = { w: 0, h: 0 };
-  for (const p of pics) { const h = Math.min(p.bottom, vh) - Math.max(p.top, 0); if (h > 0 && p.w * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(p.w), h: Math.round(h) }; }
+  let bigEl = null;
+  for (const p of pics) { const h = Math.min(p.bottom, vh) - Math.max(p.top, 0); if (h > 0 && p.w * h > bigPic.w * bigPic.h) { bigPic = { w: Math.round(p.w), h: Math.round(h) }; bigEl = p.el; } }
+  // A product window (browser / app frame, device, card with a border, shadow or its own ground) around the picture is
+  // the picture: measure the frame, not only the screenshot inside it.
+  if (bigEl) {
+    const bodyBg = getComputedStyle(document.body).backgroundColor;
+    let a = bigEl.parentElement;
+    for (let i = 0; i < 5 && a && a !== document.body; i++, a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      const framed = parseFloat(cs.borderTopWidth) > 0 || cs.boxShadow !== 'none' || (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== bodyBg);
+      const r = a.getBoundingClientRect();
+      if (r.width > innerWidth * 0.8 || r.width * r.height > innerWidth * vh * 0.8) break;
+      const h = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      if (framed && h > 0 && r.width * h > bigPic.w * bigPic.h) bigPic = { w: Math.round(r.width), h: Math.round(h), frame: true };
+    }
+  }
   const inView = pics.filter((p) => p.top < vh && p.bottom > 0);
   if (inView.length >= 3) {
     const w = Math.max(...inView.map((p) => p.right)) - Math.min(...inView.map((p) => p.left));
@@ -114424,7 +114462,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.6";
+var VERSION = "0.8.7";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Roles: you direct (look, decide, choose pieces, write specs, small fixes); drip:builder agents (Sonnet) write the code; drip:helper agents (Haiku) do small jobs.

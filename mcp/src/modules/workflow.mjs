@@ -274,7 +274,7 @@ export function register(server, ctx) {
             (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}): never touch them.\n` : "") +
             (memCtx ? `PROJECT MEMORY (${t.memory.mode}): ${memCtx.text}\n` : "") +
             (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.\n` : "") +
-            (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first.\n` : "") +
+            (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.\n` : "") +
             `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n` +
             (pk.filter((p) => !isProjectPack(p)).length ? `Niche packs on: ${pk.filter((p) => !isProjectPack(p)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.\n` : "") +
             (swarmOn(config, t) && hostHasSubagents()

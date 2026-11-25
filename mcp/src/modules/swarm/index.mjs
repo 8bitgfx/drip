@@ -105,6 +105,22 @@ export function sectionFiles(section, stack) {
   return [`sections/${id}.html`, `styles/sections/${id}.css`];
 }
 
+/** What the director must have done before builders start (fast loop): looked at real work, looked at the pieces, and
+ *  said what each big section takes from which reference. Rules live in the tool, not only in the guide. */
+export function buildGaps(task, list) {
+  const gaps = [];
+  const seen = new Set([...(task.refs?.viewed || []), ...(task.refs?.studied || []).map((s) => s.key)].filter((k) => !task.before?.url || !String(task.before.url).replace(/^https?:\/\/(www\.)?/, "").startsWith(String(k).replace(/^site:(www\.)?/, "").split("/")[0])));
+  if (seen.size < 4)
+    gaps.push(`References: ${seen.size} looked at, 4 needed (the client's own site doesn't count). refs_site({ urls: [3-4 shipped sites people compare this with or the best in the category] }) and refs_gallery for the pattern; then take two or three decisions from them.`);
+  const used = task.toolUse || {};
+  const pieces = list.filter((s) => s.piece && !/^custom/i.test(s.piece));
+  if (pieces.length && !used.pieces_preview && !used.parts_preview)
+    gaps.push("Pieces: you haven't looked at any. pieces_preview({ items: [...] }) the candidates (several per section, one sheet) and choose by eye; components_find({ need }) when the shortlist has nothing good.");
+  const big = list.filter((s) => ["hero", "page", "whole-page", "index", "app"].includes(slug(s.section)));
+  for (const s of big) if (!s.from || s.from.length < 12) gaps.push(`${s.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
+  return gaps;
+}
+
 export function buildPrompt({ section, spec, files, url, task, piece, page }) {
   const chosen = task?.board?.chosen;
   const pg = page || pageOf(task);
@@ -151,7 +167,7 @@ export function buildPrompt({ section, spec, files, url, task, piece, page }) {
         ? "Edit the page's own nav / hero / footer in index.html (and its <style>)."
         : `${mine[0]} holds the <section id="${slug(section)}"> element alone (no <html>/<head>), ${mine[1]} its styles. Other builders write the other sections at the same time; the director stitches them in.`,
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
-    "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers or quotes.",
+    "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers, times or quotes: a number the spec doesn't give is a [bracket].",
     url ? `The page runs at ${url} if you need to look at it.` : "",
     "",
     "Answer in your standard format: changed files, the piece used, open points.",
@@ -221,6 +237,7 @@ export function register(server, ctx) {
     section: z.string().describe("id: hero, nav, footer, features, pricing..."),
     spec: z.string().min(20).describe("Its idea, real copy, layout, picture and motion, in the director's words"),
     piece: z.string().optional().describe("The library piece it is built on (a registry URL or name from PIECES ON OFFER / components_find / parts_list), or 'custom: <why no piece fits>'"),
+    from: z.string().optional().describe("What it takes from which studied reference ('linear.app: product shot rising out of light'). Required for the hero"),
     files: z.array(z.string()).optional(),
   });
 
@@ -247,6 +264,10 @@ export function register(server, ctx) {
       const list = sections?.length ? sections : section && spec ? [{ section, spec, files, piece }] : [];
       if (!list.length) return text("Pass sections: [{ section, spec, piece }, ...].", true);
       const fast = task?.loop === "fast";
+      if (fast && !task.skipped) {
+        const gaps = buildGaps(task, list);
+        if (gaps.length) return text(`Not yet: fast is no excuse to skip looking.\n${gaps.map((g) => `- ${g}`).join("\n")}\nThen build_prepare again.`, true);
+      }
       const bare = list.filter((s) => !s.piece);
       if (fast && bare.length)
         return text(
@@ -254,7 +275,7 @@ export function register(server, ctx) {
           true,
         );
       const pg = pageOf(task, page);
-      const prompts = list.map((s) => ({ s, prompt: buildPrompt({ section: s.section, spec: s.spec, files: s.files, url, task, piece: s.piece, page: pg }) }));
+      const prompts = list.map((s) => ({ s, prompt: buildPrompt({ section: s.section, spec: s.from ? `${s.spec}\nTAKES FROM: ${s.from}` : s.spec, files: s.files, url, task, piece: s.piece, page: pg }) }));
       updateState((st) => {
         if (!st.task) return;
         st.task.built = [...new Set([...(st.task.built || []), ...list.map((s) => slug(s.section))])];
