@@ -227,7 +227,8 @@ export function register(server, ctx) {
       if (fast) {
         t.loop = "fast";
         // Passes: the hero first, shown to the user, then the sections. In one go only when the request says so.
-        t.whole = /\b(whole (page|site|thing)|full (page|site)|in one go|end to end|don'?t (stop|ask)|no questions|without (stopping|asking))\b/i.test(task);
+        // The whole page in one go is the default; the user can ask to see the hero first.
+        t.whole = !/\b(hero (first|only)|just the hero|only the hero|show me the hero|step by step|one (pass|section) at a time)\b/i.test(task);
         t.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: new Date().toISOString() };
       }
       if (typeof swarm === "boolean") t.swarm = swarm;
@@ -282,7 +283,7 @@ export function register(server, ctx) {
             `\nFIRST CALLS (one message):\n` +
             `1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }).\n` +
             `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).\n` +
-            `Then the loop below from step 3 (choose by eye, build, check once).${t.whole ? " The user asked for the whole page in one go: both passes in this turn." : " Stop after pass 1 and show the hero."}\n\n` +
+            `Then the loop below from step 3 (choose by eye, build, check once).${t.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}\n\n` +
             bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
         );
       }

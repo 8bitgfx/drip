@@ -20,6 +20,9 @@ import { screenshot } from "./chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
 import { restitchIfStale } from "../swarm/index.mjs";
 
+/** A blocker that means the page is broken (something cut off, covered, sideways, unfilled), not a number to tune. */
+export const isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|is drawn over|no h1/i.test(String(b));
+
 const CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 
 export function register(server, ctx) {
@@ -144,8 +147,9 @@ export function register(server, ctx) {
             return;
           }
           const fast = st.task.loop === "fast";
-          if (hero && (!blockers.length || fast)) st.task.fitcheck.heroPassedAt = new Date().toISOString(); // only fitcheck_shot hero: true passes the hero gate
-          if (hero && fast) {
+          const broken = blockers.filter(isHard).length > 0; // fast loop: small numbers never block, a broken layout always does
+          if (hero && (!blockers.length || (fast && !broken))) st.task.fitcheck.heroPassedAt = new Date().toISOString(); // only fitcheck_shot hero: true passes the hero gate
+          if (hero && fast && !broken) {
             // Fast loop, first pass: the hero alone is what exists, so its shot is the check of this version (the turn may end here).
             st.task.fitcheck.lastShotAt = st.task.fitcheck.doneAt = new Date().toISOString();
             st.task.fitcheck.shotRev = st.task.fitcheck.doneRev = artifactRev(st.task);
@@ -159,7 +163,7 @@ export function register(server, ctx) {
           st.task.fitcheck.files = files;
           // A clean full shot of the current files IS the fit check: no self-scoring call needed. On the fast loop any full
           // shot is: its blockers are reported once, fixed in one pass, and never chased with re-check after re-check.
-          if (!blockers.length || st.task.loop === "fast") {
+          if (!blockers.length || (fast && !broken)) {
             st.task.fitcheck.doneAt = st.task.fitcheck.lastShotAt;
             st.task.fitcheck.doneRev = st.task.fitcheck.shotRev;
           }
@@ -183,15 +187,15 @@ export function register(server, ctx) {
             : `HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.\n\n${judge}`
           : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n${list2}` : "No measured blockers: the page check is recorded for this version (no fitcheck_done needed). Look at the sheet, fix what looks wrong, then the critic."}\n\n${judge}`;
       }
-      if (loadState().task?.loop === "fast" && !numbersOnly && !section)
+      if (loadState().task?.loop === "fast" && !numbersOnly && !section) {
+        const hard = blockers.filter(isHard);
+        const soft = blockers.filter((b) => !isHard(b));
+        const brokenText = hard.length ? `BROKEN (the user must never see this; fix it, then shoot again):\n${hard.map((b) => `- ${b}`).join("\n")}\n\n` : "";
+        const softText = soft.length ? `Worth fixing in the same edit (numbers, not breakage; no extra round for these):\n${soft.map((b) => `- ${b}`).join("\n")}\n\n` : "";
         head = hero
-          ? `${blockers.length ? `HERO ISSUES (measured):
-${list2}
-
-Fix the ones that matter in ONE edit; no re-shoot needed for small numbers.` : "Hero clean."} Look at it: is it a polished, proven pattern with the product on show? Then show the user the hero (this picture) and ask whether to go on to the sections, unless they asked for the whole page in one go.`
-          : `${blockers.length ? `MEASURED (fix the ones that matter in ONE pass; a 1-2% gap or a borderline number is not worth another round):
-${list2}` : "No measured blockers."}
-The page check is recorded for this version. Look at the sheet once, fix what looks wrong, then hand off: show the user. The critic is a polish pass the user asks for ("polish", "critic"), not a step.`;
+          ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare, every builder in one message): the user sees the finished page, not a question."}`}`
+          : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version. Look at the sheet once, fix what looks wrong, then show the user."} The critic is a reality check at the final version, once.`;
+      }
       content.unshift(textBlock(head));
       return blocks(content);
   }

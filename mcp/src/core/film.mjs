@@ -129,6 +129,9 @@ export function addFrame(task, buf, { caption = "", width = 1440, height = 900, 
 /** The newest write/stitch/install event time (what a new frame would show). */
 export function lastChangeAt(task, dir) {
   const ev = readEvents(filmDir(task.id, dir));
-  for (let i = ev.length - 1; i >= 0; i--) if (["write", "stitch", "install"].includes(ev[i].kind)) return ev[i].t;
+  // Only writes and stitches change what the page looks like (an install doesn't), and the scaffold alone isn't worth a frame:
+  // frames start with the first write by a builder.
+  if (!ev.some((e) => e.kind === "write" && e.agent && e.agent !== "main")) return null;
+  for (let i = ev.length - 1; i >= 0; i--) if (["write", "stitch"].includes(ev[i].kind)) return ev[i].t;
   return null;
 }

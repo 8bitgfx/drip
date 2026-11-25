@@ -7504,11 +7504,44 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
+  resolve: {
+    alias: {
+      // Next.js-only imports in registry blocks (efferd, shadcn blocks) work here through small stand-ins.
+      "next/link": path.resolve(__dirname, "./src/shims/next-link.tsx"),
+      "next/image": path.resolve(__dirname, "./src/shims/next-image.tsx"),
+      "next/navigation": path.resolve(__dirname, "./src/shims/next-navigation.ts"),
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });
 `);
   w("postcss.config.mjs", "// Tailwind v4 runs through @tailwindcss/vite; this file stops a parent project's PostCSS config from applying here.\nexport default { plugins: {} };\n");
-  const ts = { compilerOptions: { target: "ES2022", lib: ["ES2022", "DOM", "DOM.Iterable"], module: "ESNext", moduleResolution: "bundler", jsx: "react-jsx", strict: false, skipLibCheck: true, noEmit: true, allowImportingTsExtensions: true, baseUrl: ".", paths: { "@/*": ["./src/*"] } }, include: ["src"] };
+  const ts = { compilerOptions: { target: "ES2022", lib: ["ES2022", "DOM", "DOM.Iterable"], module: "ESNext", moduleResolution: "bundler", jsx: "react-jsx", strict: false, skipLibCheck: true, noEmit: true, allowImportingTsExtensions: true, baseUrl: ".", paths: { "@/*": ["./src/*"], "next/link": ["./src/shims/next-link.tsx"], "next/image": ["./src/shims/next-image.tsx"], "next/navigation": ["./src/shims/next-navigation.ts"] } }, include: ["src"] };
+  fs16.mkdirSync(path17.join(dir, "src", "shims"), { recursive: true });
+  w("src/shims/next-link.tsx", `// Stand-in for next/link so Next.js registry blocks run in this Vite page.
+import type { AnchorHTMLAttributes, ReactNode } from "react";
+
+export default function Link({ href, children, prefetch, replace, scroll, shallow, ...rest }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & { href: string | { pathname?: string }; children?: ReactNode; prefetch?: boolean; replace?: boolean; scroll?: boolean; shallow?: boolean }) {
+  const to = typeof href === "string" ? href : href?.pathname || "#";
+  return <a href={to} {...rest}>{children}</a>;
+}
+`);
+  w("src/shims/next-image.tsx", `// Stand-in for next/image so Next.js registry blocks run in this Vite page.
+import type { ImgHTMLAttributes } from "react";
+
+export default function Image({ src, alt, fill, priority, quality, placeholder, blurDataURL, loader, unoptimized, style, ...rest }: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & { src: string | { src: string }; alt: string; fill?: boolean; priority?: boolean; quality?: number; placeholder?: string; blurDataURL?: string; loader?: unknown; unoptimized?: boolean }) {
+  const url = typeof src === "string" ? src : src.src;
+  return <img src={url} alt={alt} loading={priority ? "eager" : "lazy"} style={fill ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", ...style } : style} {...rest} />;
+}
+`);
+  w("src/shims/next-navigation.ts", `// Stand-in for next/navigation so Next.js registry blocks run in this Vite page.
+export const usePathname = () => (typeof window === "undefined" ? "/" : window.location.pathname);
+export const useRouter = () => ({ push: (u: string) => window.location.assign(u), replace: (u: string) => window.location.replace(u), back: () => history.back(), forward: () => history.forward(), refresh: () => window.location.reload(), prefetch: () => {} });
+export const useSearchParams = () => new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+export const useParams = () => ({});
+export const redirect = (u: string) => window.location.assign(u);
+export const notFound = () => {};
+`);
   w("tsconfig.json", JSON.stringify(ts, null, 2));
   w("components.json", JSON.stringify({ $schema: "https://ui.shadcn.com/schema.json", style: "new-york", rsc: false, tsx: true, tailwind: { config: "", css: "src/index.css", baseColor: "neutral", cssVariables: true, prefix: "" }, aliases: { components: "@/components", utils: "@/lib/utils", ui: "@/components/ui", lib: "@/lib", hooks: "@/hooks" }, iconLibrary: "lucide", registries: REGISTRIES }, null, 2));
   w(
@@ -88209,7 +88242,8 @@ function addFrame(task, buf, { caption = "", width = 1440, height = 900, dir } =
 }
 function lastChangeAt(task, dir) {
   const ev = readEvents(filmDir(task.id, dir));
-  for (let i2 = ev.length - 1; i2 >= 0; i2--) if (["write", "stitch", "install"].includes(ev[i2].kind)) return ev[i2].t;
+  if (!ev.some((e2) => e2.kind === "write" && e2.agent && e2.agent !== "main")) return null;
+  for (let i2 = ev.length - 1; i2 >= 0; i2--) if (["write", "stitch"].includes(ev[i2].kind)) return ev[i2].t;
   return null;
 }
 
@@ -91026,6 +91060,12 @@ var lastBuilt = "";
 var busy2 = false;
 async function frame(task, config2, caption) {
   if (!task.filmUrl) return null;
+  try {
+    const r2 = await fetch(task.filmUrl, { signal: AbortSignal.timeout(3e3) });
+    if (!r2.ok) return null;
+  } catch {
+    return null;
+  }
   const { screenshot: screenshot2 } = await Promise.resolve().then(() => (init_chrome(), chrome_exports));
   const buf = await screenshot2(task.filmUrl, { width: 1440, height: 900, format: "jpeg", quality: 72, waitMs: 2500, config: config2 });
   lastShot = Date.now();
@@ -91073,6 +91113,15 @@ function placeViewer(d) {
   fs25.writeFileSync(path25.join(d, "index.html"), FALLBACK);
   return "basic";
 }
+function openInBrowser(url2) {
+  if (!/^http:\/\/127\.0\.0\.1:\d+\/index\.html$/.test(url2)) return;
+  const [cmd, args] = process.platform === "win32" ? ["cmd", ["/c", "start", "", url2]] : process.platform === "darwin" ? ["open", [url2]] : ["xdg-open", [url2]];
+  try {
+    execFile2(cmd, args, { windowsHide: true }, () => {
+    });
+  } catch {
+  }
+}
 function ffmpeg(args, cwd) {
   return new Promise((res) => execFile2("ffmpeg", args, { cwd, windowsHide: true, timeout: 12e4 }, (e2) => res(!e2)));
 }
@@ -91087,6 +91136,7 @@ async function finishFilm(task, config2) {
   let mp4 = "";
   if (film.frames.length >= 2 && await ffmpeg(["-y", "-framerate", "3", "-i", "frames/%04d.jpg", "-vf", "scale=1440:-2,format=yuv420p", "montage.mp4"], d)) mp4 = " and montage.mp4";
   const base = await serveDir(d).catch(() => null);
+  if (base && film.frames.length && process.env.DRIP_FILM_OPEN !== "0") openInBrowser(`${base}/index.html`);
   const helpers = film.agents.filter((a2) => a2.id !== "main");
   return `Film: ${helpers.length} agent(s), ${film.frames.length} frame(s), ${film.events.length} events. Watch the montage: ${base ? `${base}/index.html` : path25.relative(process.cwd(), path25.join(d, "index.html"))}${mp4 ? ` (${path25.join(d, "montage.mp4")})` : ""}. Show the user the link.`;
 }
@@ -91300,7 +91350,7 @@ function register3(server2, ctx2) {
       const t2 = newTask({ title: task, size: s2, surface: sf, guides, mode: m, packs: pk });
       if (fast) {
         t2.loop = "fast";
-        t2.whole = /\b(whole (page|site|thing)|full (page|site)|in one go|end to end|don'?t (stop|ask)|no questions|without (stopping|asking))\b/i.test(task);
+        t2.whole = !/\b(hero (first|only)|just the hero|only the hero|show me the hero|step by step|one (pass|section) at a time)\b/i.test(task);
         t2.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: (/* @__PURE__ */ new Date()).toISOString() };
       }
       if (typeof swarm === "boolean") t2.swarm = swarm;
@@ -91348,7 +91398,7 @@ function register3(server2, ctx2) {
 FIRST CALLS (one message):
 1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }).
 2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).
-Then the loop below from step 3 (choose by eye, build, check once).${t2.whole ? " The user asked for the whole page in one go: both passes in this turn." : " Stop after pass 1 and show the hero."}
+Then the loop below from step 3 (choose by eye, build, check once).${t2.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}
 
 ` + bodies.map(([x2, b]) => `=================== GUIDE: ${x2} ===================
 ${b}`).join("\n\n")
@@ -100680,7 +100730,22 @@ var AUDIT = `(() => {
   // Unfilled [placeholders] on the first screen: a scaffold is not a hero.
   const firstText = [...document.querySelectorAll('h1,h2,h3,p,a,button,li,span')].filter((e) => { const r = e.getBoundingClientRect(); return r.top < vh && r.bottom > 0 && e.childElementCount === 0; }).map((e) => e.textContent || '').join(' ');
   const placeholders = [...new Set(firstText.match(/\\[[^\\]\\n]{2,60}\\]/g) || [])].slice(0, 6);
-  const hero = { placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
+  // A fixed or sticky header over the hero: what it hides at the top of the first screen (the page scrolled to the top).
+  const navs = [...document.querySelectorAll('header, nav, [class*="header"], [class*="navbar"]')].filter((e) => { const cs = getComputedStyle(e); const r = e.getBoundingClientRect(); return (cs.position === 'fixed' || cs.position === 'sticky') && r.top <= 4 && r.height > 20 && r.height < 200 && r.width > vw * 0.5; });
+  const navBottom = navs.length ? Math.max(...navs.map((e) => e.getBoundingClientRect().bottom)) : 0;
+  const navCovers = [];
+  if (navBottom) {
+    const inNav = (e) => navs.some((n) => n.contains(e));
+    for (const e of [...document.querySelectorAll('h1, h2, p, a, button, img, canvas, video, [data-visual]')]) {
+      if (inNav(e) || !visible(e)) continue;
+      const r = e.getBoundingClientRect();
+      const media = /^(IMG|CANVAS|VIDEO)$/.test(e.tagName) || e.hasAttribute('data-visual');
+      if (media && (r.width >= vw * 0.9 || r.width * r.height < 160 * 120)) continue; // a full-bleed picture behind the nav is a choice
+      if (r.top < navBottom - 6 && r.bottom > navBottom - 6 && r.top > -r.height) navCovers.push(e.tagName.toLowerCase() + (media ? '' : ' "' + (e.textContent || '').trim().slice(0, 24) + '"') + ' (top ' + Math.round(r.top) + 'px, nav ends at ' + Math.round(navBottom) + 'px)');
+      if (navCovers.length >= 4) break;
+    }
+  }
+  const hero = { navCovers, placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
   // Sections below the first screen, and whether each shows a picture.
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
@@ -100697,7 +100762,17 @@ var AUDIT = `(() => {
     screens.push(+(1 - covered / (end - y)).toFixed(2));
   }
   const skeletons = [...document.querySelectorAll('[class*="skeleton" i], [class*="shimmer" i], [class*="placeholder" i]:not(input):not(textarea), [aria-busy="true"], [class*="spinner" i], [class*="loading" i]')].filter(visible).length;
-  return { skeletons, viewportMeta: !!document.querySelector('meta[name=viewport]'), width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
+  // The same picture again and again (a marquee's loop copies and hidden duplicates don't count).
+  const srcCount = {};
+  for (const img of document.images) {
+    const r = img.getBoundingClientRect();
+    if (r.width * r.height < 160 * 120 || !visible(img) || img.closest('[aria-hidden="true"], [class*="marquee"], [class*="loop"], [class*="slider"], [class*="carousel"]')) continue;
+    const src = (img.currentSrc || img.src || '').split('?')[0];
+    if (src) srcCount[src] = (srcCount[src] || 0) + 1;
+  }
+  const repeats = Object.entries(srcCount).filter(([, n]) => n >= 3).map(([src, n]) => ({ src: src.split('/').pop().slice(0, 40), n }));
+  const distinctPics = Object.keys(srcCount).length;
+  return { repeats, distinctPics, skeletons, viewportMeta: !!document.querySelector('meta[name=viewport]'), width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, sectionBoxes, empty: screens, title: document.title };
 })()`;
@@ -100857,6 +100932,8 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   const warnings = [];
   const desk = a2.width >= 1e3;
   const phone = a2.width < 600;
+  if (a2.hero?.navCovers?.length) blockers.push(`the fixed nav covers the hero: ${a2.hero.navCovers.join("; ")}. Start the hero below the nav (padding-top: the nav's height) or make the picture a full-bleed ground behind it`);
+  for (const r2 of a2.repeats || []) blockers.push(`the same picture ${r2.src} appears ${r2.n} times: find, make or ask for more real pictures (images_search, art_generate / gen_image, or ask the user for their own work); one picture never stands in for a gallery`);
   if (phone && a2.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
   for (const t2 of a2.type || []) blockers.push(`unreadable type (${t2.kind}): "${t2.text}": ${t2.detail}`);
   const shapes = (a2.covered || []).filter((c3) => !c3.image);
@@ -106313,6 +106390,7 @@ function register18(server2, ctx2) {
 // src/modules/fitcheck/index.mjs
 var fitcheck_exports = {};
 __export(fitcheck_exports, {
+  isHard: () => isHard,
   register: () => register21
 });
 import path55 from "node:path";
@@ -106695,6 +106773,7 @@ function register20(server2, ctx2) {
 
 // src/modules/fitcheck/index.mjs
 init_chrome();
+var isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|is drawn over|no h1/i.test(String(b));
 var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 function register21(server2, ctx2) {
   register19(server2, ctx2);
@@ -106800,8 +106879,9 @@ ${formatAudit(r2.audit, j)}`));
           return;
         }
         const fast = st.task.loop === "fast";
-        if (hero && (!blockers.length || fast)) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
-        if (hero && fast) {
+        const broken = blockers.filter(isHard).length > 0;
+        if (hero && (!blockers.length || fast && !broken)) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (hero && fast && !broken) {
           st.task.fitcheck.lastShotAt = st.task.fitcheck.doneAt = (/* @__PURE__ */ new Date()).toISOString();
           st.task.fitcheck.shotRev = st.task.fitcheck.doneRev = artifactRev(st.task);
           return;
@@ -106812,7 +106892,7 @@ ${formatAudit(r2.audit, j)}`));
         st.task.fitcheck.shotRev = artifactRev(st.task);
         st.task.fitcheck.blockers = blockers;
         st.task.fitcheck.files = files;
-        if (!blockers.length || st.task.loop === "fast") {
+        if (!blockers.length || fast && !broken) {
           st.task.fitcheck.doneAt = st.task.fitcheck.lastShotAt;
           st.task.fitcheck.doneRev = st.task.fitcheck.shotRev;
         }
@@ -106842,13 +106922,19 @@ ${list22}` : "No measured blockers: the page check is recorded for this version 
 
 ${judge}`;
     }
-    if (loadState().task?.loop === "fast" && !numbersOnly && !section)
-      head = hero ? `${blockers.length ? `HERO ISSUES (measured):
-${list22}
+    if (loadState().task?.loop === "fast" && !numbersOnly && !section) {
+      const hard = blockers.filter(isHard);
+      const soft = blockers.filter((b) => !isHard(b));
+      const brokenText = hard.length ? `BROKEN (the user must never see this; fix it, then shoot again):
+${hard.map((b) => `- ${b}`).join("\n")}
 
-Fix the ones that matter in ONE edit; no re-shoot needed for small numbers.` : "Hero clean."} Look at it: is it a polished, proven pattern with the product on show? Then show the user the hero (this picture) and ask whether to go on to the sections, unless they asked for the whole page in one go.` : `${blockers.length ? `MEASURED (fix the ones that matter in ONE pass; a 1-2% gap or a borderline number is not worth another round):
-${list22}` : "No measured blockers."}
-The page check is recorded for this version. Look at the sheet once, fix what looks wrong, then hand off: show the user. The critic is a polish pass the user asks for ("polish", "critic"), not a step.`;
+` : "";
+      const softText = soft.length ? `Worth fixing in the same edit (numbers, not breakage; no extra round for these):
+${soft.map((b) => `- ${b}`).join("\n")}
+
+` : "";
+      head = hero ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare, every builder in one message): the user sees the finished page, not a question."}`}` : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version. Look at the sheet once, fix what looks wrong, then show the user."} The critic is a reality check at the final version, once.`;
+    }
     content.unshift(textBlock(head));
     return blocks(content);
   }
@@ -114504,7 +114590,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.10";
+var VERSION = "0.8.11";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

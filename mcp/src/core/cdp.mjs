@@ -108,7 +108,22 @@ const AUDIT = `(() => {
   // Unfilled [placeholders] on the first screen: a scaffold is not a hero.
   const firstText = [...document.querySelectorAll('h1,h2,h3,p,a,button,li,span')].filter((e) => { const r = e.getBoundingClientRect(); return r.top < vh && r.bottom > 0 && e.childElementCount === 0; }).map((e) => e.textContent || '').join(' ');
   const placeholders = [...new Set(firstText.match(/\\[[^\\]\\n]{2,60}\\]/g) || [])].slice(0, 6);
-  const hero = { placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
+  // A fixed or sticky header over the hero: what it hides at the top of the first screen (the page scrolled to the top).
+  const navs = [...document.querySelectorAll('header, nav, [class*="header"], [class*="navbar"]')].filter((e) => { const cs = getComputedStyle(e); const r = e.getBoundingClientRect(); return (cs.position === 'fixed' || cs.position === 'sticky') && r.top <= 4 && r.height > 20 && r.height < 200 && r.width > vw * 0.5; });
+  const navBottom = navs.length ? Math.max(...navs.map((e) => e.getBoundingClientRect().bottom)) : 0;
+  const navCovers = [];
+  if (navBottom) {
+    const inNav = (e) => navs.some((n) => n.contains(e));
+    for (const e of [...document.querySelectorAll('h1, h2, p, a, button, img, canvas, video, [data-visual]')]) {
+      if (inNav(e) || !visible(e)) continue;
+      const r = e.getBoundingClientRect();
+      const media = /^(IMG|CANVAS|VIDEO)$/.test(e.tagName) || e.hasAttribute('data-visual');
+      if (media && (r.width >= vw * 0.9 || r.width * r.height < 160 * 120)) continue; // a full-bleed picture behind the nav is a choice
+      if (r.top < navBottom - 6 && r.bottom > navBottom - 6 && r.top > -r.height) navCovers.push(e.tagName.toLowerCase() + (media ? '' : ' "' + (e.textContent || '').trim().slice(0, 24) + '"') + ' (top ' + Math.round(r.top) + 'px, nav ends at ' + Math.round(navBottom) + 'px)');
+      if (navCovers.length >= 4) break;
+    }
+  }
+  const hero = { navCovers, placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
   // Sections below the first screen, and whether each shows a picture.
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
@@ -125,7 +140,17 @@ const AUDIT = `(() => {
     screens.push(+(1 - covered / (end - y)).toFixed(2));
   }
   const skeletons = [...document.querySelectorAll('[class*="skeleton" i], [class*="shimmer" i], [class*="placeholder" i]:not(input):not(textarea), [aria-busy="true"], [class*="spinner" i], [class*="loading" i]')].filter(visible).length;
-  return { skeletons, viewportMeta: !!document.querySelector('meta[name=viewport]'), width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
+  // The same picture again and again (a marquee's loop copies and hidden duplicates don't count).
+  const srcCount = {};
+  for (const img of document.images) {
+    const r = img.getBoundingClientRect();
+    if (r.width * r.height < 160 * 120 || !visible(img) || img.closest('[aria-hidden="true"], [class*="marquee"], [class*="loop"], [class*="slider"], [class*="carousel"]')) continue;
+    const src = (img.currentSrc || img.src || '').split('?')[0];
+    if (src) srcCount[src] = (srcCount[src] || 0) + 1;
+  }
+  const repeats = Object.entries(srcCount).filter(([, n]) => n >= 3).map(([src, n]) => ({ src: src.split('/').pop().slice(0, 40), n }));
+  const distinctPics = Object.keys(srcCount).length;
+  return { repeats, distinctPics, skeletons, viewportMeta: !!document.querySelector('meta[name=viewport]'), width: vw, vh, height: doc.scrollHeight, screens: +(doc.scrollHeight / vh).toFixed(1), overflowX, scrollWidth: doc.scrollWidth, offenders,
     fontSizes: Object.entries(sizes).sort((a, b) => b[1] - a[1]).map(([s, n]) => [+s, n]), families: Object.entries(families).sort((a, b) => b[1] - a[1]), weights: Object.keys(weights).length,
     words, smallShare: words ? +(small / words).toFixed(2) : 0, gaps, media, h1: h1s, h2, bodyText: medianP, hero, sections, sectionBoxes, empty: screens, title: document.title };
 })()`;
@@ -412,6 +437,8 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   const warnings = [];
   const desk = a.width >= 1000;
   const phone = a.width < 600;
+  if (a.hero?.navCovers?.length) blockers.push(`the fixed nav covers the hero: ${a.hero.navCovers.join("; ")}. Start the hero below the nav (padding-top: the nav's height) or make the picture a full-bleed ground behind it`);
+  for (const r of a.repeats || []) blockers.push(`the same picture ${r.src} appears ${r.n} times: find, make or ask for more real pictures (images_search, art_generate / gen_image, or ask the user for their own work); one picture never stands in for a gallery`);
   if (phone && a.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
   for (const t of a.type || []) blockers.push(`unreadable type (${t.kind}): "${t.text}": ${t.detail}`);
   const shapes = (a.covered || []).filter((c) => !c.image);
