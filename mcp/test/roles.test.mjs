@@ -133,6 +133,15 @@ test("a page in a subfolder never inherits the repo's DESIGN.md; a whole-page bu
   fs.rmSync(path.join(project, "DESIGN.md"));
 });
 
+test("pieces before homemade: custom needs a named reason, and 'searched' needs a real search", () => {
+  const task = { refs: { viewed: ["site:a.com", "site:b.com", "site:c.com", "site:d.com"], studied: [] }, toolUse: { pieces_preview: 1 } };
+  const gaps = (list) => swarm.buildGaps(task, list);
+  assert.match(gaps([{ section: "features", spec: "x", piece: "custom: it's quicker" }]).join(), /needs one of the reasons/);
+  assert.match(gaps([{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]).join(), /no components_find/);
+  assert.deepEqual(gaps([{ section: "proof", spec: "x", piece: "custom: data the client's weekly numbers" }]), []);
+  assert.deepEqual(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 } }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]), []);
+});
+
 test("the paid kits are asked once and remembered", () => {
   assert.equal(ownedKits(), null);
   saveKits(["Magic UI Pro"]);

@@ -25,7 +25,7 @@ The order of work for a page in about ten minutes. What good looks like is in `t
 7. `page_stitch` once when they finish (later shots re-stitch by themselves). `fitcheck_shot({ url })` once; fix what matters in one pass (a 1-2% number is not worth a round). Show the page, `drip_end`: it closes the film and opens the montage for the user.
 
 ## Rules the tools enforce
-- No UI before a look and a deal. No builder before 4 references and a pieces preview. Every section names its piece or says `custom: <why>`.
+- No UI before a look and a deal. No builder before 4 references and a pieces preview. Every section names its piece; homemade only as `custom: product-ui | data | brand-art | tiny | searched <what>` (see "Pieces before homemade" in taste.md). A builder never swaps its piece for a homemade one.
 - A turn can't end with UI changed after the last `fitcheck_shot`.
 - Nothing invented: unknown numbers and quotes are `[brackets]`.
 

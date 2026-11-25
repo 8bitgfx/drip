@@ -90679,6 +90679,13 @@ function buildGaps(task, list4) {
   const pieces = list4.filter((s2) => s2.piece && !/^custom/i.test(s2.piece));
   if (pieces.length && !used.pieces_preview && !used.parts_preview)
     gaps.push("Pieces: you haven't looked at any. pieces_preview({ items: [...] }) the candidates (several per section, one sheet) and choose by eye; components_find({ need }) when the shortlist has nothing good.");
+  for (const s2 of list4.filter((x2) => /^custom/i.test(x2.piece || ""))) {
+    const why = String(s2.piece).replace(/^custom\s*:?\s*/i, "").trim().toLowerCase();
+    const reason = (why.match(/^(product-ui|data|brand-art|tiny|searched)\b/) || [])[1];
+    if (!reason)
+      gaps.push(`${s2.section}: "custom" needs one of the reasons homemade is allowed: product-ui (the product's own screens), data (a chart of real numbers), brand-art (the client's own art), tiny (a label row), or searched <what you searched for>. Otherwise use a piece: components_find({ need }) and pieces_preview.`);
+    else if (reason === "searched" && !used.components_find) gaps.push(`${s2.section}: "custom: searched" but no components_find has run in this task. Search for the need in words first.`);
+  }
   const big = list4.filter((s2) => ["hero", "page", "whole-page", "index", "app"].includes(slug2(s2.section)));
   for (const s2 of big) if (!s2.from || s2.from.length < 12) gaps.push(`${s2.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
   return gaps;
@@ -90692,7 +90699,7 @@ function buildPrompt({ section, spec, files, url: url2, task, piece, page: page2
   const where = pg ? `The page: ${pg.rel}/ (${stack === "react" ? "React + Vite + Tailwind v4" : "one static HTML page"}).` : "";
   const system = stack === "react" ? `THE SYSTEM (src/index.css, taste-skill's numbers): colours bg-background, text-foreground, bg-card, text-muted-foreground, bg-primary text-primary-foreground, text-brand, border-border; type roles ONLY text-display, text-h1, text-h2, text-h3, text-lead, text-body, text-small, text-label, text-stat with font-display for headings (never text-5xl / text-[68px]); layout: wrap for the column (same edges as every section), section-pad for a section's rhythm, head-gap under a section heading; the hover layer: lift on cards, press on buttons, photo-zoom on framed pictures; enter on hero children (style={{ "--i": n }} orders them). rounded-[var(--radius)]. Never add a colour, size or font. Images in public/ (or remote URLs). Icons: lucide-react.` : doc ? `THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; follow it, change nothing in it):
 ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens (--p-bg, --p-surface, --p-ink, --p-muted, --p-accent, --p-action; --font-display, --font-text) and the kit in assets/ (system.css type roles and spacing, .button, the motion layer). Use its classes and variables; never add a size or a colour.";
-  const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
+  const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
   return [
     `DRIP BUILDER \xB7 section: ${section}`,
     "",
@@ -114590,7 +114597,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.12";
+var VERSION = "0.8.13";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

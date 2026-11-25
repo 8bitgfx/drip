@@ -116,6 +116,14 @@ export function buildGaps(task, list) {
   const pieces = list.filter((s) => s.piece && !/^custom/i.test(s.piece));
   if (pieces.length && !used.pieces_preview && !used.parts_preview)
     gaps.push("Pieces: you haven't looked at any. pieces_preview({ items: [...] }) the candidates (several per section, one sheet) and choose by eye; components_find({ need }) when the shortlist has nothing good.");
+  // Pieces before homemade: a custom section names why, from a short list, and "searched" needs a real search behind it.
+  for (const s of list.filter((x) => /^custom/i.test(x.piece || ""))) {
+    const why = String(s.piece).replace(/^custom\s*:?\s*/i, "").trim().toLowerCase();
+    const reason = (why.match(/^(product-ui|data|brand-art|tiny|searched)\b/) || [])[1];
+    if (!reason)
+      gaps.push(`${s.section}: "custom" needs one of the reasons homemade is allowed: product-ui (the product's own screens), data (a chart of real numbers), brand-art (the client's own art), tiny (a label row), or searched <what you searched for>. Otherwise use a piece: components_find({ need }) and pieces_preview.`);
+    else if (reason === "searched" && !used.components_find) gaps.push(`${s.section}: "custom: searched" but no components_find has run in this task. Search for the need in words first.`);
+  }
   const big = list.filter((s) => ["hero", "page", "whole-page", "index", "app"].includes(slug(s.section)));
   for (const s of big) if (!s.from || s.from.length < 12) gaps.push(`${s.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
   return gaps;
@@ -137,9 +145,9 @@ export function buildPrompt({ section, spec, files, url, task, piece, page }) {
         : "THE SYSTEM: the page's own head: the :root tokens (--p-bg, --p-surface, --p-ink, --p-muted, --p-accent, --p-action; --font-display, --font-text) and the kit in assets/ (system.css type roles and spacing, .button, the motion layer). Use its classes and variables; never add a size or a colour.";
   const pieceLine = piece
     ? /^custom/i.test(piece)
-      ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it.`
+      ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.`
       : stack === "react"
-        ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}`
+        ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}`
         : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.`
     : "";
   return [

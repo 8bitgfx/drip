@@ -36,8 +36,17 @@ Proven hero patterns: a glowing product mockup (the real UI in a rounded frame r
 - The hover layer on everything: cards lift 2px, photos scale 1.02 inside their frame, buttons step on hover and press on click. Every hero enters once on load; one or two dealt moments per page.
 - Real icons of real products, never drawn ones. Every control has focus, hover, press and disabled states; touch targets 44px; body text 4.5:1; nothing scrolls sideways at 320px; reduced motion handled.
 
-## Pieces
-Proven libraries have finished, tuned components: their motion and detail took weeks. Build on them: look first (`pieces_preview`), choose by eye, use a piece as it is and restyle only colours, radius, font and content. Spend pieces on what the visitor looks at (the outputs, the product), never on filler (a badge shimmer, an avatar stack). A piece you can't see on the page is removed.
+## Pieces before homemade
+A piece made by a library's designers beats one you make: its motion, spacing and states took weeks. Default to a piece for every section and every interactive part; look first (`pieces_preview`), choose by eye, use it as it is and restyle only colours, radius, font and content. Spend pieces on what the visitor looks at (the outputs, the product), never on filler (a badge shimmer, an avatar stack). A piece you can't see on the page is removed.
+
+**Homemade only for one of these, named in the spec:**
+- `product-ui`: the product's own screens as live HTML (no library has your product); build them inside a piece's frame (a browser window, a device, a bento card) when one fits.
+- `data`: a chart or diagram of the client's real numbers or real workflow.
+- `brand-art`: the client's own illustration, mascot or art direction that no piece carries.
+- `tiny`: a label row, a divider, a one-line strip: not worth a dependency.
+- `searched`: you searched (`components_find` with the need in words) and previewed, and nothing fit; say what you searched for.
+
+"It's quicker", "I can make it nicer" and "the piece didn't install" are not reasons: fix the install or pick another piece.
 
 ## Copy
 Plain words in a voice of its own; names and numbers that aren't the defaults every model picks. Every number, quote, logo and customer comes from the client; an unknown is a `[bracket]` for the user, never invented ("38s", "10,000+ teams"). Never "Unlock / Elevate / Seamless", never "Learn more" or "Get started" as the only label.
