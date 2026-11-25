@@ -28,6 +28,7 @@ Proven hero patterns: a glowing product mockup (the real UI in a rounded frame r
 - **Colour comes from the picture.** A calm ground (white, near-black or a soft tint), colour carried by the imagery, a soft light behind the hero picture, one accent on the action. Loud, drenched grounds only when the brief asks for loud.
 - **A redesign keeps the brand**: its colours, its ground (a light brand stays light), its logo, fonts and real copy. A new ground or colour story is a proposal shown beside the faithful version, never a silent switch.
 - **Type:** refined faces, calm and well set (a crisp grotesk, an elegant serif, a friendly rounded sans for the subject); one family when its range is wide. At most 7 sizes and 2 families; mono only in code, measurements and tabular figures.
+- **A coloured word in the headline** is a cliché when it is a reflex. Use it when it reads better: it carries the meaning, or the brand does it.
 - **One radius, crisp 1px borders, soft depth and light.** Restyle every library piece to the tokens; never leave its defaults.
 
 ## How people use it (UX principles)
@@ -64,7 +65,7 @@ A piece made by a library's designers beats one you make: its motion, spacing an
 Plain words in a voice of its own; names and numbers that aren't the defaults every model picks. Every number, quote, logo and customer comes from the client; an unknown is a `[bracket]` for the user, never invented ("38s", "10,000+ teams"). Never "Unlock / Elevate / Seamless", never "Learn more" or "Get started" as the only label.
 
 ## Never
-- Purple-blue or pink "AI" gradients; gradient text; an accented word in a headline; glass or glow as decoration; neon on near-black with nothing real on screen.
+- Purple-blue or pink "AI" gradients; gradient text; glass or glow as decoration; neon on near-black with nothing real on screen.
 - A hero plus three equal icon cards; the big-number-small-label hero; a card inside a card; one output in a small window when the outputs are the product.
 - Eyebrows, kickers and tracked-caps labels; 01/02/03 numbering unless it is a real sequence; middle-dot meta strings; emoji as icons; decorative status dots.
 - A cream ground with a serif and a terracotta accent, or Inter / Geist / Space Grotesk as the voice, unless the brief pins it.

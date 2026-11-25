@@ -473,7 +473,7 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
       else if (!bigPicture && a.h1 < want * 0.85) warnings.push(`h1 ${a.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
     }
     if (a.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
-    if (a.hero.h1Accent?.length) blockers.push(`accented headline: ${a.hero.h1Accent.join(", ")} is set in another colour inside the h1. One colour for the whole headline; let the picture carry the colour (taste.md: Never)`);
+    if (a.hero.h1Accent?.length) warnings.push(`accented headline: ${a.hero.h1Accent.join(", ")} is in another colour inside the h1. Keep it only if it reads better than one colour (it carries the meaning, the brand does it); never by reflex`);
     if (a.hero.placeholders?.length) blockers.push(`the first screen still has placeholders: ${a.hero.placeholders.join(", ")} (fill them with the client's words, or a builder hasn't written the hero yet)`);
     else if (a.h1 && a.hero.h1Box && a.hero.h1Inside === false) {
       const b = a.hero.h1Box;

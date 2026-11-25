@@ -1,5 +1,5 @@
 // 0.8.16: a big-change request on a built page opens a new round (look + pieces again); UI is never written from
-// the shell while a task is open; an accented headline is a hard blocker.
+// the shell while a task is open; an accented headline is a warning, never a lock.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -82,10 +82,11 @@ test("the shell gate refuses UI writes during a task and lets other commands thr
   assert.ok(!ok.stdout.includes("deny"));
 });
 
-test("an accented word in the headline is a hard blocker", () => {
+test("an accented word in the headline is a warning, not a blocker", () => {
   const a = { width: 1440, vh: 900, h1: 72, hero: { h1Accent: ['"thumbnail"'], h1Visible: true, h1Inside: true, h1Box: { x: 0, y: 0, w: 800, h: 80 }, navCovers: [], placeholders: [], clipped: [], pic: { w: 900, h: 700 }, h1w: 900 } };
-  const { blockers } = judgeAudit(a, { hero: true });
-  const b = blockers.find((x) => /accented headline/.test(x));
-  assert.ok(b, blockers.join("\n"));
-  assert.ok(isHard(b));
+  const { blockers, warnings } = judgeAudit(a, { hero: true });
+  assert.ok(!blockers.some((x) => /accented headline/.test(x)), "never blocks");
+  const w = warnings.find((x) => /accented headline/.test(x));
+  assert.ok(w, warnings.join("\n"));
+  assert.ok(!isHard(w));
 });

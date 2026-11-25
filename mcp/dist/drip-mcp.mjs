@@ -100994,7 +100994,7 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
       else if (!bigPicture && a2.h1 < want * 0.85) warnings.push(`h1 ${a2.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
     }
     if (a2.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
-    if (a2.hero.h1Accent?.length) blockers.push(`accented headline: ${a2.hero.h1Accent.join(", ")} is set in another colour inside the h1. One colour for the whole headline; let the picture carry the colour (taste.md: Never)`);
+    if (a2.hero.h1Accent?.length) warnings.push(`accented headline: ${a2.hero.h1Accent.join(", ")} is in another colour inside the h1. Keep it only if it reads better than one colour (it carries the meaning, the brand does it); never by reflex`);
     if (a2.hero.placeholders?.length) blockers.push(`the first screen still has placeholders: ${a2.hero.placeholders.join(", ")} (fill them with the client's words, or a builder hasn't written the hero yet)`);
     else if (a2.h1 && a2.hero.h1Box && a2.hero.h1Inside === false) {
       const b = a2.hero.h1Box;
@@ -106873,7 +106873,7 @@ function register20(server2, ctx2) {
 
 // src/modules/fitcheck/index.mjs
 init_chrome();
-var isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|accented headline|is drawn over|no h1/i.test(String(b));
+var isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|is drawn over|no h1/i.test(String(b));
 var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 function register21(server2, ctx2) {
   register19(server2, ctx2);
@@ -114701,7 +114701,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.16";
+var VERSION = "0.8.17";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

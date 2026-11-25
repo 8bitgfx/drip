@@ -22,7 +22,7 @@ run(async () => {
       ? `\nThis is a NEW ROUND on the built page: the user wants a big change, not a touch-up. Run the loop's front half again before writing UI (the write gate holds until you do): ` +
         `1) look: refs_site on 2-3 shipped sites that are clearly better at what's asked + refs_gallery for the pattern, in one message; name what you take from each. ` +
         `2) one drip_execute with a components_find per upgrade, then ONE pieces_preview. 3) pieces_install, ONE build_prepare with every upgrade on its piece, drip:builder agents in one message. 4) fitcheck_shot. ` +
-        `Re-read taste.md (drip_guide taste) first. "Better" means bigger real pictures, a stronger composition and finished library pieces, never stacked effects: no accented word in a headline, no gradient text, no glow, glass, grain or shine sweeps as decoration, no tilt on everything.`
+        `Re-read taste.md (drip_guide taste) first. "Better" means bigger real pictures, a stronger composition and finished library pieces, never stacked effects (glow, glass, grain or shine sweeps as decoration, tilt on everything). Every effect has to earn its place on the page.`
       : "";
     return out({
       hookSpecificOutput: {
