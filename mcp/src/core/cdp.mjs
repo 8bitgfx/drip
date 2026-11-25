@@ -105,7 +105,10 @@ const AUDIT = `(() => {
     }
     if (clipped.length >= 6) break;
   }
-  const hero = { h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
+  // Unfilled [placeholders] on the first screen: a scaffold is not a hero.
+  const firstText = [...document.querySelectorAll('h1,h2,h3,p,a,button,li,span')].filter((e) => { const r = e.getBoundingClientRect(); return r.top < vh && r.bottom > 0 && e.childElementCount === 0; }).map((e) => e.textContent || '').join(' ');
+  const placeholders = [...new Set(firstText.match(/\\[[^\\]\\n]{2,60}\\]/g) || [])].slice(0, 6);
+  const hero = { placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
   // Sections below the first screen, and whether each shows a picture.
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
@@ -429,6 +432,7 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
       else if (!bigPicture && a.h1 < want * 0.85) warnings.push(`h1 ${a.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
     }
     if (a.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
+    if (a.hero.placeholders?.length) blockers.push(`the first screen still has placeholders: ${a.hero.placeholders.join(", ")} (fill them with the client's words, or a builder hasn't written the hero yet)`);
     else if (a.h1 && a.hero.h1Box && a.hero.h1Inside === false) {
       const b = a.hero.h1Box;
       blockers.push(`the h1's box (top ${b.top}, bottom ${b.bottom}, left ${b.left}, right ${b.right}px) is not fully inside the first viewport (${a.width}x${a.vh || 900}): it must start below the top edge and end above the fold, and sit between the side edges`);
