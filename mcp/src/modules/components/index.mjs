@@ -12,6 +12,54 @@ import { contactSheet, imageBlock, textBlock, toJpeg } from "../../core/images.m
 import { blocks } from "../../core/result.mjs";
 import { CLEAR_OVERLAYS } from "../../core/cdp.mjs";
 import { Jimp } from "jimp"; // static: a dynamic import of a bundled module reorders zod's init in the bundle
+import { homeDripDir } from "../../core/paths.mjs";
+import { loadPieces } from "../parts/pieces.mjs";
+
+// ---- Availability: a registry lists Pro and private items next to free ones (Aceternity's Pro blocks answer 401), and
+// some items have no page to look at. Check before offering; remember the answer for a week (failures included).
+const AVAIL_FILE = path.join(homeDripDir, "cache", "piece-availability.json");
+let avail = null;
+function availStore() {
+  if (!avail) {
+    try {
+      avail = JSON.parse(fs.readFileSync(AVAIL_FILE, "utf8"));
+    } catch {
+      avail = {};
+    }
+  }
+  return avail;
+}
+function availSave() {
+  try {
+    fs.mkdirSync(path.dirname(AVAIL_FILE), { recursive: true });
+    fs.writeFileSync(AVAIL_FILE, JSON.stringify(avail));
+  } catch {
+    /* a cache */
+  }
+}
+async function check(key, fn) {
+  const s = availStore();
+  const hit = s[key];
+  if (hit && Date.now() - hit.at < WEEK) return hit.ok;
+  let ok = false;
+  try {
+    ok = await fn();
+  } catch {
+    ok = false;
+  }
+  s[key] = { ok, at: Date.now() };
+  return ok;
+}
+/** The item installs without a login: its registry JSON answers 200. */
+export const installable = (url) => check(`item:${url}`, async () => (await fetch(url, { signal: AbortSignal.timeout(12000) })).ok);
+/** The preview page exists (not a 404 or a login wall). */
+export const viewable = (url) =>
+  check(`page:${url}`, async () => {
+    const r = await fetch(url, { redirect: "follow", headers: { "user-agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(12000) });
+    if (!r.ok) return false;
+    const body = (await r.text()).slice(0, 4000).toLowerCase();
+    return !/<title>[^<]*(404|not found|page not found)/.test(body);
+  });
 
 const WEEK = 7 * 24 * 3600e3;
 const DIRECTORY = "https://ui.shadcn.com/r/registries.json";
@@ -265,17 +313,33 @@ export function register(server, ctx) {
         .slice(0, 5);
       const [lists, free, rb] = await Promise.all([Promise.all(cat.entries.filter((e) => e.registry && e.price !== "paid").map((e) => registryItems(e).catch(() => []))), efferdFree(), reactbitsPaths()]);
       const all = lists.flat().filter((it) => it.library !== "efferd" || !free || free.has(it.name));
-      const items = all
-        .map((it) => ({ it, s: score(`${it.base.replace(/[-_]/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")} ${it.title} ${it.description}`, need) + (rawNeed ? score(`${it.base} ${it.title} ${it.description}`, rawNeed) * 2 : 0) }))
+      // Rank: the words, then craft signals (a piece Drip already curated, the library's quality), then check the best
+      // candidates really install without a login and have a page to look at; drop the ones that don't.
+      const curated = new Set(loadPieces().map((p) => `${p.lib}/${p.name}`));
+      const quality = Object.fromEntries(cat.entries.map((e) => [e.id, e.quality || 3]));
+      const ranked = all
+        .map((it) => {
+          const words = score(`${it.base.replace(/[-_]/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")} ${it.title} ${it.description}`, need) + (rawNeed ? score(`${it.base} ${it.title} ${it.description}`, rawNeed) * 2 : 0);
+          return { it, s: words ? words + (curated.has(`${it.library}/${it.name}`) ? 3 : 0) + ((quality[it.library] || 3) - 3) * 0.75 : 0 };
+        })
         .filter((x) => x.s > 0)
         .sort((a, b) => b.s - a.s)
-        .slice(0, limit);
+        .slice(0, limit * 3);
+      const checked = await Promise.all(
+        ranked.map(async (x) => {
+          const see = previewUrl({ lib: x.it.library, name: x.it.name }, { cats: cat.entries, reactbitsPaths: rb });
+          const [inst, view] = await Promise.all([x.it.html ? true : installable(x.it.url), see && !/\/gallery\/?$|^https:\/\/[^/]+\/?$/.test(see) ? viewable(see) : false]);
+          return { ...x, inst, see: view ? see : null, s: x.s + (view ? 1 : -1) };
+        }),
+      );
+      availSave();
+      const locked = checked.filter((x) => !x.inst).length;
+      const items = checked.filter((x) => x.inst).sort((a, b) => b.s - a.s).slice(0, limit);
       return text(
         `Libraries that fit "${rawNeed || kind}":\n${libs.map(({ e }) => `- ${e.name} (${e.category}, ${e.price}, ${e.license}): ${e.what} Use when: ${e.useWhen}${e.avoidWhen ? ` Avoid: ${e.avoidWhen}` : ""}`).join("\n") || "- none matched by description"}\n\n` +
-          `Installable components (${all.length} searched${kind ? `, kind ${kind}` : ""}):\n${items.map(({ it }) => {
+          `Installable components (${all.length} searched${kind ? `, kind ${kind}` : ""}; ${locked ? `${locked} Pro or private ones left out` : "all checked"}; best first, curated pieces and stronger libraries ranked up):\n${items.map(({ it, see }) => {
             const heavy = it.deps.filter((d) => HEAVY.test(d));
-            const see = previewUrl({ lib: it.library, name: it.name }, { cats: cat.entries, reactbitsPaths: rb });
-            return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` · needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` · deps ${it.deps.slice(0, 3).join(", ")}` : ""}\n    ${it.html ? `plain HTML: download ${it.url} into the page and load it with a script tag` : `install: ${it.url}`}${see ? ` · see: ${see}` : ""}`;
+            return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` · needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` · deps ${it.deps.slice(0, 3).join(", ")}` : ""}\n    ${it.html ? `plain HTML: download ${it.url} into the page and load it with a script tag` : `install: ${it.url}`}${see ? ` · see: ${see}` : " · (no page to preview: read it with components_get)"}`;
           }).join("\n") || "- none matched; try other words, or components_registries for 500+ more registries"}\n\n` +
           (kind === "background" || kind === "hero" ? "A background is a material, not the idea: tint it to the palette, keep the text zone calm, cap it to the hero, pause it off-screen and under reduced motion. For a static, licence-free one: gradient_mesh.\n" : "") +
           "Licences: React Bits is MIT + Commons Clause (use in the product, never redistribute the source); Aceternity's free items allow commercial end products, not resale.\n" +
@@ -336,6 +400,7 @@ export function register(server, ctx) {
       const shots = await Promise.all(
         targets.map(async (t) => {
           if (!t.url) return { ...t, err: "no page to show it" };
+          if (!(await viewable(t.url))) return { ...t, err: "no public page (a Pro or private item, or a wrong name): pick another, or read it with components_get" };
           try {
             const s = await previewShot(t.url, ctx.config());
             return s.blank ? { ...t, err: "didn't render in 10 s (WebGL or a login wall): open the page to see it" } : { ...t, buf: s.buf };

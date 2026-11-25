@@ -283,7 +283,8 @@ export function register(server, ctx) {
             `\nFIRST CALLS (one message):\n` +
             `1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }).\n` +
             `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).\n` +
-            `Then the loop below from step 3 (choose by eye, build, check once).${t.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}\n\n` +
+            `3. Right after: ONE drip_execute that runs components_find for every section's need (the recipe is in "Code Mode" below), then ONE pieces_preview of the best.\n` +
+            `Then the loop below from step 4 (build, check once).${t.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}\n\n` +
             bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
         );
       }

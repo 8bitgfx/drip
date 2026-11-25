@@ -439,10 +439,10 @@
         "react",
         "tailwind"
       ],
-      "install": "npx shadcn@latest add https://efferd.com/r/<name>.json",
+      "install": "npx shadcn@latest add https://efferd.com/r/new-york/<name>.json",
       "registry": {
         "index": "https://efferd.com/r/registry.json",
-        "item": "https://efferd.com/r/{name}.json"
+        "item": "https://efferd.com/r/new-york/{name}.json"
       },
       "fit": [
         "landing",

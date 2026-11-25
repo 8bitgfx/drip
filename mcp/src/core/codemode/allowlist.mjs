@@ -10,6 +10,7 @@ export const DEFAULT_ALLOW = [
   "components_*", "pattern_*", "palette_*", "gradient_*", "icons_*", "fonts_*", "images_*", "optical_*",
   "gen_*", "keys_status", "fitcheck_*", "critic_*", "logo_*", "pack_*",
   "art_*", "shader_*", "scene_*", "assets_*", "blender_*", "motion_*", "wordmark_*",
+  "pieces_*", "parts_*", "layout_*", "build_*", "page_*", "mockup_*", "checker_*", "scout_*",
 ];
 
 /** Tools that start a local server or open a window. Exact-name allow in config re-enables them. */

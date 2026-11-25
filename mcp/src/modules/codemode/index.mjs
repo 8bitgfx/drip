@@ -44,7 +44,8 @@ export function register(server) {
         "Runs a short JavaScript function body in a sandbox that can only call Drip tools as `await drip.<tool>(args)` (find signatures with drip_search). Use it to chain several tool calls, loop over results and return only what matters, instead of one round trip per call. " +
         "Each call returns { text, data?, images: [file paths] } and throws on invalid arguments, gate refusals or tool errors (use try/catch to continue). Use `return` for the result and console.log for notes. No fs, network, process or require. Same gates and state as the direct tools. " +
         "Limits: timeoutMs (default 120000), maxCalls (default 50), 64 MB memory; images are saved to files and the first few are attached. " +
-        "Example: drip_execute({ code: \"const r = await drip.palette_generate({ accent: '#E8452C' }); return r.text.slice(0, 200);\" })",
+        "Use it whenever you'd make 3+ similar calls: a component search for every section, pictures for every section, several re-checks. " +
+        'Example: drip_execute({ code: "const needs = { hero: \'fan of image cards\', features: \'bento of live product UI\', proof: \'testimonial wall\' }; const out = {}; for (const [s, n] of Object.entries(needs)) { const r = await drip.components_find({ need: n, limit: 4 }); const i = r.text.indexOf(\'Installable\'); out[s] = r.text.slice(i, i + 900); } return out;" })',
       inputSchema: {
         code: z.string().describe("JavaScript function body; `return` the result"),
         timeoutMs: z.number().int().min(100).max(600000).optional().describe("Wall time for the whole run"),

@@ -7764,7 +7764,7 @@ var init_react = __esm({
       "@eldora": "https://eldoraui.site/r/{name}.json",
       "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
       "@animate-ui": "https://animate-ui.com/r/{name}.json",
-      "@efferd": "https://efferd.com/r/{name}.json"
+      "@efferd": "https://efferd.com/r/new-york/{name}.json"
     };
     installs = /* @__PURE__ */ new Map();
     isReactPage = (dir) => fs16.existsSync(path17.join(dir, "vite.config.ts")) && fs16.existsSync(path17.join(dir, "src", "App.tsx"));
@@ -18573,7 +18573,7 @@ var require_deflate = __commonJS({
       var s2;
       var str, n3;
       var wrap5;
-      var avail;
+      var avail2;
       var next;
       var input2;
       var tmpDict;
@@ -18601,7 +18601,7 @@ var require_deflate = __commonJS({
         dictionary = tmpDict;
         dictLength = s2.w_size;
       }
-      avail = strm.avail_in;
+      avail2 = strm.avail_in;
       next = strm.next_in;
       input2 = strm.input;
       strm.avail_in = dictLength;
@@ -18629,7 +18629,7 @@ var require_deflate = __commonJS({
       s2.match_available = 0;
       strm.next_in = next;
       strm.input = input2;
-      strm.avail_in = avail;
+      strm.avail_in = avail2;
       s2.wrap = wrap5;
       return Z_OK;
     }
@@ -53190,11 +53190,11 @@ var require_opentype = __commonJS({
         unicodeVariationSequenceCheck: variationSequenceCheck_default
       };
       function registerContextChecker(checkId) {
-        const check3 = this.contextChecks[`${checkId}Check`];
+        const check4 = this.contextChecks[`${checkId}Check`];
         return this.tokenizer.registerContextChecker(
           checkId,
-          check3.startCheck,
-          check3.endCheck
+          check4.startCheck,
+          check4.endCheck
         );
       }
       function tokenizeText() {
@@ -58708,7 +58708,7 @@ var ZodType = class {
     const result = await (isAsync(maybeAsyncResult) ? maybeAsyncResult : Promise.resolve(maybeAsyncResult));
     return handleResult(ctx2, result);
   }
-  refine(check3, message) {
+  refine(check4, message) {
     const getIssueProperties = (val) => {
       if (typeof message === "string" || typeof message === "undefined") {
         return { message };
@@ -58719,7 +58719,7 @@ var ZodType = class {
       }
     };
     return this._refinement((val, ctx2) => {
-      const result = check3(val);
+      const result = check4(val);
       const setError = () => ctx2.addIssue({
         code: ZodIssueCode.custom,
         ...getIssueProperties(val)
@@ -58742,9 +58742,9 @@ var ZodType = class {
       }
     });
   }
-  refinement(check3, refinementData) {
+  refinement(check4, refinementData) {
     return this._refinement((val, ctx2) => {
-      if (!check3(val)) {
+      if (!check4(val)) {
         ctx2.addIssue(typeof refinementData === "function" ? refinementData(val, ctx2) : refinementData);
         return false;
       } else {
@@ -58966,70 +58966,70 @@ var ZodString = class _ZodString2 extends ZodType {
     }
     const status = new ParseStatus();
     let ctx2 = void 0;
-    for (const check3 of this._def.checks) {
-      if (check3.kind === "min") {
-        if (input2.data.length < check3.value) {
+    for (const check4 of this._def.checks) {
+      if (check4.kind === "min") {
+        if (input2.data.length < check4.value) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_small,
-            minimum: check3.value,
+            minimum: check4.value,
             type: "string",
             inclusive: true,
             exact: false,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "max") {
-        if (input2.data.length > check3.value) {
+      } else if (check4.kind === "max") {
+        if (input2.data.length > check4.value) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_big,
-            maximum: check3.value,
+            maximum: check4.value,
             type: "string",
             inclusive: true,
             exact: false,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "length") {
-        const tooBig = input2.data.length > check3.value;
-        const tooSmall = input2.data.length < check3.value;
+      } else if (check4.kind === "length") {
+        const tooBig = input2.data.length > check4.value;
+        const tooSmall = input2.data.length < check4.value;
         if (tooBig || tooSmall) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           if (tooBig) {
             addIssueToContext(ctx2, {
               code: ZodIssueCode.too_big,
-              maximum: check3.value,
+              maximum: check4.value,
               type: "string",
               inclusive: true,
               exact: true,
-              message: check3.message
+              message: check4.message
             });
           } else if (tooSmall) {
             addIssueToContext(ctx2, {
               code: ZodIssueCode.too_small,
-              minimum: check3.value,
+              minimum: check4.value,
               type: "string",
               inclusive: true,
               exact: true,
-              message: check3.message
+              message: check4.message
             });
           }
           status.dirty();
         }
-      } else if (check3.kind === "email") {
+      } else if (check4.kind === "email") {
         if (!emailRegex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "email",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "emoji") {
+      } else if (check4.kind === "emoji") {
         if (!emojiRegex) {
           emojiRegex = new RegExp(_emojiRegex, "u");
         }
@@ -59038,61 +59038,61 @@ var ZodString = class _ZodString2 extends ZodType {
           addIssueToContext(ctx2, {
             validation: "emoji",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "uuid") {
+      } else if (check4.kind === "uuid") {
         if (!uuidRegex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "uuid",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "nanoid") {
+      } else if (check4.kind === "nanoid") {
         if (!nanoidRegex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "nanoid",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "cuid") {
+      } else if (check4.kind === "cuid") {
         if (!cuidRegex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "cuid",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "cuid2") {
+      } else if (check4.kind === "cuid2") {
         if (!cuid2Regex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "cuid2",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "ulid") {
+      } else if (check4.kind === "ulid") {
         if (!ulidRegex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "ulid",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "url") {
+      } else if (check4.kind === "url") {
         try {
           new URL(input2.data);
         } catch {
@@ -59100,153 +59100,153 @@ var ZodString = class _ZodString2 extends ZodType {
           addIssueToContext(ctx2, {
             validation: "url",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "regex") {
-        check3.regex.lastIndex = 0;
-        const testResult = check3.regex.test(input2.data);
+      } else if (check4.kind === "regex") {
+        check4.regex.lastIndex = 0;
+        const testResult = check4.regex.test(input2.data);
         if (!testResult) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "regex",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "trim") {
+      } else if (check4.kind === "trim") {
         input2.data = input2.data.trim();
-      } else if (check3.kind === "includes") {
-        if (!input2.data.includes(check3.value, check3.position)) {
+      } else if (check4.kind === "includes") {
+        if (!input2.data.includes(check4.value, check4.position)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.invalid_string,
-            validation: { includes: check3.value, position: check3.position },
-            message: check3.message
+            validation: { includes: check4.value, position: check4.position },
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "toLowerCase") {
+      } else if (check4.kind === "toLowerCase") {
         input2.data = input2.data.toLowerCase();
-      } else if (check3.kind === "toUpperCase") {
+      } else if (check4.kind === "toUpperCase") {
         input2.data = input2.data.toUpperCase();
-      } else if (check3.kind === "startsWith") {
-        if (!input2.data.startsWith(check3.value)) {
+      } else if (check4.kind === "startsWith") {
+        if (!input2.data.startsWith(check4.value)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.invalid_string,
-            validation: { startsWith: check3.value },
-            message: check3.message
+            validation: { startsWith: check4.value },
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "endsWith") {
-        if (!input2.data.endsWith(check3.value)) {
+      } else if (check4.kind === "endsWith") {
+        if (!input2.data.endsWith(check4.value)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.invalid_string,
-            validation: { endsWith: check3.value },
-            message: check3.message
+            validation: { endsWith: check4.value },
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "datetime") {
-        const regex = datetimeRegex(check3);
+      } else if (check4.kind === "datetime") {
+        const regex = datetimeRegex(check4);
         if (!regex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.invalid_string,
             validation: "datetime",
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "date") {
+      } else if (check4.kind === "date") {
         const regex = dateRegex;
         if (!regex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.invalid_string,
             validation: "date",
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "time") {
-        const regex = timeRegex(check3);
+      } else if (check4.kind === "time") {
+        const regex = timeRegex(check4);
         if (!regex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.invalid_string,
             validation: "time",
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "duration") {
+      } else if (check4.kind === "duration") {
         if (!durationRegex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "duration",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "ip") {
-        if (!isValidIP(input2.data, check3.version)) {
+      } else if (check4.kind === "ip") {
+        if (!isValidIP(input2.data, check4.version)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "ip",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "jwt") {
-        if (!isValidJWT(input2.data, check3.alg)) {
+      } else if (check4.kind === "jwt") {
+        if (!isValidJWT(input2.data, check4.alg)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "jwt",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "cidr") {
-        if (!isValidCidr(input2.data, check3.version)) {
+      } else if (check4.kind === "cidr") {
+        if (!isValidCidr(input2.data, check4.version)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "cidr",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "base64") {
+      } else if (check4.kind === "base64") {
         if (!base64Regex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "base64",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "base64url") {
+      } else if (check4.kind === "base64url") {
         if (!base64urlRegex.test(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             validation: "base64url",
             code: ZodIssueCode.invalid_string,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
       } else {
-        util.assertNever(check3);
+        util.assertNever(check4);
       }
     }
     return { status: status.value, value: input2.data };
@@ -59258,10 +59258,10 @@ var ZodString = class _ZodString2 extends ZodType {
       ...errorUtil.errToObj(message)
     });
   }
-  _addCheck(check3) {
+  _addCheck(check4) {
     return new _ZodString2({
       ...this._def,
-      checks: [...this._def.checks, check3]
+      checks: [...this._def.checks, check4]
     });
   }
   email(message) {
@@ -59526,67 +59526,67 @@ var ZodNumber = class _ZodNumber extends ZodType {
     }
     let ctx2 = void 0;
     const status = new ParseStatus();
-    for (const check3 of this._def.checks) {
-      if (check3.kind === "int") {
+    for (const check4 of this._def.checks) {
+      if (check4.kind === "int") {
         if (!util.isInteger(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.invalid_type,
             expected: "integer",
             received: "float",
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "min") {
-        const tooSmall = check3.inclusive ? input2.data < check3.value : input2.data <= check3.value;
+      } else if (check4.kind === "min") {
+        const tooSmall = check4.inclusive ? input2.data < check4.value : input2.data <= check4.value;
         if (tooSmall) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_small,
-            minimum: check3.value,
+            minimum: check4.value,
             type: "number",
-            inclusive: check3.inclusive,
+            inclusive: check4.inclusive,
             exact: false,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "max") {
-        const tooBig = check3.inclusive ? input2.data > check3.value : input2.data >= check3.value;
+      } else if (check4.kind === "max") {
+        const tooBig = check4.inclusive ? input2.data > check4.value : input2.data >= check4.value;
         if (tooBig) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_big,
-            maximum: check3.value,
+            maximum: check4.value,
             type: "number",
-            inclusive: check3.inclusive,
+            inclusive: check4.inclusive,
             exact: false,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "multipleOf") {
-        if (floatSafeRemainder(input2.data, check3.value) !== 0) {
+      } else if (check4.kind === "multipleOf") {
+        if (floatSafeRemainder(input2.data, check4.value) !== 0) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.not_multiple_of,
-            multipleOf: check3.value,
-            message: check3.message
+            multipleOf: check4.value,
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "finite") {
+      } else if (check4.kind === "finite") {
         if (!Number.isFinite(input2.data)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.not_finite,
-            message: check3.message
+            message: check4.message
           });
           status.dirty();
         }
       } else {
-        util.assertNever(check3);
+        util.assertNever(check4);
       }
     }
     return { status: status.value, value: input2.data };
@@ -59617,10 +59617,10 @@ var ZodNumber = class _ZodNumber extends ZodType {
       ]
     });
   }
-  _addCheck(check3) {
+  _addCheck(check4) {
     return new _ZodNumber({
       ...this._def,
-      checks: [...this._def.checks, check3]
+      checks: [...this._def.checks, check4]
     });
   }
   int(message) {
@@ -59755,45 +59755,45 @@ var ZodBigInt = class _ZodBigInt extends ZodType {
     }
     let ctx2 = void 0;
     const status = new ParseStatus();
-    for (const check3 of this._def.checks) {
-      if (check3.kind === "min") {
-        const tooSmall = check3.inclusive ? input2.data < check3.value : input2.data <= check3.value;
+    for (const check4 of this._def.checks) {
+      if (check4.kind === "min") {
+        const tooSmall = check4.inclusive ? input2.data < check4.value : input2.data <= check4.value;
         if (tooSmall) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_small,
             type: "bigint",
-            minimum: check3.value,
-            inclusive: check3.inclusive,
-            message: check3.message
+            minimum: check4.value,
+            inclusive: check4.inclusive,
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "max") {
-        const tooBig = check3.inclusive ? input2.data > check3.value : input2.data >= check3.value;
+      } else if (check4.kind === "max") {
+        const tooBig = check4.inclusive ? input2.data > check4.value : input2.data >= check4.value;
         if (tooBig) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_big,
             type: "bigint",
-            maximum: check3.value,
-            inclusive: check3.inclusive,
-            message: check3.message
+            maximum: check4.value,
+            inclusive: check4.inclusive,
+            message: check4.message
           });
           status.dirty();
         }
-      } else if (check3.kind === "multipleOf") {
-        if (input2.data % check3.value !== BigInt(0)) {
+      } else if (check4.kind === "multipleOf") {
+        if (input2.data % check4.value !== BigInt(0)) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.not_multiple_of,
-            multipleOf: check3.value,
-            message: check3.message
+            multipleOf: check4.value,
+            message: check4.message
           });
           status.dirty();
         }
       } else {
-        util.assertNever(check3);
+        util.assertNever(check4);
       }
     }
     return { status: status.value, value: input2.data };
@@ -59833,10 +59833,10 @@ var ZodBigInt = class _ZodBigInt extends ZodType {
       ]
     });
   }
-  _addCheck(check3) {
+  _addCheck(check4) {
     return new _ZodBigInt({
       ...this._def,
-      checks: [...this._def.checks, check3]
+      checks: [...this._def.checks, check4]
     });
   }
   positive(message) {
@@ -59956,35 +59956,35 @@ var ZodDate = class _ZodDate extends ZodType {
     }
     const status = new ParseStatus();
     let ctx2 = void 0;
-    for (const check3 of this._def.checks) {
-      if (check3.kind === "min") {
-        if (input2.data.getTime() < check3.value) {
+    for (const check4 of this._def.checks) {
+      if (check4.kind === "min") {
+        if (input2.data.getTime() < check4.value) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_small,
-            message: check3.message,
+            message: check4.message,
             inclusive: true,
             exact: false,
-            minimum: check3.value,
+            minimum: check4.value,
             type: "date"
           });
           status.dirty();
         }
-      } else if (check3.kind === "max") {
-        if (input2.data.getTime() > check3.value) {
+      } else if (check4.kind === "max") {
+        if (input2.data.getTime() > check4.value) {
           ctx2 = this._getOrReturnCtx(input2, ctx2);
           addIssueToContext(ctx2, {
             code: ZodIssueCode.too_big,
-            message: check3.message,
+            message: check4.message,
             inclusive: true,
             exact: false,
-            maximum: check3.value,
+            maximum: check4.value,
             type: "date"
           });
           status.dirty();
         }
       } else {
-        util.assertNever(check3);
+        util.assertNever(check4);
       }
     }
     return {
@@ -59992,10 +59992,10 @@ var ZodDate = class _ZodDate extends ZodType {
       value: new Date(input2.data.getTime())
     };
   }
-  _addCheck(check3) {
+  _addCheck(check4) {
     return new _ZodDate({
       ...this._def,
-      checks: [...this._def.checks, check3]
+      checks: [...this._def.checks, check4]
     });
   }
   min(minDate, message) {
@@ -66743,7 +66743,7 @@ function isRecursive(inst, stack, resolve2) {
     return PROVEN;
   stack.add(inst);
   let result = NONE;
-  const check3 = (child) => {
+  const check4 = (child) => {
     if (result !== PROVEN && child?._zod) {
       const answer = isRecursive(child, stack, resolve2);
       if (answer > result)
@@ -66772,32 +66772,32 @@ function isRecursive(inst, stack, resolve2) {
     case "object": {
       const raw = rawShape(def);
       merge5(raw ? shape(raw, true) : ASSUMED);
-      check3(def.catchall);
+      check4(def.catchall);
       break;
     }
     case "array":
-      check3(def.element);
+      check4(def.element);
       break;
     case "tuple":
       for (const el of def.items)
-        check3(el);
-      check3(def.rest);
+        check4(el);
+      check4(def.rest);
       break;
     case "record":
     case "map":
-      check3(def.keyType);
-      check3(def.valueType);
+      check4(def.keyType);
+      check4(def.valueType);
       break;
     case "set":
-      check3(def.valueType);
+      check4(def.valueType);
       break;
     case "union":
       for (const el of def.options)
-        check3(el);
+        check4(el);
       break;
     case "intersection":
-      check3(def.left);
-      check3(def.right);
+      check4(def.left);
+      check4(def.right);
       break;
     case "optional":
     case "nullable":
@@ -66808,15 +66808,15 @@ function isRecursive(inst, stack, resolve2) {
     case "nonoptional":
     case "promise":
     case "success":
-      check3(def.innerType);
+      check4(def.innerType);
       break;
     case "pipe":
-      check3(def.in);
-      check3(def.out);
+      check4(def.in);
+      check4(def.out);
       break;
     case "function":
-      check3(def.input);
-      check3(def.output);
+      check4(def.input);
+      check4(def.output);
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
@@ -66857,10 +66857,10 @@ function isRecursive(inst, stack, resolve2) {
         if (!value || typeof value !== "object")
           continue;
         if (value._zod)
-          check3(value);
+          check4(value);
         else if (Array.isArray(value))
           for (const el of value)
-            check3(el);
+            check4(el);
       }
     }
   }
@@ -74806,8 +74806,8 @@ function generateChecks(doc, ctx2, schema, accessor) {
   if (!schemaChecks || schemaChecks.length === 0)
     return accessor;
   let currentAccessor = accessor;
-  for (const check3 of schemaChecks) {
-    const def = check3._zod.def;
+  for (const check4 of schemaChecks) {
+    const def = check4._zod.def;
     if (def.when && !WHEN_DEFAULTED_CHECKS.has(def.check)) {
       throw new ZodCompileUnsupportedError(`check with a custom "when" condition`);
     }
@@ -74855,7 +74855,7 @@ function generateChecks(doc, ctx2, schema, accessor) {
         currentAccessor = generateStringFormatCheck(doc, ctx2, def, currentAccessor);
         break;
       case "custom":
-        currentAccessor = generateCustomRefineCheck(doc, ctx2, check3, currentAccessor);
+        currentAccessor = generateCustomRefineCheck(doc, ctx2, check4, currentAccessor);
         break;
       case "bigint_format":
         generateBigIntFormatCheck(doc, def, currentAccessor);
@@ -74871,7 +74871,7 @@ function generateChecks(doc, ctx2, schema, accessor) {
         break;
       case "overwrite": {
         const newAccessor = newVar(ctx2);
-        generateOverwriteCheck(doc, ctx2, check3, currentAccessor, newAccessor);
+        generateOverwriteCheck(doc, ctx2, check4, currentAccessor, newAccessor);
         currentAccessor = newAccessor;
         break;
       }
@@ -74994,8 +74994,8 @@ function generatePropertyCheck(doc, ctx2, def, accessor) {
   const propAccessor = `${accessor}[${JSON.stringify(def.property)}]`;
   generateCheck(doc, ctx2, def.schema, propAccessor);
 }
-function generateOverwriteCheck(doc, ctx2, check3, currentAccessor, newAccessor) {
-  const tx = check3._zod.def.tx;
+function generateOverwriteCheck(doc, ctx2, check4, currentAccessor, newAccessor) {
+  const tx = check4._zod.def.tx;
   if (!tx) {
     throw new ZodCompileUnsupportedError("overwrite check without a transform function");
   }
@@ -75011,8 +75011,8 @@ function throwAsync() {
 function pushIssue(issue2) {
   this.issues.push(issue2);
 }
-function generateCustomRefineCheck(doc, ctx2, check3, accessor) {
-  const def = check3._zod.def;
+function generateCustomRefineCheck(doc, ctx2, check4, accessor) {
+  const def = check4._zod.def;
   if (def.fn) {
     if (isAsyncFunction(def.fn)) {
       throw new ZodCompileAsyncError("z.compile: async .refine() predicates are not supported");
@@ -75025,11 +75025,11 @@ function generateCustomRefineCheck(doc, ctx2, check3, accessor) {
     doc.write(`if (!${resVar}) return INVALID;`);
     return accessor;
   }
-  if (check3._zod.check) {
-    if (isAsyncFunction(check3._zod.check)) {
+  if (check4._zod.check) {
+    if (isAsyncFunction(check4._zod.check)) {
       throw new ZodCompileAsyncError("z.compile: async .superRefine() / check functions are not supported");
     }
-    const checkFn = check3._zod.check;
+    const checkFn = check4._zod.check;
     const helperFn = (value) => {
       const fakePayload = { value, issues: [], addIssue: pushIssue };
       const result = checkFn(fakePayload);
@@ -75651,8 +75651,8 @@ function generateNullableCheck(doc, ctx2, schema, accessor, buildsValue = true) 
   return outputVar;
 }
 function generateSizeGate(doc, schema, size) {
-  for (const [max, check3] of sizeCaps(schema._zod.def.checks)) {
-    doc.write(`if (${size} > ${numericOperand(max, check3._zod.def.check)}) return INVALID;`);
+  for (const [max, check4] of sizeCaps(schema._zod.def.checks)) {
+    doc.write(`if (${size} > ${numericOperand(max, check4._zod.def.check)}) return INVALID;`);
   }
 }
 function generateArrayCheck(doc, ctx2, schema, accessor, buildsValue = true) {
@@ -79596,8 +79596,8 @@ var ZodType2 = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
     reg.add(this, meta3);
     return this;
   },
-  refine(check3, params) {
-    return this.check(refine(check3, params));
+  refine(check4, params) {
+    return this.check(refine(check4, params));
   },
   superRefine(refinement, params) {
     return this.check(superRefine(refinement, params));
@@ -83539,38 +83539,38 @@ function parseBigintDef(def, refs) {
   };
   if (!def.checks)
     return res;
-  for (const check3 of def.checks) {
-    switch (check3.kind) {
+  for (const check4 of def.checks) {
+    switch (check4.kind) {
       case "min":
         if (refs.target === "jsonSchema7") {
-          if (check3.inclusive) {
-            setResponseValueAndErrors(res, "minimum", check3.value, check3.message, refs);
+          if (check4.inclusive) {
+            setResponseValueAndErrors(res, "minimum", check4.value, check4.message, refs);
           } else {
-            setResponseValueAndErrors(res, "exclusiveMinimum", check3.value, check3.message, refs);
+            setResponseValueAndErrors(res, "exclusiveMinimum", check4.value, check4.message, refs);
           }
         } else {
-          if (!check3.inclusive) {
+          if (!check4.inclusive) {
             res.exclusiveMinimum = true;
           }
-          setResponseValueAndErrors(res, "minimum", check3.value, check3.message, refs);
+          setResponseValueAndErrors(res, "minimum", check4.value, check4.message, refs);
         }
         break;
       case "max":
         if (refs.target === "jsonSchema7") {
-          if (check3.inclusive) {
-            setResponseValueAndErrors(res, "maximum", check3.value, check3.message, refs);
+          if (check4.inclusive) {
+            setResponseValueAndErrors(res, "maximum", check4.value, check4.message, refs);
           } else {
-            setResponseValueAndErrors(res, "exclusiveMaximum", check3.value, check3.message, refs);
+            setResponseValueAndErrors(res, "exclusiveMaximum", check4.value, check4.message, refs);
           }
         } else {
-          if (!check3.inclusive) {
+          if (!check4.inclusive) {
             res.exclusiveMaximum = true;
           }
-          setResponseValueAndErrors(res, "maximum", check3.value, check3.message, refs);
+          setResponseValueAndErrors(res, "maximum", check4.value, check4.message, refs);
         }
         break;
       case "multipleOf":
-        setResponseValueAndErrors(res, "multipleOf", check3.value, check3.message, refs);
+        setResponseValueAndErrors(res, "multipleOf", check4.value, check4.message, refs);
         break;
     }
   }
@@ -83626,15 +83626,15 @@ var integerDateParser = (def, refs) => {
   if (refs.target === "openApi3") {
     return res;
   }
-  for (const check3 of def.checks) {
-    switch (check3.kind) {
+  for (const check4 of def.checks) {
+    switch (check4.kind) {
       case "min":
         setResponseValueAndErrors(
           res,
           "minimum",
-          check3.value,
+          check4.value,
           // This is in milliseconds
-          check3.message,
+          check4.message,
           refs
         );
         break;
@@ -83642,9 +83642,9 @@ var integerDateParser = (def, refs) => {
         setResponseValueAndErrors(
           res,
           "maximum",
-          check3.value,
+          check4.value,
           // This is in milliseconds
-          check3.message,
+          check4.message,
           refs
         );
         break;
@@ -83790,118 +83790,118 @@ function parseStringDef(def, refs) {
     type: "string"
   };
   if (def.checks) {
-    for (const check3 of def.checks) {
-      switch (check3.kind) {
+    for (const check4 of def.checks) {
+      switch (check4.kind) {
         case "min":
-          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check3.value) : check3.value, check3.message, refs);
+          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check4.value) : check4.value, check4.message, refs);
           break;
         case "max":
-          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check3.value) : check3.value, check3.message, refs);
+          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check4.value) : check4.value, check4.message, refs);
           break;
         case "email":
           switch (refs.emailStrategy) {
             case "format:email":
-              addFormat(res, "email", check3.message, refs);
+              addFormat(res, "email", check4.message, refs);
               break;
             case "format:idn-email":
-              addFormat(res, "idn-email", check3.message, refs);
+              addFormat(res, "idn-email", check4.message, refs);
               break;
             case "pattern:zod":
-              addPattern2(res, zodPatterns.email, check3.message, refs);
+              addPattern2(res, zodPatterns.email, check4.message, refs);
               break;
           }
           break;
         case "url":
-          addFormat(res, "uri", check3.message, refs);
+          addFormat(res, "uri", check4.message, refs);
           break;
         case "uuid":
-          addFormat(res, "uuid", check3.message, refs);
+          addFormat(res, "uuid", check4.message, refs);
           break;
         case "regex":
-          addPattern2(res, check3.regex, check3.message, refs);
+          addPattern2(res, check4.regex, check4.message, refs);
           break;
         case "cuid":
-          addPattern2(res, zodPatterns.cuid, check3.message, refs);
+          addPattern2(res, zodPatterns.cuid, check4.message, refs);
           break;
         case "cuid2":
-          addPattern2(res, zodPatterns.cuid2, check3.message, refs);
+          addPattern2(res, zodPatterns.cuid2, check4.message, refs);
           break;
         case "startsWith":
-          addPattern2(res, RegExp(`^${escapeLiteralCheckValue(check3.value, refs)}`), check3.message, refs);
+          addPattern2(res, RegExp(`^${escapeLiteralCheckValue(check4.value, refs)}`), check4.message, refs);
           break;
         case "endsWith":
-          addPattern2(res, RegExp(`${escapeLiteralCheckValue(check3.value, refs)}$`), check3.message, refs);
+          addPattern2(res, RegExp(`${escapeLiteralCheckValue(check4.value, refs)}$`), check4.message, refs);
           break;
         case "datetime":
-          addFormat(res, "date-time", check3.message, refs);
+          addFormat(res, "date-time", check4.message, refs);
           break;
         case "date":
-          addFormat(res, "date", check3.message, refs);
+          addFormat(res, "date", check4.message, refs);
           break;
         case "time":
-          addFormat(res, "time", check3.message, refs);
+          addFormat(res, "time", check4.message, refs);
           break;
         case "duration":
-          addFormat(res, "duration", check3.message, refs);
+          addFormat(res, "duration", check4.message, refs);
           break;
         case "length":
-          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check3.value) : check3.value, check3.message, refs);
-          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check3.value) : check3.value, check3.message, refs);
+          setResponseValueAndErrors(res, "minLength", typeof res.minLength === "number" ? Math.max(res.minLength, check4.value) : check4.value, check4.message, refs);
+          setResponseValueAndErrors(res, "maxLength", typeof res.maxLength === "number" ? Math.min(res.maxLength, check4.value) : check4.value, check4.message, refs);
           break;
         case "includes": {
-          addPattern2(res, RegExp(escapeLiteralCheckValue(check3.value, refs)), check3.message, refs);
+          addPattern2(res, RegExp(escapeLiteralCheckValue(check4.value, refs)), check4.message, refs);
           break;
         }
         case "ip": {
-          if (check3.version !== "v6") {
-            addFormat(res, "ipv4", check3.message, refs);
+          if (check4.version !== "v6") {
+            addFormat(res, "ipv4", check4.message, refs);
           }
-          if (check3.version !== "v4") {
-            addFormat(res, "ipv6", check3.message, refs);
+          if (check4.version !== "v4") {
+            addFormat(res, "ipv6", check4.message, refs);
           }
           break;
         }
         case "base64url":
-          addPattern2(res, zodPatterns.base64url, check3.message, refs);
+          addPattern2(res, zodPatterns.base64url, check4.message, refs);
           break;
         case "jwt":
-          addPattern2(res, zodPatterns.jwt, check3.message, refs);
+          addPattern2(res, zodPatterns.jwt, check4.message, refs);
           break;
         case "cidr": {
-          if (check3.version !== "v6") {
-            addPattern2(res, zodPatterns.ipv4Cidr, check3.message, refs);
+          if (check4.version !== "v6") {
+            addPattern2(res, zodPatterns.ipv4Cidr, check4.message, refs);
           }
-          if (check3.version !== "v4") {
-            addPattern2(res, zodPatterns.ipv6Cidr, check3.message, refs);
+          if (check4.version !== "v4") {
+            addPattern2(res, zodPatterns.ipv6Cidr, check4.message, refs);
           }
           break;
         }
         case "emoji":
-          addPattern2(res, zodPatterns.emoji(), check3.message, refs);
+          addPattern2(res, zodPatterns.emoji(), check4.message, refs);
           break;
         case "ulid": {
-          addPattern2(res, zodPatterns.ulid, check3.message, refs);
+          addPattern2(res, zodPatterns.ulid, check4.message, refs);
           break;
         }
         case "base64": {
           switch (refs.base64Strategy) {
             case "format:binary": {
-              addFormat(res, "binary", check3.message, refs);
+              addFormat(res, "binary", check4.message, refs);
               break;
             }
             case "contentEncoding:base64": {
-              setResponseValueAndErrors(res, "contentEncoding", "base64", check3.message, refs);
+              setResponseValueAndErrors(res, "contentEncoding", "base64", check4.message, refs);
               break;
             }
             case "pattern:zod": {
-              addPattern2(res, zodPatterns.base64, check3.message, refs);
+              addPattern2(res, zodPatterns.base64, check4.message, refs);
               break;
             }
           }
           break;
         }
         case "nanoid": {
-          addPattern2(res, zodPatterns.nanoid, check3.message, refs);
+          addPattern2(res, zodPatterns.nanoid, check4.message, refs);
         }
         case "toLowerCase":
         case "toUpperCase":
@@ -83909,7 +83909,7 @@ function parseStringDef(def, refs) {
           break;
         default:
           /* @__PURE__ */ ((_) => {
-          })(check3);
+          })(check4);
       }
     }
   }
@@ -84279,42 +84279,42 @@ function parseNumberDef(def, refs) {
   };
   if (!def.checks)
     return res;
-  for (const check3 of def.checks) {
-    switch (check3.kind) {
+  for (const check4 of def.checks) {
+    switch (check4.kind) {
       case "int":
         res.type = "integer";
-        addErrorMessage(res, "type", check3.message, refs);
+        addErrorMessage(res, "type", check4.message, refs);
         break;
       case "min":
         if (refs.target === "jsonSchema7") {
-          if (check3.inclusive) {
-            setResponseValueAndErrors(res, "minimum", check3.value, check3.message, refs);
+          if (check4.inclusive) {
+            setResponseValueAndErrors(res, "minimum", check4.value, check4.message, refs);
           } else {
-            setResponseValueAndErrors(res, "exclusiveMinimum", check3.value, check3.message, refs);
+            setResponseValueAndErrors(res, "exclusiveMinimum", check4.value, check4.message, refs);
           }
         } else {
-          if (!check3.inclusive) {
+          if (!check4.inclusive) {
             res.exclusiveMinimum = true;
           }
-          setResponseValueAndErrors(res, "minimum", check3.value, check3.message, refs);
+          setResponseValueAndErrors(res, "minimum", check4.value, check4.message, refs);
         }
         break;
       case "max":
         if (refs.target === "jsonSchema7") {
-          if (check3.inclusive) {
-            setResponseValueAndErrors(res, "maximum", check3.value, check3.message, refs);
+          if (check4.inclusive) {
+            setResponseValueAndErrors(res, "maximum", check4.value, check4.message, refs);
           } else {
-            setResponseValueAndErrors(res, "exclusiveMaximum", check3.value, check3.message, refs);
+            setResponseValueAndErrors(res, "exclusiveMaximum", check4.value, check4.message, refs);
           }
         } else {
-          if (!check3.inclusive) {
+          if (!check4.inclusive) {
             res.exclusiveMaximum = true;
           }
-          setResponseValueAndErrors(res, "maximum", check3.value, check3.message, refs);
+          setResponseValueAndErrors(res, "maximum", check4.value, check4.message, refs);
         }
         break;
       case "multipleOf":
-        setResponseValueAndErrors(res, "multipleOf", check3.value, check3.message, refs);
+        setResponseValueAndErrors(res, "multipleOf", check4.value, check4.message, refs);
         break;
     }
   }
@@ -91405,7 +91405,8 @@ function register3(server2, ctx2) {
 FIRST CALLS (one message):
 1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }).
 2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).
-Then the loop below from step 3 (choose by eye, build, check once).${t2.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}
+3. Right after: ONE drip_execute that runs components_find for every section's need (the recipe is in "Code Mode" below), then ONE pieces_preview of the best.
+Then the loop below from step 4 (build, check once).${t2.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}
 
 ` + bodies.map(([x2, b]) => `=================== GUIDE: ${x2} ===================
 ${b}`).join("\n\n")
@@ -103103,9 +103104,11 @@ NEXT: get the parts (components_find for the interactive and eye-candy pieces, t
 var components_exports = {};
 __export(components_exports, {
   KINDS: () => KINDS,
+  installable: () => installable,
   loadCatalogue: () => loadCatalogue,
   reactbitsPaths: () => reactbitsPaths,
-  register: () => register7
+  register: () => register7,
+  viewable: () => viewable
 });
 import fs44 from "node:fs";
 import path41 from "node:path";
@@ -104260,6 +104263,46 @@ async function findStory(root, component) {
 }
 
 // src/modules/components/index.mjs
+init_paths();
+var AVAIL_FILE = path41.join(homeDripDir, "cache", "piece-availability.json");
+var avail = null;
+function availStore() {
+  if (!avail) {
+    try {
+      avail = JSON.parse(fs44.readFileSync(AVAIL_FILE, "utf8"));
+    } catch {
+      avail = {};
+    }
+  }
+  return avail;
+}
+function availSave() {
+  try {
+    fs44.mkdirSync(path41.dirname(AVAIL_FILE), { recursive: true });
+    fs44.writeFileSync(AVAIL_FILE, JSON.stringify(avail));
+  } catch {
+  }
+}
+async function check2(key, fn) {
+  const s2 = availStore();
+  const hit = s2[key];
+  if (hit && Date.now() - hit.at < WEEK) return hit.ok;
+  let ok = false;
+  try {
+    ok = await fn();
+  } catch {
+    ok = false;
+  }
+  s2[key] = { ok, at: Date.now() };
+  return ok;
+}
+var installable = (url2) => check2(`item:${url2}`, async () => (await fetch(url2, { signal: AbortSignal.timeout(12e3) })).ok);
+var viewable = (url2) => check2(`page:${url2}`, async () => {
+  const r2 = await fetch(url2, { redirect: "follow", headers: { "user-agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(12e3) });
+  if (!r2.ok) return false;
+  const body = (await r2.text()).slice(0, 4e3).toLowerCase();
+  return !/<title>[^<]*(404|not found|page not found)/.test(body);
+});
 var WEEK = 7 * 24 * 36e5;
 var DIRECTORY = "https://ui.shadcn.com/r/registries.json";
 function loadCatalogue() {
@@ -104476,17 +104519,31 @@ function register7(server2, ctx2) {
       const libs = cat.entries.map((e2) => ({ e: e2, s: score(`${e2.name} ${e2.what} ${e2.useWhen} ${e2.category}`, need) })).filter((x2) => x2.s > 0).sort((a2, b) => b.s - a2.s).slice(0, 5);
       const [lists, free, rb] = await Promise.all([Promise.all(cat.entries.filter((e2) => e2.registry && e2.price !== "paid").map((e2) => registryItems(e2).catch(() => []))), efferdFree(), reactbitsPaths()]);
       const all = lists.flat().filter((it) => it.library !== "efferd" || !free || free.has(it.name));
-      const items = all.map((it) => ({ it, s: score(`${it.base.replace(/[-_]/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")} ${it.title} ${it.description}`, need) + (rawNeed ? score(`${it.base} ${it.title} ${it.description}`, rawNeed) * 2 : 0) })).filter((x2) => x2.s > 0).sort((a2, b) => b.s - a2.s).slice(0, limit);
+      const curated = new Set(loadPieces().map((p2) => `${p2.lib}/${p2.name}`));
+      const quality2 = Object.fromEntries(cat.entries.map((e2) => [e2.id, e2.quality || 3]));
+      const ranked = all.map((it) => {
+        const words3 = score(`${it.base.replace(/[-_]/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")} ${it.title} ${it.description}`, need) + (rawNeed ? score(`${it.base} ${it.title} ${it.description}`, rawNeed) * 2 : 0);
+        return { it, s: words3 ? words3 + (curated.has(`${it.library}/${it.name}`) ? 3 : 0) + ((quality2[it.library] || 3) - 3) * 0.75 : 0 };
+      }).filter((x2) => x2.s > 0).sort((a2, b) => b.s - a2.s).slice(0, limit * 3);
+      const checked = await Promise.all(
+        ranked.map(async (x2) => {
+          const see = previewUrl({ lib: x2.it.library, name: x2.it.name }, { cats: cat.entries, reactbitsPaths: rb });
+          const [inst, view] = await Promise.all([x2.it.html ? true : installable(x2.it.url), see && !/\/gallery\/?$|^https:\/\/[^/]+\/?$/.test(see) ? viewable(see) : false]);
+          return { ...x2, inst, see: view ? see : null, s: x2.s + (view ? 1 : -1) };
+        })
+      );
+      availSave();
+      const locked = checked.filter((x2) => !x2.inst).length;
+      const items = checked.filter((x2) => x2.inst).sort((a2, b) => b.s - a2.s).slice(0, limit);
       return text(
         `Libraries that fit "${rawNeed || kind}":
 ${libs.map(({ e: e2 }) => `- ${e2.name} (${e2.category}, ${e2.price}, ${e2.license}): ${e2.what} Use when: ${e2.useWhen}${e2.avoidWhen ? ` Avoid: ${e2.avoidWhen}` : ""}`).join("\n") || "- none matched by description"}
 
-Installable components (${all.length} searched${kind ? `, kind ${kind}` : ""}):
-${items.map(({ it }) => {
+Installable components (${all.length} searched${kind ? `, kind ${kind}` : ""}; ${locked ? `${locked} Pro or private ones left out` : "all checked"}; best first, curated pieces and stronger libraries ranked up):
+${items.map(({ it, see }) => {
           const heavy = it.deps.filter((d) => HEAVY.test(d));
-          const see = previewUrl({ lib: it.library, name: it.name }, { cats: cat.entries, reactbitsPaths: rb });
           return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` \xB7 needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` \xB7 deps ${it.deps.slice(0, 3).join(", ")}` : ""}
-    ${it.html ? `plain HTML: download ${it.url} into the page and load it with a script tag` : `install: ${it.url}`}${see ? ` \xB7 see: ${see}` : ""}`;
+    ${it.html ? `plain HTML: download ${it.url} into the page and load it with a script tag` : `install: ${it.url}`}${see ? ` \xB7 see: ${see}` : " \xB7 (no page to preview: read it with components_get)"}`;
         }).join("\n") || "- none matched; try other words, or components_registries for 500+ more registries"}
 
 ` + (kind === "background" || kind === "hero" ? "A background is a material, not the idea: tint it to the palette, keep the text zone calm, cap it to the hero, pause it off-screen and under reduced motion. For a static, licence-free one: gradient_mesh.\n" : "") + "Licences: React Bits is MIT + Commons Clause (use in the product, never redistribute the source); Aceternity's free items allow commercial end products, not resale.\nLook before you choose: pieces_preview({ items: [{ library, item }, ...] }) puts up to 8 on one sheet. Install with pieces_install (a React page) or npx shadcn@latest add <url>. After installing, restyle it to the page's tokens; never leave library defaults."
@@ -104548,6 +104605,7 @@ ${files.join("\n\n")}`
       const shots = await Promise.all(
         targets.map(async (t2) => {
           if (!t2.url) return { ...t2, err: "no page to show it" };
+          if (!await viewable(t2.url)) return { ...t2, err: "no public page (a Pro or private item, or a wrong name): pick another, or read it with components_get" };
           try {
             const s2 = await previewShot(t2.url, ctx2.config());
             return s2.blank ? { ...t2, err: "didn't render in 10 s (WebGL or a login wall): open the page to see it" } : { ...t2, buf: s2.buf };
@@ -107780,7 +107838,15 @@ var DEFAULT_ALLOW = [
   "assets_*",
   "blender_*",
   "motion_*",
-  "wordmark_*"
+  "wordmark_*",
+  "pieces_*",
+  "parts_*",
+  "layout_*",
+  "build_*",
+  "page_*",
+  "mockup_*",
+  "checker_*",
+  "scout_*"
 ];
 var DEFAULT_BLOCKED = ["board_open", "keys_open", "drip_serve"];
 var NEVER2 = ["drip_execute"];
@@ -108191,7 +108257,7 @@ function register25(server2) {
     "drip_execute",
     {
       title: "Run a Drip script (Code Mode)",
-      description: "Runs a short JavaScript function body in a sandbox that can only call Drip tools as `await drip.<tool>(args)` (find signatures with drip_search). Use it to chain several tool calls, loop over results and return only what matters, instead of one round trip per call. Each call returns { text, data?, images: [file paths] } and throws on invalid arguments, gate refusals or tool errors (use try/catch to continue). Use `return` for the result and console.log for notes. No fs, network, process or require. Same gates and state as the direct tools. Limits: timeoutMs (default 120000), maxCalls (default 50), 64 MB memory; images are saved to files and the first few are attached. Example: drip_execute({ code: \"const r = await drip.palette_generate({ accent: '#E8452C' }); return r.text.slice(0, 200);\" })",
+      description: "Runs a short JavaScript function body in a sandbox that can only call Drip tools as `await drip.<tool>(args)` (find signatures with drip_search). Use it to chain several tool calls, loop over results and return only what matters, instead of one round trip per call. Each call returns { text, data?, images: [file paths] } and throws on invalid arguments, gate refusals or tool errors (use try/catch to continue). Use `return` for the result and console.log for notes. No fs, network, process or require. Same gates and state as the direct tools. Limits: timeoutMs (default 120000), maxCalls (default 50), 64 MB memory; images are saved to files and the first few are attached. Use it whenever you'd make 3+ similar calls: a component search for every section, pictures for every section, several re-checks. Example: drip_execute({ code: \"const needs = { hero: 'fan of image cards', features: 'bento of live product UI', proof: 'testimonial wall' }; const out = {}; for (const [s, n] of Object.entries(needs)) { const r = await drip.components_find({ need: n, limit: 4 }); const i = r.text.indexOf('Installable'); out[s] = r.text.slice(i, i + 900); } return out;\" })",
       inputSchema: {
         code: external_exports.string().describe("JavaScript function body; `return` the result"),
         timeoutMs: external_exports.number().int().min(100).max(6e5).optional().describe("Wall time for the whole run"),
@@ -114043,34 +114109,34 @@ function findBlender2() {
   }
   return found.find((f3) => fs81.existsSync(f3)) || null;
 }
-var check2 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
+var check3 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
 var BLENDER_GET = "download it from blender.org/download and put it on PATH.";
 async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   const checks = [];
   const major = Number(process.versions.node.split(".")[0]);
-  checks.push(major >= 22 ? check2("node", "Node.js", "ok", `v${process.versions.node}`) : check2("node", "Node.js", "fail", `v${process.versions.node} (Drip needs 22 or newer)`, "Install Node 22+ from nodejs.org."));
+  checks.push(major >= 22 ? check3("node", "Node.js", "ok", `v${process.versions.node}`) : check3("node", "Node.js", "fail", `v${process.versions.node} (Drip needs 22 or newer)`, "Install Node 22+ from nodejs.org."));
   const config2 = cfg || loadConfig();
   const chrome = chromeIn === void 0 ? findChrome(config2) : chromeIn;
-  checks.push(chrome ? check2("chrome", "Chrome / Edge", "ok", chrome) : check2("chrome", "Chrome / Edge", "fail", "not found (screenshots, fit checks and previews need it)", CHROME_GET));
+  checks.push(chrome ? check3("chrome", "Chrome / Edge", "ok", chrome) : check3("chrome", "Chrome / Edge", "fail", "not found (screenshots, fit checks and previews need it)", CHROME_GET));
   const blender = findBlender2();
-  checks.push(blender ? check2("blender", "Blender (optional)", "ok", blender) : check2("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
+  checks.push(blender ? check3("blender", "Blender (optional)", "ok", blender) : check3("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
   const uvx = onPath(["uvx"]);
   const ms = path79.join(vendor0(), "mockstudio", "dist", "index.html");
-  checks.push(fs81.existsSync(ms) ? check2("mockstudio", "MockStudio (device mockups)", "ok", path79.dirname(path79.dirname(ms))) : check2("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
-  checks.push(uvx ? check2("uvx", "uvx (optional)", "ok", uvx) : check2("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
+  checks.push(fs81.existsSync(ms) ? check3("mockstudio", "MockStudio (device mockups)", "ok", path79.dirname(path79.dirname(ms))) : check3("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
+  checks.push(uvx ? check3("uvx", "uvx (optional)", "ok", uvx) : check3("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
   const vendor = vendorDir();
   const installed = Object.keys(VENDOR_DEPS).filter((n3) => vendorResolve(n3));
-  checks.push(check2("vendor", "Optional dependencies", "info", `${installed.length ? installed.join(", ") : "none installed"} (in ${vendor})`, `Available: ${Object.keys(VENDOR_DEPS).join(", ")}. Install the recommended ones with: drip doctor --fix --yes; any one with: drip doctor --install <name>`));
+  checks.push(check3("vendor", "Optional dependencies", "info", `${installed.length ? installed.join(", ") : "none installed"} (in ${vendor})`, `Available: ${Object.keys(VENDOR_DEPS).join(", ")}. Install the recommended ones with: drip doctor --fix --yes; any one with: drip doctor --install <name>`));
   const names3 = Object.keys(KEY_ENV);
   const keys = keyStatus(names3);
   const set2 = keys.filter((k) => k.set).map((k) => k.name);
-  checks.push(check2("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
+  checks.push(check3("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
   const proj = projectDir();
   const dripDir = projectDripDir();
   const hasDrip = fs81.existsSync(dripDir);
-  checks.push(check2("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
-  checks.push(check2("plugin", "Plugin root", fs81.existsSync(path79.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
-  checks.push(check2("home", "User folder", "ok", homeDripDir));
+  checks.push(check3("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
+  checks.push(check3("plugin", "Plugin root", fs81.existsSync(path79.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
+  checks.push(check3("home", "User folder", "ok", homeDripDir));
   let state = "no task";
   try {
     const f3 = path79.join(dripDir, "state.json");
@@ -114082,19 +114148,19 @@ async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   } catch {
     state = "state.json is unreadable";
   }
-  checks.push(check2("state", "Task state", state.includes("unreadable") ? "warn" : "ok", state, state.includes("unreadable") ? "Move .drip/state.json aside; Drip starts fresh." : void 0));
-  checks.push(check2("tools", "Tool registry", "ok", `${collectTools().size} tools`));
+  checks.push(check3("state", "Task state", state.includes("unreadable") ? "warn" : "ok", state, state.includes("unreadable") ? "Move .drip/state.json aside; Drip starts fresh." : void 0));
+  checks.push(check3("tools", "Tool registry", "ok", `${collectTools().size} tools`));
   try {
     const r2 = await executeCode("return 1 + 1", { timeoutMs: 15e3 });
-    checks.push(r2.ok && r2.value === 2 ? check2("codemode", "Code Mode sandbox", "ok", `QuickJS, ${r2.ms} ms`) : check2("codemode", "Code Mode sandbox", "warn", r2.error?.message || "unexpected result"));
+    checks.push(r2.ok && r2.value === 2 ? check3("codemode", "Code Mode sandbox", "ok", `QuickJS, ${r2.ms} ms`) : check3("codemode", "Code Mode sandbox", "warn", r2.error?.message || "unexpected result"));
   } catch (e2) {
-    checks.push(check2("codemode", "Code Mode sandbox", "warn", String(e2?.message || e2)));
+    checks.push(check3("codemode", "Code Mode sandbox", "warn", String(e2?.message || e2)));
   }
   if (hostsDoctor) {
     try {
       for (const c3 of await hostsDoctor() || []) checks.push(c3);
     } catch (e2) {
-      checks.push(check2("hosts", "Host integrations", "warn", String(e2?.message || e2)));
+      checks.push(check3("hosts", "Host integrations", "warn", String(e2?.message || e2)));
     }
   }
   const failed = checks.filter((c3) => c3.status === "fail");
@@ -114597,7 +114663,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.13";
+var VERSION = "0.8.14";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;
