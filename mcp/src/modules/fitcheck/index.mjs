@@ -64,6 +64,12 @@ export function register(server, ctx) {
       if (!args.url && !many) return text("Pass url, or urls for several pages or states at once.", true);
       try {
         restitchIfStale(loadState().task); // a section file changed since page_stitch: put it in before shooting
+        if (!loadState().task?.filmUrl && (args.url || many?.[0])) {
+          const u = await toUrl(args.url || many[0]); // the film takes its frames from the page being checked
+          updateState((st) => {
+            if (st.task && !st.task.filmUrl) st.task.filmUrl = u;
+          });
+        }
       } catch {
         /* the shot still runs */
       }

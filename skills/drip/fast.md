@@ -9,8 +9,14 @@ Beautiful, familiar structure, superb craft, real pictures, smooth motion.
 - **drip:builder (Sonnet)** writes the code of one section, on its piece. Several in ONE message.
 - **drip:helper (Haiku)** does small jobs from a one-paragraph brief: download and save pictures, swap copy, rename, an install, one numbers-only check.
 
+Each agent has only its own tools: builders write files and fetch icons and parts; helpers search and save pictures, install pieces and run a numbers check; scouts only read references; checkers only measure.
+
 ## Pieces, not hand-rolled parts
-Proven libraries (Magic UI, React Bits, Cult UI, Smooth UI, Aceternity, efferd, Eldora, taste-skill) have finished, tuned components: their motion and detail took weeks. `layout_deal` deals PIECES ON OFFER for every section; each section names its piece, or says why it is custom. Builders use a piece as it is and restyle only colours, radius, font and content. More: `components_find({ kind })`, `parts_list`.
+Proven libraries (Magic UI, React Bits, Cult UI, Smooth UI, Aceternity, efferd, Eldora, bencho, shadcn's blocks, Kibo, taste-skill) have finished, tuned components: their motion and detail took weeks. `layout_deal` deals PIECES ON OFFER: a shortlist per section to start from, not a cage. You choose by looking: `components_find({ need: "image comparison" })` searches ~3,300 free components (landing and app), `pieces_preview` puts up to 8 on one sheet from their live pages. Each section names its piece, or says why it is custom. Builders use a piece as it is and restyle only colours, radius, font and content.
+- **App screens** (dashboards, tools, settings, editors): `layout_deal({ ..., surface: "app" })` deals app pieces: shadcn's dashboard, sidebars, logins and charts; Kibo's kanban, gantt, dropzone, editor; bencho's inputs, media and feedback.
+
+## Watch it
+`drip_film` after the page is served gives a live link: each agent as a lane with its job and piece, the event feed, and frames of the page as it grows. Give it to the user. `drip_end` turns it into a montage (an MP4 too when ffmpeg is installed).
 - **The stack follows the pieces:** software, gaming and tech pages are React + Tailwind (Vite) so React pieces install untouched; products, services and places are one static page with taste-skill's kit and parts. The user's word wins ("no build step" → `stack: "html"`).
 - Pieces install in ONE `pieces_install` call before the builders start (parallel npm installs fight).
 

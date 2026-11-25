@@ -20,6 +20,7 @@ import { kitDir, projectDir } from "../core/paths.mjs";
 import { setupNotes } from "../core/setup.mjs";
 import { hostHasSubagents, swarmInstructions, swarmOn } from "./swarm/index.mjs";
 import { ownedKits } from "./parts/pieces.mjs";
+import { finishFilm } from "./film/index.mjs";
 
 const SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
@@ -283,6 +284,8 @@ export function register(server, ctx) {
             `1. refs_gallery({ query: "<the product kind> landing hero" }): look, take two or three decisions.\n` +
             `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>" }): deals the set, the PIECES ON OFFER (finished components from proven libraries for every section) and writes the page (React + Tailwind for software, gaming and tech pages so library pieces install as they are; one static page for products, services and places; stack: "html" | "react" overrides).\n` +
             `3. images_search({ queries: [...] }) for the hero's picture when it needs one.\n` +
+            `Pick pieces by looking: components_find({ need }) searches ~3,300 free components (landing and app), pieces_preview shows several on one sheet. An app screen: layout_deal({ ..., surface: "app" }).\n` +
+            `Once the page is served (drip_serve), drip_film gives a live link: give it to the user so they can watch the agents build; drip_end makes the montage.\n` +
             (t.whole
               ? `Then the hero (one builder), fitcheck_shot hero: true, the sections (one build_prepare with every section, all builders in one message), page_stitch, one fitcheck_shot, drip_end, all in this turn: the user asked for the whole page in one go.\n\n`
               : `PASS 1 (this turn): choose the hero's and nav's pieces, ONE build_prepare for the hero, one builder; then fitcheck_shot hero: true once, fix what you see, show the user the picture and stop: they may want another hero before any section is built. PASS 2 (when they say go): one build_prepare with every section (each on its piece), all builders in one message, page_stitch, one fitcheck_shot, drip_end. The critic is a reality check on the final version, not a pass.\n\n`) +
@@ -464,6 +467,9 @@ export function register(server, ctx) {
     },
     async ({ dir }) => {
       const url = await serveDir(dir);
+      updateState((st) => {
+        if (st.task && !st.task.filmUrl) st.task.filmUrl = `${url}/`; // the film records frames of this page
+      });
       return text(`Serving ${dir || "the project"} at ${url}/ (stays up while this session runs).`);
     },
   );
@@ -524,6 +530,14 @@ export function register(server, ctx) {
         if (unseen.length) open.push(`UI edits Drip never saw: ${unseen.slice(0, 6).map((u) => u.file).join(", ")}`);
         if (open.length) return text(`Not closed: ${[...new Set(open)].join("; ")}.\nShoot the page again (fitcheck_shot), fix, review, fitcheck_done; or, if the user accepts shipping as is, drip_end with acceptOpen quoting their words.`, true);
       }
+      let film = "";
+      if (cur) {
+        try {
+          film = await finishFilm(cur, ctx.config());
+        } catch {
+          /* the film never holds up a close */
+        }
+      }
       const st = updateState((s) => {
         if (s.task) s.history.push({ ...s.task, endedAt: new Date().toISOString(), summary, ...(acceptOpen ? { acceptedOpen: acceptOpen } : {}) });
         s.task = null;
@@ -538,7 +552,7 @@ export function register(server, ctx) {
           /* the skill is regenerated on the next approval */
         }
       }
-      return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}`);
+      return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}${film ? `\n${film}` : ""}`);
     },
   );
 }

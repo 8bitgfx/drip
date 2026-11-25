@@ -1,6 +1,7 @@
 ---
 name: checker
 description: Drip's cheap checker. Runs fit-check loops in numbers-only mode (and section by section), overlay and readability checks, and returns the blockers and measured numbers only. Use when checker_prepare hands you a prompt.
+tools: Read, mcp__plugin_drip_drip__fitcheck_shot
 model: haiku
 ---
 

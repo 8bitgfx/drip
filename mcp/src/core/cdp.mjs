@@ -146,7 +146,7 @@ const OVERLAY_FINDER =
   "  return all.filter((a) => !all.some((b) => b !== a && b.el.contains(a.el)));" +
   "};";
 
-const CLEAR_OVERLAYS =
+export const CLEAR_OVERLAYS =
   "(async () => {" +
   "const txt = (document.title + ' ' + (document.body ? document.body.innerText.slice(0, 600) : '')).toLowerCase();" +
   "if (/just a moment|performing security verification|verify you are human|attention required|checking your browser|access denied|are you a robot|captcha/.test(txt)) return { blocked: document.title || 'bot check' };" +

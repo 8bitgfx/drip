@@ -7,6 +7,10 @@ import { get } from "../../core/http.mjs";
 import { dataDir, projectDripDir } from "../../core/paths.mjs";
 import { safe, text } from "../../core/result.mjs";
 import { register as registerLocal } from "./local.mjs";
+import { previewUrl } from "../parts/pieces.mjs";
+import { contactSheet, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
+import { blocks } from "../../core/result.mjs";
+import { CLEAR_OVERLAYS } from "../../core/cdp.mjs";
 
 const WEEK = 7 * 24 * 3600e3;
 const DIRECTORY = "https://ui.shadcn.com/r/registries.json";
@@ -26,9 +30,15 @@ export function loadCatalogue() {
 
 const words = (s) => (s || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
 
+// A light stem: "comparison" finds "compare", "uploading" finds "upload".
+const stem = (w) => (w.length >= 6 ? w.slice(0, Math.max(5, w.length - 4)) : w);
+
 function score(hay, query) {
   const h = hay.toLowerCase();
-  return words(query).reduce((n, w) => n + (h.includes(w) ? (h.includes(` ${w}`) ? 2 : 1) : 0), 0);
+  return words(query).reduce((n, w) => {
+    if (h.includes(w)) return n + (h.includes(` ${w}`) ? 2 : 1);
+    return n + (h.includes(stem(w)) ? 1 : 0);
+  }, 0);
 }
 
 // What each kind of component is called across the libraries (names are often the only text there is).
@@ -42,8 +52,38 @@ export const KINDS = {
   scroll: "scroll parallax reveal sticky stack velocity progress timeline marquee infinite",
   button: "button cta shimmer rainbow ripple pulse magnetic star border glow",
   nav: "nav navbar menu dock tabs sidebar header floating",
-  media: "image gallery carousel video lens zoom compare masonry slider marquee logos",
+  media: "image gallery carousel video lens zoom compare masonry slider marquee logos player voice audio",
+  // App screens
+  dashboard: "dashboard sidebar shell layout app inset header nav dock",
+  table: "table data grid rows sort filter pagination list tree",
+  chart: "chart area bar line pie donut radar graph contribution stacked bars ticker sparkline",
+  form: "form field input select combobox checkbox radio switch toggle slider otp code date picker tags label signature color",
+  auth: "login signup sign auth password otp one-time",
+  board: "kanban gantt calendar board schedule timeline todo checklist",
+  upload: "dropzone upload file image crop attachment",
+  feedback: "toast sonner alert dialog empty state progress spinner skeleton like reactions emoji notification",
+  ai: "chat message prompt generate context meter bubble attachment voice ai assistant",
 };
+
+// efferd's registry lists its Pro blocks too; only the ones its llms.txt marks Free install without a token.
+async function efferdFree() {
+  try {
+    const { body } = await get("https://efferd.com/llms.txt", { ttlMs: WEEK, timeoutMs: 20000 });
+    return new Set([...String(body).matchAll(/^- \[([a-z0-9-]+)\]\([^)]*\): .*?\bFree\./gm)].map((m) => m[1]));
+  } catch {
+    return null;
+  }
+}
+
+/** React Bits' pages (it needs a category in the URL), from its llms.txt. */
+export async function reactbitsPaths() {
+  try {
+    const { body } = await get("https://reactbits.dev/llms.txt", { ttlMs: WEEK, timeoutMs: 20000 });
+    return [...new Set([...String(body).matchAll(/reactbits\.dev\/([a-z-]+\/[a-z0-9-]+)/g)].map((m) => `https://reactbits.dev/${m[1]}`))];
+  } catch {
+    return [];
+  }
+}
 
 async function registryItems(entry) {
   const { body } = await get(entry.registry.index, { as: "json", ttlMs: WEEK, timeoutMs: 30000 });
@@ -65,7 +105,28 @@ async function registryItems(entry) {
   return [...seen.values()];
 }
 
-const HEAVY = /^(three|@react-three\/.+|ogl|gsap|matter-js|@paper-design\/.+|postprocessing|lenis|cobe|p5)$/;
+/** A library's demo page as a visitor sees it: promos and cookie banners closed, scrolled to the piece, given time to render. */
+async function previewShot(url, config) {
+  const { openPage, withTab } = await import("../../core/browser.mjs");
+  const [width, height] = [1280, 800];
+  return withTab(config, async (tab) => {
+    await openPage(tab, url, { width, height, timeout: 15000, settleMs: 2500 });
+    const run = (expression, awaitPromise = false) => tab.s("Runtime.evaluate", { expression, awaitPromise, returnByValue: true }).catch(() => null);
+    await run(CLEAR_OVERLAYS, true);
+    const hash = new URL(url).hash.slice(1);
+    // Lazy pages render as they scroll: walk down to the piece (or a screen) so it mounts, then settle.
+    await run(
+      `(async()=>{const id=${JSON.stringify(decodeURIComponent(hash))};const el=id&&document.getElementById(id);if(!el)return;for(let i=0;i<12;i++){el.scrollIntoView({block:"start"});await new Promise(r=>setTimeout(r,150));}})()`,
+      true,
+    );
+    await new Promise((r) => setTimeout(r, 3500));
+    await run(CLEAR_OVERLAYS, true);
+    const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 80, clip: { x: 0, y: 0, width, height, scale: 1 } });
+    return Buffer.from(data, "base64");
+  });
+}
+
+const HEAVY =/^(three|@react-three\/.+|ogl|gsap|matter-js|@paper-design\/.+|postprocessing|lenis|cobe|p5)$/;
 
 export function register(server, ctx) {
   server.registerTool(
@@ -73,8 +134,8 @@ export function register(server, ctx) {
     {
       title: "Find a component to install",
       description:
-        "Search the curated libraries AND their live registries (shadcn, coss ui, Kibo, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI, Smooth UI, Eldora, efferd, sakuga-vfx) for a component. " +
-        "Describe the need: 'data table with filters', 'animated number counter', 'pricing toggle', 'command palette', 'marquee of logos'. Returns install commands. Prefer this over writing components from scratch.",
+        "Search ~3,300 free components across 14 live registries (shadcn and its blocks, coss ui, Kibo, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI, Smooth UI, Eldora, efferd's free blocks, bencho, sakuga-vfx) for landing pages AND app screens. " +
+        "Describe the need: 'image comparison', 'data table with filters', 'kanban', 'animated number counter', 'pricing toggle', 'command palette', 'marquee of logos', 'voice note'. Returns install URLs and a page to see each one. Prefer this over writing components from scratch.",
       inputSchema: {
         need: z.string().optional().describe("What it should do or look like. Optional with kind"),
         kind: z.enum(Object.keys(KINDS)).optional().describe("background (aurora, beams, shaders, grids...), hero, text effects, 3d, cursor, cards, scroll, button, nav, media. Widens the search to everything of that kind"),
@@ -90,7 +151,8 @@ export function register(server, ctx) {
         .filter((x) => x.s > 0)
         .sort((a, b) => b.s - a.s)
         .slice(0, 5);
-      const all = (await Promise.all(cat.entries.filter((e) => e.registry).map((e) => registryItems(e).catch(() => [])))).flat();
+      const [lists, free, rb] = await Promise.all([Promise.all(cat.entries.filter((e) => e.registry && e.price !== "paid").map((e) => registryItems(e).catch(() => []))), efferdFree(), reactbitsPaths()]);
+      const all = lists.flat().filter((it) => it.library !== "efferd" || !free || free.has(it.name));
       const items = all
         .map((it) => ({ it, s: score(`${it.base.replace(/[-_]/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")} ${it.title} ${it.description}`, need) + (rawNeed ? score(`${it.base} ${it.title} ${it.description}`, rawNeed) * 2 : 0) }))
         .filter((x) => x.s > 0)
@@ -100,11 +162,12 @@ export function register(server, ctx) {
         `Libraries that fit "${rawNeed || kind}":\n${libs.map(({ e }) => `- ${e.name} (${e.category}, ${e.price}, ${e.license}): ${e.what} Use when: ${e.useWhen}${e.avoidWhen ? ` Avoid: ${e.avoidWhen}` : ""}`).join("\n") || "- none matched by description"}\n\n` +
           `Installable components (${all.length} searched${kind ? `, kind ${kind}` : ""}):\n${items.map(({ it }) => {
             const heavy = it.deps.filter((d) => HEAVY.test(d));
-            return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` · needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` · deps ${it.deps.slice(0, 3).join(", ")}` : ""}\n    ${it.html ? `plain HTML: download ${it.url} into the page and load it with a script tag` : `npx shadcn@latest add ${it.url}`}`;
+            const see = previewUrl({ lib: it.library, name: it.name }, { cats: cat.entries, reactbitsPaths: rb });
+            return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` · needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` · deps ${it.deps.slice(0, 3).join(", ")}` : ""}\n    ${it.html ? `plain HTML: download ${it.url} into the page and load it with a script tag` : `install: ${it.url}`}${see ? ` · see: ${see}` : ""}`;
           }).join("\n") || "- none matched; try other words, or components_registries for 500+ more registries"}\n\n` +
           (kind === "background" || kind === "hero" ? "A background is a material, not the idea: tint it to the palette, keep the text zone calm, cap it to the hero, pause it off-screen and under reduced motion. For a static, licence-free one: gradient_mesh.\n" : "") +
           "Licences: React Bits is MIT + Commons Clause (use in the product, never redistribute the source); Aceternity's free items allow commercial end products, not resale.\n" +
-          "Read a component's code with components_get before installing. After installing, restyle it to the project's tokens (DESIGN.md); never leave library defaults.",
+          "Look before you choose: pieces_preview({ items: [{ library, item }, ...] }) puts up to 8 on one sheet. Install with pieces_install (a React page) or npx shadcn@latest add <url>. After installing, restyle it to the page's tokens; never leave library defaults.",
       );
     }),
   );
@@ -135,6 +198,48 @@ export function register(server, ctx) {
       return text(
         `${body.title || body.name}: ${body.description || ""}\nInstall: npx shadcn@latest add ${url}\nDependencies: ${(body.dependencies || []).join(", ") || "none"}\nRegistry deps: ${(body.registryDependencies || []).join(", ") || "none"}\n\n${files.join("\n\n")}`,
       );
+    }),
+  );
+
+  server.registerTool(
+    "pieces_preview",
+    {
+      title: "See library pieces before choosing",
+      description:
+        "Screenshots each piece's own live page (its docs or demo page) and returns them numbered on ONE sheet, so you can compare up to 8 before choosing. " +
+        'Example: pieces_preview({ items: [{ library: "bencho", item: "image-compare" }, { library: "kibo", item: "image-zoom" }, { library: "magicui", item: "lens" }] })',
+      inputSchema: {
+        items: z.array(z.object({ library: z.string(), item: z.string() })).max(8).optional(),
+        urls: z.array(z.string().url()).max(8).optional().describe("Or the pages to shoot directly"),
+      },
+    },
+    safe(async ({ items = [], urls = [] }) => {
+      const cat = loadCatalogue().entries;
+      const rb = items.some((i) => i.library === "reactbits") ? await reactbitsPaths() : [];
+      const targets = [
+        ...items.map((i) => ({ label: `${i.library} ${i.item}`, url: previewUrl({ lib: i.library, name: i.item }, { cats: cat, reactbitsPaths: rb }) })),
+        ...urls.map((u) => ({ label: u, url: u })),
+      ].slice(0, 8);
+      if (!targets.length) return text("Pass items: [{ library, item }] (from components_find or PIECES ON OFFER) or urls.", true);
+      const shots = await Promise.all(
+        targets.map(async (t) => {
+          if (!t.url) return { ...t, err: "no page to show it" };
+          try {
+            return { ...t, buf: await previewShot(t.url, ctx.config()) };
+          } catch (e) {
+            return { ...t, err: e.message.slice(0, 120) };
+          }
+        }),
+      );
+      const ok = shots.filter((s) => s.buf);
+      const lines = shots.map((s, i) => `${i + 1}. ${s.label}${s.url ? ` · ${s.url}` : ""}${s.err ? ` (not shown: ${s.err})` : ""}`);
+      const n = ok.length;
+      const content = [textBlock(`${lines.join("\n")}\nThe sheet numbers the shown ones in order. Docs pages show the piece with the library's own colours: on the page it takes yours.`)];
+      if (n) {
+        const sheet = n === 1 ? await toJpeg(ok[0].buf, 1280, 1280, 78) : await contactSheet(ok.map((s) => s.buf), { cols: 2, tileW: 640, tileH: 400, gap: 8 });
+        content.push(imageBlock(sheet));
+      }
+      return blocks(content);
     }),
   );
 

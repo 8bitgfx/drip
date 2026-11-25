@@ -31,7 +31,7 @@ test("every piece has an install URL from its library's registry, and a role", (
     assert.ok(pieceUrl(p, pats), `${p.lib}/${p.name} has no registry pattern`);
     assert.ok(p.role && p.look, `${p.lib}/${p.name} needs a role and a look`);
   }
-  assert.equal(new Set(all.map((p) => `${p.lib}/${p.name}`)).size, all.length, "no duplicates");
+  assert.equal(new Set(all.map((p) => `${p.lib}/${p.name}/${p.surface || "landing"}`)).size, all.length, "no duplicates");
 });
 
 test("a software page gets pieces for every section; places get no shaders; the history keeps pages apart", () => {
@@ -52,6 +52,53 @@ test("a software page gets pieces for every section; places get no shaders; the 
   assert.match(txt, /PIECES ON OFFER/);
   assert.match(txt, /pieces_install/);
   assert.match(txt, /The user owns: Aceternity Pro/);
+});
+
+test("app screens get app pieces; every piece has a page to look at", async () => {
+  const { previewUrl } = await import("../src/modules/parts/pieces.mjs");
+  const app = dealPieces({ kind: "software", stack: "react", surface: "app" });
+  const roles = app.map((r) => r.role);
+  for (const r of ["shell", "chart", "table", "input", "feedback"]) assert.ok(roles.includes(r), `no ${r}`);
+  assert.ok(app.every((r) => r.options.every((p) => p.surface === "app")));
+  assert.ok(!dealPieces({ kind: "software", stack: "react" }).some((r) => r.options.some((p) => p.surface === "app")), "landing pages get no dashboards");
+  assert.equal(previewUrl({ lib: "efferd", name: "features-6" }), "https://efferd.com/view/features-6");
+  assert.equal(previewUrl({ lib: "bencho", name: "image-compare" }), "https://bencho.dev/blocks/image-compare");
+  assert.equal(previewUrl({ lib: "reactbits", name: "Silk-TS-TW" }, { reactbitsPaths: ["https://reactbits.dev/backgrounds/silk"] }), "https://reactbits.dev/backgrounds/silk");
+  assert.equal(previewUrl({ lib: "shadcn", name: "dashboard-01" }), "https://ui.shadcn.com/view/new-york-v4/dashboard-01");
+});
+
+test("the film: agents from hook events, matched to their ids; frames know who was working", async () => {
+  const film = await import("../src/core/film.mjs");
+  const task = { id: "t_film", title: "Relay", startedAt: new Date(Date.now() - 60000).toISOString() };
+  film.filmEvent(task, film.startEvent({ subagent_type: "drip:builder", description: "Build features", prompt: "DRIP BUILDER · section: features\nTHE PIECE: https://magicui.design/r/bento-grid.json. It is installed" }));
+  film.filmEvent(task, film.startEvent({ subagent_type: "drip:helper", description: "Save photos", prompt: "Download the hero photo" }));
+  film.filmEvent(task, { kind: "write", agent: "ag-77", type: "drip:builder", tool: "Write", file: "src/sections/Features.tsx", summary: "wrote Features.tsx (84 lines)" });
+  film.filmEvent(task, { kind: "write", agent: "main", tool: "Edit", file: "src/sections/Hero.tsx", summary: "edited Hero.tsx (3 lines)" });
+  film.addFrame(task, Buffer.from([0xff, 0xd8, 0xff, 0xd9]), { caption: "features in" });
+  film.filmEvent(task, { kind: "end", agent: "ag-77", type: "drip:builder" });
+  const f = film.buildFilm(task);
+  const b = f.agents.find((a) => a.type === "builder");
+  assert.equal(b.id, "ag-77", "the start is matched to the builder's agent_id");
+  assert.equal(b.model, "sonnet");
+  assert.match(b.piece, /bento-grid/);
+  assert.match(b.job, /section features on magicui\.design bento-grid/);
+  assert.equal(b.status, "done");
+  assert.equal(f.agents.find((a) => a.type === "helper").model, "haiku");
+  assert.equal(f.agents[0].type, "director");
+  assert.ok(f.events.some((e) => e.agent === "ag-77" && e.file === "src/sections/Features.tsx"));
+  assert.equal(f.frames.length, 1);
+  assert.ok(f.frames[0].agents.includes("ag-77") && f.frames[0].agents.includes("main"));
+  assert.ok(fs.existsSync(path.join(film.filmDir(task.id), "film.json")));
+});
+
+test("each agent has only its own tools", () => {
+  const agents = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, "$1")), "..", "..", "agents");
+  const tools = (f) => (fs.readFileSync(path.join(agents, f), "utf8").match(/^tools: (.*)$/m) || [])[1] || "";
+  assert.doesNotMatch(tools("builder.md"), /fitcheck_shot|refs_|critic/, "builders don't check or scout");
+  assert.match(tools("builder.md"), /Write/);
+  assert.doesNotMatch(tools("scout.md"), /Write|Edit|Bash/, "scouts only read");
+  assert.equal(tools("checker.md"), "Read, mcp__plugin_drip_drip__fitcheck_shot");
+  assert.match(tools("helper.md"), /images_save.*pieces_install/);
 });
 
 test("the paid kits are asked once and remembered", () => {

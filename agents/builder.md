@@ -1,6 +1,7 @@
 ---
 name: builder
 description: Drip's section builder (Sonnet). Builds ONE page section from the director's spec on the library piece it names, in the page's own system, and returns the changed files. Use when build_prepare hands you a prompt.
+tools: Read, Write, Edit, MultiEdit, Glob, Grep, Bash, mcp__plugin_drip_drip__components_get, mcp__plugin_drip_drip__parts_get, mcp__plugin_drip_drip__icons_search, mcp__plugin_drip_drip__icons_get
 model: sonnet
 ---
 

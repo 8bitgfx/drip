@@ -1,6 +1,7 @@
 ---
 name: scout
 description: Drip's reference scout. Finds and studies references for ONE role (style, competitor, page or before) with Drip's refs tools, drops cookie walls and bot-check pages, and returns the best three with a five-line study each. Use when scout_prepare hands you a prompt; run one scout per role in parallel.
+tools: Read, mcp__plugin_drip_drip__refs_site, mcp__plugin_drip_drip__refs_search, mcp__plugin_drip_drip__refs_gallery, mcp__plugin_drip_drip__refs_tag, mcp__plugin_drip_drip__refs_view, mcp__plugin_drip_drip__refs_zoom, mcp__plugin_drip_drip__refs_study
 model: haiku
 ---
 

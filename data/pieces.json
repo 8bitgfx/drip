@@ -1,157 +1,1354 @@
 {
   "_about": "Free, finished pieces from proven libraries that layout_deal offers per section, so pages use real crafted components instead of hand-rolling everything. Checked against each library's live registry on 2026-11-25 (efferd: only the blocks its llms.txt marks Free). role = where it goes; stack react = installs with `npx shadcn@latest add <url>` into a React + Tailwind page; html = drops into a plain page. heavy = WebGL/three/ogl: lazy-load, static fallback, pause off-screen. Install URLs come from the library's registry pattern in catalogue.json.",
   "pieces": [
-    { "lib": "magicui", "name": "light-rays", "role": "ground", "look": "soft light rays falling through the hero" },
-    { "lib": "magicui", "name": "warp-background", "role": "ground", "look": "perspective warp grid behind a framed card" },
-    { "lib": "magicui", "name": "retro-grid", "role": "ground", "look": "receding retro floor grid" },
-    { "lib": "magicui", "name": "flickering-grid", "role": "ground", "look": "quiet flickering dot grid" },
-    { "lib": "magicui", "name": "dot-pattern", "role": "ground", "look": "fading dot pattern, calm" },
-    { "lib": "magicui", "name": "particles", "role": "ground", "look": "drifting particles that follow the cursor" },
-    { "lib": "magicui", "name": "ripple", "role": "ground", "look": "concentric ripples behind a centred icon" },
-    { "lib": "magicui", "name": "globe", "role": "showcase", "look": "rotating interactive globe with markers", "heavy": true },
-    { "lib": "magicui", "name": "dither-field", "role": "ground", "look": "dithered moving field, printed feel", "heavy": true },
-    { "lib": "magicui", "name": "aurora-text", "role": "headline", "look": "headline word filled with a moving aurora" },
-    { "lib": "magicui", "name": "word-rotate", "role": "headline", "look": "one word in the headline rotates through options" },
-    { "lib": "magicui", "name": "text-animate", "role": "headline", "look": "headline enters word by word (blur, slide, fade)" },
-    { "lib": "magicui", "name": "animated-gradient-text", "role": "headline", "look": "announcement pill with a moving gradient border" },
-    { "lib": "magicui", "name": "animated-shiny-text", "role": "headline", "look": "eyebrow text with a light sweep" },
-    { "lib": "magicui", "name": "morphing-text", "role": "headline", "look": "words melt into each other" },
-    { "lib": "magicui", "name": "hyper-text", "role": "headline", "look": "letters scramble into place" },
-    { "lib": "magicui", "name": "text-reveal", "role": "scroll", "look": "a paragraph lights up word by word on scroll" },
-    { "lib": "magicui", "name": "safari", "role": "showcase", "look": "Safari window frame for a product screenshot" },
-    { "lib": "magicui", "name": "iphone", "role": "showcase", "look": "iPhone frame for an app screen" },
-    { "lib": "magicui", "name": "hero-video-dialog", "role": "showcase", "look": "product video thumbnail that opens in a dialog" },
-    { "lib": "magicui", "name": "terminal", "role": "showcase", "look": "terminal that types commands and output" },
-    { "lib": "magicui", "name": "border-beam", "role": "showcase", "look": "light beam travelling round a card or frame edge" },
-    { "lib": "magicui", "name": "animated-beam", "role": "features", "look": "beams flowing between connected app icons (integrations)" },
-    { "lib": "magicui", "name": "orbiting-circles", "role": "features", "look": "icons orbiting a centre (integrations, ecosystem)" },
-    { "lib": "magicui", "name": "bento-grid", "role": "features", "look": "bento grid of feature cards with backgrounds" },
-    { "lib": "magicui", "name": "magic-card", "role": "features", "look": "card with a spotlight that follows the cursor" },
-    { "lib": "magicui", "name": "neon-gradient-card", "role": "features", "look": "card with a glowing gradient edge" },
-    { "lib": "magicui", "name": "animated-list", "role": "features", "look": "notifications stacking in one by one" },
-    { "lib": "magicui", "name": "marquee", "role": "logos", "look": "infinite marquee of logos, cards or reviews" },
-    { "lib": "magicui", "name": "number-ticker", "role": "numbers", "look": "numbers count up into view" },
-    { "lib": "magicui", "name": "tweet-card", "role": "proof", "look": "real-looking tweet card" },
-    { "lib": "magicui", "name": "avatar-circles", "role": "proof", "look": "overlapping avatars with a +count" },
-    { "lib": "magicui", "name": "shimmer-button", "role": "button", "look": "button with a shimmer running round it" },
-    { "lib": "magicui", "name": "interactive-hover-button", "role": "button", "look": "button whose label slides to an arrow on hover" },
-    { "lib": "magicui", "name": "rainbow-button", "role": "button", "look": "button with a rainbow glow underneath" },
-    { "lib": "magicui", "name": "shine-border", "role": "features", "look": "animated shining border for a key card" },
-    { "lib": "magicui", "name": "blur-fade", "role": "scroll", "look": "content blurs and fades in on scroll" },
-    { "lib": "magicui", "name": "scroll-based-velocity", "role": "scroll", "look": "big text rows that move with scroll speed" },
-    { "lib": "magicui", "name": "lens", "role": "showcase", "look": "magnifying lens over an image" },
-
-    { "lib": "reactbits", "name": "Aurora-TS-TW", "role": "ground", "look": "slow aurora bands", "heavy": true },
-    { "lib": "reactbits", "name": "Silk-TS-TW", "role": "ground", "look": "flowing silk cloth", "heavy": true },
-    { "lib": "reactbits", "name": "Iridescence-TS-TW", "role": "ground", "look": "iridescent oil-film ground", "heavy": true },
-    { "lib": "reactbits", "name": "Beams-TS-TW", "role": "ground", "look": "3D light beams in the dark", "heavy": true },
-    { "lib": "reactbits", "name": "LightRays-TS-TW", "role": "ground", "look": "volumetric rays from above", "heavy": true },
-    { "lib": "reactbits", "name": "Threads-TS-TW", "role": "ground", "look": "fine waving threads", "heavy": true },
-    { "lib": "reactbits", "name": "Galaxy-TS-TW", "role": "ground", "look": "twinkling star field", "heavy": true },
-    { "lib": "reactbits", "name": "Orb-TS-TW", "role": "ground", "look": "glowing orb that reacts to the cursor (AI products)", "heavy": true },
-    { "lib": "reactbits", "name": "DitherVeil-TS-TW", "role": "ground", "look": "dithered veil, retro print", "heavy": true },
-    { "lib": "reactbits", "name": "Prism-TS-TW", "role": "ground", "look": "light through a prism", "heavy": true },
-    { "lib": "reactbits", "name": "Plasma-TS-TW", "role": "ground", "look": "soft plasma glow", "heavy": true },
-    { "lib": "reactbits", "name": "LiquidEther-TS-TW", "role": "ground", "look": "fluid that swirls under the cursor", "heavy": true },
-    { "lib": "reactbits", "name": "FloatingLines-TS-TW", "role": "ground", "look": "floating line waves", "heavy": true },
-    { "lib": "reactbits", "name": "Grainient-TS-TW", "role": "ground", "look": "grainy moving gradient", "heavy": true },
-    { "lib": "reactbits", "name": "MetallicPaint-TS-TW", "role": "showcase", "look": "a logo in liquid chrome", "heavy": true },
-    { "lib": "reactbits", "name": "MetaBalls-TS-TW", "role": "ground", "look": "merging metaballs", "heavy": true },
-    { "lib": "reactbits", "name": "SplitText-TS-TW", "role": "headline", "look": "headline letters rise in one by one" },
-    { "lib": "reactbits", "name": "BlurText-TS-TW", "role": "headline", "look": "headline un-blurs word by word" },
-    { "lib": "reactbits", "name": "ShinyText-TS-TW", "role": "headline", "look": "a light sweep across text" },
-    { "lib": "reactbits", "name": "GradientText-TS-TW", "role": "headline", "look": "slowly moving gradient fill" },
-    { "lib": "reactbits", "name": "RotatingText-TS-TW", "role": "headline", "look": "one word swaps in a clipped box" },
-    { "lib": "reactbits", "name": "TextType-TS-TW", "role": "headline", "look": "typewriter with a cursor" },
-    { "lib": "reactbits", "name": "DecryptedText-TS-TW", "role": "headline", "look": "text decrypts from symbols" },
-    { "lib": "reactbits", "name": "ScrollReveal-TS-TW", "role": "scroll", "look": "statement paragraph revealed on scroll" },
-    { "lib": "reactbits", "name": "ScrollStack-TS-TW", "role": "scroll", "look": "cards stack up as you scroll" },
-    { "lib": "reactbits", "name": "SpotlightCard-TS-TW", "role": "features", "look": "card lit by a spotlight at the cursor" },
-    { "lib": "reactbits", "name": "TiltedCard-TS-TW", "role": "features", "look": "image card that tilts toward the cursor" },
-    { "lib": "reactbits", "name": "MagicBento-TS-TW", "role": "features", "look": "bento grid with glow, particles and tilt" },
-    { "lib": "reactbits", "name": "ElectricBorder-TS-TW", "role": "features", "look": "electric animated border on a key card" },
-    { "lib": "reactbits", "name": "LogoLoop-TS-TW", "role": "logos", "look": "smooth looping logo row with fade edges" },
-    { "lib": "reactbits", "name": "CountUp-TS-TW", "role": "numbers", "look": "count-up number" },
-    { "lib": "reactbits", "name": "ClickSpark-TS-TW", "role": "button", "look": "sparks on click" },
-    { "lib": "reactbits", "name": "Magnet-TS-TW", "role": "button", "look": "element pulled toward the cursor" },
-    { "lib": "reactbits", "name": "StarBorder-TS-TW", "role": "button", "look": "button with a star running round its border" },
-    { "lib": "reactbits", "name": "CircularGallery-TS-TW", "role": "showcase", "look": "curved scrolling image gallery", "heavy": true },
-    { "lib": "reactbits", "name": "GlareHover-TS-TW", "role": "features", "look": "glare sweeps across a card on hover" },
-    { "lib": "reactbits", "name": "Dock-TS-TW", "role": "showcase", "look": "macOS-like magnifying dock" },
-
-    { "lib": "cult", "name": "hero-liquid-metal", "role": "hero", "look": "whole hero with a liquid metal shader", "heavy": true },
-    { "lib": "cult", "name": "hero-dithering", "role": "hero", "look": "whole hero on a dithered shader", "heavy": true },
-    { "lib": "cult", "name": "hero-heatmap", "role": "hero", "look": "whole hero on a heatmap shader", "heavy": true },
-    { "lib": "cult", "name": "hero-color-panel", "role": "hero", "look": "hero with coloured panels" },
-    { "lib": "cult", "name": "marketing-hero-analytics", "role": "hero", "look": "analytics product hero with dashboard" },
-    { "lib": "cult", "name": "fluted-glass", "role": "ground", "look": "image seen through fluted glass", "heavy": true },
-    { "lib": "cult", "name": "canvas-fractal-grid", "role": "ground", "look": "animated fractal dot grid" },
-    { "lib": "cult", "name": "grid-beam", "role": "ground", "look": "grid with beams running along its lines" },
-    { "lib": "cult", "name": "stripe-bg-guides", "role": "ground", "look": "Stripe-style vertical guide lines" },
-    { "lib": "cult", "name": "texture-card", "role": "features", "look": "tactile layered card" },
-    { "lib": "cult", "name": "shift-card", "role": "features", "look": "card whose content shifts on hover" },
-    { "lib": "cult", "name": "dynamic-island", "role": "showcase", "look": "iPhone dynamic island that morphs" },
-    { "lib": "cult", "name": "illustration-globe-vercel", "role": "showcase", "look": "Vercel-style globe illustration" },
-    { "lib": "cult", "name": "tweet-grid", "role": "proof", "look": "masonry grid of tweets" },
-    { "lib": "cult", "name": "texture-button", "role": "button", "look": "tactile pressed button" },
-
-    { "lib": "smoothui", "name": "header-4", "role": "hero", "look": "hero on a 3D perspective grid" },
-    { "lib": "smoothui", "name": "header-5", "role": "hero", "look": "hero with a spotlight" },
-    { "lib": "smoothui", "name": "aurora-curtain", "role": "ground", "look": "aurora curtain shader", "heavy": true },
-    { "lib": "smoothui", "name": "liquid-metal", "role": "ground", "look": "liquid metal shader", "heavy": true },
-    { "lib": "smoothui", "name": "parallax-layers", "role": "scroll", "look": "layered parallax scene" },
-    { "lib": "smoothui", "name": "card-swipe-deck", "role": "showcase", "look": "deck of cards you swipe" },
-    { "lib": "smoothui", "name": "expandable-cards", "role": "features", "look": "cards that expand into detail" },
-    { "lib": "smoothui", "name": "wave-text", "role": "headline", "look": "letters wave" },
-    { "lib": "smoothui", "name": "glow-hover-card", "role": "features", "look": "cards glow at the cursor" },
-
-    { "lib": "eldora", "name": "novatrix-background", "role": "ground", "look": "flowing colour shader", "heavy": true },
-    { "lib": "eldora", "name": "photon-beam", "role": "ground", "look": "beams of light shooting across", "heavy": true },
-    { "lib": "eldora", "name": "holographic-card", "role": "features", "look": "holographic foil card" },
-    { "lib": "eldora", "name": "wavy-text", "role": "headline", "look": "wavy letters" },
-
-    { "lib": "aceternity", "name": "background-beams", "role": "ground", "look": "beams sweeping through the dark" },
-    { "lib": "aceternity", "name": "spotlight-new", "role": "ground", "look": "soft spotlights from the top corners" },
-    { "lib": "aceternity", "name": "aurora-background", "role": "ground", "look": "light aurora wash" },
-    { "lib": "aceternity", "name": "background-gradient-animation", "role": "ground", "look": "moving blurred colour blobs" },
-    { "lib": "aceternity", "name": "wavy-background", "role": "ground", "look": "waves of colour lines" },
-    { "lib": "aceternity", "name": "container-scroll-animation", "role": "showcase", "look": "product screen tilts up flat as you scroll" },
-    { "lib": "aceternity", "name": "hero-parallax", "role": "showcase", "look": "rows of product shots tilting in parallax" },
-    { "lib": "aceternity", "name": "macbook-scroll", "role": "showcase", "look": "MacBook opens on scroll to show the product" },
-    { "lib": "aceternity", "name": "sticky-scroll-reveal", "role": "scroll", "look": "text scrolls past a sticky visual that swaps" },
-    { "lib": "aceternity", "name": "timeline", "role": "scroll", "look": "timeline with a line that fills on scroll" },
-    { "lib": "aceternity", "name": "animated-testimonials", "role": "proof", "look": "stacked photo testimonials that shuffle" },
-    { "lib": "aceternity", "name": "card-spotlight", "role": "features", "look": "card with a dotted spotlight reveal" },
-
-    { "lib": "animate-ui", "name": "backgrounds-topography", "role": "ground", "look": "moving topographic lines" },
-    { "lib": "animate-ui", "name": "backgrounds-gravity-stars", "role": "ground", "look": "stars pulled by the cursor" },
-    { "lib": "animate-ui", "name": "backgrounds-hole", "role": "ground", "look": "tunnel into a black hole" },
-    { "lib": "animate-ui", "name": "backgrounds-glyph", "role": "ground", "look": "drifting glyph field" },
-
-    { "lib": "efferd", "name": "hero-1", "role": "hero", "look": "centred hero, radial gradient, announcement badge" },
-    { "lib": "efferd", "name": "hero-2", "role": "hero", "look": "hero with vertical border accents and gradient text" },
-    { "lib": "efferd", "name": "hero-3", "role": "hero", "look": "left-aligned hero with dashboard preview" },
-    { "lib": "efferd", "name": "header-1", "role": "nav", "look": "sticky header, scroll blur, animated mobile menu" },
-    { "lib": "efferd", "name": "header-3", "role": "nav", "look": "header with nested menus and mobile drawer" },
-    { "lib": "efferd", "name": "features-4", "role": "features", "look": "feature cards with extended borders and corner marks" },
-    { "lib": "efferd", "name": "features-6", "role": "features", "look": "bento with globe, charts and dashboard preview" },
-    { "lib": "efferd", "name": "integrations-3", "role": "features", "look": "split: text and scattered integration logos" },
-    { "lib": "efferd", "name": "integrations-4", "role": "features", "look": "scattered rounded integration cards with mask" },
-    { "lib": "efferd", "name": "logo-cloud-3", "role": "logos", "look": "infinite logo scroller with gradient masks" },
-    { "lib": "efferd", "name": "logo-cloud-2", "role": "logos", "look": "logo grid with plus marks and borders" },
-    { "lib": "efferd", "name": "testimonials-3", "role": "proof", "look": "staggered testimonial cards" },
-    { "lib": "efferd", "name": "testimonials-6", "role": "proof", "look": "infinite vertical testimonial scroller" },
-    { "lib": "efferd", "name": "pricing-3", "role": "pricing", "look": "three plans with icons and feature comparison" },
-    { "lib": "efferd", "name": "pricing-4", "role": "pricing", "look": "pricing with a frequency toggle and animated numbers" },
-    { "lib": "efferd", "name": "faqs-2", "role": "faq", "look": "split FAQ with accordion" },
-    { "lib": "efferd", "name": "faqs-3", "role": "faq", "look": "two-column FAQ with a guide line" },
-    { "lib": "efferd", "name": "cta-3", "role": "cta", "look": "bordered CTA with decorative icons" },
-    { "lib": "efferd", "name": "cta-4", "role": "cta", "look": "rounded CTA card with soft shadow" },
-    { "lib": "efferd", "name": "footer-3", "role": "footer", "look": "animated footer with link groups and brand logo" },
-    { "lib": "efferd", "name": "footer-6", "role": "footer", "look": "sticky layered footer with gradient" },
-
-    { "lib": "sakuga", "name": "button", "role": "button", "stack": "html", "look": "anime impact-frame button (playful, gaming)" },
-    { "lib": "sakuga", "name": "toggle", "role": "button", "stack": "html", "look": "anime painted toggle (playful, gaming; ~500 KB)" },
-    { "lib": "sakuga", "name": "progress", "role": "features", "stack": "html", "look": "anime progress bar (playful, gaming)" }
+    {
+      "lib": "magicui",
+      "name": "light-rays",
+      "role": "ground",
+      "look": "soft light rays falling through the hero"
+    },
+    {
+      "lib": "magicui",
+      "name": "warp-background",
+      "role": "ground",
+      "look": "perspective warp grid behind a framed card"
+    },
+    {
+      "lib": "magicui",
+      "name": "retro-grid",
+      "role": "ground",
+      "look": "receding retro floor grid"
+    },
+    {
+      "lib": "magicui",
+      "name": "flickering-grid",
+      "role": "ground",
+      "look": "quiet flickering dot grid"
+    },
+    {
+      "lib": "magicui",
+      "name": "dot-pattern",
+      "role": "ground",
+      "look": "fading dot pattern, calm"
+    },
+    {
+      "lib": "magicui",
+      "name": "particles",
+      "role": "ground",
+      "look": "drifting particles that follow the cursor"
+    },
+    {
+      "lib": "magicui",
+      "name": "ripple",
+      "role": "ground",
+      "look": "concentric ripples behind a centred icon"
+    },
+    {
+      "lib": "magicui",
+      "name": "globe",
+      "role": "showcase",
+      "look": "rotating interactive globe with markers",
+      "heavy": true
+    },
+    {
+      "lib": "magicui",
+      "name": "dither-field",
+      "role": "ground",
+      "look": "dithered moving field, printed feel",
+      "heavy": true
+    },
+    {
+      "lib": "magicui",
+      "name": "aurora-text",
+      "role": "headline",
+      "look": "headline word filled with a moving aurora"
+    },
+    {
+      "lib": "magicui",
+      "name": "word-rotate",
+      "role": "headline",
+      "look": "one word in the headline rotates through options"
+    },
+    {
+      "lib": "magicui",
+      "name": "text-animate",
+      "role": "headline",
+      "look": "headline enters word by word (blur, slide, fade)"
+    },
+    {
+      "lib": "magicui",
+      "name": "animated-gradient-text",
+      "role": "headline",
+      "look": "announcement pill with a moving gradient border"
+    },
+    {
+      "lib": "magicui",
+      "name": "animated-shiny-text",
+      "role": "headline",
+      "look": "eyebrow text with a light sweep"
+    },
+    {
+      "lib": "magicui",
+      "name": "morphing-text",
+      "role": "headline",
+      "look": "words melt into each other"
+    },
+    {
+      "lib": "magicui",
+      "name": "hyper-text",
+      "role": "headline",
+      "look": "letters scramble into place"
+    },
+    {
+      "lib": "magicui",
+      "name": "text-reveal",
+      "role": "scroll",
+      "look": "a paragraph lights up word by word on scroll"
+    },
+    {
+      "lib": "magicui",
+      "name": "safari",
+      "role": "showcase",
+      "look": "Safari window frame for a product screenshot"
+    },
+    {
+      "lib": "magicui",
+      "name": "iphone",
+      "role": "showcase",
+      "look": "iPhone frame for an app screen"
+    },
+    {
+      "lib": "magicui",
+      "name": "hero-video-dialog",
+      "role": "showcase",
+      "look": "product video thumbnail that opens in a dialog"
+    },
+    {
+      "lib": "magicui",
+      "name": "terminal",
+      "role": "showcase",
+      "look": "terminal that types commands and output"
+    },
+    {
+      "lib": "magicui",
+      "name": "border-beam",
+      "role": "showcase",
+      "look": "light beam travelling round a card or frame edge"
+    },
+    {
+      "lib": "magicui",
+      "name": "animated-beam",
+      "role": "features",
+      "look": "beams flowing between connected app icons (integrations)"
+    },
+    {
+      "lib": "magicui",
+      "name": "orbiting-circles",
+      "role": "features",
+      "look": "icons orbiting a centre (integrations, ecosystem)"
+    },
+    {
+      "lib": "magicui",
+      "name": "bento-grid",
+      "role": "features",
+      "look": "bento grid of feature cards with backgrounds"
+    },
+    {
+      "lib": "magicui",
+      "name": "magic-card",
+      "role": "features",
+      "look": "card with a spotlight that follows the cursor"
+    },
+    {
+      "lib": "magicui",
+      "name": "neon-gradient-card",
+      "role": "features",
+      "look": "card with a glowing gradient edge"
+    },
+    {
+      "lib": "magicui",
+      "name": "animated-list",
+      "role": "features",
+      "look": "notifications stacking in one by one"
+    },
+    {
+      "lib": "magicui",
+      "name": "marquee",
+      "role": "logos",
+      "look": "infinite marquee of logos, cards or reviews"
+    },
+    {
+      "lib": "magicui",
+      "name": "number-ticker",
+      "role": "numbers",
+      "look": "numbers count up into view"
+    },
+    {
+      "lib": "magicui",
+      "name": "tweet-card",
+      "role": "proof",
+      "look": "real-looking tweet card"
+    },
+    {
+      "lib": "magicui",
+      "name": "avatar-circles",
+      "role": "proof",
+      "look": "overlapping avatars with a +count"
+    },
+    {
+      "lib": "magicui",
+      "name": "shimmer-button",
+      "role": "button",
+      "look": "button with a shimmer running round it"
+    },
+    {
+      "lib": "magicui",
+      "name": "interactive-hover-button",
+      "role": "button",
+      "look": "button whose label slides to an arrow on hover"
+    },
+    {
+      "lib": "magicui",
+      "name": "rainbow-button",
+      "role": "button",
+      "look": "button with a rainbow glow underneath"
+    },
+    {
+      "lib": "magicui",
+      "name": "shine-border",
+      "role": "features",
+      "look": "animated shining border for a key card"
+    },
+    {
+      "lib": "magicui",
+      "name": "blur-fade",
+      "role": "scroll",
+      "look": "content blurs and fades in on scroll"
+    },
+    {
+      "lib": "magicui",
+      "name": "scroll-based-velocity",
+      "role": "scroll",
+      "look": "big text rows that move with scroll speed"
+    },
+    {
+      "lib": "magicui",
+      "name": "lens",
+      "role": "showcase",
+      "look": "magnifying lens over an image"
+    },
+    {
+      "lib": "reactbits",
+      "name": "Aurora-TS-TW",
+      "role": "ground",
+      "look": "slow aurora bands",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Silk-TS-TW",
+      "role": "ground",
+      "look": "flowing silk cloth",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Iridescence-TS-TW",
+      "role": "ground",
+      "look": "iridescent oil-film ground",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Beams-TS-TW",
+      "role": "ground",
+      "look": "3D light beams in the dark",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "LightRays-TS-TW",
+      "role": "ground",
+      "look": "volumetric rays from above",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Threads-TS-TW",
+      "role": "ground",
+      "look": "fine waving threads",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Galaxy-TS-TW",
+      "role": "ground",
+      "look": "twinkling star field",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Orb-TS-TW",
+      "role": "ground",
+      "look": "glowing orb that reacts to the cursor (AI products)",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "DitherVeil-TS-TW",
+      "role": "ground",
+      "look": "dithered veil, retro print",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Prism-TS-TW",
+      "role": "ground",
+      "look": "light through a prism",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Plasma-TS-TW",
+      "role": "ground",
+      "look": "soft plasma glow",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "LiquidEther-TS-TW",
+      "role": "ground",
+      "look": "fluid that swirls under the cursor",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "FloatingLines-TS-TW",
+      "role": "ground",
+      "look": "floating line waves",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "Grainient-TS-TW",
+      "role": "ground",
+      "look": "grainy moving gradient",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "MetallicPaint-TS-TW",
+      "role": "showcase",
+      "look": "a logo in liquid chrome",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "MetaBalls-TS-TW",
+      "role": "ground",
+      "look": "merging metaballs",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "SplitText-TS-TW",
+      "role": "headline",
+      "look": "headline letters rise in one by one"
+    },
+    {
+      "lib": "reactbits",
+      "name": "BlurText-TS-TW",
+      "role": "headline",
+      "look": "headline un-blurs word by word"
+    },
+    {
+      "lib": "reactbits",
+      "name": "ShinyText-TS-TW",
+      "role": "headline",
+      "look": "a light sweep across text"
+    },
+    {
+      "lib": "reactbits",
+      "name": "GradientText-TS-TW",
+      "role": "headline",
+      "look": "slowly moving gradient fill"
+    },
+    {
+      "lib": "reactbits",
+      "name": "RotatingText-TS-TW",
+      "role": "headline",
+      "look": "one word swaps in a clipped box"
+    },
+    {
+      "lib": "reactbits",
+      "name": "TextType-TS-TW",
+      "role": "headline",
+      "look": "typewriter with a cursor"
+    },
+    {
+      "lib": "reactbits",
+      "name": "DecryptedText-TS-TW",
+      "role": "headline",
+      "look": "text decrypts from symbols"
+    },
+    {
+      "lib": "reactbits",
+      "name": "ScrollReveal-TS-TW",
+      "role": "scroll",
+      "look": "statement paragraph revealed on scroll"
+    },
+    {
+      "lib": "reactbits",
+      "name": "ScrollStack-TS-TW",
+      "role": "scroll",
+      "look": "cards stack up as you scroll"
+    },
+    {
+      "lib": "reactbits",
+      "name": "SpotlightCard-TS-TW",
+      "role": "features",
+      "look": "card lit by a spotlight at the cursor"
+    },
+    {
+      "lib": "reactbits",
+      "name": "TiltedCard-TS-TW",
+      "role": "features",
+      "look": "image card that tilts toward the cursor"
+    },
+    {
+      "lib": "reactbits",
+      "name": "MagicBento-TS-TW",
+      "role": "features",
+      "look": "bento grid with glow, particles and tilt"
+    },
+    {
+      "lib": "reactbits",
+      "name": "ElectricBorder-TS-TW",
+      "role": "features",
+      "look": "electric animated border on a key card"
+    },
+    {
+      "lib": "reactbits",
+      "name": "LogoLoop-TS-TW",
+      "role": "logos",
+      "look": "smooth looping logo row with fade edges"
+    },
+    {
+      "lib": "reactbits",
+      "name": "CountUp-TS-TW",
+      "role": "numbers",
+      "look": "count-up number"
+    },
+    {
+      "lib": "reactbits",
+      "name": "ClickSpark-TS-TW",
+      "role": "button",
+      "look": "sparks on click"
+    },
+    {
+      "lib": "reactbits",
+      "name": "Magnet-TS-TW",
+      "role": "button",
+      "look": "element pulled toward the cursor"
+    },
+    {
+      "lib": "reactbits",
+      "name": "StarBorder-TS-TW",
+      "role": "button",
+      "look": "button with a star running round its border"
+    },
+    {
+      "lib": "reactbits",
+      "name": "CircularGallery-TS-TW",
+      "role": "showcase",
+      "look": "curved scrolling image gallery",
+      "heavy": true
+    },
+    {
+      "lib": "reactbits",
+      "name": "GlareHover-TS-TW",
+      "role": "features",
+      "look": "glare sweeps across a card on hover"
+    },
+    {
+      "lib": "reactbits",
+      "name": "Dock-TS-TW",
+      "role": "showcase",
+      "look": "macOS-like magnifying dock"
+    },
+    {
+      "lib": "cult",
+      "name": "hero-liquid-metal",
+      "role": "hero",
+      "look": "whole hero with a liquid metal shader",
+      "heavy": true
+    },
+    {
+      "lib": "cult",
+      "name": "hero-dithering",
+      "role": "hero",
+      "look": "whole hero on a dithered shader",
+      "heavy": true
+    },
+    {
+      "lib": "cult",
+      "name": "hero-heatmap",
+      "role": "hero",
+      "look": "whole hero on a heatmap shader",
+      "heavy": true
+    },
+    {
+      "lib": "cult",
+      "name": "hero-color-panel",
+      "role": "hero",
+      "look": "hero with coloured panels"
+    },
+    {
+      "lib": "cult",
+      "name": "marketing-hero-analytics",
+      "role": "hero",
+      "look": "analytics product hero with dashboard"
+    },
+    {
+      "lib": "cult",
+      "name": "fluted-glass",
+      "role": "ground",
+      "look": "image seen through fluted glass",
+      "heavy": true
+    },
+    {
+      "lib": "cult",
+      "name": "canvas-fractal-grid",
+      "role": "ground",
+      "look": "animated fractal dot grid"
+    },
+    {
+      "lib": "cult",
+      "name": "grid-beam",
+      "role": "ground",
+      "look": "grid with beams running along its lines"
+    },
+    {
+      "lib": "cult",
+      "name": "stripe-bg-guides",
+      "role": "ground",
+      "look": "Stripe-style vertical guide lines"
+    },
+    {
+      "lib": "cult",
+      "name": "texture-card",
+      "role": "features",
+      "look": "tactile layered card"
+    },
+    {
+      "lib": "cult",
+      "name": "shift-card",
+      "role": "features",
+      "look": "card whose content shifts on hover"
+    },
+    {
+      "lib": "cult",
+      "name": "dynamic-island",
+      "role": "showcase",
+      "look": "iPhone dynamic island that morphs"
+    },
+    {
+      "lib": "cult",
+      "name": "illustration-globe-vercel",
+      "role": "showcase",
+      "look": "Vercel-style globe illustration"
+    },
+    {
+      "lib": "cult",
+      "name": "tweet-grid",
+      "role": "proof",
+      "look": "masonry grid of tweets"
+    },
+    {
+      "lib": "cult",
+      "name": "texture-button",
+      "role": "button",
+      "look": "tactile pressed button"
+    },
+    {
+      "lib": "smoothui",
+      "name": "header-4",
+      "role": "hero",
+      "look": "hero on a 3D perspective grid"
+    },
+    {
+      "lib": "smoothui",
+      "name": "header-5",
+      "role": "hero",
+      "look": "hero with a spotlight"
+    },
+    {
+      "lib": "smoothui",
+      "name": "aurora-curtain",
+      "role": "ground",
+      "look": "aurora curtain shader",
+      "heavy": true
+    },
+    {
+      "lib": "smoothui",
+      "name": "liquid-metal",
+      "role": "ground",
+      "look": "liquid metal shader",
+      "heavy": true
+    },
+    {
+      "lib": "smoothui",
+      "name": "parallax-layers",
+      "role": "scroll",
+      "look": "layered parallax scene"
+    },
+    {
+      "lib": "smoothui",
+      "name": "card-swipe-deck",
+      "role": "showcase",
+      "look": "deck of cards you swipe"
+    },
+    {
+      "lib": "smoothui",
+      "name": "expandable-cards",
+      "role": "features",
+      "look": "cards that expand into detail"
+    },
+    {
+      "lib": "smoothui",
+      "name": "wave-text",
+      "role": "headline",
+      "look": "letters wave"
+    },
+    {
+      "lib": "smoothui",
+      "name": "glow-hover-card",
+      "role": "features",
+      "look": "cards glow at the cursor"
+    },
+    {
+      "lib": "eldora",
+      "name": "novatrix-background",
+      "role": "ground",
+      "look": "flowing colour shader",
+      "heavy": true
+    },
+    {
+      "lib": "eldora",
+      "name": "photon-beam",
+      "role": "ground",
+      "look": "beams of light shooting across",
+      "heavy": true
+    },
+    {
+      "lib": "eldora",
+      "name": "holographic-card",
+      "role": "features",
+      "look": "holographic foil card"
+    },
+    {
+      "lib": "eldora",
+      "name": "wavy-text",
+      "role": "headline",
+      "look": "wavy letters"
+    },
+    {
+      "lib": "aceternity",
+      "name": "background-beams",
+      "role": "ground",
+      "look": "beams sweeping through the dark"
+    },
+    {
+      "lib": "aceternity",
+      "name": "spotlight-new",
+      "role": "ground",
+      "look": "soft spotlights from the top corners"
+    },
+    {
+      "lib": "aceternity",
+      "name": "aurora-background",
+      "role": "ground",
+      "look": "light aurora wash"
+    },
+    {
+      "lib": "aceternity",
+      "name": "background-gradient-animation",
+      "role": "ground",
+      "look": "moving blurred colour blobs"
+    },
+    {
+      "lib": "aceternity",
+      "name": "wavy-background",
+      "role": "ground",
+      "look": "waves of colour lines"
+    },
+    {
+      "lib": "aceternity",
+      "name": "container-scroll-animation",
+      "role": "showcase",
+      "look": "product screen tilts up flat as you scroll"
+    },
+    {
+      "lib": "aceternity",
+      "name": "hero-parallax",
+      "role": "showcase",
+      "look": "rows of product shots tilting in parallax"
+    },
+    {
+      "lib": "aceternity",
+      "name": "macbook-scroll",
+      "role": "showcase",
+      "look": "MacBook opens on scroll to show the product"
+    },
+    {
+      "lib": "aceternity",
+      "name": "sticky-scroll-reveal",
+      "role": "scroll",
+      "look": "text scrolls past a sticky visual that swaps"
+    },
+    {
+      "lib": "aceternity",
+      "name": "timeline",
+      "role": "scroll",
+      "look": "timeline with a line that fills on scroll"
+    },
+    {
+      "lib": "aceternity",
+      "name": "animated-testimonials",
+      "role": "proof",
+      "look": "stacked photo testimonials that shuffle"
+    },
+    {
+      "lib": "aceternity",
+      "name": "card-spotlight",
+      "role": "features",
+      "look": "card with a dotted spotlight reveal"
+    },
+    {
+      "lib": "animate-ui",
+      "name": "backgrounds-topography",
+      "role": "ground",
+      "look": "moving topographic lines"
+    },
+    {
+      "lib": "animate-ui",
+      "name": "backgrounds-gravity-stars",
+      "role": "ground",
+      "look": "stars pulled by the cursor"
+    },
+    {
+      "lib": "animate-ui",
+      "name": "backgrounds-hole",
+      "role": "ground",
+      "look": "tunnel into a black hole"
+    },
+    {
+      "lib": "animate-ui",
+      "name": "backgrounds-glyph",
+      "role": "ground",
+      "look": "drifting glyph field"
+    },
+    {
+      "lib": "efferd",
+      "name": "hero-1",
+      "role": "hero",
+      "look": "centred hero, radial gradient, announcement badge"
+    },
+    {
+      "lib": "efferd",
+      "name": "hero-2",
+      "role": "hero",
+      "look": "hero with vertical border accents and gradient text"
+    },
+    {
+      "lib": "efferd",
+      "name": "hero-3",
+      "role": "hero",
+      "look": "left-aligned hero with dashboard preview"
+    },
+    {
+      "lib": "efferd",
+      "name": "header-1",
+      "role": "nav",
+      "look": "sticky header, scroll blur, animated mobile menu"
+    },
+    {
+      "lib": "efferd",
+      "name": "header-3",
+      "role": "nav",
+      "look": "header with nested menus and mobile drawer"
+    },
+    {
+      "lib": "efferd",
+      "name": "features-4",
+      "role": "features",
+      "look": "feature cards with extended borders and corner marks"
+    },
+    {
+      "lib": "efferd",
+      "name": "features-6",
+      "role": "features",
+      "look": "bento with globe, charts and dashboard preview"
+    },
+    {
+      "lib": "efferd",
+      "name": "integrations-3",
+      "role": "features",
+      "look": "split: text and scattered integration logos"
+    },
+    {
+      "lib": "efferd",
+      "name": "integrations-4",
+      "role": "features",
+      "look": "scattered rounded integration cards with mask"
+    },
+    {
+      "lib": "efferd",
+      "name": "logo-cloud-3",
+      "role": "logos",
+      "look": "infinite logo scroller with gradient masks"
+    },
+    {
+      "lib": "efferd",
+      "name": "logo-cloud-2",
+      "role": "logos",
+      "look": "logo grid with plus marks and borders"
+    },
+    {
+      "lib": "efferd",
+      "name": "testimonials-3",
+      "role": "proof",
+      "look": "staggered testimonial cards"
+    },
+    {
+      "lib": "efferd",
+      "name": "testimonials-6",
+      "role": "proof",
+      "look": "infinite vertical testimonial scroller"
+    },
+    {
+      "lib": "efferd",
+      "name": "pricing-3",
+      "role": "pricing",
+      "look": "three plans with icons and feature comparison"
+    },
+    {
+      "lib": "efferd",
+      "name": "pricing-4",
+      "role": "pricing",
+      "look": "pricing with a frequency toggle and animated numbers"
+    },
+    {
+      "lib": "efferd",
+      "name": "faqs-2",
+      "role": "faq",
+      "look": "split FAQ with accordion"
+    },
+    {
+      "lib": "efferd",
+      "name": "faqs-3",
+      "role": "faq",
+      "look": "two-column FAQ with a guide line"
+    },
+    {
+      "lib": "efferd",
+      "name": "cta-3",
+      "role": "cta",
+      "look": "bordered CTA with decorative icons"
+    },
+    {
+      "lib": "efferd",
+      "name": "cta-4",
+      "role": "cta",
+      "look": "rounded CTA card with soft shadow"
+    },
+    {
+      "lib": "efferd",
+      "name": "footer-3",
+      "role": "footer",
+      "look": "animated footer with link groups and brand logo"
+    },
+    {
+      "lib": "efferd",
+      "name": "footer-6",
+      "role": "footer",
+      "look": "sticky layered footer with gradient"
+    },
+    {
+      "lib": "sakuga",
+      "name": "button",
+      "role": "button",
+      "stack": "html",
+      "look": "anime impact-frame button (playful, gaming)"
+    },
+    {
+      "lib": "sakuga",
+      "name": "toggle",
+      "role": "button",
+      "stack": "html",
+      "look": "anime painted toggle (playful, gaming; ~500 KB)"
+    },
+    {
+      "lib": "sakuga",
+      "name": "progress",
+      "role": "features",
+      "stack": "html",
+      "look": "anime progress bar (playful, gaming)"
+    },
+    {
+      "lib": "bencho",
+      "name": "card-swap",
+      "role": "showcase",
+      "look": "stack of photo cards in depth you press or flick through"
+    },
+    {
+      "lib": "bencho",
+      "name": "image-accordion",
+      "role": "showcase",
+      "look": "images that open like an accordion on hover"
+    },
+    {
+      "lib": "bencho",
+      "name": "ascii-wake",
+      "role": "showcase",
+      "look": "a cube drawn in ink dots; the pointer drags a wake of characters"
+    },
+    {
+      "lib": "bencho",
+      "name": "image-compare",
+      "role": "showcase",
+      "look": "before / after image compare with a drag handle"
+    },
+    {
+      "lib": "bencho",
+      "name": "heat-word",
+      "role": "headline",
+      "look": "a word that heats up under the pointer"
+    },
+    {
+      "lib": "bencho",
+      "name": "particles",
+      "role": "ground",
+      "look": "a particle field that reacts to the pointer"
+    },
+    {
+      "lib": "bencho",
+      "name": "rolling-counter",
+      "role": "numbers",
+      "look": "digits that roll like an odometer"
+    },
+    {
+      "lib": "shadcn",
+      "name": "dashboard-01",
+      "role": "shell",
+      "surface": "app",
+      "look": "a whole dashboard: sidebar, stat cards, interactive area chart, data table"
+    },
+    {
+      "lib": "shadcn",
+      "name": "sidebar-07",
+      "role": "shell",
+      "surface": "app",
+      "look": "sidebar that collapses to icons"
+    },
+    {
+      "lib": "shadcn",
+      "name": "sidebar-15",
+      "role": "shell",
+      "surface": "app",
+      "look": "left and right sidebars"
+    },
+    {
+      "lib": "shadcn",
+      "name": "sidebar-13",
+      "role": "shell",
+      "surface": "app",
+      "look": "sidebar in a dialog (settings)"
+    },
+    {
+      "lib": "shadcn",
+      "name": "login-03",
+      "role": "auth",
+      "surface": "app",
+      "look": "centred login card with social sign-in"
+    },
+    {
+      "lib": "shadcn",
+      "name": "login-04",
+      "role": "auth",
+      "surface": "app",
+      "look": "login split with an image"
+    },
+    {
+      "lib": "shadcn",
+      "name": "signup-02",
+      "role": "auth",
+      "surface": "app",
+      "look": "signup split with an image"
+    },
+    {
+      "lib": "shadcn",
+      "name": "chart-area-interactive",
+      "role": "chart",
+      "surface": "app",
+      "look": "area chart with a range picker"
+    },
+    {
+      "lib": "shadcn",
+      "name": "chart-bar-interactive",
+      "role": "chart",
+      "surface": "app",
+      "look": "bar chart that switches series"
+    },
+    {
+      "lib": "shadcn",
+      "name": "chart-pie-donut-text",
+      "role": "chart",
+      "surface": "app",
+      "look": "donut with the total in the middle"
+    },
+    {
+      "lib": "shadcn",
+      "name": "chart-radar-dots",
+      "role": "chart",
+      "surface": "app",
+      "look": "radar chart with dots"
+    },
+    {
+      "lib": "shadcn",
+      "name": "chart-line-interactive",
+      "role": "chart",
+      "surface": "app",
+      "look": "line chart that switches series"
+    },
+    {
+      "lib": "shadcn",
+      "name": "table",
+      "role": "table",
+      "surface": "app",
+      "look": "the table primitive (pair with TanStack for sorting and filters)"
+    },
+    {
+      "lib": "shadcn",
+      "name": "command",
+      "role": "command",
+      "surface": "app",
+      "look": "⌘K command palette"
+    },
+    {
+      "lib": "shadcn",
+      "name": "sonner",
+      "role": "feedback",
+      "surface": "app",
+      "look": "stacked toasts"
+    },
+    {
+      "lib": "shadcn",
+      "name": "empty",
+      "role": "feedback",
+      "surface": "app",
+      "look": "empty state with icon, title, action"
+    },
+    {
+      "lib": "kibo",
+      "name": "kanban",
+      "role": "board",
+      "surface": "app",
+      "look": "drag-and-drop kanban board"
+    },
+    {
+      "lib": "kibo",
+      "name": "gantt",
+      "role": "board",
+      "surface": "app",
+      "look": "gantt timeline"
+    },
+    {
+      "lib": "kibo",
+      "name": "calendar",
+      "role": "board",
+      "surface": "app",
+      "look": "month calendar with events"
+    },
+    {
+      "lib": "kibo",
+      "name": "contribution-graph",
+      "role": "board",
+      "surface": "app",
+      "look": "GitHub-style activity graph"
+    },
+    {
+      "lib": "kibo",
+      "name": "tree",
+      "role": "board",
+      "surface": "app",
+      "look": "file/tree view"
+    },
+    {
+      "lib": "kibo",
+      "name": "dropzone",
+      "role": "input",
+      "surface": "app",
+      "look": "file dropzone with previews"
+    },
+    {
+      "lib": "kibo",
+      "name": "editor",
+      "role": "input",
+      "surface": "app",
+      "look": "rich text editor"
+    },
+    {
+      "lib": "kibo",
+      "name": "color-picker",
+      "role": "input",
+      "surface": "app",
+      "look": "colour picker"
+    },
+    {
+      "lib": "kibo",
+      "name": "image-crop",
+      "role": "input",
+      "surface": "app",
+      "look": "image cropper"
+    },
+    {
+      "lib": "kibo",
+      "name": "choicebox",
+      "role": "input",
+      "surface": "app",
+      "look": "big selectable choice cards"
+    },
+    {
+      "lib": "kibo",
+      "name": "tags",
+      "role": "input",
+      "surface": "app",
+      "look": "tag input"
+    },
+    {
+      "lib": "kibo",
+      "name": "video-player",
+      "role": "media",
+      "surface": "app",
+      "look": "video player with controls"
+    },
+    {
+      "lib": "kibo",
+      "name": "image-zoom",
+      "role": "media",
+      "surface": "app",
+      "look": "click-to-zoom image"
+    },
+    {
+      "lib": "kibo",
+      "name": "code-block",
+      "role": "media",
+      "surface": "app",
+      "look": "code block with tabs and copy"
+    },
+    {
+      "lib": "kibo",
+      "name": "snippet",
+      "role": "media",
+      "surface": "app",
+      "look": "copyable command snippet"
+    },
+    {
+      "lib": "kibo",
+      "name": "status",
+      "role": "status",
+      "surface": "app",
+      "look": "status dot with label"
+    },
+    {
+      "lib": "kibo",
+      "name": "avatar-stack",
+      "role": "status",
+      "surface": "app",
+      "look": "overlapping avatars"
+    },
+    {
+      "lib": "kibo",
+      "name": "ticker",
+      "role": "status",
+      "surface": "app",
+      "look": "stock ticker with change"
+    },
+    {
+      "lib": "kibo",
+      "name": "relative-time",
+      "role": "status",
+      "surface": "app",
+      "look": "live relative times across zones"
+    },
+    {
+      "lib": "kibo",
+      "name": "credit-card",
+      "role": "status",
+      "surface": "app",
+      "look": "a credit card visual"
+    },
+    {
+      "lib": "bencho",
+      "name": "one-time-code",
+      "role": "input",
+      "surface": "app",
+      "look": "one-time code input that feels physical"
+    },
+    {
+      "lib": "bencho",
+      "name": "slide-confirm",
+      "role": "input",
+      "surface": "app",
+      "look": "slide to confirm"
+    },
+    {
+      "lib": "bencho",
+      "name": "label-input",
+      "role": "input",
+      "surface": "app",
+      "look": "input whose label moves aside"
+    },
+    {
+      "lib": "bencho",
+      "name": "magnet-select",
+      "role": "input",
+      "surface": "app",
+      "look": "options pulled toward the pointer"
+    },
+    {
+      "lib": "bencho",
+      "name": "liq-toggle",
+      "role": "input",
+      "surface": "app",
+      "look": "liquid toggle"
+    },
+    {
+      "lib": "bencho",
+      "name": "picker",
+      "role": "input",
+      "surface": "app",
+      "look": "wheel picker"
+    },
+    {
+      "lib": "bencho",
+      "name": "signature",
+      "role": "input",
+      "surface": "app",
+      "look": "signature pad"
+    },
+    {
+      "lib": "bencho",
+      "name": "wake-slider",
+      "role": "input",
+      "surface": "app",
+      "look": "slider of thin bars, no thumb"
+    },
+    {
+      "lib": "bencho",
+      "name": "voice-note",
+      "role": "media",
+      "surface": "app",
+      "look": "voice note with waveform"
+    },
+    {
+      "lib": "bencho",
+      "name": "image-compare",
+      "role": "media",
+      "surface": "app",
+      "look": "before / after compare"
+    },
+    {
+      "lib": "bencho",
+      "name": "time-scrubber",
+      "role": "media",
+      "surface": "app",
+      "look": "timeline scrubber"
+    },
+    {
+      "lib": "bencho",
+      "name": "seek",
+      "role": "media",
+      "surface": "app",
+      "look": "media seek bar"
+    },
+    {
+      "lib": "bencho",
+      "name": "step-player",
+      "role": "media",
+      "surface": "app",
+      "look": "step-by-step player"
+    },
+    {
+      "lib": "bencho",
+      "name": "toast-stack",
+      "role": "feedback",
+      "surface": "app",
+      "look": "toasts that stack in depth"
+    },
+    {
+      "lib": "bencho",
+      "name": "like",
+      "role": "feedback",
+      "surface": "app",
+      "look": "like button with a burst"
+    },
+    {
+      "lib": "bencho",
+      "name": "emoji-reactions",
+      "role": "feedback",
+      "surface": "app",
+      "look": "emoji reactions"
+    },
+    {
+      "lib": "bencho",
+      "name": "generate",
+      "role": "feedback",
+      "surface": "app",
+      "look": "generate button with a working state (AI)"
+    },
+    {
+      "lib": "bencho",
+      "name": "context-meter",
+      "role": "status",
+      "surface": "app",
+      "look": "context window as a stacked bar or dot field (AI)"
+    },
+    {
+      "lib": "bencho",
+      "name": "stacked-bars",
+      "role": "status",
+      "surface": "app",
+      "look": "a month of visits as stacked bars"
+    },
+    {
+      "lib": "bencho",
+      "name": "huddle",
+      "role": "status",
+      "surface": "app",
+      "look": "voice room with two people"
+    },
+    {
+      "lib": "bencho",
+      "name": "checklist",
+      "role": "status",
+      "surface": "app",
+      "look": "checklist that ticks with feel"
+    },
+    {
+      "lib": "bencho",
+      "name": "todo-tower",
+      "role": "status",
+      "surface": "app",
+      "look": "todo items stacked as a tower"
+    },
+    {
+      "lib": "bencho",
+      "name": "dock",
+      "role": "shell",
+      "surface": "app",
+      "look": "macOS-style dock"
+    }
   ]
 }

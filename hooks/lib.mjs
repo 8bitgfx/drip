@@ -3,6 +3,7 @@
 export { loadConfig } from "../mcp/src/core/config.mjs";
 export { agentFinished, agentStarted, agentsRunning, bindSession, orphanTasks, checklist, evidenceStale, isUiFile, loadState, missingBeforeUi, needsFitcheck, otherTasks, reconcileWorkspace, saveState, updateState } from "../mcp/src/core/state.mjs";
 export { hashFile, markSeen, shotHash } from "../mcp/src/core/evidence.mjs";
+export { filmEvent, startEvent } from "../mcp/src/core/film.mjs";
 import { agentsRunning, setIdentity } from "../mcp/src/core/state.mjs";
 
 export async function readInput() {

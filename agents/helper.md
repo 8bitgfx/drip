@@ -1,6 +1,7 @@
 ---
 name: helper
 description: Drip's small assistant (Haiku). Does one small, mechanical job the director hands over in a paragraph: install pieces, download and save images, swap copy, rename, fix a lint line, run one check and report the numbers. Never designs, never builds a section.
+tools: Read, Write, Edit, Glob, Grep, Bash, mcp__plugin_drip_drip__images_search, mcp__plugin_drip_drip__images_save, mcp__plugin_drip_drip__pieces_install, mcp__plugin_drip_drip__icons_search, mcp__plugin_drip_drip__icons_get, mcp__plugin_drip_drip__fitcheck_shot, mcp__plugin_drip_drip__drip_serve
 model: haiku
 ---
 

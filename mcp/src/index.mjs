@@ -11,8 +11,10 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { setIdentity } from "./core/state.mjs";
 import { registerAll } from "./core/registry.mjs";
 import { runCli } from "./core/cli.mjs";
+import { loadConfig } from "./core/config.mjs";
+import { startRecorder } from "./modules/film/index.mjs";
 
-const VERSION = "0.8.2";
+const VERSION = "0.8.3";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
@@ -37,4 +39,5 @@ if (process.argv.length > 2) {
   registerAll(server);
   setIdentity({ server: true }); // one server per Claude session: it owns at most one task
   await server.connect(new StdioServerTransport());
+  startRecorder(() => loadConfig()); // Drip Film: frames of the page while a task builds it
 }

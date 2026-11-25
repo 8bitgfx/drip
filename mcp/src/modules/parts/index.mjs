@@ -372,11 +372,12 @@ export function registerDeal(server, ctx) {
         directions: z.number().int().min(1).max(3).optional().describe("How many different sets (default 1; 3 for the board's directions)"),
         out: z.string().optional().describe("A new page folder, e.g. 'saas-award-3': also writes the page from the dealt set, so you only fill in the copy and the visual"),
         radius: z.enum(["sharp", "soft", "round"]).optional().describe("With out: sharp for fintech and dev tools, soft (default), round for consumer apps"),
+        surface: z.enum(["landing", "app"]).optional().describe("landing (default): a marketing page. app: an app screen (dashboard, tool, settings, editor): React, and the pieces are app pieces (shadcn's dashboard and sidebars, charts, Kibo's kanban, dropzone and editor, bencho's inputs and media...)"),
         stack: z.enum(["auto", "react", "html"]).optional().describe("With out: react = Vite + Tailwind so pieces from React libraries (Magic UI, React Bits, Cult UI, efferd...) install as they are; html = one static page with taste-skill's kit. auto (default): react for software, gaming and tech pages, html for products, services and places. The user's word wins (\"no build step\" = html)."),
       },
     },
-    safe(async ({ kind, trade, has, directions = 1, out: outDir, radius = "soft", stack: stackIn = "auto" }) => {
-      const stack = stackIn === "auto" ? (["software", "gaming", "tech"].includes(kind) ? "react" : "html") : stackIn;
+    safe(async ({ kind, trade, has, directions = 1, out: outDir, radius = "soft", stack: stackIn = "auto", surface = "landing" }) => {
+      const stack = surface === "app" ? "react" : stackIn === "auto" ? (["software", "gaming", "tech"].includes(kind) ? "react" : "html") : stackIn;
       await installTaste();
       const skill = path.join(tasteDir(), "skills", "taste-skill");
       const work = path.join(projectDir(), ".drip", "deal");
@@ -402,7 +403,7 @@ export function registerDeal(server, ctx) {
       const palette = (first.match(/^ {2}([a-z0-9-]+) {2,}[A-Z]/m) || [])[1];
       const summary = [hero && `hero ${hero}`, palette && `palette ${palette}`, kind].filter(Boolean).join(", ");
       const htmlParts = stack === "html" ? Object.fromEntries(["effect", "ui", "component", "moment"].map((k) => [k, familyItems(k)])) : null;
-      const dealt = dealPieces({ kind, stack, historyFile: path.join(work, "pieces-history.json"), htmlParts });
+      const dealt = dealPieces({ kind, stack, surface, historyFile: path.join(work, "pieces-history.json"), htmlParts });
       const piecesText = formatPieces(dealt, { stack, owned: ownedKits() });
       updateState((st) => {
         if (st.task) st.task.deal = { kind, trade, summary, stack, at: new Date().toISOString() };

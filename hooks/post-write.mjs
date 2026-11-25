@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { allow, hashFile, isUiFile, loadConfig, loadState, looksVisual, markSeen, out, readInput, run, shotHash, updateState } from "./lib.mjs";
+import { allow, filmEvent, hashFile, isUiFile, loadConfig, loadState, looksVisual, markSeen, out, readInput, run, shotHash, updateState } from "./lib.mjs";
 
 // taste-skill's copy lint (no browser, ~0.1 s): slop words, stock lines, default names, invented stat strips.
 // Its FAILs and WARNs come back as lint issues; its INFO lines stay out.
@@ -40,6 +40,10 @@ run(async () => {
 
   const { task } = loadState(dir);
   const config = loadConfig(dir);
+  if (task) {
+    const body = [ti.content, ti.new_string, ...(ti.edits || []).map((e) => e.new_string)].filter(Boolean).join("\n");
+    filmEvent(task, { kind: "write", agent: input.agent_id || "main", type: input.agent_type || null, tool: input.tool_name, file: rel.replace(/\\/g, "/"), summary: `${input.tool_name === "Write" ? "wrote" : "edited"} ${path.basename(rel)} (${body.split("\n").length} lines)` }, dir);
+  }
   if (task) markSeen(task, rel, dir); // an edit this hook saw is known: only edits that bypass it count as unseen at the end
   if (!task && config.gates.mode !== "always") return allow();
   if (task && visual) {

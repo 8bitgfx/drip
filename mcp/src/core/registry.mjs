@@ -2,7 +2,8 @@
 // and host adapters all get their tools from here, so names, schemas and handlers never drift apart.
 // Modules register with server.registerTool(name, meta, handler) exactly as on an McpServer.
 import { loadConfig } from "./config.mjs";
-import { updateState } from "./state.mjs";
+import { loadState, updateState } from "./state.mjs";
+import { filmEvent } from "./film.mjs";
 import * as workflow from "../modules/workflow.mjs";
 import * as refs from "../modules/refs/index.mjs";
 import * as board from "../modules/board/index.mjs";
@@ -20,11 +21,12 @@ import * as inspire from "../modules/inspire/index.mjs";
 import * as studio from "../modules/studio/index.mjs";
 import * as swarm from "../modules/swarm/index.mjs";
 import * as parts from "../modules/parts/index.mjs";
+import * as film from "../modules/film/index.mjs";
 
 export const ctx = { config: () => loadConfig() };
 
 // Order matters only for listings. A module can be turned off in .drip/config.json ("modules": { "<name>": false }).
-export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm, parts };
+export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm, parts, film };
 
 // Which tools a task used (task.toolUse): lets gates ask for steps no prose can enforce, such as searching
 // components and picture sources before building. Counting never fails a call.
@@ -44,10 +46,27 @@ function tracked(name, handler) {
     return res;
   };
 }
+// Hosts without Claude Code's hooks (Codex, Cursor...) still get a film: the server logs its own tool calls there.
+// In Claude Code the hooks do it (with which agent made the call), so the server stays quiet.
+function filmed(name, handler) {
+  const host = String(process.env.DRIP_HOST || "").toLowerCase();
+  if (!host || host === "claude-code" || /^(drip_status|drip_guide|drip_film)$/.test(name)) return handler;
+  return async (...args) => {
+    const res = await handler(...args);
+    try {
+      const task = loadState().task;
+      if (task) filmEvent(task, { kind: { page_stitch: "stitch", pieces_install: "install", fitcheck_shot: "shot" }[name] || "tool", agent: "main", tool: name, summary: name.replace(/_/g, " ") });
+    } catch {
+      /* bookkeeping only */
+    }
+    return res;
+  };
+}
+
 const wrap = (server) =>
   new Proxy(server, {
     get(target, prop, receiver) {
-      if (prop === "registerTool") return (name, meta, handler) => target.registerTool(name, meta, tracked(name, handler));
+      if (prop === "registerTool") return (name, meta, handler) => target.registerTool(name, meta, filmed(name, tracked(name, handler)));
       const v = Reflect.get(target, prop, receiver);
       return typeof v === "function" ? v.bind(target) : v;
     },
@@ -59,7 +78,7 @@ const wrap = (server) =>
 export const CORE = new Set([
   "drip_start", "drip_status", "drip_guide", "drip_brief", "drip_end", "drip_skip", "drip_kit", "drip_serve", "drip_check", "drip_search", "drip_execute", "keys_open",
   "refs_site", "refs_gallery", "refs_view", "refs_search",
-  "layout_deal", "parts_list", "parts_preview", "parts_get", "pieces_install", "drip_kits", "components_get",
+  "layout_deal", "parts_list", "parts_preview", "parts_get", "pieces_install", "pieces_preview", "drip_kits", "components_get", "drip_film",
   "images_search", "images_save", "fonts_compare", "fonts_search", "palette_check", "icons_search", "icons_get", "mockup_render",
   "components_find", "components_local_find",
   "fitcheck_shot", "fitcheck_done", "critic_prepare", "critic_record",
