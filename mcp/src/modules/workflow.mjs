@@ -230,6 +230,8 @@ export function register(server, ctx) {
         // The whole page in one go is the default; the user can ask to see the hero first.
         t.whole = !/\b(hero (first|only)|just the hero|only the hero|show me the hero|step by step|one (pass|section) at a time)\b/i.test(task);
         t.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: new Date().toISOString() };
+        // One round of questions, unless the user said not to ask.
+        t.noAsk = /\b(don'?t ask|no questions|just do it|decide for me|without asking|surprise me)\b/i.test(task);
       }
       if (typeof swarm === "boolean") t.swarm = swarm;
       if (/\b(asap|as soon as possible|get it done|right now|in a hurry)\b/i.test(task)) t.asap = true;
@@ -276,7 +278,9 @@ export function register(server, ctx) {
             (memCtx ? `PROJECT MEMORY (${t.memory.mode}): ${memCtx.text}\n` : "") +
             (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.\n` : "") +
             (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.\n` : "") +
-            `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n` +
+            (t.noAsk
+              ? `The user said not to ask: state your assumptions in one line and decide.\n`
+              : `ASK ONCE, after the look and the deal and before any building: one AskUserQuestion round of 2-4 clickable questions (only what the request leaves open), then drip_brief with the answers. Building waits for it. What to ask is in fast.md ("The questions").\n`) +
             (pk.filter((p) => !isProjectPack(p)).length ? `Niche packs on: ${pk.filter((p) => !isProjectPack(p)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.\n` : "") +
             (swarmOn(config, t) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") +
             (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).\n` : "") +

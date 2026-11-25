@@ -721,22 +721,32 @@
     },
     {
       "id": "spell",
-      "name": "spell.sh",
+      "name": "Spell UI",
       "url": "https://spell.sh",
-      "category": "blocks",
-      "what": "UI resource (listed in design-engineering posts).",
-      "useWhen": "",
+      "category": "motion",
+      "what": "33 crafted React components, strong on text effects (blur reveal, words stagger, shimmer, highlighted, randomized, gradient wave, slide-up, text marquee) plus small delights (rich, flow and pop buttons, exploding input, animated checkbox, tilt card, perspective book, Spotify and tweet cards, light rays, logos carousel).",
+      "useWhen": "Headlines and small moments that should move with care; big and small pieces.",
       "avoidWhen": "",
-      "price": "check",
-      "license": "check",
-      "stack": [],
-      "install": "check",
-      "fit": [
-        "landing",
-        "blocks",
+      "price": "free",
+      "license": "MIT",
+      "stack": [
+        "react",
+        "tailwind",
         "motion"
       ],
-      "quality": 2
+      "install": "npx shadcn@latest add https://spell.sh/r/<name>.json",
+      "fit": [
+        "landing",
+        "motion",
+        "text",
+        "micro-interaction"
+      ],
+      "quality": 4,
+      "registry": {
+        "index": "https://spell.sh/r/registry.json",
+        "item": "https://spell.sh/r/{name}.json"
+      },
+      "preview": "https://spell.sh/docs/{name}"
     },
     {
       "id": "ui-sdk",

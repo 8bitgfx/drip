@@ -142,6 +142,16 @@ test("pieces before homemade: custom needs a named reason, and 'searched' needs 
   assert.deepEqual(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 } }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]), []);
 });
 
+test("the fast loop asks once before building, unless the user said not to ask", () => {
+  const cfg = loadConfig(project);
+  const t = state.newTask({ title: "landing", size: "full", surface: "landing", guides: [] });
+  Object.assign(t, { loop: "fast", deal: { kind: "software" }, noAsk: false, brief: { what: "x", assumed: true } });
+  t.refs.viewed = ["site:a.com"];
+  assert.ok(state.missingBeforeUi(t, cfg).some((m) => m.need === "the user's answers"));
+  assert.ok(!state.missingBeforeUi({ ...t, brief: { what: "x", feel: [] } }, cfg).some((m) => m.need === "the user's answers"), "drip_brief records the answers");
+  assert.ok(!state.missingBeforeUi({ ...t, noAsk: true }, cfg).some((m) => m.need === "the user's answers"), "they said not to ask");
+});
+
 test("the paid kits are asked once and remembered", () => {
   assert.equal(ownedKits(), null);
   saveKits(["Magic UI Pro"]);

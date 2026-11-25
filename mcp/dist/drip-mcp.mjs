@@ -7764,7 +7764,9 @@ var init_react = __esm({
       "@eldora": "https://eldoraui.site/r/{name}.json",
       "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
       "@animate-ui": "https://animate-ui.com/r/{name}.json",
-      "@efferd": "https://efferd.com/r/new-york/{name}.json"
+      "@efferd": "https://efferd.com/r/new-york/{name}.json",
+      "@spell": "https://spell.sh/r/{name}.json",
+      "@bencho": "https://bencho.dev/r/{name}.json"
     };
     installs = /* @__PURE__ */ new Map();
     isReactPage = (dir) => fs16.existsSync(path17.join(dir, "vite.config.ts")) && fs16.existsSync(path17.join(dir, "src", "App.tsx"));
@@ -87948,6 +87950,8 @@ function missingBeforeUi(task, config2) {
     if (!looked) missing.push({ need: "look", how: "one look at proven work first: refs_gallery (the pattern you'll build, e.g. 'saas dashboard hero') or refs_site on 3-4 shipped sites, in ONE call" });
     if (!task.deal && !task.board?.chosen && !task.board?.adopted && !task.memory?.styleRevision)
       missing.push({ need: "deal", how: "layout_deal({ kind, trade }) for the hero layout, palette, type and sections (or board_choose / an approved direction)" });
+    if (task.noAsk === false && task.brief?.assumed)
+      missing.push({ need: "the user's answers", how: "one AskUserQuestion round of 2-4 clickable questions (direction options from what you studied, what must stay, the material they have), then drip_brief with the answers. Skip only if the user said not to ask" });
     return missing;
   }
   if (task.size === "full" && g.requireBrief && !task.brief)
@@ -91359,6 +91363,7 @@ function register3(server2, ctx2) {
         t2.loop = "fast";
         t2.whole = !/\b(hero (first|only)|just the hero|only the hero|show me the hero|step by step|one (pass|section) at a time)\b/i.test(task);
         t2.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: (/* @__PURE__ */ new Date()).toISOString() };
+        t2.noAsk = /\b(don'?t ask|no questions|just do it|decide for me|without asking|surprise me)\b/i.test(task);
       }
       if (typeof swarm === "boolean") t2.swarm = swarm;
       if (/\b(asap|as soon as possible|get it done|right now|in a hurry)\b/i.test(task)) t2.asap = true;
@@ -91398,8 +91403,9 @@ function register3(server2, ctx2) {
 ` : "") + (memCtx ? `PROJECT MEMORY (${t2.memory.mode}): ${memCtx.text}
 ` : "") + (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.
 ` : "") + (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.
-` : "") + `No intake questions unless the request is truly ambiguous; state your assumptions in one line.
-` + (pk.filter((p2) => !isProjectPack(p2)).length ? `Niche packs on: ${pk.filter((p2) => !isProjectPack(p2)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.
+` : "") + (t2.noAsk ? `The user said not to ask: state your assumptions in one line and decide.
+` : `ASK ONCE, after the look and the deal and before any building: one AskUserQuestion round of 2-4 clickable questions (only what the request leaves open), then drip_brief with the answers. Building waits for it. What to ask is in fast.md ("The questions").
+`) + (pk.filter((p2) => !isProjectPack(p2)).length ? `Niche packs on: ${pk.filter((p2) => !isProjectPack(p2)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.
 ` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") + (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).
 ` : "") + `
 FIRST CALLS (one message):
@@ -114663,7 +114669,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.14";
+var VERSION = "0.8.15";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

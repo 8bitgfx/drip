@@ -1349,6 +1349,136 @@
       "role": "shell",
       "surface": "app",
       "look": "macOS-style dock"
+    },
+    {
+      "lib": "spell",
+      "name": "blur-reveal",
+      "role": "headline",
+      "look": "headline words un-blur into place"
+    },
+    {
+      "lib": "spell",
+      "name": "words-stagger",
+      "role": "headline",
+      "look": "headline words rise in one after another"
+    },
+    {
+      "lib": "spell",
+      "name": "shimmer-text",
+      "role": "headline",
+      "look": "a light sweep across a line of text"
+    },
+    {
+      "lib": "spell",
+      "name": "highlighted-text",
+      "role": "headline",
+      "look": "a marker highlight drawn behind key words"
+    },
+    {
+      "lib": "spell",
+      "name": "randomized-text",
+      "role": "headline",
+      "look": "letters scramble into the word"
+    },
+    {
+      "lib": "spell",
+      "name": "gradient-wave-text",
+      "role": "headline",
+      "look": "a soft gradient wave moving through the words"
+    },
+    {
+      "lib": "spell",
+      "name": "slide-up-text",
+      "role": "headline",
+      "look": "words slide up from a mask"
+    },
+    {
+      "lib": "spell",
+      "name": "special-text",
+      "role": "headline",
+      "look": "characters settle one by one with a glitch"
+    },
+    {
+      "lib": "spell",
+      "name": "text-marquee",
+      "role": "scroll",
+      "look": "big text rows scrolling sideways"
+    },
+    {
+      "lib": "spell",
+      "name": "rich-button",
+      "role": "button",
+      "look": "a rich, tactile primary button"
+    },
+    {
+      "lib": "spell",
+      "name": "flow-button",
+      "role": "button",
+      "look": "a button whose fill flows on hover"
+    },
+    {
+      "lib": "spell",
+      "name": "pop-button",
+      "role": "button",
+      "look": "a button that pops on press"
+    },
+    {
+      "lib": "spell",
+      "name": "tilt-card",
+      "role": "features",
+      "look": "card that tilts toward the cursor"
+    },
+    {
+      "lib": "spell",
+      "name": "perspective-book",
+      "role": "showcase",
+      "look": "a book or guide in perspective"
+    },
+    {
+      "lib": "spell",
+      "name": "logos-carousel",
+      "role": "logos",
+      "look": "logos cycling in place"
+    },
+    {
+      "lib": "spell",
+      "name": "light-rays",
+      "role": "ground",
+      "look": "soft light rays behind the hero"
+    },
+    {
+      "lib": "spell",
+      "name": "spotify-card",
+      "role": "proof",
+      "look": "a now-playing card"
+    },
+    {
+      "lib": "spell",
+      "name": "exploding-input",
+      "role": "input",
+      "surface": "app",
+      "look": "an input that bursts on submit"
+    },
+    {
+      "lib": "spell",
+      "name": "animated-checkbox",
+      "role": "input",
+      "surface": "app",
+      "look": "a checkbox that draws its tick"
+    },
+    {
+      "lib": "spell",
+      "name": "chart",
+      "role": "chart",
+      "surface": "app",
+      "look": "line chart with a cursor-tracked tooltip card"
+    },
+    {
+      "lib": "spell",
+      "name": "copy-button",
+      "role": "feedback",
+      "surface": "app",
+      "look": "copy button with a confirm state"
     }
   ]
 }

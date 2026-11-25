@@ -30,6 +30,18 @@ Proven hero patterns: a glowing product mockup (the real UI in a rounded frame r
 - **Type:** refined faces, calm and well set (a crisp grotesk, an elegant serif, a friendly rounded sans for the subject); one family when its range is wide. At most 7 sizes and 2 families; mono only in code, measurements and tabular figures.
 - **One radius, crisp 1px borders, soft depth and light.** Restyle every library piece to the tokens; never leave its defaults.
 
+## How people use it (UX principles)
+Judge every screen by these; they explain most "this feels wrong" moments.
+- **Discoverability:** what people need to understand, compare or choose is visible without doing anything. Hover, tooltips and long-press only add to it; a phone has no hover. If a caption, label or action matters, it is there at rest.
+- **Continuity:** when something changes, show how it changed. Elements move, morph or crossfade from where they were; text that changes types or fades through. Nothing appears or vanishes in a single frame unless it is an alert.
+- **Feedback:** every action answers at once (a press state within 100 ms); anything slower shows progress, then the result where the eye already is.
+- **Recognition over recall:** show the options (examples, chips, recent work) instead of making people remember or invent them. An empty prompt box with good examples beside it beats a blank one.
+- **One primary action per view,** the biggest and easiest to reach; secondary actions are quieter, never competing.
+- **Grouping:** things that belong together sit together and share a container; space separates what doesn't (proximity before borders).
+- **Consistency:** the same thing looks and behaves the same everywhere: one button style per role, one way to open a menu.
+- **Forgiveness:** undo beats "are you sure?"; destructive actions are hard to hit by accident.
+- **Every state designed:** empty, loading, error, long content and first use, not only the happy path with perfect data.
+
 ## House rules
 - One section per screen; the hero alone on the first screen. Each section is one or two screens tall and has a shape; the page has a rhythm of heavy and light, and no two neighbours alike.
 - Equal left and right edges everywhere (one column for header, sections, footer). No caption under an image.

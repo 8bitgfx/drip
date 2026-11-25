@@ -14,6 +14,8 @@ export const REGISTRIES = {
   "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
   "@animate-ui": "https://animate-ui.com/r/{name}.json",
   "@efferd": "https://efferd.com/r/new-york/{name}.json",
+  "@spell": "https://spell.sh/r/{name}.json",
+  "@bencho": "https://bencho.dev/r/{name}.json",
 };
 
 const installs = new Map(); // folder -> Promise<void>

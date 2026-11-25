@@ -279,6 +279,8 @@ export function missingBeforeUi(task, config) {
     if (!looked) missing.push({ need: "look", how: "one look at proven work first: refs_gallery (the pattern you'll build, e.g. 'saas dashboard hero') or refs_site on 3-4 shipped sites, in ONE call" });
     if (!task.deal && !task.board?.chosen && !task.board?.adopted && !task.memory?.styleRevision)
       missing.push({ need: "deal", how: 'layout_deal({ kind, trade }) for the hero layout, palette, type and sections (or board_choose / an approved direction)' });
+    if (task.noAsk === false && task.brief?.assumed)
+      missing.push({ need: "the user's answers", how: "one AskUserQuestion round of 2-4 clickable questions (direction options from what you studied, what must stay, the material they have), then drip_brief with the answers. Skip only if the user said not to ask" });
     return missing;
   }
   if (task.size === "full" && g.requireBrief && !task.brief)
