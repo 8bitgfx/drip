@@ -319,3 +319,32 @@ button.chip.on:hover { box-shadow: none; background: #3A55FF; }
 .hero { border-radius: 22px; }
 .app.ended .stage { background: #0D0E12; box-shadow: none; }
 @media (max-width: 760px) { .lane { margin-bottom: 10px; } }
+
+/* ---------- polish ---------- */
+.brand-name { font-size: 16px; letter-spacing: -.015em; padding-left: 4px; }
+.app.ended .shot { visibility: hidden; }
+.timeline .cap { white-space: nowrap; max-width: none; }
+.lane-label { color: var(--ink2); }
+.lane:hover .lane-label { color: var(--ink); }
+.agents .cap { max-width: none; }
+.sum-chips .chip { font-weight: 500; }
+.ticks .tick:first-child { visibility: hidden; }
+@media (max-width: 760px) { .hero-actions { right: auto; left: var(--hx, 16px); } }
+
+/* ---------- real-run fixes ---------- */
+/* playback: a slower crossfade with a small settle, so frames dissolve instead of cutting */
+.shot img { transition: opacity .8s cubic-bezier(.4, 0, .2, 1), transform 1.2s cubic-bezier(.22, 1, .36, 1); transform: scale(1.012); }
+.shot img.on { transform: none; }
+/* timeline: no marker row; each lane is a row with a faint rail from its label to its bar */
+.tl-ruler { visibility: hidden; }
+.lane { border-radius: 6px; }
+.lane:hover { background: rgba(255, 255, 255, .03); }
+.lane-label { padding-left: 8px; padding-right: 20px; }
+.lane-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed var(--line); }
+.bar { min-width: 10px; }
+.bar::before { opacity: .28; }
+/* the blue tile: a calmer number */
+.big { font-size: 52px; }
+@media (prefers-reduced-motion: reduce) { .shot img { transform: none !important; } }
+.agent .a-file { white-space: nowrap; }
+@media (max-width: 760px) { .agent .a-sub { flex-direction: column; gap: 2px; } .agent .a-file { max-width: 100%; } }

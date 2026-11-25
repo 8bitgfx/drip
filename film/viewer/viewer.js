@@ -15,7 +15,7 @@
   const app = $('app');
   const POLL_MS = 2000;
   const SEG_MS = 1150;          // wall time per frame in the montage at 1x
-  const STALE_MS = 10 * 60e3;   // live run with no news for this long: freeze the clock at its last news
+  const STALE_MS = 5 * 60e3;    // a run with no news for this long and no endedAt counts as finished at its last news
 
   const MODEL = { opus: 'Opus', sonnet: 'Sonnet', haiku: 'Haiku' };
   const ROLE_ICON = {
@@ -39,7 +39,7 @@
 
   // ---------- state ----------
   let film = null, rawText = '';
-  let T0 = 0, TE = null;                 // task start, task end (null while running)
+  let T0 = 0, TE = null, TE_REAL = null; // task start; task end (endedAt, or the last news of a run that went quiet); endedAt as written
   let agents = [], events = [], frames = [];
   let agentById = new Map();
   let mode = null;
@@ -104,7 +104,16 @@
     const n = liveNow();
     return n + Math.max(30e3, (n - T0) * 0.06);
   }
-  const statusAt = (a, t) => (a.e && a.e <= t ? (a.status === 'failed' ? 'failed' : 'done') : 'working');
+  const statusAt = (a, t) => (a.e && a.e <= t ? (a.status === 'failed' ? 'failed' : 'done') : TE && !a.e && t >= TE ? 'done' : 'working');
+  // a run without endedAt that has gone quiet is finished at its last news
+  function settleEnd() {
+    if (TE_REAL) { TE = TE_REAL; return false; }
+    const last = latestKnown();
+    const next = FROZEN == null && Date.now() - last > STALE_MS ? last : null;
+    const changed = next !== TE;
+    TE = next;
+    return changed;
+  }
   // index of the last item with .t <= t (sorted), -1 if none
   function lastIdx(list, t) {
     let lo = 0, hi = list.length - 1, r = -1;
@@ -136,13 +145,19 @@
     film = data;
     loadError = null;
     T0 = ms(data.task?.startedAt) ?? Date.now();
-    TE = ms(data.task?.endedAt);
+    TE_REAL = ms(data.task?.endedAt);
     agents = (data.agents || []).map((a) => ({ ...a, s: ms(a.startedAt) ?? T0, e: ms(a.endedAt) }))
       .sort((x, y) => (x.type === 'director' ? -1 : 0) - (y.type === 'director' ? -1 : 0) || x.s - y.s);
+    // two agents with the same label get numbered (Critic review build 1, 2)
+    const seenLabel = {};
+    for (const a of agents) { const l = a.label || a.id; seenLabel[l] = (seenLabel[l] || 0) + 1; }
+    const nth = {};
+    for (const a of agents) { const l = a.label || a.id; if (seenLabel[l] > 1) { nth[l] = (nth[l] || 0) + 1; a.label = `${l} ${nth[l]}`; } }
     agentById = new Map(agents.map((a) => [a.id, a]));
     events = (data.events || []).map((e, i) => ({ ...e, i, t: ms(e.t) ?? T0 })).sort((a, b) => a.t - b.t || a.i - b.i);
     frames = (data.frames || []).map((f) => ({ ...f, t: ms(f.t) ?? T0, src: /^(https?:|\/)/.test(f.file) ? f.file : BASE + f.file }))
       .sort((a, b) => a.t - b.t);
+    settleEnd();
     if (mode == null) setMode(Q.get('mode') === 'live' || Q.get('mode') === 'montage' ? Q.get('mode') : TE ? 'montage' : 'live', true);
     buildKnots();
     renderHeader();
@@ -205,7 +220,8 @@
     if (ts.length === 1) ts.push(T0 + 1000);
     knots = ts;
   }
-  const playT = () => (seg >= knots.length - 1 ? knots[knots.length - 1] : knots[seg] + u * (knots[seg + 1] - knots[seg]));
+  const ease = (x) => (playing ? 0.5 - Math.cos(Math.PI * x) / 2 : x);
+  const playT = () => (seg >= knots.length - 1 ? knots[knots.length - 1] : knots[seg] + ease(u) * (knots[seg + 1] - knots[seg]));
   function seekTo(t) {
     t = clamp(t, knots[0], knots[knots.length - 1]);
     let k = 0;
@@ -226,6 +242,7 @@
     lastTs = performance.now();
   }
   function pause() {
+    if (playing) u = 0.5 - Math.cos(Math.PI * u) / 2; // keep the playhead where the eye saw it
     playing = false;
     app.classList.remove('playing');
     $('playBtn').setAttribute('aria-label', 'Play');
@@ -257,6 +274,7 @@
   function currentT() { return mode === 'montage' ? playT() : liveNow(); }
 
   function renderAll() {
+    if (film && !TE_REAL && settleEnd()) { buildKnots(); buildTimeline(); summaryKey = ''; }
     if (!film) return;
     const t = currentT();
     renderStatus();
@@ -269,7 +287,7 @@
   }
 
   function renderStatus() {
-    if (TE) setStatus('done', `Finished · ${dur(TE - T0)}`);
+    if (TE) setStatus('done', `Finished · ${clock(TE - T0)}`);
     else if (isStale()) setStatus('stale', `Quiet · last news ${ago(Date.now() - latestKnown())}`);
     else setStatus('live', `Live · ${clock(liveNow() - T0)}`);
   }
@@ -317,7 +335,7 @@
           ? '<span class="a-fail">failed</span>'
           : `<span class="mono el"></span>${st === 'done' ? ICON_DONE : ''}`;
         let html = `<div class="row"><span class="who"><i class="sw"></i><span class="a-name">${esc(a.label || a.id)}</span></span><span class="a-right">${right}</span></div>`;
-        if (isRecent) html += `<div class="a-sub"><span class="a-job">${esc(a.job || '')}${pc ? ' · ' + esc(pc.name) : ''}</span>${file ? `<span class="mono a-file">${esc(file.file)}</span>` : ''}</div>`;
+        if (isRecent) html += `<div class="a-sub"><span class="a-job">${esc(a.job || '')}${pc ? ' · ' + esc(pc.name) : ''}</span>${file ? `<span class="mono a-file" title="${esc(file.file)}">${esc(file.file.split('/').slice(-2).join('/'))}</span>` : ''}</div>`;
         li.dataset.tip = `<b>${esc(a.label || a.id)}</b><br>${esc(a.job || '')}${pc ? `<br><span class="mono">${esc(pc.lib)} / ${esc(pc.name)}</span>` : ''}${file && st === 'working' ? `<br><span class="mono">${esc(file.file)}</span>` : ''}${st === 'failed' && last ? `<br><span style="color:var(--fail)">${esc(last.summary || '')}</span>` : ''}`;
         li.innerHTML = html;
       }
@@ -328,9 +346,11 @@
     // keep DOM order = agent order, without churning nodes that are already in place
     order.forEach((li, i) => { if (list.children[i] !== li) list.insertBefore(li, list.children[i] || null); });
     const s = shown === 1 ? '' : 's';
-    const cap = !shown ? '<b>Agents.</b> None yet.'
-      : working ? `<b>${shown} agent${s}.</b> ${working} working now.`
-      : `<b>${shown} agent${s}.</b> All done${failed ? `, ${failed} failed` : ''}.`;
+    const total = agents.length, ts = total === 1 ? '' : 's', toCome = total - shown;
+    const head = shown < total ? `<b>${shown} of ${total} agents.</b>` : `<b>${total} agent${ts}.</b>`;
+    const cap = !shown ? `<b>${total} agent${ts}.</b> None started yet.`
+      : working ? `${head} ${working} working${toCome ? `, ${toCome} to come` : ' now'}.`
+      : `${head} All done${failed ? `, ${failed} failed` : ''}.`;
     if ($('agCap').dataset.k !== cap) { $('agCap').dataset.k = cap; $('agCap').innerHTML = cap; }
   }
 
@@ -372,7 +392,7 @@
       shownKey = key;
       const f = fi >= 0 ? frames[fi] : null;
       const lead = mode === 'live' ? 'Latest frame.' : `Frame ${String(fi + 1).padStart(2, '0')}.`;
-      $('stageCap').innerHTML = f ? `<b>${lead}</b> ${esc(f.caption || '')}` : '<b>Waiting.</b> The first frame is on its way.';
+      $('stageCap').innerHTML = f ? `<b>${lead}</b> ${esc(f.caption || 'at ' + clock(f.t - T0))}` : '<b>Waiting.</b> The first frame is on its way.';
       const fh = facesHtml(f);
       $('facesLive').innerHTML = fh;
       $('facesRow').innerHTML = fh;
@@ -459,7 +479,7 @@
     $('heroArt').innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><g transform="translate(${bx} ${by})"><path d="${paint(bw, bh, drips, f)}" fill="#2340FF"/><rect width="${bw}" height="${bh}" fill="none" stroke="#93A2FF" stroke-width="2"/>${handles}</g></svg>`
       + `<h2 style="left:${r1(bx + fs * 0.5)}px;top:${r1(by + fs * 0.36)}px;font-size:${r1(fs)}px">Built in<br>${esc(dur(TE - T0))}.</h2>`;
     $('hero').style.setProperty('--hx', bx + 'px');
-    $('hero').style.setProperty('--hy', (by + bh - (narrow ? 46 : 56)) + 'px');
+    $('hero').style.setProperty('--hy', (by + bh + (narrow ? 16 : -56)) + 'px');
   }
 
   let summaryKey = '', rollNext = true, bigText = '';
@@ -498,8 +518,8 @@
       .concat(`<span class="chip">${files} file${s(files)}</span>`, `<span class="chip">${frames.length} frame${s(frames.length)}</span>`).join('');
     if (TE) {
       const d = dur(TE - T0);
-      $('sumCap').innerHTML = `<b>The build.</b> ${n} agent${s(n)}, ${frames.length} frame${s(frames.length)}.`;
-      setBig(`${files} file${s(files)}`, rollNext);
+      $('sumCap').innerHTML = `<b>Finished.</b> ${n} agent${s(n)}, ${frames.length} frame${s(frames.length)}.`;
+      setBig(clock(TE - T0), rollNext);
       rollNext = false;
     } else {
       const live = liveNow();
@@ -689,7 +709,7 @@
   // ---------- go ----------
   load().then(() => {
     requestAnimationFrame((ts) => { lastTs = ts; loop(ts); });
-    setInterval(() => { if (film && !TE && FROZEN == null) load(); }, POLL_MS);
+    setInterval(() => { if (film && !TE_REAL && FROZEN == null) load(); }, POLL_MS);
     setInterval(() => { if (film && mode === 'live' && !TE) renderAll(); }, 500);
   });
 })();
