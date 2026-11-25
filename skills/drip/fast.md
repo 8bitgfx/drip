@@ -14,7 +14,7 @@ The order of work for a page in about ten minutes. What good looks like is in `t
 - **the turn**: the whole page is built in one turn and shown finished. The hero gets its own check before the sections (an inner checkpoint, not a stop). Only when the user asks to see the hero first ("hero first", "step by step") do you stop after it.
 
 ## The hero
-1. **Look (one message).** `refs_site` on 3-4 shipped sites people compare this with, or the best in the category (plus the client's current site with `before: true` for a redesign), and `refs_gallery` for the pattern. Write down two or three decisions you take, and from which site.
+1. **Look (one message).** `refs_site` on 3-4 shipped sites people compare this with, or the best in the category (plus the client's current site with `before: true` for a redesign), and `refs_gallery` for the pattern. Then **study** the 3 best in ONE `refs_study` call: layout, type, colour and density in numbers, the move worth stealing, what you take and leave, and `motion` (what hover, scroll and load do). Looking is not studying: builders get what you take, the critic gets how it moves, and `build_prepare` refuses until three are studied.
 2. **Deal (same message).** `layout_deal({ kind, trade, has, out: "<new folder>" })`.
 2b. **Ask once** (see "The questions"), then `drip_brief` with the answers. Building waits for them, unless the user said not to ask.
 3. **Choose by eye.** Search for every section's need in ONE `drip_execute` (see Code Mode below), then ONE `pieces_preview` with the best candidates for the hero and nav (and the sections, if you build them in this turn). Pick what shows the product best (see "What leads the page" in taste.md).

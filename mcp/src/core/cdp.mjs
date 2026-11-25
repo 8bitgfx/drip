@@ -137,7 +137,30 @@ const AUDIT = `(() => {
       if (h1Accent.length >= 3) break;
     }
   }
-  const hero = { h1Accent, navCovers, placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
+  // The headline set over a picture: fine on a calm one, unreadable on busy art (and a thumbnail brings its own text).
+  let h1Over = null;
+  if (h1) {
+    for (const fx of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+      const x = h1r.left + h1r.width * fx;
+      const y = h1r.top + h1r.height / 2;
+      if (x < 0 || y < 0 || x > vw || y > vh) continue;
+      const under = document.elementsFromPoint(x, y).find((e) => !h1.contains(e) && !e.contains(h1) && (/^(IMG|VIDEO|CANVAS)$/.test(e.tagName) || /url[(]/.test(getComputedStyle(e).backgroundImage)));
+      if (under) { h1Over = (under.tagName.toLowerCase() + (under.getAttribute('alt') ? ' "' + under.getAttribute('alt').slice(0, 30) + '"' : '')); break; }
+    }
+  }
+  // Pictures cut hard by object-fit: cover: the subject, or the picture's own title, goes missing.
+  const cropped = [];
+  for (const im of [...document.querySelectorAll('img')]) {
+    const r = im.getBoundingClientRect();
+    if (r.width < 200 || r.height < 120 || r.bottom < 0 || r.top > vh * 2 || !im.naturalWidth) continue;
+    if (getComputedStyle(im).objectFit !== 'cover') continue;
+    const a1 = im.naturalWidth / im.naturalHeight;
+    const a2 = r.width / r.height;
+    const cut = 1 - Math.min(a1, a2) / Math.max(a1, a2);
+    if (cut > 0.3) cropped.push((im.getAttribute('alt') || (im.currentSrc || im.src).split('/').pop()).slice(0, 30) + ' ' + Math.round(cut * 100) + '% cut ' + (a2 > a1 ? 'top and bottom' : 'at the sides'));
+    if (cropped.length >= 4) break;
+  }
+  const hero = { h1Over, cropped, h1Accent, navCovers, placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
   // Sections below the first screen, and whether each shows a picture.
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
@@ -473,6 +496,8 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
       else if (!bigPicture && a.h1 < want * 0.85) warnings.push(`h1 ${a.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
     }
     if (a.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
+    if (a.hero.h1Over) warnings.push(`the headline sits on a picture (${a.hero.h1Over}): check it reads on every picture that can be there (a scrim, a calm area of the art, or the headline beside the picture), and that the picture's own text doesn't compete with it`);
+    if (a.hero.cropped?.length) warnings.push(`pictures cropped hard by object-fit: cover: ${a.hero.cropped.join("; ")}. Their subject or own title may be cut; give the frame the picture's aspect ratio, or set object-position`);
     if (a.hero.h1Accent?.length) warnings.push(`accented headline: ${a.hero.h1Accent.join(", ")} is in another colour inside the h1. Keep it only if it reads better than one colour (it carries the meaning, the brand does it); never by reflex`);
     if (a.hero.placeholders?.length) blockers.push(`the first screen still has placeholders: ${a.hero.placeholders.join(", ")} (fill them with the client's words, or a builder hasn't written the hero yet)`);
     else if (a.h1 && a.hero.h1Box && a.hero.h1Inside === false) {

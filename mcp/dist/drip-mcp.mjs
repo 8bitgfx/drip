@@ -88041,7 +88041,10 @@ function criticRounds(task, config2) {
 }
 function needsCritic(task, config2) {
   if (!task || task.skipped || !config2.gates.enforce || !config2.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
-  if (task.loop === "fast") return false;
+  if (task.loop === "fast") {
+    const rec2 = lastCritique(task, "build");
+    return !!rec2 && rec2.verdict !== "pass" && !(task.critic?.shipAt && task.critic.shipAt >= rec2.at);
+  }
   const rec = lastCritique(task, "build");
   if (rec?.rev && rec.rev !== artifactRev(task)) return !isCriticCapped(task, config2);
   if (isCriticCapped(task, config2)) return false;
@@ -90605,6 +90608,7 @@ __export(swarm_exports, {
   sectionFiles: () => sectionFiles,
   slug: () => slug2,
   stitchPage: () => stitchPage,
+  studiedTakes: () => studiedTakes,
   swarmInstructions: () => swarmInstructions,
   swarmOn: () => swarmOn
 });
@@ -90693,6 +90697,9 @@ function buildGaps(task, list4) {
   const seen = new Set([...task.refs?.viewed || [], ...(task.refs?.studied || []).map((s2) => s2.key)].filter((k) => !task.before?.url || !String(task.before.url).replace(/^https?:\/\/(www\.)?/, "").startsWith(String(k).replace(/^site:(www\.)?/, "").split("/")[0])));
   if (seen.size < 4)
     gaps.push(`References: ${seen.size} looked at, 4 needed (the client's own site doesn't count). refs_site({ urls: [3-4 shipped sites people compare this with or the best in the category] }) and refs_gallery for the pattern; then take two or three decisions from them.`);
+  const studied = (task.refs?.studied || []).filter((s2) => s2.role !== "before");
+  if (seen.size >= 4 && studied.length < 3)
+    gaps.push(`Study: ${seen.size} references looked at, ${studied.length} studied (3 needed). refs_study({ studies: [...] }) on the 3 best you saw, in ONE call: each one's layout, type, colour and density in numbers, the one move worth stealing, what you take and leave, and motion (what hover, scroll and load do). The builders get what you take.`);
   const used = task.toolUse || {};
   const pieces = list4.filter((s2) => s2.piece && !/^custom/i.test(s2.piece));
   if (pieces.length && !used.pieces_preview && !used.parts_preview)
@@ -90707,6 +90714,13 @@ function buildGaps(task, list4) {
   const big = list4.filter((s2) => ["hero", "page", "whole-page", "index", "app"].includes(slug2(s2.section)));
   for (const s2 of big) if (!s2.from || s2.from.length < 12) gaps.push(`${s2.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
   return gaps;
+}
+function studiedTakes(task) {
+  const st = (task?.refs?.studied || []).filter((s2) => s2.take && s2.role !== "before").slice(-5);
+  if (!st.length) return "";
+  return `
+WHAT THE DIRECTOR STUDIED (match this level of craft; never copy a reference's colours or surface):
+${st.map((s2) => `- ${s2.source || s2.key}: take ${s2.take}${s2.motion ? `; motion: ${s2.motion}` : ""}`).join("\n")}`;
 }
 function buildPrompt({ section, spec, files, url: url2, task, piece, page: page2 }) {
   const chosen = task?.board?.chosen;
@@ -90728,6 +90742,7 @@ ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens 
     "THE SECTION SPEC (from the director; build exactly this)",
     spec,
     pieceLine,
+    studiedTakes(task),
     "",
     where,
     system,
@@ -90834,6 +90849,8 @@ TAKES FROM: ${s2.from}` : s2.spec, files: s2.files, url: url2, task, piece: s2.p
       updateState((st) => {
         if (!st.task) return;
         st.task.built = [.../* @__PURE__ */ new Set([...st.task.built || [], ...list4.map((s2) => slug2(s2.section))])];
+        st.task.sections ||= {};
+        for (const s2 of list4) st.task.sections[slug2(s2.section)] = { piece: s2.piece || "", spec: String(s2.spec || "").slice(0, 300), from: s2.from ? String(s2.from).slice(0, 200) : void 0 };
       });
       const react = pg?.stack === "react";
       const toInstall = react ? list4.map((s2) => s2.piece).filter((p2) => p2 && /^https?:/.test(p2) && !(task?.pieces || []).includes(p2)) : [];
@@ -91423,7 +91440,7 @@ function register3(server2, ctx2) {
 ` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") + (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).
 ` : "") + `
 FIRST CALLS (one message):
-1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }).
+1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).
 2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).
 3. Right after: ONE drip_execute that runs components_find for every section's need (the recipe is in "Code Mode" below), then ONE pieces_preview of the best.
 Then the loop below from step 4 (build, check once).${t2.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}
@@ -100787,7 +100804,30 @@ var AUDIT = `(() => {
       if (h1Accent.length >= 3) break;
     }
   }
-  const hero = { h1Accent, navCovers, placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
+  // The headline set over a picture: fine on a calm one, unreadable on busy art (and a thumbnail brings its own text).
+  let h1Over = null;
+  if (h1) {
+    for (const fx of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+      const x = h1r.left + h1r.width * fx;
+      const y = h1r.top + h1r.height / 2;
+      if (x < 0 || y < 0 || x > vw || y > vh) continue;
+      const under = document.elementsFromPoint(x, y).find((e) => !h1.contains(e) && !e.contains(h1) && (/^(IMG|VIDEO|CANVAS)$/.test(e.tagName) || /url[(]/.test(getComputedStyle(e).backgroundImage)));
+      if (under) { h1Over = (under.tagName.toLowerCase() + (under.getAttribute('alt') ? ' "' + under.getAttribute('alt').slice(0, 30) + '"' : '')); break; }
+    }
+  }
+  // Pictures cut hard by object-fit: cover: the subject, or the picture's own title, goes missing.
+  const cropped = [];
+  for (const im of [...document.querySelectorAll('img')]) {
+    const r = im.getBoundingClientRect();
+    if (r.width < 200 || r.height < 120 || r.bottom < 0 || r.top > vh * 2 || !im.naturalWidth) continue;
+    if (getComputedStyle(im).objectFit !== 'cover') continue;
+    const a1 = im.naturalWidth / im.naturalHeight;
+    const a2 = r.width / r.height;
+    const cut = 1 - Math.min(a1, a2) / Math.max(a1, a2);
+    if (cut > 0.3) cropped.push((im.getAttribute('alt') || (im.currentSrc || im.src).split('/').pop()).slice(0, 30) + ' ' + Math.round(cut * 100) + '% cut ' + (a2 > a1 ? 'top and bottom' : 'at the sides'));
+    if (cropped.length >= 4) break;
+  }
+  const hero = { h1Over, cropped, h1Accent, navCovers, placeholders, h1w: h1 ? Math.round(h1r.width) : 0, h1Visible: h1 ? h1r.top < vh : false, h1Box: h1 ? box(h1r) : null, h1Inside: h1 ? inside(h1r) : false, cta: primary ? { box: box(primary.getBoundingClientRect()), inside: inside(primary.getBoundingClientRect()), text: (primary.innerText || '').trim().slice(0, 30) } : null, clipped, pic: bigPic, emptyBelow: Math.round(vh - lowest), actions };
   // Sections below the first screen, and whether each shows a picture.
   let secs = [...document.querySelectorAll('section')].filter(visible);
   if (secs.length < 3) { const root = document.querySelector('main') || document.body; secs = [...root.children].filter((el) => visible(el) && el.getBoundingClientRect().height > 200); }
@@ -100994,6 +101034,8 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
       else if (!bigPicture && a2.h1 < want * 0.85) warnings.push(`h1 ${a2.h1}px is under the Display token (~${want}px); fine if the composition is deliberate`);
     }
     if (a2.hero.h1Visible === false) blockers.push("the h1 is not in the first viewport");
+    if (a2.hero.h1Over) warnings.push(`the headline sits on a picture (${a2.hero.h1Over}): check it reads on every picture that can be there (a scrim, a calm area of the art, or the headline beside the picture), and that the picture's own text doesn't compete with it`);
+    if (a2.hero.cropped?.length) warnings.push(`pictures cropped hard by object-fit: cover: ${a2.hero.cropped.join("; ")}. Their subject or own title may be cut; give the frame the picture's aspect ratio, or set object-position`);
     if (a2.hero.h1Accent?.length) warnings.push(`accented headline: ${a2.hero.h1Accent.join(", ")} is in another colour inside the h1. Keep it only if it reads better than one colour (it carries the meaning, the brand does it); never by reflex`);
     if (a2.hero.placeholders?.length) blockers.push(`the first screen still has placeholders: ${a2.hero.placeholders.join(", ")} (fill them with the client's words, or a builder hasn't written the hero yet)`);
     else if (a2.h1 && a2.hero.h1Box && a2.hero.h1Inside === false) {
@@ -101840,7 +101882,7 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
         if (!s2.task) return;
         s2.task.refs.studied = (s2.task.refs.studied || []).filter((x2) => x2.key !== key);
         const terms = [item.title, item.url, item.designer, n3.take, n3.layout].filter(Boolean).join(" ").slice(0, 600);
-        s2.task.refs.studied.push({ key, role: n3.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, at: (/* @__PURE__ */ new Date()).toISOString() });
+        s2.task.refs.studied.push({ key, role: n3.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n3.take).slice(0, 240), motion: n3.motion ? String(n3.motion).slice(0, 240) : void 0, source: item.url || item.title || key, at: (/* @__PURE__ */ new Date()).toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -101873,7 +101915,7 @@ var STUDY_SHAPE = {
   detail: external_exports.string().describe("ONE specific move worth stealing"),
   take: external_exports.string().describe("What this reference lends the design"),
   leave: external_exports.string().describe("What not to copy / Dribbble fiction"),
-  motion: external_exports.string().optional()
+  motion: external_exports.string().optional().describe("How it moves and behaves: what hover, scroll, click or load does (an accordion gallery that widens the hovered panel, cards that lift, a marquee). Stills can't show this, so write it down")
 };
 
 // src/modules/board/index.mjs
@@ -107134,10 +107176,17 @@ ${formatIssues(issues, root)}${drift}`);
         return text(`Can't pass with measured blockers:
 - ${blockers.join("\n- ")}
 Fix them (drip_guide type / layout), fitcheck_shot again, then record the verdict.`, true);
+      const lastCritic = (t0?.critic?.records || []).filter((r2) => r2.kind === "build").at(-1);
+      if (verdict === "pass" && lastCritic && lastCritic.verdict !== "pass" && !acceptedByUser)
+        return text(
+          `The critic's last word on this build was ${String(lastCritic.verdict).toUpperCase()} ("${lastCritic.worst || lastCritic.summary || ""}"). Your own pass doesn't overrule it. Fix what it listed, then ask the user with AskUserQuestion: "Ship with these open points" (list what is still open) or "One more critic round" (critic_prepare with extraRound: true). Record acceptedByUser: true only when the user chose to ship.`,
+          true
+        );
       const pass = verdict === "pass" && !low.length;
       const st = updateState((s2) => {
         if (!s2.task) return;
         s2.task.fitcheck.score = Object.entries(scores).map(([k, v]) => `${k} ${v}`).join(", ");
+        if (acceptedByUser) (s2.task.critic ||= { runs: [], records: [] }).shipAt = (/* @__PURE__ */ new Date()).toISOString();
         if (pass || acceptedByUser) {
           s2.task.fitcheck.doneAt = (/* @__PURE__ */ new Date()).toISOString();
           s2.task.fitcheck.doneRev = artifactRev(s2.task);
@@ -107154,13 +107203,47 @@ Fix them (drip_guide type / layout), fitcheck_shot again, then record the verdic
 // src/modules/critic/index.mjs
 var critic_exports = {};
 __export(critic_exports, {
+  behaviourBlock: () => behaviourBlock,
   goldFor: () => goldFor,
+  hoverSteps: () => hoverSteps,
   register: () => register22
 });
 import fs59 from "node:fs";
 import path56 from "node:path";
 init_paths();
 init_serve();
+var INTERACTIVE = /accordion|expand|hover|carousel|slider|tabs?\b|toggle|marquee|tilt|reveal|drag|compare|before.?after|flip|stack|swipe|scroll|dock|magnet|spotlight|morph|gallery/i;
+function pieceInfo(piece) {
+  if (!piece || /^custom/i.test(piece)) return null;
+  const name = String(piece).split(/[/@]/).pop().replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "").toLowerCase();
+  try {
+    return loadPieces().find((p2) => String(p2.name).toLowerCase() === name) || { name };
+  } catch {
+    return { name };
+  }
+}
+function behaviourBlock(task) {
+  const sections = Object.entries(task?.sections || {});
+  const motions = (task?.refs?.studied || []).filter((s2) => s2.motion).slice(0, 4);
+  if (!sections.length && !motions.length) return "";
+  const lines = sections.map(([id, s2]) => {
+    const p2 = pieceInfo(s2.piece);
+    const what = p2 ? `library piece ${p2.lib ? `${p2.lib}/` : ""}${p2.name}${p2.look ? ` (${p2.look})` : ""}` : s2.piece ? `homemade (${s2.piece})` : "no piece named";
+    return `- #${id}: ${what}. Spec: ${s2.spec}`;
+  });
+  return [
+    "\nHOW IT BEHAVES (stills can't show motion or interaction; this is what each section does, from the build specs):",
+    ...lines,
+    ...motions.length ? ["Motion taken from the references:", ...motions.map((m) => `- ${m.source}: ${m.motion}`)] : [],
+    `Judge each interactive section by what it does, using the interaction states when given. A resting frame of a known pattern (an accordion gallery's narrow panels, a carousel's one slide, collapsed tabs) is its design, not a defect: ask whether the rest state reads and invites the interaction. Without states for it, write "unjudged: <section>" instead of guessing.`
+  ].join("\n");
+}
+function hoverSteps(task) {
+  return Object.entries(task?.sections || {}).filter(([, s2]) => INTERACTIVE.test(`${s2.piece} ${s2.spec} ${pieceInfo(s2.piece)?.look || ""}`)).slice(0, 6).flatMap(([id]) => [
+    { do: "hover", selector: `#${id}`, shot: false },
+    { do: "wait", ms: 600, label: `#${id} while hovered (the pointer at its centre)` }
+  ]);
+}
 var KIND_BRIEF = {
   directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
@@ -107269,9 +107352,11 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
               notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
             });
           }
-          if (steps?.length) {
+          const autoSteps = !steps?.length && kind === "build" && ti === 0 ? hoverSteps(task) : [];
+          const useSteps = steps?.length ? steps : autoSteps;
+          if (useSteps.length) {
             const desk = sizes.find((s2) => s2.width >= 1e3) || sizes.at(-1);
-            const states = await captureStates(t2, steps, { width: desk.width, height: desk.height, config: config2 });
+            const states = await captureStates(t2, useSteps, { width: desk.width, height: desk.height, config: config2 });
             states.forEach((st, i2) => {
               const f3 = path56.join(dir, `${tag}state-${String(i2 + 1).padStart(2, "0")}.jpg`);
               fs59.writeFileSync(f3, st.buf);
@@ -107342,6 +107427,7 @@ THE PROJECT'S APPROVED DIRECTION AND RULES (approved by the user, style ${memory
 ${memory.text}` : "",
         prevBlock,
         context ? `Context: ${context}` : "",
+        kind === "build" ? behaviourBlock(task) : "",
         measured.length ? `
 MEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):
 ${measured.join("\n")}` : "",
@@ -114701,7 +114787,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.17";
+var VERSION = "0.8.18";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

@@ -57,6 +57,7 @@ Never raise S0/S1 on taste alone. Never invent hex, px or contrast ratios you ca
 - **THE PROJECT'S APPROVED DIRECTION AND RULES** (when the prompt has that block) are the same kind of constraint: the user approved them in earlier sessions. Judge against them, and label any fix that would break one `[OFF-DIRECTION]`.
 - **THE PRODUCT'S OWN RULES** (SKILL.md files listed in the prompt): Read them. A violation is an S1 finding.
 - **PREVIOUS ROUND**: start with `PROGRESS:` one line per earlier fix: FIXED / PARTLY / NOT FIXED. Then new problems. Scores move with progress: an axis whose problems were fixed goes up unless something visibly got worse. Never swap in fresh nitpicks to hold a score where it was.
+- **HOW IT BEHAVES** (when the prompt has it): stills show resting states. An accordion gallery's narrow panels, a carousel's single slide or closed tabs are the design at rest, not squashed or missing content. Judge whether the rest state reads and invites the interaction, and judge the interaction itself only from interaction states. Never reject a proven pattern for how a still of it looks.
 - **Interaction states** (images labelled "interaction state"): judge the interaction from them (did the drag, open, hover do something worth doing?). If the main idea is an interaction and no states were given, say so under WHAT'S GENERIC as "unjudged: no interaction states".
 
 ## 6a. Measured facts (when the prompt has MEASURED FACTS, they override your impression)

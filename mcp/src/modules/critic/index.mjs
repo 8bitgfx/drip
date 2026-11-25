@@ -17,6 +17,49 @@ import { projectContext } from "../../core/project.mjs";
 import { loadBoard, updateBoard } from "../board/store.mjs";
 import { designDoc, relevantSkills } from "../../core/skills.mjs";
 import { toUrl } from "../../core/serve.mjs";
+import { loadPieces } from "../parts/pieces.mjs";
+
+const INTERACTIVE = /accordion|expand|hover|carousel|slider|tabs?\b|toggle|marquee|tilt|reveal|drag|compare|before.?after|flip|stack|swipe|scroll|dock|magnet|spotlight|morph|gallery/i;
+
+/** The library piece behind a section ("https://reactbits.dev/r/AccordionGallery-TS-TW.json" -> its catalogue entry). */
+function pieceInfo(piece) {
+  if (!piece || /^custom/i.test(piece)) return null;
+  const name = String(piece).split(/[/@]/).pop().replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "").toLowerCase();
+  try {
+    return loadPieces().find((p) => String(p.name).toLowerCase() === name) || { name };
+  } catch {
+    return { name };
+  }
+}
+
+/** How the page is meant to behave, in words: stills can't show a hover, an open panel or a transition. */
+export function behaviourBlock(task) {
+  const sections = Object.entries(task?.sections || {});
+  const motions = (task?.refs?.studied || []).filter((s) => s.motion).slice(0, 4);
+  if (!sections.length && !motions.length) return "";
+  const lines = sections.map(([id, s]) => {
+    const p = pieceInfo(s.piece);
+    const what = p ? `library piece ${p.lib ? `${p.lib}/` : ""}${p.name}${p.look ? ` (${p.look})` : ""}` : s.piece ? `homemade (${s.piece})` : "no piece named";
+    return `- #${id}: ${what}. Spec: ${s.spec}`;
+  });
+  return [
+    "\nHOW IT BEHAVES (stills can't show motion or interaction; this is what each section does, from the build specs):",
+    ...lines,
+    ...(motions.length ? ["Motion taken from the references:", ...motions.map((m) => `- ${m.source}: ${m.motion}`)] : []),
+    "Judge each interactive section by what it does, using the interaction states when given. A resting frame of a known pattern (an accordion gallery's narrow panels, a carousel's one slide, collapsed tabs) is its design, not a defect: ask whether the rest state reads and invites the interaction. Without states for it, write \"unjudged: <section>\" instead of guessing.",
+  ].join("\n");
+}
+
+/** Hover each interactive section (up to 6) and shoot it: the critic's frames when the director gave none. */
+export function hoverSteps(task) {
+  return Object.entries(task?.sections || {})
+    .filter(([, s]) => INTERACTIVE.test(`${s.piece} ${s.spec} ${pieceInfo(s.piece)?.look || ""}`))
+    .slice(0, 6)
+    .flatMap(([id]) => [
+      { do: "hover", selector: `#${id}`, shot: false },
+      { do: "wait", ms: 600, label: `#${id} while hovered (the pointer at its centre)` },
+    ]);
+}
 
 const KIND_BRIEF = {
   directions:
@@ -161,9 +204,13 @@ export function register(server, ctx) {
               notes.push(`${t} at ${s.name} ${s.width}px, screen ${i + 1} of ${r.sliceCount} (from y=${sl.y}px)`);
             });
           }
-          if (steps?.length) {
+          // Interactive sections show their resting state in a still; when the director gave no steps, hover each one
+          // (scrolled into view) so the critic sees what it does.
+          const autoSteps = !steps?.length && kind === "build" && ti === 0 ? hoverSteps(task) : [];
+          const useSteps = steps?.length ? steps : autoSteps;
+          if (useSteps.length) {
             const desk = sizes.find((s) => s.width >= 1000) || sizes.at(-1);
-            const states = await captureStates(t, steps, { width: desk.width, height: desk.height, config });
+            const states = await captureStates(t, useSteps, { width: desk.width, height: desk.height, config });
             states.forEach((st, i) => {
               const f = path.join(dir, `${tag}state-${String(i + 1).padStart(2, "0")}.jpg`);
               fs.writeFileSync(f, st.buf);
@@ -236,6 +283,7 @@ export function register(server, ctx) {
           : "",
         prevBlock,
         context ? `Context: ${context}` : "",
+        kind === "build" ? behaviourBlock(task) : "",
         measured.length ? `\nMEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):\n${measured.join("\n")}` : "",
         rubric ? `\nNICHE RUBRIC (also judge against this)\n${rubric}` : "",
         "",

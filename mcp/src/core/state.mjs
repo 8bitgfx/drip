@@ -390,7 +390,12 @@ export function criticRounds(task, config) {
 /** True when the build changed after the last passing critic verdict (full loop only). */
 export function needsCritic(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
-  if (task.loop === "fast") return false; // fast loop: the critic is a polish pass the user asks for, not a gate
+  // Fast loop: the critic is optional, but once it has said REVISE or REJECT on the build, the director can't overrule it
+  // alone: the user chooses (ship with the open points) or a new critic round passes.
+  if (task.loop === "fast") {
+    const rec = lastCritique(task, "build");
+    return !!rec && rec.verdict !== "pass" && !(task.critic?.shipAt && task.critic.shipAt >= rec.at);
+  }
   const rec = lastCritique(task, "build");
   if (rec?.rev && rec.rev !== artifactRev(task)) return !(isCriticCapped(task, config)); // reviewed something else: stale
   if (isCriticCapped(task, config)) return false; // never loop forever; the hand-off lists what's left

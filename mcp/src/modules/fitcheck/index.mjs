@@ -293,10 +293,21 @@ Adjectives: ${dir.adjectives.join(", ")} · Palette: ${dir.palette.join(" ")} ·
       const blockers = t0?.fitcheck?.blockers || [];
       if (verdict === "pass" && blockers.length && !acceptedByUser)
         return text(`Can't pass with measured blockers:\n- ${blockers.join("\n- ")}\nFix them (drip_guide type / layout), fitcheck_shot again, then record the verdict.`, true);
+      // The director can't overrule the critic with its own scores: after a REVISE or REJECT on the build, only a new
+      // critic round or the user's choice ships it.
+      const lastCritic = (t0?.critic?.records || []).filter((r) => r.kind === "build").at(-1);
+      if (verdict === "pass" && lastCritic && lastCritic.verdict !== "pass" && !acceptedByUser)
+        return text(
+          `The critic's last word on this build was ${String(lastCritic.verdict).toUpperCase()} ("${lastCritic.worst || lastCritic.summary || ""}"). Your own pass doesn't overrule it. ` +
+            'Fix what it listed, then ask the user with AskUserQuestion: "Ship with these open points" (list what is still open) or "One more critic round" (critic_prepare with extraRound: true). ' +
+            "Record acceptedByUser: true only when the user chose to ship.",
+          true,
+        );
       const pass = verdict === "pass" && !low.length;
       const st = updateState((s) => {
         if (!s.task) return;
         s.task.fitcheck.score = Object.entries(scores).map(([k, v]) => `${k} ${v}`).join(", ");
+        if (acceptedByUser) (s.task.critic ||= { runs: [], records: [] }).shipAt = new Date().toISOString();
         if (pass || acceptedByUser) {
           s.task.fitcheck.doneAt = new Date().toISOString();
           s.task.fitcheck.doneRev = artifactRev(s.task);

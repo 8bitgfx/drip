@@ -489,7 +489,8 @@ export function register(server, ctx) {
         s.task.refs.studied = (s.task.refs.studied || []).filter((x) => x.key !== key);
         // terms: what the reference is about (title, address, notes), so the competitor gate can tell whether it is the same product type.
         const terms = [item.title, item.url, item.designer, n.take, n.layout].filter(Boolean).join(" ").slice(0, 600);
-        s.task.refs.studied.push({ key, role: n.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, at: new Date().toISOString() });
+        // take and motion travel on: builders get what was taken from where, the critic how the page is meant to behave.
+        s.task.refs.studied.push({ key, role: n.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n.take).slice(0, 240), motion: n.motion ? String(n.motion).slice(0, 240) : undefined, source: item.url || item.title || key, at: new Date().toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -524,5 +525,5 @@ const STUDY_SHAPE = {
   detail: z.string().describe("ONE specific move worth stealing"),
   take: z.string().describe("What this reference lends the design"),
   leave: z.string().describe("What not to copy / Dribbble fiction"),
-  motion: z.string().optional(),
+  motion: z.string().optional().describe("How it moves and behaves: what hover, scroll, click or load does (an accordion gallery that widens the hovered panel, cards that lift, a marquee). Stills can't show this, so write it down"),
 };

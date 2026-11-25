@@ -112,6 +112,11 @@ export function buildGaps(task, list) {
   const seen = new Set([...(task.refs?.viewed || []), ...(task.refs?.studied || []).map((s) => s.key)].filter((k) => !task.before?.url || !String(task.before.url).replace(/^https?:\/\/(www\.)?/, "").startsWith(String(k).replace(/^site:(www\.)?/, "").split("/")[0])));
   if (seen.size < 4)
     gaps.push(`References: ${seen.size} looked at, 4 needed (the client's own site doesn't count). refs_site({ urls: [3-4 shipped sites people compare this with or the best in the category] }) and refs_gallery for the pattern; then take two or three decisions from them.`);
+  // Looking is not studying: a screenshot sheet scrolled past leaves nothing behind. Three written studies (what it does,
+  // in numbers, what to take and leave, how it moves) are what the build follows; their takes go into every builder's prompt.
+  const studied = (task.refs?.studied || []).filter((s) => s.role !== "before");
+  if (seen.size >= 4 && studied.length < 3)
+    gaps.push(`Study: ${seen.size} references looked at, ${studied.length} studied (3 needed). refs_study({ studies: [...] }) on the 3 best you saw, in ONE call: each one's layout, type, colour and density in numbers, the one move worth stealing, what you take and leave, and motion (what hover, scroll and load do). The builders get what you take.`);
   const used = task.toolUse || {};
   const pieces = list.filter((s) => s.piece && !/^custom/i.test(s.piece));
   if (pieces.length && !used.pieces_preview && !used.parts_preview)
@@ -127,6 +132,13 @@ export function buildGaps(task, list) {
   const big = list.filter((s) => ["hero", "page", "whole-page", "index", "app"].includes(slug(s.section)));
   for (const s of big) if (!s.from || s.from.length < 12) gaps.push(`${s.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
   return gaps;
+}
+
+/** What the director studied, for the builders: the craft to match, not a look to copy. */
+export function studiedTakes(task) {
+  const st = (task?.refs?.studied || []).filter((s) => s.take && s.role !== "before").slice(-5);
+  if (!st.length) return "";
+  return `\nWHAT THE DIRECTOR STUDIED (match this level of craft; never copy a reference's colours or surface):\n${st.map((s) => `- ${s.source || s.key}: take ${s.take}${s.motion ? `; motion: ${s.motion}` : ""}`).join("\n")}`;
 }
 
 export function buildPrompt({ section, spec, files, url, task, piece, page }) {
@@ -160,6 +172,7 @@ export function buildPrompt({ section, spec, files, url, task, piece, page }) {
     "THE SECTION SPEC (from the director; build exactly this)",
     spec,
     pieceLine,
+    studiedTakes(task),
     "",
     where,
     system,
@@ -287,6 +300,9 @@ export function register(server, ctx) {
       updateState((st) => {
         if (!st.task) return;
         st.task.built = [...new Set([...(st.task.built || []), ...list.map((s) => slug(s.section))])];
+        // What each section is meant to do: the critic sees stills, so it gets the pieces and specs in words.
+        st.task.sections ||= {};
+        for (const s of list) st.task.sections[slug(s.section)] = { piece: s.piece || "", spec: String(s.spec || "").slice(0, 300), from: s.from ? String(s.from).slice(0, 200) : undefined };
       });
       const react = pg?.stack === "react";
       const toInstall = react ? list.map((s) => s.piece).filter((p) => p && /^https?:/.test(p) && !(task?.pieces || []).includes(p)) : [];
