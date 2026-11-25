@@ -1,7 +1,32 @@
 // PostToolUse (Write | Edit | MultiEdit): record UI changes (so the Stop hook can demand a fit check)
 // and run the static slop checks on the file that just changed.
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { allow, hashFile, isUiFile, loadConfig, loadState, looksVisual, markSeen, out, readInput, run, shotHash, updateState } from "./lib.mjs";
+
+// taste-skill's copy lint (no browser, ~0.1 s): slop words, stock lines, default names, invented stat strips.
+// Its FAILs and WARNs come back as lint issues; its INFO lines stay out.
+function copyLint(file) {
+  const lint = path.join(process.env.DRIP_HOME || path.join(os.homedir(), ".drip"), "vendor", "taste-skill", "skills", "taste-skill", "scripts", "copy-lint.mjs");
+  if (!fs.existsSync(lint)) return [];
+  let txt = "";
+  try {
+    txt = execFileSync(process.execPath, [lint, file], { encoding: "utf8", timeout: 5000, windowsHide: true });
+  } catch (e) {
+    txt = String(e.stdout || ""); // it exits non-zero on a FAIL
+  }
+  const issues = [];
+  const lines = txt.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^\s+(FAIL|WARN)\s+(\S+)\s+(.*)$/);
+    if (!m) continue;
+    const fix = lines.slice(i + 1, i + 12).find((l) => /^\s+fix: /.test(l));
+    issues.push({ id: m[2], severity: m[1] === "FAIL" ? "error" : "warn", line: "-", message: m[3].trim(), fix: fix ? fix.replace(/^\s+fix: /, "").trim() : "rewrite it" });
+  }
+  return issues;
+}
 
 run(async () => {
   const input = await readInput();
@@ -32,6 +57,7 @@ run(async () => {
 
   const { lintFiles } = await import("../mcp/src/modules/fitcheck/lint.mjs"); // only when there is something to lint
   const all = lintFiles([abs], dir).filter((i) => i.severity !== "info");
+  if (task && /\.html$/i.test(abs)) all.push(...copyLint(abs));
   // Say each issue once: the same list after every edit of the file is noise.
   const sig = (i) => `${i.id}:${i.message}`;
   const said = new Set(task?.linted?.[rel] || []);

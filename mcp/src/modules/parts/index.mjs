@@ -233,6 +233,64 @@ LISTS.tech = LISTS.product;
 LISTS.place = ["nav-split|nav-centre", "footer-visit|footer-columns", "close-photo|close-type", "brand-band|space", "solid|block", "wordmark|initial"];
 const pick = (opts) => { const o = opts.split("|"); return o[Math.floor(Math.random() * o.length)]; };
 
+// The kit a scaffolded page loads (taste-skill's starter head). Big libraries (photos, scenes, objects, components)
+// stay out: parts_get copies those when a page uses one.
+const KIT = ["system.css", "system.js", "motion", "backgrounds", "diagrams", "ui", "effects", "moments", "icons/icon.css", "layout/layout.css", "layout/layout.js", "layout/demo.css"];
+const NAV_CLASS = { "nav-centre": "nav nav--centre", "nav-split": "nav nav--split" };
+const FOOTER_CLASS = { "footer-dark": "footer closing footer--dark ground-inverse", "footer-statement": "footer closing footer--statement" };
+
+/** Writes a ready page from taste-skill's starter: the dealt hero (its markup and CSS), the dealt palette and type as
+ *  tokens, the dealt nav, close and footer, and section markers for page_stitch. Every [bracket] is the client's copy. */
+export async function scaffoldPage({ out, kind, hero, palette, type, nav, footer, close, buttons, mark, radius }) {
+  const skill = path.join(tasteDir(), "skills", "taste-skill");
+  const src = tasteAssets();
+  const dir = path.resolve(projectDir(), out);
+  const page = path.join(dir, "index.html");
+  if (fs.existsSync(page)) return `${path.relative(projectDir(), page)} exists: not scaffolded (build on it, or deal into an empty folder).`;
+  fs.mkdirSync(dir, { recursive: true });
+  for (const rel of KIT) {
+    const from = path.join(src, rel);
+    if (fs.existsSync(from)) fs.cpSync(from, path.join(dir, "assets", rel), { recursive: true, filter: (f) => !/[\\/](_demo|_lab|demo\.html|check\.(html|mjs)|pick\.mjs)$/.test(f) && !/[\\/]img$/.test(f) });
+  }
+  fs.writeFileSync(path.join(dir, "assets", "CREDITS-taste-skill.md"), `Kit from taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.\n`);
+  // Palette and type as the head block start.mjs prints (font links, kit stylesheets, the :root tokens).
+  let head = "";
+  if (palette && type) head = await run(process.execPath, [path.join(skill, "scripts", "start.mjs"), "css", "--page", kind === "tech" ? "product" : kind, "--palette", palette, "--type", type, "--radius", radius], { cwd: dir }).catch(() => "");
+  fs.rmSync(path.join(dir, ".taste-skill"), { recursive: true, force: true }); // start.mjs arms its own gate there: Drip checks instead
+  let html = fs.readFileSync(path.join(src, "starter.html"), "utf8");
+  // The dealt hero: its section and its own <style>, with its paths made relative to the page.
+  const demo = hero && path.join(src, "layout", `hero-${hero}.html`);
+  if (demo && fs.existsSync(demo)) {
+    const d = fs.readFileSync(demo, "utf8");
+    const fix = (s) => s.replace(/(["'(])\.\.\//g, "$1assets/").replace(/(src|href)="img\//g, '$1="assets/layout/img/');
+    for (const m of d.matchAll(/(?:src|href)="img\/([^"]+)"/g)) {
+      const f = path.join(src, "layout", "img", m[1]);
+      if (fs.existsSync(f)) { fs.mkdirSync(path.join(dir, "assets", "layout", "img"), { recursive: true }); fs.copyFileSync(f, path.join(dir, "assets", "layout", "img", m[1])); }
+    }
+    const section = (d.match(/<section class="hero[\s\S]*?<\/section>/) || [])[0];
+    // The demo's own :root (its sample palette and fonts) goes: the dealt tokens above are the page's.
+    const style = ((d.match(/<style>([\s\S]*?)<\/style>/) || [])[1] || "").replace(/:root\s*\{[^}]*\}/, "");
+    if (section) html = html.replace(/<section class="hero[\s\S]*?<\/section>/, () => fix(section));
+    html = html.replace(/<style>[\s\S]*?<\/style>/, () => `<style>\n/* the dealt hero (${hero}) */\n${fix(style).trim()}\n</style>`);
+    if (/href="demo\.css"/.test(d)) html = html.replace(/(<link rel="stylesheet" href="assets\/layout\/layout\.css">)/, '$1\n<link rel="stylesheet" href="assets/layout/demo.css">');
+  }
+  if (head) html = html.replace(/<link rel="stylesheet" href="assets\/system\.css">[\s\S]*?<link rel="stylesheet" href="assets\/icons\/icon\.css">/, () => head.trim());
+  // Sections: the builders' files go between the markers (page_stitch); the starter's example and part templates go.
+  html = html.replace(/(<\/section>\s*)(?:<!-- SECTIONS[\s\S]*?)?<section class="section[\s\S]*?(<\/main>)/, (_, a, b) => `${a}\n  <!-- drip:sections -->\n  <!-- /drip:sections -->\n${b}`);
+  const closeTpl = (html.match(new RegExp(`<template data-part="${close}">([\\s\\S]*?)</template>`)) || [])[1];
+  if (closeTpl && close !== "close-type") html = html.replace(/<div class="closing__cta close--type">[\s\S]*?<\/a>\s*<\/div>/, () => closeTpl.trim());
+  html = html.replace(/<template data-part="[\s\S]*?<\/template>\s*/g, "");
+  html = html.replace(/<header class="nav">/, `<header class="${NAV_CLASS[nav] || "nav"}">`).replace(/<footer class="footer closing"/, `<footer class="${FOOTER_CLASS[footer] || "footer closing"}"`);
+  html = html.replace(/<html lang="\[en\]" data-type="\[software\]" data-radius="soft"/, `<html lang="en" data-type="${PAGE_TYPE[kind]}" data-radius="${radius}"`).replace(/data-buttons="solid"/, `data-buttons="${buttons}"`);
+  if (!["software", "gaming", "tech"].includes(kind)) html = html.replace(/ data-ground="sand"/, "");
+  html = html.replace(/data-mark="\[dealt mark\]"/g, `data-mark="${mark}"`);
+  if (mark === "wordmark") html = html.replace(/<span class="mark" data-mark="wordmark" aria-hidden="true"><\/span>/g, "");
+  if (mark === "initial") html = html.replace(/<span class="mark" data-mark="initial" aria-hidden="true"><\/span>/g, '<span class="mark mark--initial" aria-hidden="true">[N]</span>');
+  fs.writeFileSync(page, html);
+  const left = (html.match(/\[[^\]\n]{1,80}\]/g) || []).length;
+  return `Scaffolded ${path.relative(projectDir(), page)}: the dealt ${hero || "split"} hero with its CSS, palette ${palette || "?"}, type ${type || "?"}, ${nav}, ${close}, ${footer}, buttons ${buttons}, mark ${mark}; the kit in assets/. ${left} [brackets] to fill with the client's copy (system.js outlines any left in red). Sections go between <!-- drip:sections --> markers (page_stitch).`;
+}
+
 export function registerDeal(server, ctx) {
   server.registerTool(
     "layout_deal",
@@ -246,15 +304,18 @@ export function registerDeal(server, ctx) {
         trade: z.string().describe("What is sold, in a few words, e.g. 'vineyard operations saas'"),
         has: z.array(z.enum(["photo", "ui", "film", "object", "setting"])).optional().describe("Material the page has: ui (its product UI), photo, film, object (a render or cut-out), setting (a game's world)"),
         directions: z.number().int().min(1).max(3).optional().describe("How many different sets (default 1; 3 for the board's directions)"),
+        out: z.string().optional().describe("A new page folder, e.g. 'saas-award-3': also writes index.html from the dealt set (taste-skill's starter with the dealt hero, palette, type, nav, close and footer, the kit in assets/), so you only fill in the copy and the visual"),
+        radius: z.enum(["sharp", "soft", "round"]).optional().describe("With out: sharp for fintech and dev tools, soft (default), round for consumer apps"),
       },
     },
-    safe(async ({ kind, trade, has, directions = 1 }) => {
+    safe(async ({ kind, trade, has, directions = 1, out: outDir, radius = "soft" }) => {
       await installTaste();
       const skill = path.join(tasteDir(), "skills", "taste-skill");
       const work = path.join(projectDir(), ".drip", "deal");
       fs.mkdirSync(work, { recursive: true });
       const hist = path.join(work, "history.json");
       const out = [];
+      const sets = [];
       for (let i = 0; i < directions; i++) {
         const heroArgs = [path.join(skill, "assets", "layout", "deal.mjs"), "--type", PAGE_TYPE[kind], "--history", path.join(work, "layout-history.json")];
         if (kind === "gaming" || kind === "tech") heroArgs.push("--kind", kind);
@@ -265,6 +326,7 @@ export function registerDeal(server, ctx) {
         ]);
         const [nav, footer, close, rhythm, buttons, mark] = LISTS[kind].map(pick);
         const clean = (s) => String(s).replace(/<skill>/g, skill.replace(/\\/g, "/")).split("\n").filter((l) => !/finish gate is armed|^then: node|plan line 2/.test(l)).join("\n").trim();
+        sets.push({ hero: String(hero), look: String(look), nav, footer, close, buttons, mark });
         out.push(`===== SET ${i + 1}${directions > 1 ? ` (direction ${i + 1})` : ""} =====\n${clean(hero)}\n\n${clean(look)}\n\nSECTIONS: nav ${nav} · footer ${footer} · close ${close} · rhythm ${rhythm} · buttons ${buttons} · mark ${mark}`);
       }
       const first = out[0] || "";
@@ -274,6 +336,12 @@ export function registerDeal(server, ctx) {
       updateState((st) => {
         if (st.task) st.task.deal = { kind, trade, summary, at: new Date().toISOString() };
       });
+      if (outDir && sets[0]) {
+        const s = sets[0];
+        const type = (s.look.split(/^TYPE for/m)[1]?.match(/^ {2}([a-z0-9-]+) {2,}/m) || [])[1];
+        const made = await scaffoldPage({ out: outDir, kind, hero, palette, type, nav: s.nav, footer: s.footer, close: s.close, buttons: s.buttons, mark: s.mark, radius });
+        return text(`${out.join("\n\n")}\n\n${made}\nNext: write the hero's copy and its visual (the product UI in its frame: parts_get a ui fragment, or a picture), then fitcheck_shot({ url, hero: true }).`);
+      }
       return text(`${out.join("\n\n")}\n\nThe hero demos and section recipes: parts_get({ items: [{ kind: "hero", id: "<hero id>" }] }) copies the hero's demo; its README (layout-v4) has the recipes. Take the first palette and pairing unless they clash with the client's own colours.`);
     }),
   );

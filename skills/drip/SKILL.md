@@ -12,14 +12,10 @@ user-invocable: false
 
 **The job:** your own cooler, cleaner take on designs that are already proven (the heroes people save on Dribbble and Awwwards), the way expensive product designers work. Never chase "unique": unique is usually ugly. A page in about 10 minutes.
 
-**The fast loop:**
-1. Look: `refs_gallery` (or `refs_site` on 3-4 shipped sites), one call.
-2. Deal: `layout_deal({ kind, trade, has })`: hero layout with exact sizes, palette, type, nav, footer, buttons.
-3. Parts: `parts_list` → `parts_preview` (several at once) → `parts_get`; pictures with ONE `images_search({ queries: [...] })`; real icons with `icons_search`.
-4. Hero: nav + hero with `drip_kit` and the dealt set, an entrance on load → `fitcheck_shot({ url, hero: true })`.
-5. Sections in parallel: one `build_prepare` + one `drip:builder` Agent per section, all in ONE message (each writes `sections/<id>.html` + `styles/sections/<id>.css`) → `page_stitch`.
-6. Check once: `fitcheck_shot({ url })` (one sheet per size; a clean shot records the check), fix blockers, re-check with `numbersOnly`.
-7. Critic once: `critic_prepare({ kind: "build", targets: [every state] })` → Agent drip:critic → `critic_record`, fix its top fixes → `drip_end`.
+**The fast loop, in short passes the user can react to:**
+- **Pass 1, the hero:** in one message `refs_gallery` (one look), `layout_deal({ kind, trade, has, out: "<folder>" })` (deals the set AND writes the page from taste-skill's starter: dealt hero, palette, type, nav, close, footer, kit), `parts_list` and `images_search({ queries })`. Fill the nav and hero `[brackets]` with the client's words and put the product on show (`parts_get` a UI fragment, a photo). `fitcheck_shot({ url, hero: true })` once, show the user, stop (unless they asked for the whole page in one go).
+- **Pass 2, the sections:** one `build_prepare` + one `drip:builder` Agent per section, all in ONE message → `page_stitch` → `fitcheck_shot({ url })` once (it records the check; fix what matters in one pass, never chase 1-2% numbers) → show the page → `drip_end`.
+- **Polish pass, only when asked:** `critic_prepare` → Agent drip:critic → `critic_record`, fix its top fixes.
 
 **Every call does several things.** One tool, many items (`refs_site` with 4 URLs, `parts_preview` with 6 parts, `images_search` with 4 queries, `fitcheck_shot({ urls })` with every state). Independent calls in one message. For anything else, Code Mode: `drip_search` finds any Drip tool (there are ~120; only the fast loop's are listed), `drip_execute` runs a script of `await drip.<tool>(args)` calls and returns only what matters.
 

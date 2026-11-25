@@ -224,6 +224,8 @@ export function register(server, ctx) {
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
       if (fast) {
         t.loop = "fast";
+        // Passes: the hero first, shown to the user, then the sections. In one go only when the request says so.
+        t.whole = /\b(whole (page|site|thing)|full (page|site)|in one go|end to end|don'?t (stop|ask)|no questions|without (stopping|asking))\b/i.test(task);
         t.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: new Date().toISOString() };
       }
       if (typeof swarm === "boolean") t.swarm = swarm;
@@ -274,9 +276,11 @@ export function register(server, ctx) {
             `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n\n` +
             `FIRST CALLS (send the independent ones in one message):\n` +
             `1. refs_gallery({ query: "<the product kind> landing hero" }) — look, take two or three decisions.\n` +
-            `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>] }).\n` +
+            `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>" }): deals the set AND writes the page (the dealt hero with its CSS, palette, type, nav, close and footer, the kit), so you only write the copy and the visual.\n` +
             `3. parts_list({ query: "<what the hero and sections need>" }) and images_search({ queries: [...] }).\n` +
-            `Then the hero, fitcheck_shot hero: true, sections (Swarm builders in parallel), one fitcheck_shot, one critic, drip_end.\n\n` +
+            (t.whole
+              ? `Then the hero, fitcheck_shot hero: true, the sections (Swarm builders in parallel), one fitcheck_shot, drip_end, all in this turn: the user asked for the whole page in one go.\n\n`
+              : `PASS 1 (this turn): the hero only, fitcheck_shot hero: true, show the user the picture and stop: they may want another hero before any section is built. PASS 2 (when they say go): the sections in parallel, one fitcheck_shot, drip_end. The critic only when they ask for a polish pass.\n\n`) +
             bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
         );
       }

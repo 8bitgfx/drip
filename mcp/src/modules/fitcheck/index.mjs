@@ -131,15 +131,23 @@ export function register(server, ctx) {
             st.task.fitcheck.numbersAt = new Date().toISOString();
             return;
           }
-          if (hero && !blockers.length) st.task.fitcheck.heroPassedAt = new Date().toISOString(); // only fitcheck_shot hero: true passes the hero gate
+          const fast = st.task.loop === "fast";
+          if (hero && (!blockers.length || fast)) st.task.fitcheck.heroPassedAt = new Date().toISOString(); // only fitcheck_shot hero: true passes the hero gate
+          if (hero && fast) {
+            // Fast loop, first pass: the hero alone is what exists, so its shot is the check of this version (the turn may end here).
+            st.task.fitcheck.lastShotAt = st.task.fitcheck.doneAt = new Date().toISOString();
+            st.task.fitcheck.shotRev = st.task.fitcheck.doneRev = artifactRev(st.task);
+            return;
+          }
           if (hero) return; // a hero shot is not a fit check of the page
           st.task.fitcheck.shots += files.length;
           st.task.fitcheck.lastShotAt = new Date().toISOString();
           st.task.fitcheck.shotRev = artifactRev(st.task); // what this shot (and its measured blockers) is evidence of
           st.task.fitcheck.blockers = blockers;
           st.task.fitcheck.files = files;
-          // A clean full shot of the current files IS the fit check: no self-scoring call needed.
-          if (!blockers.length) {
+          // A clean full shot of the current files IS the fit check: no self-scoring call needed. On the fast loop any full
+          // shot is: its blockers are reported once, fixed in one pass, and never chased with re-check after re-check.
+          if (!blockers.length || st.task.loop === "fast") {
             st.task.fitcheck.doneAt = st.task.fitcheck.lastShotAt;
             st.task.fitcheck.doneRev = st.task.fitcheck.shotRev;
           }
@@ -163,6 +171,15 @@ export function register(server, ctx) {
             : `HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.\n\n${judge}`
           : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):\n${list2}` : "No measured blockers: the page check is recorded for this version (no fitcheck_done needed). Look at the sheet, fix what looks wrong, then the critic."}\n\n${judge}`;
       }
+      if (loadState().task?.loop === "fast" && !numbersOnly && !section)
+        head = hero
+          ? `${blockers.length ? `HERO ISSUES (measured):
+${list2}
+
+Fix the ones that matter in ONE edit; no re-shoot needed for small numbers.` : "Hero clean."} Look at it: is it a polished, proven pattern with the product on show? Then show the user the hero (this picture) and ask whether to go on to the sections, unless they asked for the whole page in one go.`
+          : `${blockers.length ? `MEASURED (fix the ones that matter in ONE pass; a 1-2% gap or a borderline number is not worth another round):
+${list2}` : "No measured blockers."}
+The page check is recorded for this version. Look at the sheet once, fix what looks wrong, then hand off: show the user. The critic is a polish pass the user asks for ("polish", "critic"), not a step.`;
       content.unshift(textBlock(head));
       return blocks(content);
   }

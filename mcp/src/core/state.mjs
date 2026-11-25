@@ -369,6 +369,7 @@ export function criticRounds(task, config) {
 /** True when the build changed after the last passing critic verdict (full loop only). */
 export function needsCritic(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
+  if (task.loop === "fast") return false; // fast loop: the critic is a polish pass the user asks for, not a gate
   const rec = lastCritique(task, "build");
   if (rec?.rev && rec.rev !== artifactRev(task)) return !(isCriticCapped(task, config)); // reviewed something else: stale
   if (isCriticCapped(task, config)) return false; // never loop forever; the hand-off lists what's left
@@ -424,10 +425,10 @@ export function checklist(task, config) {
       `Task: ${task.title}  (fast loop, ${task.surface})`,
       `${tick((task.refs?.viewed || []).length + (task.refs?.studied || []).length > 0 || Object.keys(task.toolUse || {}).some((k) => /^refs_/.test(k)))} looked at proven work`,
       `${tick(!!task.deal || !!task.board?.chosen)} dealt a set${task.deal ? `: ${task.deal.summary}` : ""}`,
-      `${tick(!!fc.heroPassedAt)} hero gate`,
+      `${tick(!!fc.heroPassedAt)} hero shot`,
       `${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`,
       `${tick(!!fc.doneAt && !needsFitcheck(task, config))} page check clean on the current version`,
-      `${tick(!!rec)} critic${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : ""}`,
+      `${tick(!!rec)} critic (a polish pass on request)${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : ""}`,
     ].join("\n");
   }
   const lines = [`Task: ${task.title}  (${task.mode || "design"}, ${task.size} loop, ${task.surface})${task.packs?.length ? `  packs: ${task.packs.join(", ")}` : ""}${task.skipped ? `  SKIPPED: ${task.skipped}` : ""}`];

@@ -87628,6 +87628,7 @@ function criticRounds(task, config2) {
 }
 function needsCritic(task, config2) {
   if (!task || task.skipped || !config2.gates.enforce || !config2.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
+  if (task.loop === "fast") return false;
   const rec = lastCritique(task, "build");
   if (rec?.rev && rec.rev !== artifactRev(task)) return !isCriticCapped(task, config2);
   if (isCriticCapped(task, config2)) return false;
@@ -87668,10 +87669,10 @@ function checklist(task, config2) {
       `Task: ${task.title}  (fast loop, ${task.surface})`,
       `${tick((task.refs?.viewed || []).length + (task.refs?.studied || []).length > 0 || Object.keys(task.toolUse || {}).some((k) => /^refs_/.test(k)))} looked at proven work`,
       `${tick(!!task.deal || !!task.board?.chosen)} dealt a set${task.deal ? `: ${task.deal.summary}` : ""}`,
-      `${tick(!!fc2.heroPassedAt)} hero gate`,
+      `${tick(!!fc2.heroPassedAt)} hero shot`,
       `${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`,
       `${tick(!!fc2.doneAt && !needsFitcheck(task, config2))} page check clean on the current version`,
-      `${tick(!!rec)} critic${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : ""}`
+      `${tick(!!rec)} critic (a polish pass on request)${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : ""}`
     ].join("\n");
   }
   const lines = [`Task: ${task.title}  (${task.mode || "design"}, ${task.size} loop, ${task.surface})${task.packs?.length ? `  packs: ${task.packs.join(", ")}` : ""}${task.skipped ? `  SKIPPED: ${task.skipped}` : ""}`];
@@ -90389,6 +90390,7 @@ function register2(server2, ctx2) {
       const t2 = newTask({ title: task, size: s2, surface: sf, guides, mode: m, packs: pk });
       if (fast) {
         t2.loop = "fast";
+        t2.whole = /\b(whole (page|site|thing)|full (page|site)|in one go|end to end|don'?t (stop|ask)|no questions|without (stopping|asking))\b/i.test(task);
         t2.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: (/* @__PURE__ */ new Date()).toISOString() };
       }
       if (typeof swarm === "boolean") t2.swarm = swarm;
@@ -90433,11 +90435,13 @@ function register2(server2, ctx2) {
 
 FIRST CALLS (send the independent ones in one message):
 1. refs_gallery({ query: "<the product kind> landing hero" }) \u2014 look, take two or three decisions.
-2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>] }).
+2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>" }): deals the set AND writes the page (the dealt hero with its CSS, palette, type, nav, close and footer, the kit), so you only write the copy and the visual.
 3. parts_list({ query: "<what the hero and sections need>" }) and images_search({ queries: [...] }).
-Then the hero, fitcheck_shot hero: true, sections (Swarm builders in parallel), one fitcheck_shot, one critic, drip_end.
+` + (t2.whole ? `Then the hero, fitcheck_shot hero: true, the sections (Swarm builders in parallel), one fitcheck_shot, drip_end, all in this turn: the user asked for the whole page in one go.
 
-` + bodies.map(([x2, b]) => `=================== GUIDE: ${x2} ===================
+` : `PASS 1 (this turn): the hero only, fitcheck_shot hero: true, show the user the picture and stop: they may want another hero before any section is built. PASS 2 (when they say go): the sections in parallel, one fitcheck_shot, drip_end. The critic only when they ask for a polish pass.
+
+`) + bodies.map(([x2, b]) => `=================== GUIDE: ${x2} ===================
 ${b}`).join("\n\n")
         );
       }
@@ -103856,6 +103860,7 @@ __export(parts_exports, {
   installTaste: () => installTaste,
   register: () => register11,
   registerDeal: () => registerDeal,
+  scaffoldPage: () => scaffoldPage,
   tasteAssets: () => tasteAssets,
   tasteDir: () => tasteDir,
   tasteReady: () => tasteReady
@@ -104064,6 +104069,64 @@ var pick3 = (opts) => {
   const o2 = opts.split("|");
   return o2[Math.floor(Math.random() * o2.length)];
 };
+var KIT = ["system.css", "system.js", "motion", "backgrounds", "diagrams", "ui", "effects", "moments", "icons/icon.css", "layout/layout.css", "layout/layout.js", "layout/demo.css"];
+var NAV_CLASS = { "nav-centre": "nav nav--centre", "nav-split": "nav nav--split" };
+var FOOTER_CLASS = { "footer-dark": "footer closing footer--dark ground-inverse", "footer-statement": "footer closing footer--statement" };
+async function scaffoldPage({ out, kind, hero, palette: palette2, type, nav, footer, close, buttons, mark, radius }) {
+  const skill = path42.join(tasteDir(), "skills", "taste-skill");
+  const src = tasteAssets();
+  const dir = path42.resolve(projectDir(), out);
+  const page2 = path42.join(dir, "index.html");
+  if (fs45.existsSync(page2)) return `${path42.relative(projectDir(), page2)} exists: not scaffolded (build on it, or deal into an empty folder).`;
+  fs45.mkdirSync(dir, { recursive: true });
+  for (const rel3 of KIT) {
+    const from = path42.join(src, rel3);
+    if (fs45.existsSync(from)) fs45.cpSync(from, path42.join(dir, "assets", rel3), { recursive: true, filter: (f3) => !/[\\/](_demo|_lab|demo\.html|check\.(html|mjs)|pick\.mjs)$/.test(f3) && !/[\\/]img$/.test(f3) });
+  }
+  fs45.writeFileSync(path42.join(dir, "assets", "CREDITS-taste-skill.md"), `Kit from taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
+`);
+  let head = "";
+  if (palette2 && type) head = await run(process.execPath, [path42.join(skill, "scripts", "start.mjs"), "css", "--page", kind === "tech" ? "product" : kind, "--palette", palette2, "--type", type, "--radius", radius], { cwd: dir }).catch(() => "");
+  fs45.rmSync(path42.join(dir, ".taste-skill"), { recursive: true, force: true });
+  let html = fs45.readFileSync(path42.join(src, "starter.html"), "utf8");
+  const demo = hero && path42.join(src, "layout", `hero-${hero}.html`);
+  if (demo && fs45.existsSync(demo)) {
+    const d = fs45.readFileSync(demo, "utf8");
+    const fix = (s2) => s2.replace(/(["'(])\.\.\//g, "$1assets/").replace(/(src|href)="img\//g, '$1="assets/layout/img/');
+    for (const m of d.matchAll(/(?:src|href)="img\/([^"]+)"/g)) {
+      const f3 = path42.join(src, "layout", "img", m[1]);
+      if (fs45.existsSync(f3)) {
+        fs45.mkdirSync(path42.join(dir, "assets", "layout", "img"), { recursive: true });
+        fs45.copyFileSync(f3, path42.join(dir, "assets", "layout", "img", m[1]));
+      }
+    }
+    const section = (d.match(/<section class="hero[\s\S]*?<\/section>/) || [])[0];
+    const style = ((d.match(/<style>([\s\S]*?)<\/style>/) || [])[1] || "").replace(/:root\s*\{[^}]*\}/, "");
+    if (section) html = html.replace(/<section class="hero[\s\S]*?<\/section>/, () => fix(section));
+    html = html.replace(/<style>[\s\S]*?<\/style>/, () => `<style>
+/* the dealt hero (${hero}) */
+${fix(style).trim()}
+</style>`);
+    if (/href="demo\.css"/.test(d)) html = html.replace(/(<link rel="stylesheet" href="assets\/layout\/layout\.css">)/, '$1\n<link rel="stylesheet" href="assets/layout/demo.css">');
+  }
+  if (head) html = html.replace(/<link rel="stylesheet" href="assets\/system\.css">[\s\S]*?<link rel="stylesheet" href="assets\/icons\/icon\.css">/, () => head.trim());
+  html = html.replace(/(<\/section>\s*)(?:<!-- SECTIONS[\s\S]*?)?<section class="section[\s\S]*?(<\/main>)/, (_, a2, b) => `${a2}
+  <!-- drip:sections -->
+  <!-- /drip:sections -->
+${b}`);
+  const closeTpl = (html.match(new RegExp(`<template data-part="${close}">([\\s\\S]*?)</template>`)) || [])[1];
+  if (closeTpl && close !== "close-type") html = html.replace(/<div class="closing__cta close--type">[\s\S]*?<\/a>\s*<\/div>/, () => closeTpl.trim());
+  html = html.replace(/<template data-part="[\s\S]*?<\/template>\s*/g, "");
+  html = html.replace(/<header class="nav">/, `<header class="${NAV_CLASS[nav] || "nav"}">`).replace(/<footer class="footer closing"/, `<footer class="${FOOTER_CLASS[footer] || "footer closing"}"`);
+  html = html.replace(/<html lang="\[en\]" data-type="\[software\]" data-radius="soft"/, `<html lang="en" data-type="${PAGE_TYPE[kind]}" data-radius="${radius}"`).replace(/data-buttons="solid"/, `data-buttons="${buttons}"`);
+  if (!["software", "gaming", "tech"].includes(kind)) html = html.replace(/ data-ground="sand"/, "");
+  html = html.replace(/data-mark="\[dealt mark\]"/g, `data-mark="${mark}"`);
+  if (mark === "wordmark") html = html.replace(/<span class="mark" data-mark="wordmark" aria-hidden="true"><\/span>/g, "");
+  if (mark === "initial") html = html.replace(/<span class="mark" data-mark="initial" aria-hidden="true"><\/span>/g, '<span class="mark mark--initial" aria-hidden="true">[N]</span>');
+  fs45.writeFileSync(page2, html);
+  const left = (html.match(/\[[^\]\n]{1,80}\]/g) || []).length;
+  return `Scaffolded ${path42.relative(projectDir(), page2)}: the dealt ${hero || "split"} hero with its CSS, palette ${palette2 || "?"}, type ${type || "?"}, ${nav}, ${close}, ${footer}, buttons ${buttons}, mark ${mark}; the kit in assets/. ${left} [brackets] to fill with the client's copy (system.js outlines any left in red). Sections go between <!-- drip:sections --> markers (page_stitch).`;
+}
 function registerDeal(server2, ctx2) {
   server2.registerTool(
     "layout_deal",
@@ -104074,16 +104137,19 @@ function registerDeal(server2, ctx2) {
         kind: external_exports.enum(KINDS2).describe("software (app, SaaS, AI, dev tool, fintech app) \xB7 gaming \xB7 tech (hardware) \xB7 product (physical goods) \xB7 service (clinic, agency, studio) \xB7 place (cafe, shop, hotel)"),
         trade: external_exports.string().describe("What is sold, in a few words, e.g. 'vineyard operations saas'"),
         has: external_exports.array(external_exports.enum(["photo", "ui", "film", "object", "setting"])).optional().describe("Material the page has: ui (its product UI), photo, film, object (a render or cut-out), setting (a game's world)"),
-        directions: external_exports.number().int().min(1).max(3).optional().describe("How many different sets (default 1; 3 for the board's directions)")
+        directions: external_exports.number().int().min(1).max(3).optional().describe("How many different sets (default 1; 3 for the board's directions)"),
+        out: external_exports.string().optional().describe("A new page folder, e.g. 'saas-award-3': also writes index.html from the dealt set (taste-skill's starter with the dealt hero, palette, type, nav, close and footer, the kit in assets/), so you only fill in the copy and the visual"),
+        radius: external_exports.enum(["sharp", "soft", "round"]).optional().describe("With out: sharp for fintech and dev tools, soft (default), round for consumer apps")
       }
     },
-    safe(async ({ kind, trade, has, directions = 1 }) => {
+    safe(async ({ kind, trade, has, directions = 1, out: outDir, radius = "soft" }) => {
       await installTaste();
       const skill = path42.join(tasteDir(), "skills", "taste-skill");
       const work = path42.join(projectDir(), ".drip", "deal");
       fs45.mkdirSync(work, { recursive: true });
       const hist = path42.join(work, "history.json");
       const out = [];
+      const sets = [];
       for (let i2 = 0; i2 < directions; i2++) {
         const heroArgs = [path42.join(skill, "assets", "layout", "deal.mjs"), "--type", PAGE_TYPE[kind], "--history", path42.join(work, "layout-history.json")];
         if (kind === "gaming" || kind === "tech") heroArgs.push("--kind", kind);
@@ -104094,6 +104160,7 @@ function registerDeal(server2, ctx2) {
         ]);
         const [nav, footer, close, rhythm, buttons, mark] = LISTS[kind].map(pick3);
         const clean2 = (s2) => String(s2).replace(/<skill>/g, skill.replace(/\\/g, "/")).split("\n").filter((l2) => !/finish gate is armed|^then: node|plan line 2/.test(l2)).join("\n").trim();
+        sets.push({ hero: String(hero2), look: String(look), nav, footer, close, buttons, mark });
         out.push(`===== SET ${i2 + 1}${directions > 1 ? ` (direction ${i2 + 1})` : ""} =====
 ${clean2(hero2)}
 
@@ -104108,6 +104175,15 @@ SECTIONS: nav ${nav} \xB7 footer ${footer} \xB7 close ${close} \xB7 rhythm ${rhy
       updateState((st) => {
         if (st.task) st.task.deal = { kind, trade, summary, at: (/* @__PURE__ */ new Date()).toISOString() };
       });
+      if (outDir && sets[0]) {
+        const s2 = sets[0];
+        const type = (s2.look.split(/^TYPE for/m)[1]?.match(/^ {2}([a-z0-9-]+) {2,}/m) || [])[1];
+        const made = await scaffoldPage({ out: outDir, kind, hero, palette: palette2, type, nav: s2.nav, footer: s2.footer, close: s2.close, buttons: s2.buttons, mark: s2.mark, radius });
+        return text(`${out.join("\n\n")}
+
+${made}
+Next: write the hero's copy and its visual (the product UI in its frame: parts_get a ui fragment, or a picture), then fitcheck_shot({ url, hero: true }).`);
+      }
       return text(`${out.join("\n\n")}
 
 The hero demos and section recipes: parts_get({ items: [{ kind: "hero", id: "<hero id>" }] }) copies the hero's demo; its README (layout-v4) has the recipes. Take the first palette and pairing unless they clash with the client's own colours.`);
@@ -105501,14 +105577,20 @@ ${formatAudit(r2.audit, j)}`));
           st.task.fitcheck.numbersAt = (/* @__PURE__ */ new Date()).toISOString();
           return;
         }
-        if (hero && !blockers.length) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
+        const fast = st.task.loop === "fast";
+        if (hero && (!blockers.length || fast)) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (hero && fast) {
+          st.task.fitcheck.lastShotAt = st.task.fitcheck.doneAt = (/* @__PURE__ */ new Date()).toISOString();
+          st.task.fitcheck.shotRev = st.task.fitcheck.doneRev = artifactRev(st.task);
+          return;
+        }
         if (hero) return;
         st.task.fitcheck.shots += files.length;
         st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
         st.task.fitcheck.shotRev = artifactRev(st.task);
         st.task.fitcheck.blockers = blockers;
         st.task.fitcheck.files = files;
-        if (!blockers.length) {
+        if (!blockers.length || st.task.loop === "fast") {
           st.task.fitcheck.doneAt = st.task.fitcheck.lastShotAt;
           st.task.fitcheck.doneRev = st.task.fitcheck.shotRev;
         }
@@ -105538,6 +105620,13 @@ ${list22}` : "No measured blockers: the page check is recorded for this version 
 
 ${judge}`;
     }
+    if (loadState().task?.loop === "fast" && !numbersOnly && !section)
+      head = hero ? `${blockers.length ? `HERO ISSUES (measured):
+${list22}
+
+Fix the ones that matter in ONE edit; no re-shoot needed for small numbers.` : "Hero clean."} Look at it: is it a polished, proven pattern with the product on show? Then show the user the hero (this picture) and ask whether to go on to the sections, unless they asked for the whole page in one go.` : `${blockers.length ? `MEASURED (fix the ones that matter in ONE pass; a 1-2% gap or a borderline number is not worth another round):
+${list22}` : "No measured blockers."}
+The page check is recorded for this version. Look at the sheet once, fix what looks wrong, then hand off: show the user. The critic is a polish pass the user asks for ("polish", "critic"), not a step.`;
     content.unshift(textBlock(head));
     return blocks(content);
   }
@@ -113136,10 +113225,10 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.0";
+var VERSION = "0.8.1";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
-Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
-Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
+Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
+Page loop (fast, in passes): PASS 1 refs_gallery + layout_deal({ ..., out }) (writes the page from the dealt set) + parts_list + images_search in one message -> fill the hero's copy and visual -> fitcheck_shot hero:true -> show the user, stop. PASS 2 build_prepare + drip:builder per section in one message -> page_stitch -> fitcheck_shot once -> drip_end. The critic (critic_prepare -> Agent drip:critic -> critic_record) is a polish pass the user asks for. drip_start({ loop: "full" }) runs the old process (intake, roles, comps, plan, critic) for big brand work.
 Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
 Beyond the loop:
 - Memory: drip_start loads the project's approved direction and learned rules; record the user's reactions with feedback_record.

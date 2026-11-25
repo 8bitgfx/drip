@@ -12,11 +12,11 @@ import { setIdentity } from "./core/state.mjs";
 import { registerAll } from "./core/registry.mjs";
 import { runCli } from "./core/cli.mjs";
 
-const VERSION = "0.8.0";
+const VERSION = "0.8.1";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
-Start with drip_start when the user asks for Drip (/drip:design) or for a proper design process; it returns the playbook and tells you what to do next. While a Drip task is open, the plugin blocks UI writes until requirements are met (brief, studied references, critic-ranked direction) and blocks ending the turn until a fit check and, on full loops, a passing critic review. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
-Page loop (fast): intake (AskUserQuestion -> drip_brief) -> refs_site on shipped sites -> refs_study (batched) -> board_create -> board_directions (renders first-viewport comps) -> critic ranks (critic_prepare -> Agent drip:critic -> critic_record) -> board_open -> board_choose -> drip_kit + DESIGN.md -> nav + hero -> fitcheck_shot hero:true -> sections -> fitcheck_shot (page gate) -> critic -> fitcheck_done -> drip_end. The playbook (returned by drip_start) holds the numbers.
+Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
+Page loop (fast, in passes): PASS 1 refs_gallery + layout_deal({ ..., out }) (writes the page from the dealt set) + parts_list + images_search in one message -> fill the hero's copy and visual -> fitcheck_shot hero:true -> show the user, stop. PASS 2 build_prepare + drip:builder per section in one message -> page_stitch -> fitcheck_shot once -> drip_end. The critic (critic_prepare -> Agent drip:critic -> critic_record) is a polish pass the user asks for. drip_start({ loop: "full" }) runs the old process (intake, roles, comps, plan, critic) for big brand work.
 Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
 Beyond the loop:
 - Memory: drip_start loads the project's approved direction and learned rules; record the user's reactions with feedback_record.

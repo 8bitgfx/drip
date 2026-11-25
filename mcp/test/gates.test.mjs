@@ -434,6 +434,47 @@ test("the fast loop asks only for a look and a deal before UI", async () => {
   assert.deepEqual(missingBeforeUi(t, cfg), []);
 });
 
+test("the fast loop never makes the critic a gate", async () => {
+  const { needsCritic, newTask } = await import("../src/core/state.mjs");
+  const { loadConfig } = await import("../src/core/config.mjs");
+  const t = newTask({ title: "landing page for a saas", size: "full", surface: "landing", guides: ["fast"], mode: "design" });
+  t.lastUiWriteAt = new Date().toISOString();
+  const cfg = loadConfig();
+  assert.equal(needsCritic(t, cfg), true, "full loop: the critic is required");
+  t.loop = "fast";
+  assert.equal(needsCritic(t, cfg), false, "fast loop: a polish pass on request");
+});
+
+test("layout_deal with out writes a ready page from the dealt set", { skip: !fs.existsSync(path.join(os.homedir(), ".drip", "vendor", "taste-skill", "skills", "taste-skill", "assets", "starter.html")) && "taste-skill not installed" }, async () => {
+  const { scaffoldPage } = await import("../src/modules/parts/index.mjs");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "drip-scaf-"));
+  const prev = process.env.CLAUDE_PROJECT_DIR;
+  const prevHome = process.env.DRIP_HOME;
+  process.env.CLAUDE_PROJECT_DIR = dir;
+  process.env.DRIP_HOME = path.join(os.homedir(), ".drip"); // the installed taste-skill
+  try {
+    const msg = await scaffoldPage({ out: "p", kind: "software", hero: "split", palette: "green-black-bone", type: "host", nav: "nav-centre", footer: "footer-dark", close: "close-word", buttons: "pill", mark: "initial", radius: "soft" });
+    assert.match(msg, /Scaffolded/);
+    const html = fs.readFileSync(path.join(dir, "p", "index.html"), "utf8");
+    assert.match(html, /<!-- drip:sections -->/);
+    assert.match(html, /<header class="nav nav--centre">/);
+    assert.match(html, /footer--dark/);
+    assert.match(html, /close--word/);
+    assert.match(html, /data-buttons="pill"/);
+    assert.match(html, /--p-bg: #161c1a/, "the dealt palette");
+    assert.equal((html.match(/--p-bg:/g) || []).length, 1, "the demo's own palette is gone");
+    assert.doesNotMatch(html, /<template data-part/);
+    assert.ok(fs.existsSync(path.join(dir, "p", "assets", "system.css")));
+    assert.ok(!fs.existsSync(path.join(dir, "p", ".taste-skill")), "no foreign gate armed");
+    assert.match(await scaffoldPage({ out: "p", kind: "software" }), /exists: not scaffolded/);
+  } finally {
+    process.env.CLAUDE_PROJECT_DIR = prev;
+    if (prevHome === undefined) delete process.env.DRIP_HOME;
+    else process.env.DRIP_HOME = prevHome;
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("the agent sees the core tools; Code Mode reaches the rest", async () => {
   const { registerAll, collectTools, CORE } = await import("../src/core/registry.mjs");
   const prev = process.env.DRIP_TOOLS;
