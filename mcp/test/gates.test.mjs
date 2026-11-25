@@ -251,9 +251,14 @@ test("a REVISE or REJECT directions verdict is not ticked, and NEXT says which d
   const dir = state.missingBeforeUi(t, cfg).find((m) => m.need === "direction");
   assert.match(dir.how, /critic said REVISE.*Rework "B", "C".*editorial layout.*board_directions again/);
   assert.doesNotMatch(dir.how, /^board_directions \(renders/);
-  assert.match(state.checklist(t, cfg), /\[ \] critic ranked the directions: REVISE .*NOT PASSED: rework "B", "C"/);
+  assert.match(state.checklist(t, cfg), /\[ \] critic on the directions \(optional\): REVISE .*NOT PASSED: rework "B", "C"/);
   t.critic.records.push({ kind: "directions", verdict: "pass", summary: "ranked", fixes: [], at: new Date().toISOString() });
-  assert.match(state.checklist(t, cfg), /\[x\] critic ranked the directions: PASS/);
+  assert.match(state.checklist(t, cfg), /\[x\] critic on the directions \(optional\): PASS/);
+  // Without a directions critique the director ranks them: no critic line, no critic gate.
+  const n = state.newTask({ title: "stroller page", size: "full", surface: "landing", guides: [] });
+  n.board = { id: "b1", items: 4, directions: 3, chosen: "A" };
+  assert.doesNotMatch(state.checklist(n, cfg), /critic on the directions/);
+  assert.ok(!state.missingBeforeUi(n, cfg).some((m) => m.need === "critic"));
   const b = state.newTask({ title: "x", size: "full", surface: "landing", guides: [] });
   b.lastUiWriteAt = new Date().toISOString();
   b.critic.records.push({ kind: "build", verdict: "revise", summary: "timid", at: new Date(Date.now() + 5000).toISOString() });

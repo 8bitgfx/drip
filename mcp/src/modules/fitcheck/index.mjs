@@ -18,6 +18,7 @@ import * as readme from "./readme.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { screenshot } from "./chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
+import { restitchIfStale } from "../swarm/index.mjs";
 
 const CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 
@@ -61,6 +62,11 @@ export function register(server, ctx) {
       // Several pages or states in one call (?state=typing, ?state=result, /pricing...): one shot each, one reply.
       const many = args.urls?.length ? [...new Set([args.url, ...args.urls].filter(Boolean))] : null;
       if (!args.url && !many) return text("Pass url, or urls for several pages or states at once.", true);
+      try {
+        restitchIfStale(loadState().task); // a section file changed since page_stitch: put it in before shooting
+      } catch {
+        /* the shot still runs */
+      }
       if (!many || many.length === 1) return shootOne({ ...args, url: many ? many[0] : args.url });
       const content = [];
       let failed = false;

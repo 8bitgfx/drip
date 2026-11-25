@@ -37,8 +37,8 @@ function directionsGate(board, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || !board.directions.length) return null;
   if (task.board?.adopted && task.board.id === board.id) return null; // the approved direction was reviewed when it was approved
   const rec = lastCritique(task, "directions");
-  if (!rec || (board.directionsAt && rec.at < board.directionsAt))
-    return "The critic hasn't ranked these directions yet. Render the comps (board_directions does), then critic_prepare({ kind: \"directions\" }), launch the drip:critic subagent with the prompt it returns, and critic_record its verdict.";
+  // The director ranks directions; a critic verdict only counts when one was asked for, and only on the current set.
+  if (!rec || (board.directionsAt && rec.at < board.directionsAt)) return null;
   if (rec.verdict === "reject")
     return `The critic rejected this set ("${rec.summary}"). Rework the weak directions (or replace them with bolder ones), board_directions again, re-render tiles and get a new ranking.`;
   // Never show the user a direction the critic scored as weak: rework it or replace it first.

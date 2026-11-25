@@ -337,7 +337,7 @@ export function missingBeforeUi(task, config) {
         how: `the critic said ${dc.verdict.toUpperCase()} on the directions (${String(dc.summary || "").slice(0, 160)}). Rework ${names || "the weak directions"}${dc.fixes?.length ? ` (${String(dc.fixes[0]).slice(0, 140)})` : ""}${dc.verdict === "reject" ? " into genuinely different ideas, not recolours" : ""}, then board_directions again with the reworked set, critic review again (critic_prepare kind 'directions' -> Agent drip:critic -> critic_record), show the user the two strongest comps, board_choose`,
       });
     } else if (g.requireDirection && !task.board?.chosen)
-      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), critic review (critic_prepare kind 'directions' + drip:critic), show the user the two strongest comps (the tile images), then board_choose" : "board_create, board_directions (3 ideas, each with what it takes from which reference), critic review, show the user the two strongest comps, board_choose" });
+      missing.push({ need: "direction", how: task.board ? "board_directions (renders the comps), rank them yourself (fix what you can see), show the user the two strongest comps (the tile images), then board_choose" : "board_create, board_directions (3 ideas, each with what it takes from which reference), rank them yourself, show the user the two strongest comps, board_choose" });
     if (g.requireComponentSearch !== false && pageWork && task.components?.count > 0 && !task.components.search)
       missing.push({ need: "reuse", how: `this project already has ${task.components.count} components: components_local_find for what you're about to build (and components_plan for a page) before writing new ones` });
     // The parts come from somewhere: the project's or the catalogue's components for the interactive pieces, and a real
@@ -355,15 +355,14 @@ export function missingBeforeUi(task, config) {
     // Sections come from the references too, not only the hero: the plan names each section's borrowed move and picture.
     if (g.requirePlan !== false && ["landing", "app", "mobile"].includes(task.surface) && task.board?.chosen && !task.board?.adopted && !task.plan)
       missing.push({ need: "section plan", how: "board_plan: one line per section (hero and footer included) with its idea, its form, the move it takes from a studied reference, its picture source, and two or three eye-candy moments" });
-    if (g.requireCritic && task.board?.chosen && !task.board?.adopted && !lastCritique(task, "directions"))
-      missing.push({ need: "critic", how: "have the drip:critic subagent rank the directions: critic_prepare kind 'directions' -> Agent drip:critic -> critic_record" });
+    // The critic is a reality check on the final build, not on the directions: the director ranks those itself.
   }
   return missing;
 }
 
-/** How many build critic rounds this task gets: one when the user asked for it asap. */
+/** How many build critic rounds this task gets: one, at the final version (the critic is slow: a reality check, not a loop). */
 export function criticRounds(task, config) {
-  return task?.asap || task?.loop === "fast" ? 1 : config.gates.maxCriticRounds;
+  return Math.min(1, config.gates.maxCriticRounds ?? 1) || 1;
 }
 
 /** True when the build changed after the last passing critic verdict (full loop only). */
@@ -445,7 +444,7 @@ export function checklist(task, config) {
     if (task.components?.count) lines.push(`${tick(!!task.components.search)} searched the project's own ${task.components.count} components first (components_local_find)`);
     lines.push(`${tick(!!task.board)} moodboard${task.board ? `: ${task.board.items} items, ${task.board.directions || 0} directions` : ""}`);
     const dc = lastCritique(task, "directions");
-    lines.push(`${tick(dc?.verdict === "pass")} critic ranked the directions${dc ? `: ${dc.verdict.toUpperCase()} (${dc.summary})${dc.verdict === "pass" ? "" : ` NOT PASSED: rework ${reworkNames(dc) || "the weak directions"}`}` : ""}`);
+    if (dc) lines.push(`${tick(dc.verdict === "pass")} critic on the directions (optional): ${dc.verdict.toUpperCase()} (${dc.summary})${dc.verdict === "pass" ? "" : ` NOT PASSED: rework ${reworkNames(dc) || "the weak directions"}`}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
     lines.push(`${tick(task.system)} system written (kit/base.css + DESIGN.md)`);
     if (["landing", "app", "mobile"].includes(task.surface)) lines.push(`${tick(!!task.plan)} section plan${task.plan ? `: ${task.plan.sections.length} sections, ${new Set(task.plan.sections.map((s) => s.form)).size} forms, ${task.plan.sections.filter((s) => s.candy).length} eye-candy` : " (board_plan)"}`);

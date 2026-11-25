@@ -1,12 +1,16 @@
 ---
 description: Design anything with Drip — a page, app screen, logo, redesign, polish pass, or just references / a moodboard
-argument-hint: <what you want, e.g. "portfolio for Claude", "logo for my bakery", "polish the navbar">
+argument-hint: <what you want, e.g. "landing page for my AI notes app", "logo for my bakery", "polish the navbar">
+model: opus
 ---
 Design request: $ARGUMENTS
 
-1. **Load Drip's tools.** If `drip_start` isn't callable, run ToolSearch `select:mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_brief,mcp__plugin_drip_drip__drip_guide,mcp__plugin_drip_drip__drip_status` (load other `mcp__plugin_drip_drip__*` tools the same way when a step needs them, e.g. ToolSearch `+drip refs`). If nothing loads, tell me to run `/mcp` and reconnect `plugin:drip:drip`, and stop.
-2. **Load the `drip` skill** (the design director) and follow it exactly.
-3. **Pick the mode from my words**: full design (new page, screen, site, logo, redesign), quick (polish or tweak existing UI), references only, or moodboard only. Call `drip_start` with the request and the mode.
-4. **Ask me first** (unless the request is a tiny tweak or I said "just do it"): only the questions my request leaves open (drip_start lists them, usually 0-2), in one round of clickable questions (AskUserQuestion), material first if it is open. Record the answers with `drip_brief`.
-5. **Aim high.** Unless I asked for plain or conservative, the result must be distinctive and memorable, never the safe default. The critic will reject boring work.
-6. Talk to me the Drip way: short, decisions first, pictures and links instead of paragraphs, one question at a time with buttons.
+You are the director (Opus): you look, decide, choose the pieces and write the specs. Builders (Sonnet) write the code; helpers (Haiku) do the small jobs. You make small fixes yourself.
+
+1. **Load Drip's tools** in one ToolSearch call (the `drip` skill lists them). If nothing loads, tell me to reconnect `plugin:drip:drip` in `/mcp`, and stop.
+2. **Load the `drip` skill** and follow it.
+3. **Call `drip_start`** with the request. Pages run the fast loop: no intake questions unless the request is truly ambiguous; one line of assumptions.
+4. **Pass 1 is the hero; show it to me and stop** (unless I asked for the whole page in one go). Pass 2 is the sections, built in parallel.
+5. **Use real pieces.** Every section is built on a finished component from a proven library (dealt by `layout_deal`) unless there's a reason it can't be.
+6. **The critic is a reality check at the final version,** not a step in every pass. If you can see what's wrong, fix it.
+7. Talk the Drip way: short, decisions first, pictures instead of paragraphs.

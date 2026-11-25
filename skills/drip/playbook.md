@@ -69,7 +69,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
     - a concrete `picture`;
     - a `layout`.
 
-    It renders each as a first-viewport comp at real size. The critic ranks the comps (`critic_prepare kind "directions"` → Agent `drip:critic` → `critic_record`). The weak ones are dropped; show the user the two strongest comps as images and let them pick (AskUserQuestion → `board_choose`). No moodboard page unless they ask for one (`board_open`). After the pick comes the design system: DESIGN.md and tokens, and on a big project (several pages, an app, many components) a living system page (`drip_kit template "system"`).
+    It renders each as a first-viewport comp at real size. Rank the comps yourself (the critic is a reality check on the final build, not on directions; ask it here only when the user wants it). Drop the weak ones; show the user the two strongest comps as images and let them pick (AskUserQuestion → `board_choose`). No moodboard page unless they ask for one (`board_open`). After the pick comes the design system: DESIGN.md and tokens, and on a big project (several pages, an app, many components) a living system page (`drip_kit template "system"`).
 15. Redo a comp before showing it if any of these is true:
     - it could be any brand's hero;
     - the picture isn't the subject's real thing;

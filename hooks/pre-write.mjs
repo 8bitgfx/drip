@@ -2,7 +2,7 @@
 // requirements are met (guides read, references studied, direction chosen for full loops).
 import fs from "node:fs";
 import path from "node:path";
-import { allow, isUiFile, loadConfig, loadState, looksVisual, missingBeforeUi, out, readInput, run } from "./lib.mjs";
+import { allow, directorTooBig, isUiFile, loadConfig, loadState, looksVisual, missingBeforeUi, out, readInput, run } from "./lib.mjs";
 
 run(async () => {
   const input = await readInput();
@@ -36,7 +36,12 @@ run(async () => {
   }
 
   const missing = missingBeforeUi(task, config);
-  if (!missing.length) return allow();
+  if (!missing.length) {
+    // The fast loop's roles: the main agent (Opus) directs and makes small fixes; builders (Sonnet) write the sections.
+    const big = directorTooBig(input, ti, task, config);
+    if (big) return deny(big);
+    return allow();
+  }
   // Logic-only edits to existing files are not design work; don't block them.
   if (!isNew && !looksVisual(ti)) return allow();
   deny(`Not yet: the ${task.size} design loop for "${task.title}" is missing:\n${missing.map((m) => `- ${m.need}: ${m.how}`).join("\n")}\nDo these, then write ${rel}.`);

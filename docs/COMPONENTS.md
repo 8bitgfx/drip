@@ -2,6 +2,16 @@
 
 Code: `mcp/src/core/indexer/` (walk, extract, index), `mcp/src/modules/components/{local,audit,drylint}.mjs`, `mcp/src/core/check.mjs`. The existing tools (`components_find`, `components_get`, `components_registries`, `components_catalogue`) are unchanged; they search the outside world, the new ones look at THIS project first.
 
+## Pieces (0.8.2)
+
+`data/pieces.json` holds about 160 free, finished pieces from proven libraries (Magic UI, React Bits, Cult UI, Smooth UI, Eldora, Aceternity, Animate UI, efferd's free blocks, sakuga-vfx), each with a role (nav, ground, headline, showcase, features, logos, numbers, proof, pricing, faq, cta, footer, button, scroll). They were checked against each library's live registry index on 2026-11-25. `layout_deal` deals one or two per section with a history so pages differ (`mcp/src/modules/parts/pieces.mjs`); WebGL grounds go only to software, gaming and tech pages. Every fast-loop `build_prepare` section names its piece or says why it is custom.
+
+- **The stack follows the pieces.** Software, gaming and tech pages are scaffolded as Vite + React + Tailwind v4 (`parts/react.mjs`). The dealt palette and type are mapped to the token names shadcn-style pieces expect (`bg-background`, `text-muted-foreground`, `bg-primary`...), and `components.json` knows the registries. Products, services and places stay one static page with taste-skill's kit. `stack` overrides it.
+- `pieces_install({ page, urls })` runs one shadcn CLI install (parallel builders would fight over npm). `drip_serve` runs Vite for a React page.
+- `drip_kits({ owned })` records the paid kits the user owns (asked once per machine, `~/.drip/kits.json`); deals then mention them.
+- Aceternity's registry items leave out their keyframes; builders add them to `src/index.css` from the library's page.
+- Keep the list current: rerun the check against the registries before adding names (each library's `r/registry.json`; efferd's `llms.txt` marks free blocks).
+
 ## Tools
 
 | Tool | Purpose |

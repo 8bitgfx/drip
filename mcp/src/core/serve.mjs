@@ -1,7 +1,9 @@
 // A tiny static server for previewing plain HTML/CSS builds without a dev server: one port per folder,
 // found free automatically (no clashes with whatever else runs), kept for the life of the MCP server.
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import http from "node:http";
+import net from "node:net";
 import path from "node:path";
 import { projectDir } from "./paths.mjs";
 
@@ -36,11 +38,65 @@ function start(root) {
   });
 }
 
-/** Serve `dir` (default: the project) and return its base URL. */
+/** A free port on 127.0.0.1. */
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const s = net.createServer();
+    s.once("error", reject);
+    s.listen(0, "127.0.0.1", () => {
+      const { port } = s.address();
+      s.close(() => resolve(port));
+    });
+  });
+}
+
+const children = new Set();
+process.once("exit", () => {
+  for (const c of children) try { c.kill(); } catch { /* gone */ }
+});
+
+/** A Vite page (vite.config.* beside src/): npm install if needed, then `vite` on a free port. */
+async function startVite(root) {
+  const { ensureInstalled } = await import("../modules/parts/react.mjs");
+  await ensureInstalled(root);
+  const port = await freePort();
+  const bin = path.join(root, "node_modules", "vite", "bin", "vite.js");
+  const child = spawn(process.execPath, [bin, "--port", String(port), "--strictPort", "--host", "127.0.0.1"], { cwd: root, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+  children.add(child);
+  child.unref();
+  let log = "";
+  await new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`Vite did not start in ${root}: ${log.slice(-400)}`)), 60000);
+    const on = (d) => {
+      log += d;
+      if (/ready in|Local:/i.test(log)) {
+        clearTimeout(t);
+        resolve();
+      }
+    };
+    child.stdout.on("data", on);
+    child.stderr.on("data", on);
+    child.once("exit", (code) => {
+      clearTimeout(t);
+      children.delete(child);
+      servers.delete(root);
+      reject(new Error(`Vite exited (${code}) in ${root}: ${log.slice(-400)}`));
+    });
+  });
+  return port;
+}
+
+export const isVite = (root) => ["vite.config.ts", "vite.config.js", "vite.config.mjs"].some((f) => fs.existsSync(path.join(root, f)));
+
+/** Serve `dir` (default: the project) and return its base URL. A Vite page runs its dev server (live reload). */
 export async function serveDir(dir) {
   const root = path.resolve(projectDir(), dir || ".");
   if (!fs.existsSync(root)) throw new Error(`No folder ${root}`);
-  if (!servers.has(root)) servers.set(root, start(root));
+  if (!servers.has(root)) {
+    const p = isVite(root) ? startVite(root) : start(root);
+    p.catch(() => servers.delete(root));
+    servers.set(root, p);
+  }
   const port = await servers.get(root);
   return `http://127.0.0.1:${port}`;
 }

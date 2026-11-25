@@ -27,8 +27,8 @@ export const DEFAULTS = {
     minOnSurface: 3,         // ...and at least this many must show the thing being built (real landing pages, app screens), not print or objects
     minBoardItems: 4,        // items on the moodboard before directions can be formed
     requireDirection: true,  // a direction must be chosen before UI is written, full loop
-    requireCritic: true,     // the drip:critic subagent ranks directions and must pass the build (full loop)
-    maxCriticRounds: 2,      // after this many build critiques, stop blocking and report what's left
+    requireCritic: true,     // full loop: one drip:critic reality check on the final build (directions are ranked by the director)
+    maxCriticRounds: 1,      // the critic is slow: one round at the final version, then hand off with what's left
     requireFitcheck: true,   // Claude can't end its turn after UI changes without a fit check
   },
 

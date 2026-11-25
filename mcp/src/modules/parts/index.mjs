@@ -12,6 +12,8 @@ import { serveDir } from "../../core/serve.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { vendor0 } from "../../core/setup.mjs";
 import { updateState } from "../../core/state.mjs";
+import { dealPieces, formatPieces, ownedKits, saveKits } from "./pieces.mjs";
+import { ensureInstalled, isReactPage, scaffoldReact, sh } from "./react.mjs";
 
 export const TASTE = { repo: "https://github.com/Leonxlnx/taste-skill.git", sha: "6c0b5c78f5d31776e2210305abaa210cdc0030bf" };
 export const tasteDir = () => path.join(vendor0(), "taste-skill");
@@ -291,7 +293,71 @@ export async function scaffoldPage({ out, kind, hero, palette, type, nav, footer
   return `Scaffolded ${path.relative(projectDir(), page)}: the dealt ${hero || "split"} hero with its CSS, palette ${palette || "?"}, type ${type || "?"}, ${nav}, ${close}, ${footer}, buttons ${buttons}, mark ${mark}; the kit in assets/. ${left} [brackets] to fill with the client's copy (system.js outlines any left in red). Sections go between <!-- drip:sections --> markers (page_stitch).`;
 }
 
+/** The React page: the same dealt palette, type and hero layout, as a Vite + Tailwind project for library pieces. */
+export async function scaffoldReactPage({ out, kind, hero, palette, type, radius, trade }) {
+  const skill = path.join(tasteDir(), "skills", "taste-skill");
+  const src = tasteAssets();
+  const dir = path.resolve(projectDir(), out);
+  const rel = path.relative(projectDir(), dir) || ".";
+  if (fs.existsSync(path.join(dir, "package.json")) || fs.existsSync(path.join(dir, "index.html"))) return `${rel} already has a page: not scaffolded (build on it, or deal into an empty folder).`;
+  fs.mkdirSync(dir, { recursive: true });
+  let head = "";
+  if (palette && type) head = await run(process.execPath, [path.join(skill, "scripts", "start.mjs"), "css", "--page", kind === "tech" ? "product" : kind, "--palette", palette, "--type", type, "--radius", radius], { cwd: dir }).catch(() => "");
+  fs.rmSync(path.join(dir, ".taste-skill"), { recursive: true, force: true });
+  const demo = hero && path.join(src, "layout", `hero-${hero}.html`);
+  let heroRecipe = null;
+  if (demo && fs.existsSync(demo)) {
+    const d = fs.readFileSync(demo, "utf8");
+    const section = (d.match(/<section class="hero[\s\S]*?<\/section>/) || [])[0] || "";
+    const style = ((d.match(/<style>([\s\S]*?)<\/style>/) || [])[1] || "").replace(/:root\s*\{[^}]*\}/, "");
+    heroRecipe = `<!-- The dealt hero layout "${hero}" from taste-skill (MIT). Follow its grid, sizes and motion; build it in Hero.tsx with Tailwind and the chosen pieces. Its copy is a demo: never ship it. -->\n<style>\n${style.trim()}\n</style>\n${section}\n`;
+  }
+  fs.writeFileSync(path.join(dir, "CREDITS-taste-skill.md"), `Palette, type and hero layout dealt by taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.\n`);
+  return scaffoldReact({ dir, rel, title: trade ? trade.replace(/\b\w/g, (c) => c.toUpperCase()) : "Page", head, radius, heroRecipe });
+}
+
 export function registerDeal(server, ctx) {
+  server.registerTool(
+    "pieces_install",
+    {
+      title: "Install library pieces into a React page",
+      description:
+        "Installs the chosen pieces (registry URLs from layout_deal's PIECES ON OFFER or components_find) into a React page in ONE shadcn CLI run, so parallel builders never fight over npm. " +
+        'Waits for the page\'s npm install first. Example: pieces_install({ page: "saas-award-4", urls: ["https://magicui.design/r/marquee.json", "https://reactbits.dev/r/Silk-TS-TW.json"] })',
+      inputSchema: {
+        page: z.string().describe("The React page folder (from layout_deal out)"),
+        urls: z.array(z.string().url()).min(1).max(20),
+      },
+    },
+    safe(async ({ page, urls }) => {
+      const dir = path.resolve(projectDir(), page);
+      const root = fs.existsSync(dir) && fs.statSync(dir).isFile() ? path.dirname(dir) : dir;
+      if (!isReactPage(root)) return text(`${page} is not a React page (no vite.config.ts + src/App.tsx). On a plain page use parts_get, or download a plain-HTML piece.`, true);
+      const bad = urls.find((u) => /["'`$&|;<>^%\s]/.test(u));
+      if (bad) return text(`Not a plain registry URL: ${bad}`, true);
+      await ensureInstalled(root);
+      const outp = await sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u) => `"${u}"`).join(" ")}`, root).catch((e) => `FAILED: ${e.message}`);
+      const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f) => f.replace(/\\/g, "/")))];
+      updateState((st) => {
+        if (st.task) st.task.pieces = [...new Set([...(st.task.pieces || []), ...urls])];
+      });
+      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path.relative(projectDir(), root)}.`}${files.length ? `\nFiles: ${files.join(", ")}` : ""}\nBuilders import them from @/components/... and use them as they are: restyle to the tokens and the client's content, never rewrite their motion.`, /^FAILED/.test(outp));
+    }),
+  );
+
+  server.registerTool(
+    "drip_kits",
+    {
+      title: "Record the paid UI kits the user owns",
+      description: "Asked once per machine: which paid UI kits the user owns (Aceternity Pro, Magic UI Pro, bencho Pro, Tailark, efferd Pro, Skiper UI, shadcnblocks, 21st.dev, HorizonX...). Deals then offer their pieces too. Pass [] for none. /drip:adapt can turn a kit into a niche pack.",
+      inputSchema: { owned: z.array(z.string()).describe("Kit names, or [] for none") },
+    },
+    safe(async ({ owned }) => {
+      saveKits(owned);
+      return text(owned.length ? `Recorded: ${owned.join(", ")}. Deals will offer their pieces (installed with the user's own login or token).` : "Recorded: no paid kits. Deals use the free libraries.");
+    }),
+  );
+
   server.registerTool(
     "layout_deal",
     {
@@ -304,11 +370,13 @@ export function registerDeal(server, ctx) {
         trade: z.string().describe("What is sold, in a few words, e.g. 'vineyard operations saas'"),
         has: z.array(z.enum(["photo", "ui", "film", "object", "setting"])).optional().describe("Material the page has: ui (its product UI), photo, film, object (a render or cut-out), setting (a game's world)"),
         directions: z.number().int().min(1).max(3).optional().describe("How many different sets (default 1; 3 for the board's directions)"),
-        out: z.string().optional().describe("A new page folder, e.g. 'saas-award-3': also writes index.html from the dealt set (taste-skill's starter with the dealt hero, palette, type, nav, close and footer, the kit in assets/), so you only fill in the copy and the visual"),
+        out: z.string().optional().describe("A new page folder, e.g. 'saas-award-3': also writes the page from the dealt set, so you only fill in the copy and the visual"),
         radius: z.enum(["sharp", "soft", "round"]).optional().describe("With out: sharp for fintech and dev tools, soft (default), round for consumer apps"),
+        stack: z.enum(["auto", "react", "html"]).optional().describe("With out: react = Vite + Tailwind so pieces from React libraries (Magic UI, React Bits, Cult UI, efferd...) install as they are; html = one static page with taste-skill's kit. auto (default): react for software, gaming and tech pages, html for products, services and places. The user's word wins (\"no build step\" = html)."),
       },
     },
-    safe(async ({ kind, trade, has, directions = 1, out: outDir, radius = "soft" }) => {
+    safe(async ({ kind, trade, has, directions = 1, out: outDir, radius = "soft", stack: stackIn = "auto" }) => {
+      const stack = stackIn === "auto" ? (["software", "gaming", "tech"].includes(kind) ? "react" : "html") : stackIn;
       await installTaste();
       const skill = path.join(tasteDir(), "skills", "taste-skill");
       const work = path.join(projectDir(), ".drip", "deal");
@@ -333,16 +401,25 @@ export function registerDeal(server, ctx) {
       const hero = (first.match(/^hero: ([a-z-]+)/m) || [])[1];
       const palette = (first.match(/^ {2}([a-z0-9-]+) {2,}[A-Z]/m) || [])[1];
       const summary = [hero && `hero ${hero}`, palette && `palette ${palette}`, kind].filter(Boolean).join(", ");
+      const htmlParts = stack === "html" ? Object.fromEntries(["effect", "ui", "component", "moment"].map((k) => [k, familyItems(k)])) : null;
+      const dealt = dealPieces({ kind, stack, historyFile: path.join(work, "pieces-history.json"), htmlParts });
+      const piecesText = formatPieces(dealt, { stack, owned: ownedKits() });
       updateState((st) => {
-        if (st.task) st.task.deal = { kind, trade, summary, at: new Date().toISOString() };
+        if (st.task) st.task.deal = { kind, trade, summary, stack, at: new Date().toISOString() };
+        if (st.task && outDir) st.task.page = { dir: outDir, stack };
       });
       if (outDir && sets[0]) {
         const s = sets[0];
         const type = (s.look.split(/^TYPE for/m)[1]?.match(/^ {2}([a-z0-9-]+) {2,}/m) || [])[1];
-        const made = await scaffoldPage({ out: outDir, kind, hero, palette, type, nav: s.nav, footer: s.footer, close: s.close, buttons: s.buttons, mark: s.mark, radius });
-        return text(`${out.join("\n\n")}\n\n${made}\nNext: write the hero's copy and its visual (the product UI in its frame: parts_get a ui fragment, or a picture), then fitcheck_shot({ url, hero: true }).`);
+        let made;
+        if (stack === "react") made = await scaffoldReactPage({ out: outDir, kind, hero, palette, type, radius, trade });
+        else made = await scaffoldPage({ out: outDir, kind, hero, palette, type, nav: s.nav, footer: s.footer, close: s.close, buttons: s.buttons, mark: s.mark, radius });
+        return text(
+          `${out.join("\n\n")}\n\n${piecesText}\n\n${made}\n` +
+            `Next (pass 1): choose the hero's pieces (and the nav's), then ONE build_prepare for the hero${stack === "react" ? " (with the nav: one builder, the pieces installed first with pieces_install)" : ""} and launch its drip:builder. While it builds, nothing else to write: the builder writes the code. Then fitcheck_shot({ url, hero: true }) once.`,
+        );
       }
-      return text(`${out.join("\n\n")}\n\nThe hero demos and section recipes: parts_get({ items: [{ kind: "hero", id: "<hero id>" }] }) copies the hero's demo; its README (layout-v4) has the recipes. Take the first palette and pairing unless they clash with the client's own colours.`);
+      return text(`${out.join("\n\n")}\n\n${piecesText}\n\nThe hero demos and section recipes: parts_get({ items: [{ kind: "hero", id: "<hero id>" }] }) copies the hero's demo; its README (layout-v4) has the recipes. Take the first palette and pairing unless they clash with the client's own colours.`);
     }),
   );
 }

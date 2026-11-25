@@ -78,7 +78,9 @@ test("evidence is bound to the files it reviewed: change them and the fit check,
   });
   assert.equal(state.needsCritic(t(), cfg), false);
   fs.writeFileSync(path.join(p, "DESIGN.md"), "# design\nanother rule");
-  assert.equal(state.needsCritic(t(), cfg), true, "the critic reviewed an earlier version");
+  // One critic round, at the final version: a passed critic is not re-run after small fixes, but the evidence says it is old.
+  assert.equal(state.needsCritic(t(), cfg), false, "the critic is a one-time reality check");
+  assert.ok(state.evidenceStale(t()).some((s) => /critic reviewed an earlier version/.test(s)));
   // drip_end refuses with stale evidence, unless the user accepts the open points
   const end = await call("drip_end", {});
   assert.equal(end.error, true);

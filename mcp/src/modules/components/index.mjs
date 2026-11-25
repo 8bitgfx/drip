@@ -60,7 +60,7 @@ async function registryItems(entry) {
       prev.variants++;
       continue;
     }
-    seen.set(base, { rank, variants: (prev?.variants || 0) + 1, library: entry.id, license: entry.license, name: it.name, base, title: it.title || base.replace(/([a-z])([A-Z])/g, "$1 $2"), description: it.description || "", deps: it.dependencies || [], url: entry.registry.item.replace("{name}", it.name) });
+    seen.set(base, { rank, variants: (prev?.variants || 0) + 1, library: entry.id, license: entry.license, name: it.name, base, title: it.title || base.replace(/([a-z])([A-Z])/g, "$1 $2"), description: it.description || "", deps: it.dependencies || [], url: entry.registry.item.replace("{name}", it.name), html: !(entry.stack || []).includes("react") });
   }
   return [...seen.values()];
 }
@@ -73,7 +73,7 @@ export function register(server, ctx) {
     {
       title: "Find a component to install",
       description:
-        "Search the curated libraries AND their live registries (shadcn, coss ui, Kibo, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI) for a component. " +
+        "Search the curated libraries AND their live registries (shadcn, coss ui, Kibo, Magic UI, Aceternity, React Bits, Motion Primitives, Animate UI, Cult UI, Smooth UI, Eldora, efferd, sakuga-vfx) for a component. " +
         "Describe the need: 'data table with filters', 'animated number counter', 'pricing toggle', 'command palette', 'marquee of logos'. Returns install commands. Prefer this over writing components from scratch.",
       inputSchema: {
         need: z.string().optional().describe("What it should do or look like. Optional with kind"),
@@ -100,7 +100,7 @@ export function register(server, ctx) {
         `Libraries that fit "${rawNeed || kind}":\n${libs.map(({ e }) => `- ${e.name} (${e.category}, ${e.price}, ${e.license}): ${e.what} Use when: ${e.useWhen}${e.avoidWhen ? ` Avoid: ${e.avoidWhen}` : ""}`).join("\n") || "- none matched by description"}\n\n` +
           `Installable components (${all.length} searched${kind ? `, kind ${kind}` : ""}):\n${items.map(({ it }) => {
             const heavy = it.deps.filter((d) => HEAVY.test(d));
-            return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` · needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` · deps ${it.deps.slice(0, 3).join(", ")}` : ""}\n    npx shadcn@latest add ${it.url}`;
+            return `- [${it.library}] ${it.title}${it.description ? `: ${it.description.slice(0, 120)}` : ""}${heavy.length ? ` · needs ${heavy.join(", ")} (heavy: lazy-load it, give a static fallback)` : it.deps.length ? ` · deps ${it.deps.slice(0, 3).join(", ")}` : ""}\n    ${it.html ? `plain HTML: download ${it.url} into the page and load it with a script tag` : `npx shadcn@latest add ${it.url}`}`;
           }).join("\n") || "- none matched; try other words, or components_registries for 500+ more registries"}\n\n` +
           (kind === "background" || kind === "hero" ? "A background is a material, not the idea: tint it to the palette, keep the text zone calm, cap it to the hero, pause it off-screen and under reduced motion. For a static, licence-free one: gradient_mesh.\n" : "") +
           "Licences: React Bits is MIT + Commons Clause (use in the product, never redistribute the source); Aceternity's free items allow commercial end products, not resale.\n" +

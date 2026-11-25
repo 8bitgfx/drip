@@ -12,11 +12,12 @@ import { setIdentity } from "./core/state.mjs";
 import { registerAll } from "./core/registry.mjs";
 import { runCli } from "./core/cli.mjs";
 
-const VERSION = "0.8.1";
+const VERSION = "0.8.2";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
-Page loop (fast, in passes): PASS 1 refs_gallery + layout_deal({ ..., out }) (writes the page from the dealt set) + parts_list + images_search in one message -> fill the hero's copy and visual -> fitcheck_shot hero:true -> show the user, stop. PASS 2 build_prepare + drip:builder per section in one message -> page_stitch -> fitcheck_shot once -> drip_end. The critic (critic_prepare -> Agent drip:critic -> critic_record) is a polish pass the user asks for. drip_start({ loop: "full" }) runs the old process (intake, roles, comps, plan, critic) for big brand work.
+Roles: you direct (look, decide, choose pieces, write specs, small fixes); drip:builder agents (Sonnet) write the code; drip:helper agents (Haiku) do small jobs.
+Page loop (fast, in passes): PASS 1 refs_gallery + layout_deal({ ..., out }) (deals the set and PIECES ON OFFER from proven libraries, writes the page: React + Tailwind for software/gaming/tech, static otherwise) in one message -> pieces_install -> ONE build_prepare for the hero -> builder -> fitcheck_shot hero:true -> show the user, stop. PASS 2 pieces_install -> ONE build_prepare with every section (each on a piece) -> all builders in one message -> page_stitch -> fitcheck_shot once -> drip_end. The critic (critic_prepare -> Agent drip:critic -> critic_record) is a reality check at the final version. drip_start({ loop: "full" }) runs the old process (intake, roles, comps, plan) for big brand work.
 Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
 Beyond the loop:
 - Memory: drip_start loads the project's approved direction and learned rules; record the user's reactions with feedback_record.

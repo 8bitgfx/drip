@@ -1,0 +1,134 @@
+// 0.8.2: the director / builder / helper roles, pieces dealt per section, the React page, stitching both stacks.
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+
+const tmp = (p) => fs.mkdtempSync(path.join(os.tmpdir(), `drip-${p}-`));
+process.env.DRIP_HOME = tmp("home");
+process.env.DRIP_NO_INSTALL = "1";
+const project = tmp("roles");
+process.env.CLAUDE_PROJECT_DIR = project;
+
+const { dealPieces, formatPieces, loadPieces, registryPatterns, pieceUrl, saveKits, ownedKits } = await import("../src/modules/parts/pieces.mjs");
+const { scaffoldReact, isReactPage } = await import("../src/modules/parts/react.mjs");
+const swarm = await import("../src/modules/swarm/index.mjs");
+const { directorTooBig } = await import("../../hooks/lib.mjs");
+const state = await import("../src/core/state.mjs");
+const { loadConfig } = await import("../src/core/config.mjs");
+
+const seq = (xs) => {
+  let i = 0;
+  return () => xs[i++ % xs.length];
+};
+
+test("every piece has an install URL from its library's registry, and a role", () => {
+  const pats = registryPatterns();
+  const all = loadPieces();
+  assert.ok(all.length > 100, `only ${all.length} pieces`);
+  for (const p of all) {
+    assert.ok(pieceUrl(p, pats), `${p.lib}/${p.name} has no registry pattern`);
+    assert.ok(p.role && p.look, `${p.lib}/${p.name} needs a role and a look`);
+  }
+  assert.equal(new Set(all.map((p) => `${p.lib}/${p.name}`)).size, all.length, "no duplicates");
+});
+
+test("a software page gets pieces for every section; places get no shaders; the history keeps pages apart", () => {
+  const hist = path.join(project, ".drip", "deal", "pieces-history.json");
+  const a = dealPieces({ kind: "software", stack: "react", historyFile: hist, rnd: seq([0.1, 0.7, 0.3, 0.9]) });
+  const roles = a.map((r) => r.role);
+  for (const r of ["nav", "ground", "headline", "showcase", "features", "proof", "footer"]) assert.ok(roles.includes(r), `no ${r}`);
+  for (const r of a) for (const p of r.options) assert.match(p.url, /^https:\/\//);
+  const b = dealPieces({ kind: "software", stack: "react", historyFile: hist, rnd: seq([0.1, 0.7, 0.3, 0.9]) });
+  const pick = (d) => d.find((r) => r.role === "ground").options.map((p) => p.name).join();
+  assert.notEqual(pick(a), pick(b), "the next page is dealt other grounds");
+  const place = dealPieces({ kind: "place", stack: "react" });
+  assert.ok(place.every((r) => r.options.every((p) => !p.heavy)), "no WebGL on a cafe page");
+  assert.ok(!place.some((r) => r.role === "ground"));
+  const html = dealPieces({ kind: "gaming", stack: "html", htmlParts: { effect: [{ id: "aurora", about: "soft aurora" }], ui: [], component: [], moment: [] } });
+  assert.ok(html.every((r) => r.options.every((p) => (p.stack || "react") === "html")), "a static page only gets plain-HTML pieces");
+  const txt = formatPieces(a, { stack: "react", owned: ["Aceternity Pro"] });
+  assert.match(txt, /PIECES ON OFFER/);
+  assert.match(txt, /pieces_install/);
+  assert.match(txt, /The user owns: Aceternity Pro/);
+});
+
+test("the paid kits are asked once and remembered", () => {
+  assert.equal(ownedKits(), null);
+  saveKits(["Magic UI Pro"]);
+  assert.deepEqual(ownedKits(), ["Magic UI Pro"]);
+});
+
+test("the React page: tokens mapped for shadcn pieces, registries known, drip markers in App.tsx", () => {
+  const dir = path.join(project, "rp");
+  const head = `<link href="https://fonts.googleapis.com/css2?family=Outfit&display=swap" rel="stylesheet">\n<style>\n:root {\n  --p-bg: #0f0f0f; --p-ink: #ffffff;\n  --font-display: "Outfit";\n}\n</style>`;
+  const msg = scaffoldReact({ dir, rel: "rp", head, radius: "round", heroRecipe: "<section class=\"hero\"></section>", install: false });
+  assert.match(msg, /React page/);
+  assert.ok(isReactPage(dir));
+  const css = fs.readFileSync(path.join(dir, "src", "index.css"), "utf8");
+  assert.match(css, /--p-bg: #0f0f0f/);
+  assert.match(css, /--background: var\(--p-bg\)/);
+  assert.match(css, /--radius: 20px/);
+  assert.doesNotMatch(css, /kit\/system\.css/, "the kit's .grid and .container clash with Tailwind");
+  assert.doesNotMatch(css, /--font-display: var\(--font-display\)/, "no self-reference");
+  assert.match(fs.readFileSync(path.join(dir, "index.html"), "utf8"), /class="dark"/);
+  const cj = JSON.parse(fs.readFileSync(path.join(dir, "components.json"), "utf8"));
+  assert.ok(cj.registries["@magicui"] && cj.registries["@efferd"]);
+  assert.ok(fs.existsSync(path.join(dir, "src", "sections", "hero.recipe.html")));
+});
+
+test("page_stitch: React sections are imported into App.tsx; a static page gets the files between markers", () => {
+  const dir = path.join(project, "rp");
+  fs.writeFileSync(path.join(dir, "src", "sections", "Features.tsx"), "export default function Features(){return <section id=\"features\"/>}");
+  fs.writeFileSync(path.join(dir, "src", "sections", "PricingTable.tsx"), "export default function PricingTable(){return null}");
+  const r = swarm.stitchPage("rp", ["features", "pricing-table", "faq"]);
+  assert.deepEqual(r.missing, ["faq"]);
+  const app = fs.readFileSync(path.join(dir, "src", "App.tsx"), "utf8");
+  assert.match(app, /import Features from "\.\/sections\/Features";/);
+  assert.match(app, /<PricingTable \/>/);
+  swarm.stitchPage("rp", ["features"]); // again: replaced, not duplicated
+  assert.equal((fs.readFileSync(path.join(dir, "src", "App.tsx"), "utf8").match(/import Features/g) || []).length, 1);
+  assert.doesNotMatch(fs.readFileSync(path.join(dir, "src", "App.tsx"), "utf8"), /PricingTable/);
+
+  const s = path.join(project, "sp");
+  fs.mkdirSync(path.join(s, "sections"), { recursive: true });
+  fs.writeFileSync(path.join(s, "index.html"), "<html><head></head><body><main><section class=\"hero\"></section>\n<!-- drip:sections -->\n<!-- /drip:sections -->\n</main></body></html>");
+  fs.writeFileSync(path.join(s, "sections", "proof.html"), "<section id=\"proof\">v1</section>");
+  swarm.stitchPage("sp/index.html", ["proof"]);
+  assert.match(fs.readFileSync(path.join(s, "index.html"), "utf8"), /v1/);
+  // A builder changes its file: the next shot re-stitches by itself.
+  const earlier = Date.now() / 1000 - 30;
+  fs.utimesSync(path.join(s, "index.html"), earlier, earlier);
+  fs.writeFileSync(path.join(s, "sections", "proof.html"), "<section id=\"proof\">v2</section>");
+  assert.ok(swarm.restitchIfStale({ stitch: { page: "sp/index.html", sections: ["proof"] } }));
+  assert.match(fs.readFileSync(path.join(s, "index.html"), "utf8"), /v2/);
+  assert.equal(swarm.restitchIfStale({ stitch: { page: "sp/index.html", sections: ["proof"] } }), null, "nothing newer: nothing to do");
+});
+
+test("builder prompts: the piece is used as it is, the stack decides the files, no self-shots", () => {
+  const react = swarm.buildPrompt({ section: "features", spec: "Bento of four live features with real numbers", piece: "https://magicui.design/r/bento-grid.json", page: swarm.pageOf(null, "rp"), task: null });
+  assert.match(react, /src\/sections\/Features\.tsx/);
+  assert.match(react, /AS IT IS/);
+  assert.match(react, /bg-background/);
+  assert.doesNotMatch(react, /fitcheck_shot with section/);
+  const html = swarm.buildPrompt({ section: "proof", spec: "One quote from the head of ops, with photo", piece: "custom: a single quote", page: swarm.pageOf(null, "sp/index.html"), task: null });
+  assert.match(html, /sections\/proof\.html, styles\/sections\/proof\.css/);
+  assert.match(html, /PIECE: none/);
+});
+
+test("the director writes small fixes; a big write in the fast loop goes to a builder", () => {
+  const cfg = loadConfig(project);
+  const task = state.newTask({ title: "landing", size: "full", surface: "landing", guides: [] });
+  task.loop = "fast";
+  const big = { content: Array.from({ length: 80 }, (_, i) => `<div class="row-${i}">x</div>`).join("\n") };
+  const small = { old_string: "a", new_string: "<h1 class=\"x\">Notes that write themselves</h1>" };
+  assert.match(directorTooBig({ agent_id: undefined }, big, task, cfg) || "", /You are the director.*build_prepare/s);
+  assert.equal(directorTooBig({}, small, task, cfg), null, "small fixes are the director's");
+  assert.equal(directorTooBig({ agent_id: "a1", agent_type: "drip:builder" }, big, task, cfg), null, "builders write");
+  assert.equal(directorTooBig({}, big, { ...task, swarm: false }, cfg), null, "roles off");
+  assert.equal(directorTooBig({}, big, { ...task, loop: undefined }, cfg), null, "the full loop is unchanged");
+  const running = { ...task, agents: [{ type: "drip:builder", at: new Date().toISOString() }] };
+  assert.equal(directorTooBig({}, big, running, cfg), null, "an older host that doesn't say who writes: a running builder gets the benefit of the doubt");
+  assert.match(directorTooBig({ agent_id: null }, big, running, cfg) || "", /director/, "a host that says it is the main agent is held to it");
+});

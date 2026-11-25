@@ -18,7 +18,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { kitDir, projectDir } from "../core/paths.mjs";
 import { setupNotes } from "../core/setup.mjs";
-import { swarmInstructions, swarmOn } from "./swarm/index.mjs";
+import { hostHasSubagents, swarmInstructions, swarmOn } from "./swarm/index.mjs";
+import { ownedKits } from "./parts/pieces.mjs";
 
 const SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
@@ -273,14 +274,18 @@ export function register(server, ctx) {
             (memCtx ? `PROJECT MEMORY (${t.memory.mode}): ${memCtx.text}\n` : "") +
             (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.\n` : "") +
             (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first.\n` : "") +
-            `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n\n` +
-            `FIRST CALLS (send the independent ones in one message):\n` +
-            `1. refs_gallery({ query: "<the product kind> landing hero" }) — look, take two or three decisions.\n` +
-            `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>" }): deals the set AND writes the page (the dealt hero with its CSS, palette, type, nav, close and footer, the kit), so you only write the copy and the visual.\n` +
-            `3. parts_list({ query: "<what the hero and sections need>" }) and images_search({ queries: [...] }).\n` +
+            `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n` +
+            (swarmOn(config, t) && hostHasSubagents()
+              ? `ROLES: you are the director. You look, decide, choose the pieces and write specs. drip:builder agents (Sonnet) write the code, drip:helper agents (Haiku) do small jobs (installs, downloads, copy swaps). You make fixes under 40 lines yourself; bigger writes are refused with a pointer to build_prepare.\n`
+              : "") +
+            (ownedKits() === null ? `ONCE: ask the user (AskUserQuestion, multiSelect, alongside the first calls) which paid UI kits they own (Aceternity Pro, Magic UI Pro, bencho Pro, Tailark, efferd Pro, Skiper UI, shadcnblocks, 21st.dev; or none), then drip_kits({ owned }). Asked once per machine.\n` : "") +
+            `\nFIRST CALLS (one message):\n` +
+            `1. refs_gallery({ query: "<the product kind> landing hero" }): look, take two or three decisions.\n` +
+            `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>" }): deals the set, the PIECES ON OFFER (finished components from proven libraries for every section) and writes the page (React + Tailwind for software, gaming and tech pages so library pieces install as they are; one static page for products, services and places; stack: "html" | "react" overrides).\n` +
+            `3. images_search({ queries: [...] }) for the hero's picture when it needs one.\n` +
             (t.whole
-              ? `Then the hero, fitcheck_shot hero: true, the sections (Swarm builders in parallel), one fitcheck_shot, drip_end, all in this turn: the user asked for the whole page in one go.\n\n`
-              : `PASS 1 (this turn): the hero only, fitcheck_shot hero: true, show the user the picture and stop: they may want another hero before any section is built. PASS 2 (when they say go): the sections in parallel, one fitcheck_shot, drip_end. The critic only when they ask for a polish pass.\n\n`) +
+              ? `Then the hero (one builder), fitcheck_shot hero: true, the sections (one build_prepare with every section, all builders in one message), page_stitch, one fitcheck_shot, drip_end, all in this turn: the user asked for the whole page in one go.\n\n`
+              : `PASS 1 (this turn): choose the hero's and nav's pieces, ONE build_prepare for the hero, one builder; then fitcheck_shot hero: true once, fix what you see, show the user the picture and stop: they may want another hero before any section is built. PASS 2 (when they say go): one build_prepare with every section (each on its piece), all builders in one message, page_stitch, one fitcheck_shot, drip_end. The critic is a reality check on the final version, not a pass.\n\n`) +
             bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
         );
       }
@@ -453,7 +458,7 @@ export function register(server, ctx) {
     {
       title: "Preview a static build",
       description:
-        "Serves a folder of plain HTML/CSS/JS on a free local port (no dev server, no port clashes) and returns the URL for fitcheck_shot, critic_prepare and the user. " +
+        "Serves a page on a free local port and returns the URL for fitcheck_shot, critic_prepare and the user: a folder of plain HTML/CSS/JS directly, a Vite page (layout_deal's React pages) through its own dev server with live reload, after npm install finishes. " +
         "fitcheck_shot and critic_prepare also accept a local .html path directly. Example: drip_serve({ dir: \"site\" }) -> http://127.0.0.1:53121/",
       inputSchema: { dir: z.string().optional().describe("Folder to serve (default: the project)") },
     },

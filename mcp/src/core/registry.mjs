@@ -59,7 +59,7 @@ const wrap = (server) =>
 export const CORE = new Set([
   "drip_start", "drip_status", "drip_guide", "drip_brief", "drip_end", "drip_skip", "drip_kit", "drip_serve", "drip_check", "drip_search", "drip_execute", "keys_open",
   "refs_site", "refs_gallery", "refs_view", "refs_search",
-  "layout_deal", "parts_list", "parts_preview", "parts_get",
+  "layout_deal", "parts_list", "parts_preview", "parts_get", "pieces_install", "drip_kits", "components_get",
   "images_search", "images_save", "fonts_compare", "fonts_search", "palette_check", "icons_search", "icons_get", "mockup_render",
   "components_find", "components_local_find",
   "fitcheck_shot", "fitcheck_done", "critic_prepare", "critic_record",
