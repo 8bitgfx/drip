@@ -19,6 +19,8 @@ own words, and loaded without a flash or a jump. Numbers line up. Headlines brea
 9. **Set the details.** Tabular numbers, wrapping, smoothing, punctuation, selection.
 10. **Look.** Screenshot at 375 and 1440 with real copy. Squint: can you tell heading, body, label and meta apart without reading? Is any line longer than ~75 characters? Any headline stub (one word alone on a line)?
 
+On a tweak: keep the project's faces; fix roles, sizes and spacing inside the existing scale.
+
 ## The craft
 
 ### Pairing in one paragraph
@@ -66,6 +68,7 @@ Full tables with line-height and tracking per step: `drip_guide type/scales`.
 - **Do** loosen tracking on all-caps (if you use it at all, for a wordmark or a short tag): +0.04 to +0.08em.
 - **Serif body** wants a touch more line-height than sans (+0.05).
 - **Light on dark** reads heavier: +0.05 line-height, +0.005em tracking, and drop a weight step (400 to 350) on variable fonts.
+- Measure: about 20ch for h1 and 30ch for h2.
 
 ### Weight and hierarchy
 

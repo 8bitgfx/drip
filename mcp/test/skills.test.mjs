@@ -44,13 +44,13 @@ test("SKILL.md tells the agent to call drip_guide for its topic", () => {
   }
 });
 
-test("every reference file is listed in its SKILL.md", () => {
+test("every reference file is listed in its guide", () => {
   for (const s of skills) {
     const refDir = path.join(skillsDir, s, "reference");
     if (!fs.existsSync(refDir)) continue;
-    const body = fs.readFileSync(path.join(skillsDir, s, "SKILL.md"), "utf8");
+    const body = fs.readFileSync(path.join(skillsDir, s, "guide.md"), "utf8");
     const topic = s === "drip" ? "loop" : s.replace(/^drip-/, "");
-    for (const f of fs.readdirSync(refDir).filter((x) => x.endsWith(".md"))) assert.ok(body.includes(`${topic}/${f.slice(0, -3)}`), `${s}/SKILL.md must list ${topic}/${f.slice(0, -3)}`);
+    for (const f of fs.readdirSync(refDir).filter((x) => x.endsWith(".md"))) assert.ok(body.includes(`${topic}/${f.slice(0, -3)}`), `${s}/guide.md must list ${topic}/${f.slice(0, -3)}`);
   }
 });
 

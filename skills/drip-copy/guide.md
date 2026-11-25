@@ -126,7 +126,7 @@ One tell proves little. Clusters and repetition are the signal. Full before/afte
 | Botsplaining | "Click the button below to get started" | Delete |
 | Leaked design notes | "(updates in real time)", "(powered by AI)" | Delete, or say it once next to the control it explains |
 | Staccato slogan | "Fast. Simple. Powerful." | One sentence that names the thing |
-| Ban words | unlock, seamless, elevate, empower, supercharge, robust | The fact the word stands for |
+| Ban words | unlock, unleash, seamless, elevate, empower, supercharge, effortless, revolutionize, cutting-edge, next-gen, game-changing, robust, leverage | The fact the word stands for |
 | Stock lines | "In today's fast-paced world", "Say goodbye to", "Whether you're X or Y" | Delete; start with the product |
 | Contrast frame | "It's not just a tool, it's a partner" | State the positive fact alone |
 | Rule of three | "Fast, simple and secure" | As many items as there really are |

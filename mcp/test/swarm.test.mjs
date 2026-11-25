@@ -76,9 +76,9 @@ test("swarm is on by default, off by config or task", () => {
   assert.equal(swarmOn({ swarm: false }, { swarm: true }), true);
 });
 
-test("the swarm skill and guide exist and are reachable as a topic", async () => {
-  const { listGuides } = await import("../src/core/guides.mjs");
-  assert.ok(listGuides().some((g) => g.topic === "swarm"));
+test("the swarm topic is the fast guide (Roles)", async () => {
+  const { readGuide } = await import("../src/core/guides.mjs");
+  assert.match(readGuide("swarm"), /## Roles/);
 });
 
 test("setupNotes: names what is missing, once per machine", () => {

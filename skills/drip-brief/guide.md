@@ -11,7 +11,7 @@ A good brief fits on one screen and settles what a design lead settles before op
 3. **Name the mode** from the requested surface (table below) and draft your reading of the brief: scene, job, uniquely-true line, material.
 4. **Find the frontier.** List what you still don't know whose answer would change the build. Drop everything the repo or the prompt answers. Keep the top 4 at most.
 5. **Ask one round** with AskUserQuestion (`drip_guide brief/questions`): options specific to this request, your recommendation first, "Other" open, loves/hates always included.
-6. **Record**: `drip_brief` with the answers. Unanswered or delegated parts go in `assumptions`.
+6. **Record**: `drip_brief` with the answers. Unanswered or delegated parts go in `assumptions`. Call it right after the answers, before any search.
 7. **Check brand truth** if a real brand is involved (`drip_guide brief/brand-truth`).
 8. **Write the brief** with the template below (under 10 lines) and show it in 3-4 lines, not the whole template. Then move to references (`drip_guide refs`).
 
@@ -46,6 +46,9 @@ One round, at most four, each with 2-4 options plus "Other". Skip any the reques
 | 4 | Anything you love or hate? | common answers for this kind of work + "No preference"; "Other" invites links and names | always |
 
 **Recommendation first.** Option 1 of every question is what you would choose, labelled "(Recommended)" with a reason of a few words. A user who agrees with you clicks four times and is done.
+
+- Never ask for colours, fonts, CSS values or "which style do you like?" in words: taste is decided on the board, against real references.
+- "Just do it", "decide for me" or a headless run: ask nothing, write the assumptions block and pass it as `assumptions`. That is not approval for paid or irreversible steps later.
 
 ### 3. The four feel axes
 

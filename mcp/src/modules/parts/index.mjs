@@ -118,8 +118,8 @@ export function register(server, ctx) {
     {
       title: "Browse ready-made eye candy",
       description:
-        "Lists taste-skill's ready-made parts, every family in ONE call by default: shader effects, scroll scenes, moments, live UI fragments, creative feature cards, diagram cards, objects and hero layouts. " +
-        "Use it while planning (board_plan), then parts_preview the candidates and parts_get the ones you use. Installs the parts library on first use (one git clone).",
+        "Lists taste-skill's plain-HTML pieces (called parts), every family in ONE call by default: shader effects, scroll scenes, moments, live UI fragments, creative feature cards, diagram cards, objects and hero layouts. " +
+        "For static pages; React pages use components_find / pieces_preview / pieces_install. Then parts_preview the candidates and parts_get the ones you use. Installs the library on first use (one git clone).",
       inputSchema: {
         kinds: z.array(z.enum(Object.keys(FAMILIES))).optional().describe("Default: every family"),
         query: z.string().optional().describe("Words to rank by, e.g. 'globe network', 'chat assistant', 'scroll reveal'"),

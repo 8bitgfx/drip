@@ -55,6 +55,9 @@ The critic writes findings as `P# [S0-S3 · evidence · confidence] location —
 - **Disagreeing.** If a finding contradicts the brief or the user's explicit choice (the user asked for exactly that), say so to the user in one line next to the quote. Never edit the critic's words or drop a finding silently.
 - **Direction-level problems** ("the direction itself is the default") are a question for the user, not a silent redesign. The direction is locked.
 - **After round 3** without a PASS: stop. Report the verdict, the score and the open findings. Offer one next step.
+- **Never defend the work to the critic.** `context` holds facts it can't see ("this is the settings screen"), never effort, intent or excuses.
+- **Show the user the critic's words, unsoftened:** verdict, score, its one-line summary and the worst problem if not passed. Your own scores never override a REVISE or REJECT.
+- **Never claim a pass nobody scored from a screenshot.**
 
 ## The self-critique rubric
 

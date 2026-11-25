@@ -35,6 +35,8 @@ Good reference work looks like this: from the brief, you write queries that come
 | Logo | 3-4 incl. subject world and type | 80-120 | 15-25 | 6-10 |
 | Polish | none | none | none | follow `DESIGN.md` |
 
+A full loop usually studies 8-12 references.
+
 ### 2. Round 1 is wide on purpose
 
 Converging early is how a board ends up as one trend in three colours. Before anything is picked:

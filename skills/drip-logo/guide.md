@@ -115,6 +115,8 @@ Where strokes meet, thin them so the joint doesn't clot. Gaps and strokes never 
   the offset to apply in a frame, and the `transform-origin` for animating it. Centre the body in the icon frame,
   align lockup text to the body's edges, lift it 1-3% (centred shapes read low), and check at 32px.
 
+- Build in solid black on the 256-unit viewBox with exact angles only (0/15/30/45/60/90°); colour comes last.
+
 ### Wordmarks: chosen, then made
 
 Start from a typeface picked for structure (stress, aperture, terminals, width), previewed with the real name in

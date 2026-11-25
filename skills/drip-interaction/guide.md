@@ -101,7 +101,7 @@ Labels always, Enter submits, validate on blur and submit, errors inline plus fo
 
 ### Drag and gestures
 
-Pointer capture, multi-touch guard, velocity-based dismissal, rubber-band damping past edges, `pointercancel` cleanup, a non-drag alternative. Full guide: `interaction/gestures`.
+Pointer capture, multi-touch guard, velocity-based dismissal (about 0.11 px/ms as well as distance), rubber-band damping past edges, `pointercancel` cleanup, a non-drag alternative. Full guide: `interaction/gestures`.
 
 ### Keyboard and frequency
 

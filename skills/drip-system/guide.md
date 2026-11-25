@@ -146,6 +146,7 @@ Product UI stays at 100-300ms. A `prefers-reduced-motion` block removes movement
 
 - **Do** say in one line what you kept: "Kept the shadcn tokens and Geist; added a warning colour, a 3-step shadow ladder and motion tokens."
 - **Don't** drop a fresh `tokens.css` with new names next to a working theme. Two systems is worse than one imperfect one.
+- A value used 3+ times with the same intent becomes a token; a token nobody reads is removed.
 
 ### When to call `drip_mark system`
 

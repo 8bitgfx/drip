@@ -84,6 +84,7 @@ Do: an inbox with nine rows where the selected one has a real sender, subject an
 - Centre labels on the letters (`text-box: trim-both cap alphabetic` where supported) so text beside icons and inside pills doesn't sit low.
 - A centred amount centres its digits; the currency sign hangs outside.
 - Faux app titles are `div`s, never `h1` to `h6`: the shot lives inside someone else's page outline.
+- No near-misses of 1 to 20px between edge distances: they match the gutter or are clearly past it.
 
 ### Colour, depth and grounds
 

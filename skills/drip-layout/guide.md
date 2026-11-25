@@ -21,6 +21,8 @@ what the page is and what to do.
 9. **Squint and screenshot.** `fitcheck_shot` at phone and desktop. Squint: primary, secondary, groups, in order? Any section that is just a heading and a paragraph? Any dead space beside short text?
 10. **Stress it.** Longest real headline, a 40-character name, an empty state, 3 items vs 30 items, 200% zoom, German-length strings (30-40% longer).
 
+On a tweak: keep the page's container, grid and scale; match the neighbours' spacing exactly.
+
 ## The craft
 
 ### The spacing scale
@@ -82,6 +84,7 @@ Tailwind v4: these are `p-1` ... `p-32` with the default 4px unit. Do not define
 - Mix gap sizes on long pages (a 96px gap after a light section, 144px before a big one); space should match the mass it frames. A 144px gap under a 200px section is a hole.
 - Pace: a dense section (a grid, a table) is followed by a calm one (a statement, a large visual).
 - A section that is only a heading and a paragraph is unfinished: give it its content (a visual, a list, real items), set the line as a statement, or merge it into a neighbour.
+- Density follows the surface: marketing sections 96-160px apart; product UI panels 16-24px padding with 32-48px between groups; tables 40-48px rows by default.
 
 ### Above the fold
 

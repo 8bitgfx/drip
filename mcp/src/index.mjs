@@ -14,21 +14,11 @@ import { runCli } from "./core/cli.mjs";
 import { loadConfig } from "./core/config.mjs";
 import { startRecorder } from "./modules/film/index.mjs";
 
-const VERSION = "0.8.7";
+const VERSION = "0.8.8";
 
-const INSTRUCTIONS = `Drip makes you work like a real product designer.
-Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
-Roles: you direct (look, decide, choose pieces, write specs, small fixes); drip:builder agents (Sonnet) write the code; drip:helper agents (Haiku) do small jobs.
-Page loop (fast, in passes): PASS 1 refs_gallery + layout_deal({ ..., out }) (deals the set and PIECES ON OFFER from proven libraries, writes the page: React + Tailwind for software/gaming/tech, static otherwise) in one message -> pieces_install -> ONE build_prepare for the hero -> builder -> fitcheck_shot hero:true -> show the user, stop. PASS 2 pieces_install -> ONE build_prepare with every section (each on a piece) -> all builders in one message -> page_stitch -> fitcheck_shot once -> drip_end. The critic (critic_prepare -> Agent drip:critic -> critic_record) is a reality check at the final version. drip_start({ loop: "full" }) runs the old process (intake, roles, comps, plan) for big brand work.
-Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
-Beyond the loop:
-- Memory: drip_start loads the project's approved direction and learned rules; record the user's reactions with feedback_record.
-- Reuse: search the project's own components first (components_local_find, components_plan for a page).
-- Match something the user points at: pattern_study, build your own, then pattern_compare.
-- Original art: art_generate, shader_hero, scene_render.
-- Code Mode: when you would make many calls in a row (palettes x fonts, refs across sites, checks across pages), drip_search finds tool signatures and drip_execute runs one sandboxed script that calls them.
-- Before hand-off: drip_check({ changed: true }) runs the project's lint, types and tests plus the slop lint.
-Lost? drip_status shows what is done and the exact next call. Examples: drip_guide examples/portfolio.`;
+const INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
+For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
+While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;
 
 if (process.argv.length > 2) {
   // CLI: a call is done once it has printed; the board / key servers would keep the process alive.

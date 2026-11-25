@@ -34,7 +34,7 @@ Brand logos (GitHub, Slack, Stripe) are not interface icons. They come from Simp
 | Large buttons, mobile tab bar | 16-18px | 24px |
 | Empty states, feature spot icons | - | 32-48px (sparingly) |
 
-- Render at the family's native grid (most are 24, Radix is 15, Heroicons also ship 20 and 16 versions). Scaling a 24 grid to 16 is fine; scaling to 19 blurs every line.
+- Render at the family's native grid (most are 24, Radix is 15, Heroicons also ship 20 and 16 versions). Scaling a 24 grid to 16 is fine; scaling to an odd size like 19px or 22px blurs every line.
 - Inline icons next to text: `1em` to `1.25em` of the text's size.
 - Test every icon at its smallest render size. A detailed glyph at 16px becomes a smudge; choose the simpler one.
 

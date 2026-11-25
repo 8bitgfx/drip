@@ -112,6 +112,7 @@ Illustration earns its place when the brand already owns a style, when the subje
 
 - **Do:** a set of four spot illustrations generated from one style block, palette limited to the system's ink, paper and accent.
 - **Don't:** a different stock illustration style per section, characters with purple skin, isometric cities.
+- No drawn SVG scenes (people, plants, buildings), no unDraw/Humaaans-style packs, no floating 3D blobs, no stock faces posing as customers.
 
 ### 7. Licences
 
@@ -127,6 +128,8 @@ Illustration earns its place when the brand already owns a style, when the subje
 | Found on the web, unknown | No | - | Ask the owner or drop it |
 
 `images_save` writes the credit to the licence log. Show credits as one quiet line in the footer linking to a credits list, never a caption under each picture.
+
+- Never hotlink and never write an image URL from memory: every found image goes through `images_save` so its source, licence and credit are logged.
 
 ### 8. Performance
 

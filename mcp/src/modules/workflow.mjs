@@ -71,8 +71,8 @@ function requiredGuides(size, surface, task, mode, packs) {
   if (mode === "refs") g.push("refs");
   else if (mode === "board") g.push("refs", "moodboard");
   else if (mode === "logo") g.push("logo");
-  else if (PERSUADE(surface, mode)) g.push("playbook");
-  else if (size === "full") g.push("rules/hard-rules", { app: "app", mobile: "mobile", component: "components", readme: "readme" }[surface] || "layout");
+  else if (PERSUADE(surface, mode)) g.push("taste", "playbook");
+  else if (size === "full") g.push("taste", "rules/hard-rules", { app: "app", mobile: "mobile", component: "components", readme: "readme" }[surface] || "layout");
   else {
     const topics = Object.entries(TOPIC_WORDS).filter(([, re]) => re.test(task)).map(([t]) => t);
     g.push("rules/hard-rules", ...(topics.length ? topics.slice(0, 2) : ["polish"]));
@@ -222,7 +222,7 @@ export function register(server, ctx) {
       const sf = surface || (m === "logo" ? "brand" : g.surface);
       const pk = packs || matchPacks(task).map((p) => p.id);
       const fast = m === "design" && s === "full" && (loop || process.env.DRIP_LOOP || ctx.config().loop || "fast") === "fast" && !/\b(full (process|loop)|moodboard|three directions|3 directions|brand (book|system|identity))\b/i.test(task);
-      const guides = fast ? ["fast", ...pk.filter((p) => !isProjectPack(p)).map((p) => `pack:${p}`)] : requiredGuides(s, sf, task, m, pk);
+      const guides = fast ? ["taste", "fast", ...pk.filter((p) => !isProjectPack(p)).map((p) => `pack:${p}`)] : requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
       if (fast) {
         t.loop = "fast";
@@ -277,19 +277,12 @@ export function register(server, ctx) {
             (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.\n` : "") +
             `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n` +
             (pk.filter((p) => !isProjectPack(p)).length ? `Niche packs on: ${pk.filter((p) => !isProjectPack(p)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.\n` : "") +
-            (swarmOn(config, t) && hostHasSubagents()
-              ? `ROLES: you are the director. You look, decide, choose the pieces and write specs. drip:builder agents (Sonnet) write the code, drip:helper agents (Haiku) do small jobs (installs, downloads, copy swaps). You make fixes under 40 lines yourself; bigger writes are refused with a pointer to build_prepare.\n`
-              : "") +
-            (ownedKits() === null ? `ONCE: ask the user (AskUserQuestion, multiSelect, alongside the first calls) which paid UI kits they own (Aceternity Pro, Magic UI Pro, bencho Pro, Tailark, efferd Pro, Skiper UI, shadcnblocks, 21st.dev; or none), then drip_kits({ owned }). Asked once per machine.\n` : "") +
+            (swarmOn(config, t) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") +
+            (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).\n` : "") +
             `\nFIRST CALLS (one message):\n` +
-            `1. refs_gallery({ query: "<the product kind> landing hero" }): look, take two or three decisions.\n` +
-            `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>" }): deals the set, the PIECES ON OFFER (finished components from proven libraries for every section) and writes the page (React + Tailwind for software, gaming and tech pages so library pieces install as they are; one static page for products, services and places; stack: "html" | "react" overrides).\n` +
-            `3. images_search({ queries: [...] }) for the hero's picture when it needs one.\n` +
-            `Pick pieces by looking: components_find({ need }) searches ~3,300 free components (landing and app), pieces_preview shows several on one sheet. An app screen: layout_deal({ ..., surface: "app" }).\n` +
-            `Once the page is served (drip_serve), drip_film gives a live link: give it to the user so they can watch the agents build; drip_end makes the montage.\n` +
-            (t.whole
-              ? `Then the hero (one builder), fitcheck_shot hero: true, the sections (one build_prepare with every section, all builders in one message), page_stitch, one fitcheck_shot, drip_end, all in this turn: the user asked for the whole page in one go.\n\n`
-              : `PASS 1 (this turn): choose the hero's and nav's pieces, ONE build_prepare for the hero, one builder; then fitcheck_shot hero: true once, fix what you see, show the user the picture and stop: they may want another hero before any section is built. PASS 2 (when they say go): one build_prepare with every section (each on its piece), all builders in one message, page_stitch, one fitcheck_shot, drip_end. The critic is a reality check on the final version, not a pass.\n\n`) +
+            `1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }).\n` +
+            `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).\n` +
+            `Then the loop below from step 3 (choose by eye, build, check once).${t.whole ? " The user asked for the whole page in one go: both passes in this turn." : " Stop after pass 1 and show the hero."}\n\n` +
             bodies.map(([x, b]) => `=================== GUIDE: ${x} ===================\n${b}`).join("\n\n"),
         );
       }

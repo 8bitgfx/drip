@@ -1,49 +1,35 @@
-# The Drip loop
+# The Drip map
 
-AI-made UI looks AI-made because it skips straight to code with the defaults it has seen most often, sets them small, then grades itself kindly. Drip makes you decide with evidence, compose the first viewport before the CSS, build at real scale, and put an independent critic between your work and the user. The craft lives in the **playbook** (`drip_guide playbook`); this page is the map.
+AI-made UI looks AI-made because it skips straight to code with the defaults it has seen most often, sets them small, then grades itself kindly. Drip makes you look at proven work first, build from finished pieces at real scale, and measure the result. What good looks like: `taste.md`. In what order: `fast.md` (pages, default) or `playbook.md` (the full loop).
 
 ## Modes
 
 | The request | Mode | Loop |
 |---|---|---|
-| New page, site, portfolio, landing; "redesign", "make it less AI" | `design` | full, by the playbook |
-| App screen, dashboard, component | `design` | full: hard rules + the surface guide (`app`, `mobile`, `components`) |
-| Logo, wordmark, mark, identity | `logo` | full (`drip_guide logo`) |
+| New page, site, landing, app screen, dashboard; "redesign", "make it less AI" | `design` | **fast** (`fast.md`): look, deal, pieces, builders, one check per pass |
+| Big brand work, or the user asks for the full process / directions / a moodboard | `design`, `loop: "full"` | full (`playbook.md`): intake, references by role, comps, a system, a plan |
+| Logo, wordmark, mark, identity | `logo` | `drip_guide logo` |
 | "Find me references for…" | `refs` | stops after the study summary |
-| "Make me a moodboard / some directions" | `board` | stops after the user picks |
-| A spacing, colour, hover state, one section, a label | `polish` | quick: change → lint → `fitcheck_done` |
+| A spacing, colour, hover state, one section, a label | `polish` | quick: change, lint, check |
 
-When in doubt between polish and design on something the user sees first (a hero, a landing page, an onboarding screen), choose **design**. `/drip:critic` reviews any URL, file or image on its own; `/drip:adapt` builds a niche pack; `/drip:settings` holds status, keys, skip and stop.
+When in doubt between polish and design on something the user sees first (a hero, a landing page), choose design. `/drip:critic` reviews any URL, file or image on its own; `/drip:adapt` builds a niche pack; `/drip:settings` holds status, keys, skip and stop.
 
 ## Project memory
-
-A project keeps its design memory in `.drip/` (master board, approved direction, rules, measured tokens, a generated project skill). `drip_start` loads it for design tasks and says what is inherited and what the task still has to do; `project_context` shows it any time. Evidence is bound to what it reviewed: a fit check, shot or critic verdict goes stale when the UI files, DESIGN.md or direction change, and `drip_end` (and the Stop hook) also catch UI edits Drip never saw. See `drip_guide moodboard` (master board, fidelity vs redesign, feedback) and docs/PROJECT_MEMORY.md.
+A project keeps its design memory in `.drip/` (master board, approved direction, rules, a generated project skill). `drip_start` loads it and says what is inherited. Evidence is bound to what it reviewed: a fit check or critic verdict goes stale when the UI files change, and `drip_end` and the Stop hook catch UI edits Drip never saw. Niche packs (`/drip:adapt`) switch on by their keywords and learn from the user's reactions.
 
 ## How lazy agents fail, and Drip's answer
 
 | Shortcut | What it produces | Drip's answer |
 |---|---|---|
-| Guesses the brief, never asks about material | Pages with nothing to show | Intake asks about material first; `drip_brief` is required |
-| Studies only one kind of reference | Docs and repo pages give no ambition; concept shots alone give 13px labels and 89px heroes | Taste pass from galleries and Dribbble for the idea, reality pass with `refs_site` for the sizes; never docs or GitHub pages |
-| Same faces and colours every project | Bricolage, Fraunces, Instrument Serif, a yellow or cream ground, again | `fonts_search` / `fonts_compare` for THIS subject; `board_directions` refuses what Drip used in other projects |
-| Directions as palettes and adjectives | A choice that never shows a page | `board_directions` renders each as a first-viewport comp at real size |
-| Writes a free-form type scale | 12-13 sizes, body at 15px, mono labels | `kit/base.css`: seven roles and no eighth; the page gate counts sizes |
-| Builds the whole page, then measures | Fixing scale means rebuilding | The hero gate runs after nav + hero, before any section |
-| Pads sections to fill the screen | Screens of ground with a heading on them | Height follows content; the gate fails a screen more than half empty |
-| No pictures | A wall of type on a flat ground | Every section shows something; two picture-less sections can't touch |
-| Grades its own build kindly | A sloppy page shipped with a "pass" | The critic must pass the build (one round plus one confirming round) |
-| Tasteful-safe output nobody asked for | Cream, terracotta, a polite serif | Polished by default (a rich picture, calm type); the critic caps Appeal |
+| Skips looking | The default page every model makes | No builder starts before 4 references and a look at the pieces (`build_prepare` refuses) |
+| Hand-rolls every part | Flat, untuned components | Finished pieces from proven libraries, used as they are |
+| Freestyles sizes | 12 sizes, 15px body | The system's type roles and the page gate's count |
+| Builds the whole page, then measures | Fixing scale means rebuilding | The hero check runs before any section |
+| No pictures | A wall of type on a flat ground | Every screen shows something real |
+| Invents facts | "10,000+ teams", "ready in 38s" | Unknowns are `[brackets]` |
+| Grades its own build kindly | A sloppy page shipped as "done" | The measured fit check, and the critic at the final version |
 
-## Ambition by mode
-- **Persuade / Experience** (landing, portfolio, showcase): beautiful and polished. One rich picture carries the first screen (the product, a fan of real cards, a render), calm confident type, soft light and depth, smooth motion, and one eye-candy moment per screen. The critic expects *Beautiful*.
-- **Operate** (apps, dashboards): ambition shows as precision: density, alignment, speed, states, keyboard paths. Familiar patterns win.
+## Ambition by surface
+- **Persuade / Experience** (landing, portfolio, showcase): beautiful and polished, one rich picture per screen, one eye-candy moment.
+- **Operate** (apps, dashboards): precision: density, alignment, states, keyboard paths. Familiar patterns win.
 - **Read** (docs, articles): typography and rhythm first.
-
-## Done when
-- [ ] The brief holds the user's answers, with material first.
-- [ ] 4+ studies, most of them shipped examples of the surface, carry measured values.
-- [ ] 2 directions that differ in idea were shown as comps, ranked by the critic before the user saw them; the choice is locked.
-- [ ] `kit/base.css` and DESIGN.md (with the FIRST VIEWPORT in numbers) exist.
-- [ ] The hero gate passed before the sections, and the page gate passed after them.
-- [ ] The critic passed the build (or its rounds ran out and what's left is listed).
-- [ ] The hand-off quotes the critic, lists every assumption and every slot.

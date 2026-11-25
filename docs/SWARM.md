@@ -21,4 +21,4 @@ context; cheap subagents do the reading, building and measuring. Gates, state an
 Claude Code (and the Cowork plugin) load `agents/*.md` from the plugin, model in the frontmatter. Other hosts are not given the swarm agents:
 they fall back to the single-agent loop, which the `*_prepare` tools still support (see [HOSTS.md](HOSTS.md)).
 
-The skill and its guide: `skills/drip-swarm/` (`drip_guide swarm`).
+The roles are in `skills/drip/fast.md` (Roles; `drip_guide fast`).

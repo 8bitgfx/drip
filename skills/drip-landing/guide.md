@@ -91,6 +91,7 @@ Sizes, gutters, columns and the type roles are the playbook's (rules 16-21) and 
 - **Each heading level at least 1.25 times the next.** Nothing under 13px. `drip_guide type` for pairing and scale.
 - **One button pair** (filled primary, quiet secondary), one card style, one radius scale, one link style across the page.
 - **Two boxes deep at most:** a card holds a panel, a panel holds UI. Never a card in a card in a card.
+- One container (max 1200 to 1280px), one 12-column grid, equal left and right edges; nothing centred wider than half the container except a centred hero.
 
 ### Conversion basics
 
@@ -113,6 +114,8 @@ Sizes, gutters, columns and the type roles are the playbook's (rules 16-21) and 
 | Cancel by phone only | Cancel in settings, said in the FAQ |
 | Fake live counters ("1,204 people viewing") | Real, dated figures or none |
 | Newsletter modal on load, chat bubble, exit-intent popup | One newsletter field in or above the footer |
+
+- No confirmshaming, and cancelling is as easy as joining.
 
 ### Motion
 

@@ -49,7 +49,7 @@ would be equally true for any niche, it doesn't belong.
    one concrete line, plus 1-3 links.
 7. **Public skills to fuse.** Search skills.sh and GitHub for the niche. Read the ones with substance, check each
    licence, and take ideas (permissive: adapt with credit; none: ideas only).
-8. **Access** for sources behind logins, if the user offered any (`drip_guide adapt/access`).
+8. **Access** for sources behind logins, if the user offered any (`drip_guide adapt/access`). Never passwords or codes, never scraping, follow site terms.
 9. **Write the pack** with `pack_create` and `pack_write`, file by file, using the fixed skeleton
    (`drip_guide adapt/pack-skeleton`). Run the swap test on every rule as you write it.
 10. **Critic review.** `critic_prepare({ kind: "pack", targets: ["<id>"] })` → Agent `drip:critic` with the

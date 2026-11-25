@@ -36,6 +36,8 @@ source are saved so the next task reuses it.
 8. **Refine** and compare again until no high deltas remain. For third-party inspiration, small pixel differences are expected and fine; a missing state, a missing Escape, a wrong easing family are not.
 9. **Save.** `pattern_save({ id, files: [your component files], tags, status: "proposed" })`. Show the user; when they accept it, save again with `status: "approved"`.
 
+Study only what is publicly visible in the browser. Never log in to, or work around, a paywall or access control.
+
 ## What a pass looks like
 
 | Area | Pass |

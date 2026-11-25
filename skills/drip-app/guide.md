@@ -31,6 +31,7 @@ Good app UI disappears into the task. Someone fluent in the category trusts it o
 - `font-variant-numeric: tabular-nums` on every number that can change or align: tables, KPIs, timers, prices.
 - Sentence case everywhere. No tracked uppercase on table heads or buttons.
 - Prose (help text, docs panels) still keeps a 60 to 75ch measure; tables may run wide.
+- Product UI sets a fixed rem scale on a ratio of 1.125 to 1.2: no fluid `clamp()` headings, and no display face on labels, buttons or data.
 
 Do: 14px body, 13px meta, two weights. Don't: a display serif on the sidebar, 11px grey body text, five font sizes in one card.
 
@@ -55,6 +56,7 @@ Do: 14px body, 13px meta, two weights. Don't: a display serif on the sidebar, 11
 - **Content width:** forms and settings max 640 to 720px; tables and dashboards use the full width; detail panes 360 to 480px.
 - **Responsive is structural:** the sidebar collapses to a rail or a menu under ~1024px, a list + detail becomes list then detail, tables restack or pin their first column. No fluid type.
 - **Overlays escape their container.** Menus, popovers and tooltips render in a portal, the Popover API or `<dialog>`, never inside an `overflow: hidden` ancestor that clips them.
+- **Charts start from the data's shape:** one value is a stat, a series over time a line, categories bars, more than about 7 categories a table. No pie walls, no gauge rows, no dual y-axes (`app/charts`).
 
 ### Navigation
 
@@ -77,6 +79,7 @@ Do: 14px body, 13px meta, two weights. Don't: a display serif on the sidebar, 11
 - **Inputs:** visible label above, constant border width, focus ring as `outline`, helper line reserved below so errors don't shift the layout.
 - **Selection controls:** checkbox for independent choices, radio or segmented control for 2 to 5 exclusive ones, select for 6 to 15, combobox with search above that. A switch only for settings that apply immediately.
 - **Saving model:** pick one per screen and say it. Settings that apply instantly confirm with a quiet inline "Saved"; multi-field edits use an explicit Save with a sticky bar that appears when the form is dirty, plus an unsaved-changes guard.
+- **Sizes:** controls are 32 to 40px tall on desktop with a 44px hit area on touch; two button sizes per screen at most.
 
 ### Overlays
 
@@ -89,7 +92,7 @@ Do: 14px body, 13px meta, two weights. Don't: a display serif on the sidebar, 11
 | Full page | Anything long, multi-step or worth linking | Its own route with breadcrumbs |
 | Toast | Confirming something whose result is off screen | Bottom corner, 4 to 6s, Undo when reversible, pauses on hover; never for errors that need action |
 
-Ask before each modal: could this be inline editing, a disclosure, a popover or a pane? A modal is the last answer.
+Ask before each modal: could this be inline editing, a disclosure, a popover or a pane? A modal is the last answer. Reversible actions run at once with Undo; irreversible ones confirm and name what will be destroyed.
 
 ### Permissions-driven UI
 

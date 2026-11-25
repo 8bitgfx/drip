@@ -17,6 +17,8 @@ coloured "to add interest": every colour has a role, and you could say what it i
 7. **Apply with dosage.** Build one real screen. Squint at it: the accent should land on the primary action and the current location, nowhere else.
 8. **Hand the tokens to the system step** (`drip_guide system`) and record the palette in DESIGN.md with named rules.
 
+On a tweak: use the existing tokens; never add a new hue to fix one element.
+
 ## The craft
 
 ### OKLCH in one table
@@ -49,6 +51,8 @@ coloured "to add interest": every colour has a role, and you could say what it i
 - **Do** keep hue fixed and move L to make a ramp, lowering C near white and near black (high chroma at L 97% or L 15% looks fluorescent or muddy).
 - **Don't** build ramps in HSL. HSL "50% lightness" yellow and blue differ wildly in perceived brightness; OKLCH L does not.
 - **Do** expect some hues to clip: very saturated cyan, green and yellow at mid L may fall outside sRGB. Browsers map them, but check the hex `palette_generate` prints.
+- Tint greys toward the page hue with a chroma of 0.004-0.015, or keep them pure grey; never default Tailwind `slate`/`gray` as a brand.
+- In dark mode the accent loses 0.02-0.04 chroma and gains 5-10% L; shadows become rings.
 
 ### The four layers
 

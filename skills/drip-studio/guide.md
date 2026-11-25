@@ -24,6 +24,10 @@ behind the type, and it loads fast. Bad studio work is a default gradient, a spi
 5. **Check it in place.** Put it in the page and `fitcheck_shot`. Text over art must still pass contrast at 375 and 1440 px; art must not carry the information.
 6. **Ship it light.** SVG for line art (run SVGO if it is installed), WebP for raster under about 300 KB for a hero, a poster still under every shader, `loading="lazy"` below the fold, reduced motion honoured.
 
+- Software WebGL is fine for stills and loops; do not promise 60 fps live shaders from a render. Say what it costs on a low-end phone and give the static fallback.
+- Never a 4 MB hero: SVG for line and pattern art, WebP for raster, a still as the poster under any shader or loop.
+- Downloaded 3D assets (`assets_3d_save`) carry their source in `provenance.json` and `.drip/assets.json`; leave both in place.
+
 ## art_generate
 
 Layers (stack them; later layers sit on top of earlier ones):

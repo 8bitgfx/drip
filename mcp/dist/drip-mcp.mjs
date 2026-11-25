@@ -7572,9 +7572,9 @@ export default function App() {
   w("src/sections/Nav.tsx", `export default function Nav() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6">
+      <div className="wrap flex h-[var(--nav)] items-center justify-between">
         <a href="#" className="font-display text-lg">[Brand]</a>
-        <a href="#" className="rounded-[var(--radius)] bg-primary px-4 py-2 text-sm text-primary-foreground">[Start]</a>
+        <a href="#" className="press rounded-[var(--radius)] bg-primary px-4 py-2 text-small text-primary-foreground">[Start]</a>
       </div>
     </header>
   );
@@ -7582,8 +7582,8 @@ export default function App() {
 `);
   w("src/sections/Hero.tsx", `export default function Hero() {
   return (
-    <section id="hero" className="mx-auto flex min-h-[80vh] max-w-[1280px] flex-col justify-center px-6">
-      <h1 className="font-display text-6xl tracking-tight">[The hero headline]</h1>
+    <section id="hero" className="wrap flex min-h-[80vh] flex-col justify-center">
+      <h1 className="enter font-display text-display">[The hero headline]</h1>
     </section>
   );
 }
@@ -7591,7 +7591,7 @@ export default function App() {
   w("src/sections/Footer.tsx", `export default function Footer() {
   return (
     <footer className="border-t border-border/60 py-12">
-      <div className="mx-auto max-w-[1280px] px-6 text-sm text-muted-foreground">[Brand] \xB7 [year]</div>
+      <div className="wrap text-small text-muted-foreground">[Brand] \xB7 [year]</div>
     </footer>
   );
 }
@@ -7664,6 +7664,48 @@ ${root}
 @utility font-display {
   font-family: var(--font-display);
 }
+
+/* ---- Drip's system (taste-skill's numbers): the only sizes, spacing and motion on the page ---- */
+:root {
+  --t-label: 13px; --t-small: 14px; --t-body: 16px; --t-lead: 18px; --t-h3: 24px;
+  --t-h2: clamp(30px, 1.72vw + 23.3px, 48px);
+  --t-h1: clamp(38px, 3.24vw + 25.4px, 72px);
+  --t-display: clamp(48px, 6.2vw + 24px, 112px);
+  --t-stat: clamp(28px, .952vw + 24.29px, 38px);
+  --nav: 72px; --padt: 120px; --padb: 72px; --hgap: 48px;
+  --container: 1280px; --gut: 80px; --gutter: 24px; --head-gap: 48px; --card-gap: 24px;
+  --ease: cubic-bezier(.2, .8, .2, 1); --ease-enter: cubic-bezier(.22, 1, .36, 1);
+  --m-in: 150ms; --m-out: 120ms; --m-press: 90ms; --m-image: 600ms;
+}
+@media (max-width: 639px) { :root { --nav: 56px; --padt: 96px; --padb: 48px; --hgap: 40px; --gut: 24px; --gutter: 12px; --card-gap: 12px; --head-gap: 32px; --t-lead: 17px; } }
+@media (min-width: 640px) and (max-width: 1023px) { :root { --gut: 48px; } }
+@media (min-width: 1024px) { :root { --t-lead: 20px; --t-h3: 28px; } }
+
+@theme inline {
+  --text-label: var(--t-label); --text-label--line-height: 1.35;
+  --text-small: var(--t-small); --text-small--line-height: 1.45;
+  --text-body: var(--t-body); --text-body--line-height: 1.55;
+  --text-lead: var(--t-lead); --text-lead--line-height: 1.5;
+  --text-h3: var(--t-h3); --text-h3--line-height: 1.2;
+  --text-h2: var(--t-h2); --text-h2--line-height: 1.1;
+  --text-h1: var(--t-h1); --text-h1--line-height: 1.04;
+  --text-display: var(--t-display); --text-display--line-height: 0.98;
+  --text-stat: var(--t-stat); --text-stat--line-height: 1;
+}
+
+/* one column for header, sections and footer: the same edges everywhere */
+@utility wrap { width: 100%; max-width: calc(var(--container) + 2 * var(--gut)); margin-inline: auto; padding-inline: var(--gut); }
+/* one section rhythm: padded --padt above and --padb below */
+@utility section-pad { padding-top: var(--padt); padding-bottom: var(--padb); }
+@utility head-gap { margin-bottom: var(--head-gap); }
+/* the hover layer: cards lift 2px, buttons step 1px and press, photos scale 1.02 inside their frame */
+@utility lift { transition: transform var(--m-out) var(--ease), box-shadow var(--m-out) var(--ease); @media (hover: hover) { &:hover { transform: translateY(-2px); box-shadow: 0 12px 32px -16px color-mix(in oklab, var(--p-ink) 30%, transparent); transition-duration: var(--m-in); } } }
+@utility press { transition: transform var(--m-press) var(--ease), background-color var(--m-out) var(--ease); @media (hover: hover) { &:hover { transform: translateY(-1px); } } &:active { transform: translateY(1px) scale(.985); } }
+@utility photo-zoom { overflow: hidden; & img, & video { transition: transform var(--m-image) var(--ease); } @media (hover: hover) { &:hover img, &:hover video { transform: scale(1.02); } } }
+/* the hero enters once: children rise in order (style={{ "--i": n }} sets the order) */
+@utility enter { animation: drip-enter 700ms var(--ease-enter) both; animation-delay: calc(var(--i, 0) * 90ms); }
+@keyframes drip-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; } }
 
 @layer base {
   * { border-color: var(--border); }
@@ -88323,6 +88365,8 @@ function topicFile(topic) {
   if (t2 === "loop" || t2 === "drip") return path8.join(skillsDir, "drip", "guide.md");
   if (t2 === "playbook") return path8.join(skillsDir, "drip", "playbook.md");
   if (t2 === "fast") return path8.join(skillsDir, "drip", "fast.md");
+  if (t2 === "swarm") return path8.join(skillsDir, "drip", "fast.md");
+  if (t2 === "taste") return path8.join(skillsDir, "drip", "taste.md");
   if (t2.startsWith("rules/")) return path8.join(rulesDir, `${t2.slice(6)}.md`);
   if (t2.startsWith("examples/")) return path8.join(examplesDir, `${t2.slice(9)}.md`);
   const [skill, ...rest] = t2.split("/");
@@ -90612,7 +90656,7 @@ function buildPrompt({ section, spec, files, url: url2, task, piece, page: page2
   const stack = pg?.stack || "html";
   const mine = files?.length ? files : sectionFiles(section, stack);
   const where = pg ? `The page: ${pg.rel}/ (${stack === "react" ? "React + Vite + Tailwind v4" : "one static HTML page"}).` : "";
-  const system = stack === "react" ? "THE SYSTEM: Tailwind with the page's tokens in src/index.css (bg-background, text-foreground, bg-card, text-muted-foreground, bg-primary text-primary-foreground, text-brand, border-border, rounded-[var(--radius)], font-display). The dealt palette and type are there: never add a colour or a font. Images in public/ (or remote URLs). Icons: lucide-react." : doc ? `THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; follow it, change nothing in it):
+  const system = stack === "react" ? `THE SYSTEM (src/index.css, taste-skill's numbers): colours bg-background, text-foreground, bg-card, text-muted-foreground, bg-primary text-primary-foreground, text-brand, border-border; type roles ONLY text-display, text-h1, text-h2, text-h3, text-lead, text-body, text-small, text-label, text-stat with font-display for headings (never text-5xl / text-[68px]); layout: wrap for the column (same edges as every section), section-pad for a section's rhythm, head-gap under a section heading; the hover layer: lift on cards, press on buttons, photo-zoom on framed pictures; enter on hero children (style={{ "--i": n }} orders them). rounded-[var(--radius)]. Never add a colour, size or font. Images in public/ (or remote URLs). Icons: lucide-react.` : doc ? `THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; follow it, change nothing in it):
 ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens (--p-bg, --p-surface, --p-ink, --p-muted, --p-accent, --p-action; --font-display, --font-text) and the kit in assets/ (system.css type roles and spacing, .button, the motion layer). Use its classes and variables; never add a size or a colour.";
   const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
   return [
@@ -91143,8 +91187,8 @@ function requiredGuides(size, surface, task, mode, packs) {
   if (mode === "refs") g.push("refs");
   else if (mode === "board") g.push("refs", "moodboard");
   else if (mode === "logo") g.push("logo");
-  else if (PERSUADE(surface, mode)) g.push("playbook");
-  else if (size === "full") g.push("rules/hard-rules", { app: "app", mobile: "mobile", component: "components", readme: "readme" }[surface] || "layout");
+  else if (PERSUADE(surface, mode)) g.push("taste", "playbook");
+  else if (size === "full") g.push("taste", "rules/hard-rules", { app: "app", mobile: "mobile", component: "components", readme: "readme" }[surface] || "layout");
   else {
     const topics = Object.entries(TOPIC_WORDS).filter(([, re]) => re.test(task)).map(([t2]) => t2);
     g.push("rules/hard-rules", ...topics.length ? topics.slice(0, 2) : ["polish"]);
@@ -91252,7 +91296,7 @@ function register3(server2, ctx2) {
       const sf = surface || (m === "logo" ? "brand" : g.surface);
       const pk = packs || matchPacks(task).map((p2) => p2.id);
       const fast = m === "design" && s2 === "full" && (loop || process.env.DRIP_LOOP || ctx2.config().loop || "fast") === "fast" && !/\b(full (process|loop)|moodboard|three directions|3 directions|brand (book|system|identity))\b/i.test(task);
-      const guides = fast ? ["fast", ...pk.filter((p2) => !isProjectPack(p2)).map((p2) => `pack:${p2}`)] : requiredGuides(s2, sf, task, m, pk);
+      const guides = fast ? ["taste", "fast", ...pk.filter((p2) => !isProjectPack(p2)).map((p2) => `pack:${p2}`)] : requiredGuides(s2, sf, task, m, pk);
       const t2 = newTask({ title: task, size: s2, surface: sf, guides, mode: m, packs: pk });
       if (fast) {
         t2.loop = "fast";
@@ -91299,20 +91343,14 @@ function register3(server2, ctx2) {
 ` : "") + (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.
 ` : "") + `No intake questions unless the request is truly ambiguous; state your assumptions in one line.
 ` + (pk.filter((p2) => !isProjectPack(p2)).length ? `Niche packs on: ${pk.filter((p2) => !isProjectPack(p2)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.
-` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? `ROLES: you are the director. You look, decide, choose the pieces and write specs. drip:builder agents (Sonnet) write the code, drip:helper agents (Haiku) do small jobs (installs, downloads, copy swaps). You make fixes under 40 lines yourself; bigger writes are refused with a pointer to build_prepare.
-` : "") + (ownedKits() === null ? `ONCE: ask the user (AskUserQuestion, multiSelect, alongside the first calls) which paid UI kits they own (Aceternity Pro, Magic UI Pro, bencho Pro, Tailark, efferd Pro, Skiper UI, shadcnblocks, 21st.dev; or none), then drip_kits({ owned }). Asked once per machine.
+` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") + (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).
 ` : "") + `
 FIRST CALLS (one message):
-1. refs_gallery({ query: "<the product kind> landing hero" }): look, take two or three decisions.
-2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>" }): deals the set, the PIECES ON OFFER (finished components from proven libraries for every section) and writes the page (React + Tailwind for software, gaming and tech pages so library pieces install as they are; one static page for products, services and places; stack: "html" | "react" overrides).
-3. images_search({ queries: [...] }) for the hero's picture when it needs one.
-Pick pieces by looking: components_find({ need }) searches ~3,300 free components (landing and app), pieces_preview shows several on one sheet. An app screen: layout_deal({ ..., surface: "app" }).
-Once the page is served (drip_serve), drip_film gives a live link: give it to the user so they can watch the agents build; drip_end makes the montage.
-` + (t2.whole ? `Then the hero (one builder), fitcheck_shot hero: true, the sections (one build_prepare with every section, all builders in one message), page_stitch, one fitcheck_shot, drip_end, all in this turn: the user asked for the whole page in one go.
+1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }).
+2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).
+Then the loop below from step 3 (choose by eye, build, check once).${t2.whole ? " The user asked for the whole page in one go: both passes in this turn." : " Stop after pass 1 and show the hero."}
 
-` : `PASS 1 (this turn): choose the hero's and nav's pieces, ONE build_prepare for the hero, one builder; then fitcheck_shot hero: true once, fix what you see, show the user the picture and stop: they may want another hero before any section is built. PASS 2 (when they say go): one build_prepare with every section (each on its piece), all builders in one message, page_stitch, one fitcheck_shot, drip_end. The critic is a reality check on the final version, not a pass.
-
-`) + bodies.map(([x2, b]) => `=================== GUIDE: ${x2} ===================
+` + bodies.map(([x2, b]) => `=================== GUIDE: ${x2} ===================
 ${b}`).join("\n\n")
         );
       }
@@ -105043,7 +105081,7 @@ function register12(server2, ctx2) {
     "parts_list",
     {
       title: "Browse ready-made eye candy",
-      description: "Lists taste-skill's ready-made parts, every family in ONE call by default: shader effects, scroll scenes, moments, live UI fragments, creative feature cards, diagram cards, objects and hero layouts. Use it while planning (board_plan), then parts_preview the candidates and parts_get the ones you use. Installs the parts library on first use (one git clone).",
+      description: "Lists taste-skill's plain-HTML pieces (called parts), every family in ONE call by default: shader effects, scroll scenes, moments, live UI fragments, creative feature cards, diagram cards, objects and hero layouts. For static pages; React pages use components_find / pieces_preview / pieces_install. Then parts_preview the candidates and parts_get the ones you use. Installs the library on first use (one git clone).",
       inputSchema: {
         kinds: external_exports.array(external_exports.enum(Object.keys(FAMILIES))).optional().describe("Default: every family"),
         query: external_exports.string().optional().describe("Words to rank by, e.g. 'globe network', 'chat assistant', 'scroll reveal'"),
@@ -114462,20 +114500,10 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.7";
-var INSTRUCTIONS = `Drip makes you work like a real product designer.
-Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
-Roles: you direct (look, decide, choose pieces, write specs, small fixes); drip:builder agents (Sonnet) write the code; drip:helper agents (Haiku) do small jobs.
-Page loop (fast, in passes): PASS 1 refs_gallery + layout_deal({ ..., out }) (deals the set and PIECES ON OFFER from proven libraries, writes the page: React + Tailwind for software/gaming/tech, static otherwise) in one message -> pieces_install -> ONE build_prepare for the hero -> builder -> fitcheck_shot hero:true -> show the user, stop. PASS 2 pieces_install -> ONE build_prepare with every section (each on a piece) -> all builders in one message -> page_stitch -> fitcheck_shot once -> drip_end. The critic (critic_prepare -> Agent drip:critic -> critic_record) is a reality check at the final version. drip_start({ loop: "full" }) runs the old process (intake, roles, comps, plan) for big brand work.
-Logo mode: intake -> refs -> concepts -> logo_sheet -> critic -> logo_outline / logo_test -> critic -> user picks.
-Beyond the loop:
-- Memory: drip_start loads the project's approved direction and learned rules; record the user's reactions with feedback_record.
-- Reuse: search the project's own components first (components_local_find, components_plan for a page).
-- Match something the user points at: pattern_study, build your own, then pattern_compare.
-- Original art: art_generate, shader_hero, scene_render.
-- Code Mode: when you would make many calls in a row (palettes x fonts, refs across sites, checks across pages), drip_search finds tool signatures and drip_execute runs one sandboxed script that calls them.
-- Before hand-off: drip_check({ changed: true }) runs the project's lint, types and tests plus the slop lint.
-Lost? drip_status shows what is done and the exact next call. Examples: drip_guide examples/portfolio.`;
+var VERSION = "0.8.8";
+var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
+For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
+While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;
 if (process.argv.length > 2) {
   process.exitCode = await runCli2(process.argv.slice(2), { version: VERSION });
   process.exit(process.exitCode);

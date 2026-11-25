@@ -86,7 +86,7 @@ The first rule of ARIA: if a native element does it, use the native element.
 | Data | `<table>` with `<th scope>` | A grid of divs for tabular data |
 | Live update | `role="status"` (polite) or `role="alert"` (urgent) | Silent DOM changes |
 
-- Every interactive element has an accessible name: its visible text, a `<label>`, `aria-label` or `aria-labelledby`. The name contains the visible label text.
+- Every interactive element has an accessible name: its visible text, a `<label>`, `aria-label` or `aria-labelledby`. The name contains the visible label text. Icon-only controls say the action and the object ("Close dialog", "Delete invoice").
 - State is exposed: `aria-expanded`, `aria-pressed`, `aria-selected`, `aria-current="page"` on the active nav link, `aria-invalid` on bad fields, `aria-busy` while loading.
 - `aria-hidden="true"` on decorative icons and duplicated visuals; never on anything focusable.
 

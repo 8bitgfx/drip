@@ -14,6 +14,8 @@ function topicFile(topic) {
   if (t === "loop" || t === "drip") return path.join(skillsDir, "drip", "guide.md");
   if (t === "playbook") return path.join(skillsDir, "drip", "playbook.md");
   if (t === "fast") return path.join(skillsDir, "drip", "fast.md");
+  if (t === "swarm") return path.join(skillsDir, "drip", "fast.md"); // Swarm Mode is built into the fast loop's Roles
+  if (t === "taste") return path.join(skillsDir, "drip", "taste.md");
   if (t.startsWith("rules/")) return path.join(rulesDir, `${t.slice(6)}.md`);
   if (t.startsWith("examples/")) return path.join(examplesDir, `${t.slice(9)}.md`);
   const [skill, ...rest] = t.split("/");

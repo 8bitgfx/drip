@@ -3,12 +3,7 @@
 Build from this. It covers Persuade (landing pages, product sites) and Experience (portfolios, showcases). Numbers are at 1440×900 and 390×844, and `kit/base.css` holds them (`drip_kit` copies it into the project). Everything else in Drip is a reference: read a guide only when the step needs it (`drip_guide <topic>`).
 
 ## The bar
-1. Build the page a strong studio would ship this year for this subject. It says plainly what it is, shows the real thing on every screen, and sets it big. Aim at the best of the galleries; check the numbers against shipped sites (`refs_site`).
-2. The failure to fear is not clutter. It is a page of small things on a wide canvas. When torn, go bigger: bigger type, a bigger picture, fewer words.
-3. Finish the job: every section built and every state styled. Only material the user must supply is left as a labelled slot.
-   The numbers below are strong defaults, not law. When the brief, the subject or the user asks for something else, the brief wins: note in DESIGN.md which rule you overrode and why.
-   **What matters:** before every page, section and component, ask what the user wants, and what they'll be excited to see. Spend the effort there: the product working, the real work at full size, a visualisation, an interaction worth playing with, a footer worth scrolling to. Skip what nobody cares about (an image's pixel size under a thumbnail, a spec caption, a counter nobody asked for).
-   **Think creatively, stick to references:** the idea is yours and new; its decisions come from what you studied (a composition, a section idea, an interaction). Take decisions, never a reference's colours or surface.
+In `taste.md` (it comes with this playbook): the job, the bar, what leads the page for each kind of business, the house rules, copy and the Never list. This playbook is the order of work for the full loop.
 
 ## Material and job
 4. Read the project first: package.json, tokens, fonts, DESIGN.md, nearby pages. Never ask what you can look up.
@@ -42,22 +37,10 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 13. Name the signature: the subject's strongest real thing, shown at its best on the first screen. Then name how the thesis shows in each section below, in a different form each time. An idea that lives only in the hero is a sticker.
 
 ## The kind of business decides the pictures
-| Kind | Leads the page | Effects and scenes |
-|---|---|---|
-| software (app, SaaS, AI, dev tool, fintech app) | its own UI as live HTML showing real work, in one app window; feature cards with UI fragments, pulsing diagrams, real icons | one effect (a shader ground in the hero or one frame) and one or two moments; 0-1 scroll scene |
-| gaming | its world as full-bleed key art, its name in the h1 | one effect at most, never in the art's place |
-| tech (hardware) | the device in photographs (stand-ins of its kind when there are none), big and whole | one effect or a render only when the brief asks for 3D |
-| product (physical goods) | photographs: the product big, a different view each section | none; flat grounds, one brand band |
-| service (clinic, agency, studio) | photographs of the people, rooms and work | none |
-| place (cafe, shop, hotel) | 12-20 photographs, the place itself | none: photographs, flat colour, type |
-`layout_deal` deals the set for the kind; `parts_list` has the ready-made effects, scenes, moments, UI fragments and cards.
+See "What leads the page" in `taste.md`. `layout_deal` deals the set for the kind; `parts_list` and `components_find` have the pieces.
 
-## House rules (from taste-skill, they hold everywhere)
-- One section per screen: the hero alone on the first screen, every section one or two screens tall at 1440x900.
-- Equal left and right content edges; no caption under an image (credits go in one footer line).
-- The hover layer on everything: a linked card lifts 2px, a photo zooms 1.02-1.03 inside its frame, buttons step on hover and press on click, underlines draw. `parts_get` copies the motion layer (motion/motion.css + motion.js) with any part.
-- Every hero enters once on load; every page has one dealt moment, two on a long page.
-- Real full-colour icons of real products, never drawn ones.
+## House rules
+In `taste.md`.
 
 ## Compose in pixels before CSS
 14. References first, then `board_create` → `board_directions` with 3 directions that are different IDEAS (not one idea in three colours). Read the gold page closest to yours first (`drip_guide examples/gold`). Each direction needs:
@@ -146,10 +129,7 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
     - Never `transition: all`.
 
 ## Never
-33. Eyebrows or kickers; tracked-caps labels; 01/02/03 numbering unless it's a real sequence; middle-dot meta strings; arrows glued to link text; decorative status dots.
-34. Gradient text; an accented word in a head; glass or glow as decoration; purple-blue gradients; a card inside a card; three equal icon cards; the big-number-small-label hero; emoji or unicode as icons. Decoration pasted over content: a shape (paint, sticker, blob) that crosses words must go behind them, make the content move, or carry real depth (shadow, highlight, the edge it wraps around); a flat shape over text is blocked. Devices and objects built from boxes and cylinders: phones and displays come from `mockup_render`, objects from a real model in `scene_render`.
-35. Invented stats, logos, testimonials or user counts; "Unlock / Elevate / Seamless"; "Learn more" or "Get started" as the only label.
-36. Fade-up on every section; parallax on text; scroll-jacking; a marquee by reflex.
+33. The Never list is in `taste.md`; the slop lint and the critic check it.
 
 ## Finish
 37. Re-checks while fixing: `fitcheck_shot({ numbersOnly: true })` or `section: "#id"` (no screenshots, a fraction of the time and context). The full shot is for the page gate: `fitcheck_shot({ url })` shoots the whole page at 1440 and 390 and runs the page gate. It blocks on any of these:
