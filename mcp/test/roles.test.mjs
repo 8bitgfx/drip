@@ -134,7 +134,7 @@ test("a page in a subfolder never inherits the repo's DESIGN.md; a whole-page bu
 });
 
 test("pieces before homemade: custom needs a named reason, and 'searched' needs a real search", () => {
-  const task = { refs: { viewed: ["site:a.com", "site:b.com", "site:c.com", "site:d.com"], studied: [] }, toolUse: { pieces_preview: 1 } };
+  const task = { refs: { viewed: ["site:a.com", "site:b.com", "site:c.com", "site:d.com"], studied: [{ key: "site:a.com" }, { key: "site:b.com" }, { key: "site:c.com" }] }, toolUse: { pieces_preview: 1 } };
   const gaps = (list) => swarm.buildGaps(task, list);
   assert.match(gaps([{ section: "features", spec: "x", piece: "custom: it's quicker" }]).join(), /needs one of the reasons/);
   assert.match(gaps([{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]).join(), /no components_find/);
