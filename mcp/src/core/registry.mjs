@@ -30,7 +30,7 @@ export const MODULES = { refs, board, components, assets, gen, fitcheck, critic,
 
 // Which tools a task used (task.toolUse): lets gates ask for steps no prose can enforce, such as searching
 // components and picture sources before building. Counting never fails a call.
-const TRACKED = /^(parts_|components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
+const TRACKED = /^(parts_|pieces_|components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
 function tracked(name, handler) {
   if (!TRACKED.test(name)) return handler;
   return async (...args) => {

@@ -105042,7 +105042,7 @@ function familyItems(family) {
   if (family === "effect") return (readJson3(path46.join(root, "index.json"))?.effects || []).map((e2) => ({ id: e2.id, name: e2.name, about: describe4(e2), tags: [e2.family, ...e2.bestOn || []].join(" ") }));
   if (family === "diagram") return Object.entries(readJson3(path46.join(root, "presets.json"))?.presets || {}).map(([id, p2]) => ({ id, name: id, about: describe4(p2) || `${p2.layout || ""} diagram` }));
   if (family === "hero")
-    return (readJson3(path46.join(root, "heroes.json")) || []).map((h) => ({ id: h.id, name: h.name, about: describe4(h), demo: h.demo ? path46.join(root, h.demo) : null }));
+    return ((j) => Array.isArray(j) ? j : j?.heroes || [])(readJson3(path46.join(root, "heroes.json"))).map((h) => ({ id: h.id, name: h.name, about: describe4(h), demo: h.demo ? path46.join(root, h.demo) : null }));
   return fs49.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory() && !d.name.startsWith("_") && fs49.existsSync(path46.join(root, d.name, "meta.json"))).map((d) => {
     const m = readJson3(path46.join(root, d.name, "meta.json")) || {};
     const demo = ["demo.html", "index.html"].map((f3) => path46.join(root, d.name, f3)).find((f3) => fs49.existsSync(f3)) || null;
@@ -113789,7 +113789,7 @@ function register36(server2, ctx2) {
 // src/core/registry.mjs
 var ctx = { config: () => loadConfig() };
 var MODULES = { refs: refs_exports, board: board_exports, components: components_exports, assets: assets_exports, gen: gen_exports, fitcheck: fitcheck_exports, critic: critic_exports, logo: logo_exports, packs: packs_exports, codemode: codemode_exports, patterns: patterns_exports, project: project_exports, inspire: inspire_exports, studio: studio_exports, swarm: swarm_exports, parts: parts_exports, film: film_exports };
-var TRACKED = /^(parts_|components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
+var TRACKED = /^(parts_|pieces_|components_|catalogue_|images_|art_|shader_|mockup_|scene_|gen_image|assets_3d_|icons_|fonts_|refs_gallery|patterns?_)/;
 function tracked(name, handler) {
   if (!TRACKED.test(name)) return handler;
   return async (...args) => {
@@ -114500,7 +114500,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.8";
+var VERSION = "0.8.9";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

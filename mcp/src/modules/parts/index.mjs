@@ -67,7 +67,7 @@ export function familyItems(family) {
   if (family === "effect") return (readJson(path.join(root, "index.json"))?.effects || []).map((e) => ({ id: e.id, name: e.name, about: describe(e), tags: [e.family, ...(e.bestOn || [])].join(" ") }));
   if (family === "diagram") return Object.entries(readJson(path.join(root, "presets.json"))?.presets || {}).map(([id, p]) => ({ id, name: id, about: describe(p) || `${p.layout || ""} diagram` }));
   if (family === "hero")
-    return (readJson(path.join(root, "heroes.json")) || []).map((h) => ({ id: h.id, name: h.name, about: describe(h), demo: h.demo ? path.join(root, h.demo) : null }));
+    return ((j) => (Array.isArray(j) ? j : j?.heroes || []))(readJson(path.join(root, "heroes.json"))).map((h) => ({ id: h.id, name: h.name, about: describe(h), demo: h.demo ? path.join(root, h.demo) : null }));
   return fs
     .readdirSync(root, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !d.name.startsWith("_") && fs.existsSync(path.join(root, d.name, "meta.json")))
