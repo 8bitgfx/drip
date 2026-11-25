@@ -65,3 +65,16 @@ test("a headline on a picture and hard crops are warnings, never blockers", () =
   assert.ok(warnings.some((w) => /cropped hard/.test(w)));
   assert.ok(!blockers.some((b) => /picture|cropped/.test(b)));
 });
+
+test("a page Drip builds in its own folder never reads the host repo's DESIGN.md", async () => {
+  const { designDoc } = await import("../src/core/skills.mjs");
+  const repo = tmp("host-repo");
+  fs.mkdirSync(path.join(repo, "docs", "design"), { recursive: true });
+  fs.writeFileSync(path.join(repo, "docs", "design", "DESIGN.md"), "purple host style guide");
+  fs.mkdirSync(path.join(repo, "page", "src", "sections"), { recursive: true });
+  const task = { page: { dir: "page" }, uiWrites: [{ file: "page/src/sections/Hero.tsx" }] };
+  assert.equal(designDoc(repo, task), null, "no page doc: nothing, not the host's");
+  fs.writeFileSync(path.join(repo, "page", "DESIGN.md"), "honey page system");
+  assert.equal(designDoc(repo, task).text, "honey page system");
+  assert.equal(designDoc(repo, { uiWrites: [{ file: "src/App.tsx" }] }).text, "purple host style guide", "a task on the repo itself still reads it");
+});

@@ -59,7 +59,7 @@ export function projectContext({ cwd, task, brand, maxChars } = {}) {
   out.conflicts = d.rules.filter((r) => r.status === "proposed" && r.conflictsWith?.length);
   out.styleRevisions = d.styleRevisions.filter((r) => r.status === "proposed");
   out.subBoards = listBoards({ includeArchived: false }).filter((b) => b.id !== mid).slice(0, 6).map((b) => ({ id: b.id, name: b.name, scope: b.scope, items: liveItems(b).length, chosen: b.chosen }));
-  const doc = designDoc(root);
+  const doc = designDoc(root, task);
   if (doc) out.designDoc = { rel: doc.rel, chars: doc.text.length };
   if (fs.existsSync(path.join(projectDripDir(cwd), "skills", "project-design", "SKILL.md"))) out.skill = ".drip/skills/project-design/SKILL.md";
   out.packs = listPacks(cwd).filter((p) => p.type === "project").map((p) => p.id);
@@ -80,7 +80,7 @@ export function projectContext({ cwd, task, brand, maxChars } = {}) {
   else if (out.proposals.length) L.push(`${out.proposals.length} proposed rule(s) wait for the user's approval (project_learn list); they are not in force.`);
   if (out.styleRevisions?.length) L.push(`A proposed redesign (${out.styleRevisions.map((r) => r.id).join(", ")}) is waiting; the approved direction stays in force until the user promotes it.`);
   if (out.subBoards.length) L.push(`Sub-boards: ${out.subBoards.map((b) => `${b.id} (${b.scope}${b.chosen ? `, chose ${b.chosen}` : ""})`).join(", ")}.`);
-  L.push(`DESIGN.md: ${out.designDoc ? out.designDoc.rel : "none"}${out.skill ? ` · project skill ${out.skill}` : ""}${out.packs.length ? ` · packs ${out.packs.join(", ")}` : ""}.`);
+  L.push(`DESIGN.md: ${out.designDoc ? `${out.designDoc.rel}${task?.page?.dir ? "" : " (this repo’s: it applies only when the task is this repo’s own product; a page Drip builds in a new folder gets its own)"}` : "none"}${out.skill ? ` · project skill ${out.skill}` : ""}${out.packs.length ? ` · packs ${out.packs.join(", ")}` : ""}.`);
   let text = L.join("\n");
   if (text.length > limit) text = `${text.slice(0, limit - 1).replace(/\s+\S*$/, "")}…`;
   out.text = text;

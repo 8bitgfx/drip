@@ -87555,16 +87555,25 @@ import os2 from "node:os";
 import path3 from "node:path";
 var DESIGN_MD = ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md", "docs/design/DESIGN.md", ".drip/DESIGN.md"];
 function designDoc(cwd = projectDir(), task = null) {
-  const own2 = [task?.designDoc, ...new Set((task?.uiWrites || []).map((w) => path3.join(path3.dirname(path3.relative(cwd, path3.resolve(cwd, w.file))), "DESIGN.md")))].filter(Boolean);
-  for (const rel3 of own2) {
-    const f3 = path3.resolve(cwd, rel3);
-    if (fs3.existsSync(f3)) return { file: f3, rel: path3.relative(cwd, f3), text: fs3.readFileSync(f3, "utf8") };
+  const found = (f3) => ({ file: f3, rel: path3.relative(cwd, f3) || path3.basename(f3), text: fs3.readFileSync(f3, "utf8") });
+  if (task?.designDoc) {
+    const f3 = path3.resolve(cwd, task.designDoc);
+    if (fs3.existsSync(f3)) return found(f3);
   }
-  for (const rel3 of DESIGN_MD) {
-    const f3 = path3.join(cwd, rel3);
-    if (fs3.existsSync(f3)) return { file: f3, rel: rel3, text: fs3.readFileSync(f3, "utf8") };
+  const base = pageRoot(cwd, task) || cwd;
+  const dirs = /* @__PURE__ */ new Set();
+  for (const w of task?.uiWrites || []) {
+    for (let d = path3.dirname(path3.resolve(cwd, w.file)); d.startsWith(base) && d !== base; d = path3.dirname(d)) dirs.add(d);
   }
+  dirs.add(base);
+  for (const d of dirs) for (const rel3 of DESIGN_MD) if (fs3.existsSync(path3.join(d, rel3))) return found(path3.join(d, rel3));
   return null;
+}
+function pageRoot(cwd = projectDir(), task = null) {
+  if (!task?.page?.dir) return null;
+  const d = path3.resolve(cwd, task.page.dir);
+  const dir = fs3.existsSync(d) && fs3.statSync(d).isFile() ? path3.dirname(d) : d;
+  return dir !== cwd && dir.startsWith(cwd + path3.sep) ? dir : null;
 }
 function frontmatter(text2) {
   const m = text2.match(/^---\s*\n([\s\S]*?)\n---/);
@@ -90352,7 +90361,7 @@ function projectContext({ cwd, task, brand, maxChars } = {}) {
   out.conflicts = d.rules.filter((r2) => r2.status === "proposed" && r2.conflictsWith?.length);
   out.styleRevisions = d.styleRevisions.filter((r2) => r2.status === "proposed");
   out.subBoards = listBoards({ includeArchived: false }).filter((b) => b.id !== mid).slice(0, 6).map((b) => ({ id: b.id, name: b.name, scope: b.scope, items: liveItems(b).length, chosen: b.chosen }));
-  const doc = designDoc(root);
+  const doc = designDoc(root, task);
   if (doc) out.designDoc = { rel: doc.rel, chars: doc.text.length };
   if (fs15.existsSync(path16.join(projectDripDir(cwd), "skills", "project-design", "SKILL.md"))) out.skill = ".drip/skills/project-design/SKILL.md";
   out.packs = listPacks(cwd).filter((p2) => p2.type === "project").map((p2) => p2.id);
@@ -90370,7 +90379,7 @@ function projectContext({ cwd, task, brand, maxChars } = {}) {
   else if (out.proposals.length) L2.push(`${out.proposals.length} proposed rule(s) wait for the user's approval (project_learn list); they are not in force.`);
   if (out.styleRevisions?.length) L2.push(`A proposed redesign (${out.styleRevisions.map((r2) => r2.id).join(", ")}) is waiting; the approved direction stays in force until the user promotes it.`);
   if (out.subBoards.length) L2.push(`Sub-boards: ${out.subBoards.map((b) => `${b.id} (${b.scope}${b.chosen ? `, chose ${b.chosen}` : ""})`).join(", ")}.`);
-  L2.push(`DESIGN.md: ${out.designDoc ? out.designDoc.rel : "none"}${out.skill ? ` \xB7 project skill ${out.skill}` : ""}${out.packs.length ? ` \xB7 packs ${out.packs.join(", ")}` : ""}.`);
+  L2.push(`DESIGN.md: ${out.designDoc ? `${out.designDoc.rel}${task?.page?.dir ? "" : " (this repo\u2019s: it applies only when the task is this repo\u2019s own product; a page Drip builds in a new folder gets its own)"}` : "none"}${out.skill ? ` \xB7 project skill ${out.skill}` : ""}${out.packs.length ? ` \xB7 packs ${out.packs.join(", ")}` : ""}.`);
   let text2 = L2.join("\n");
   if (text2.length > limit) text2 = `${text2.slice(0, limit - 1).replace(/\s+\S*$/, "")}\u2026`;
   out.text = text2;
@@ -114787,7 +114796,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.19";
+var VERSION = "0.8.20";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;
