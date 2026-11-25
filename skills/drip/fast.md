@@ -25,6 +25,9 @@ The order of work for a page in about ten minutes. What good looks like is in `t
 6. A one-line spec per section: its idea, its piece, its picture, its motion; no two neighbours alike. **Each section shows a different real picture.** The client's site rarely has enough: `images_search`, make them (`art_generate`, `gen_image`, `mockup_render`), or ask the user for their own work. One picture repeated across the page is blocked by the page check. `pieces_install` once, ONE `build_prepare` with every section, every builder in ONE message.
 7. `page_stitch` once when they finish (later shots re-stitch by themselves). `fitcheck_shot({ url })` once; fix what matters in one pass (a 1-2% number is not worth a round). Show the page, `drip_end`: it closes the film and opens the montage for the user.
 
+## A new round
+When the user asks for a big change to the finished page ("make it 10x better", "it's boring", "redo it"), that is a new round, not a touch-up: look again at sites that are clearly better at what's asked, search and preview pieces for each upgrade, and build them through builders. "Better" means bigger real pictures, a stronger composition and finished pieces, never stacked effects (glow, grain, shine sweeps, tilt on everything, a coloured word in the headline). The write gate holds until the look and the search are done. UI is never written from the shell while a task is open.
+
 ## The questions
 One `AskUserQuestion` round, after the look and the deal (so the options come from real work), before anything is built. Two to four questions, only what the request leaves open, each with clickable options and your recommendation first:
 - **Direction:** two or three looks you could build, each named after what it takes from a studied site ("a calm gallery like Krea", "bold outputs like Recraft"), with a one-line preview of the hero.

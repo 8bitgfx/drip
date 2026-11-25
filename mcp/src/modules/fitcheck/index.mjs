@@ -21,7 +21,7 @@ import { formatIssues, lintFiles } from "./lint.mjs";
 import { restitchIfStale } from "../swarm/index.mjs";
 
 /** A blocker that means the page is broken (something cut off, covered, sideways, unfilled), not a number to tune. */
-export const isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|is drawn over|no h1/i.test(String(b));
+export const isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|accented headline|is drawn over|no h1/i.test(String(b));
 
 const CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 

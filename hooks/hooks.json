@@ -31,6 +31,15 @@
         ]
       },
       {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-shell.mjs\""
+          }
+        ]
+      },
+      {
         "matcher": "Agent|Task",
         "hooks": [
           {

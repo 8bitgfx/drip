@@ -269,6 +269,24 @@ export function lastCritique(task, kind) {
 }
 
 /** Everything still missing before UI may be written. Empty list = allowed. */
+/** Words that ask for a big change to a page that already exists ("make it 10x better", "it's ugly", "redo it"). */
+export const REWORK_WORDS =
+  /\b(\d+x|way|much|lot|far|10 ?times)\s+(more|better|nicer|cooler|prettier)\b|\bmore (beautiful|stunning|premium|polished|exciting|alive|cool|interesting|creative|modern)\b|\b(redo|redesign|rework|rethink|start over|from scratch|overhaul|level it up|take it further)\b|\b(ugly|boring|bland|generic|basic|slop|meh|lifeless|dull)\b|\b(wow|blow (me|my mind) away|stunning|eye[- ]candy)\b|\bmake it (pop|cool|beautiful|amazing|better|nicer|sick|insane)\b/i;
+
+/** A new round on a page that's already built: it needs a fresh look and pieces before UI changes (task.rework). */
+export function reworkMissing(task) {
+  const at = task?.rework?.at;
+  if (!at || task.skipped) return [];
+  const last = task.toolLast || {};
+  const after = (re) => Object.entries(last).some(([k, t]) => re.test(k) && t >= at);
+  const missing = [];
+  if (!after(/^refs_/))
+    missing.push({ need: "a look for this round", how: `the user asked for a big change ("${String(task.rework.prompt || "").slice(0, 80)}"). Look at shipped work that already does what's asked, in ONE message: refs_site on 2-3 sites that are clearly better at it, and refs_gallery for the pattern; name what you take from each` });
+  if (!after(/^(components_find|pieces_preview|parts_preview|parts_list)$/))
+    missing.push({ need: "pieces for this round", how: "one drip_execute with a components_find per upgrade (the hero effect, the cards, the backdrop...), then ONE pieces_preview; build every upgrade on a piece through build_prepare and drip:builder agents, never hand-written effects" });
+  return missing;
+}
+
 export function missingBeforeUi(task, config) {
   if (!task) return [{ need: "task", how: "call drip_start with what you are designing" }];
   if (task.skipped || !config.gates.enforce) return [];
@@ -281,6 +299,7 @@ export function missingBeforeUi(task, config) {
       missing.push({ need: "deal", how: 'layout_deal({ kind, trade }) for the hero layout, palette, type and sections (or board_choose / an approved direction)' });
     if (task.noAsk === false && task.brief?.assumed)
       missing.push({ need: "the user's answers", how: "one AskUserQuestion round of 2-4 clickable questions (direction options from what you studied, what must stay, the material they have), then drip_brief with the answers. Skip only if the user said not to ask" });
+    missing.push(...reworkMissing(task));
     return missing;
   }
   if (task.size === "full" && g.requireBrief && !task.brief)
@@ -359,6 +378,7 @@ export function missingBeforeUi(task, config) {
       missing.push({ need: "section plan", how: "board_plan: one line per section (hero and footer included) with its idea, its form, the move it takes from a studied reference, its picture source, and two or three eye-candy moments" });
     // The critic is a reality check on the final build, not on the directions: the director ranks those itself.
   }
+  missing.push(...reworkMissing(task));
   return missing;
 }
 
