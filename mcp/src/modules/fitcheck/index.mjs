@@ -19,9 +19,10 @@ import { rendersDir, stamp } from "../../core/render.mjs";
 import { screenshot } from "./chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
 import { restitchIfStale } from "../swarm/index.mjs";
+import { unusedPieces } from "../../core/pieces-check.mjs";
 
 /** A blocker that means the page is broken (something cut off, covered, sideways, unfilled), not a number to tune. */
-export const isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|is drawn over|no h1/i.test(String(b));
+export const isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
 
 const CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 
@@ -138,10 +139,13 @@ export function register(server, ctx) {
         }
       }
       const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
+      // A named piece that isn't on the page: hand-made around a piece is a broken promise, not a number.
+      if (!hero && !numbersOnly && !section) blockers.push(...unusedPieces(loadState().task));
       updateState((st) => {
         if (st.task) {
           st.task.fitcheck.url = url;
-          if (numbersOnly || section) {
+          // images: "none" sends no pictures back: nobody looked, so it can't be the check of this version.
+          if (numbersOnly || section || images === "none") {
             // Cheap re-checks: reported, never recorded as the fit check (no pictures looked at / only part of the page).
             st.task.fitcheck.numbersAt = new Date().toISOString();
             return;
@@ -169,7 +173,7 @@ export function register(server, ctx) {
           }
         }
       });
-      if (!hero && !numbersOnly && !section) markShot(loadState().task); // what the pictures showed: files with these contents are not "unseen" later
+      if (!hero && !numbersOnly && !section && images !== "none") markShot(loadState().task); // what the pictures showed: files with these contents are not "unseen" later
       const list2 = blockers.map((b) => `- ${b}`).join("\n");
       let head;
       if (numbersOnly)
@@ -194,7 +198,7 @@ export function register(server, ctx) {
         const softText = soft.length ? `Worth fixing in the same edit (numbers, not breakage; no extra round for these):\n${soft.map((b) => `- ${b}`).join("\n")}\n\n` : "";
         head = hero
           ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare, every builder in one message): the user sees the finished page, not a question."}`}`
-          : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version. Look at the sheet once, fix what looks wrong, then show the user."} The critic is a reality check at the final version, once.`;
+          : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version. Look at the sheet once and fix what looks wrong."} Before you show the user the finished page: the critic, once (critic_prepare kind build -> drip:critic -> critic_record). drip_end refuses without it, and a REVISE needs the user’s choice, not your own pass.`;
       }
       content.unshift(textBlock(head));
       return blocks(content);

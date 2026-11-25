@@ -58,7 +58,11 @@ Not in a script: anything you need to look at as a picture (`pieces_preview`, a 
 
 ## Rules the tools enforce
 - No UI before a look, a deal and the user's answers (unless they said not to ask). No builder before 4 references and a pieces preview. Every section names its piece; homemade only as `custom: product-ui | data | brand-art | tiny | searched <what>` (see "Pieces before homemade" in taste.md). A builder never swaps its piece for a homemade one.
-- A turn can't end with UI changed after the last `fitcheck_shot`.
+- A turn can't end with UI changed after the last `fitcheck_shot` (with pictures: `images: "none"` doesn't count). If it ends anyway, the user is told it ended unchecked.
+- Every piece a section names has to be on the page (installed and imported); `from` names a reference you looked at; "custom: searched X" needs a real search for X.
+- Your own lines add up: past 150 since the builders last ran, the rest goes to a builder. UI and Drip's `.drip/` files are never written from the shell.
+- The critic sees the finished page once, before `drip_end`. Its verdict and scores are recorded as it wrote them; the context you give it is facts, not a defence. After a REVISE, the user decides: ship with the open points, or one more round.
+- Anything said on the user's behalf (skip, ship, one more round, the brief's answers) has to be in their own messages.
 - Nothing invented: unknown numbers and quotes are `[brackets]`.
 
 ## Talk and memory

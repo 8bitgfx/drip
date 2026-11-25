@@ -19,7 +19,15 @@ import { designDoc, relevantSkills } from "../../core/skills.mjs";
 import { toUrl } from "../../core/serve.mjs";
 import { loadPieces } from "../parts/pieces.mjs";
 
-const INTERACTIVE = /accordion|expand|hover|carousel|slider|tabs?\b|toggle|marquee|tilt|reveal|drag|compare|before.?after|flip|stack|swipe|scroll|dock|magnet|spotlight|morph|gallery/i;
+/** The first phrase in a critic context that argues for the work instead of stating a fact, or null. */
+export function defends(context) {
+  const s = String(context || "");
+  if (s.length > 400) return `${s.length} characters: a context that long is a pitch`;
+  const m = s.match(/\b(intentional(ly)?|deliberate(ly)?|on purpose|by design|as designed|(already|now) (fixed|improved|addressed|better)|we (fixed|improved|chose)|i (fixed|improved|chose)|don'?t (judge|penali[sz]e|count|mark)|ignore|not a (bug|flaw|mistake)|this is fine|should pass|please (pass|be kind)|was (fixed|improved)|much better|huge improvement)\b/i);
+  return m ? m[0] : null;
+}
+
+const INTERACTIVE =/accordion|expand|hover|carousel|slider|tabs?\b|toggle|marquee|tilt|reveal|drag|compare|before.?after|flip|stack|swipe|scroll|dock|magnet|spotlight|morph|gallery/i;
 
 /** The library piece behind a section ("https://reactbits.dev/r/AccordionGallery-TS-TW.json" -> its catalogue entry). */
 function pieceInfo(piece) {
@@ -139,6 +147,13 @@ export function register(server, ctx) {
     },
     safe(async ({ kind, targets = [], context, steps, extraRound }) => {
       const config = ctx.config();
+      // Context is facts the critic can't see (what screen this is, who uses it), never a case for the work.
+      const pleading = defends(context);
+      if (pleading)
+        return text(
+          `The context argues for the work ("${pleading}"). The critic must judge what it sees: give only facts it can't see (what the screen is, who uses it, what's real data), in under 400 characters, and let the work speak.`,
+          true,
+        );
       const { task } = loadState();
       const prevRounds = (task?.critic?.records || []).filter((r) => r.kind === kind);
       // The user said "decide for me": that standing answer covers one more round without a question.

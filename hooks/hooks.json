@@ -31,6 +31,15 @@
         ]
       },
       {
+        "matcher": "mcp__.*drip.*__(drip_skip|drip_end|fitcheck_done|critic_prepare|critic_record|drip_brief)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/claims.mjs\""
+          }
+        ]
+      },
+      {
         "matcher": "Bash|PowerShell",
         "hooks": [
           {

@@ -139,7 +139,8 @@ test("pieces before homemade: custom needs a named reason, and 'searched' needs 
   assert.match(gaps([{ section: "features", spec: "x", piece: "custom: it's quicker" }]).join(), /needs one of the reasons/);
   assert.match(gaps([{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]).join(), /no components_find/);
   assert.deepEqual(gaps([{ section: "proof", spec: "x", piece: "custom: data the client's weekly numbers" }]), []);
-  assert.deepEqual(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 } }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]), []);
+  assert.match(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 }, searches: ["pricing toggle"] }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]).join(), /doesn't match any search/);
+  assert.deepEqual(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 }, searches: ["bento grid of product cards"] }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]), []);
 });
 
 test("the fast loop asks once before building, unless the user said not to ask", () => {

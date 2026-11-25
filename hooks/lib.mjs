@@ -57,14 +57,23 @@ export function shellWrites(command) {
   const code = /\b(?:writeFileSync|appendFileSync|writeFile|appendFile)\s*\(\s*["'`]([^"'`]+)["'`]|\bopen\s*\(\s*["']([^"']+)["']\s*,\s*["'][wa]/g;
   while ((m = code.exec(s))) add(m[1] || m[2]);
   for (const seg of s.split(/&&|\|\||;|\n/)) {
-    if (!/\bsed\b[^|]*\s-i/.test(seg)) continue;
-    const words = seg.trim().split(/\s+/);
-    add(words[words.length - 1]);
+    const words = seg.trim().split(/\s+/).filter((w) => !/^-/.test(w));
+    // sed -i edits its last argument in place; cp / mv / Copy-Item / Move-Item write their last argument (the destination).
+    if (/\bsed\b[^|]*\s-i/.test(seg) || /^(cp|mv|copy|move|install|Copy-Item|Move-Item|cpi|mi)$/i.test(words[0] || "")) {
+      const dest = (seg.match(/-Destination\s+("[^"]+"|'[^']+'|\S+)/i) || [])[1] || words[words.length - 1];
+      if (words.length > 2 || /-Destination/i.test(seg)) add(dest);
+    }
   }
   return [...files];
 }
 
-export const DIRECTOR_MAX = { lines: 40, chars: 2500 };
+/** Drip's own bookkeeping (task state, config, memory, kits): written by Drip's tools, never by the agent's hands. */
+export const isDripState = (file) => /(^|[\\/])\.drip[\\/](.*\.jsonl?$|memory[\\/])/i.test(String(file || "").replace(/^["']|["']$/g, ""));
+
+export const DRIP_STATE_DENY =
+  "This is Drip's own bookkeeping (.drip/*.json, memory): only Drip's tools write it. To change a setting, the user runs /drip:settings or edits .drip/config.json themselves; to move a step on, do the step.";
+
+export const DIRECTOR_MAX = { lines: 40, chars: 2500, total: 150 };
 
 /** A message when the main agent is about to write a big chunk of UI itself in a swarm fast loop; null otherwise. */
 export function directorTooBig(input, ti, task, config) {
@@ -76,9 +85,12 @@ export function directorTooBig(input, ti, task, config) {
   if (!("agent_id" in input) && agentsRunning(task).some((a) => /builder|helper/.test(a.type))) return null;
   const s = [ti.content, ti.new_string, ...(ti.edits || []).map((e) => e.new_string)].filter(Boolean).join("\n");
   const lines = s.split("\n").length;
-  if (lines <= DIRECTOR_MAX.lines && s.length <= DIRECTOR_MAX.chars) return null;
+  // Many small edits add up: the director's own lines since the last build_prepare have a ceiling too.
+  const sofar = task.directorLines || 0;
+  if (lines <= DIRECTOR_MAX.lines && s.length <= DIRECTOR_MAX.chars && sofar + lines <= DIRECTOR_MAX.total) return null;
+  const what = lines > DIRECTOR_MAX.lines || s.length > DIRECTOR_MAX.chars ? `This write is ${lines} lines` : `You have written ${sofar} lines yourself since the builders last ran, and this adds ${lines}`;
   return (
-    `You are the director: plan, choose the pieces, write specs and delegate. This write is ${lines} lines: that is a builder's job. ` +
+    `You are the director: plan, choose the pieces, write specs and delegate. ${what}: that is a builder's job. ` +
     `build_prepare({ sections: [{ section, spec, piece }] }) and launch the drip:builder (Sonnet); for a mechanical job (install, download, rename, copy swaps) launch a drip:helper (Haiku) with a one-paragraph task. ` +
     `Fixes under ${DIRECTOR_MAX.lines} lines you make yourself. (The user can turn the roles off: drip_start({ swarm: false }) or "swarm": false in .drip/config.json.)`
   );

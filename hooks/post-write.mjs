@@ -45,6 +45,11 @@ run(async () => {
     filmEvent(task, { kind: "write", agent: input.agent_id || "main", type: input.agent_type || null, tool: input.tool_name, file: rel.replace(/\\/g, "/"), summary: `${input.tool_name === "Write" ? "wrote" : "edited"} ${path.basename(rel)} (${body.split("\n").length} lines)` }, dir);
   }
   if (task) markSeen(task, rel, dir); // an edit this hook saw is known: only edits that bypass it count as unseen at the end
+  // The director's own lines add up (directorTooBig): builders and helpers don't count; build_prepare resets it.
+  if (task?.loop === "fast" && !input.agent_id && !input.agent_type) {
+    const n = [ti.content, ti.new_string, ...(ti.edits || []).map((e) => e.new_string)].filter(Boolean).join("\n").split("\n").length;
+    updateState((st) => st.task && (st.task.directorLines = (st.task.directorLines || 0) + n), dir);
+  }
   if (!task && config.gates.mode !== "always") return allow();
   if (task && visual) {
     // Same bytes as before (as last recorded, or as the last fit-check shot saw them): nothing changed, so nothing to re-check.

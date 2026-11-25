@@ -528,6 +528,10 @@ export function register(server, ctx) {
         if (needsFitcheck(cur, config)) open.push("the UI changed after the last passing fit check (or the critic has not passed the latest build)");
         for (const s of evidenceStale(cur)) open.push(s);
         if (unseen.length) open.push(`UI edits Drip never saw: ${unseen.slice(0, 6).map((u) => u.file).join(", ")}`);
+        // Fast loop: the critic is one reality check at the final version, and it has to happen once. The director's own
+        // scores aren't a review.
+        if (cur.loop === "fast" && cur.uiWrites?.length && !(cur.critic?.records || []).some((r) => r.kind === "build"))
+          open.push('the critic hasn\'t seen the finished page once: critic_prepare({ kind: "build", targets: [<page URL>] }) -> Agent drip:critic -> critic_record');
         if (open.length) return text(`Not closed: ${[...new Set(open)].join("; ")}.\nShoot the page again (fitcheck_shot), fix, review, fitcheck_done; or, if the user accepts shipping as is, drip_end with acceptOpen quoting their words.`, true);
       }
       let film = "";

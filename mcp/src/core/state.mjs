@@ -293,7 +293,8 @@ export function missingBeforeUi(task, config) {
   const g = config.gates;
   const missing = [];
   if (task.loop === "fast" && task.size === "full") {
-    const looked = (task.refs?.viewed || []).length + (task.refs?.studied || []).length + Object.keys(task.toolUse || {}).filter((k) => /^refs_/.test(k)).length;
+    // A look is pictures of real work: shipped sites, a gallery, references opened. A search listing alone isn't one.
+    const looked = (task.refs?.viewed || []).length + (task.refs?.studied || []).length + Object.keys(task.toolUse || {}).filter((k) => /^refs_(site|gallery|view|zoom)$/.test(k)).length;
     if (!looked) missing.push({ need: "look", how: "one look at proven work first: refs_gallery (the pattern you'll build, e.g. 'saas dashboard hero') or refs_site on 3-4 shipped sites, in ONE call" });
     if (!task.deal && !task.board?.chosen && !task.board?.adopted && !task.memory?.styleRevision)
       missing.push({ need: "deal", how: 'layout_deal({ kind, trade }) for the hero layout, palette, type and sections (or board_choose / an approved direction)' });
@@ -454,7 +455,8 @@ export function checklist(task, config) {
       `${tick(!!fc.heroPassedAt)} hero shot`,
       `${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`,
       `${tick(!!fc.doneAt && !needsFitcheck(task, config))} page check clean on the current version`,
-      `${tick(!!rec)} critic (a polish pass on request)${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : ""}`,
+      `${tick(!!rec && rec.verdict === "pass")} critic once on the finished page${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})${rec.verdict !== "pass" ? " · the user decides: ship with the open points, or one more round" : ""}` : " (before drip_end)"}`,
+      ...(task.endedUnchecked?.length ? [`[!] ${task.endedUnchecked.length} turn(s) ended unchecked, last: ${task.endedUnchecked.at(-1).why}. Tell the user, then finish the check.`] : []),
     ].join("\n");
   }
   const lines = [`Task: ${task.title}  (${task.mode || "design"}, ${task.size} loop, ${task.surface})${task.packs?.length ? `  packs: ${task.packs.join(", ")}` : ""}${task.skipped ? `  SKIPPED: ${task.skipped}` : ""}`];

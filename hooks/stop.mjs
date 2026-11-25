@@ -21,8 +21,14 @@ run(async () => {
   if (agentsRunning(task).length) return allow();
   const blocks = task.stopBlocks || 0;
   if (blocks >= MAX_BLOCKS) {
-    updateState((st) => st.task && (st.task.stopBlocks = 0), dir);
-    return allow();
+    // Never stuck, never silent: the turn may end, but the user is told, in Drip's words, what wasn't checked.
+    const why = needsFitcheck(task, config) ? "the latest UI changes weren't checked (no fit check of this version, or a critic REVISE the user hasn't ruled on)" : "the checks weren't finished";
+    updateState((st) => {
+      if (!st.task) return;
+      st.task.stopBlocks = 0;
+      st.task.endedUnchecked = [...(st.task.endedUnchecked || []), { at: new Date().toISOString(), why }].slice(-10);
+    }, dir);
+    return out({ systemMessage: `[Drip] This turn ended unchecked: ${why}. Don't take this version as reviewed; ask Claude to finish the check, or say you accept it as it is.` });
   }
   updateState((st) => st.task && (st.task.stopBlocks = blocks + 1), dir);
   const files = [...new Set(task.uiWrites.map((w) => w.file))].slice(-8).join(", ");

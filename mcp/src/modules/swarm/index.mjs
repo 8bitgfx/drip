@@ -127,10 +127,26 @@ export function buildGaps(task, list) {
     const reason = (why.match(/^(product-ui|data|brand-art|tiny|searched)\b/) || [])[1];
     if (!reason)
       gaps.push(`${s.section}: "custom" needs one of the reasons homemade is allowed: product-ui (the product's own screens), data (a chart of real numbers), brand-art (the client's own art), tiny (a label row), or searched <what you searched for>. Otherwise use a piece: components_find({ need }) and pieces_preview.`);
-    else if (reason === "searched" && !used.components_find) gaps.push(`${s.section}: "custom: searched" but no components_find has run in this task. Search for the need in words first.`);
+    else if (reason === "searched") {
+      // The search named has to have happened: some components_find for (roughly) this need.
+      const what = (why.replace(/^searched\s*:?\s*/, "").match(/[a-z]{4,}/g) || []).filter((w) => !["with", "that", "this", "from", "into", "nothing", "found", "none", "fits"].includes(w));
+      const searched = (task.searches || []).some((q) => what.some((w) => q.toLowerCase().includes(w)));
+      if (!used.components_find) gaps.push(`${s.section}: "custom: searched" but no components_find has run in this task. Search for the need in words first.`);
+      else if (!what.length || !searched) gaps.push(`${s.section}: "custom: searched ${what.join(" ") || "…"}" doesn't match any search you ran (${(task.searches || []).slice(-5).map((q) => `"${q}"`).join(", ") || "none"}). Search for this section's need with components_find, preview what comes back, then decide.`);
+    }
   }
+  // "from" names a reference you studied, not a phrase: its site or designer has to be one you looked at.
+  const refNames = new Set(
+    [...(task.refs?.studied || []).flatMap((r) => [r.source, r.key, r.designer]), ...(task.refs?.viewed || [])]
+      .filter(Boolean)
+      .map((x) => String(x).toLowerCase().replace(/^site:/, "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?#]/)[0].split(".")[0])
+      .filter((x) => x && x.length >= 3 && !/^[a-z]\d+-\d+$/.test(x)),
+  );
   const big = list.filter((s) => ["hero", "page", "whole-page", "index", "app"].includes(slug(s.section)));
-  for (const s of big) if (!s.from || s.from.length < 12) gaps.push(`${s.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
+  for (const s of big) {
+    if (!s.from || s.from.length < 12) gaps.push(`${s.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
+    else if (refNames.size && ![...refNames].some((n) => s.from.toLowerCase().includes(n))) gaps.push(`${s.section}: "from" has to name a reference you looked at (${[...refNames].slice(0, 6).join(", ")}…) and what this section takes from it.`);
+  }
   return gaps;
 }
 
@@ -300,6 +316,7 @@ export function register(server, ctx) {
       updateState((st) => {
         if (!st.task) return;
         st.task.built = [...new Set([...(st.task.built || []), ...list.map((s) => slug(s.section))])];
+        st.task.directorLines = 0; // the builders take over: the director's running total starts again
         // What each section is meant to do: the critic sees stills, so it gets the pieces and specs in words.
         st.task.sections ||= {};
         for (const s of list) st.task.sections[slug(s.section)] = { piece: s.piece || "", spec: String(s.spec || "").slice(0, 300), from: s.from ? String(s.from).slice(0, 200) : undefined };

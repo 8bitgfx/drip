@@ -41,6 +41,8 @@ function tracked(name, handler) {
           if (st.task) {
             (st.task.toolUse ||= {})[name] = (st.task.toolUse[name] || 0) + 1;
             (st.task.toolLast ||= {})[name] = Date.now(); // a new round (task.rework) asks for calls after it began
+            // What was searched for: "custom: searched <what>" must match a real search.
+            if (name === "components_find" && (args[0]?.need || args[0]?.kind)) st.task.searches = [...(st.task.searches || []), String(`${args[0].need || ""} ${args[0].kind || ""}`).trim().slice(0, 120)].slice(-40);
           }
         });
     } catch {

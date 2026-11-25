@@ -121,7 +121,10 @@ test("stop is blocked after UI changes until a fit check, then gives up after 3"
   task.uiWrites = [{ file: "src/A.tsx", at: task.lastUiWriteAt }];
   saveState({ version: 1, task, history: [] }, p);
   for (let i = 0; i < 3; i++) assert.equal(runHook("stop.mjs", {}, p)?.decision, "block");
-  assert.equal(runHook("stop.mjs", {}, p), null);
+  const gaveUp = runHook("stop.mjs", {}, p);
+  assert.ok(!gaveUp?.decision, "the turn may end: never stuck");
+  assert.match(gaveUp.systemMessage, /ended unchecked/, "but the user is told");
+  assert.equal(loadState(p).task.endedUnchecked.length, 1);
   const t2 = loadState(p).task;
   t2.fitcheck.doneAt = new Date(Date.now() + 1000).toISOString();
   saveState({ version: 1, task: t2, history: [] }, p);
