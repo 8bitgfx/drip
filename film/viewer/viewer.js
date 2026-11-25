@@ -27,7 +27,7 @@
     critic: '<path d="M1.8 8S4 3.9 8 3.9 14.2 8 14.2 8 12 12.1 8 12.1 1.8 8 1.8 8Z" stroke-linejoin="round"/><circle cx="8" cy="8" r="2"/>',
   };
   const svg = (inner, size = 16) => `<svg viewBox="0 0 16 16" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">${inner}</svg>`;
-  const ICON_DONE = svg('<path d="m3.8 8.4 2.7 2.7 5.7-6" stroke-linecap="round" stroke-linejoin="round"/>', 13);
+  const ICON_DONE = '<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>';
   const ICON_FAIL = svg('<path d="m4.5 4.5 7 7M11.5 4.5l-7 7" stroke-linecap="round"/>', 13);
   const ICON_PEN = svg('<path d="M9.6 3.4 12.6 6.4 6.2 12.8H3.2V9.8z" stroke-linejoin="round"/>', 12);
   const ICON_DOT = svg('<circle cx="8" cy="8" r="2.2" fill="currentColor" stroke="none"/>', 12);
@@ -159,8 +159,7 @@
 
   function showLoadError(err) {
     loadError = err;
-    $('taskTitle').textContent = 'No film here yet';
-    $('taskMeta').innerHTML = `<span class="chip">${esc(FILM_URL)}</span>`;
+    $('stageCap').innerHTML = '<b>No film yet.</b> Waiting for the first frame.';
     setStatus('idle', 'Waiting');
     $('empty').hidden = false;
     const sample = 'sample/film.json';
@@ -174,16 +173,8 @@
   // ---------- header ----------
   function renderHeader() {
     const task = film.task || {};
-    $('taskTitle').textContent = task.title || 'Untitled build';
     document.title = (task.title ? task.title + ' · ' : '') + 'Drip Film';
-    const meta = [];
-    if (task.page) meta.push(`<span class="chip">${esc(task.page)}</span>`);
-    meta.push(`<span>${new Date(T0).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>`);
-    $('taskMeta').innerHTML = meta.join('');
-    let host = '';
-    try { const u = new URL(task.url); host = `${esc(u.host)}${esc(u.pathname === '/' ? '' : u.pathname)}`; } catch { host = esc(task.url || ''); }
-    $('urlText').innerHTML = (task.page ? `<b>${esc(task.page)}</b>` : '') + (host ? `<span class="mono">${host}</span>` : '');
-    $('url').hidden = !host && !task.page;
+    $('stageCap').dataset.tip = `<b>${esc(task.title || 'Untitled build')}</b>${task.page ? `<br><span class="mono">${esc(task.page)}</span>` : ''}`;
     if (task.url) $('openBtn').href = task.url; else $('openBtn').hidden = true;
   }
 
@@ -197,8 +188,8 @@
   function setMode(m, quiet) {
     mode = m;
     app.dataset.mode = m;
-    document.querySelectorAll('.top .seg button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.mode === m)));
-    if (m === 'live') { pause(); $('endcard').hidden = true; }
+    document.querySelectorAll('.modes button').forEach((b) => { const on = b.dataset.mode === m; b.setAttribute('aria-selected', String(on)); b.classList.toggle('on', on); });
+    if (m === 'live') { pause(); $('hero').hidden = true; }
     if (!quiet && film) {
       if (m === 'montage' && !montageStarted) { montageStarted = true; seekTo(T0); play(true); }
       renderAll();
@@ -231,7 +222,7 @@
     playing = true;
     app.classList.add('playing');
     $('playBtn').setAttribute('aria-label', 'Pause');
-    $('endcard').hidden = true;
+    $('hero').hidden = true;
     lastTs = performance.now();
   }
   function pause() {
@@ -287,14 +278,15 @@
   function renderAgents(t) {
     const list = $('agents');
     const ei = lastIdx(events, t);
-    let working = 0, shown = 0;
-    const order = [];
+    let working = 0, shown = 0, failed = 0, recent = null, recentT = -1;
+    const rows = [];
     for (const a of agents) {
-      let li = cardEls.get(a.id);
-      if (a.s > t) { if (li) li.hidden = true; continue; }
+      const li0 = cardEls.get(a.id);
+      if (a.s > t) { if (li0) li0.hidden = true; continue; }
       shown++;
       const st = statusAt(a, t);
       if (st === 'working') working++;
+      if (st === 'failed') failed++;
       // what it is on now: its last file, else its last word
       let file = null, last = null;
       for (let i = ei; i >= 0; i--) {
@@ -304,37 +296,42 @@
         if (e.file) { file = e; break; }
         if (t - e.t > 3600e3) break;
       }
+      // the ONE most recently active working agent gets the second line
+      if (st === 'working') { const lt = last ? last.t : a.s; if (lt >= recentT) { recentT = lt; recent = a.id; } }
+      rows.push({ a, st, file, last });
+    }
+    const order = [];
+    for (const { a, st, file, last } of rows) {
       const pc = piece(a.piece);
       const nowText = st === 'working' ? (file ? file.file : last?.summary || 'starting') : '';
-      const key = [st, nowText, a.label, a.job, a.piece].join('|');
+      const isRecent = a.id === recent;
+      const key = [st, nowText, a.label, a.job, a.piece, isRecent].join('|');
+      let li = cardEls.get(a.id);
       if (!li) { li = document.createElement('li'); li.className = 'agent'; li.dataset.id = a.id; cardEls.set(a.id, li); }
       li.hidden = false;
       li.dataset.model = a.model || '';
       if (li.dataset.key !== key) {
-        const prevNow = li.dataset.now;
         li.dataset.key = key;
-        li.dataset.now = nowText;
         li.dataset.status = st;
-        const right = st === 'working' ? '<span class="a-dot"></span>' : `<span class="a-state">${st === 'failed' ? ICON_FAIL : ICON_DONE}</span>`;
-        const idx = String(agents.indexOf(a) + 1).padStart(2, '0');
-        let html = `<div class="a-main"><span class="a-idx">${idx}</span><div class="a-line"><span class="a-name">${esc(a.label || a.id)}</span><span class="a-model">${esc(modelName(a.model))}</span></div></div><span class="a-right"><span class="el"></span>${right}</span>`;
-        if (st === 'working') {
-          html += `<div class="a-job">${esc(a.job || '')}</div>`;
-          html += `<div class="a-now">${file ? ICON_PEN : ICON_DOT}<span class="${prevNow !== nowText && prevNow ? 'new' : ''}">${esc(nowText)}</span></div>`;
-          if (pc) html += `<div class="a-piece">${pc.href ? `<a class="chip" href="${esc(pc.href)}" target="_blank" rel="noopener"><b>${esc(pc.name)}</b>${esc(pc.lib)}</a>` : `<span class="chip"><b>${esc(pc.name)}</b>${esc(pc.lib)}</span>`}</div>`;
-          li.removeAttribute('data-tip');
-        } else {
-          li.dataset.tip = `<b>${esc(a.label || a.id)}</b><br>${esc(a.job || '')}${pc ? `<br><span class="mono">${esc(pc.lib)} / ${esc(pc.name)}</span>` : ''}${st === 'failed' && last ? `<br><span style="color:var(--fail)">${esc(last.summary || '')}</span>` : ''}`;
-        }
+        const right = st === 'failed'
+          ? '<span class="a-fail">failed</span>'
+          : `<span class="mono el"></span>${st === 'done' ? ICON_DONE : ''}`;
+        let html = `<div class="row"><span class="who"><i class="sw"></i><span class="a-name">${esc(a.label || a.id)}</span></span><span class="a-right">${right}</span></div>`;
+        if (isRecent) html += `<div class="a-sub"><span class="a-job">${esc(a.job || '')}${pc ? ' · ' + esc(pc.name) : ''}</span>${file ? `<span class="mono a-file">${esc(file.file)}</span>` : ''}</div>`;
+        li.dataset.tip = `<b>${esc(a.label || a.id)}</b><br>${esc(a.job || '')}${pc ? `<br><span class="mono">${esc(pc.lib)} / ${esc(pc.name)}</span>` : ''}${file && st === 'working' ? `<br><span class="mono">${esc(file.file)}</span>` : ''}${st === 'failed' && last ? `<br><span style="color:var(--fail)">${esc(last.summary || '')}</span>` : ''}`;
         li.innerHTML = html;
       }
-      li.querySelector('.el').textContent = clock((a.e && a.e <= t ? a.e : t) - a.s);
+      const el = li.querySelector('.el');
+      if (el) el.textContent = clock((a.e && a.e <= t ? a.e : t) - a.s);
       order.push(li);
     }
     // keep DOM order = agent order, without churning nodes that are already in place
     order.forEach((li, i) => { if (list.children[i] !== li) list.insertBefore(li, list.children[i] || null); });
-    $('agentsSub').textContent = shown ? `${working} working · ${shown}` : '';
-    $('tabAgentsCount').textContent = shown || '';
+    const s = shown === 1 ? '' : 's';
+    const cap = !shown ? '<b>Agents.</b> None yet.'
+      : working ? `<b>${shown} agent${s}.</b> ${working} working now.`
+      : `<b>${shown} agent${s}.</b> All done${failed ? `, ${failed} failed` : ''}.`;
+    if ($('agCap').dataset.k !== cap) { $('agCap').dataset.k = cap; $('agCap').innerHTML = cap; }
   }
 
   let feedKey = '';
@@ -345,74 +342,66 @@
     const prevEi = Number(feedKey.split(':')[1] ?? -1);
     feedKey = key;
     const list = $('feed');
-    if (ei < 0) { list.innerHTML = '<li class="feed-empty">Nothing yet.</li>'; $('feedSub').textContent = ''; return; }
+    if (ei < 0) { list.innerHTML = '<li class="feed-empty">Nothing yet.</li>'; return; }
     const from = Math.max(0, ei - 80);
     let html = '';
     for (let i = ei; i >= from; i--) {
       const e = events[i], a = agentById.get(e.agent);
       const fresh = mode === 'live' && i > prevEi && prevEi >= 0 ? ' fresh' : '';
-      const cur = mode === 'montage' && i === ei ? ' current' : '';
-      const fail = /fail|error/i.test(e.summary || '') ? ' data-fail' : '';
-      html += `<li class="ev${fresh}${cur}" data-model="${esc(a?.model || '')}" data-kind="${esc(e.kind)}" data-t="${e.t}"${fail}>
-        <span class="time">${clock(e.t - T0)}</span>
-        <div class="ev-who"><i></i><b>${esc(a?.label || e.agent)}</b><span class="ev-kind">${esc(e.tool || e.kind)}</span></div>
-        <div class="ev-sum">${esc(e.summary || e.kind)}</div>
-        ${e.file ? `<div class="ev-file">${esc(e.file)}</div>` : ''}
-      </li>`;
+      const sum = e.summary || e.kind || '';
+      const fileTag = e.file && !sum.includes(e.file) ? `<span class="f">${esc(e.file)}</span>` : '';
+      html += `<li class="ev${fresh}" data-t="${e.t}"><span class="time">${clock(e.t - T0)}</span><span class="ev-txt"><b>${esc(a?.label || e.agent)}</b> ${esc(sum)}${fileTag}</span></li>`;
     }
     list.innerHTML = html;
     if (mode === 'montage') list.scrollTop = 0;
-    $('feedSub').textContent = `${ei + 1} events`;
-    $('tabFeedCount').textContent = ei + 1;
   }
 
-  let shownFrame = -2, front = 'imgA';
+  let shownKey = '', front = 'imgA', wasEnd = false;
+  function facesHtml(f) {
+    const as = (f?.agents || []).map((id) => agentById.get(id)).filter(Boolean);
+    const chip = (a) => `<span class="chip" data-model="${esc(a.model || '')}"><i class="sw"></i><span class="lbl">${esc(a.label || a.id)}</span></span>`;
+    return as.slice(0, 3).map(chip).join('') + (as.length > 3 ? `<span class="chip">+${as.length - 3}</span>` : '');
+  }
   function renderStage(t) {
     // the nearest frame at or before the playhead; in the montage, before the first one, the first one
     let fi = lastIdx(frames, t);
     if (fi < 0 && mode === 'montage' && frames.length) fi = 0;
-    const total = mode === 'live' ? lastIdx(frames, t) + 1 : frames.length;
-    $('frameNo').innerHTML = fi >= 0 ? `Frame <b>${String(fi + 1).padStart(2, '0')}</b> / ${String(total).padStart(2, '0')}` : '';
-    if (fi !== shownFrame) {
-      shownFrame = fi;
-      if (fi < 0) {
-        $('imgA').classList.remove('on'); $('imgB').classList.remove('on');
-        $('caption').hidden = true;
-        $('frameDims').textContent = '';
-        $('empty').hidden = false;
-        $('emptyText').textContent = frames.length ? 'The page appears with the first frame' : 'Waiting for the first frame';
-      } else {
-        $('empty').hidden = true;
-        const f = frames[fi];
-        const back = front === 'imgA' ? 'imgB' : 'imgA';
-        const img = $(back);
-        const show = () => { $(back).classList.add('on'); $(front).classList.remove('on'); front = back; };
-        img.alt = f.caption || 'Frame ' + (fi + 1);
-        if (img.getAttribute('src') === f.src && img.complete) show();
-        else { img.onload = show; img.onerror = show; img.src = f.src; }
-        if (frames[fi + 1]) { const n = new Image(); n.src = frames[fi + 1].src; }
-        const faces = (f.agents || []).map((id) => agentById.get(id)).filter(Boolean)
-          .map((a) => `<span class="tag" data-model="${esc(a.model || '')}"><i></i>${esc(a.label || a.id)}</span>`).join('');
-        $('frameDims').textContent = f.width && f.height ? `${f.width} × ${f.height}` : '';
-        $('capFaces').innerHTML = faces;
-        $('capText').textContent = f.caption || '';
-        $('capTime').textContent = clock(f.t - T0);
-        $('caption').hidden = !f.caption && !faces;
-        // restart the caption entrance
-        const c = $('caption'); c.style.animation = 'none'; void c.offsetWidth; c.style.animation = '';
+    const key = fi + ':' + mode;
+    if (key !== shownKey) {
+      const frameChanged = !shownKey || Number(shownKey.split(':')[0]) !== fi;
+      shownKey = key;
+      const f = fi >= 0 ? frames[fi] : null;
+      const lead = mode === 'live' ? 'Latest frame.' : `Frame ${String(fi + 1).padStart(2, '0')}.`;
+      $('stageCap').innerHTML = f ? `<b>${lead}</b> ${esc(f.caption || '')}` : '<b>Waiting.</b> The first frame is on its way.';
+      const fh = facesHtml(f);
+      $('facesLive').innerHTML = fh;
+      $('facesRow').innerHTML = fh;
+      if (frameChanged) {
+        if (fi < 0) {
+          $('imgA').classList.remove('on'); $('imgB').classList.remove('on');
+          $('empty').hidden = false;
+          $('emptyText').textContent = frames.length ? 'The page appears with the first frame' : 'Waiting for the first frame';
+        } else {
+          $('empty').hidden = true;
+          const back = front === 'imgA' ? 'imgB' : 'imgA';
+          const img = $(back);
+          const show = () => { $(back).classList.add('on'); $(front).classList.remove('on'); front = back; };
+          img.alt = f.caption || 'Frame ' + (fi + 1);
+          if (img.getAttribute('src') === f.src && img.complete) show();
+          else { img.onload = show; img.onerror = show; img.src = f.src; }
+          if (frames[fi + 1]) { const n = new Image(); n.src = frames[fi + 1].src; }
+        }
       }
     }
-    // end card
-    const showEnd = mode === 'montage' && TE && atEnd() && !playing;
-    if (showEnd && $('endcard').hidden) renderEndCard();
-    $('endcard').hidden = !showEnd;
+    // the end of the montage: the README hero
+    const showEnd = mode === 'montage' && !!TE && atEnd() && !playing;
+    if (showEnd && !wasEnd) { buildHero(); rollNext = true; summaryKey = ''; }
+    wasEnd = showEnd;
+    $('hero').hidden = !showEnd;
     app.classList.toggle('ended', showEnd);
     // transport
     const end = knots[knots.length - 1];
     $('clock').innerHTML = `${clock(t - T0)} <span>/ ${clock(end - T0)}</span>`;
-    $('scrubFill').style.width = ((t - T0) / Math.max(1, end - T0)) * 100 + '%';
-    // live bar
-    if (mode === 'live') renderLiveBar(t);
   }
 
   function workingByModel(t) {
@@ -430,16 +419,7 @@
     if (!parts.length) return 'none';
     return parts.map(([m, n]) => `<span class="m"><i style="background:var(--${esc(m)}, var(--ink-3))"></i>${n} ${esc(modelName(m))}${suffix}</span>`).join('');
   }
-  function renderLiveBar(t) {
-    $('lbElapsed').textContent = clock((TE || t) - T0);
-    $('lbWorking').innerHTML = modelDots(workingByModel(t));
-    $('lbFiles').textContent = filesUpTo(t).size;
-    $('lbFrames').textContent = lastIdx(frames, t) + 1;
-    const ei = lastIdx(events, t);
-    const e = events[ei];
-    const a = e && agentById.get(e.agent);
-    $('lbNote').textContent = e ? `${a?.label || e.agent}: ${e.summary || e.kind} · ${FROZEN != null || TE ? clock(e.t - T0) : ago(Date.now() - e.t)}` : '';
-  }
+
 
   function pieceList() {
     const seen = new Map();
@@ -451,28 +431,83 @@
     for (const a of list) c[a.model] = (c[a.model] || 0) + 1;
     return c;
   }
-  function renderEndCard() {
-    $('endTime').textContent = dur(TE - T0);
-    const files = filesUpTo(TE).size;
-    const failed = agents.filter((a) => a.status === 'failed').length;
-    $('endSub').textContent = `${film.task?.page ? film.task.page + ': ' : ''}${agents.length} agent${agents.length === 1 ? '' : 's'}, ${files} file${files === 1 ? '' : 's'} written, ${frames.length} frames${failed ? `, ${failed} failed` : ''}`;
-    $('endModels').innerHTML = Object.entries(countByModel(agents)).map(([m, n]) => `<span class="chip"><i style="width:7px;height:7px;border-radius:2px;background:var(--${esc(m)}, var(--ink-3))"></i><b>${n}</b>${esc(modelName(m))}</span>`).join('');
+  // brand.mjs paint(): a W x H box of paint that runs out of its bottom edge in drips
+  const r1 = (n) => +n.toFixed(1);
+  function paint(W, H, drips, f) {
+    let d = `M0,0 H${W} V${H}`;
+    [...drips].sort((a, b) => b.x - a.x).forEach(({ x, w, len, s = 1.14 }) => {
+      const n = w / 2, t = n * s, cy = H + len - t, y0 = H + f, h = cy - y0;
+      d += ` H${r1(x + n + f)} A${f},${f} 0 0 0 ${r1(x + n)},${y0}`;
+      d += ` C${r1(x + n)},${r1(y0 + h * 0.55)} ${r1(x + t)},${r1(cy - h * 0.3)} ${r1(x + t)},${r1(cy)}`;
+      d += ` A${r1(t)},${r1(t)} 0 0 1 ${r1(x - t)},${r1(cy)}`;
+      d += ` C${r1(x - t)},${r1(cy - h * 0.3)} ${r1(x - n)},${r1(y0 + h * 0.55)} ${r1(x - n)},${y0}`;
+      d += ` A${f},${f} 0 0 0 ${r1(x - n - f)},${H}`;
+    });
+    return `${d} H0 Z`;
+  }
+  function buildHero() {
+    const tile = $('stage'), w = tile.clientWidth, h = tile.clientHeight;
+    const narrow = w < 600;
+    const fs = clamp(w * 0.077, 30, 72), bx = clamp(w * 0.043, 16, 40), by = bx;
+    const bw = w - bx * 2, bh = Math.round(fs * 2.55), hs = clamp(fs * 0.2, 9, 14), f = clamp(fs * 0.19, 8, 14);
+    const R = Math.max(40, h - (by + bh)), ws = bw / 750, dw = (v) => Math.max(9, v * ws);
+    const drips = narrow
+      ? [{ x: bw * 0.1, w: dw(26), len: R * 0.5 }, { x: bw * 0.24, w: dw(38), len: R * 0.78 }]
+      : [{ x: bw * 0.12, w: dw(30), len: R * 0.55 }, { x: bw * 0.33, w: dw(50), len: R * 0.82 }, { x: bw * 0.43, w: dw(20), len: R * 0.2, s: 1.04 }, { x: bw * 0.58, w: dw(26), len: R * 0.38 }];
+    const handles = [[0, 0], [bw / 2, 0], [bw, 0], [0, bh / 2], [bw, bh / 2], [0, bh], [bw, bh]]
+      .map(([x, y]) => `<rect x="${r1(x - hs / 2)}" y="${r1(y - hs / 2)}" width="${r1(hs)}" height="${r1(hs)}" rx="2.5" fill="#fff" stroke="#2340FF" stroke-width="2.5"/>`).join('');
+    $('heroArt').innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><g transform="translate(${bx} ${by})"><path d="${paint(bw, bh, drips, f)}" fill="#2340FF"/><rect width="${bw}" height="${bh}" fill="none" stroke="#93A2FF" stroke-width="2"/>${handles}</g></svg>`
+      + `<h2 style="left:${r1(bx + fs * 0.5)}px;top:${r1(by + fs * 0.36)}px;font-size:${r1(fs)}px">Built in<br>${esc(dur(TE - T0))}.</h2>`;
+    $('hero').style.setProperty('--hx', bx + 'px');
+    $('hero').style.setProperty('--hy', (by + bh - (narrow ? 46 : 56)) + 'px');
   }
 
-  let summaryKey = '';
+  let summaryKey = '', rollNext = true, bigText = '';
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // the odometer: each digit is a 0-9 column that rolls once to its value (600ms, staggered); reduced motion = plain text
+  function setBig(text, roll) {
+    const el = $('sumBig');
+    if (roll && !REDUCED && /\d/.test(text)) {
+      bigText = text;
+      el.setAttribute('aria-label', text);
+      let n = 0;
+      el.innerHTML = [...text].map((ch) => (/\d/.test(ch)
+        ? `<span class="od" aria-hidden="true"><span class="od-col" style="--d:${ch};--i:${n++}">${'0123456789'.replace(/./g, (d) => `<span>${d}</span>`)}</span></span>`
+        : `<span aria-hidden="true">${esc(ch)}</span>`)).join('');
+      el.classList.remove('go');
+      void el.offsetWidth;
+      requestAnimationFrame(() => el.classList.add('go'));
+      setTimeout(() => { if (bigText === text) { el.classList.remove('go'); el.removeAttribute('aria-label'); el.textContent = text; } }, 1100);
+    } else if (bigText !== text) {
+      bigText = text;
+      el.classList.remove('go');
+      el.removeAttribute('aria-label');
+      el.textContent = text;
+    }
+  }
   function renderSummary(t) {
-    // the strip sums up the whole run (so far, while live), not the playhead
+    // the tile sums up the whole run (so far, while live), not the playhead
     const files = filesUpTo(TE ? Infinity : liveNow()).size;
-    const pcs = pieceList();
-    const key = [TE, files, agents.length, frames.length, pcs.length, TE ? '' : Math.floor((liveNow() - T0) / 1000)].join('|');
+    const key = [TE, files, agents.length, frames.length, TE ? '' : Math.floor((liveNow() - T0) / 1000)].join('|');
     if (key === summaryKey) return;
     summaryKey = key;
-    const total = TE ? `<span class="sum">Total <b>${dur(TE - T0)}</b></span>` : `<span class="sum">Elapsed <b>${clock(liveNow() - T0)}</b></span>`;
-    $('summary').innerHTML = `${total}<span class="sum-sep"></span>
-      <span class="sum">${modelDots(countByModel(agents))}</span><span class="sum-sep"></span>
-      <span class="sum"><b>${files}</b> files</span>
-      <span class="sum"><b>${frames.length}</b> frames</span>
-      ${pcs.length ? `<span class="sum-sep"></span><span class="sum pieces">${pcs.slice(0, 6).map((p) => `<span class="chip" data-tip="${esc(p.lib)} / ${esc(p.name)}"><b>${esc(p.name)}</b></span>`).join('')}${pcs.length > 6 ? `<span class="chip">+${pcs.length - 6}</span>` : ''}</span>` : ''}`;
+    const n = agents.length, s = (k) => (k === 1 ? '' : 's');
+    const counts = countByModel(agents), order = ['opus', 'sonnet', 'haiku'];
+    const names = [...order.filter((m) => counts[m]), ...Object.keys(counts).filter((m) => !order.includes(m))];
+    $('sumChips').innerHTML = names.map((m) => `<span class="chip">${esc(modelName(m))} ${counts[m]}</span>`)
+      .concat(`<span class="chip">${files} file${s(files)}</span>`, `<span class="chip">${frames.length} frame${s(frames.length)}</span>`).join('');
+    if (TE) {
+      const d = dur(TE - T0);
+      $('sumCap').innerHTML = `<b>The build.</b> ${n} agent${s(n)}, ${frames.length} frame${s(frames.length)}.`;
+      setBig(`${files} file${s(files)}`, rollNext);
+      rollNext = false;
+    } else {
+      const live = liveNow();
+      let w = 0;
+      for (const a of agents) if (a.s <= live && statusAt(a, live) === 'working') w++;
+      $('sumCap').innerHTML = `<b>Elapsed.</b> ${w} agent${s(w)} working.`;
+      setBig(clock(live - T0), false);
+    }
   }
 
   // ---------- timeline ----------
@@ -482,13 +517,7 @@
   function buildTimeline() {
     D0 = T0; D1 = domainEnd();
     const lanes = $('lanes');
-    lanes.innerHTML = agents.map((a) => {
-      const ticks = events.filter((e) => e.agent === a.id && (e.kind === 'write' || e.kind === 'stitch' || e.kind === 'shot'));
-      return `<div class="lane" data-model="${esc(a.model || '')}" data-id="${esc(a.id)}">
-        <div class="lane-label"><i></i><span>${esc(a.label || a.id)}</span><em class="lane-dur"></em></div>
-        <div class="lane-track"><div class="bar" data-id="${esc(a.id)}"><div class="fill"></div><div class="ticks">${ticks.map((e) => `<i data-t="${e.t}"></i>`).join('')}</div>${a.status === 'failed' ? '<span class="x"></span>' : ''}</div></div>
-      </div>`;
-    }).join('');
+    lanes.innerHTML = agents.map((a) => `<div class="lane" data-model="${esc(a.model || '')}" data-id="${esc(a.id)}"><div class="lane-label">${esc(a.label || a.id)}</div><div class="lane-track"><div class="bar" data-id="${esc(a.id)}"><div class="fill"></div>${a.status === 'failed' ? '<span class="x"></span>' : ''}</div></div></div>`).join('');
     buildRuler();
     renderBars(currentT());
   }
@@ -497,14 +526,19 @@
     const span = D1 - D0;
     const steps = [5e3, 10e3, 15e3, 30e3, 60e3, 120e3, 300e3, 600e3, 900e3, 1800e3, 3600e3, 7200e3];
     const w = $('ruler').clientWidth || 800;
-    const maxTicks = Math.max(3, Math.floor(w / 70));
+    const maxTicks = Math.max(3, Math.min(6, Math.floor(w / 110)));
     const stepMs = steps.find((s) => span / s <= maxTicks) || steps[steps.length - 1];
     let html = '';
-    for (let x = 0; x <= span && (x === 0 || (x / span) * w < w - 44); x += stepMs) html += `<div class="tick" style="left:${(x / span) * 100}%"><span>${clock(x)}</span></div>`;
-    const fi = 0;
-    html += frames.map((f, i) => `<span class="fmark" data-i="${i}" data-t="${f.t}" style="left:${pct(f.t)}%"></span>`).join('');
-    $('ruler').innerHTML = html;
-    void fi;
+    for (let x = 0; x <= span && (x === 0 || (x / span) * w < w - 44); x += stepMs) html += `<div class="tick" style="left:${(x / span) * 100}%">${clock(x)}</div>`;
+    $('rulerTicks').innerHTML = html;
+    $('ruler').innerHTML = frames.map((f, i) => `<span class="fmark" data-i="${i}" data-t="${f.t}" style="left:${pct(f.t)}%"></span>`).join('');
+    placePlayhead();
+  }
+  // the playhead sits over the ruler's left edge and starts at the frame-marker row
+  function placePlayhead() {
+    const body = $('tlBody').getBoundingClientRect(), r = $('ruler').getBoundingClientRect();
+    $('playhead').style.setProperty('--x0', r.left - body.left + 'px');
+    $('playhead').style.setProperty('--y0', r.top - body.top + r.height / 2 + 'px');
   }
 
   function renderBars(t) {
@@ -524,20 +558,12 @@
       const span = Math.max(1, end - a.s);
       const filled = mode === 'montage' ? clamp((t - a.s) / span, 0, 1) : 1;
       bar.firstElementChild.style.width = filled * 100 + '%';
-      bar.querySelectorAll('.ticks i').forEach((i) => { i.style.left = ((Number(i.dataset.t) - a.s) / span) * 100 + '%'; });
-      const lane = bar.closest('.lane');
-      lane.querySelector('.lane-dur').textContent = a.s <= (mode === 'montage' ? t : live) ? dur(Math.min(end, mode === 'montage' ? Math.max(t, a.s) : end) - a.s) : '';
     });
   }
 
   function renderTimelineState(t) {
     const w = $('ruler').clientWidth;
-    const x = (pct(t) / 100) * w;
-    $('playhead').style.setProperty('--x', x + 'px');
-    const bub = $('phBubble');
-    bub.textContent = clock(t - T0);
-    // keep the bubble inside the track at both ends
-    bub.style.transform = x > w - 64 ? 'translateX(calc(-100% - 24px))' : '';
+    $('playhead').style.setProperty('--x', (pct(t) / 100) * w + 'px');
     document.querySelectorAll('#ruler .fmark').forEach((m) => {
       const ft = Number(m.dataset.t);
       m.classList.toggle('seen', ft <= t);
@@ -557,17 +583,11 @@
     $('tlBody').setPointerCapture(e.pointerId);
   });
   $('tlBody').addEventListener('pointermove', (e) => {
-    const hov = $('tlHover');
-    const r = $('ruler').getBoundingClientRect();
-    if (e.clientX >= r.left && e.clientX <= r.right) {
-      hov.hidden = false;
-      hov.style.left = e.clientX - $('tlBody').getBoundingClientRect().left + 'px';
-    } else hov.hidden = true;
     if (!drag) return;
     if (Math.abs(e.clientX - drag.x) > 3) drag.moved = true;
     if (drag.moved) { if (mode !== 'montage') setMode('montage'); pause(); seekTo(timeAtX(e.clientX)); }
   });
-  $('tlBody').addEventListener('pointerleave', () => { $('tlHover').hidden = true; });
+
   $('tlBody').addEventListener('pointerup', (e) => {
     if (!drag) return;
     const d = drag; drag = null;
@@ -616,7 +636,7 @@
   document.addEventListener('pointerout', (e) => { if (!e.relatedTarget || !e.relatedTarget.closest?.('.bar,.fmark,[data-tip]')) tip.hidden = true; });
 
   // ---------- controls ----------
-  document.querySelectorAll('.top .seg button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  document.querySelectorAll('.modes button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
   $('playBtn').addEventListener('click', () => (playing ? pause() : play()));
   $('prevBtn').addEventListener('click', () => step(-1));
   $('nextBtn').addEventListener('click', () => step(1));
@@ -635,7 +655,7 @@
   });
   function setTab(tab) {
     app.dataset.tab = tab;
-    document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    document.querySelectorAll('.tabs button').forEach((b) => { const on = b.dataset.tab === tab; b.setAttribute('aria-selected', String(on)); b.classList.toggle('on', on); });
   }
   document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
   function toggleTheme() {
@@ -664,7 +684,7 @@
   }
 
   let resizeT;
-  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (film) { buildRuler(); renderAll(); } }, 120); });
+  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (film) { buildRuler(); if (!$('hero').hidden) buildHero(); renderAll(); } }, 120); });
 
   // ---------- go ----------
   load().then(() => {
