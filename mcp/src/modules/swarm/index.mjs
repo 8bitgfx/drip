@@ -94,17 +94,22 @@ export function pageOf(task, page) {
 }
 
 /** Where a section's files go on this page. Hero and nav and footer live in fixed files. */
+const WHOLE = ["page", "whole-page", "index", "app"];
+const OWN = ["nav", "hero", "footer"];
+
 export function sectionFiles(section, stack) {
   const id = slug(section);
+  if (WHOLE.includes(id)) return stack === "react" ? ["src/"] : ["index.html", "styles/", "scripts/", "assets/"];
   if (stack === "react") return [`src/sections/${pascal(id)}.tsx`];
   if (["nav", "hero", "footer"].includes(id)) return ["index.html"];
   return [`sections/${id}.html`, `styles/sections/${id}.css`];
 }
 
 export function buildPrompt({ section, spec, files, url, task, piece, page }) {
-  const doc = designDoc();
   const chosen = task?.board?.chosen;
   const pg = page || pageOf(task);
+  // The system of THIS page: its own DESIGN.md (a page in a subfolder never inherits the repo's), else its tokens.
+  const doc = pg && pg.rel !== "." ? designDoc(pg.root) : designDoc(undefined, task);
   const stack = pg?.stack || "html";
   const mine = files?.length ? files : sectionFiles(section, stack);
   const where = pg ? `The page: ${pg.rel}/ (${stack === "react" ? "React + Vite + Tailwind v4" : "one static HTML page"}).` : "";
@@ -139,8 +144,10 @@ export function buildPrompt({ section, spec, files, url, task, piece, page }) {
       : "",
     `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for this section)" : ""}.`,
     stack === "react"
-      ? `${["nav", "hero", "footer"].includes(slug(section)) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${slug(section)}">. `}Other builders write the other sections at the same time; the director stitches them into App.tsx.`
-      : ["nav", "hero", "footer"].includes(slug(section))
+      ? `${[...OWN, ...WHOLE].includes(slug(section)) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${slug(section)}">. `}Other builders write the other sections at the same time; the director stitches them into App.tsx.`
+      : WHOLE.includes(slug(section))
+        ? "You build the whole page: index.html and its own styles and scripts."
+        : OWN.includes(slug(section))
         ? "Edit the page's own nav / hero / footer in index.html (and its <style>)."
         : `${mine[0]} holds the <section id="${slug(section)}"> element alone (no <html>/<head>), ${mine[1]} its styles. Other builders write the other sections at the same time; the director stitches them in.`,
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
@@ -258,7 +265,7 @@ export function register(server, ctx) {
         (toInstall.length ? `FIRST: pieces_install({ page: "${pg.rel}", urls: ${JSON.stringify(toInstall)} }) (one run; then launch).\n\n` : "") +
         `NOW: launch ${prompts.length === 1 ? "the builder" : `all ${prompts.length} builders in ONE message`} with exactly these prompts (do not edit them):\n`;
       const body = prompts.map(({ s, prompt }) => `${launch("builder", `Build ${s.section}`)}\n----------------------------------------\n${prompt}\n----------------------------------------`).join("\n\n");
-      const stitchable = list.map((s) => slug(s.section)).filter((id) => !["nav", "hero", "footer"].includes(id));
+      const stitchable = list.map((s) => slug(s.section)).filter((id) => ![...OWN, ...WHOLE].includes(id));
       const tail = stitchable.length
         ? `\n\nWhen they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.`
         : `\n\nWhen it finishes: fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to the builder (SendMessage to it).`;

@@ -423,7 +423,7 @@
         "dark"
       ],
       "quality": 3,
-      "preview": "https://www.eldoraui.site/docs/components/{name}"
+      "preview": "https://www.eldoraui.site/view/{name}"
     },
     {
       "id": "efferd",

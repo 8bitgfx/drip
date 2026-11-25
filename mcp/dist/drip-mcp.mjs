@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path80) {
-      let input2 = path80;
+    function removeDotSegments(path81) {
+      let input2 = path81;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path80) {
-      if (path80 === "" || path80[0] === "/") {
-        return removeDotSegments(path80);
+    function removeDotSegmentsRelative(path81) {
+      if (path81 === "" || path81[0] === "/") {
+        return removeDotSegments(path81);
       }
-      const segments = path80.split("/");
+      const segments = path81.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path80 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path80 && path80 !== "/" ? path80 : void 0;
+        const path81 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path81 && path81 !== "/" ? path81 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -7257,12 +7257,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f3;
     };
-    function addFormats(ajv, list4, fs82, exportName) {
+    function addFormats(ajv, list4, fs83, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f3 of list4)
-        ajv.addFormat(f3, fs82[f3]);
+        ajv.addFormat(f3, fs83[f3]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -11869,7 +11869,7 @@ var require_gifframe = __commonJS({
 var require_gifutil = __commonJS({
   "node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
-    var fs82 = __require("fs");
+    var fs83 = __require("fs");
     var ImageQ = require_image_q();
     var BitmapImage2 = require_bitmapimage();
     var { GifFrame: GifFrame2 } = require_gifframe();
@@ -11984,14 +11984,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path80, frames, spec, encoder) {
+    exports.write = function(path81, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches2 = path80.match(/\.[a-zA-Z]+$/);
+      const matches2 = path81.match(/\.[a-zA-Z]+$/);
       if (matches2 !== null && INVALID_SUFFIXES.includes(matches2[0].toLowerCase())) {
-        throw new Error(`GIF '${path80}' has an unexpected suffix`);
+        throw new Error(`GIF '${path81}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path80, gif2.buffer).then(() => {
+        return _writeBinary(path81, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -12063,9 +12063,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path80) {
+    function _readBinary(path81) {
       return new Promise((resolve2, reject) => {
-        fs82.readFile(path80, (err, buffer) => {
+        fs83.readFile(path81, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -12073,9 +12073,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path80, buffer) {
+    function _writeBinary(path81, buffer) {
       return new Promise((resolve2, reject) => {
-        fs82.writeFile(path80, buffer, (err) => {
+        fs83.writeFile(path81, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -14054,9 +14054,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path80) {
+        load: function load2(path81) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path80, true);
+          xhr.open("GET", path81, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -24483,11 +24483,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path80) {
-      path80 = String(path80);
-      let last = path80.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path81) {
+      path81 = String(path81);
+      let last = path81.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path80.length;
+      let hasPath = last.length < path81.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -26740,9 +26740,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path80) {
-        super(`Not a regular file: ${path80}`);
-        this.path = path80;
+      constructor(path81) {
+        super(`Not a regular file: ${path81}`);
+        this.path = path81;
         this.name = "NotRegularFileError";
       }
     };
@@ -31204,8 +31204,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path80, options) {
-  return new FileTypeParser2(options).fromFile(path80, options);
+async function fileTypeFromFile(path81, options) {
+  return new FileTypeParser2(options).fromFile(path81, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -31236,9 +31236,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path80) {
+      async fromFile(path81) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs29.open(path80, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs29.open(path81, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -31247,7 +31247,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path80,
+            path: path81,
             size: fileStat.size
           }
         });
@@ -38692,9 +38692,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path80, options) {
+      Path.fromSVG = function(path81, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path80, options);
+        return newPath.fromSVG(path81, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -43859,8 +43859,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path80) {
-        let _path = path80 || new path_default();
+      function getPathDefinition(glyph, path81) {
+        let _path = path81 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -44088,8 +44088,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path80 = this.getPath(x2, y2, fontSize, options, font);
-        path80.draw(ctx2);
+        const path81 = this.getPath(x2, y2, fontSize, options, font);
+        path81.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -44118,8 +44118,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path80 = this.path;
-        let commands = path80.commands;
+        const path81 = this.path;
+        let commands = path81.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -44266,9 +44266,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path80 = buildPath2(font.glyphs, glyph);
-            path80.unitsPerEm = font.unitsPerEm;
-            return path80;
+            const path81 = buildPath2(font.glyphs, glyph);
+            path81.unitsPerEm = font.unitsPerEm;
+            return path81;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -44283,9 +44283,9 @@ var require_opentype = __commonJS({
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path80 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path80.unitsPerEm = font.unitsPerEm;
-            return path80;
+            const path81 = parseCFFCharstring2(font, glyph, charstring, version2);
+            path81.unitsPerEm = font.unitsPerEm;
+            return path81;
           };
           return glyph;
         };
@@ -44752,12 +44752,12 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path80) {
+      function applyPaintType(font, path81) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path80.fill = null;
-          path80.stroke = "black";
-          path80.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path81.fill = null;
+          path81.stroke = "black";
+          path81.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
@@ -45520,16 +45520,16 @@ var require_opentype = __commonJS({
       }
       function glyphToOps(glyph, version2) {
         const ops = [];
-        const path80 = glyph.path;
+        const path81 = glyph.path;
         if (version2 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path80.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path81.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path80.commands[i2];
+          let cmd = path81.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -53537,8 +53537,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path80 = this.getPath(text2, x2, y2, fontSize, options);
-        path80.draw(ctx2);
+        const path81 = this.getPath(text2, x2, y2, fontSize, options);
+        path81.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -55560,7 +55560,7 @@ async function QuickJSRaw(moduleArg = {}) {
     throw d;
   }, v = import.meta.url;
   if (n3) {
-    var fs82 = require2("node:fs");
+    var fs83 = require2("node:fs");
     v.startsWith("file:") && require2("node:path").dirname(require2("node:url").fileURLToPath(v)), 1 < process.argv.length && (t2 = process.argv[1].replace(/\\/g, "/")), process.argv.slice(2), u2 = (b, d) => {
       throw process.exitCode = b, d;
     };
@@ -58334,8 +58334,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path80, errorMaps, issueData } = params;
-  const fullPath = [...path80, ...issueData.path || []];
+  const { data, path: path81, errorMaps, issueData } = params;
+  const fullPath = [...path81, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -58450,11 +58450,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path80, key) {
+  constructor(parent, value, path81, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path80;
+    this._path = path81;
     this._key = key;
   }
   get path() {
@@ -62409,10 +62409,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path80) {
-  if (!path80)
+function getElementAtPath(obj, path81) {
+  if (!path81)
     return obj;
-  return path80.reduce((acc, key) => acc?.[key], obj);
+  return path81.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -62752,11 +62752,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path80, issues) {
+function prefixIssues(path81, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path80);
+    iss.path.unshift(path81);
     return iss;
   });
 }
@@ -63218,16 +63218,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path80 = []) => {
+  const processError = (error63, path81 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path80, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path81, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path80, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path81, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path80, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path81, ...issue2.path]);
       } else {
-        const fullpath = [...path80, ...issue2.path];
+        const fullpath = [...path81, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -63266,17 +63266,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path80 = []) => {
+  const processError = (error63, path81 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path80, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path81, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path80, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path81, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path80, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path81, ...issue2.path]);
       } else {
-        const fullpath = [...path80, ...issue2.path];
+        const fullpath = [...path81, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -63315,8 +63315,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path80 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path80) {
+  const path81 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path81) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -78867,11 +78867,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path80) {
-  if (path80.length === 0) {
+function getDotPath(path81) {
+  if (path81.length === 0) {
     return "object root";
   }
-  return path80.reduce((acc, seg, index) => {
+  return path81.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -81098,13 +81098,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path80 = ref.slice(1).split("/").filter(Boolean);
-  if (path80.length === 0) {
+  const path81 = ref.slice(1).split("/").filter(Boolean);
+  if (path81.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path80[0] === defsKey) {
-    const key = path80[1] === void 0 ? void 0 : decodeJSONPointerSegment(path80[1]);
+  if (path81[0] === defsKey) {
+    const key = path81[1] === void 0 ? void 0 : decodeJSONPointerSegment(path81[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -88178,7 +88178,7 @@ import path8 from "node:path";
 init_paths();
 import fs7 from "node:fs";
 import path7 from "node:path";
-var PACK_FILES = ["guide.md", "genres.md", "artists.md", "queries.md", "critic.md", "sources.md", "refs.json", "slop.json", "catalogue.json"];
+var PACK_FILES = ["guide.md", "genres.md", "artists.md", "queries.md", "critic.md", "sources.md", "learned.md", "refs.json", "slop.json", "catalogue.json"];
 function roots(cwd) {
   return [path7.join(projectDripDir(cwd), "packs"), path7.join(homeDripDir, "packs")];
 }
@@ -88262,6 +88262,58 @@ function matchPacks(text2, cwd) {
   return listPacks(cwd).filter((p2) => p2.type === "project" || (p2.keywords || []).some((k) => k && t2.includes(String(k).toLowerCase())));
 }
 var isProjectPack = (id, cwd) => listPacks(cwd).some((p2) => p2.id === id && p2.type === "project");
+function learnInPack(id, lesson, { source = "user", cwd } = {}) {
+  const dir = packDir(id, cwd);
+  if (!dir) return false;
+  const f3 = path7.join(dir, "learned.md");
+  const prev = fs7.existsSync(f3) ? fs7.readFileSync(f3, "utf8").split("\n").filter(Boolean) : [];
+  const text2 = String(lesson).replace(/\s+/g, " ").trim().slice(0, 400);
+  if (!text2 || prev.some((l2) => l2.endsWith(`: ${text2}`))) return false;
+  prev.push(`- ${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)} (${source}): ${text2}`);
+  fs7.writeFileSync(f3, `${prev.slice(-200).join("\n")}
+`);
+  return true;
+}
+var SECRETS = [
+  [/\b(sk|pk|rk)-[A-Za-z0-9_-]{16,}\b/g, "an API key"],
+  [/\bgh[pousr]_[A-Za-z0-9]{20,}\b/g, "a GitHub token"],
+  [/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,}\b/g, "an email address"],
+  [/[?&](key|token|sig|signature|access_token|auth)=[^\s&)"']+/gi, "a key in a URL"],
+  [/\b[A-Z]:\\(?:Users|Dev|Documents)\\[^\s"')]+/g, "a local path"],
+  [/(?:\/Users|\/home)\/[A-Za-z0-9._-]+\/[^\s"')]*/g, "a local path"]
+];
+function packPrivacy(files) {
+  const found = [];
+  for (const [file4, body] of Object.entries(files))
+    for (const [re, what] of SECRETS) for (const m of String(body).matchAll(re)) found.push({ file: file4, what, sample: m[0].slice(0, 40) });
+  return found;
+}
+function exportPack(id, { redact = false, cwd } = {}) {
+  const dir = packDir(id, cwd);
+  if (!dir) throw new Error(`No pack "${id}" (pack_list).`);
+  const meta3 = JSON.parse(fs7.readFileSync(path7.join(dir, "pack.json"), "utf8"));
+  const files = {};
+  for (const f3 of PACK_FILES) if (fs7.existsSync(path7.join(dir, f3))) files[f3] = fs7.readFileSync(path7.join(dir, f3), "utf8");
+  const found = packPrivacy(files);
+  if (redact) for (const f3 of Object.keys(files)) for (const [re] of SECRETS) files[f3] = files[f3].replace(re, "[removed]");
+  const { createdAt, updatedAt, workflowHistory, ...keep } = meta3;
+  return { pack: { format: "drip-pack", version: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), meta: { ...keep, updatedAt }, files }, found: redact ? [] : found };
+}
+function importPack(doc, { shared: shared2 = false, replace = false, cwd } = {}) {
+  if (doc?.format !== "drip-pack" || !doc.meta?.id || typeof doc.files !== "object") throw new Error("Not a Drip pack file (format drip-pack).");
+  const id = String(doc.meta.id).toLowerCase().replace(/[^a-z0-9-]+/g, "-").slice(0, 60);
+  if (packDir(id, cwd) && !replace) throw new Error(`A pack "${id}" exists here. Pass replace: true to overwrite it, or keep yours.`);
+  const extra = Object.keys(doc.files).filter((f3) => !PACK_FILES.includes(f3));
+  if (extra.length) throw new Error(`Unexpected files in the pack: ${extra.join(", ")} (packs are data only: ${PACK_FILES.join(", ")}).`);
+  const m = doc.meta;
+  if (m.type !== "project" && !(m.keywords || []).length) throw new Error("A niche pack needs keywords.");
+  const pack = createPack({ id, name: m.name || id, niche: m.niche || "", keywords: m.keywords || [], summary: m.summary || "", shared: shared2, type: m.type, workflow: m.workflow }, cwd);
+  for (const [f3, body] of Object.entries(doc.files)) {
+    if (f3.endsWith(".json")) JSON.parse(body);
+    fs7.writeFileSync(path7.join(pack.dir, f3), String(body));
+  }
+  return pack;
+}
 
 // src/core/guides.mjs
 init_paths();
@@ -88285,7 +88337,12 @@ function readGuide(topic) {
   const pk = topic.trim().match(/^pack:([a-z0-9-]+)(?:\/([a-z-]+))?$/);
   if (pk) {
     const file5 = pk[2] ? pk[2].includes(".") ? pk[2] : `${pk[2]}.md` : "guide.md";
-    return readPackFile(pk[1], file5);
+    const body = readPackFile(pk[1], file5);
+    const learned = !pk[2] && readPackFile(pk[1], "learned.md");
+    return body && learned ? `${body}
+
+## Learned on later tasks (newest last; these win over the guide above)
+${learned.split("\n").slice(-60).join("\n")}` : body;
   }
   const file4 = topicFile(topic);
   if (!fs8.existsSync(file4)) return null;
@@ -89834,6 +89891,13 @@ function recordFeedback(input2, { cwd } = {}) {
   }
   ensureProjectDrip(cwd);
   appendJsonl(feedbackFile(cwd), ev);
+  if (["user-explicit", "user-selection", "critic"].includes(source)) {
+    try {
+      const rule = input2.rule ? ` (rule: ${input2.rule.topic} = ${input2.rule.value}${input2.rule.avoid?.length ? `; avoid ${input2.rule.avoid.join(", ")}` : ""})` : "";
+      for (const id of task?.packs || []) if (!isProjectPack(id, cwd)) learnInPack(id, `${input2.text}${rule}`, { source: source === "critic" ? "critic" : "user", cwd });
+    } catch {
+    }
+  }
   return { event: ev, rule: outcome.rule, status: ev.status, conflict: outcome.conflict, question: outcome.question };
 }
 function applyFeedback(d, ev, { supersede, redesign, revision, rejects }) {
@@ -90517,16 +90581,19 @@ function pageOf(task, page2) {
   const react = fs23.existsSync(path23.join(root, "src", "App.tsx")) && fs23.existsSync(path23.join(root, "package.json"));
   return { root, rel: path23.relative(projectDir(), root) || ".", stack: react ? "react" : "html" };
 }
+var WHOLE = ["page", "whole-page", "index", "app"];
+var OWN = ["nav", "hero", "footer"];
 function sectionFiles(section, stack) {
   const id = slug2(section);
+  if (WHOLE.includes(id)) return stack === "react" ? ["src/"] : ["index.html", "styles/", "scripts/", "assets/"];
   if (stack === "react") return [`src/sections/${pascal2(id)}.tsx`];
   if (["nav", "hero", "footer"].includes(id)) return ["index.html"];
   return [`sections/${id}.html`, `styles/sections/${id}.css`];
 }
 function buildPrompt({ section, spec, files, url: url2, task, piece, page: page2 }) {
-  const doc = designDoc();
   const chosen = task?.board?.chosen;
   const pg = page2 || pageOf(task);
+  const doc = pg && pg.rel !== "." ? designDoc(pg.root) : designDoc(void 0, task);
   const stack = pg?.stack || "html";
   const mine = files?.length ? files : sectionFiles(section, stack);
   const where = pg ? `The page: ${pg.rel}/ (${stack === "react" ? "React + Vite + Tailwind v4" : "one static HTML page"}).` : "";
@@ -90548,7 +90615,7 @@ ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens 
     system,
     stack === "react" && slug2(section) === "hero" && pg && fs23.existsSync(path23.join(pg.root, "src", "sections", "hero.recipe.html")) ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it." : "",
     `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for this section)" : ""}.`,
-    stack === "react" ? `${["nav", "hero", "footer"].includes(slug2(section)) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${slug2(section)}">. `}Other builders write the other sections at the same time; the director stitches them into App.tsx.` : ["nav", "hero", "footer"].includes(slug2(section)) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${slug2(section)}"> element alone (no <html>/<head>), ${mine[1]} its styles. Other builders write the other sections at the same time; the director stitches them in.`,
+    stack === "react" ? `${[...OWN, ...WHOLE].includes(slug2(section)) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${slug2(section)}">. `}Other builders write the other sections at the same time; the director stitches them into App.tsx.` : WHOLE.includes(slug2(section)) ? "You build the whole page: index.html and its own styles and scripts." : OWN.includes(slug2(section)) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${slug2(section)}"> element alone (no <html>/<head>), ${mine[1]} its styles. Other builders write the other sections at the same time; the director stitches them in.`,
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
     "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers or quotes.",
     url2 ? `The page runs at ${url2} if you need to look at it.` : "",
@@ -90652,7 +90719,7 @@ function register(server2, ctx2) {
 ----------------------------------------
 ${prompt}
 ----------------------------------------`).join("\n\n");
-      const stitchable = list4.map((s2) => slug2(s2.section)).filter((id) => !["nav", "hero", "footer"].includes(id));
+      const stitchable = list4.map((s2) => slug2(s2.section)).filter((id) => ![...OWN, ...WHOLE].includes(id));
       const tail2 = stitchable.length ? `
 
 When they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.` : `
@@ -91208,7 +91275,8 @@ function register3(server2, ctx2) {
 ` : "") + (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.
 ` : "") + (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first.
 ` : "") + `No intake questions unless the request is truly ambiguous; state your assumptions in one line.
-` + (swarmOn(config2, t2) && hostHasSubagents() ? `ROLES: you are the director. You look, decide, choose the pieces and write specs. drip:builder agents (Sonnet) write the code, drip:helper agents (Haiku) do small jobs (installs, downloads, copy swaps). You make fixes under 40 lines yourself; bigger writes are refused with a pointer to build_prepare.
+` + (pk.filter((p2) => !isProjectPack(p2)).length ? `Niche packs on: ${pk.filter((p2) => !isProjectPack(p2)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.
+` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? `ROLES: you are the director. You look, decide, choose the pieces and write specs. drip:builder agents (Sonnet) write the code, drip:helper agents (Haiku) do small jobs (installs, downloads, copy swaps). You make fixes under 40 lines yourself; bigger writes are refused with a pointer to build_prepare.
 ` : "") + (ownedKits() === null ? `ONCE: ask the user (AskUserQuestion, multiSelect, alongside the first calls) which paid UI kits they own (Aceternity Pro, Magic UI Pro, bencho Pro, Tailark, efferd Pro, Skiper UI, shadcnblocks, 21st.dev; or none), then drip_kits({ owned }). Asked once per machine.
 ` : "") + `
 FIRST CALLS (one message):
@@ -95419,9 +95487,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path80, options) {
-      const mimeType = import_lite.default.getType(path80);
-      await writeFile(path80, await this.getBuffer(mimeType, options));
+    async write(path81, options) {
+      const mimeType = import_lite.default.getType(path81);
+      await writeFile(path81, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -104107,22 +104175,94 @@ async function registryItems(entry) {
   }
   return [...seen.values()];
 }
+var FIND_PIECE = `(() => {
+  const box = (el, top) => { el.setAttribute('data-drip-piece', ''); const r = el.getBoundingClientRect(); const y = Math.max(r.top, top ?? r.top); return { x: r.left + scrollX, y: y + scrollY, w: r.width, h: Math.min(r.bottom - y, 900) }; };
+  const media = (el) => el.querySelector('canvas,video,iframe,img,svg,[style*="background"]');
+  const tabs = [...document.querySelectorAll('button,[role=tab],a,span,div')].filter((e) => e.childElementCount <= 2 && /^\\s*preview\\s*$/i.test(e.textContent || '') && e.offsetParent);
+  for (const t of tabs) {
+    const tr = t.getBoundingClientRect();
+    let a = t;
+    for (let i = 0; i < 9 && a; i++) {
+      a = a.parentElement;
+      if (!a) break;
+      const r = a.getBoundingClientRect();
+      if (r.height > 1600 || r.width > innerWidth * 0.98) break;
+      if (r.height > tr.height + 220 && r.width > 320 && media(a)) return box(a, tr.bottom + 4);
+    }
+  }
+  const big = [...document.querySelectorAll('canvas,video,iframe')].map((e) => [e, e.getBoundingClientRect()]).filter(([, r]) => r.width > 300 && r.height > 200).sort((a, b) => b[1].width * b[1].height - a[1].width * a[1].height)[0];
+  return big ? box(big[0]) : null;
+})()`;
+var HIDE_FLOATERS = `(() => {
+  const piece = document.querySelector('[data-drip-piece]');
+  const keeps = (el) => piece && (el.contains(piece) || piece.contains(el));
+  for (const d of document.querySelectorAll('dialog[open]')) if (!keeps(d)) try { d.close(); } catch {}
+  for (const b of document.querySelectorAll('button,[role=button]')) {
+    const t = (b.getAttribute('aria-label') || b.textContent || '').trim().toLowerCase();
+    if (/^(\xD7|\u2715|x|close|dismiss|close dialog|close modal)$/.test(t) && b.closest('[role=dialog],[aria-modal=true],[data-state=open]') && !keeps(b.closest('[role=dialog],[aria-modal=true],[data-state=open]'))) try { b.click(); } catch {}
+  }
+  for (const el of document.querySelectorAll('body *')) {
+    const cs = getComputedStyle(el);
+    if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+    if (keeps(el)) continue;
+    const r = el.getBoundingClientRect();
+    const floats = el.matches('[role=dialog],[aria-modal=true],[data-state=open]') || (cs.position === 'fixed' && r.width * r.height > 0.02 * innerWidth * innerHeight && r.top > 40);
+    if (floats || /backdrop|overlay/.test(String(el.className))) el.style.setProperty('display', 'none', 'important');
+  }
+  document.documentElement.style.overflow = document.body.style.overflow = 'auto';
+})()`;
+var SETTLE = `(async () => {
+  await document.fonts?.ready;
+  await Promise.all([...document.images].filter((i) => !i.complete).slice(0, 40).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 4000); })));
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await new Promise((r) => setTimeout(r, document.querySelector('canvas') ? 1500 : 500));
+})()`;
+async function looksBlank(buf) {
+  try {
+    const img = await Jimp.read(buf);
+    img.resize({ w: 48, h: 30 });
+    const v = [];
+    img.scan(0, 0, img.width, img.height, (x2, y2, i2) => v.push(img.bitmap.data[i2] * 0.3 + img.bitmap.data[i2 + 1] * 0.59 + img.bitmap.data[i2 + 2] * 0.11));
+    const m = v.reduce((a2, b) => a2 + b, 0) / v.length;
+    return Math.sqrt(v.reduce((a2, b) => a2 + (b - m) ** 2, 0) / v.length) < 4;
+  } catch {
+    return false;
+  }
+}
 async function previewShot(url2, config2) {
   const { openPage: openPage2, withTab: withTab2 } = await Promise.resolve().then(() => (init_browser(), browser_exports));
-  const [width, height] = [1280, 800];
+  const [width, height] = [1280, 900];
   return withTab2(config2, async (tab) => {
-    await openPage2(tab, url2, { width, height, timeout: 15e3, settleMs: 2500 });
-    const run4 = (expression, awaitPromise = false) => tab.s("Runtime.evaluate", { expression, awaitPromise, returnByValue: true }).catch(() => null);
+    await openPage2(tab, url2, { width, height, timeout: 15e3, settleMs: 1500 });
+    const run4 = async (expression, awaitPromise = false) => (await tab.s("Runtime.evaluate", { expression, awaitPromise, returnByValue: true }).catch(() => null))?.result?.value;
+    const alone = /\/view\//.test(new URL(url2).pathname);
+    const find = () => alone ? null : run4(FIND_PIECE);
     await run4(CLEAR_OVERLAYS, true);
-    const hash2 = new URL(url2).hash.slice(1);
-    await run4(
-      `(async()=>{const id=${JSON.stringify(decodeURIComponent(hash2))};const el=id&&document.getElementById(id);if(!el)return;for(let i=0;i<12;i++){el.scrollIntoView({block:"start"});await new Promise(r=>setTimeout(r,150));}})()`,
-      true
-    );
-    await new Promise((r2) => setTimeout(r2, 3500));
-    await run4(CLEAR_OVERLAYS, true);
-    const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 80, clip: { x: 0, y: 0, width, height, scale: 1 } });
-    return Buffer.from(data, "base64");
+    await new Promise((r2) => setTimeout(r2, 600));
+    await find();
+    await run4(HIDE_FLOATERS);
+    const hash2 = decodeURIComponent(new URL(url2).hash.slice(1));
+    if (hash2) await run4(`(async()=>{const el=document.getElementById(${JSON.stringify(hash2)});if(!el)return;for(let i=0;i<10;i++){el.scrollIntoView({block:"start"});await new Promise(r=>setTimeout(r,150));}})()`, true);
+    const shoot2 = async () => {
+      let b = await find();
+      if (b) {
+        await run4(`scrollTo(0, ${Math.max(0, Math.round(b.y - 40))})`);
+        await run4(SETTLE, true);
+        b = await find() || b;
+      } else await run4(SETTLE, true);
+      await run4(CLEAR_OVERLAYS, true);
+      await run4(HIDE_FLOATERS);
+      const clip = b ? { x: Math.max(0, b.x), y: Math.max(0, b.y), width: Math.min(b.w, width), height: Math.max(200, b.h), scale: 1 } : { x: 0, y: 0, width, height, scale: 1 };
+      const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 82, clip, captureBeyondViewport: true });
+      return { buf: Buffer.from(data, "base64"), cropped: !!b };
+    };
+    let shot3 = await shoot2();
+    if (await looksBlank(shot3.buf)) {
+      await new Promise((r2) => setTimeout(r2, 4e3));
+      shot3 = await shoot2();
+      shot3.blank = await looksBlank(shot3.buf);
+    }
+    return shot3;
   });
 }
 var HEAVY = /^(three|@react-three\/.+|ogl|gsap|matter-js|@paper-design\/.+|postprocessing|lenis|cobe|p5)$/;
@@ -104218,7 +104358,8 @@ ${files.join("\n\n")}`
         targets.map(async (t2) => {
           if (!t2.url) return { ...t2, err: "no page to show it" };
           try {
-            return { ...t2, buf: await previewShot(t2.url, ctx2.config()) };
+            const s2 = await previewShot(t2.url, ctx2.config());
+            return s2.blank ? { ...t2, err: "didn't render in 10 s (WebGL or a login wall): open the page to see it" } : { ...t2, buf: s2.buf };
           } catch (e2) {
             return { ...t2, err: e2.message.slice(0, 120) };
           }
@@ -104228,9 +104369,9 @@ ${files.join("\n\n")}`
       const lines = shots.map((s2, i2) => `${i2 + 1}. ${s2.label}${s2.url ? ` \xB7 ${s2.url}` : ""}${s2.err ? ` (not shown: ${s2.err})` : ""}`);
       const n3 = ok.length;
       const content = [textBlock(`${lines.join("\n")}
-The sheet numbers the shown ones in order. Docs pages show the piece with the library's own colours: on the page it takes yours.`)];
+The sheet numbers the shown ones in order, each cropped to the piece. It shows the library's own colours: on the page it takes yours.`)];
       if (n3) {
-        const sheet = n3 === 1 ? await toJpeg(ok[0].buf, 1280, 1280, 78) : await contactSheet(ok.map((s2) => s2.buf), { cols: 2, tileW: 640, tileH: 400, gap: 8 });
+        const sheet = n3 === 1 ? await toJpeg(ok[0].buf, 1280, 1280, 78) : await contactSheet(ok.map((s2) => s2.buf), { cols: 2, tileW: 640, tileH: 400, gap: 8, fit: "contain" });
         content.push(imageBlock(sheet));
       }
       return blocks(content);
@@ -107297,7 +107438,46 @@ var packs_exports = {};
 __export(packs_exports, {
   register: () => register24
 });
+import fs62 from "node:fs";
+import path59 from "node:path";
+init_paths();
 function register24(server2) {
+  server2.registerTool(
+    "pack_export",
+    {
+      title: "Export a niche pack to share",
+      description: "Writes a pack as ONE portable file (<id>.drip-pack.json: its guide, critic rubric, references, slop list, what it learned) to send however the user likes: a DM, a drive, a gist they choose. Nothing is published. It lists anything that looks private first (emails, keys, local paths); pass redact: true to strip them. Someone else adds it with pack_import, and Drip then knows the niche without running /drip:adapt.",
+      inputSchema: { id: external_exports.string(), out: external_exports.string().optional().describe("Folder for the file (default: the project)"), redact: external_exports.boolean().optional() }
+    },
+    safe(async ({ id, out, redact }) => {
+      const { pack, found } = exportPack(id, { redact });
+      if (found.length && !redact)
+        return text(`Not exported: this pack holds things that may be private:
+${found.slice(0, 12).map((f3) => `- ${f3.file}: ${f3.what} (${f3.sample}\u2026)`).join("\n")}
+Ask the user, then pack_export({ id: "${id}", redact: true }) to strip them (or edit the pack first).`, true);
+      const dir = path59.resolve(projectDir(), out || ".");
+      fs62.mkdirSync(dir, { recursive: true });
+      const file4 = path59.join(dir, `${pack.meta.id}.drip-pack.json`);
+      fs62.writeFileSync(file4, JSON.stringify(pack, null, 1));
+      return text(`Exported ${pack.meta.name} to ${path59.relative(projectDir(), file4)} (${Object.keys(pack.files).length} files, ${Math.round(fs62.statSync(file4).size / 1024)} KB). Send the file; the other person runs pack_import with its path or a raw link.`);
+    })
+  );
+  server2.registerTool(
+    "pack_import",
+    {
+      title: "Add a niche pack someone shared",
+      description: "Adds a .drip-pack.json (a file path or a raw https link) as a personal pack (every project on this machine) or shared: true for this project's team. Packs are data only: nothing in one ever runs.",
+      inputSchema: { file: external_exports.string().optional(), url: external_exports.string().url().optional(), shared: external_exports.boolean().optional(), replace: external_exports.boolean().optional() }
+    },
+    safe(async ({ file: file4, url: url2, shared: shared2, replace }) => {
+      let raw;
+      if (url2) raw = (await get(url2, { ttlMs: 0, timeoutMs: 3e4 })).body;
+      else if (file4) raw = fs62.readFileSync(path59.resolve(projectDir(), file4), "utf8");
+      else return text("Pass file or url.", true);
+      const pack = importPack(JSON.parse(raw), { shared: shared2, replace });
+      return text(`Added "${pack.name}" (${pack.dir}). It switches on when a task mentions ${(pack.keywords || []).slice(0, 6).join(", ") || "this project"}.`);
+    })
+  );
   server2.registerTool(
     "pack_create",
     {
@@ -107364,12 +107544,12 @@ var codemode_exports = {};
 __export(codemode_exports, {
   register: () => register25
 });
-import fs63 from "node:fs";
-import path60 from "node:path";
+import fs64 from "node:fs";
+import path61 from "node:path";
 
 // src/core/codemode/execute.mjs
-import fs62 from "node:fs";
-import path59 from "node:path";
+import fs63 from "node:fs";
+import path60 from "node:path";
 init_paths();
 
 // src/core/codemode/allowlist.mjs
@@ -107696,7 +107876,7 @@ var RESULT_TYPE = "type ToolResult = { text: string; data?: any /* parsed when t
 // src/core/codemode/execute.mjs
 var MAX_CALL_TEXT = 2e5;
 function codemodeOutDir() {
-  return path59.join(projectDripDir(), "cli", "codemode");
+  return path60.join(projectDripDir(), "cli", "codemode");
 }
 function scriptTools(tools = collectTools(), config2 = loadConfig()) {
   const names3 = allowedTools([...tools.keys()], config2);
@@ -107717,9 +107897,9 @@ async function callForScript(name, args, { allowed, outDir, images, signal }) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs62.mkdirSync(outDir, { recursive: true });
-      const file4 = path59.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs62.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs63.mkdirSync(outDir, { recursive: true });
+      const file4 = path60.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs63.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       files.push(file4);
     }
   }
@@ -107836,7 +108016,7 @@ Only the first ${maxImages} are attached.` : ""}`);
       const content = [{ type: "text", text: parts.join("\n\n") }];
       for (const f3 of r2.images.slice(0, maxImages)) {
         try {
-          content.push(imageBlock(fs63.readFileSync(f3), /\.png$/i.test(f3) ? "image/png" : /\.webp$/i.test(f3) ? "image/webp" : "image/jpeg"));
+          content.push(imageBlock(fs64.readFileSync(f3), /\.png$/i.test(f3) ? "image/png" : /\.webp$/i.test(f3) ? "image/webp" : "image/jpeg"));
         } catch {
         }
       }
@@ -107847,9 +108027,9 @@ Only the first ${maxImages} are attached.` : ""}`);
 function bound(s2) {
   if (s2.length <= MAX_OUTPUT) return s2;
   const dir = codemodeOutDir();
-  fs63.mkdirSync(dir, { recursive: true });
-  const file4 = path60.join(dir, `result-${Date.now()}.json`);
-  fs63.writeFileSync(file4, s2);
+  fs64.mkdirSync(dir, { recursive: true });
+  const file4 = path61.join(dir, `result-${Date.now()}.json`);
+  fs64.writeFileSync(file4, s2);
   return `${s2.slice(0, MAX_OUTPUT)}
 [truncated: ${s2.length} characters, full result in ${file4}]`;
 }
@@ -107859,28 +108039,28 @@ var patterns_exports = {};
 __export(patterns_exports, {
   register: () => register26
 });
-import fs67 from "node:fs";
-import path65 from "node:path";
+import fs68 from "node:fs";
+import path66 from "node:path";
 init_paths();
 
 // src/modules/patterns/diff.mjs
 init_browser();
-import fs64 from "node:fs";
-import path61 from "node:path";
+import fs65 from "node:fs";
+import path62 from "node:path";
 init_paths();
 var AXE_VERSION = "4.10.2";
 var AXE_URL = `https://cdn.jsdelivr.net/npm/axe-core@${AXE_VERSION}/axe.min.js`;
 async function loadAxe() {
   const local = process.env.DRIP_AXE_PATH;
   if (local) {
-    if (fs64.existsSync(local)) return { src: fs64.readFileSync(local, "utf8"), from: local };
+    if (fs65.existsSync(local)) return { src: fs65.readFileSync(local, "utf8"), from: local };
     return { src: null, reason: `DRIP_AXE_PATH points at ${local}, which does not exist` };
   }
-  const cached2 = path61.join(ensureDir(path61.join(homeDripDir, "vendor")), `axe-core-${AXE_VERSION}.min.js`);
-  if (fs64.existsSync(cached2)) return { src: fs64.readFileSync(cached2, "utf8"), from: cached2 };
+  const cached2 = path62.join(ensureDir(path62.join(homeDripDir, "vendor")), `axe-core-${AXE_VERSION}.min.js`);
+  if (fs65.existsSync(cached2)) return { src: fs65.readFileSync(cached2, "utf8"), from: cached2 };
   try {
     const { body } = await get(AXE_URL, { ttlMs: 0, timeoutMs: 2e4, retries: 0 });
-    fs64.writeFileSync(cached2, body);
+    fs65.writeFileSync(cached2, body);
     return { src: body, from: AXE_URL };
   } catch (e2) {
     return { src: null, reason: `axe-core ${AXE_VERSION} could not be downloaded (${e2.message}). Set DRIP_AXE_PATH to a local axe.min.js to run it offline` };
@@ -107963,11 +108143,11 @@ async function diffSheet(pairs2, { threshold = 0.1, config: config2 } = {}) {
 // src/modules/patterns/extract.mjs
 init_browser();
 init_serve();
-import path63 from "node:path";
+import path64 from "node:path";
 
 // src/modules/patterns/run.mjs
-import fs65 from "node:fs";
-import path62 from "node:path";
+import fs66 from "node:fs";
+import path63 from "node:path";
 init_browser();
 init_paths();
 init_serve();
@@ -108179,14 +108359,14 @@ function installLib() {
       if (!vis) continue;
       if (t2) {
         const words3 = t2.split(" ").length;
-        const fs82 = round(parseFloat(cs.fontSize));
-        const tk = `${fs82}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
-        const e2 = typeMap.get(tk) || { px: fs82, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs82, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs82, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
+        const fs83 = round(parseFloat(cs.fontSize));
+        const tk = `${fs83}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
+        const e2 = typeMap.get(tk) || { px: fs83, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs83, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs83, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
         e2.count += words3;
         typeMap.set(tk, e2);
         const tc = rgba(cs.color);
         addColor(tc, "text", words3);
-        heads.push({ text: t2.slice(0, 50), size: fs82, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
+        heads.push({ text: t2.slice(0, 50), size: fs83, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
       }
       const bg = rgba(cs.backgroundColor);
       if (bg[3] > 0.1) addColor(bg, "background", Math.max(1, Math.min(60, Math.round(r2.width * r2.height / 4e3))));
@@ -108407,15 +108587,15 @@ var IMAGE = /\.(png|jpe?g|webp|gif|avif)$/i;
 var isImagePath = (p2) => IMAGE.test(p2 || "");
 async function resolveTarget({ url: url2, file: file4, html, css, js, dir }) {
   if (html !== void 0) {
-    const base = dir || path62.join(ensureProjectDrip(), "cache", `harness-${Date.now().toString(36)}`);
-    fs65.mkdirSync(base, { recursive: true });
-    fs65.writeFileSync(path62.join(base, "index.html"), harness({ html, css, js }));
-    return { url: `${await serveDir(base)}/index.html`, kind: "local", file: path62.join(base, "index.html") };
+    const base = dir || path63.join(ensureProjectDrip(), "cache", `harness-${Date.now().toString(36)}`);
+    fs66.mkdirSync(base, { recursive: true });
+    fs66.writeFileSync(path63.join(base, "index.html"), harness({ html, css, js }));
+    return { url: `${await serveDir(base)}/index.html`, kind: "local", file: path63.join(base, "index.html") };
   }
   const t2 = url2 || file4;
   if (!t2) throw new Error("Give url, file or html.");
-  if (!/^https?:/i.test(t2) && isImagePath(t2)) return { kind: "screenshot", file: path62.resolve(projectDir(), t2) };
-  return { url: await toUrl(t2), kind: /^https?:/i.test(t2) ? "live" : "local", file: /^https?:/i.test(t2) ? void 0 : path62.resolve(projectDir(), t2) };
+  if (!/^https?:/i.test(t2) && isImagePath(t2)) return { kind: "screenshot", file: path63.resolve(projectDir(), t2) };
+  return { url: await toUrl(t2), kind: /^https?:/i.test(t2) ? "live" : "local", file: /^https?:/i.test(t2) ? void 0 : path63.resolve(projectDir(), t2) };
 }
 function harness({ html, css = "", js = "" }) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drip pattern preview</title><style>*,*::before,*::after{box-sizing:border-box}body{margin:0;padding:24px;font-family:system-ui,sans-serif}${css}</style></head><body>${html}${js ? `<script>${js}</script>` : ""}</body></html>`;
@@ -108574,8 +108754,8 @@ async function extractSpec(target, { selector, states = [], sizes = SIZES2, conf
   return { spec, shots };
 }
 async function inferFromImage(file4, { config: config2, source }) {
-  const base = await serveDir(path63.dirname(file4));
-  const src = `${base}/${encodeURIComponent(path63.basename(file4))}`;
+  const base = await serveDir(path64.dirname(file4));
+  const src = `${base}/${encodeURIComponent(path64.basename(file4))}`;
   const data = await withTab(config2, async (tab) => {
     await openPage(tab, `${base}/__drip_blank__`, { width: 800, height: 600, settleMs: 50 });
     return evalJson(
@@ -108758,14 +108938,14 @@ function compareSpecs(ref, impl) {
 
 // src/modules/patterns/store.mjs
 init_paths();
-import fs66 from "node:fs";
-import path64 from "node:path";
+import fs67 from "node:fs";
+import path65 from "node:path";
 var KINDS3 = ["component", "section", "page", "motion", "style"];
-var patternsRoot = () => ensureDir(path64.join(ensureProjectDrip(), "patterns"));
-var indexFile3 = () => path64.join(patternsRoot(), "index.json");
-var patternDir = (id) => ensureDir(path64.join(patternsRoot(), id));
+var patternsRoot = () => ensureDir(path65.join(ensureProjectDrip(), "patterns"));
+var indexFile3 = () => path65.join(patternsRoot(), "index.json");
+var patternDir = (id) => ensureDir(path65.join(patternsRoot(), id));
 var slug5 = (s2) => String(s2 || "pattern").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "pattern";
-var rel2 = (p2) => path64.relative(projectDir(), p2).split(path64.sep).join("/");
+var rel2 = (p2) => path65.relative(projectDir(), p2).split(path65.sep).join("/");
 function listPatterns({ status, kind, tag } = {}) {
   const idx = readJson2(indexFile3(), { patterns: [] });
   return (idx.patterns || []).filter((p2) => (!status || p2.status === status) && (!kind || p2.kind === kind) && (!tag || (p2.tags || []).includes(tag)));
@@ -108773,7 +108953,7 @@ function listPatterns({ status, kind, tag } = {}) {
 function getPattern(id) {
   const entry = listPatterns().find((p2) => p2.id === id);
   if (!entry) return null;
-  return { entry, dir: path64.join(patternsRoot(), id), spec: readJson2(path64.join(patternsRoot(), id, "spec.json"), null) };
+  return { entry, dir: path65.join(patternsRoot(), id), spec: readJson2(path65.join(patternsRoot(), id, "spec.json"), null) };
 }
 function upsertPattern(entry) {
   return updateJson(
@@ -108790,14 +108970,14 @@ function upsertPattern(entry) {
 }
 function writeSpec(id, spec) {
   const dir = patternDir(id);
-  writeJsonAtomic(path64.join(dir, "spec.json"), spec);
+  writeJsonAtomic(path65.join(dir, "spec.json"), spec);
   return dir;
 }
 function saveImages(dir, sub, items) {
-  const out = ensureDir(path64.join(dir, sub));
+  const out = ensureDir(path65.join(dir, sub));
   return items.map(({ name, buf }) => {
-    const f3 = path64.join(out, name);
-    fs66.writeFileSync(f3, buf);
+    const f3 = path65.join(out, name);
+    fs67.writeFileSync(f3, buf);
     return f3;
   });
 }
@@ -108815,7 +108995,7 @@ var trim = (s2, n3) => s2.length > n3 ? s2.slice(0, n3) + "\n... (trimmed; the f
 var stepsOf = (spec) => (spec.states || []).map((s2) => ({ ...s2.step, label: s2.label }));
 function patternPaths(id) {
   const dir = patternDir(id);
-  return { dir, spec: path65.join(dir, "spec.json"), md: path65.join(dir, "spec.md") };
+  return { dir, spec: path66.join(dir, "spec.json"), md: path66.join(dir, "spec.md") };
 }
 function writeEvidence(id, shots, widths) {
   const dir = patternDir(id);
@@ -108838,8 +109018,8 @@ function register26(server2, ctx2) {
     safe(async ({ url: url2, file: file4, selector, states, sizes }) => {
       const target = await resolveTarget({ url: url2, file: file4 });
       const { spec, shots } = await extractSpec(target, { selector, states, sizes, config: ctx2.config() });
-      const out = path65.join(ensureDir(path65.join(projectDripDir(), "cache")), `extract-${stamp()}.json`);
-      fs67.writeFileSync(out, JSON.stringify(spec, null, 2));
+      const out = path66.join(ensureDir(path66.join(projectDripDir(), "cache")), `extract-${stamp()}.json`);
+      fs68.writeFileSync(out, JSON.stringify(spec, null, 2));
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const desktop = shots[widths[widths.length - 1]];
       const content = [textBlock(`${trim(specToMarkdown(spec), 7e3)}
@@ -108874,19 +109054,19 @@ Next: pattern_study (save it with evidence), or build your own version and patte
       if (notes) spec.notes = notes;
       const { dir, md } = patternPaths(id);
       writeSpec(id, spec);
-      fs67.writeFileSync(md, specToMarkdown(spec, { name, notes }));
+      fs68.writeFileSync(md, specToMarkdown(spec, { name, notes }));
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const files = writeEvidence(id, shots, widths);
       if (target.kind === "screenshot") {
-        const keep = path65.join(dir, "reference", `source${path65.extname(target.file)}`);
-        ensureDir(path65.dirname(keep));
-        fs67.copyFileSync(target.file, keep);
+        const keep = path66.join(dir, "reference", `source${path66.extname(target.file)}`);
+        ensureDir(path66.dirname(keep));
+        fs68.copyFileSync(target.file, keep);
         files.push(keep);
       }
-      upsertPattern({ id, name, kind, files: [], spec: rel2(path65.join(dir, "spec.json")), previews: files.map(rel2), source: { ...spec.source, file: spec.source.file ? rel2(spec.source.file) : void 0 }, status: "proposed", tags });
+      upsertPattern({ id, name, kind, files: [], spec: rel2(path66.join(dir, "spec.json")), previews: files.map(rel2), source: { ...spec.source, file: spec.source.file ? rel2(spec.source.file) : void 0 }, status: "proposed", tags });
       const desktop = shots[widths[widths.length - 1]];
       const phone = shots[widths[0]];
-      const content = [textBlock(`Studied "${name}" as ${id}. Spec ${rel2(path65.join(dir, "spec.json"))}, readable ${rel2(md)}, evidence in ${rel2(path65.join(dir, "reference"))} (${files.length} files). Status: proposed.
+      const content = [textBlock(`Studied "${name}" as ${id}. Spec ${rel2(path66.join(dir, "spec.json"))}, readable ${rel2(md)}, evidence in ${rel2(path66.join(dir, "reference"))} (${files.length} files). Status: proposed.
 
 ${trim(specToMarkdown(spec, { name }), 5e3)}
 Next: write your own implementation from this spec (primitives + your tokens, original styling), pattern_preview it, then pattern_compare({ id: "${id}", ... }).`)];
@@ -108929,7 +109109,7 @@ Next: write your own implementation from this spec (primitives + your tokens, or
       }
       writeSpec(id, spec);
       const { md } = patternPaths(id);
-      fs67.writeFileSync(md, specToMarkdown(spec, { name: cur.entry.name, notes: spec.notes }));
+      fs68.writeFileSync(md, specToMarkdown(spec, { name: cur.entry.name, notes: spec.notes }));
       upsertPattern({ id });
       return text(`Updated ${rel2(md)} and spec.json for ${id}.`);
     })
@@ -108952,7 +109132,7 @@ Next: write your own implementation from this spec (primitives + your tokens, or
     safe(async ({ id, url: url2, file: file4, selector, html, css, js, states, sizes }) => {
       const ref = id ? getPattern(id) : null;
       if (id && !ref) return text(`No pattern "${id}". pattern_list shows what exists.`, true);
-      const outDir = ref ? ensureDir(path65.join(ref.dir, "preview")) : ensureDir(path65.join(projectDripDir(), "cache", `preview-${stamp()}`));
+      const outDir = ref ? ensureDir(path66.join(ref.dir, "preview")) : ensureDir(path66.join(projectDripDir(), "cache", `preview-${stamp()}`));
       const target = await resolveTarget({ url: url2, file: file4, html, css, js, dir: outDir });
       const useStates = states || (ref?.spec ? stepsOf(ref.spec) : []);
       const useSel = selector || ref?.spec?.source?.selector;
@@ -108960,8 +109140,8 @@ Next: write your own implementation from this spec (primitives + your tokens, or
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const files = [];
       for (const w of widths) files.push(...saveImages(outDir, ".", [{ name: `impl-base-${w}.png`, buf: shots[w].base }, ...shots[w].states.map((s2, i2) => ({ name: `impl-state-${i2 + 1}-${w}.png`, buf: s2.png }))]));
-      const specFile = path65.join(outDir, "impl-spec.json");
-      fs67.writeFileSync(specFile, JSON.stringify(spec, null, 2));
+      const specFile = path66.join(outDir, "impl-spec.json");
+      fs68.writeFileSync(specFile, JSON.stringify(spec, null, 2));
       const tiles = [];
       const legend = [];
       for (const w of widths) {
@@ -109006,15 +109186,15 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     safe(async ({ id, url: url2, file: file4, selector, html, css, js, threshold = 0.1, axe = true }) => {
       const ref = getPattern(id);
       if (!ref?.spec) return text(`No studied pattern "${id}". pattern_study first.`, true);
-      const outDir = ensureDir(path65.join(ref.dir, "preview"));
+      const outDir = ensureDir(path66.join(ref.dir, "preview"));
       const target = await resolveTarget({ url: url2, file: file4, html, css, js, dir: outDir });
       const refSpec = ref.spec;
       const widths = refSpec.responsive ? Object.keys(refSpec.responsive).map(Number) : SIZES2;
       const { spec: impl, shots } = await extractSpec(target, { selector: selector || refSpec.source?.selector, states: stepsOf(refSpec), sizes: widths, config: ctx2.config(), source: { title: "implementation" }, axe });
       const pairs2 = [];
       const readRef = (name) => {
-        const f3 = path65.join(ref.dir, "reference", name);
-        return fs67.existsSync(f3) ? fs67.readFileSync(f3) : null;
+        const f3 = path66.join(ref.dir, "reference", name);
+        return fs68.existsSync(f3) ? fs68.readFileSync(f3) : null;
       };
       for (const w of Object.keys(shots).map(Number).sort((a2, b) => a2 - b)) {
         const r2 = readRef(`base-${w}.png`);
@@ -109028,9 +109208,9 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
       let diffs = [];
       if (pairs2.length) ({ sheet, results: diffs } = await diffSheet(pairs2.slice(0, 14), { threshold, config: ctx2.config() }));
       const deltas = compareSpecs(refSpec, impl);
-      const file0 = path65.join(outDir, `compare-${stamp()}.jpg`);
-      if (sheet) fs67.writeFileSync(file0, sheet);
-      fs67.writeFileSync(path65.join(outDir, "impl-spec.json"), JSON.stringify(impl, null, 2));
+      const file0 = path66.join(outDir, `compare-${stamp()}.jpg`);
+      if (sheet) fs68.writeFileSync(file0, sheet);
+      fs68.writeFileSync(path66.join(outDir, "impl-spec.json"), JSON.stringify(impl, null, 2));
       const order = { high: 0, medium: 1, low: 2 };
       deltas.sort((a2, b) => order[a2.severity] - order[b.severity]);
       const L2 = [];
@@ -109070,16 +109250,16 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     },
     safe(async ({ id, name, kind, files = [], status, tags, notes, source }) => {
       const cur = getPattern(id);
-      const missing = files.filter((f3) => !fs67.existsSync(path65.resolve(projectDir(), f3)));
+      const missing = files.filter((f3) => !fs68.existsSync(path66.resolve(projectDir(), f3)));
       if (missing.length) return text(`These files do not exist: ${missing.join(", ")}`, true);
       const dir = patternDir(id);
-      const previews = fs67.readdirSync(dir, { recursive: true }).filter((f3) => /\.(png|jpe?g|webp)$/i.test(String(f3))).map((f3) => rel2(path65.join(dir, String(f3))));
+      const previews = fs68.readdirSync(dir, { recursive: true }).filter((f3) => /\.(png|jpe?g|webp)$/i.test(String(f3))).map((f3) => rel2(path66.join(dir, String(f3))));
       const entry = {
         id,
         name: name || cur?.entry.name || id,
         kind: kind || cur?.entry.kind || "component",
-        files: [.../* @__PURE__ */ new Set([...cur?.entry.files || [], ...files.map((f3) => rel2(path65.resolve(projectDir(), f3)))])],
-        spec: fs67.existsSync(path65.join(dir, "spec.json")) ? rel2(path65.join(dir, "spec.json")) : void 0,
+        files: [.../* @__PURE__ */ new Set([...cur?.entry.files || [], ...files.map((f3) => rel2(path66.resolve(projectDir(), f3)))])],
+        spec: fs68.existsSync(path66.join(dir, "spec.json")) ? rel2(path66.join(dir, "spec.json")) : void 0,
         previews,
         source: { ...cur?.entry.source || {}, ...source || {} },
         status: status || cur?.entry.status || "proposed",
@@ -109117,10 +109297,10 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     safe(async ({ id }) => {
       const p2 = getPattern(id);
       if (!p2) return text(`No pattern "${id}". pattern_list shows what exists.`, true);
-      const md = path65.join(p2.dir, "spec.md");
+      const md = path66.join(p2.dir, "spec.md");
       return text(`${JSON.stringify(p2.entry, null, 2)}
 
-${fs67.existsSync(md) ? trim(fs67.readFileSync(md, "utf8"), 9e3) : "(no spec.md)"}`);
+${fs68.existsSync(md) ? trim(fs68.readFileSync(md, "utf8"), 9e3) : "(no spec.md)"}`);
     })
   );
 }
@@ -109130,21 +109310,21 @@ var project_exports = {};
 __export(project_exports, {
   register: () => register27
 });
-import fs70 from "node:fs";
-import path68 from "node:path";
+import fs71 from "node:fs";
+import path69 from "node:path";
 init_paths();
 init_serve();
 
 // src/modules/project/exchange.mjs
 init_paths();
 import crypto7 from "node:crypto";
-import fs69 from "node:fs";
-import path67 from "node:path";
+import fs70 from "node:fs";
+import path68 from "node:path";
 
 // src/modules/project/style.mjs
 init_browser();
-import fs68 from "node:fs";
-import path66 from "node:path";
+import fs69 from "node:fs";
+import path67 from "node:path";
 init_paths();
 var HEX2 = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3})\b/gi;
 var FUNC_COLOR = /\b(?:rgba?|hsla?|oklch|oklab|lab|lch|color)\([^)]*\)/gi;
@@ -109216,7 +109396,7 @@ function parseCss(src) {
   };
 }
 function parseTokenFile(file4) {
-  const src = fs68.readFileSync(file4, "utf8");
+  const src = fs69.readFileSync(file4, "utf8");
   if (/\.json$/i.test(file4)) {
     let j;
     try {
@@ -109338,11 +109518,11 @@ async function measurePage(url2, { width = 1440, height = 900, config: config2 }
 function measureFiles(rels, root = projectDir()) {
   const out = [];
   for (const rel3 of rels) {
-    if (SECRET_FILE.test(path66.basename(rel3))) continue;
-    const abs2 = path66.resolve(root, rel3);
-    if (!abs2.startsWith(path66.resolve(root))) continue;
-    if (!fs68.existsSync(abs2)) continue;
-    const tokens2 = /\.(css|scss|sass|less)$/i.test(rel3) ? parseCss(fs68.readFileSync(abs2, "utf8")) : parseTokenFile(abs2);
+    if (SECRET_FILE.test(path67.basename(rel3))) continue;
+    const abs2 = path67.resolve(root, rel3);
+    if (!abs2.startsWith(path67.resolve(root))) continue;
+    if (!fs69.existsSync(abs2)) continue;
+    const tokens2 = /\.(css|scss|sass|less)$/i.test(rel3) ? parseCss(fs69.readFileSync(abs2, "utf8")) : parseTokenFile(abs2);
     out.push({ kind: "file", ref: rel3, hash: hashFile(abs2), tokens: tokens2 });
   }
   return out;
@@ -109379,16 +109559,16 @@ function describeTokens(t2) {
 // src/modules/project/exchange.mjs
 var SECRET_TEXT = /(-----BEGIN [A-Z ]*PRIVATE KEY-----|\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{16,}|\bAKIA[0-9A-Z]{16}\b|\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.|(?:api[_-]?key|secret|passw(?:or)?d|token)\s*[:=]\s*["'][A-Za-z0-9_\-/+=]{16,}["'])/i;
 var TEXT_EXT = /\.(css|scss|sass|less|json|md|txt|svg|html?|js|ts|mjs|cjs|tsx|jsx)$/i;
-var posix2 = (p2) => p2.split(path67.sep).join("/");
+var posix2 = (p2) => p2.split(path68.sep).join("/");
 var sha2 = (b) => crypto7.createHash("sha1").update(b).digest("hex");
 var safeName = (rel3) => rel3.replace(/^[./\\]+/, "").replace(/\.\.+/g, ".").replace(/[<>:"|?*]/g, "_");
 function whyNotShareable(abs2) {
-  if (SECRET_FILE.test(path67.basename(abs2))) return "looks like a secrets file";
+  if (SECRET_FILE.test(path68.basename(abs2))) return "looks like a secrets file";
   try {
-    const st = fs69.statSync(abs2);
+    const st = fs70.statSync(abs2);
     if (!st.isFile()) return "not a file";
     if (st.size > 12 * 1024 * 1024) return "larger than 12 MB";
-    if (TEXT_EXT.test(abs2) && st.size < 2 * 1024 * 1024 && SECRET_TEXT.test(fs69.readFileSync(abs2, "utf8"))) return "contains something that looks like a secret";
+    if (TEXT_EXT.test(abs2) && st.size < 2 * 1024 * 1024 && SECRET_TEXT.test(fs70.readFileSync(abs2, "utf8"))) return "contains something that looks like a secret";
   } catch {
     return "unreadable";
   }
@@ -109399,19 +109579,19 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
   const idx = loadIndex2();
   const mid = boardId || idx.masters.default || masterId(null);
   const board = mid ? loadBoard(mid) : null;
-  const projName = name || path67.basename(root);
-  const dest = path67.resolve(root, out || path67.join(".drip", "exports", `style-pack-${safeName(projName)}`));
-  fs69.mkdirSync(dest, { recursive: true });
+  const projName = name || path68.basename(root);
+  const dest = path68.resolve(root, out || path68.join(".drip", "exports", `style-pack-${safeName(projName)}`));
+  fs70.mkdirSync(dest, { recursive: true });
   const files = [];
   const skipped = [];
   const write2 = (rel3, data, kind) => {
-    const abs2 = path67.join(dest, rel3);
-    fs69.mkdirSync(path67.dirname(abs2), { recursive: true });
-    fs69.writeFileSync(abs2, data);
+    const abs2 = path68.join(dest, rel3);
+    fs70.mkdirSync(path68.dirname(abs2), { recursive: true });
+    fs70.writeFileSync(abs2, data);
     files.push({ path: rel3, sha1: sha2(data), size: Buffer.byteLength(data), kind });
   };
   const copy = (srcRel, kind) => {
-    const abs2 = path67.resolve(root, srcRel);
+    const abs2 = path68.resolve(root, srcRel);
     if (!abs2.startsWith(root)) {
       skipped.push({ path: srcRel, why: "outside the project" });
       return null;
@@ -109421,8 +109601,8 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
       skipped.push({ path: srcRel, why });
       return null;
     }
-    const rel3 = posix2(path67.join(kind === "font" ? "fonts" : kind === "code" ? "code" : "assets", safeName(srcRel)));
-    write2(rel3, fs69.readFileSync(abs2), kind);
+    const rel3 = posix2(path68.join(kind === "font" ? "fonts" : kind === "code" ? "code" : "assets", safeName(srcRel)));
+    write2(rel3, fs70.readFileSync(abs2), kind);
     return rel3;
   };
   let exportedBoard = null;
@@ -109448,7 +109628,7 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     }
     const directions = board.directions.map((d2) => {
       const o2 = { ...d2, tile: void 0 };
-      if (d2.tile && fs69.existsSync(d2.tile)) o2.tile = copy(posix2(path67.relative(root, d2.tile)), "asset");
+      if (d2.tile && fs70.existsSync(d2.tile)) o2.tile = copy(posix2(path68.relative(root, d2.tile)), "asset");
       return JSON.parse(JSON.stringify(o2));
     });
     exportedBoard = { schema: SCHEMA, name: board.name, brief: board.brief, scope: "master", items, directions, chosen: board.chosen, criteria: board.criteria || null, approved: idx.approved.default ? { direction: idx.approved.default.direction, snapshot: idx.approved.default.snapshot, reason: idx.approved.default.reason } : null };
@@ -109466,16 +109646,16 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
   if (style?.tokens) write2("style.json", JSON.stringify({ schema: 1, tokens: style.tokens, sources: (style.sources || []).map(({ kind, ref, at }) => ({ kind, ref, at })) }, null, 2), "style");
   write2("guide.md", skillBody(cwd, { brandOnly: true }), "guide");
   if (includePatterns) {
-    const pdir = path67.join(projectDripDir(cwd), "patterns");
-    const pidx = path67.join(pdir, "index.json");
-    if (fs69.existsSync(pidx)) {
+    const pdir = path68.join(projectDripDir(cwd), "patterns");
+    const pidx = path68.join(pdir, "index.json");
+    if (fs70.existsSync(pidx)) {
       try {
-        const index = JSON.parse(fs69.readFileSync(pidx, "utf8"));
+        const index = JSON.parse(fs70.readFileSync(pidx, "utf8"));
         const entries = (index.patterns || index.entries || []).filter((p2) => p2.status === "approved");
         write2("patterns/index.json", JSON.stringify({ schema: index.schema || 1, patterns: entries }, null, 2), "patterns");
         for (const p2 of entries) for (const f3 of ["spec.json", "spec.md"]) {
-          const abs2 = path67.join(pdir, p2.id, f3);
-          if (fs69.existsSync(abs2) && !whyNotShareable(abs2)) write2(`patterns/${p2.id}/${f3}`, fs69.readFileSync(abs2), "patterns");
+          const abs2 = path68.join(pdir, p2.id, f3);
+          if (fs70.existsSync(abs2) && !whyNotShareable(abs2)) write2(`patterns/${p2.id}/${f3}`, fs70.readFileSync(abs2), "patterns");
         }
       } catch {
         skipped.push({ path: ".drip/patterns/index.json", why: "unreadable" });
@@ -109488,7 +109668,7 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     kind: "drip-style-pack",
     name: projName,
     createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    source: { project: path67.basename(root), board: board?.id || null, styleRevision: idx.approved.default?.revision || null },
+    source: { project: path68.basename(root), board: board?.id || null, styleRevision: idx.approved.default?.revision || null },
     approvedDirection: idx.approved.default?.direction || null,
     fonts: fonts2.map((f3) => ({ family: f3, bundled: files.some((x2) => x2.kind === "font" && x2.path.toLowerCase().includes(f3.toLowerCase().replace(/\s+/g, "-"))) })),
     dependencies: [],
@@ -109496,15 +109676,15 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     skipped,
     notes: "Project-owned files only. Personal feedback and secrets are never included. Import copies assets into .drip/imports and creates an editable board; it never overwrites."
   };
-  fs69.writeFileSync(path67.join(dest, "manifest.json"), JSON.stringify(manifest, null, 2));
+  fs70.writeFileSync(path68.join(dest, "manifest.json"), JSON.stringify(manifest, null, 2));
   return { out: dest, manifest, skipped };
 }
 function importStylePack({ from, name, cwd } = {}) {
   const root = projectDir(cwd);
-  const src = path67.resolve(root, from);
+  const src = path68.resolve(root, from);
   let manifest;
   try {
-    manifest = JSON.parse(fs69.readFileSync(path67.join(src, "manifest.json"), "utf8"));
+    manifest = JSON.parse(fs70.readFileSync(path68.join(src, "manifest.json"), "utf8"));
   } catch {
     throw new Error(`${from} is not a style pack (no readable manifest.json).`);
   }
@@ -109512,19 +109692,19 @@ function importStylePack({ from, name, cwd } = {}) {
   const packName = name || manifest.name || "style";
   const slug6 = safeName(packName).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "style";
   ensureProjectDrip(cwd);
-  let dest = path67.join(projectDripDir(cwd), "imports", slug6);
-  for (let n3 = 2; fs69.existsSync(dest); n3++) dest = path67.join(projectDripDir(cwd), "imports", `${slug6}-${n3}`);
+  let dest = path68.join(projectDripDir(cwd), "imports", slug6);
+  for (let n3 = 2; fs70.existsSync(dest); n3++) dest = path68.join(projectDripDir(cwd), "imports", `${slug6}-${n3}`);
   const skipped = [];
   const copied = [];
   for (const f3 of manifest.files || []) {
-    const abs2 = path67.resolve(src, f3.path);
-    if (path67.isAbsolute(f3.path) || f3.path.split(/[\\/]/).includes("..") || !abs2.startsWith(src)) {
+    const abs2 = path68.resolve(src, f3.path);
+    if (path68.isAbsolute(f3.path) || f3.path.split(/[\\/]/).includes("..") || !abs2.startsWith(src)) {
       skipped.push({ path: f3.path, why: "path leaves the pack" });
       continue;
     }
     let data;
     try {
-      data = fs69.readFileSync(abs2);
+      data = fs70.readFileSync(abs2);
     } catch {
       skipped.push({ path: f3.path, why: "missing" });
       continue;
@@ -109533,15 +109713,15 @@ function importStylePack({ from, name, cwd } = {}) {
       skipped.push({ path: f3.path, why: "hash mismatch (changed since export)" });
       continue;
     }
-    const to2 = path67.join(dest, f3.path);
-    fs69.mkdirSync(path67.dirname(to2), { recursive: true });
-    fs69.writeFileSync(to2, data);
+    const to2 = path68.join(dest, f3.path);
+    fs70.mkdirSync(path68.dirname(to2), { recursive: true });
+    fs70.writeFileSync(to2, data);
     copied.push(f3.path);
   }
-  const relDest = posix2(path67.relative(root, dest));
+  const relDest = posix2(path68.relative(root, dest));
   const readIn = (rel3) => {
     try {
-      return JSON.parse(fs69.readFileSync(path67.join(dest, rel3), "utf8"));
+      return JSON.parse(fs70.readFileSync(path68.join(dest, rel3), "utf8"));
     } catch {
       return null;
     }
@@ -109560,11 +109740,11 @@ function importStylePack({ from, name, cwd } = {}) {
       b.items = (packBoard?.items || []).map((it) => ({
         ...it,
         status: asMaster ? it.status || "current" : "proposed",
-        ...it.path ? { path: posix2(path67.join(relDest, it.path)) } : {},
-        provenance: { source: "import", label: `${packName}${it.provenance?.label ? ` \xB7 ${it.provenance.label}` : ""}`, url: it.provenance?.url || null, path: it.path ? posix2(path67.join(relDest, it.path)) : null, addedBy: by, addedAt: (/* @__PURE__ */ new Date()).toISOString() },
+        ...it.path ? { path: posix2(path68.join(relDest, it.path)) } : {},
+        provenance: { source: "import", label: `${packName}${it.provenance?.label ? ` \xB7 ${it.provenance.label}` : ""}`, url: it.provenance?.url || null, path: it.path ? posix2(path68.join(relDest, it.path)) : null, addedBy: by, addedAt: (/* @__PURE__ */ new Date()).toISOString() },
         addedAt: (/* @__PURE__ */ new Date()).toISOString()
       }));
-      b.directions = (packBoard?.directions || []).map((d) => ({ ...d, tile: d.tile ? path67.resolve(root, relDest, d.tile) : void 0, items: d.items || [] }));
+      b.directions = (packBoard?.directions || []).map((d) => ({ ...d, tile: d.tile ? path68.resolve(root, relDest, d.tile) : void 0, items: d.items || [] }));
       b.criteria = packBoard?.criteria || void 0;
     },
     { op: "import", summary: `style pack "${packName}" (${copied.length} files)`, by }
@@ -109602,10 +109782,10 @@ function importStylePack({ from, name, cwd } = {}) {
 }
 
 // src/modules/project/index.mjs
-var posix3 = (p2) => p2.split(path68.sep).join("/");
+var posix3 = (p2) => p2.split(path69.sep).join("/");
 function setShare(patch) {
   const dir = ensureProjectDrip();
-  const file4 = path68.join(dir, "config.json");
+  const file4 = path69.join(dir, "config.json");
   const cfg = readJson2(file4, {}) || {};
   cfg.share = { ...cfg.share || {}, ...patch };
   writeJsonAtomic(file4, cfg);
@@ -109622,7 +109802,7 @@ async function shootApp(boardId, url2, config2, by) {
     const buf = cap.slices[0].buf;
     const hash2 = contentHash(buf);
     const { abs: abs2, rel: rel3 } = boardAssetPath(boardId, `app-${width}-${hash2}.jpg`, root);
-    fs70.writeFileSync(abs2, buf);
+    fs71.writeFileSync(abs2, buf);
     entries.push({ entry: { key: `screenshot:${target}@${width}`, kind: "screenshot", title: `${url2} at ${width}px`, path: rel3, hash: hash2, url: target, note: "the running app as it looks today (current implementation, not an approved look)" }, prov: makeProvenance({ source: "screenshot", label: `${url2} @${width}`, path: rel3, url: target, by }), status: "current" });
     shots.push(buf);
   }
@@ -109630,13 +109810,13 @@ async function shootApp(boardId, url2, config2, by) {
 }
 function entryForFile(boardId, input2, { by, status }) {
   const root = projectDir();
-  const abs2 = path68.resolve(root, input2);
-  const inside = abs2 === root || abs2.startsWith(root + path68.sep);
-  const name = path68.basename(abs2);
+  const abs2 = path69.resolve(root, input2);
+  const inside = abs2 === root || abs2.startsWith(root + path69.sep);
+  const name = path69.basename(abs2);
   if (SECRET_FILE.test(name)) return { skip: `${input2}: looks like a secrets file, never read` };
   let st;
   try {
-    st = fs70.statSync(abs2);
+    st = fs71.statSync(abs2);
   } catch {
     return { skip: `${input2}: not found` };
   }
@@ -109645,17 +109825,17 @@ function entryForFile(boardId, input2, { by, status }) {
   const why = whyNotShareable(abs2);
   if (why) return { skip: `${input2}: ${why}` };
   let rel3;
-  if (inside) rel3 = posix3(path68.relative(root, abs2));
+  if (inside) rel3 = posix3(path69.relative(root, abs2));
   else {
-    const a2 = boardAssetPath(boardId, `${contentHash(fs70.readFileSync(abs2)).slice(0, 8)}-${name}`, root);
-    fs70.copyFileSync(abs2, a2.abs);
+    const a2 = boardAssetPath(boardId, `${contentHash(fs71.readFileSync(abs2)).slice(0, 8)}-${name}`, root);
+    fs71.copyFileSync(abs2, a2.abs);
     rel3 = a2.rel;
   }
-  const hash2 = fileHash(path68.join(root, rel3));
-  const ext = path68.extname(name).toLowerCase();
+  const hash2 = fileHash(path69.join(root, rel3));
+  const ext = path69.extname(name).toLowerCase();
   const kind = /\.(png|jpe?g|webp|avif|gif|svg)$/.test(ext) ? /(logo|wordmark|brand|mark)/i.test(name) ? "logo" : "image" : /\.(woff2?|ttf|otf)$/.test(ext) ? "font" : /\.(css|scss|json)$/.test(ext) ? "tokens" : "doc";
   return {
-    entry: { key: kind === "font" ? `font:${name.replace(/\.[^.]+$/, "")}` : `file:${rel3}`, kind, title: name, path: rel3, hash: hash2, ...kind === "doc" ? { excerpt: fs70.readFileSync(abs2, "utf8").slice(0, 600).replace(/\s+/g, " ") } : {}, note: `a file you were given (${kind}), kept with its source path` },
+    entry: { key: kind === "font" ? `font:${name.replace(/\.[^.]+$/, "")}` : `file:${rel3}`, kind, title: name, path: rel3, hash: hash2, ...kind === "doc" ? { excerpt: fs71.readFileSync(abs2, "utf8").slice(0, 600).replace(/\s+/g, " ") } : {}, note: `a file you were given (${kind}), kept with its source path` },
     prov: makeProvenance({ source: inside ? "repo" : "user-file", label: inside ? "project file" : `given file, copied from ${name}`, path: rel3, by }),
     status
   };
@@ -109694,7 +109874,7 @@ function register27(server2, ctx2) {
       if (action === "discover" || action === "status") {
         const boards = listBoards();
         const idx = hasMemory() ? loadIndex2() : null;
-        out.push(`Project ${path68.basename(root)}: ${boards.length} board(s).${idx?.masters?.default ? ` Master: ${idx.masters.default}.` : " No master board yet."}`);
+        out.push(`Project ${path69.basename(root)}: ${boards.length} board(s).${idx?.masters?.default ? ` Master: ${idx.masters.default}.` : " No master board yet."}`);
         if (boards.length) out.push(boards.slice(0, 8).map((b) => `- ${b.id} (${b.scope}${b.status === "archived" ? ", archived" : ""}) r${b.revision} \xB7 ${liveItems(b).length} items${b.chosen ? ` \xB7 chose ${b.chosen}` : ""}`).join("\n"));
         out.push(describeInventory(inv));
         out.push(idx?.masters?.default ? "NEXT: board_import refreshes changed repo files; project_context is what a design task starts from." : 'NEXT: board_project({ action: "bootstrap" }) creates the master board from this.');
@@ -109713,8 +109893,8 @@ function register27(server2, ctx2) {
         board = r2.board;
         counts = r2.counts;
       } else {
-        const brief = inv.readme?.summary || `${path68.basename(root)}: existing product`;
-        const b0 = createBoard(name || `${inv.stack.name || path68.basename(root)} design memory`, brief, { scope: "master", brand: brand || null });
+        const brief = inv.readme?.summary || `${path69.basename(root)}: existing product`;
+        const b0 = createBoard(name || `${inv.stack.name || path69.basename(root)} design memory`, brief, { scope: "master", brand: brand || null });
         const r2 = importInventory(b0.id, inv, { by });
         board = r2.board;
         counts = r2.counts;
@@ -109779,13 +109959,13 @@ function register27(server2, ctx2) {
       if (paths?.length) {
         const entries = [];
         for (const p2 of paths) {
-          const abs2 = path68.resolve(root, p2);
+          const abs2 = path69.resolve(root, p2);
           let list4 = [p2];
           try {
-            if (fs70.statSync(abs2).isDirectory()) {
+            if (fs71.statSync(abs2).isDirectory()) {
               const inv = scanRepo(abs2);
-              list4 = [...inv.logos, ...inv.images, ...inv.tokens, ...inv.css].map((x2) => posix3(path68.relative(root, path68.join(abs2, x2.rel)))).slice(0, 60);
-              for (const d of inv.designDocs) list4.push(posix3(path68.relative(root, path68.join(abs2, d.rel))));
+              list4 = [...inv.logos, ...inv.images, ...inv.tokens, ...inv.css].map((x2) => posix3(path69.relative(root, path69.join(abs2, x2.rel)))).slice(0, 60);
+              for (const d of inv.designDocs) list4.push(posix3(path69.relative(root, path69.join(abs2, d.rel))));
             }
           } catch {
           }
@@ -109949,7 +110129,7 @@ function register27(server2, ctx2) {
         }
         if (a2.reset) {
           const r2 = resetBoard(board.id, { approved: a2.approved, by });
-          return text(`Reset "${board.name}": items and directions cleared. The previous content is saved at ${posix3(path68.relative(projectDir(), r2.snapshot))}.`);
+          return text(`Reset "${board.name}": items and directions cleared. The previous content is saved at ${posix3(path69.relative(projectDir(), r2.snapshot))}.`);
         }
         if (a2.master) {
           if (a2.approved !== true) return text("Changing the project master needs the user's yes. Ask them, then call again with approved: true.", true);
@@ -110173,7 +110353,7 @@ NEXT: style_update puts this into the project skill; compare a new page's number
       }
       const r2 = writeProjectSkill({ dryRun });
       const L2 = [dryRun ? `Preview of the project skill block:
-${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path68.relative(projectDir(), r2.file)}. Previous version kept in .history.` : "Project skill already matches the approved decisions."];
+${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path69.relative(projectDir(), r2.file)}. Previous version kept in .history.` : "Project skill already matches the approved decisions."];
       if (pack && !dryRun) L2.push(...syncProjectPack());
       return text(L2.join("\n"));
     })
@@ -110184,14 +110364,14 @@ ${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path68.
     const out = [];
     const skill = skillBody();
     if (!packDir(id)) {
-      createPack({ id, name: `${path68.basename(projectDir())} style`, niche: "this project's own design language", keywords: [], summary: "Generated from the project's approved decisions and measured tokens.", type: "project" });
+      createPack({ id, name: `${path69.basename(projectDir())} style`, niche: "this project's own design language", keywords: [], summary: "Generated from the project's approved decisions and measured tokens.", type: "project" });
       out.push(`Created the project style pack "${id}".`);
     } else {
       const meta3 = listPacks().find((p2) => p2.id === id);
       if (meta3 && meta3.type !== "project") return [`Pack "${id}" exists and is not a project pack; left alone.`];
     }
     for (const [file4, body] of [["guide.md", `${marker}
-# ${path68.basename(projectDir())} design language
+# ${path69.basename(projectDir())} design language
 
 ${skill}
 `], ["critic.md", `${marker}
@@ -110606,17 +110786,17 @@ var NOT_USABLE = [
 
 // src/modules/inspire/rank.mjs
 init_paths();
-import fs71 from "node:fs";
-import path69 from "node:path";
+import fs72 from "node:fs";
+import path70 from "node:path";
 var read4 = (f3) => {
   try {
-    return JSON.parse(fs71.readFileSync(f3, "utf8"));
+    return JSON.parse(fs72.readFileSync(f3, "utf8"));
   } catch {
     return {};
   }
 };
 function loadEntries() {
-  return [...read4(path69.join(dataDir, "catalogue.json")).entries || [], ...read4(path69.join(projectDripDir(), "catalogue.json")).entries || []];
+  return [...read4(path70.join(dataDir, "catalogue.json")).entries || [], ...read4(path70.join(projectDripDir(), "catalogue.json")).entries || []];
 }
 function rankEntries(entries, { stack = [], fit: fit2 = [], category } = {}) {
   const stacks = stack.map((s2) => String(s2).toLowerCase());
@@ -110833,8 +111013,8 @@ __export(art_tool_exports, {
   register: () => register29,
   specOf: () => specOf
 });
-import fs73 from "node:fs";
-import path71 from "node:path";
+import fs74 from "node:fs";
+import path72 from "node:path";
 init_paths();
 
 // src/modules/studio/rng.mjs
@@ -111386,9 +111566,9 @@ function describe5(art) {
 }
 
 // src/modules/studio/raster.mjs
-import fs72 from "node:fs";
+import fs73 from "node:fs";
 import os11 from "node:os";
-import path70 from "node:path";
+import path71 from "node:path";
 import { pathToFileURL as pathToFileURL6 } from "node:url";
 init_imaging();
 init_paths();
@@ -111397,11 +111577,11 @@ async function loadOptional(name) {
     return await import(name);
   } catch {
   }
-  const dir = path70.join(homeDripDir, "vendor", "node_modules", name);
+  const dir = path71.join(homeDripDir, "vendor", "node_modules", name);
   try {
-    const pkg = JSON.parse(fs72.readFileSync(path70.join(dir, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs73.readFileSync(path71.join(dir, "package.json"), "utf8"));
     const entry = typeof pkg.module === "string" ? pkg.module : typeof pkg.exports === "string" ? pkg.exports : pkg.exports?.["."]?.import || pkg.exports?.["."]?.default || pkg.exports?.["."] || pkg.main || "index.js";
-    return await import(pathToFileURL6(path70.join(dir, typeof entry === "string" ? entry : "index.js")).href);
+    return await import(pathToFileURL6(path71.join(dir, typeof entry === "string" ? entry : "index.js")).href);
   } catch {
     return null;
   }
@@ -111417,9 +111597,9 @@ async function optimizeSvg(svg) {
   }
 }
 function projectPath(out) {
-  const root = path70.resolve(projectDir());
-  const abs2 = path70.resolve(root, out);
-  if (abs2 !== root && !abs2.startsWith(root + path70.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
+  const root = path71.resolve(projectDir());
+  const abs2 = path71.resolve(root, out);
+  if (abs2 !== root && !abs2.startsWith(root + path71.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
   return abs2;
 }
 async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, rasterizer = "browser", config: config2 } = {}) {
@@ -111429,9 +111609,9 @@ async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, r
     const png3 = Buffer.from(new mod.Resvg(svg, { fitTo: { mode: "width", value: width } }).render().asPng());
     return format === "png" ? png3 : encode5(png3, { width, format, maxKB, config: config2 });
   }
-  const file4 = path70.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
+  const file4 = path71.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
   const png2 = await renderHtml(`<div style="width:${width}px;height:${height}px;overflow:hidden;line-height:0">${svg.replace(/<svg /, `<svg style="display:block;width:${width}px;height:${height}px" `)}</div>`, file4, { width, height, config: config2 });
-  fs72.rmSync(file4, { force: true });
+  fs73.rmSync(file4, { force: true });
   return format === "png" ? png2 : encode5(png2, { width, format, maxKB, config: config2 });
 }
 async function encode5(png2, { width, format, maxKB, config: config2 }) {
@@ -111440,12 +111620,12 @@ async function encode5(png2, { width, format, maxKB, config: config2 }) {
 }
 function saveFile(out, data) {
   const abs2 = projectPath(out);
-  fs72.mkdirSync(path70.dirname(abs2), { recursive: true });
-  fs72.writeFileSync(abs2, data);
-  return { abs: abs2, rel: path70.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs72.statSync(abs2).size / 1024)) };
+  fs73.mkdirSync(path71.dirname(abs2), { recursive: true });
+  fs73.writeFileSync(abs2, data);
+  return { abs: abs2, rel: path71.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs73.statSync(abs2).size / 1024)) };
 }
 function logAsset(entries) {
-  const log2 = path70.join(ensureProjectDrip(), "assets.json");
+  const log2 = path71.join(ensureProjectDrip(), "assets.json");
   withLock(log2, () => {
     const prev = readJson2(log2, []);
     for (const e2 of entries) prev.push({ credit: null, author: null, savedAt: (/* @__PURE__ */ new Date()).toISOString(), ...e2 });
@@ -111460,11 +111640,11 @@ async function previewBlock(buf, maxW = 1280, maxH = 900) {
   }
 }
 function tempDir(prefix = "drip-studio-") {
-  return fs72.mkdtempSync(path70.join(os11.tmpdir(), prefix));
+  return fs73.mkdtempSync(path71.join(os11.tmpdir(), prefix));
 }
 function cleanDir(dir) {
   try {
-    fs72.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+    fs73.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
   } catch {
   }
 }
@@ -111651,7 +111831,7 @@ function register29(server2, ctx2) {
       _meta: studioToolMeta()
     },
     safe(async (args) => {
-      const base = args.from ? JSON.parse(fs73.readFileSync(projectPath(args.from), "utf8")) : {};
+      const base = args.from ? JSON.parse(fs74.readFileSync(projectPath(args.from), "utf8")) : {};
       const kind = args.kind || "composition";
       const mood = args.mood || base.mood || "calm";
       let layers = args.layers || (kind !== "composition" || !base.layers ? null : base.layers);
@@ -111667,10 +111847,10 @@ function register29(server2, ctx2) {
       let optimizedNote = "";
       if (args.out) {
         const abs2 = projectPath(args.out);
-        const ext = path71.extname(abs2).slice(1).toLowerCase();
+        const ext = path72.extname(abs2).slice(1).toLowerCase();
         if (!["svg", "webp", "png"].includes(ext)) throw new Error("out must end in .svg, .webp or .png");
         const stem3 = abs2.slice(0, -(ext.length + 1));
-        const rel3 = (p2) => path71.relative(projectDir(), p2).replace(/\\/g, "/");
+        const rel3 = (p2) => path72.relative(projectDir(), p2).replace(/\\/g, "/");
         const opt = args.optimize === false ? { svg: art.svg, optimized: false } : await optimizeSvg(art.svg);
         optimizedNote = opt.optimized ? " (SVGO applied)" : "";
         files.push(saveFile(rel3(`${stem3}.svg`), opt.svg));
@@ -111703,8 +111883,8 @@ __export(assets3d_exports, {
   register: () => register30,
   unzip: () => unzip
 });
-import fs74 from "node:fs";
-import path72 from "node:path";
+import fs75 from "node:fs";
+import path73 from "node:path";
 import zlib from "node:zlib";
 var UA2 = { "User-Agent": "drip-design-mcp/0.5 (design tool; https://github.com/8bitgfx/drip)" };
 var DAY2 = 24 * 36e5;
@@ -111740,13 +111920,13 @@ function unzip(buf) {
   return out;
 }
 function extractTo(entries, dir) {
-  const root = path72.resolve(dir);
+  const root = path73.resolve(dir);
   const written = [];
   for (const e2 of entries) {
-    const target = path72.resolve(root, e2.name);
-    if (target !== root && !target.startsWith(root + path72.sep)) throw new Error(`Refusing to write outside the folder: ${e2.name}`);
-    fs74.mkdirSync(path72.dirname(target), { recursive: true });
-    fs74.writeFileSync(target, e2.data);
+    const target = path73.resolve(root, e2.name);
+    if (target !== root && !target.startsWith(root + path73.sep)) throw new Error(`Refusing to write outside the folder: ${e2.name}`);
+    fs75.mkdirSync(path73.dirname(target), { recursive: true });
+    fs75.writeFileSync(target, e2.data);
     written.push(e2.name);
   }
   return written;
@@ -111803,7 +111983,7 @@ async function acgDownloads(id) {
 }
 var download = async (url2) => (await get(url2, { as: "buffer", headers: UA2, ttlMs: 30 * DAY2 })).body;
 async function hdrBuffer(idOrPath, res = "1k") {
-  if (/\.hdr$/i.test(idOrPath)) return fs74.readFileSync(projectPath(idOrPath));
+  if (/\.hdr$/i.test(idOrPath)) return fs75.readFileSync(projectPath(idOrPath));
   const files = await phFiles(idOrPath);
   const hit = files.hdri?.[res]?.hdr || files.hdri?.["1k"]?.hdr;
   if (!hit) throw new Error(`Poly Haven has no HDRI "${idOrPath}" (search with assets_3d_search type hdri).`);
@@ -111856,9 +112036,9 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
       const id = rest.join(":");
       if (!["polyhaven", "ambientcg"].includes(source) || !id) return text(`"${asset}" is not a Poly Haven or ambientCG asset. Use a number from assets_3d_search or source:id.`, true);
       const known = lookup(key);
-      const folder = path72.join(dest, source, id).replace(/\\/g, "/");
+      const folder = path73.join(dest, source, id).replace(/\\/g, "/");
       const abs2 = projectPath(folder);
-      fs74.mkdirSync(abs2, { recursive: true });
+      fs75.mkdirSync(abs2, { recursive: true });
       const files = [];
       let authors = [];
       let kind;
@@ -111869,15 +112049,15 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
         authors = Object.keys(info.authors || {});
         page2 = `https://polyhaven.com/a/${id}`;
         const put = async (url2, rel3) => {
-          const target = path72.join(abs2, rel3);
-          fs74.mkdirSync(path72.dirname(target), { recursive: true });
-          fs74.writeFileSync(target, await download(url2));
+          const target = path73.join(abs2, rel3);
+          fs75.mkdirSync(path73.dirname(target), { recursive: true });
+          fs75.writeFileSync(target, await download(url2));
           files.push(rel3.replace(/\\/g, "/"));
         };
         if (kind === "hdri") {
           const hit = listing2.hdri?.[resolution]?.hdr || listing2.hdri?.["1k"]?.hdr;
           if (!hit) throw new Error(`No .hdr file for ${id} at ${resolution}`);
-          await put(hit.url, path72.basename(new URL(hit.url).pathname));
+          await put(hit.url, path73.basename(new URL(hit.url).pathname));
         } else if (kind === "texture") {
           for (const [map2, short] of Object.entries(PH_TEXTURE_MAPS)) {
             const hit = listing2[map2]?.[resolution]?.jpg || listing2[map2]?.["1k"]?.jpg;
@@ -111900,7 +112080,7 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
         files.push(...extractTo(unzip(await download(pick5.downloadLink || pick5.fullDownloadPath)), abs2));
       }
       const record2 = { source, id, kind, url: page2, authors, license: "CC0 1.0 (as stated by the source)", resolution, retrievedAt: (/* @__PURE__ */ new Date()).toISOString(), files };
-      fs74.writeFileSync(path72.join(abs2, "provenance.json"), JSON.stringify(record2, null, 2));
+      fs75.writeFileSync(path73.join(abs2, "provenance.json"), JSON.stringify(record2, null, 2));
       logAsset(files.slice(0, 40).map((f3) => ({ file: `${folder}/${f3}`, source: page2, author: authors.join(", ") || null, license: record2.license })));
       const hint = kind === "hdri" ? `Use it: scene_render({ scene: { environment: { hdri: "${source === "polyhaven" ? id : `${folder}/${files.find((f3) => /\.hdr$/i.test(f3)) || ""}`}" } ... } }).` : kind === "texture" ? `Use it: material: { pbrFolder: "${folder}" } in scene_render.` : `A glTF model: open it in blender_render (objects can import it) or a three.js page.`;
       return text(`Saved ${kind} "${id}" (${source}, ${resolution}) to ${folder}/ \u2014 ${files.length} file${files.length === 1 ? "" : "s"}: ${files.slice(0, 8).join(", ")}${files.length > 8 ? ", ..." : ""}.
@@ -111920,9 +112100,9 @@ __export(blender_exports, {
   register: () => register32
 });
 import { execFile as execFile6 } from "node:child_process";
-import fs76 from "node:fs";
+import fs77 from "node:fs";
 import os12 from "node:os";
-import path74 from "node:path";
+import path75 from "node:path";
 
 // src/modules/studio/scene.mjs
 var scene_exports = {};
@@ -111939,8 +112119,8 @@ __export(scene_exports, {
   scenePage: () => scenePage,
   sceneSchema: () => sceneSchema
 });
-import fs75 from "node:fs";
-import path73 from "node:path";
+import fs76 from "node:fs";
+import path74 from "node:path";
 init_browser();
 init_imaging();
 init_paths();
@@ -112067,18 +112247,18 @@ async function inlineImage(src, maxSide = 2048) {
   if (!src) return void 0;
   if (src.startsWith("data:")) return src;
   const local = !/^https?:/i.test(src);
-  const buf = local ? fs75.readFileSync(projectPath(src)) : (await fetchImage(src)).buf;
+  const buf = local ? fs76.readFileSync(projectPath(src)) : (await fetchImage(src)).buf;
   const jpeg2 = await toJpeg(buf, maxSide, maxSide, 90).catch(() => null);
   return jpeg2 ? dataUrl2(jpeg2) : dataUrl2(buf, "image/png");
 }
 var PBR_NAMES = { map: /(color|diff|albedo|basecolor)/i, normalMap: /(normalgl|nor_gl|normal)/i, roughnessMap: /(rough)/i, aoMap: /(ambientocclusion|_ao|ao_)/i };
 function findPbrMaps(folder) {
   const abs2 = projectPath(folder);
-  const files = fs75.readdirSync(abs2).filter((f3) => /\.(jpe?g|png)$/i.test(f3));
+  const files = fs76.readdirSync(abs2).filter((f3) => /\.(jpe?g|png)$/i.test(f3));
   const out = {};
   for (const [role, re] of Object.entries(PBR_NAMES)) {
     const hit = files.filter((f3) => re.test(f3) && !(role === "map" && /normal/i.test(f3)) && !(role === "normalMap" && /dx|directx/i.test(f3)));
-    if (hit.length) out[role] = path73.join(folder, hit[0]);
+    if (hit.length) out[role] = path74.join(folder, hit[0]);
   }
   return out;
 }
@@ -112086,32 +112266,32 @@ async function resolveModel(src) {
   const ph = /^polyhaven:([\w-]+)$/i.exec(src);
   if (ph) {
     const id = ph[1];
-    const dir = path73.join(homeDripDir, "cache", "models", id);
-    const main = path73.join(dir, `${id}.gltf`);
-    if (fs75.existsSync(main)) return main;
+    const dir = path74.join(homeDripDir, "cache", "models", id);
+    const main = path74.join(dir, `${id}.gltf`);
+    if (fs76.existsSync(main)) return main;
     const r2 = await fetch(`https://api.polyhaven.com/files/${id}`, { headers: { "user-agent": "drip" } });
     if (!r2.ok) throw new Error(`Poly Haven has no model "${id}" (assets_3d_search lists them)`);
     const g = (await r2.json()).gltf;
     const pick5 = g?.["2k"]?.gltf || g?.["1k"]?.gltf;
     if (!pick5) throw new Error(`Poly Haven "${id}" has no glTF download`);
     const put = async (url2, rel3) => {
-      const target = path73.join(dir, rel3);
-      fs75.mkdirSync(path73.dirname(target), { recursive: true });
+      const target = path74.join(dir, rel3);
+      fs76.mkdirSync(path74.dirname(target), { recursive: true });
       const res = await fetch(url2, { headers: { "user-agent": "drip" } });
       if (!res.ok) throw new Error(`Download failed: ${url2}`);
-      fs75.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
+      fs76.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
     };
     for (const [rel3, f3] of Object.entries(pick5.include || {})) await put(f3.url, rel3);
     await put(pick5.url, `${id}.gltf`);
-    fs75.writeFileSync(path73.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
+    fs76.writeFileSync(path74.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
     return main;
   }
   const abs2 = projectPath(src);
-  if (!fs75.existsSync(abs2)) throw new Error(`Model not found: ${src}`);
-  if (fs75.statSync(abs2).isDirectory()) {
-    const f3 = fs75.readdirSync(abs2).find((n3) => /\.(glb|gltf)$/i.test(n3));
+  if (!fs76.existsSync(abs2)) throw new Error(`Model not found: ${src}`);
+  if (fs76.statSync(abs2).isDirectory()) {
+    const f3 = fs76.readdirSync(abs2).find((n3) => /\.(glb|gltf)$/i.test(n3));
     if (!f3) throw new Error(`No .glb or .gltf in ${src}`);
-    return path73.join(abs2, f3);
+    return path74.join(abs2, f3);
   }
   return abs2;
 }
@@ -112125,8 +112305,8 @@ async function prepareScene(spec) {
     if (o2.type === "model") {
       if (!o2.src) throw new Error("A model object needs src: a .glb/.gltf file, a folder from assets_3d_save, or polyhaven:<id>.");
       const file4 = await resolveModel(o2.src);
-      o2.modelDir = path73.dirname(file4);
-      o2.modelFile = path73.basename(file4);
+      o2.modelDir = path74.dirname(file4);
+      o2.modelFile = path74.basename(file4);
       if (o2.label) o2.label = { ...o2.label, image: await inlineImage(o2.label.image, 2048) };
     }
   }
@@ -112355,15 +112535,15 @@ async function renderScene(spec, { turntable, config: config2, timeout = 6e4 } =
   const width = prepared.width || 1600;
   const height = prepared.height || 1e3;
   const dir = tempDir("drip-scene-");
-  const file4 = path73.join(dir, "scene.html");
+  const file4 = path74.join(dir, "scene.html");
   prepared.objects.forEach((o2, i2) => {
     if (o2.type !== "model") return;
-    const to2 = path73.join(dir, "models", String(i2));
-    fs75.cpSync(o2.modelDir, to2, { recursive: true });
+    const to2 = path74.join(dir, "models", String(i2));
+    fs76.cpSync(o2.modelDir, to2, { recursive: true });
     o2.modelUrl = `models/${i2}/${encodeURIComponent(o2.modelFile)}`;
     delete o2.modelDir;
   });
-  fs75.writeFileSync(file4, scenePage(prepared));
+  fs76.writeFileSync(file4, scenePage(prepared));
   const toBuf = (u2) => Buffer.from(u2.split(",")[1], "base64");
   try {
     return await withTab(config2, async (tab) => {
@@ -112421,7 +112601,7 @@ function register31(server2, ctx2) {
       const seconds = ((Date.now() - t0) / 1e3).toFixed(1);
       const files = [];
       if (args.out) {
-        const ext = path73.extname(args.out).slice(1).toLowerCase();
+        const ext = path74.extname(args.out).slice(1).toLowerCase();
         if (!["png", "webp"].includes(ext)) throw new Error("out must end in .png or .webp");
         const buf = ext === "png" ? r2.still : (await processImage(r2.still, { outputs: [{ name: "", width: r2.width, format: "webp" }], focus: { x: 0.5, y: 0.5 }, maxKB: 600, config: ctx2.config() })).files[0].buf;
         files.push(saveFile(args.out, buf));
@@ -112460,7 +112640,7 @@ Scene (edit and pass back as scene): ${JSON.stringify({ ...spec, objects: spec.o
 var byVersionDesc = (a2, b) => b.localeCompare(a2, void 0, { numeric: true });
 function listDir(dir) {
   try {
-    return fs76.readdirSync(dir);
+    return fs77.readdirSync(dir);
   } catch {
     return [];
   }
@@ -112469,25 +112649,25 @@ function blenderCandidates(env = process.env, platform = process.platform) {
   const out = [];
   if (env.DRIP_BLENDER) out.push(env.DRIP_BLENDER);
   const exe = platform === "win32" ? "blender.exe" : "blender";
-  for (const dir of (env.PATH || "").split(path74.delimiter).filter(Boolean)) out.push(path74.join(dir, exe));
+  for (const dir of (env.PATH || "").split(path75.delimiter).filter(Boolean)) out.push(path75.join(dir, exe));
   if (platform === "win32") {
-    for (const base of [env.ProgramFiles || "C:\\Program Files", env["ProgramFiles(x86)"] || "C:\\Program Files (x86)", env.LOCALAPPDATA && path74.join(env.LOCALAPPDATA, "Programs")].filter(Boolean)) {
-      const root = path74.join(base, "Blender Foundation");
-      for (const d of listDir(root).filter((n3) => /^Blender/i.test(n3)).sort(byVersionDesc)) out.push(path74.join(root, d, "blender.exe"));
+    for (const base of [env.ProgramFiles || "C:\\Program Files", env["ProgramFiles(x86)"] || "C:\\Program Files (x86)", env.LOCALAPPDATA && path75.join(env.LOCALAPPDATA, "Programs")].filter(Boolean)) {
+      const root = path75.join(base, "Blender Foundation");
+      for (const d of listDir(root).filter((n3) => /^Blender/i.test(n3)).sort(byVersionDesc)) out.push(path75.join(root, d, "blender.exe"));
     }
     out.push("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Blender\\blender.exe");
   } else if (platform === "darwin") {
-    out.push("/Applications/Blender.app/Contents/MacOS/Blender", path74.join(os12.homedir(), "Applications/Blender.app/Contents/MacOS/Blender"));
+    out.push("/Applications/Blender.app/Contents/MacOS/Blender", path75.join(os12.homedir(), "Applications/Blender.app/Contents/MacOS/Blender"));
   } else {
     out.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/var/lib/flatpak/exports/bin/org.blender.Blender");
-    for (const d of listDir("/opt").filter((n3) => /^blender/i.test(n3)).sort(byVersionDesc)) out.push(path74.join("/opt", d, "blender"));
+    for (const d of listDir("/opt").filter((n3) => /^blender/i.test(n3)).sort(byVersionDesc)) out.push(path75.join("/opt", d, "blender"));
   }
   return out;
 }
 function findBlender(config2, env = process.env, platform = process.platform) {
   const configured = config2?.blender?.path;
   const list4 = [...configured ? [configured] : [], ...blenderCandidates(env, platform)];
-  return list4.find((p2) => p2 && fs76.existsSync(p2)) || null;
+  return list4.find((p2) => p2 && fs77.existsSync(p2)) || null;
 }
 var BLENDER_SCRIPT = `
 import bpy, bmesh, sys, json, math, os
@@ -112822,14 +113002,14 @@ print("DRIP_DONE", out_path)
 `;
 async function localFile2(src, dir, name) {
   if (!src) return void 0;
-  const ext = (path74.extname(src.split("?")[0]) || ".png").toLowerCase();
-  const target = path74.join(dir, `${name}${ext}`);
+  const ext = (path75.extname(src.split("?")[0]) || ".png").toLowerCase();
+  const target = path75.join(dir, `${name}${ext}`);
   if (/^data:/.test(src)) {
-    fs76.writeFileSync(target, Buffer.from(src.split(",")[1], "base64"));
+    fs77.writeFileSync(target, Buffer.from(src.split(",")[1], "base64"));
     return target;
   }
   if (/^https?:/i.test(src)) {
-    fs76.writeFileSync(target, (await fetchImage(src)).buf);
+    fs77.writeFileSync(target, (await fetchImage(src)).buf);
     return target;
   }
   return projectPath(src);
@@ -112846,8 +113026,8 @@ async function blenderSpec(spec, dir, { samples = 48 } = {}) {
     if (o2.decal) o2.decal.image = await localFile2(o2.decal.image, dir, `decal${n3++}`);
   }
   if (out.environment?.hdri) {
-    const file4 = path74.join(dir, "env.hdr");
-    fs76.writeFileSync(file4, await hdrBuffer(out.environment.hdri, out.environment.resolution || "1k"));
+    const file4 = path75.join(dir, "env.hdr");
+    fs77.writeFileSync(file4, await hdrBuffer(out.environment.hdri, out.environment.resolution || "1k"));
     out.environment.hdriFile = file4;
   }
   out.samples = samples;
@@ -112887,22 +113067,22 @@ function register32(server2, ctx2) {
       const dir = tempDir("drip-blender-");
       try {
         const prepared = await blenderSpec(spec, dir, { samples: args.samples || 48 });
-        fs76.writeFileSync(path74.join(dir, "spec.json"), JSON.stringify(prepared));
-        fs76.writeFileSync(path74.join(dir, "render.py"), BLENDER_SCRIPT);
-        const png2 = path74.join(dir, "out.png");
+        fs77.writeFileSync(path75.join(dir, "spec.json"), JSON.stringify(prepared));
+        fs77.writeFileSync(path75.join(dir, "render.py"), BLENDER_SCRIPT);
+        const png2 = path75.join(dir, "out.png");
         const t0 = Date.now();
         let res;
         try {
-          res = await run2(exe, ["-b", "--factory-startup", "-noaudio", "--python", path74.join(dir, "render.py"), "--", path74.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
+          res = await run2(exe, ["-b", "--factory-startup", "-noaudio", "--python", path75.join(dir, "render.py"), "--", path75.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
         } catch (err) {
           const tail2 = `${err.stdout || ""}
 ${err.stderr || ""}`.split("\n").filter((l2) => /Error|Traceback|File "|Exception/i.test(l2)).slice(-8).join("\n");
           throw new Error(`Blender failed (${err.killed ? "timed out" : `exit ${err.code}`}).${tail2 ? `
 ${tail2}` : ""}`);
         }
-        if (!fs76.existsSync(png2)) throw new Error(`Blender finished without writing an image.
+        if (!fs77.existsSync(png2)) throw new Error(`Blender finished without writing an image.
 ${res.stdout.split("\n").slice(-6).join("\n")}`);
-        let buf = fs76.readFileSync(png2);
+        let buf = fs77.readFileSync(png2);
         const bg = spec.background;
         if (bg && bg !== "transparent") {
           const img = await Jimp.read(buf);
@@ -112916,7 +113096,7 @@ ${res.stdout.split("\n").slice(-6).join("\n")}`);
           files.push(saveFile(args.out, buf));
           files.push(saveFile(args.out.replace(/\.png$/i, ".scene.json"), JSON.stringify(spec, null, 2)));
         }
-        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path74.basename(path74.dirname(exe)) || exe}).${files.length ? `
+        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path75.basename(path75.dirname(exe)) || exe}).${files.length ? `
 Saved: ${files.map((f3) => `${f3.rel} (${f3.kb} KB)`).join(", ")}.` : ""}`), imageBlock(await toJpeg(buf, 1280, 900, 86))]);
       } finally {
         cleanDir(dir);
@@ -112938,8 +113118,8 @@ __export(mockup_exports, {
   register: () => register33
 });
 import { execFile as execFile7 } from "node:child_process";
-import fs77 from "node:fs";
-import path75 from "node:path";
+import fs78 from "node:fs";
+import path76 from "node:path";
 init_browser();
 init_serve();
 var MOCKSTUDIO = {
@@ -112954,22 +113134,22 @@ var MOCKSTUDIO = {
   aspects: ["16:9", "9:16", "1:1", "4:5", "3:2", "4:3", "match-frame"]
 };
 var SCREEN = { "iphone-17-pro": { width: 402, height: 874, scale: 3 }, "studio-display": { width: 1600, height: 900, scale: 2 }, slab: { width: 1440, height: 900, scale: 2 } };
-var mockstudioDir = () => path75.join(vendorDir(), "mockstudio");
-var presetsDir = () => path75.join(mockstudioDir(), "drip-presets");
-var mockstudioReady2 = () => fs77.existsSync(path75.join(mockstudioDir(), "dist", "index.html")) && fs77.existsSync(path75.join(presetsDir(), "look.studio.json"));
+var mockstudioDir = () => path76.join(vendorDir(), "mockstudio");
+var presetsDir = () => path76.join(mockstudioDir(), "drip-presets");
+var mockstudioReady2 = () => fs78.existsSync(path76.join(mockstudioDir(), "dist", "index.html")) && fs78.existsSync(path76.join(presetsDir(), "look.studio.json"));
 function run3(file4, args, opts = {}) {
   return new Promise((resolve2, reject) => {
     execFile7(
       file4,
       args,
       { timeout: 9e5, windowsHide: true, maxBuffer: 32 * 1024 * 1024, ...opts },
-      (err, stdout, stderr) => err ? reject(new Error(`${path75.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
+      (err, stdout, stderr) => err ? reject(new Error(`${path76.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
     );
   });
 }
 function npx() {
-  const bin = path75.dirname(process.execPath);
-  for (const p2 of [path75.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path75.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs77.existsSync(p2)) return [process.execPath, [p2]];
+  const bin = path76.dirname(process.execPath);
+  for (const p2 of [path76.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path76.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs78.existsSync(p2)) return [process.execPath, [p2]];
   return [process.platform === "win32" ? "npx.cmd" : "npx", []];
 }
 function diffPatch(base, next) {
@@ -112997,8 +113177,8 @@ function mergePatch(target, patch) {
 async function installMockstudio(log2 = () => {
 }) {
   const dir = mockstudioDir();
-  fs77.mkdirSync(path75.dirname(dir), { recursive: true });
-  if (!fs77.existsSync(path75.join(dir, ".git"))) {
+  fs78.mkdirSync(path76.dirname(dir), { recursive: true });
+  if (!fs78.existsSync(path76.join(dir, ".git"))) {
     log2(`Cloning MockStudio ${MOCKSTUDIO.sha.slice(0, 7)} ...`);
     await run3("git", ["clone", "--filter=blob:none", "--quiet", MOCKSTUDIO.repo, dir]);
   }
@@ -113013,24 +113193,24 @@ async function installMockstudio(log2 = () => {
   await run3(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "build"], { cwd: dir, env });
   log2("Saving the Look / Camera / Motion presets ...");
   const pd = presetsDir();
-  fs77.mkdirSync(pd, { recursive: true });
-  const cli = path75.join(dir, "bin", "mockstudio.mjs");
+  fs78.mkdirSync(pd, { recursive: true });
+  const cli = path76.join(dir, "bin", "mockstudio.mjs");
   const compose = async (args, name) => {
-    const out = path75.join(pd, `${name}.json`);
+    const out = path76.join(pd, `${name}.json`);
     await run3(process.execPath, [cli, "compose", ...args, "--out", out], { cwd: dir, env });
-    return JSON.parse(fs77.readFileSync(out, "utf8"));
+    return JSON.parse(fs78.readFileSync(out, "utf8"));
   };
   const base = await compose(["--default"], "default");
   for (const l2 of MOCKSTUDIO.looks) await compose(["--look", l2], `look.${l2}`);
-  for (const c3 of MOCKSTUDIO.cameras) fs77.writeFileSync(path75.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
-  for (const m of MOCKSTUDIO.motions) fs77.writeFileSync(path75.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
-  fs77.rmSync(path75.join(pd, "tmp.json"), { force: true });
+  for (const c3 of MOCKSTUDIO.cameras) fs78.writeFileSync(path76.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
+  for (const m of MOCKSTUDIO.motions) fs78.writeFileSync(path76.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
+  fs78.rmSync(path76.join(pd, "tmp.json"), { force: true });
   log2("Removing the build dependencies (the built site is all Drip needs) ...");
-  fs77.rmSync(path75.join(dir, "node_modules"), { recursive: true, force: true });
+  fs78.rmSync(path76.join(dir, "node_modules"), { recursive: true, force: true });
   return { dir, ok: mockstudioReady2() };
 }
 var ASPECT = { "16:9": 16 / 9, "9:16": 9 / 16, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "4:3": 4 / 3 };
-function buildDocument(o2, presets = (n3) => JSON.parse(fs77.readFileSync(path75.join(presetsDir(), `${n3}.json`), "utf8"))) {
+function buildDocument(o2, presets = (n3) => JSON.parse(fs78.readFileSync(path76.join(presetsDir(), `${n3}.json`), "utf8"))) {
   let doc = presets(`look.${o2.look || "studio"}`);
   if (o2.camera) doc = mergePatch(doc, presets(`camera.${o2.camera}`));
   if (o2.motion) doc = mergePatch(doc, presets(`motion.${o2.motion}`));
@@ -113048,12 +113228,12 @@ function credits(device) {
   const lines = [`Rendered with MockStudio (Apache-2.0) ${MOCKSTUDIO.repo}`];
   if (device === "slab") return lines;
   try {
-    const notice = fs77.readFileSync(path75.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
+    const notice = fs78.readFileSync(path76.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
     const row = notice.split(/\r?\n/).find((l2) => l2.startsWith("|") && l2.split("|")[1]?.trim() === device);
     const [, , , title, author, license, source] = row.split("|").map((c3) => c3.trim());
     lines.push(`3D model: "${title}" by ${author}, ${license}, ${source}`);
   } catch {
-    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path75.join(mockstudioDir(), "public", "models", "NOTICE")})`);
+    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path76.join(mockstudioDir(), "public", "models", "NOTICE")})`);
   }
   return lines;
 }
@@ -113063,8 +113243,8 @@ async function screenBytes(image2, device, config2) {
     const { buf: buf2 } = await shoot(await toUrl(projectPath(image2)), { width: s2.width, height: s2.height, scale: s2.scale, transparent: false, dark: false, fullPage: false, config: config2 });
     return { buf: buf2, mime: "image/png", name: "screen.png" };
   }
-  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs77.readFileSync(projectPath(image2));
-  const ext = path75.extname(image2.split("?")[0]).toLowerCase();
+  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs78.readFileSync(projectPath(image2));
+  const ext = path76.extname(image2.split("?")[0]).toLowerCase();
   return { buf, mime: ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".webp" ? "image/webp" : "image/png", name: `screen${ext || ".png"}` };
 }
 function register33(server2, ctx2) {
@@ -113095,7 +113275,7 @@ function register33(server2, ctx2) {
       if (!mockstudioReady2()) return text("MockStudio isn't installed yet. Run `drip doctor --install mockstudio` once (it clones a pinned version into ~/.drip/vendor and builds it; a few minutes), then call mockup_render again.", true);
       const config2 = ctx2.config();
       const device = o2.device || "iphone-17-pro";
-      const ext = path75.extname(o2.out).toLowerCase().slice(1);
+      const ext = path76.extname(o2.out).toLowerCase().slice(1);
       const video = ["mp4", "webm"].includes(ext);
       if (video && !o2.motion) return text("A clip needs a motion (orbit, dolly-in, reveal, drift).", true);
       const doc = buildDocument(o2);
@@ -113104,7 +113284,7 @@ function register33(server2, ctx2) {
       const W = o2.width || 1600;
       const aspect = ASPECT[doc.artboard?.aspect] || (device === "iphone-17-pro" ? 9 / 19.5 : 16 / 10);
       const H = Math.round(W / aspect / 2) * 2;
-      const base = await serveDir(path75.join(mockstudioDir(), "dist"));
+      const base = await serveDir(path76.join(mockstudioDir(), "dist"));
       const t0 = Date.now();
       const b64 = await withTab(config2, async (tab) => {
         await openPage(tab, `${base}/?render`, { width: 1280, height: 900, settleMs: 100 });
@@ -113158,8 +113338,8 @@ __export(motion_exports, {
   naturalDuration: () => naturalDuration,
   register: () => register34
 });
-import fs78 from "node:fs";
-import path76 from "node:path";
+import fs79 from "node:fs";
+import path77 from "node:path";
 init_browser();
 init_serve();
 init_paths();
@@ -113273,9 +113453,9 @@ function register34(server2, ctx2) {
         files.push(saveFile(out, animatedWebp(frames.map((f3) => f3.buf), { fps: realFps })));
         if (keepFrames) {
           const dir = abs2.replace(/\.webp$/i, "-frames");
-          fs78.mkdirSync(dir, { recursive: true });
-          frames.forEach((f3, i2) => fs78.writeFileSync(path76.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
-          files.push({ rel: path76.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
+          fs79.mkdirSync(dir, { recursive: true });
+          frames.forEach((f3, i2) => fs79.writeFileSync(path77.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
+          files.push({ rel: path77.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
         }
       }
       const pick5 = Array.from({ length: Math.min(8, frames.length) }, (_, i2) => frames[Math.round(i2 * (frames.length - 1) / Math.max(1, Math.min(8, frames.length) - 1))]);
@@ -113314,10 +113494,10 @@ __export(shader_exports, {
   shaderPage: () => shaderPage,
   snippets: () => snippets
 });
-import path77 from "node:path";
+import path78 from "node:path";
 init_browser();
 init_imaging();
-import fs79 from "node:fs";
+import fs80 from "node:fs";
 import { pathToFileURL as pathToFileURL7 } from "node:url";
 var SHADERS_VERSION = "0.0.80";
 var SHADERS_URL = `https://cdn.jsdelivr.net/npm/@paper-design/shaders@${SHADERS_VERSION}/+esm`;
@@ -113434,8 +113614,8 @@ function register35(server2, ctx2) {
       const { preset, params = {}, width = 1600, height = 900, time: time3 = 2, frames = 0, duration: duration3 = 3, out } = args;
       const html = shaderPage(preset, params, { width, height });
       const dir = tempDir("drip-shader-");
-      const file4 = path77.join(dir, "shader.html");
-      fs79.writeFileSync(file4, html);
+      const file4 = path78.join(dir, "shader.html");
+      fs80.writeFileSync(file4, html);
       try {
         const shot3 = await withTab(ctx2.config(), async (tab) => {
           await openPage(tab, pathToFileURL7(file4).href, { width, height, settleMs: 200, timeout: 2e4 });
@@ -113456,7 +113636,7 @@ function register35(server2, ctx2) {
         const snip = snippets(preset, params);
         const files = [];
         if (out) {
-          const ext = path77.extname(out).slice(1).toLowerCase();
+          const ext = path78.extname(out).slice(1).toLowerCase();
           if (!["webp", "png", "jpg", "jpeg"].includes(ext)) throw new Error("out must end in .webp, .png or .jpg");
           const still = ext === "png" ? shot3.png : processImage(shot3.png, { outputs: [{ name: "", width, format: ext === "webp" ? "webp" : "jpeg" }], focus: { x: 0.5, y: 0.5 }, maxKB: 500, config: ctx2.config() }).then((r2) => r2.files[0].buf);
           files.push(saveFile(out, await still));
@@ -113618,25 +113798,25 @@ function collectTools() {
 }
 
 // src/core/cli.mjs
-import fs81 from "node:fs";
-import path79 from "node:path";
+import fs82 from "node:fs";
+import path80 from "node:path";
 import { fileURLToPath as fileURLToPath2, pathToFileURL as pathToFileURL8 } from "node:url";
 init_paths();
 
 // src/core/doctor.mjs
 init_browser();
-import fs80 from "node:fs";
+import fs81 from "node:fs";
 import os13 from "node:os";
-import path78 from "node:path";
+import path79 from "node:path";
 init_paths();
 function onPath(names3) {
   const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
-  for (const dir of (process.env.PATH || "").split(path78.delimiter).filter(Boolean)) {
+  for (const dir of (process.env.PATH || "").split(path79.delimiter).filter(Boolean)) {
     for (const n3 of names3) {
       for (const e2 of exts) {
-        const f3 = path78.join(dir, n3 + e2);
+        const f3 = path79.join(dir, n3 + e2);
         try {
-          if (fs80.statSync(f3).isFile()) return f3;
+          if (fs81.statSync(f3).isFile()) return f3;
         } catch {
         }
       }
@@ -113650,18 +113830,18 @@ function findBlender2() {
   const found = [];
   const scan2 = (base, rel3) => {
     try {
-      for (const d of fs80.readdirSync(base)) found.push(path78.join(base, d, rel3));
+      for (const d of fs81.readdirSync(base)) found.push(path79.join(base, d, rel3));
     } catch {
     }
   };
   if (process.platform === "win32") {
-    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path78.join(pf, "Blender Foundation"), "blender.exe");
+    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path79.join(pf, "Blender Foundation"), "blender.exe");
   } else if (process.platform === "darwin") {
     found.push("/Applications/Blender.app/Contents/MacOS/Blender");
   } else {
-    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path78.join(os13.homedir(), "blender", "blender"));
+    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path79.join(os13.homedir(), "blender", "blender"));
   }
-  return found.find((f3) => fs80.existsSync(f3)) || null;
+  return found.find((f3) => fs81.existsSync(f3)) || null;
 }
 var check2 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
 var BLENDER_GET = "download it from blender.org/download and put it on PATH.";
@@ -113675,8 +113855,8 @@ async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   const blender = findBlender2();
   checks.push(blender ? check2("blender", "Blender (optional)", "ok", blender) : check2("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
   const uvx = onPath(["uvx"]);
-  const ms = path78.join(vendor0(), "mockstudio", "dist", "index.html");
-  checks.push(fs80.existsSync(ms) ? check2("mockstudio", "MockStudio (device mockups)", "ok", path78.dirname(path78.dirname(ms))) : check2("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
+  const ms = path79.join(vendor0(), "mockstudio", "dist", "index.html");
+  checks.push(fs81.existsSync(ms) ? check2("mockstudio", "MockStudio (device mockups)", "ok", path79.dirname(path79.dirname(ms))) : check2("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
   checks.push(uvx ? check2("uvx", "uvx (optional)", "ok", uvx) : check2("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
   const vendor = vendorDir();
   const installed = Object.keys(VENDOR_DEPS).filter((n3) => vendorResolve(n3));
@@ -113687,15 +113867,15 @@ async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   checks.push(check2("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
   const proj = projectDir();
   const dripDir = projectDripDir();
-  const hasDrip = fs80.existsSync(dripDir);
+  const hasDrip = fs81.existsSync(dripDir);
   checks.push(check2("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
-  checks.push(check2("plugin", "Plugin root", fs80.existsSync(path78.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
+  checks.push(check2("plugin", "Plugin root", fs81.existsSync(path79.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
   checks.push(check2("home", "User folder", "ok", homeDripDir));
   let state = "no task";
   try {
-    const f3 = path78.join(dripDir, "state.json");
-    if (fs80.existsSync(f3)) {
-      const raw = JSON.parse(fs80.readFileSync(f3, "utf8"));
+    const f3 = path79.join(dripDir, "state.json");
+    if (fs81.existsSync(f3)) {
+      const raw = JSON.parse(fs81.readFileSync(f3, "utf8"));
       const n3 = Object.keys(raw.tasks || (raw.task ? { x: 1 } : {})).length;
       state = `${n3} open task${n3 === 1 ? "" : "s"}`;
     }
@@ -113848,14 +114028,14 @@ var PREREQ = /(Chrome\/Edge not found|not installed|isn't installed|no API key|A
 function bound2(text2, flags, name, outDir) {
   const max = flags["max-chars"] ? Number(flags["max-chars"]) : flags.__legacy ? Infinity : DEFAULT_MAX_CHARS;
   if (!(text2.length > max)) return { text: text2 };
-  fs81.mkdirSync(outDir, { recursive: true });
-  const file4 = path79.join(outDir, `${name}-${Date.now()}.txt`);
-  fs81.writeFileSync(file4, text2);
+  fs82.mkdirSync(outDir, { recursive: true });
+  const file4 = path80.join(outDir, `${name}-${Date.now()}.txt`);
+  fs82.writeFileSync(file4, text2);
   return { text: `${text2.slice(0, max)}
 [output cut at ${max} of ${text2.length} characters; full text: ${file4}]`, textFile: file4 };
 }
 function outDirFor(flags) {
-  return path79.resolve(flags.out || path79.join(projectDripDir(), "cli"));
+  return path80.resolve(flags.out || path80.join(projectDripDir(), "cli"));
 }
 async function invokeTool(name, args, flags = {}) {
   const tools = collectTools();
@@ -113879,9 +114059,9 @@ async function invokeTool(name, args, flags = {}) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs81.mkdirSync(outDir, { recursive: true });
-      const file4 = path79.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs81.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs82.mkdirSync(outDir, { recursive: true });
+      const file4 = path80.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs82.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       images.push(file4);
     }
   }
@@ -113897,7 +114077,7 @@ async function readInput(flags, pos) {
   if (flags.input !== void 0 && flags.input !== "-") raw = flags.input;
   else if (flags["input-file"]) {
     try {
-      raw = fs81.readFileSync(path79.resolve(flags["input-file"]), "utf8");
+      raw = fs82.readFileSync(path80.resolve(flags["input-file"]), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --input-file: ${e2.message}`);
     }
@@ -113916,9 +114096,9 @@ async function readInput(flags, pos) {
   }
 }
 async function loadHosts() {
-  const here2 = path79.dirname(fileURLToPath2(import.meta.url));
-  for (const f3 of [path79.resolve(here2, "..", "hosts", "index.mjs"), path79.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
-    if (fs81.existsSync(f3)) return import(pathToFileURL8(f3).href);
+  const here2 = path80.dirname(fileURLToPath2(import.meta.url));
+  for (const f3 of [path80.resolve(here2, "..", "hosts", "index.mjs"), path80.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
+    if (fs82.existsSync(f3)) return import(pathToFileURL8(f3).href);
   }
   return null;
 }
@@ -114027,11 +114207,11 @@ function basicProject() {
   const root = projectDir();
   const lines = [`Project: ${root}`];
   const drip = projectDripDir();
-  lines.push(fs81.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
-  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs81.existsSync(path79.join(root, f3))) lines.push(`Design doc: ${f3}`);
+  lines.push(fs82.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
+  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs82.existsSync(path80.join(root, f3))) lines.push(`Design doc: ${f3}`);
   try {
-    const boards = path79.join(drip, "boards");
-    const ids = fs81.existsSync(boards) ? fs81.readdirSync(boards).filter((d) => fs81.existsSync(path79.join(boards, d, "board.json"))) : [];
+    const boards = path80.join(drip, "boards");
+    const ids = fs82.existsSync(boards) ? fs82.readdirSync(boards).filter((d) => fs82.existsSync(path80.join(boards, d, "board.json"))) : [];
     lines.push(ids.length ? `Boards: ${ids.join(", ")}` : "Boards: none");
   } catch {
     lines.push("Boards: unreadable");
@@ -114042,8 +114222,8 @@ function basicProject() {
   } catch {
     lines.push("Task: state unreadable");
   }
-  const cfg = path79.join(drip, "config.json");
-  lines.push(fs81.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
+  const cfg = path80.join(drip, "config.json");
+  lines.push(fs82.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
   return lines.join("\n");
 }
 async function cmdProject(pos, flags) {
@@ -114083,12 +114263,12 @@ async function cmdRun(flags) {
   let code;
   if (flags.file) {
     try {
-      code = fs81.readFileSync(path79.resolve(flags.file), "utf8");
+      code = fs82.readFileSync(path80.resolve(flags.file), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --file: ${e2.message}`);
     }
   } else code = flags.code;
-  const r2 = await executeCode(code, { outDir: flags.out ? path79.resolve(flags.out) : void 0 });
+  const r2 = await executeCode(code, { outDir: flags.out ? path80.resolve(flags.out) : void 0 });
   const lines = [];
   if (r2.logs.length) lines.push(...r2.logs);
   if (r2.ok) lines.push(r2.value === void 0 ? "(no return value)" : JSON.stringify(r2.value, null, 2));
@@ -114119,7 +114299,7 @@ async function cmdHosts(sub, pos, flags) {
 ${pre.text}`), flags);
     if (pre.text) log(pre.text);
   }
-  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path79.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
+  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path80.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
   const fn = hosts[sub];
   if (typeof fn !== "function") return finish(failure2(sub, EXIT.PREREQ, "not_available", `${sub} is not available in this build.`), flags);
   try {
@@ -114130,8 +114310,8 @@ ${pre.text}`), flags);
 }
 function applyGlobals(flags) {
   if (flags.project) {
-    const p2 = path79.resolve(flags.project);
-    if (!fs81.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
+    const p2 = path80.resolve(flags.project);
+    if (!fs82.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
     process.env.DRIP_PROJECT_DIR = p2;
   }
   let session = flags.session;
@@ -114217,7 +114397,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.3";
+var VERSION = "0.8.4";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Roles: you direct (look, decide, choose pieces, write specs, small fixes); drip:builder agents (Sonnet) write the code; drip:helper agents (Haiku) do small jobs.

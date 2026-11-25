@@ -43,3 +43,6 @@ Only at the final version, or when the user asks ("polish", "critic", "is it goo
 
 ## Talk
 Short. One line of assumptions at the start, the hero picture at the end of pass 1, the page at the end of pass 2.
+
+## Memory
+When the user reacts ("love the cards", "too dark", "never pill buttons"), `feedback_record` it. The project remembers it, and so does every niche pack the task used (`/drip:adapt` packs), for the next task in that niche, in any project.

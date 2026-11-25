@@ -11,6 +11,7 @@ import { previewUrl } from "../parts/pieces.mjs";
 import { contactSheet, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
 import { blocks } from "../../core/result.mjs";
 import { CLEAR_OVERLAYS } from "../../core/cdp.mjs";
+import { Jimp } from "jimp"; // static: a dynamic import of a bundled module reorders zod's init in the bundle
 
 const WEEK = 7 * 24 * 3600e3;
 const DIRECTORY = "https://ui.shadcn.com/r/registries.json";
@@ -105,24 +106,107 @@ async function registryItems(entry) {
   return [...seen.values()];
 }
 
-/** A library's demo page as a visitor sees it: promos and cookie banners closed, scrolled to the piece, given time to render. */
+// Find the piece itself on a docs page: the panel the "Preview" tab shows (shadcn-style docs: Magic UI, Cult UI, Kibo,
+// React Bits, Smooth UI, bencho...), else the biggest canvas / video / iframe. Returns its box in page coordinates,
+// below the tab bar, or null for a page that is the piece alone (shadcn and efferd /view, live previews).
+const FIND_PIECE = `(() => {
+  const box = (el, top) => { el.setAttribute('data-drip-piece', ''); const r = el.getBoundingClientRect(); const y = Math.max(r.top, top ?? r.top); return { x: r.left + scrollX, y: y + scrollY, w: r.width, h: Math.min(r.bottom - y, 900) }; };
+  const media = (el) => el.querySelector('canvas,video,iframe,img,svg,[style*="background"]');
+  const tabs = [...document.querySelectorAll('button,[role=tab],a,span,div')].filter((e) => e.childElementCount <= 2 && /^\\s*preview\\s*$/i.test(e.textContent || '') && e.offsetParent);
+  for (const t of tabs) {
+    const tr = t.getBoundingClientRect();
+    let a = t;
+    for (let i = 0; i < 9 && a; i++) {
+      a = a.parentElement;
+      if (!a) break;
+      const r = a.getBoundingClientRect();
+      if (r.height > 1600 || r.width > innerWidth * 0.98) break;
+      if (r.height > tr.height + 220 && r.width > 320 && media(a)) return box(a, tr.bottom + 4);
+    }
+  }
+  const big = [...document.querySelectorAll('canvas,video,iframe')].map((e) => [e, e.getBoundingClientRect()]).filter(([, r]) => r.width > 300 && r.height > 200).sort((a, b) => b[1].width * b[1].height - a[1].width * a[1].height)[0];
+  return big ? box(big[0]) : null;
+})()`;
+
+// Promo modals, gift widgets and chat bubbles that survive the overlay clearer: close or hide anything fixed that floats
+// over the page (dialogs, fixed boxes), never the page itself.
+const HIDE_FLOATERS = `(() => {
+  const piece = document.querySelector('[data-drip-piece]');
+  const keeps = (el) => piece && (el.contains(piece) || piece.contains(el));
+  for (const d of document.querySelectorAll('dialog[open]')) if (!keeps(d)) try { d.close(); } catch {}
+  for (const b of document.querySelectorAll('button,[role=button]')) {
+    const t = (b.getAttribute('aria-label') || b.textContent || '').trim().toLowerCase();
+    if (/^(×|✕|x|close|dismiss|close dialog|close modal)$/.test(t) && b.closest('[role=dialog],[aria-modal=true],[data-state=open]') && !keeps(b.closest('[role=dialog],[aria-modal=true],[data-state=open]'))) try { b.click(); } catch {}
+  }
+  for (const el of document.querySelectorAll('body *')) {
+    const cs = getComputedStyle(el);
+    if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+    if (keeps(el)) continue;
+    const r = el.getBoundingClientRect();
+    const floats = el.matches('[role=dialog],[aria-modal=true],[data-state=open]') || (cs.position === 'fixed' && r.width * r.height > 0.02 * innerWidth * innerHeight && r.top > 40);
+    if (floats || /backdrop|overlay/.test(String(el.className))) el.style.setProperty('display', 'none', 'important');
+  }
+  document.documentElement.style.overflow = document.body.style.overflow = 'auto';
+})()`;
+
+// Wait until what is in the box has loaded: fonts, every image decoded, canvases drawn (a frame or two of WebGL).
+const SETTLE = `(async () => {
+  await document.fonts?.ready;
+  await Promise.all([...document.images].filter((i) => !i.complete).slice(0, 40).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 4000); })));
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await new Promise((r) => setTimeout(r, document.querySelector('canvas') ? 1500 : 500));
+})()`;
+
+/** A JPEG that is (nearly) one flat colour: the piece hasn't drawn yet. */
+async function looksBlank(buf) {
+  try {
+    const img = await Jimp.read(buf);
+    img.resize({ w: 48, h: 30 });
+    const v = [];
+    img.scan(0, 0, img.width, img.height, (x, y, i) => v.push(img.bitmap.data[i] * 0.3 + img.bitmap.data[i + 1] * 0.59 + img.bitmap.data[i + 2] * 0.11));
+    const m = v.reduce((a, b) => a + b, 0) / v.length;
+    return Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / v.length) < 4;
+  } catch {
+    return false;
+  }
+}
+
+/** Just the piece, loaded: overlays closed, scrolled to it, cropped to its own preview panel (no site chrome). */
 async function previewShot(url, config) {
   const { openPage, withTab } = await import("../../core/browser.mjs");
-  const [width, height] = [1280, 800];
+  const [width, height] = [1280, 900];
   return withTab(config, async (tab) => {
-    await openPage(tab, url, { width, height, timeout: 15000, settleMs: 2500 });
-    const run = (expression, awaitPromise = false) => tab.s("Runtime.evaluate", { expression, awaitPromise, returnByValue: true }).catch(() => null);
+    await openPage(tab, url, { width, height, timeout: 15000, settleMs: 1500 });
+    const run = async (expression, awaitPromise = false) => (await tab.s("Runtime.evaluate", { expression, awaitPromise, returnByValue: true }).catch(() => null))?.result?.value;
+    // A page that is the piece alone (shadcn, efferd and Eldora /view/...): shoot it whole, no crop.
+    const alone = /\/view\//.test(new URL(url).pathname);
+    const find = () => (alone ? null : run(FIND_PIECE));
     await run(CLEAR_OVERLAYS, true);
-    const hash = new URL(url).hash.slice(1);
-    // Lazy pages render as they scroll: walk down to the piece (or a screen) so it mounts, then settle.
-    await run(
-      `(async()=>{const id=${JSON.stringify(decodeURIComponent(hash))};const el=id&&document.getElementById(id);if(!el)return;for(let i=0;i<12;i++){el.scrollIntoView({block:"start"});await new Promise(r=>setTimeout(r,150));}})()`,
-      true,
-    );
-    await new Promise((r) => setTimeout(r, 3500));
-    await run(CLEAR_OVERLAYS, true);
-    const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 80, clip: { x: 0, y: 0, width, height, scale: 1 } });
-    return Buffer.from(data, "base64");
+    await new Promise((r) => setTimeout(r, 600)); // promos open a beat after load
+    await find(); // marks the piece first, so the floater sweep spares a piece shown in a dialog (bencho)
+    await run(HIDE_FLOATERS);
+    const hash = decodeURIComponent(new URL(url).hash.slice(1));
+    if (hash) await run(`(async()=>{const el=document.getElementById(${JSON.stringify(hash)});if(!el)return;for(let i=0;i<10;i++){el.scrollIntoView({block:"start"});await new Promise(r=>setTimeout(r,150));}})()`, true);
+    const shoot = async () => {
+      let b = await find();
+      if (b) {
+        await run(`scrollTo(0, ${Math.max(0, Math.round(b.y - 40))})`);
+        await run(SETTLE, true);
+        b = (await find()) || b; // it may have moved once things loaded
+      } else await run(SETTLE, true);
+      await run(CLEAR_OVERLAYS, true);
+      await run(HIDE_FLOATERS);
+      const clip = b ? { x: Math.max(0, b.x), y: Math.max(0, b.y), width: Math.min(b.w, width), height: Math.max(200, b.h), scale: 1 } : { x: 0, y: 0, width, height, scale: 1 };
+      const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 82, clip, captureBeyondViewport: true });
+      return { buf: Buffer.from(data, "base64"), cropped: !!b };
+    };
+    let shot = await shoot();
+    if (await looksBlank(shot.buf)) {
+      await new Promise((r) => setTimeout(r, 4000)); // slow WebGL or a lazy island: one more chance
+      shot = await shoot();
+      shot.blank = await looksBlank(shot.buf);
+    }
+    return shot;
   });
 }
 
@@ -225,7 +309,8 @@ export function register(server, ctx) {
         targets.map(async (t) => {
           if (!t.url) return { ...t, err: "no page to show it" };
           try {
-            return { ...t, buf: await previewShot(t.url, ctx.config()) };
+            const s = await previewShot(t.url, ctx.config());
+            return s.blank ? { ...t, err: "didn't render in 10 s (WebGL or a login wall): open the page to see it" } : { ...t, buf: s.buf };
           } catch (e) {
             return { ...t, err: e.message.slice(0, 120) };
           }
@@ -234,9 +319,9 @@ export function register(server, ctx) {
       const ok = shots.filter((s) => s.buf);
       const lines = shots.map((s, i) => `${i + 1}. ${s.label}${s.url ? ` · ${s.url}` : ""}${s.err ? ` (not shown: ${s.err})` : ""}`);
       const n = ok.length;
-      const content = [textBlock(`${lines.join("\n")}\nThe sheet numbers the shown ones in order. Docs pages show the piece with the library's own colours: on the page it takes yours.`)];
+      const content = [textBlock(`${lines.join("\n")}\nThe sheet numbers the shown ones in order, each cropped to the piece. It shows the library's own colours: on the page it takes yours.`)];
       if (n) {
-        const sheet = n === 1 ? await toJpeg(ok[0].buf, 1280, 1280, 78) : await contactSheet(ok.map((s) => s.buf), { cols: 2, tileW: 640, tileH: 400, gap: 8 });
+        const sheet = n === 1 ? await toJpeg(ok[0].buf, 1280, 1280, 78) : await contactSheet(ok.map((s) => s.buf), { cols: 2, tileW: 640, tileH: 400, gap: 8, fit: "contain" });
         content.push(imageBlock(sheet));
       }
       return blocks(content);

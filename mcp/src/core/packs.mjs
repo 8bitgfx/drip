@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ensureDir, ensureProjectDrip, homeDripDir, projectDripDir } from "./paths.mjs";
 
-export const PACK_FILES = ["guide.md", "genres.md", "artists.md", "queries.md", "critic.md", "sources.md", "refs.json", "slop.json", "catalogue.json"];
+export const PACK_FILES = ["guide.md", "genres.md", "artists.md", "queries.md", "critic.md", "sources.md", "learned.md", "refs.json", "slop.json", "catalogue.json"];
 
 function roots(cwd) {
   return [path.join(projectDripDir(cwd), "packs"), path.join(homeDripDir, "packs")];
@@ -108,3 +108,63 @@ export function matchPacks(text, cwd) {
 }
 
 export const isProjectPack = (id, cwd) => listPacks(cwd).some((p) => p.id === id && p.type === "project");
+
+/** A pack keeps learning: one line per lesson in learned.md (the user's reactions and the critic's findings on tasks
+ *  that used it), read with the guide next time. Same lesson twice is kept once; the newest 200 stay. */
+export function learnInPack(id, lesson, { source = "user", cwd } = {}) {
+  const dir = packDir(id, cwd);
+  if (!dir) return false;
+  const f = path.join(dir, "learned.md");
+  const prev = fs.existsSync(f) ? fs.readFileSync(f, "utf8").split("\n").filter(Boolean) : [];
+  const text = String(lesson).replace(/\s+/g, " ").trim().slice(0, 400);
+  if (!text || prev.some((l) => l.endsWith(`: ${text}`))) return false;
+  prev.push(`- ${new Date().toISOString().slice(0, 10)} (${source}): ${text}`);
+  fs.writeFileSync(f, `${prev.slice(-200).join("\n")}\n`);
+  return true;
+}
+
+// ---- Sharing without a fork: one portable file, sent however the user likes (DM, drive, a gist they choose). ----
+const SECRETS = [
+  [/\b(sk|pk|rk)-[A-Za-z0-9_-]{16,}\b/g, "an API key"],
+  [/\bgh[pousr]_[A-Za-z0-9]{20,}\b/g, "a GitHub token"],
+  [/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,}\b/g, "an email address"],
+  [/[?&](key|token|sig|signature|access_token|auth)=[^\s&)"']+/gi, "a key in a URL"],
+  [/\b[A-Z]:\\(?:Users|Dev|Documents)\\[^\s"')]+/g, "a local path"],
+  [/(?:\/Users|\/home)\/[A-Za-z0-9._-]+\/[^\s"')]*/g, "a local path"],
+];
+
+/** What in a pack looks private: [{ file, what, sample }]. */
+export function packPrivacy(files) {
+  const found = [];
+  for (const [file, body] of Object.entries(files))
+    for (const [re, what] of SECRETS) for (const m of String(body).matchAll(re)) found.push({ file, what, sample: m[0].slice(0, 40) });
+  return found;
+}
+
+export function exportPack(id, { redact = false, cwd } = {}) {
+  const dir = packDir(id, cwd);
+  if (!dir) throw new Error(`No pack "${id}" (pack_list).`);
+  const meta = JSON.parse(fs.readFileSync(path.join(dir, "pack.json"), "utf8"));
+  const files = {};
+  for (const f of PACK_FILES) if (fs.existsSync(path.join(dir, f))) files[f] = fs.readFileSync(path.join(dir, f), "utf8");
+  const found = packPrivacy(files);
+  if (redact) for (const f of Object.keys(files)) for (const [re] of SECRETS) files[f] = files[f].replace(re, "[removed]");
+  const { createdAt, updatedAt, workflowHistory, ...keep } = meta;
+  return { pack: { format: "drip-pack", version: 1, exportedAt: new Date().toISOString(), meta: { ...keep, updatedAt }, files }, found: redact ? [] : found };
+}
+
+export function importPack(doc, { shared = false, replace = false, cwd } = {}) {
+  if (doc?.format !== "drip-pack" || !doc.meta?.id || typeof doc.files !== "object") throw new Error("Not a Drip pack file (format drip-pack).");
+  const id = String(doc.meta.id).toLowerCase().replace(/[^a-z0-9-]+/g, "-").slice(0, 60);
+  if (packDir(id, cwd) && !replace) throw new Error(`A pack "${id}" exists here. Pass replace: true to overwrite it, or keep yours.`);
+  const extra = Object.keys(doc.files).filter((f) => !PACK_FILES.includes(f));
+  if (extra.length) throw new Error(`Unexpected files in the pack: ${extra.join(", ")} (packs are data only: ${PACK_FILES.join(", ")}).`);
+  const m = doc.meta;
+  if (m.type !== "project" && !(m.keywords || []).length) throw new Error("A niche pack needs keywords.");
+  const pack = createPack({ id, name: m.name || id, niche: m.niche || "", keywords: m.keywords || [], summary: m.summary || "", shared, type: m.type, workflow: m.workflow }, cwd);
+  for (const [f, body] of Object.entries(doc.files)) {
+    if (f.endsWith(".json")) JSON.parse(body);
+    fs.writeFileSync(path.join(pack.dir, f), String(body));
+  }
+  return pack;
+}

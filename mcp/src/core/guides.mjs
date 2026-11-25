@@ -32,7 +32,10 @@ export function readGuide(topic) {
   const pk = topic.trim().match(/^pack:([a-z0-9-]+)(?:\/([a-z-]+))?$/);
   if (pk) {
     const file = pk[2] ? (pk[2].includes(".") ? pk[2] : `${pk[2]}.md`) : "guide.md";
-    return readPackFile(pk[1], file);
+    const body = readPackFile(pk[1], file);
+    // The guide carries what the pack learned on later tasks (the user's reactions, the critic's findings).
+    const learned = !pk[2] && readPackFile(pk[1], "learned.md");
+    return body && learned ? `${body}\n\n## Learned on later tasks (newest last; these win over the guide above)\n${learned.split("\n").slice(-60).join("\n")}` : body;
   }
   const file = topicFile(topic);
   if (!fs.existsSync(file)) return null;

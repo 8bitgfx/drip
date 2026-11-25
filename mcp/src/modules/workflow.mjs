@@ -276,6 +276,7 @@ export function register(server, ctx) {
             (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.\n` : "") +
             (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first.\n` : "") +
             `No intake questions unless the request is truly ambiguous; state your assumptions in one line.\n` +
+            (pk.filter((p) => !isProjectPack(p)).length ? `Niche packs on: ${pk.filter((p) => !isProjectPack(p)).join(", ")} (from /drip:adapt; their guide and what they learned on earlier tasks are below). Record the user's reactions with feedback_record: the pack learns them for next time.\n` : "") +
             (swarmOn(config, t) && hostHasSubagents()
               ? `ROLES: you are the director. You look, decide, choose the pieces and write specs. drip:builder agents (Sonnet) write the code, drip:helper agents (Haiku) do small jobs (installs, downloads, copy swaps). You make fixes under 40 lines yourself; bigger writes are refused with a pointer to build_prepare.\n`
               : "") +

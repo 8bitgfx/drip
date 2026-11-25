@@ -101,6 +101,38 @@ test("each agent has only its own tools", () => {
   assert.match(tools("helper.md"), /images_save.*pieces_install/);
 });
 
+test("a niche pack learns from later tasks and travels as one file, privacy-checked", async () => {
+  const packs = await import("../src/core/packs.mjs");
+  const { readGuide } = await import("../src/core/guides.mjs");
+  packs.createPack({ id: "roblox-ui", name: "Roblox UI", niche: "roblox game ui", keywords: ["roblox"], summary: "x" }, project);
+  packs.writePackFile("roblox-ui", "guide.md", "# Roblox UI\nChunky buttons.", project);
+  packs.writePackFile("roblox-ui", "sources.md", "Found by aviad@example.com in C:\\Users\\Someone\\notes.txt", project);
+  assert.ok(packs.learnInPack("roblox-ui", "thumbnails need one big readable word", { cwd: project }));
+  assert.equal(packs.learnInPack("roblox-ui", "thumbnails need one big readable word", { cwd: project }), false, "once");
+  assert.match(readGuide("pack:roblox-ui"), /Learned on later tasks[\s\S]*one big readable word/);
+  const { pack, found } = packs.exportPack("roblox-ui", { cwd: project });
+  assert.ok(found.some((f) => f.what === "an email address") && found.some((f) => f.what === "a local path"), "private bits are listed before sharing");
+  const clean = packs.exportPack("roblox-ui", { redact: true, cwd: project }).pack;
+  assert.doesNotMatch(clean.files["sources.md"], /example\.com|Users/);
+  assert.match(clean.files["learned.md"], /readable word/);
+  fs.rmSync(packs.packDir("roblox-ui", project), { recursive: true });
+  const added = packs.importPack(clean, { cwd: project });
+  assert.equal(added.id, "roblox-ui");
+  assert.match(packs.readPackFile("roblox-ui", "guide.md", project), /Chunky/);
+  assert.throws(() => packs.importPack(clean, { cwd: project }), /exists/);
+  assert.throws(() => packs.importPack({ ...clean, files: { ...clean.files, "run.sh": "rm -rf /" } }, { cwd: project, replace: true }), /data only/);
+  assert.deepEqual(packs.matchPacks("a roblox thumbnail maker", project).map((p) => p.id), ["roblox-ui"]);
+});
+
+test("a page in a subfolder never inherits the repo's DESIGN.md; a whole-page builder owns the page", () => {
+  fs.writeFileSync(path.join(project, "DESIGN.md"), "# The repo's own purple system");
+  const p = swarm.buildPrompt({ section: "page", spec: "The whole viewer page, Drip's own brand", page: swarm.pageOf(null, "sp/index.html"), task: null });
+  assert.doesNotMatch(p, /purple system/);
+  assert.match(p, /You build the whole page/);
+  assert.match(p, /index\.html, styles\/, scripts\/, assets\//);
+  fs.rmSync(path.join(project, "DESIGN.md"));
+});
+
 test("the paid kits are asked once and remembered", () => {
   assert.equal(ownedKits(), null);
   saveKits(["Magic UI Pro"]);

@@ -1,9 +1,51 @@
 // Niche packs (/drip:adapt): Drip specialised for a niche. See core/packs.mjs for the layout.
 import { z } from "zod";
-import { PACK_FILES, WORKFLOW_GATES, createPack, listPacks, readPackFile, writePackFile } from "../../core/packs.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { PACK_FILES, WORKFLOW_GATES, createPack, exportPack, importPack, listPacks, readPackFile, writePackFile } from "../../core/packs.mjs";
+import { get } from "../../core/http.mjs";
+import { projectDir } from "../../core/paths.mjs";
 import { safe, text } from "../../core/result.mjs";
 
 export function register(server) {
+  server.registerTool(
+    "pack_export",
+    {
+      title: "Export a niche pack to share",
+      description:
+        "Writes a pack as ONE portable file (<id>.drip-pack.json: its guide, critic rubric, references, slop list, what it learned) to send however the user likes: a DM, a drive, a gist they choose. Nothing is published. " +
+        "It lists anything that looks private first (emails, keys, local paths); pass redact: true to strip them. Someone else adds it with pack_import, and Drip then knows the niche without running /drip:adapt.",
+      inputSchema: { id: z.string(), out: z.string().optional().describe("Folder for the file (default: the project)"), redact: z.boolean().optional() },
+    },
+    safe(async ({ id, out, redact }) => {
+      const { pack, found } = exportPack(id, { redact });
+      if (found.length && !redact)
+        return text(`Not exported: this pack holds things that may be private:\n${found.slice(0, 12).map((f) => `- ${f.file}: ${f.what} (${f.sample}…)`).join("\n")}\nAsk the user, then pack_export({ id: "${id}", redact: true }) to strip them (or edit the pack first).`, true);
+      const dir = path.resolve(projectDir(), out || ".");
+      fs.mkdirSync(dir, { recursive: true });
+      const file = path.join(dir, `${pack.meta.id}.drip-pack.json`);
+      fs.writeFileSync(file, JSON.stringify(pack, null, 1));
+      return text(`Exported ${pack.meta.name} to ${path.relative(projectDir(), file)} (${Object.keys(pack.files).length} files, ${Math.round(fs.statSync(file).size / 1024)} KB). Send the file; the other person runs pack_import with its path or a raw link.`);
+    }),
+  );
+
+  server.registerTool(
+    "pack_import",
+    {
+      title: "Add a niche pack someone shared",
+      description: "Adds a .drip-pack.json (a file path or a raw https link) as a personal pack (every project on this machine) or shared: true for this project's team. Packs are data only: nothing in one ever runs.",
+      inputSchema: { file: z.string().optional(), url: z.string().url().optional(), shared: z.boolean().optional(), replace: z.boolean().optional() },
+    },
+    safe(async ({ file, url, shared, replace }) => {
+      let raw;
+      if (url) raw = (await get(url, { ttlMs: 0, timeoutMs: 30000 })).body;
+      else if (file) raw = fs.readFileSync(path.resolve(projectDir(), file), "utf8");
+      else return text("Pass file or url.", true);
+      const pack = importPack(JSON.parse(raw), { shared, replace });
+      return text(`Added "${pack.name}" (${pack.dir}). It switches on when a task mentions ${(pack.keywords || []).slice(0, 6).join(", ") || "this project"}.`);
+    }),
+  );
+
   server.registerTool(
     "pack_create",
     {

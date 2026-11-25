@@ -14,6 +14,7 @@ import path from "node:path";
 import { appendJsonl, readJson, readJsonl, updateJson } from "./jsonstore.mjs";
 import { ensureProjectDrip, projectDir, projectDripDir } from "./paths.mjs";
 import { designDoc } from "./skills.mjs";
+import { isProjectPack, learnInPack } from "./packs.mjs";
 import { actor, loadState, updateState } from "./state.mjs";
 import { artifactRev, hashFile } from "./evidence.mjs";
 import { loadBoard, loadIndex, updateBoard, updateIndex } from "../modules/board/store.mjs";
@@ -126,6 +127,16 @@ export function recordFeedback(input, { cwd } = {}) {
   }
   ensureProjectDrip(cwd);
   appendJsonl(feedbackFile(cwd), ev);
+  // Niche packs this task used learn from it: the user's reactions and the critic's findings go into their learned.md,
+  // so the next task in the niche (any project, any conversation) starts with them.
+  if (["user-explicit", "user-selection", "critic"].includes(source)) {
+    try {
+      const rule = input.rule ? ` (rule: ${input.rule.topic} = ${input.rule.value}${input.rule.avoid?.length ? `; avoid ${input.rule.avoid.join(", ")}` : ""})` : "";
+      for (const id of task?.packs || []) if (!isProjectPack(id, cwd)) learnInPack(id, `${input.text}${rule}`, { source: source === "critic" ? "critic" : "user", cwd });
+    } catch {
+      /* a pack that can't learn never fails the record */
+    }
+  }
   return { event: ev, rule: outcome.rule, status: ev.status, conflict: outcome.conflict, question: outcome.question };
 }
 
