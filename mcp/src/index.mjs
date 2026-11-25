@@ -14,7 +14,7 @@ import { runCli } from "./core/cli.mjs";
 import { loadConfig } from "./core/config.mjs";
 import { startRecorder } from "./modules/film/index.mjs";
 
-const VERSION = "0.8.4";
+const VERSION = "0.8.5";
 
 const INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.

@@ -1,0 +1,320 @@
+{
+  "version": 1,
+  "task": {
+    "id": "t_ab12",
+    "title": "Landing page for Relay, AI meeting notes",
+    "startedAt": "2026-11-25T10:00:00Z",
+    "endedAt": "2026-11-25T10:14:10Z",
+    "page": "saas-award-4",
+    "url": "http://127.0.0.1:5173/"
+  },
+  "agents": [
+    {
+      "id": "main",
+      "type": "director",
+      "model": "opus",
+      "label": "Director",
+      "job": "plans, picks pieces, writes specs, checks",
+      "startedAt": "2026-11-25T10:00:00Z",
+      "endedAt": "2026-11-25T10:14:10Z",
+      "status": "done"
+    }
+  ],
+  "events": [
+    {
+      "t": "2026-11-25T10:00:00Z",
+      "agent": "main",
+      "kind": "start",
+      "summary": "task opened: Landing page for Relay, AI meeting notes"
+    },
+    {
+      "t": "2026-11-25T10:00:12Z",
+      "agent": "main",
+      "kind": "tool",
+      "tool": "refs_gallery",
+      "summary": "looked at 24 SaaS heroes on Awwwards and One Page Love"
+    },
+    {
+      "t": "2026-11-25T10:00:40Z",
+      "agent": "main",
+      "kind": "tool",
+      "tool": "layout_deal",
+      "summary": "dealt the set: centred hero, Instrument Sans, white-mint palette"
+    },
+    {
+      "t": "2026-11-25T10:00:58Z",
+      "agent": "main",
+      "kind": "write",
+      "tool": "layout_deal",
+      "file": "saas-award-4/index.html",
+      "summary": "scaffold written (8 placeholders)"
+    },
+    {
+      "t": "2026-11-25T10:01:05Z",
+      "agent": "main",
+      "kind": "note",
+      "summary": "hero piece: safari frame; sections later on bento-grid, marquee, animated-list"
+    },
+    {
+      "t": "2026-11-25T10:03:20Z",
+      "agent": "main",
+      "kind": "shot",
+      "tool": "fitcheck_shot",
+      "summary": "frame: nav in"
+    },
+    {
+      "t": "2026-11-25T10:04:05Z",
+      "agent": "main",
+      "kind": "shot",
+      "tool": "fitcheck_shot",
+      "summary": "frame: hero headline"
+    },
+    {
+      "t": "2026-11-25T10:05:05Z",
+      "agent": "main",
+      "kind": "note",
+      "summary": "hero approved; writing five section specs"
+    },
+    {
+      "t": "2026-11-25T10:05:30Z",
+      "agent": "main",
+      "kind": "tool",
+      "tool": "build_prepare",
+      "summary": "5 builder prompts prepared"
+    },
+    {
+      "t": "2026-11-25T10:06:30Z",
+      "agent": "main",
+      "kind": "shot",
+      "tool": "fitcheck_shot",
+      "summary": "frame: logo marquee"
+    },
+    {
+      "t": "2026-11-25T10:09:22Z",
+      "agent": "main",
+      "kind": "stitch",
+      "tool": "page_stitch",
+      "file": "src/App.tsx",
+      "summary": "stitched 7 sections into App.tsx"
+    },
+    {
+      "t": "2026-11-25T10:09:30Z",
+      "agent": "main",
+      "kind": "shot",
+      "tool": "fitcheck_shot",
+      "summary": "page stitched; footer missing"
+    },
+    {
+      "t": "2026-11-25T10:09:50Z",
+      "agent": "main",
+      "kind": "note",
+      "summary": "footer builder failed; fixing it myself (small)"
+    },
+    {
+      "t": "2026-11-25T10:10:25Z",
+      "agent": "main",
+      "kind": "write",
+      "tool": "Write",
+      "file": "src/sections/Footer.tsx",
+      "summary": "rewrote Footer.tsx without split-type (39 lines)"
+    },
+    {
+      "t": "2026-11-25T10:10:40Z",
+      "agent": "main",
+      "kind": "shot",
+      "tool": "fitcheck_shot",
+      "summary": "footer in"
+    },
+    {
+      "t": "2026-11-25T10:11:20Z",
+      "agent": "main",
+      "kind": "tool",
+      "tool": "fitcheck_shot",
+      "summary": "fit check: 0 blockers, 6 text sizes, no overflow"
+    },
+    {
+      "t": "2026-11-25T10:11:48Z",
+      "agent": "main",
+      "kind": "write",
+      "tool": "Edit",
+      "file": "src/sections/Hero.tsx",
+      "summary": "hero lead to 19px, logos 8px tighter"
+    },
+    {
+      "t": "2026-11-25T10:12:10Z",
+      "agent": "main",
+      "kind": "shot",
+      "tool": "fitcheck_shot",
+      "summary": "final pass: hero"
+    },
+    {
+      "t": "2026-11-25T10:13:30Z",
+      "agent": "main",
+      "kind": "note",
+      "summary": "critic: pass (8.1); one fix taken: features headline shorter"
+    },
+    {
+      "t": "2026-11-25T10:13:44Z",
+      "agent": "main",
+      "kind": "write",
+      "tool": "Edit",
+      "file": "src/sections/Features.tsx",
+      "summary": "features headline shortened"
+    },
+    {
+      "t": "2026-11-25T10:13:50Z",
+      "agent": "main",
+      "kind": "shot",
+      "tool": "fitcheck_shot",
+      "summary": "final shot"
+    },
+    {
+      "t": "2026-11-25T10:14:10Z",
+      "agent": "main",
+      "kind": "end",
+      "summary": "task closed: 8 sections, 12 files"
+    }
+  ],
+  "frames": [
+    {
+      "t": "2026-11-25T10:02:00Z",
+      "file": "frames/0001.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "scaffold dealt",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:03:20Z",
+      "file": "frames/0002.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "nav written",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:04:05Z",
+      "file": "frames/0003.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "hero headline",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:04:45Z",
+      "file": "frames/0004.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "hero visual in, photos placed",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:06:30Z",
+      "file": "frames/0005.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "logo marquee",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:07:10Z",
+      "file": "frames/0006.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "features: first two cards",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:07:40Z",
+      "file": "frames/0007.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "how it works",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:08:20Z",
+      "file": "frames/0008.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "pricing plans",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:08:50Z",
+      "file": "frames/0009.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "testimonial",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:09:10Z",
+      "file": "frames/0010.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "features bento done",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:09:30Z",
+      "file": "frames/0011.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "page stitched, footer missing",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:10:40Z",
+      "file": "frames/0012.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "footer fixed by the director",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:12:10Z",
+      "file": "frames/0013.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "final pass: hero",
+      "agents": [
+        "main"
+      ]
+    },
+    {
+      "t": "2026-11-25T10:13:50Z",
+      "file": "frames/0014.jpg",
+      "width": 1440,
+      "height": 900,
+      "caption": "final shot",
+      "agents": [
+        "main"
+      ]
+    }
+  ]
+}

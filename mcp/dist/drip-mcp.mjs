@@ -104178,6 +104178,20 @@ async function registryItems(entry) {
 var FIND_PIECE = `(() => {
   const box = (el, top) => { el.setAttribute('data-drip-piece', ''); const r = el.getBoundingClientRect(); const y = Math.max(r.top, top ?? r.top); return { x: r.left + scrollX, y: y + scrollY, w: r.width, h: Math.min(r.bottom - y, 900) }; };
   const media = (el) => el.querySelector('canvas,video,iframe,img,svg,[style*="background"]');
+  // The first preview-sized frame under the tab bar, inside a panel that may run on for the whole page (React Bits).
+  const frame = (root, top) => {
+    const q = [root];
+    while (q.length) {
+      const el = q.shift();
+      for (const c of el.children) {
+        const r = c.getBoundingClientRect();
+        if (r.bottom < top || r.top > top + 500 || r.width < 300) continue;
+        if (r.height >= 200 && r.height <= 950 && media(c)) return c;
+        if (r.height > 950) q.push(c);
+      }
+    }
+    return null;
+  };
   const tabs = [...document.querySelectorAll('button,[role=tab],a,span,div')].filter((e) => e.childElementCount <= 2 && /^\\s*preview\\s*$/i.test(e.textContent || '') && e.offsetParent);
   for (const t of tabs) {
     const tr = t.getBoundingClientRect();
@@ -104186,7 +104200,11 @@ var FIND_PIECE = `(() => {
       a = a.parentElement;
       if (!a) break;
       const r = a.getBoundingClientRect();
-      if (r.height > 1600 || r.width > innerWidth * 0.98) break;
+      if (r.height > 1600 || r.width > innerWidth * 0.98) {
+        const f = frame(a, tr.bottom);
+        if (f) return box(f);
+        break;
+      }
       if (r.height > tr.height + 220 && r.width > 320 && media(a)) return box(a, tr.bottom + 4);
     }
   }
@@ -104252,6 +104270,15 @@ async function previewShot(url2, config2) {
       } else await run4(SETTLE, true);
       await run4(CLEAR_OVERLAYS, true);
       await run4(HIDE_FLOATERS);
+      const area = b ? { x: b.x - await run4("scrollX"), y: b.y - await run4("scrollY"), w: b.w, h: b.h } : { x: 0, y: 0, w: width, h: height };
+      for (let i2 = 0; i2 <= 8; i2++) {
+        const fx = 0.2 + 0.45 * i2 / 8;
+        const fy = 0.3 + 0.15 * i2 / 8;
+        await tab.s("Input.dispatchMouseEvent", { type: "mouseMoved", x: Math.round(area.x + area.w * fx), y: Math.round(area.y + Math.min(area.h, height) * fy) }).catch(() => {
+        });
+        await new Promise((r2) => setTimeout(r2, 40));
+      }
+      await new Promise((r2) => setTimeout(r2, 450));
       const clip = b ? { x: Math.max(0, b.x), y: Math.max(0, b.y), width: Math.min(b.w, width), height: Math.max(200, b.h), scale: 1 } : { x: 0, y: 0, width, height, scale: 1 };
       const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 82, clip, captureBeyondViewport: true });
       return { buf: Buffer.from(data, "base64"), cropped: !!b };
@@ -114397,7 +114424,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.4";
+var VERSION = "0.8.5";
 var INSTRUCTIONS = `Drip makes you work like a real product designer.
 Start with drip_start when the user asks for Drip (/drip:design) or for design work; it returns the guide and the first calls. While a Drip task is open, the plugin blocks UI writes until you have looked at proven work and dealt a set, and blocks ending the turn until a fitcheck_shot has seen the current version. Other tools (references, palettes, fonts, icons, components, logo tools) are fine to use any time.
 Roles: you direct (look, decide, choose pieces, write specs, small fixes); drip:builder agents (Sonnet) write the code; drip:helper agents (Haiku) do small jobs.
