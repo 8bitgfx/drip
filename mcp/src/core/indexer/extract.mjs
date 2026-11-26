@@ -1,12 +1,12 @@
 // Per-file facts for the component index: exports, props and variants, imports, JSX usage, tokens,
 // near-duplicate sketches. A scanner plus regular expressions (no parser dependency, runs in milliseconds).
 // ts-morph would be more exact for props; this is deliberately dependency-free.
-import crypto from "node:crypto";
 import path from "node:path";
+import { sha1 } from "../util.mjs";
 
 export const EXTS = new Set([".tsx", ".jsx", ".ts", ".js", ".mjs", ".cjs", ".vue", ".svelte", ".astro", ".css", ".scss"]);
 const JS_EXTS = new Set([".tsx", ".jsx", ".ts", ".js", ".mjs", ".cjs"]);
-export const hashText = (s) => crypto.createHash("sha1").update(s).digest("hex").slice(0, 16);
+export const hashText = (s) => sha1(s, 16);
 
 const KEYWORDS = new Set("abstract as async await break case catch class const continue default delete do else enum export extends false finally for from function get if implements import in instanceof interface let new null of private protected public readonly return set static super switch this throw true try type typeof undefined var void while yield".split(" "));
 

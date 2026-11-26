@@ -12,7 +12,7 @@ process.env.DRIP_PROJECT_DIR = project;
 process.env.DRIP_HOME = fs.mkdtempSync(path.join(os.tmpdir(), "drip-inspire-home-"));
 delete process.env.ARENA_TOKEN;
 
-const { findChrome } = await import("../src/modules/fitcheck/chrome.mjs");
+const { findChrome } = await import("../src/core/chrome.mjs");
 const galleries = await import("../src/modules/inspire/providers/galleries.mjs");
 const { parseOpl, toFilters, sectionType, callTool } = await import("../src/modules/inspire/providers/onepagelove.mjs");
 const { parseTwentyFirst } = await import("../src/modules/inspire/providers/twentyfirst.mjs");

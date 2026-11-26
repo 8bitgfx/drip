@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
+import { relPath } from "../core/util.mjs";
 
 const crcTable = (() => {
   const t = new Uint32Array(256);
@@ -27,7 +28,7 @@ function listFiles(dir, base = dir, out = []) {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {
     const full = path.join(dir, ent.name);
     if (ent.isDirectory()) listFiles(full, base, out);
-    else out.push({ name: path.relative(base, full).split(path.sep).join("/"), full });
+    else out.push({ name: relPath(base, full), full });
   }
   return out;
 }

@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import test, { after } from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { findChrome } from "../src/modules/fitcheck/chrome.mjs";
+import { findChrome } from "../src/core/chrome.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const mcp = path.join(here, "..");

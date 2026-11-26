@@ -5,7 +5,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { browserEnv, findChrome } from "../modules/fitcheck/chrome.mjs";
+import { browserEnv, findChrome } from "./chrome.mjs";
 
 const IDLE_MS = 10 * 60000; // a design loop pauses for the user often; relaunching costs 1.5-3 s
 const SEND_TIMEOUT_MS = 45000;
@@ -247,7 +247,7 @@ export async function settle(s, ms = 1500) {
     awaitPromise: true,
   });
 }
-export { findChrome } from "../modules/fitcheck/chrome.mjs";
+export { findChrome } from "./chrome.mjs";
 
 /** Evaluate `expression` in the tab (awaiting promises) and return its JSON value; page exceptions become Errors. */
 export async function evalJson(s, expression) {

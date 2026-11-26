@@ -9,7 +9,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { findChrome } from "../src/modules/fitcheck/chrome.mjs";
+import { findChrome } from "../src/core/chrome.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skip = !findChrome({}) && "no Chrome/Edge on this machine";

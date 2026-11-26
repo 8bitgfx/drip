@@ -14,6 +14,7 @@ import { projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { noteFontResearch } from "./fonts.mjs";
+import { escHtml as esc } from "../../core/util.mjs";
 
 const API = "https://api.fontsource.org/v1/fonts";
 const DAY30 = 30 * 24 * 3600e3;
@@ -168,7 +169,6 @@ export function fontMetrics(font) {
 
 // ---- the sheet --------------------------------------------------------------------------------------------
 
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 export function sheetHtml(cards, { headline, body, sizes = [56, 18], width = 1400, cols }) {
   const n = cols || (cards.length <= 2 ? cards.length : cards.length === 4 ? 2 : 3);

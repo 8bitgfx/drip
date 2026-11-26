@@ -7,6 +7,7 @@ import path from "node:path";
 import { baseChecks, check, requireBuilt, summarize } from "./checks.mjs";
 import { Changes, readConfig, undoManifest } from "./common.mjs";
 import { copyRuntime, openaiPluginFiles, writeJsonFile } from "./packages.mjs";
+import { relPath } from "../core/util.mjs";
 
 export const meta = {
   id: "chatgpt",
@@ -32,7 +33,7 @@ export async function install(o) {
   }
   ch.track({ kind: "dir", path: d.plugin });
 
-  const rel = `./${path.relative(o.home, d.plugin).split(path.sep).join("/")}`; // marketplace root = the folder that holds .agents/
+  const rel = `./${relPath(o.home, d.plugin)}`; // marketplace root = the folder that holds .agents/
   const market = readConfig(d.market);
   market.name = market.name || "local";
   market.plugins = (market.plugins || []).filter((p) => p.name !== "drip");

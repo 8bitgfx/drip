@@ -1,8 +1,8 @@
 // Settings, merged in this order (later wins):
 //   built-in defaults  <  ~/.drip/config.json  <  <project>/.drip/config.json
 // No dependencies: hooks import this file directly. See docs/CUSTOMISE.md.
-import fs from "node:fs";
 import path from "node:path";
+import { readJson } from "./jsonstore.mjs";
 import { homeDripDir, projectDripDir } from "./paths.mjs";
 
 export const DEFAULTS = {
@@ -81,15 +81,8 @@ export const DEFAULTS = {
   },
 };
 
-function readJson(file) {
-  try {
-    return JSON.parse(fs.readFileSync(file, "utf8"));
-  } catch {
-    return {};
-  }
-}
-
-function merge(base, over) {
+/** Merges `over` into `base` key by key (objects recursively; arrays and scalars replace). */
+export function merge(base, over) {
   if (Array.isArray(over) || typeof over !== "object" || over === null) return over === undefined ? base : over;
   const out = { ...base };
   for (const [k, v] of Object.entries(over)) out[k] = k in base ? merge(base[k], v) : v;
@@ -97,7 +90,7 @@ function merge(base, over) {
 }
 
 export function loadConfig(cwd) {
-  const global = readJson(path.join(homeDripDir, "config.json"));
-  const project = readJson(path.join(projectDripDir(cwd), "config.json"));
+  const global = readJson(path.join(homeDripDir, "config.json"), {});
+  const project = readJson(path.join(projectDripDir(cwd), "config.json"), {});
   return merge(merge(DEFAULTS, global), project);
 }

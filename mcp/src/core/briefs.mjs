@@ -4,14 +4,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { projectDir } from "./paths.mjs";
-
-const fwd = (p) => p.split(path.sep).join("/");
+import { fwd, slug } from "./util.mjs";
 
 /** Writes the brief to .drip/briefs/<name>.md and returns its absolute path (forward slashes). */
 export function writeBrief(name, prompt, cwd) {
   const dir = path.join(projectDir(cwd), ".drip", "briefs");
   fs.mkdirSync(dir, { recursive: true });
-  const safeName = String(name).replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase().slice(0, 60) || "brief";
+  const safeName = slug(name, { max: 60, fallback: "brief" });
   const file = path.join(dir, `${safeName}-${Date.now().toString(36)}.md`);
   fs.writeFileSync(file, prompt);
   return fwd(file);

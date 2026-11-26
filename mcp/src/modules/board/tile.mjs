@@ -2,8 +2,8 @@
 // the Lead for the sentence), with its picture slot at the size the page will use, plus a thin spec strip
 // (name, palette, faces). Directions are judged as compositions, never as palette tiles (playbook P13).
 import { contrast } from "../assets/color.mjs";
+import { escHtml as esc } from "../../core/util.mjs";
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 function fonts(type) {
   const parts = String(type || "")

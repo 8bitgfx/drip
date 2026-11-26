@@ -13,11 +13,11 @@
 //
 // Every write goes through updateBoard / updateIndex: lock, read, change, revision + 1, atomic write. Two sessions
 // adding items at once both land; a caller that passes `expect` with a stale revision gets a RevisionConflict.
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { ensureDir, ensureProjectDrip, projectDir, projectDripDir } from "../../core/paths.mjs";
 import { appendJsonl, readJson, readJsonl, RevisionConflict, updateJson } from "../../core/jsonstore.mjs";
+import { fwd, relPath, sha1, slug as slugOf } from "../../core/util.mjs";
 
 export { RevisionConflict };
 export const SCHEMA = 2;
@@ -31,13 +31,7 @@ export const boardsDir = () => ensureDir(path.join(ensureProjectDrip(), "boards"
 export const indexFile = () => path.join(readDir(), "index.json");
 
 export function slug(name) {
-  return (
-    name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-      .slice(0, 40) || "board"
-  );
+  return slugOf(name, { max: 40, fallback: "board" });
 }
 
 export function boardFile(id) {
@@ -51,7 +45,7 @@ export const historyFile = (id) => path.join(boardDir(id), "history.jsonl");
 export function toRel(p, root = projectDir()) {
   if (!p || typeof p !== "string" || !path.isAbsolute(p)) return p;
   const rel = path.relative(root, p);
-  return rel && !rel.startsWith("..") && !path.isAbsolute(rel) ? rel.split(path.sep).join("/") : p;
+  return rel && !rel.startsWith("..") && !path.isAbsolute(rel) ? fwd(rel) : p;
 }
 
 export function fromRel(p, root = projectDir()) {
@@ -313,7 +307,7 @@ export function resolveBoard({ id, task } = {}) {
 
 // ---- items: dedupe by stable source key and by content hash ----
 export function contentHash(data) {
-  return crypto.createHash("sha1").update(data).digest("hex").slice(0, 16);
+  return sha1(data, 16);
 }
 
 export function fileHash(file) {
@@ -423,7 +417,7 @@ export function resetBoard(id, { approved, by = null } = {}) {
     x.criteria = undefined;
     x.approved = null;
     x.resetAt = new Date().toISOString();
-  }, { op: "reset", summary: `cleared; previous content saved to ${path.relative(projectDir(), snap).split(path.sep).join("/")}`, by });
+  }, { op: "reset", summary: `cleared; previous content saved to ${relPath(projectDir(), snap)}`, by });
   return { board: b, snapshot: snap };
 }
 

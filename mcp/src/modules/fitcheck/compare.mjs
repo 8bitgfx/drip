@@ -11,9 +11,9 @@ import { toUrl } from "../../core/serve.mjs";
 import { loadState } from "../../core/state.mjs";
 import { designDoc } from "../../core/skills.mjs";
 import { loadBoard } from "../board/store.mjs";
-import { screenshot } from "./chrome.mjs";
+import { screenshot } from "../../core/chrome.mjs";
+import { escHtml as esc } from "../../core/util.mjs";
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const dataUrl = (buf, mime = "image/jpeg") => `data:${mime};base64,${buf.toString("base64")}`;
 const mimeOf = (buf) => (buf[0] === 0x89 ? "image/png" : /<svg/i.test(buf.subarray(0, 300).toString()) ? "image/svg+xml" : buf.subarray(8, 12).toString() === "WEBP" ? "image/webp" : "image/jpeg");
 

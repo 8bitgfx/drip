@@ -8,8 +8,8 @@ import { projectDir } from "../../core/paths.mjs";
 import { renderHtml, rendersDir, stamp } from "../../core/render.mjs";
 import { blocks, safe } from "../../core/result.mjs";
 import { loadFont, outline } from "./outline.mjs";
+import { escHtml as esc } from "../../core/util.mjs";
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 function loadSvg(src) {
   if (/^\s*<svg/i.test(src)) return src;

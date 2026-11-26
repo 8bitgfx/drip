@@ -28,6 +28,15 @@ export const dataDir = path.join(pluginRoot, "data");
 export const examplesDir = path.join(pluginRoot, "examples");
 export const kitDir = path.join(pluginRoot, "kit");
 
+/** The installed Drip version, from the plugin manifest ("" when it can't be read). */
+export function pluginVersion() {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8")).version || "";
+  } catch {
+    return "";
+  }
+}
+
 // The project root, the same on every host: an explicit cwd, then the host's project variable
 // (DRIP_PROJECT_DIR works everywhere; Claude Code sets CLAUDE_PROJECT_DIR), then the nearest folder
 // above the working directory that has a .drip folder or is a git root, then the working directory.

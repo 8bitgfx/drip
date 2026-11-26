@@ -20,12 +20,11 @@ import { actor } from "../../core/state.mjs";
 import { approveDirection, loadDecisions, loadStyle, skillBody, updateDecisions, writeProjectSkill } from "../../core/memory.mjs";
 import { SECRET_FILE } from "./scan.mjs";
 import { saveStyle } from "./style.mjs";
+import { fwd as posix, sha1 as sha } from "../../core/util.mjs";
 import { SCHEMA, createBoard, loadBoard, loadIndex, masterId, updateBoard } from "../board/store.mjs";
 
 const SECRET_TEXT = /(-----BEGIN [A-Z ]*PRIVATE KEY-----|\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{16,}|\bAKIA[0-9A-Z]{16}\b|\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.|(?:api[_-]?key|secret|passw(?:or)?d|token)\s*[:=]\s*["'][A-Za-z0-9_\-/+=]{16,}["'])/i;
 const TEXT_EXT = /\.(css|scss|sass|less|json|md|txt|svg|html?|js|ts|mjs|cjs|tsx|jsx)$/i;
-const posix = (p) => p.split(path.sep).join("/");
-const sha = (b) => crypto.createHash("sha1").update(b).digest("hex");
 const safeName = (rel) => rel.replace(/^[./\\]+/, "").replace(/\.\.+/g, ".").replace(/[<>:"|?*]/g, "_");
 
 /** A project file may be copied only if its name and, for text, its content show no secret. Returns a reason when it may not. */

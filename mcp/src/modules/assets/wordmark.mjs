@@ -10,8 +10,9 @@ import { ensureDir, ensureProjectDrip } from "../../core/paths.mjs";
 import { renderHtml } from "../../core/render.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { loadFontFile, parseFont } from "./typecompare.mjs";
+import { slug as slugOf } from "../../core/util.mjs";
 
-const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "wordmark";
+const slug = (s) => slugOf(s, { max: 40, fallback: "wordmark" });
 const wordmarksDir = () => path.join(ensureProjectDrip(), "wordmarks");
 
 const n2 = (v) => +v.toFixed(2);

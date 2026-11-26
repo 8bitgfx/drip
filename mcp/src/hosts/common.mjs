@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readJson, writeJsonAtomic } from "../core/jsonstore.mjs";
+import { fwd } from "../core/util.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,7 +32,7 @@ export function resolveOpts(opts = {}) {
 }
 
 /** Forward slashes are valid in every host config and survive JSON/TOML escaping. */
-export const fwd = (p) => String(p).replace(/\\/g, "/");
+export { fwd };
 
 /** Join under the plugin root. In template mode (generated packages) the root is a placeholder like ${PLUGIN_ROOT}. */
 export const J = (o, ...parts) => fwd(o.template ? [o.pluginRoot, ...parts].join("/") : path.join(o.pluginRoot, ...parts));

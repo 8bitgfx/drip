@@ -37,7 +37,7 @@ export function browserEnv() {
 
 /** PNG buffer of `url` at width x height (a tab in the shared browser; see core/browser.mjs). */
 export async function screenshot(url, { width = 1440, height = 900, dark = false, waitMs = 4000, format = "png", quality = 80, scale = 1, config } = {}) {
-  const { openPage, withTab } = await import("../../core/browser.mjs");
+  const { openPage, withTab } = await import("./browser.mjs");
   return withTab(config, async (tab) => {
     await openPage(tab, url, { width, height, dark, timeout: Math.max(waitMs, 8000), settleMs: Math.min(waitMs, 1500) });
     const { data } = await tab.s("Page.captureScreenshot", { format, ...(format === "jpeg" ? { quality } : {}), clip: { x: 0, y: 0, width, height, scale } });

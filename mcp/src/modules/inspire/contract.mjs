@@ -12,20 +12,9 @@
 //
 // Adapters that read HTML export their parser (parseX(html) -> Item[]) so tests can run it on a fixture.
 import { get } from "../../core/http.mjs";
+import { decodeHtml as decode, slug, stripTags as strip } from "../../core/util.mjs";
 
-const NAMED = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "–", mdash: "—", hellip: "…", rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“" };
-
-export function decode(s = "") {
-  return String(s).replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => {
-    if (e[0] === "#") {
-      const code = e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : m;
-    }
-    return NAMED[e.toLowerCase()] ?? m;
-  });
-}
-
-export const strip = (html = "") => decode(String(html).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ")).trim();
+export { decode, strip };
 
 /** Resolve a possibly relative URL against a base; returns "" for junk. */
 export function abs(u, base) {
@@ -45,12 +34,7 @@ export const hostOf = (u) => {
   }
 };
 
-export const slugify = (s) =>
-  String(s || "")
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+export const slugify = (s) => slug(String(s || "").normalize("NFKD"), { max: Infinity });
 
 
 

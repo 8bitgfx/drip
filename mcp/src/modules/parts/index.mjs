@@ -7,8 +7,9 @@ import path from "node:path";
 import { z } from "zod";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { get } from "../../core/http.mjs";
+import { readJson } from "../../core/jsonstore.mjs";
 import { imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
-import { screenshot } from "../fitcheck/chrome.mjs";
+import { screenshot } from "../../core/chrome.mjs";
 import { serveDir } from "../../core/serve.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { vendor0 } from "../../core/setup.mjs";
@@ -51,13 +52,6 @@ export const FAMILIES = {
   hero: { dir: "layout", ref: "layout-v4.md", about: "hero layouts (centred, split, collage, film, product, statement, word...)" },
 };
 
-const readJson = (f) => {
-  try {
-    return JSON.parse(fs.readFileSync(f, "utf8"));
-  } catch {
-    return null;
-  }
-};
 const describe = (m) => String(m.look || m.for || m.shows || m.job || m.what || m.title || m.name || "").replace(/\s+/g, " ");
 
 /** Every item of a family: { id, name, about, demo } from its index or its folders' meta.json. */

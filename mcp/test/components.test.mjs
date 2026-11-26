@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
-import { findChrome } from "../src/modules/fitcheck/chrome.mjs";
+import { findChrome } from "../src/core/chrome.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skipBrowser = !findChrome({}) && "no Chrome/Edge on this machine";

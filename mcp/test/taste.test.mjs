@@ -8,7 +8,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { findChrome } from "../src/modules/fitcheck/chrome.mjs";
+import { findChrome } from "../src/core/chrome.mjs";
 import { facesOf, isOverused, sameFace, samePalette } from "../src/core/looks.mjs";
 import { readmeImages } from "../src/modules/fitcheck/readme.mjs";
 

@@ -14,13 +14,13 @@ import { getKey } from "../../core/keys.mjs";
 import { ensureProjectDrip, projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { rememberListing, resolve, lookup } from "../../core/seen.mjs";
+import { decodeHtml as decode } from "../../core/util.mjs";
 import { installTaste, tasteAssets, tasteReady } from "../parts/index.mjs";
 
 /** Resolve within ms or give up with []: one slow source never holds the search. */
 const within = (p, ms) => Promise.race([p.catch(() => []), new Promise((r) => setTimeout(() => r([]), ms))]);
 const ABSTRACT = /\b(abstract|gradient|texture|noise|grain|sky|cloud|cosmic|space|nebula|surreal|dreamy|background|wallpaper|pattern|aurora|light leak|bokeh|flowers?|illustration|painting|art)\b/i;
 const BROWSER_UA = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36", "Accept-Language": "en-US,en;q=0.9" };
-const decode = (x) => String(x).replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
 /** Bing image results (plain HTML, no key): murl = the image, turl = its thumbnail, purl = the page it is on. */
 export function parseBing(html) {

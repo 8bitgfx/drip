@@ -8,7 +8,7 @@ import { buildDocument, diffPatch, mergePatch, mockstudioReady } from "../src/mo
 import { capture, judgeAudit } from "../src/core/cdp.mjs";
 import { toUrl } from "../src/core/serve.mjs";
 import { closeBrowser } from "../src/core/browser.mjs";
-import { findChrome } from "../src/modules/fitcheck/chrome.mjs";
+import { findChrome } from "../src/core/chrome.mjs";
 
 test("merge patches round-trip: base + diff(base, next) = next", () => {
   const base = { a: 1, b: { c: 2, d: [1, 2] }, gone: true };

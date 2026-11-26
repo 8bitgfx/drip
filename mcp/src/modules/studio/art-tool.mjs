@@ -8,6 +8,7 @@ import { blocks, safe } from "../../core/result.mjs";
 import { buildArt, composition, describe, DEFAULTS, LAYER_TYPES, MOODS } from "./art.mjs";
 import { optimizeSvg, projectPath, rasterizeSvg, saveFile } from "./raster.mjs";
 import { dataUrl, registerViewer, studioResult, studioToolMeta } from "./viewer.mjs";
+import { relPath } from "../../core/util.mjs";
 
 // The one or two parameters worth a slider for each layer type, for the MCP Apps preview.
 const KNOBS = {
@@ -76,7 +77,7 @@ export function register(server, ctx) {
         const ext = path.extname(abs).slice(1).toLowerCase();
         if (!["svg", "webp", "png"].includes(ext)) throw new Error("out must end in .svg, .webp or .png");
         const stem = abs.slice(0, -(ext.length + 1));
-        const rel = (p) => path.relative(projectDir(), p).replace(/\\/g, "/");
+        const rel = (p) => relPath(projectDir(), p);
         const opt = args.optimize === false ? { svg: art.svg, optimized: false } : await optimizeSvg(art.svg);
         optimizedNote = opt.optimized ? " (SVGO applied)" : "";
         files.push(saveFile(rel(`${stem}.svg`), opt.svg));

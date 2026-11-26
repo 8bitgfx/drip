@@ -7,13 +7,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { ensureDir, ensureProjectDrip, projectDir } from "../../core/paths.mjs";
 import { readJson, updateJson, writeJsonAtomic } from "../../core/jsonstore.mjs";
+import { relPath, slug as slugOf } from "../../core/util.mjs";
 
 export const KINDS = ["component", "section", "page", "motion", "style"];
 export const patternsRoot = () => ensureDir(path.join(ensureProjectDrip(), "patterns"));
 export const indexFile = () => path.join(patternsRoot(), "index.json");
 export const patternDir = (id) => ensureDir(path.join(patternsRoot(), id));
-export const slug = (s) => String(s || "pattern").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "pattern";
-export const rel = (p) => path.relative(projectDir(), p).split(path.sep).join("/");
+export const slug = (s) => slugOf(s || "pattern", { fallback: "pattern" });
+export const rel = (p) => relPath(projectDir(), p);
 
 export function listPatterns({ status, kind, tag } = {}) {
   const idx = readJson(indexFile(), { patterns: [] });

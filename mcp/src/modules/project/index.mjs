@@ -19,8 +19,8 @@ import { syncTask } from "../board/index.mjs";
 import { exportStylePack, importStylePack, whyNotShareable } from "./exchange.mjs";
 import { SECRET_FILE, applyEntries, boardAssetPath, describeInventory, importInventory, scanRepo } from "./scan.mjs";
 import { describeTokens, measureFiles, measurePage, saveStyle } from "./style.mjs";
+import { fwd as posix } from "../../core/util.mjs";
 
-const posix = (p) => p.split(path.sep).join("/");
 
 /** Turn the share opt-in on or off: writes config.json (keeping the user's other keys) and rewrites .drip/.gitignore's block. */
 function setShare(patch) {

@@ -208,7 +208,7 @@ test("carrying studies: only complete, fresh studies of the same kind of surface
 });
 
 test("style_extract measures a rendered page (skipped when no Chrome/Edge is installed)", async (t) => {
-  const { findChrome } = await import("../src/modules/fitcheck/chrome.mjs");
+  const { findChrome } = await import("../src/core/chrome.mjs");
   let chrome = null;
   try {
     chrome = findChrome(loadConfig());

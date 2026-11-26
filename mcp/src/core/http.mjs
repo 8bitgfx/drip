@@ -1,9 +1,9 @@
 // Polite HTTP: one request at a time per host with a delay, a disk cache in ~/.drip/cache,
 // and clear errors. Every network call in Drip goes through here.
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { ensureDir, homeDripDir } from "./paths.mjs";
+import { sha1 } from "./util.mjs";
 
 const cacheDir = path.join(homeDripDir, "cache");
 const lastHit = new Map(); // host -> timestamp
@@ -12,7 +12,7 @@ const queues = new Map(); // host -> promise chain
 const DAY = 24 * 60 * 60 * 1000;
 
 function cacheFile(key, ext) {
-  const hash = crypto.createHash("sha1").update(key).digest("hex");
+  const hash = sha1(key);
   return path.join(cacheDir, hash.slice(0, 2), `${hash}.${ext}`);
 }
 

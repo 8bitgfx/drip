@@ -1,12 +1,10 @@
 // A one-off local page where the user pastes API keys. Keys go to ~/.drip/keys.json and never pass
 // through Claude. The URL carries a random token so other local pages can't post to it.
-import crypto from "node:crypto";
-import http from "node:http";
+import { servePage } from "../../core/localpage.mjs";
 import { keyStatus, setKey } from "../../core/keys.mjs";
+import { escHtml as esc } from "../../core/util.mjs";
 
 let running = null;
-
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 function page(names, token, msg = "") {
   const rows = keyStatus(names)
@@ -26,25 +24,16 @@ ${msg ? `<p class="msg">${esc(msg)}</p>` : ""}
 
 export async function openKeyPage(names) {
   if (running) return running.url;
-  const token = crypto.randomBytes(12).toString("hex");
-  const server = http.createServer(async (req, res) => {
-    const u = new URL(req.url, "http://x");
-    if (u.searchParams.get("t") !== token) return res.writeHead(403).end("Forbidden");
-    if (req.method === "POST" && u.pathname === "/save") {
-      let body = "";
-      for await (const c of req) body += c;
-      const f = new URLSearchParams(body);
-      const name = (f.get("custom") || f.get("name") || "").trim().toLowerCase();
-      if (name && f.get("value")) setKey(name, f.get("value"));
-      return res.writeHead(200, { "content-type": "text/html" }).end(page(names, token, `Saved key for ${name}.`));
-    }
-    res.writeHead(200, { "content-type": "text/html" }).end(page(names, token));
-  });
-  await new Promise((r) => server.listen(0, "127.0.0.1", r));
-  running = { server, url: `http://127.0.0.1:${server.address().port}/?t=${token}` };
-  setTimeout(() => {
-    server.close();
-    running = null;
-  }, 30 * 60 * 1000).unref();
+  running = await servePage(
+    ({ url, form, token, send }) => {
+      if (form && url.pathname === "/save") {
+        const name = (form.get("custom") || form.get("name") || "").trim().toLowerCase();
+        if (name && form.get("value")) setKey(name, form.get("value"));
+        return send(page(names, token, `Saved key for ${name}.`));
+      }
+      send(page(names, token));
+    },
+    { onClose: () => (running = null) },
+  );
   return running.url;
 }

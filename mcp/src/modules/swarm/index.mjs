@@ -10,6 +10,7 @@ import { designDoc } from "../../core/skills.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { text, safe } from "../../core/result.mjs";
 import { launchLine, writeBrief } from "../../core/briefs.mjs";
+import { slug as slugOf } from "../../core/util.mjs";
 
 export const ROLES = ["style", "competitor", "page", "before"];
 
@@ -82,7 +83,7 @@ export function scoutPrompt({ role, subject, style, task }) {
     .join("\n");
 }
 
-export const slug = (s) => String(s).replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+export const slug = (s) => slugOf(s, { max: Infinity });
 export const pascal = (s) => slug(s).split("-").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join("") || "Section";
 
 /** The page this task builds: { dir, stack } from layout_deal, or worked out from a folder. */

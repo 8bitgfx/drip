@@ -6,6 +6,8 @@ import path from "node:path";
 import { z } from "zod";
 import { addFrame, buildFilm, filmDir, lastChangeAt, readFrames } from "../../core/film.mjs";
 import { pluginRoot, projectDripDir } from "../../core/paths.mjs";
+import { openInBrowser } from "../../core/localpage.mjs";
+import { screenshot } from "../../core/chrome.mjs";
 import { serveDir } from "../../core/serve.mjs";
 import { loadState } from "../../core/state.mjs";
 import { safe, text } from "../../core/result.mjs";
@@ -26,7 +28,6 @@ async function frame(task, config, caption) {
   } catch {
     return null;
   }
-  const { screenshot } = await import("../fitcheck/chrome.mjs");
   const buf = await screenshot(task.filmUrl, { width: 1440, height: 900, format: "jpeg", quality: 72, waitMs: 2500, config });
   lastShot = Date.now();
   return addFrame(task, buf, { caption });
@@ -79,15 +80,8 @@ function placeViewer(d) {
   return "basic";
 }
 
-function openInBrowser(url) {
-  if (!/^http:\/\/127\.0\.0\.1:\d+\/index\.html$/.test(url)) return; // only our own local viewer
-  const [cmd, args] = process.platform === "win32" ? ["cmd", ["/c", "start", "", url]] : process.platform === "darwin" ? ["open", [url]] : ["xdg-open", [url]];
-  try {
-    execFile(cmd, args, { windowsHide: true }, () => {});
-  } catch {
-    /* no browser: the link is in drip_end's reply */
-  }
-}
+/** Opens our own local viewer only (no browser: the link is in drip_end's reply). */
+const openViewer = (url) => /^http:\/\/127\.0\.0\.1:\d+\/index\.html$/.test(url) && openInBrowser(url);
 
 function ffmpeg(args, cwd) {
   return new Promise((res) => execFile("ffmpeg", args, { cwd, windowsHide: true, timeout: 120000 }, (e) => res(!e)));
@@ -105,7 +99,7 @@ export async function finishFilm(task, config) {
   if (film.frames.length >= 2 && (await ffmpeg(["-y", "-framerate", "3", "-i", "frames/%04d.jpg", "-vf", "scale=1440:-2,format=yuv420p", "montage.mp4"], d))) mp4 = " and montage.mp4";
   const base = await serveDir(d).catch(() => null);
   // Open the montage for the user when the work is done (any IDE: their default browser). DRIP_FILM_OPEN=0 turns it off.
-  if (base && film.frames.length && process.env.DRIP_FILM_OPEN !== "0") openInBrowser(`${base}/index.html`);
+  if (base && film.frames.length && process.env.DRIP_FILM_OPEN !== "0") openViewer(`${base}/index.html`);
   const helpers = film.agents.filter((a) => a.id !== "main");
   return `Film: ${helpers.length} agent(s), ${film.frames.length} frame(s), ${film.events.length} events. Watch the montage: ${base ? `${base}/index.html` : path.relative(process.cwd(), path.join(d, "index.html"))}${mp4 ? ` (${path.join(d, "montage.mp4")})` : ""}. Show the user the link.`;
 }

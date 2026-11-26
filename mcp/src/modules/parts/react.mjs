@@ -4,6 +4,7 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { luminance } from "../assets/color.mjs";
 
 export const REGISTRIES = {
   "@magicui": "https://magicui.design/r/{name}.json",
@@ -49,9 +50,7 @@ export const isReactPage = (dir) => fs.existsSync(path.join(dir, "vite.config.ts
 /** Relative luminance of a #rrggbb colour (0 dark .. 1 light). */
 function lum(hex) {
   const m = String(hex || "").match(/#([0-9a-f]{6})/i);
-  if (!m) return 1;
-  const [r, g, b] = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return m ? luminance(`#${m[1]}`) : 1;
 }
 
 /**

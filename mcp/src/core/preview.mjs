@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { screenshot } from "../modules/fitcheck/chrome.mjs";
+import { screenshot } from "./chrome.mjs";
 import { imageBlock, toJpeg } from "./images.mjs";
 
 export async function previewHtml(html, { width = 1200, height = 700, config } = {}) {

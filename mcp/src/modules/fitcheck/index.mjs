@@ -16,7 +16,7 @@ import { toUrl } from "../../core/serve.mjs";
 import * as compare from "./compare.mjs";
 import * as readme from "./readme.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
-import { screenshot } from "./chrome.mjs";
+import { screenshot } from "../../core/chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
 import { restitchIfStale } from "../swarm/index.mjs";
 import { unusedPieces } from "../../core/pieces-check.mjs";

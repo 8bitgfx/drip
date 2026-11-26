@@ -15,9 +15,10 @@ import { serveDir, toUrl } from "../../core/serve.mjs";
 import { loadState } from "../../core/state.mjs";
 import { auditIndex, formatFinding } from "./audit.mjs";
 import { detectJudge, judgePairs } from "./drylint.mjs";
+import { relPath, slug as slugOf } from "../../core/util.mjs";
 
-const rel = (p) => path.relative(projectDir(), p).split(path.sep).join("/");
-const slug = (s) => String(s || "component").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "component";
+const rel = (p) => relPath(projectDir(), p);
+const slug = (s) => slugOf(s || "component", { fallback: "component" });
 const taskId = () => loadState().task?.id;
 const words = (s) => String(s || "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 1);
 const GENERIC = new Set(["card", "cards", "tile", "tiles", "item", "items", "list", "block", "section", "wrapper", "container", "box", "panel", "view", "group", "row", "button"]);

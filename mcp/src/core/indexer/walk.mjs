@@ -2,6 +2,7 @@
 // files at every level. Never touches the git index. No dependencies.
 import fs from "node:fs";
 import path from "node:path";
+import { relPath } from "../util.mjs";
 
 export const ALWAYS_SKIP = new Set(["node_modules", ".git", ".drip", "dist", "build", ".next", ".nuxt", ".svelte-kit", ".turbo", ".cache", ".parcel-cache", "coverage", "out", ".vercel", ".netlify", "storybook-static", "__pycache__", ".venv", "venv", ".idea", ".vscode", ".output", ".expo", "target"]);
 const SECRET = /(^|\/)(\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_rsa.*|credentials.*\.json|secrets?\.(json|ya?ml))$/i;
@@ -79,16 +80,16 @@ export function walkProject(root, { exts, maxFiles = 20000, maxBytes = 1_500_000
     }
     for (const e of entries) {
       const abs = path.join(dir, e.name);
-      const relRoot = path.relative(root, abs).split(path.sep).join("/");
+      const relRoot = relPath(root, abs);
       if (e.isSymbolicLink()) continue;
       if (e.isDirectory()) {
         if (ALWAYS_SKIP.has(e.name)) continue;
-        if (rules.some((s) => ignored(s.rules, path.relative(s.base, abs).split(path.sep).join("/"), true))) continue;
+        if (rules.some((s) => ignored(s.rules, relPath(s.base, abs), true))) continue;
         stack.push({ dir: abs, rules: [...rules, { base: abs, rules: loadIgnore(abs) }].filter((s) => s.rules.length) });
       } else if (e.isFile()) {
         const ext = path.extname(e.name).toLowerCase();
         if (!exts.has(ext) || SECRET.test(relRoot)) continue;
-        if (rules.some((s) => ignored(s.rules, path.relative(s.base, abs).split(path.sep).join("/"), false))) continue;
+        if (rules.some((s) => ignored(s.rules, relPath(s.base, abs), false))) continue;
         let st;
         try {
           st = fs.statSync(abs);

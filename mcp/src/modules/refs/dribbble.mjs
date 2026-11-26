@@ -3,6 +3,7 @@
 // No account, no API key. Logged out, keyword search stops after ~84 results; tag, feed and designer
 // pages page deeply. Be polite: requests are spaced and cached (core/http.mjs).
 import { get } from "../../core/http.mjs";
+import { decodeHtml as decode, stripTags as clean } from "../../core/util.mjs";
 
 const BASE = "https://dribbble.com";
 export const CATEGORIES = ["animation", "branding", "illustration", "mobile", "print", "product-design", "typography", "web-design"];
@@ -17,9 +18,6 @@ async function fetchHtml(url, config, ttlMs = 6 * 3600e3, retries = 2) {
   return body;
 }
 
-const ENTITIES = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&#x27;": "'", "&nbsp;": " " };
-const decode = (s) => s.replace(/&(amp|lt|gt|quot|nbsp|#39|#x27);/g, (m) => ENTITIES[m] || m).replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n));
-const clean = (s) => decode((s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
 
 /** Strip the CDN query so we can ask for our own size/format. */
 export function cdnBase(url) {

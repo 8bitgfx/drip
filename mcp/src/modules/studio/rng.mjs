@@ -100,13 +100,7 @@ export const lighten = (c, t) => mix(c, "#ffffff", t);
 export const darken = (c, t) => mix(c, "#000000", t);
 
 /** Relative luminance 0..1 (WCAG). */
-export function luminance(hex) {
-  const [r, g, b] = hexToRgb(hex).map((v) => {
-    const s = v / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
+export { luminance } from "../assets/color.mjs";
 
 // ---- paths ------------------------------------------------------------------------------------------------
 
@@ -170,4 +164,3 @@ export function simplify(points, eps = 0.4) {
   return points.filter((_, i) => keep[i]);
 }
 
-export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);

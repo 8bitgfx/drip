@@ -13,7 +13,7 @@ const project = fs.mkdtempSync(path.join(os.tmpdir(), "drip-studio-"));
 process.env.DRIP_PROJECT_DIR = project;
 process.env.DRIP_HOME = fs.mkdtempSync(path.join(os.tmpdir(), "drip-studio-home-"));
 
-const { findChrome } = await import("../src/modules/fitcheck/chrome.mjs");
+const { findChrome } = await import("../src/core/chrome.mjs");
 const { collectTools } = await import("../src/core/registry.mjs");
 const { rng, simplex, fbm, mix, luminance, smoothPath, simplify, hexToRgb } = await import("../src/modules/studio/rng.mjs");
 const art = await import("../src/modules/studio/art.mjs");

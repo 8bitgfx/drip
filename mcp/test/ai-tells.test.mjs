@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { findChrome } from "../src/modules/fitcheck/chrome.mjs";
+import { findChrome } from "../src/core/chrome.mjs";
 import { capture, judgeAudit } from "../src/core/cdp.mjs";
 import { judgeTells } from "../src/core/ai-tells.mjs";
 import { isHard } from "../src/modules/fitcheck/index.mjs";

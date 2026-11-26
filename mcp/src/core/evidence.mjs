@@ -8,18 +8,17 @@
 //                          every edit they see, so what differs at the end was never seen.
 //
 // No dependencies beyond node and core/paths|config|skills: hooks import this through core/state.mjs.
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { loadConfig } from "./config.mjs";
 import { projectDir, projectDripDir } from "./paths.mjs";
 import { designDoc } from "./skills.mjs";
+import { fwd, relPath, sha1 as sha } from "./util.mjs";
 
 const SKIP_DIR = /^(node_modules|\.git|\.next|\.nuxt|\.svelte-kit|\.turbo|\.cache|\.parcel-cache|dist|build|out|coverage|\.drip|\.venv|venv|__pycache__|target|vendor|\.gradle|Pods)$/;
 const MAX_FILES = 4000;
 const HASH_LIMIT = 1024 * 1024;
 
-const sha = (x) => crypto.createHash("sha1").update(x).digest("hex");
 
 /** Content hash (12 hex). Files over 1 MB hash size + mtime instead of reading them. */
 export function hashFile(abs) {
@@ -51,7 +50,7 @@ export function uiFilesIn(root = projectDir(), config = loadConfig(root)) {
       if (e.isDirectory()) {
         if (!SKIP_DIR.test(e.name)) walk(abs, depth - 1);
       } else if (e.isFile()) {
-        const rel = path.relative(root, abs).split(path.sep).join("/");
+        const rel = relPath(root, abs);
         if (ui.test(rel) && !ignore.test(rel)) out.push(rel);
       }
     }
@@ -123,7 +122,7 @@ export function markSeen(task, rel, cwd) {
   if (!snap) return;
   const root = projectDir(cwd);
   const abs = path.resolve(root, rel);
-  snap.files[rel.split(path.sep).join("/")] = hashFile(abs);
+  snap.files[fwd(rel)] = hashFile(abs);
   if (snap.files[rel] === null) delete snap.files[rel];
   writeAtomic(snapshotFile(task.id, cwd), snap);
 }
@@ -169,7 +168,7 @@ export function markShot(task, cwd) {
 /** The hash a file had when the last shot was taken (null when there was no shot or the file did not exist). */
 export function shotHash(task, rel, cwd) {
   const snap = task ? readSnapshot(task.id, cwd) : null;
-  return snap?.shot?.files?.[rel.split(path.sep).join("/")] ?? null;
+  return snap?.shot?.files?.[fwd(rel)] ?? null;
 }
 
 /**

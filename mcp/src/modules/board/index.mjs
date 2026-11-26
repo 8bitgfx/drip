@@ -15,7 +15,7 @@ import { readGuide } from "../../core/guides.mjs";
 import { approveDirection, recordFeedback, writeProjectSkill } from "../../core/memory.mjs";
 import { colourDistance, facesOf, isOverused, recentLooks, recordLook, sameFace, samePalette } from "../../core/looks.mjs";
 import { COMP, tileHtml } from "./tile.mjs";
-import { screenshot } from "../fitcheck/chrome.mjs";
+import { screenshot } from "../../core/chrome.mjs";
 import { typeIssues } from "../../core/cdp.mjs";
 import { toUrl } from "../../core/serve.mjs";
 import { renderBoard } from "./render.mjs";

@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { designDoc } from "../../core/skills.mjs";
 import { addItem, boardDir, fileHash, makeProvenance, updateBoard } from "../board/store.mjs";
+import { fwd as posix } from "../../core/util.mjs";
 
 export const SKIP_DIR = /^(node_modules|\.git|\.hg|\.next|\.nuxt|\.svelte-kit|\.turbo|\.cache|\.parcel-cache|\.vercel|\.output|dist|build|out|coverage|\.drip|\.venv|venv|env|__pycache__|target|vendor|\.gradle|Pods|\.idea|\.vscode|tmp|temp)$/i;
 // Names that may hold secrets or private material: never read, copied, or listed with content.
@@ -19,7 +20,6 @@ const ASSET_DIR = /(^|\/)(public|assets|static|images?|img|media|brand|branding|
 const MAX_FILES = 6000;
 const MAX_BYTES = 8 * 1024 * 1024;
 
-const posix = (p) => p.split(path.sep).join("/");
 
 /** Walk the repo (skip lists applied), return project-relative POSIX paths with sizes. */
 export function walkRepo(root, { depth = 7, max = MAX_FILES } = {}) {

@@ -2,17 +2,17 @@
 // (checks, critic, builders, loop), paid kits and niche packs. Served on 127.0.0.1 with a random token in the URL, so
 // no other page can post to it; keys go straight to ~/.drip/keys.json and never pass through the model.
 // /drip:settings (Claude Code) calls settings_open; `drip settings` (any terminal, Codex) runs the same page.
-import { spawn } from "node:child_process";
-import crypto from "node:crypto";
 import fs from "node:fs";
-import http from "node:http";
 import path from "node:path";
-import { homeDripDir, pluginRoot, projectDripDir } from "../../core/paths.mjs";
-import { loadConfig } from "../../core/config.mjs";
+import { homeDripDir, pluginVersion, projectDripDir } from "../../core/paths.mjs";
+import { servePage } from "../../core/localpage.mjs";
+import { loadConfig, merge } from "../../core/config.mjs";
+import { readJson as readJsonOr } from "../../core/jsonstore.mjs";
 import { keyStatus, setKey } from "../../core/keys.mjs";
 import { listPacks } from "../../core/packs.mjs";
 import { checklist, loadState, updateState } from "../../core/state.mjs";
 import { ownedKits, saveKits } from "../parts/pieces.mjs";
+import { escHtml as esc } from "../../core/util.mjs";
 
 export const KEYS = [
   ["openai", "Image generation (gpt-image)"],
@@ -32,34 +32,14 @@ export const SWITCHES = [
   ["full", "Full process by default", "Moodboard, three directions and a design system before building. Off: the fast loop (a page in about ten minutes).", (c) => c.loop === "full", (on) => ({ loop: on ? "full" : "fast" })],
 ];
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-
-function version() {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8")).version;
-  } catch {
-    return "";
-  }
-}
 
 const globalFile = () => path.join(homeDripDir, "config.json");
-const readJson = (f) => {
-  try {
-    return JSON.parse(fs.readFileSync(f, "utf8"));
-  } catch {
-    return {};
-  }
-};
-const deepMerge = (a, b) => {
-  const out = { ...a };
-  for (const [k, v] of Object.entries(b)) out[k] = v && typeof v === "object" && !Array.isArray(v) ? deepMerge(a?.[k] || {}, v) : v;
-  return out;
-};
+const readJson = (f) => readJsonOr(f, {});
 
 /** Writes a switch to the machine-wide config (~/.drip/config.json). A project's own .drip/config.json still wins. */
 export function writeGlobalConfig(patch) {
   fs.mkdirSync(homeDripDir, { recursive: true });
-  fs.writeFileSync(globalFile(), JSON.stringify(deepMerge(readJson(globalFile()), patch), null, 2));
+  fs.writeFileSync(globalFile(), JSON.stringify(merge(readJson(globalFile()), patch), null, 2));
 }
 
 /** Switches a project's own config overrides (so the page can say the machine-wide value won't apply here). */
@@ -136,7 +116,7 @@ export function renderSettings({ token, cwd, msg = "", doctor = "" }) {
     ? packs.map((p) => `<div class="row"><div class="grow"><div class="name">${esc(p.name || p.id)}</div><div class="help">${esc(p.niche || p.summary || "")}</div></div><span class="pill">${esc(p.type || "pack")}</span></div>`).join("")
     : `<p class="help" style="margin:0">No niche packs yet. Ask Drip to learn a niche (/drip:adapt in Claude Code) and it becomes a pack used on every matching task.</p>`;
   return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drip settings</title><style>${CSS}</style>
-<main><header><h1>Drip settings</h1><span class="ver">v${esc(version())}</span></header>
+<main><header><h1>Drip settings</h1><span class="ver">v${esc(pluginVersion())}</span></header>
 ${msg ? `<p class="msg" role="status">${esc(msg)}</p>` : ""}
 <section><h2>Current task</h2>${taskCard}</section>
 <section><h2>How Drip works</h2>${switches}</section>
@@ -197,43 +177,17 @@ let running = null;
 /** Starts the page (once per process) and returns its URL. ttlMs 0 keeps it up until the process ends. */
 export async function openSettingsPage({ cwd, runDoctor, ttlMs = 60 * 60 * 1000 } = {}) {
   if (running) return running.url;
-  const token = crypto.randomBytes(16).toString("hex");
-  const server = http.createServer(async (req, res) => {
-    const u = new URL(req.url, "http://x");
-    if (u.searchParams.get("t") !== token) return res.writeHead(403).end("Forbidden");
-    const send = (html) => res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY" }).end(html);
-    try {
-      if (req.method === "POST") {
-        let body = "";
-        for await (const c of req) body += c;
-        const r = await applySettings(u.pathname, new URLSearchParams(body), { cwd, runDoctor });
-        return send(renderSettings({ token, cwd, ...r }));
+  running = await servePage(
+    async ({ url, form, token, send }) => {
+      try {
+        if (form) return send(renderSettings({ token, cwd, ...(await applySettings(url.pathname, form, { cwd, runDoctor })) }));
+        send(renderSettings({ token, cwd }));
+      } catch (e) {
+        send(renderSettings({ token, cwd, msg: `Something went wrong: ${e.message}` }));
       }
-      send(renderSettings({ token, cwd }));
-    } catch (e) {
-      send(renderSettings({ token, cwd, msg: `Something went wrong: ${e.message}` }));
-    }
-  });
-  await new Promise((r) => server.listen(0, "127.0.0.1", r));
-  running = { server, url: `http://127.0.0.1:${server.address().port}/?t=${token}` };
-  if (ttlMs) {
-    setTimeout(() => {
-      server.close();
-      running = null;
-    }, ttlMs).unref();
-  }
+    },
+    { ttlMs, onClose: () => (running = null) },
+  );
   return running.url;
-}
-
-/** Opens a URL in the user's default browser (not in tests or CI). */
-export function openInBrowser(url) {
-  if (process.env.DRIP_NO_OPEN || process.env.CI) return false;
-  try {
-    const [cmd, args] = process.platform === "win32" ? ["cmd", ["/c", "start", "", url]] : process.platform === "darwin" ? ["open", [url]] : ["xdg-open", [url]];
-    spawn(cmd, args, { detached: true, stdio: "ignore", windowsHide: true }).unref();
-    return true;
-  } catch {
-    return false;
-  }
 }
 

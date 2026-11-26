@@ -8,6 +8,7 @@ import { fetchImage } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { thumbUrl } from "../refs/dribbble.mjs";
 import { listBoards, liveItems } from "./store.mjs";
+import { escHtml as esc } from "../../core/util.mjs";
 
 const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif", ".avif": "image/avif", ".svg": "image/svg+xml" };
 
@@ -19,7 +20,6 @@ export function localFile(item) {
   return (abs === root || abs.startsWith(root + path.sep)) && fs.existsSync(abs) ? abs : null;
 }
 
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 async function imageSrc(item, inline, boardId) {
   if (item.path) {

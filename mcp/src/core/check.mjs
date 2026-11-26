@@ -14,12 +14,13 @@ import { hashText } from "./indexer/extract.mjs";
 import { indexHash, indexProject } from "./indexer/index.mjs";
 import { walkProject } from "./indexer/walk.mjs";
 import { readJson, updateJson } from "./jsonstore.mjs";
-import { pluginRoot, projectDir, projectDripDir } from "./paths.mjs";
+import { pluginRoot, pluginVersion, projectDir, projectDripDir } from "./paths.mjs";
 import { auditIndex } from "../modules/components/audit.mjs";
 import { evidenceStale, loadState, reconcileWorkspace, updateState } from "./state.mjs";
 import { lintableUiFiles } from "./evidence.mjs";
 import { lintFiles } from "../modules/fitcheck/lint.mjs";
 import { detectJudge, DRY_LINT_EXTS, dryLintInputs, judgePairs, runDryLint } from "../modules/components/drylint.mjs";
+import { relPath } from "./util.mjs";
 
 export const AUDIT_VERSION = "audit-1";
 const receiptsFile = (root) => path.join(projectDripDir(root), "check", "receipts.json");
@@ -59,7 +60,7 @@ function parseLocations(out, root) {
   const found = [];
   const seen = new Set();
   for (const m of out.matchAll(/(?:^|\s)((?:[A-Za-z]:)?[\w./\\@()[\]-]+\.(?:tsx?|jsx?|mjs|cjs|vue|svelte|astro|css|scss)):(\d+)(?::(\d+))?/gm)) {
-    const rel = path.isAbsolute(m[1]) ? path.relative(root, m[1]).split(path.sep).join("/") : m[1].replace(/^\.\//, "");
+    const rel = path.isAbsolute(m[1]) ? relPath(root, m[1]) : m[1].replace(/^\.\//, "");
     const key = `${rel}:${m[2]}`;
     if (seen.has(key) || rel.startsWith("..")) continue;
     seen.add(key);
@@ -109,7 +110,7 @@ export async function runCheck({ changed = false, full = false, only, project, s
   for (const r of Object.keys(prevReceipts.snapshot || {})) if (!(r in snapshot)) touched.add(r);
   const scope = changed && Object.keys(prevReceipts.snapshot || {}).length ? touched : null;
   const idxHash = indexHash(index);
-  const versions = { node: process.version, check: AUDIT_VERSION, drip: readJson(path.join(pluginRoot, ".claude-plugin", "plugin.json"), {}).version || "?" };
+  const versions = { node: process.version, check: AUDIT_VERSION, drip: pluginVersion() || "?" };
   const cfgHash = hashText(JSON.stringify({ check: chk, uiFiles: cfg.uiFiles, ignoreFiles: cfg.ignoreFiles }));
   const assets = assetsHash(root);
   const checks = [];
@@ -190,7 +191,7 @@ export async function runCheck({ changed = false, full = false, only, project, s
       // The same rules fitcheck_lint applies. Called directly, not through the tool registry: the registry imports this
       // module through the components tools, and that import cycle breaks the esbuild bundle.
       const issues = lintFiles(ui.slice(0, 300).map((f) => path.join(root, f)), root);
-      const findings = issues.map((i) => ({ severity: i.severity, file: path.relative(root, i.file).split(path.sep).join("/"), line: i.line, rule: i.id, message: i.message, fix: i.fix }));
+      const findings = issues.map((i) => ({ severity: i.severity, file: relPath(root, i.file), line: i.line, rule: i.id, message: i.message, fix: i.fix }));
       const errors = findings.filter((f) => f.severity === "error").length;
       return { status: errors ? "fail" : findings.some((f) => f.severity === "warn") ? "warn" : "pass", findings: findings.slice(0, 40), summary: `${ui.length} UI file(s): ${errors} error(s), ${findings.length - errors} other finding(s)`, fix: findings.length ? "Fix each finding at its file:line (the fix is listed), then run drip_check again." : undefined };
     });
