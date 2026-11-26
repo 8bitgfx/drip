@@ -3,10 +3,11 @@
 // judgements see the WHOLE page and rest on measured facts, not just the first screen.
 import { z } from "zod";
 import { openPage, settle, withTab } from "./browser.mjs";
-import { aiTellsInPage, judgeTells } from "./ai-tells.mjs";
+import { aiTellsInPage, blankVisuals, heroVisualBoxes, judgeTells } from "./ai-tells.mjs";
 
-// Sent to the page as source: a real function (linted, testable) instead of another escaped template string.
+// Sent to the page as source: real functions (linted, testable) instead of more escaped template strings.
 const TELLS = `(${aiTellsInPage.toString()})()`;
+const HERO_BOXES = `(${heroVisualBoxes.toString()})()`;
 
 /** The audit script, run inside the page. Returns plain JSON. */
 const AUDIT = `(() => {
@@ -461,7 +462,11 @@ export async function capture(url, { width = 1440, height = 900, maxSlices = 6, 
     }
     const ys = slicing === "top" ? [...Array(Math.min(count, Math.max(1, maxSlices))).keys()].map((i) => Math.min(i * height, maxY)) : sectionSlices({ total, height, sections: audit.sectionBoxes || [], maxSlices });
     const slices = [];
+    // The big visuals of the first screen, measured before anything is shot, so the untouched shot can show whether they
+    // look like anything without input.
+    const heroBoxes = shots && ys[0] === 0 ? (await run(HERO_BOXES)) || [] : [];
     if (shots) for (const y of ys) slices.push(await shoot(y, height));
+    if (heroBoxes.length && slices[0]?.buf) audit.tells = [...(audit.tells || []), ...(await blankVisuals(slices[0].buf, heroBoxes, scale).catch(() => []))];
     audit.sliceYs = ys;
     return { audit, slices, sliceCount: count };
   });

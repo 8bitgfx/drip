@@ -25,7 +25,10 @@ function walk(dir, out = [], depth = 6) {
   return out;
 }
 
-/** Blockers for named pieces that aren't installed or aren't imported anywhere on the page. */
+/** Tailwind palette classes a library ships its demos in; a restyled piece uses the page's tokens instead. */
+export const DEMO_COLOURS = /\b(?:bg|text|border|ring|from|via|to|fill|stroke|shadow|outline|divide)-(?:zinc|slate|gray|neutral|stone|blue|indigo|violet|purple|sky)-\d{2,3}\b/g;
+
+/** Blockers for named pieces that aren't installed, aren't imported anywhere on the page, or kept their demo colours. */
 export function unusedPieces(task, root = projectDir()) {
   if (!task?.page?.dir || !task.sections) return [];
   const page = path.resolve(root, task.page.dir);
@@ -48,6 +51,11 @@ export function unusedPieces(task, root = projectDir()) {
     const names = new Set(mine.map((f) => (path.basename(f).startsWith("index.") ? path.basename(path.dirname(f)) : path.basename(f).replace(/\.\w+$/, ""))));
     const used = files.some((f) => !mine.includes(f) && [...names].some((n) => new RegExp(`from\\s+["'][^"']*/${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/index)?["']`).test(fs.readFileSync(f, "utf8"))));
     if (!used) out.push(`piece not on the page: #${id} names ${s.piece}, it is installed (${[...names].join(", ")}) but nothing imports it, so the section was hand-made around it. Use the piece, or say why it doesn't fit`);
+    else {
+      // Used, but left in its demo colours: the library's greys and blues instead of the page's tokens.
+      const demo = mine.flatMap((f) => fs.readFileSync(f, "utf8").match(DEMO_COLOURS) || []);
+      if (demo.length >= 4) out.push(`piece not restyled: #${id} (${[...names].join(", ")}) still has ${demo.length} demo colour classes (${[...new Set(demo)].slice(0, 4).join(", ")}). Replace them with the page's tokens (bg-background, text-foreground, bg-card, text-muted-foreground, border-border, the brand colour) and its demo copy with the client's`);
+    }
   }
   return out;
 }

@@ -2,6 +2,13 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.9.7: no placeholders, no pills, visuals that show at rest
+- **No placeholders, ever.** Prices, plans, product data and sample outputs are written (realistic, listed as assumptions at hand-off); customers, quotes and user counts that only the world can say are left out; pictures are made or found, never empty slots. taste.md, the playbook, the builder brief and the intake say so; the page check now also blocks blank prices (`$XX`, `$—`, `$__`) and `TBD`.
+- **Pieces restyled or not done**: a used piece whose files still carry 4+ demo colour classes (zinc, slate, gray, neutral, blue, indigo, violet...) is a blocker (`pieces-check.mjs`).
+- **Pills, tags and badges are out**: a pill above the h1, or 3+ pill-shaped labels anywhere, blocks the page check.
+- **Simplicity and abstract visuals**: taste.md prefers few striking visuals (a dotted or ASCII globe spinning, particle fields, constellations, waveforms) over busy tech demos; bentos are odd-sized grids where each cell is a visual (equal-cell grids are flagged).
+- **Striking at rest, cooler on interaction**: a big canvas, video or data-visual in the first screen that is one flat colour on the untouched shot blocks (99.5%+ flat, text ignored); 98.5-99.5% warns as faint.
+
 ## 0.9.6: shipped sites on one sheet
 - `refs_site` returns ONE numbered sheet for all its sites (a row per site, its first screens left to right), registered as a listing like `refs_gallery`: `L19-2` works in refs_pick, refs_view, refs_study and board_add. One image in the director's context instead of one per site, and the sites side by side to compare; the full screens stay on disk for refs_view / refs_zoom.
 - `contactSheet` takes `labels` (one per tile, null for none), so a row can carry one number.

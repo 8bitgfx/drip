@@ -7,6 +7,8 @@
 // aiTellsInPage runs INSIDE the page (capture() sends its source with Function.prototype.toString), so it must not
 // use anything from this module's scope. It returns findings; judgeTells turns them into blockers and warnings.
 
+import { Jimp } from "jimp";
+
 /* eslint-disable no-undef */
 export function aiTellsInPage() {
   const out = [];
@@ -219,13 +221,14 @@ export function aiTellsInPage() {
     const t = n.textContent;
     if (!t.trim() || !n.parentElement || /^(SCRIPT|STYLE|NOSCRIPT|CODE|PRE|TEXTAREA)$/.test(n.parentElement.tagName) || !visible(n.parentElement)) continue;
     // Template words only: "Todo" is a real status in a product shot and "your company" is ordinary copy.
-    const m = t.match(/\b(lorem ipsum|dolor sit amet|acme (corp|inc|co)\b|john doe|jane doe|company name here|insert [a-z]+ here)\b|\bTODO:|\[[A-Za-z][^\]\n]{1,28}\]|\{\{[^}]+\}\}/i);
+    // Blank prices count too: "$XX", "$—", "$__", "TBD".
+    const m = t.match(/\b(lorem ipsum|dolor sit amet|acme (corp|inc|co)\b|john doe|jane doe|company name here|insert [a-z]+ here)\b|\[[A-Za-z][^\]\n]{1,28}\]|\{\{[^}]+\}\}/i) || t.match(/\bTODO:|\bTBD\b|[$€£]\s?(XX+|xx+|_{2,}|—|–|-{2})(?![\w])/);
     if (m && placeholders.size < 6) placeholders.add(m[0]);
     const y = t.match(/(?:©|&copy;|copyright)\s*(?:\d{4}\s*[-–]\s*)?(20\d\d)|(20\d\d)\s*©/i);
     if (y && +(y[1] || y[2]) < year) oldYear = y[0];
     if (/\p{Extended_Pictographic}/u.test(t) && n.parentElement.closest("h1, h2, h3, button, a, nav, li")) emoji++;
   }
-  if (placeholders.size) add("block", "placeholder copy", [...placeholders].join(", "), "template words still on the page; write the client's real words, or leave the slot visibly empty for them");
+  if (placeholders.size) add("block", "placeholder copy", [...placeholders].join(", "), "placeholders on the page. Write it: realistic prices, plans, names and data for this product (list them at hand-off as assumptions); leave out what only the world can say (customers, quotes, user counts)");
   if (oldYear) add("warn", "old year in the footer", oldYear, `the copyright line says a past year (it is ${year})`);
   if (emoji >= 2) add("warn", "emoji as icons", "", `${emoji} headings, buttons or nav items carry emoji: use one icon set (icons_search)`);
 
@@ -244,6 +247,43 @@ export function aiTellsInPage() {
   const paras = [...document.querySelectorAll("p")].filter((p) => visible(p) && (p.innerText || "").length > 60);
   const centred = paras.filter((p) => getComputedStyle(p).textAlign === "center").length;
   if (paras.length >= 6 && centred / paras.length > 0.75) add("warn", "everything centred", "", `${centred} of ${paras.length} paragraphs are centred: left-align running text; centre only short statements`);
+
+  // Pills, tags and badges: small rounded labels that aren't controls ("New: ...", tag chips, status badges). The user
+  // hates them; one above the headline or three anywhere is a blocker.
+  const h1 = document.querySelector("h1");
+  const h1r = h1 && visible(h1) ? h1.getBoundingClientRect() : null;
+  const pills = [];
+  let heroPill = null;
+  for (const el of document.querySelectorAll("span, div, p, small, li, label, em, strong, mark")) {
+    if (pills.length >= 12 || !visible(el) || el.closest("button, a[href], [role=button], input, select, nav, svg")) continue;
+    if ([...el.children].some((c) => /^(DIV|P|UL|SECTION|IMG|H[1-6])$/.test(c.tagName))) continue;
+    const text = (el.innerText || "").trim();
+    if (text.length < 2 || text.length > 32 || /\n/.test(text)) continue;
+    const r = el.getBoundingClientRect();
+    if (r.height < 14 || r.height > 40 || r.width > 300) continue;
+    const cs = getComputedStyle(el);
+    const fill = parse(cs.backgroundColor);
+    const framed = (fill && fill.a > 0.05) || parseFloat(cs.borderTopWidth) > 0;
+    if (!framed || parseFloat(cs.borderTopLeftRadius) < r.height * 0.3) continue;
+    if (el.parentElement && pills.includes(el.parentElement)) continue;
+    pills.push(el);
+    if (h1r && r.bottom <= h1r.top + 2 && h1r.top - r.bottom < 160 && r.top < innerHeight) heroPill = text;
+  }
+  if (heroPill) add("block", "pill above the headline", heroPill, "a pill or badge over the h1 (\"New: ...\"): drop it; say it in the headline or the line under it");
+  if (pills.length >= 3) add("block", "pills and tags", pills.slice(0, 5).map((p) => p.innerText.trim()).join(", "), `${pills.length} pill-shaped tags or badges: remove them; let headings and copy carry it`);
+
+  // A "bento" of equal cells is a card grid: a bento is odd-sized, each cell a visual.
+  for (const grid of document.querySelectorAll("section, div, ul")) {
+    if (getComputedStyle(grid).display !== "grid") continue;
+    const kids = [...grid.children].filter(visible);
+    if (kids.length < 4 || kids.length > 9) continue;
+    const rs = kids.map((k) => k.getBoundingClientRect());
+    const same = rs.every((r) => Math.abs(r.width - rs[0].width) < 8 && Math.abs(r.height - rs[0].height) < 8);
+    if (same && rs[0].width < W / 2 && kids.every((k) => k.querySelector("h3, h4, strong, p"))) {
+      add("warn", "equal-cell grid", (kids[0].innerText || "").trim().split("\n")[0], `a grid of ${kids.length} equal cards: a bento has odd sizes (a big 2x2, a tall 1x2, small 1x1s), each cell a visualisation`);
+      break;
+    }
+  }
 
   // The three-icon-card feature row.
   let trios = 0;
@@ -294,6 +334,53 @@ export function aiTellsInPage() {
   if (sheetsRead && styled.length >= 2) {
     if (!hover) add("warn", "no hover states", "", "no :hover rule anywhere: buttons and links don't answer the mouse");
     if (!focus) add("warn", "no focus states", "", "no :focus or :focus-visible rule: keyboard users can't see where they are");
+  }
+  return out;
+}
+
+/** In the page, at the top with no input: the big visuals in the first screen (canvas, video, data-visual), as boxes. */
+export function heroVisualBoxes() {
+  const vw = innerWidth, vh = innerHeight;
+  // Text and controls over the visual are left out of the measure: a headline set on a blank effect is still blank.
+  const holes = [...document.querySelectorAll("h1, h2, h3, p, a, button, nav, header")]
+    .map((el) => el.getBoundingClientRect())
+    .filter((r) => r.width > 0 && r.height > 0 && r.top < vh && r.bottom > 0)
+    .slice(0, 60)
+    .map((r) => ({ x: r.left, y: r.top, w: r.width, h: r.height }));
+  return [...document.querySelectorAll("canvas, video, [data-visual]")]
+    .map((el) => ({ el, r: el.getBoundingClientRect() }))
+    .filter(({ r }) => r.width * r.height > vw * vh * 0.15 && r.top < vh && r.bottom > 0)
+    .slice(0, 4)
+    .map(({ el, r }) => ({ tag: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : ""), x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(vw, r.right) - Math.max(0, r.left), h: Math.min(vh, r.bottom) - Math.max(0, r.top), holes }));
+}
+
+/**
+ * A visual that shows nothing until someone moves the mouse: its box on the untouched first-screen shot is one flat
+ * colour. Returns findings for aiTellsInPage's list. buf: the first slice (jpeg), scale: the shot's scale.
+ */
+export async function blankVisuals(buf, boxes, scale = 1) {
+  if (!buf?.length || !boxes?.length) return [];
+  const img = await Jimp.read(buf);
+  const out = [];
+  for (const b of boxes) {
+    const x0 = Math.max(0, Math.round(b.x * scale)), y0 = Math.max(0, Math.round(b.y * scale));
+    const x1 = Math.min(img.width, Math.round((b.x + b.w) * scale)), y1 = Math.min(img.height, Math.round((b.y + b.h) * scale));
+    const step = Math.max(2, Math.round(Math.min(x1 - x0, y1 - y0) / 60));
+    const ls = [];
+    const inHole = (x, y) => (b.holes || []).some((h) => x >= h.x * scale && x <= (h.x + h.w) * scale && y >= h.y * scale && y <= (h.y + h.h) * scale);
+    for (let y = y0; y < y1; y += step)
+      for (let x = x0; x < x1; x += step) {
+        if (inHole(x, y)) continue;
+        const c = img.getPixelColor(x, y);
+        ls.push(0.299 * ((c >>> 24) & 255) + 0.587 * ((c >>> 16) & 255) + 0.114 * ((c >>> 8) & 255));
+      }
+    if (ls.length < 20) continue;
+    // Blank = nearly all of the box is one flat colour. The headline set over it covers a small share, so it doesn't count.
+    const median = [...ls].sort((p, q) => p - q)[Math.floor(ls.length / 2)];
+    const flat = ls.filter((l) => Math.abs(l - median) <= 8).length / ls.length;
+    const why = "It must look striking on its own (moving by itself: drifting, rotating, flowing, clearly visible on its ground) and get cooler on cursor and scroll";
+    if (flat > 0.995) out.push({ sev: "block", kind: "visual blank at rest", text: b.tag, detail: `the ${b.tag} in the first screen is one flat colour until someone interacts. ${why}` });
+    else if (flat > 0.985) out.push({ sev: "warn", kind: "visual faint at rest", text: b.tag, detail: `the ${b.tag} in the first screen is ${(flat * 100).toFixed(1)}% one flat colour without input: most visitors see almost nothing. ${why}` });
   }
   return out;
 }

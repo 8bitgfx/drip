@@ -276,7 +276,7 @@ export function buildPrompt({ section, spec, files, url, task, piece, page, item
       ? `Another builder may write other sections at the same time; the director stitches them into ${stack === "react" ? "App.tsx" : "the page"}.`
       : "",
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
-    "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers, times or quotes: a number the spec doesn't give is a [bracket].",
+    "No screenshots and no fit checks: the director checks the whole page once. No placeholders: no [brackets], blank prices, TBD or lorem. Prices, plan names, product data and sample outputs the spec doesn't give, you write: realistic for this product and its market. Never invent customers, logos, quotes or user counts: leave those out. No pills, tags or badges. Every piece restyled to the page's tokens before you finish: none of its demo colours (zinc, slate, gray, neutral, blue, indigo, violet classes) or demo copy left.",
     url ? `The page runs at ${url} if you need to look at it.` : "",
     "",
     "Answer in your standard format: changed files, the piece used, open points.",

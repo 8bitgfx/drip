@@ -90941,7 +90941,7 @@ ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens 
     `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for these sections)" : ""}.`,
     list4.some((s2) => ![...OWN, ...WHOLE].includes(slug3(s2.section))) ? `Another builder may write other sections at the same time; the director stitches them into ${stack === "react" ? "App.tsx" : "the page"}.` : "",
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
-    "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers, times or quotes: a number the spec doesn't give is a [bracket].",
+    "No screenshots and no fit checks: the director checks the whole page once. No placeholders: no [brackets], blank prices, TBD or lorem. Prices, plan names, product data and sample outputs the spec doesn't give, you write: realistic for this product and its market. Never invent customers, logos, quotes or user counts: leave those out. No pills, tags or badges. Every piece restyled to the page's tokens before you finish: none of its demo colours (zinc, slate, gray, neutral, blue, indigo, violet classes) or demo copy left.",
     url2 ? `The page runs at ${url2} if you need to look at it.` : "",
     "",
     "Answer in your standard format: changed files, the piece used, open points."
@@ -91544,7 +91544,7 @@ function intakePlan(taskText, t2 = {}) {
   const open2 = [];
   const answered = [];
   if (has(MATERIAL_WORDS) || brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText)) answered.push("material (the request or the project's brand says what to show)");
-  else open2.push(`MATERIAL: what can it show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Leave labelled slots"`);
+  else open2.push(`MATERIAL: what can it show? e.g. "Real screenshots/photos I'll give you" / "The work itself, rebuilt in HTML" / "Generate pictures" / "Find pictures"`);
   if (has(FEEL_WORDS) || brand && t2.memory?.mode === "fidelity") answered.push(brand && t2.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition polished)");
   else open2.push('FEEL: 3-4 OPPOSED looks, each a vivid one-liner of the first screen: e.g. soft premium light (a fan of real cards on white), dark product glow (the UI rising out of a soft light), 3D or illustrated (a render or character in a scene), editorial (calm serif, big photography); plus "Decide for me"');
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t2.mode) || t2.surface === "readme") answered.push("audience and action (clear enough from the request)");
@@ -91558,7 +91558,7 @@ function intakePlan(taskText, t2 = {}) {
 }
 function intakeText(plan) {
   if (plan.max === 0)
-    return `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.` + (plan.open.some((q2) => q2.startsWith("MATERIAL")) ? ` MATERIAL is unknown: don't invent pictures of the product. Build labelled slots at their real size for the photos, CAD renders or screenshots the user surely has, and end the hand-off with the exact list of files to send ("hero: a 3/4 photo of the product on a plain ground, 2400px"\u2026). drip_guide imagery covers products with no photos.` : "");
+    return `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.` + (plan.open.some((q2) => q2.startsWith("MATERIAL")) ? ` MATERIAL is unknown: don't invent pictures of the product. Make or find the pictures yourself (art_generate, gen_image, mockup_render, images_search), never empty slots, and end the hand-off with the list of real files that would replace them ("hero: a 3/4 photo of the product on a plain ground, 2400px"\u2026). drip_guide imagery covers products with no photos.` : "");
   return `INTAKE: read the project first (never ask what you can look up), then ask AT MOST ${plan.max} question${plan.max > 1 ? "s" : ""} in one AskUserQuestion round, options specific to this request, your recommendation first. Fewer is better; zero is fine when the project answers them. Never pad the round.
 ` + plan.open.map((q2, i2) => `${i2 + 1}. ${q2}`).join("\n") + (plan.answered.length ? `
 Don't ask about: ${plan.answered.join("; ")}.` : "") + "\nThen drip_brief (asked: the number you asked). Default ambition is POLISHED (beautiful, Dribbble-level craft); bold only if they asked for loud or experimental, conservative if they asked for plain.";
@@ -101106,13 +101106,13 @@ function aiTellsInPage() {
   while (n3 = walker.nextNode()) {
     const t2 = n3.textContent;
     if (!t2.trim() || !n3.parentElement || /^(SCRIPT|STYLE|NOSCRIPT|CODE|PRE|TEXTAREA)$/.test(n3.parentElement.tagName) || !visible(n3.parentElement)) continue;
-    const m = t2.match(/\b(lorem ipsum|dolor sit amet|acme (corp|inc|co)\b|john doe|jane doe|company name here|insert [a-z]+ here)\b|\bTODO:|\[[A-Za-z][^\]\n]{1,28}\]|\{\{[^}]+\}\}/i);
+    const m = t2.match(/\b(lorem ipsum|dolor sit amet|acme (corp|inc|co)\b|john doe|jane doe|company name here|insert [a-z]+ here)\b|\[[A-Za-z][^\]\n]{1,28}\]|\{\{[^}]+\}\}/i) || t2.match(/\bTODO:|\bTBD\b|[$€£]\s?(XX+|xx+|_{2,}|—|–|-{2})(?![\w])/);
     if (m && placeholders.size < 6) placeholders.add(m[0]);
     const y2 = t2.match(/(?:©|&copy;|copyright)\s*(?:\d{4}\s*[-–]\s*)?(20\d\d)|(20\d\d)\s*©/i);
     if (y2 && +(y2[1] || y2[2]) < year) oldYear = y2[0];
     if (new RegExp("\\p{Extended_Pictographic}", "u").test(t2) && n3.parentElement.closest("h1, h2, h3, button, a, nav, li")) emoji3++;
   }
-  if (placeholders.size) add2("block", "placeholder copy", [...placeholders].join(", "), "template words still on the page; write the client's real words, or leave the slot visibly empty for them");
+  if (placeholders.size) add2("block", "placeholder copy", [...placeholders].join(", "), "placeholders on the page. Write it: realistic prices, plans, names and data for this product (list them at hand-off as assumptions); leave out what only the world can say (customers, quotes, user counts)");
   if (oldYear) add2("warn", "old year in the footer", oldYear, `the copyright line says a past year (it is ${year})`);
   if (emoji3 >= 2) add2("warn", "emoji as icons", "", `${emoji3} headings, buttons or nav items carry emoji: use one icon set (icons_search)`);
   let lowBody = 0;
@@ -101127,6 +101127,38 @@ function aiTellsInPage() {
   const paras = [...document.querySelectorAll("p")].filter((p2) => visible(p2) && (p2.innerText || "").length > 60);
   const centred = paras.filter((p2) => getComputedStyle(p2).textAlign === "center").length;
   if (paras.length >= 6 && centred / paras.length > 0.75) add2("warn", "everything centred", "", `${centred} of ${paras.length} paragraphs are centred: left-align running text; centre only short statements`);
+  const h1 = document.querySelector("h1");
+  const h1r = h1 && visible(h1) ? h1.getBoundingClientRect() : null;
+  const pills = [];
+  let heroPill = null;
+  for (const el of document.querySelectorAll("span, div, p, small, li, label, em, strong, mark")) {
+    if (pills.length >= 12 || !visible(el) || el.closest("button, a[href], [role=button], input, select, nav, svg")) continue;
+    if ([...el.children].some((c3) => /^(DIV|P|UL|SECTION|IMG|H[1-6])$/.test(c3.tagName))) continue;
+    const text2 = (el.innerText || "").trim();
+    if (text2.length < 2 || text2.length > 32 || /\n/.test(text2)) continue;
+    const r2 = el.getBoundingClientRect();
+    if (r2.height < 14 || r2.height > 40 || r2.width > 300) continue;
+    const cs = getComputedStyle(el);
+    const fill = parse3(cs.backgroundColor);
+    const framed = fill && fill.a > 0.05 || parseFloat(cs.borderTopWidth) > 0;
+    if (!framed || parseFloat(cs.borderTopLeftRadius) < r2.height * 0.3) continue;
+    if (el.parentElement && pills.includes(el.parentElement)) continue;
+    pills.push(el);
+    if (h1r && r2.bottom <= h1r.top + 2 && h1r.top - r2.bottom < 160 && r2.top < innerHeight) heroPill = text2;
+  }
+  if (heroPill) add2("block", "pill above the headline", heroPill, 'a pill or badge over the h1 ("New: ..."): drop it; say it in the headline or the line under it');
+  if (pills.length >= 3) add2("block", "pills and tags", pills.slice(0, 5).map((p2) => p2.innerText.trim()).join(", "), `${pills.length} pill-shaped tags or badges: remove them; let headings and copy carry it`);
+  for (const grid of document.querySelectorAll("section, div, ul")) {
+    if (getComputedStyle(grid).display !== "grid") continue;
+    const kids = [...grid.children].filter(visible);
+    if (kids.length < 4 || kids.length > 9) continue;
+    const rs = kids.map((k) => k.getBoundingClientRect());
+    const same = rs.every((r2) => Math.abs(r2.width - rs[0].width) < 8 && Math.abs(r2.height - rs[0].height) < 8);
+    if (same && rs[0].width < W / 2 && kids.every((k) => k.querySelector("h3, h4, strong, p"))) {
+      add2("warn", "equal-cell grid", (kids[0].innerText || "").trim().split("\n")[0], `a grid of ${kids.length} equal cards: a bento has odd sizes (a big 2x2, a tall 1x2, small 1x1s), each cell a visualisation`);
+      break;
+    }
+  }
   let trios = 0;
   for (const parent of document.querySelectorAll("section, div, ul")) {
     const kids = [...parent.children].filter(visible);
@@ -101177,6 +101209,36 @@ function aiTellsInPage() {
   }
   return out;
 }
+function heroVisualBoxes() {
+  const vw = innerWidth, vh = innerHeight;
+  const holes = [...document.querySelectorAll("h1, h2, h3, p, a, button, nav, header")].map((el) => el.getBoundingClientRect()).filter((r2) => r2.width > 0 && r2.height > 0 && r2.top < vh && r2.bottom > 0).slice(0, 60).map((r2) => ({ x: r2.left, y: r2.top, w: r2.width, h: r2.height }));
+  return [...document.querySelectorAll("canvas, video, [data-visual]")].map((el) => ({ el, r: el.getBoundingClientRect() })).filter(({ r: r2 }) => r2.width * r2.height > vw * vh * 0.15 && r2.top < vh && r2.bottom > 0).slice(0, 4).map(({ el, r: r2 }) => ({ tag: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : ""), x: Math.max(0, r2.left), y: Math.max(0, r2.top), w: Math.min(vw, r2.right) - Math.max(0, r2.left), h: Math.min(vh, r2.bottom) - Math.max(0, r2.top), holes }));
+}
+async function blankVisuals(buf, boxes, scale = 1) {
+  if (!buf?.length || !boxes?.length) return [];
+  const img = await Jimp.read(buf);
+  const out = [];
+  for (const b of boxes) {
+    const x0 = Math.max(0, Math.round(b.x * scale)), y0 = Math.max(0, Math.round(b.y * scale));
+    const x1 = Math.min(img.width, Math.round((b.x + b.w) * scale)), y1 = Math.min(img.height, Math.round((b.y + b.h) * scale));
+    const step = Math.max(2, Math.round(Math.min(x1 - x0, y1 - y0) / 60));
+    const ls = [];
+    const inHole = (x2, y2) => (b.holes || []).some((h) => x2 >= h.x * scale && x2 <= (h.x + h.w) * scale && y2 >= h.y * scale && y2 <= (h.y + h.h) * scale);
+    for (let y2 = y0; y2 < y1; y2 += step)
+      for (let x2 = x0; x2 < x1; x2 += step) {
+        if (inHole(x2, y2)) continue;
+        const c3 = img.getPixelColor(x2, y2);
+        ls.push(0.299 * (c3 >>> 24 & 255) + 0.587 * (c3 >>> 16 & 255) + 0.114 * (c3 >>> 8 & 255));
+      }
+    if (ls.length < 20) continue;
+    const median = [...ls].sort((p2, q2) => p2 - q2)[Math.floor(ls.length / 2)];
+    const flat = ls.filter((l2) => Math.abs(l2 - median) <= 8).length / ls.length;
+    const why = "It must look striking on its own (moving by itself: drifting, rotating, flowing, clearly visible on its ground) and get cooler on cursor and scroll";
+    if (flat > 0.995) out.push({ sev: "block", kind: "visual blank at rest", text: b.tag, detail: `the ${b.tag} in the first screen is one flat colour until someone interacts. ${why}` });
+    else if (flat > 0.985) out.push({ sev: "warn", kind: "visual faint at rest", text: b.tag, detail: `the ${b.tag} in the first screen is ${(flat * 100).toFixed(1)}% one flat colour without input: most visitors see almost nothing. ${why}` });
+  }
+  return out;
+}
 function judgeTells(tells = []) {
   const blockers = [];
   const warnings = [];
@@ -101189,6 +101251,7 @@ function judgeTells(tells = []) {
 
 // src/core/cdp.mjs
 var TELLS = `(${aiTellsInPage.toString()})()`;
+var HERO_BOXES = `(${heroVisualBoxes.toString()})()`;
 var AUDIT = `(() => {
   const vw = innerWidth, vh = innerHeight;
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
@@ -101521,7 +101584,9 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
     }
     const ys = slicing === "top" ? [...Array(Math.min(count, Math.max(1, maxSlices))).keys()].map((i2) => Math.min(i2 * height, maxY)) : sectionSlices({ total, height, sections: audit.sectionBoxes || [], maxSlices });
     const slices = [];
+    const heroBoxes = shots && ys[0] === 0 ? await run4(HERO_BOXES) || [] : [];
     if (shots) for (const y2 of ys) slices.push(await shoot2(y2, height));
+    if (heroBoxes.length && slices[0]?.buf) audit.tells = [...audit.tells || [], ...await blankVisuals(slices[0].buf, heroBoxes, scale).catch(() => [])];
     audit.sliceYs = ys;
     return { audit, slices, sliceCount: count };
   });
@@ -108474,6 +108539,7 @@ function walk(dir, out = [], depth = 6) {
   }
   return out;
 }
+var DEMO_COLOURS = /\b(?:bg|text|border|ring|from|via|to|fill|stroke|shadow|outline|divide)-(?:zinc|slate|gray|neutral|stone|blue|indigo|violet|purple|sky)-\d{2,3}\b/g;
 function unusedPieces(task, root = projectDir()) {
   if (!task?.page?.dir || !task.sections) return [];
   const page2 = path62.resolve(root, task.page.dir);
@@ -108494,6 +108560,10 @@ function unusedPieces(task, root = projectDir()) {
     const names3 = new Set(mine.map((f3) => path62.basename(f3).startsWith("index.") ? path62.basename(path62.dirname(f3)) : path62.basename(f3).replace(/\.\w+$/, "")));
     const used = files.some((f3) => !mine.includes(f3) && [...names3].some((n3) => new RegExp(`from\\s+["'][^"']*/${n3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/index)?["']`).test(fs63.readFileSync(f3, "utf8"))));
     if (!used) out.push(`piece not on the page: #${id} names ${s2.piece}, it is installed (${[...names3].join(", ")}) but nothing imports it, so the section was hand-made around it. Use the piece, or say why it doesn't fit`);
+    else {
+      const demo = mine.flatMap((f3) => fs63.readFileSync(f3, "utf8").match(DEMO_COLOURS) || []);
+      if (demo.length >= 4) out.push(`piece not restyled: #${id} (${[...names3].join(", ")}) still has ${demo.length} demo colour classes (${[...new Set(demo)].slice(0, 4).join(", ")}). Replace them with the page's tokens (bg-background, text-foreground, bg-card, text-muted-foreground, border-border, the brand colour) and its demo copy with the client's`);
+    }
   }
   return out;
 }
@@ -115757,7 +115827,7 @@ The page runs while this command does. Press Ctrl+C to stop.`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.6";
+var VERSION = "0.9.7";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

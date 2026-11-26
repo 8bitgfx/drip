@@ -131,3 +131,17 @@ test("'from' names a reference that was looked at", () => {
   assert.match(buildGaps(t, [{ section: "hero", piece: "x", from: "a big rounded frame of real art" }]).join(), /has to name a reference/);
   assert.deepEqual(buildGaps(t, [{ section: "hero", piece: "x", from: "recraft.ai: real art in a big rounded frame" }]), []);
 });
+
+test("a piece used in its demo colours is not done", () => {
+  const root = tmp("page-root-3");
+  const src = path.join(root, "page", "src");
+  fs.mkdirSync(path.join(src, "components"), { recursive: true });
+  fs.mkdirSync(path.join(src, "sections"), { recursive: true });
+  fs.writeFileSync(path.join(src, "App.tsx"), 'import Ideas from "./sections/Ideas";');
+  fs.writeFileSync(path.join(src, "sections", "Ideas.tsx"), 'import Marquee from "@/components/Marquee";');
+  const t = { page: { dir: "page" }, sections: { ideas: { piece: "https://magicui.design/r/marquee.json" } } };
+  fs.writeFileSync(path.join(src, "components", "Marquee.tsx"), '<div className="bg-zinc-900 text-zinc-100 border-slate-700 from-indigo-500" />');
+  assert.match(unusedPieces(t, root)[0] || "", /piece not restyled: #ideas .* 4 demo colour classes/);
+  fs.writeFileSync(path.join(src, "components", "Marquee.tsx"), '<div className="bg-card text-foreground border-border" />');
+  assert.deepEqual(unusedPieces(t, root), []);
+});

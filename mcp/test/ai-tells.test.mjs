@@ -33,3 +33,18 @@ test("the page check finds the AI mistakes on a page that makes them", { skip, t
   assert.ok(blockers.some((b) => /broken: unreadable button "Get started"/.test(b)));
   assert.ok(blockers.some((b) => /broken: placeholder copy.*\[price\]/.test(b)));
 });
+
+test("pills, blank prices and equal-cell grids are caught", { skip, timeout: 120000 }, async () => {
+  const url = pathToFileURL(path.join(here, "fixtures", "ai-tells-pills.html")).href;
+  const { audit } = await capture(url, { width: 1440, height: 900, shots: false });
+  const kinds = new Set(audit.tells.map((t) => t.kind));
+  for (const k of ["pill above the headline", "pills and tags", "placeholder copy", "equal-cell grid"]) assert.ok(kinds.has(k), `missing: ${k} (found ${[...kinds].join(", ")})`);
+  assert.match(audit.tells.find((t) => t.kind === "placeholder copy").text, /\$XX|TBD/);
+});
+
+test("a hero visual that is blank until someone interacts is caught; a drawn one is not", { skip, timeout: 120000 }, async () => {
+  const url = pathToFileURL(path.join(here, "fixtures", "ai-tells-visual.html")).href;
+  const { audit } = await capture(url, { width: 1440, height: 900, maxSlices: 1 });
+  const blank = audit.tells.filter((t) => t.kind === "visual blank at rest");
+  assert.deepEqual(blank.map((t) => t.text), ["canvas#blank"]);
+});

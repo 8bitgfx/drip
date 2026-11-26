@@ -117,7 +117,7 @@ export function intakePlan(taskText, t = {}) {
   const open = [];
   const answered = [];
   if (has(MATERIAL_WORDS) || (brand && /\b(brand|logo|sheet|board|identity|kit)\b/i.test(taskText))) answered.push("material (the request or the project's brand says what to show)");
-  else open.push("MATERIAL: what can it show? e.g. \"Real screenshots/photos I'll give you\" / \"The work itself, rebuilt in HTML\" / \"Generate pictures\" / \"Leave labelled slots\"");
+  else open.push("MATERIAL: what can it show? e.g. \"Real screenshots/photos I'll give you\" / \"The work itself, rebuilt in HTML\" / \"Generate pictures\" / \"Find pictures\"");
   if (has(FEEL_WORDS) || (brand && t.memory?.mode === "fidelity")) answered.push(brand && t.memory?.mode === "fidelity" ? "feel (the approved direction)" : "feel (the request's own words; default ambition polished)");
   else open.push("FEEL: 3-4 OPPOSED looks, each a vivid one-liner of the first screen: e.g. soft premium light (a fan of real cards on white), dark product glow (the UI rising out of a soft light), 3D or illustrated (a render or character in a scene), editorial (calm serif, big photography); plus \"Decide for me\"");
   if (has(AUDIENCE_WORDS) || ["logo", "polish"].includes(t.mode) || t.surface === "readme") answered.push("audience and action (clear enough from the request)");
@@ -136,7 +136,7 @@ function intakeText(plan) {
     return (
       `INTAKE: ask NOTHING. ${plan.answered.length ? `Already answered: ${plan.answered.join("; ")}. ` : ""}Read the project, then drip_brief right away with your assumptions (assumptions field) and say them to the user in one line.` +
       (plan.open.some((q) => q.startsWith("MATERIAL"))
-        ? " MATERIAL is unknown: don't invent pictures of the product. Build labelled slots at their real size for the photos, CAD renders or screenshots the user surely has, and end the hand-off with the exact list of files to send (\"hero: a 3/4 photo of the product on a plain ground, 2400px\"…). drip_guide imagery covers products with no photos."
+        ? " MATERIAL is unknown: don't invent pictures of the product. Make or find the pictures yourself (art_generate, gen_image, mockup_render, images_search), never empty slots, and end the hand-off with the list of real files that would replace them (\"hero: a 3/4 photo of the product on a plain ground, 2400px\"…). drip_guide imagery covers products with no photos."
         : "")
     );
   return (

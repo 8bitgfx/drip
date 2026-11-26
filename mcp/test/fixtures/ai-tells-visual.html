@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Visual</title>
+<style>body{margin:0;background:#000;color:#fff;font-family:sans-serif}canvas{display:block}h1{position:absolute;top:40px;left:40px;margin:0}</style>
+<canvas id="blank" width="1440" height="420"></canvas>
+<canvas id="alive" width="1440" height="420"></canvas>
+<h1>Fluid</h1>
+<script>
+const b = document.getElementById("blank").getContext("2d"); b.fillStyle = "#050505"; b.fillRect(0, 0, 1440, 420);
+const a = document.getElementById("alive").getContext("2d");
+for (let i = 0; i < 60; i++) { a.fillStyle = `hsl(${i * 6},80%,${30 + (i % 5) * 10}%)`; a.beginPath(); a.arc((i * 97) % 1440, (i * 53) % 420, 40 + (i % 7) * 8, 0, 7); a.fill(); }
+</script>
+</html>
