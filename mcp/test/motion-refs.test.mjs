@@ -64,3 +64,37 @@ test("music ranks rhythmic motion-design beds first and rules out what fights th
   assert.deepEqual(musicQueries("saas product launch").slice(0, 2), ["upbeat electronic", "synthpop"]);
   assert.equal(musicQueries("warm piano launch")[0], "warm piano");
 });
+
+test("topic matching: a launch query finds 'Introducing…', not a car spot or a blank title", async () => {
+  const { matchScore } = await import("../src/modules/motion/refsources.mjs");
+  assert.ok(matchScore("ai product launch", "Introducing GPT-4o") >= 2);
+  assert.equal(matchScore("ai product launch", "Range Rover Sport"), 0);
+  assert.equal(matchScore("ai product launch", "CULTURE"), 0);
+  // "ai" is a word, not a substring of "said" or "paint".
+  assert.equal(matchScore("ai", "Paint said hello"), 0);
+});
+
+test("launch films: a named brand first, then shared topics; nothing for an unrelated brief", async () => {
+  const { searchLaunches, LAUNCHY } = await import("../src/modules/motion/refsources.mjs");
+  const films = [
+    { brand: "Stripe", title: "Sessions keynote", url: "https://youtu.be/a", tags: ["fintech", "saas"], kind: "keynote" },
+    { brand: "Linear", title: "Introducing Linear Agents", url: "https://x.com/linear/status/1", tags: ["ai", "saas", "ui-heavy"], kind: "launch" },
+    { brand: "Cursor", title: "Cursor 1.0", url: "https://youtu.be/c", tags: ["ai", "devtool", "ui-heavy"], kind: "launch" },
+  ];
+  assert.equal(searchLaunches(["ai developer tool launch"], { films })[0].brand, "Cursor");
+  assert.equal(searchLaunches(["stripe style launch"], { films })[0].brand, "Stripe");
+  const r = searchLaunches(["ai product launch"], { films });
+  assert.ok(r.every((x) => x.launch && x.video === x.url));
+  assert.ok(!r.slice(0, 2).some((x) => x.brand === "Stripe"), "AI films before a fintech keynote");
+  assert.equal(searchLaunches(["liquid shape morph loop"], { films }).length, 0);
+  assert.ok(LAUNCHY.test("drip launch trailer") && !LAUNCHY.test("liquid shape morph loop"));
+});
+
+test("platform videos go through yt-dlp; vimeo pages become their player URL", async () => {
+  const { isPlatformVideo, fetchableUrl } = await import("../src/modules/motion/sitevideo.mjs");
+  for (const u of ["https://www.youtube.com/watch?v=x", "https://youtu.be/x", "https://x.com/a/status/1", "https://twitter.com/a/status/1", "https://vimeo.com/123456", "https://www.instagram.com/reel/x/"]) assert.ok(isPlatformVideo(u), u);
+  for (const u of ["https://cdn.kisto.app/a.webm", "https://dribbble.com/shots/1", "film/out.mp4"]) assert.ok(!isPlatformVideo(u), u);
+  assert.equal(fetchableUrl("https://vimeo.com/22439234"), "https://player.vimeo.com/video/22439234");
+  assert.equal(fetchableUrl("https://vimeo.com/channels/staffpicks/22439234"), "https://player.vimeo.com/video/22439234");
+  assert.equal(fetchableUrl("https://x.com/a/status/1"), "https://x.com/a/status/1");
+});

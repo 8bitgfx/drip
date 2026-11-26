@@ -18,7 +18,9 @@ for no reason, and a glow tries to hide that nothing was decided. This guide exi
    brand fonts. Ask only what the project does not answer: audience, where it plays (site hero, X, Instagram,
    a stage), length, whether there is a sound track, and the one thing the viewer must remember.
 2. **References: four roles.** `motion_refs` with 2-4 queries about the IDEA and the MOVES, not the product
-   ("shape morph product launch", "kinetic type minimal", "ui cursor demo"). `motion_study` 1-3 films. Give each
+   ("shape morph product launch", "kinetic type minimal", "ui cursor demo"). For a launch: its LAUNCH FILMS lead,
+   and WebSearch finds the closest real launches it lacks (the category leader's, the competitors'); `motion_study`
+   plays YouTube, X and Vimeo posts. `motion_study` 1-3 films. Give each
    one a role: **moves** (how things enter, transform, connect), **look** (type, colour, composition), **story**
    (structure, hook), **sound** (how audio lands). A moves reference is required before the storyboard.
    `drip_guide video/research` has the ten study questions. Measured (cuts, shot length) is not inferred

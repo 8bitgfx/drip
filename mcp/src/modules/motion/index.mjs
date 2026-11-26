@@ -16,7 +16,7 @@ import { fidelity, findFfmpeg, fmtT, judgeFrames, measureFrames, renderCompositi
 import { compositionUrl, filmSheets, isVideo } from "./sheets.mjs";
 import { ROLES, checkStoryboard, storyboardMd } from "./story.mjs";
 import { analyzeTrace, dopesheet, onionSkin, stretches, traceComposition } from "./trace.mjs";
-import { mastersWork, parseLikes, search24fps, searchDribbbleMotion, searchKisto, searchRelaxed } from "./refsources.mjs";
+import { LAUNCHY, mastersWork, parseLikes, search24fps, searchDribbbleMotion, searchKisto, searchLaunches, searchRelaxed } from "./refsources.mjs";
 import { listing, shot as dribbbleShot, thumbUrl } from "../refs/dribbble.mjs";
 import { filmDir, registerAudio } from "./audio.mjs";
 import { installPiece, searchPieces } from "./pieces.mjs";
@@ -87,15 +87,16 @@ export function register(server, ctx) {
   server.registerTool(
     "motion_refs",
     {
-      title: "Find motion design references (masters first)",
+      title: "Find motion design references (launch films and masters first)",
       description:
-        "References for a film, best first. MASTERS: the studios and designers whose work is the bar (TimeFrame and others in Drip's vetted list), picked by the kind of film your queries describe (product launch, UI motion, brand film, explainer, kinetic type, 3D product, abstract, logo); their Dribbble video shots and Kisto pieces. " +
+        "References for a film, best first. LAUNCH FILMS (for a launch, product, AI, SaaS or app brief): official launch and brand films of AI, SaaS, developer-tool and tech brands, posted by the brands on YouTube, X or Vimeo and checked to play; picked by topic, a brand named in a query first. MASTERS: the studios and designers whose work is the bar (TimeFrame and others in Drip's vetted list), picked by the kind of film your queries describe (product launch, UI motion, brand film, explainer, kinetic type, 3D product, abstract, logo); their Dribbble video shots and Kisto pieces. " +
         "Then open search with a quality floor: Dribbble's animation category (video shots, no paid boosts, 40+ likes, best liked first) and Kisto (curated studio motion; AI-generated clips dropped). 24fps.dev (indie films made in code) only with source \"24fps\": for how something is built, never for taste. " +
         "Returns ONE numbered poster sheet and a list with each film's playable video. Then motion_study the 1-3 that fit. Search the IDEA and the MOVES, not the product: \"product launch ui motion\", \"shape morph transition\", \"kinetic typography\". Name a designer to see their work: designers: [\"TimeFrame_motion\"]. " +
+        "A brand this list doesn't have (a competitor, a brand the user names): find its official launch video with WebSearch (\"<brand> launch video\", its YouTube channel or X account) and motion_study the post URL: YouTube, X and Vimeo posts play. " +
         'Example: motion_refs({ queries: ["saas product launch", "ui motion continuous"] })',
       inputSchema: {
         queries: z.array(z.string()).min(1).max(4).describe("1-4 searches, run at once"),
-        source: z.enum(["best", "masters", "dribbble", "kisto", "24fps"]).optional().describe("Default best: masters, then Dribbble and Kisto with the quality floor"),
+        source: z.enum(["best", "launches", "masters", "dribbble", "kisto", "24fps"]).optional().describe("Default best: launch films (launch/product/AI/SaaS briefs), masters, then Dribbble and Kisto with the quality floor"),
         designers: z.array(z.string()).max(4).optional().describe("Dribbble usernames to pull video shots from (e.g. one the user named)"),
         per: z.number().int().min(2).max(12).optional().describe("Results per source and query (default 6)"),
         minLikes: z.number().int().min(0).optional().describe("Dribbble like floor (default 40)"),
@@ -114,6 +115,8 @@ export function register(server, ctx) {
               listing("designer", { username: u }, config).then((r) => r.cards.filter((c) => c.video).map((c) => ({ from: "dribbble", master: c.designer || u, title: c.title, creator: c.designer || u, url: c.url, poster: c.image ? thumbUrl(c.image, 400, 300) : null, video: c.video, likes: parseLikes(c.likes), tags: ["animation"] })).sort((x, y) => y.likes - x.likes).slice(0, per * 2)),
             ),
           );
+      const launchBrief = queries.some((q) => LAUNCHY.test(q));
+      if (source === "launches" || (source === "best" && launchBrief)) groups.push(searchLaunches(queries, { per: source === "launches" ? per * 2 : Math.max(6, per) }));
       if (["best", "masters"].includes(source)) groups.push(await tryIt("masters", mastersWork(queries, { config, per: Math.max(2, Math.ceil(per / 2)) })));
       if (["best", "dribbble"].includes(source)) for (const q of queries.slice(0, 2)) groups.push(await tryIt(`dribbble "${q}"`, searchDribbbleMotion(q, { per, minLikes, config })));
       if (["best", "kisto"].includes(source)) groups.push(...(await Promise.all(queries.map((q) => tryIt(`kisto "${q}"`, searchRelaxed(searchKisto, q, per))))));
@@ -122,20 +125,30 @@ export function register(server, ctx) {
       let items = groups.flat().filter((it) => it.url && it.video && !seen.has(it.url) && seen.add(it.url));
       // In the default mode masters lead; open search adds a few, to be judged before use.
       if (source === "best") {
-        const top = items.filter((it) => it.master);
-        const open = items.filter((it) => !it.master).slice(0, top.length >= 6 ? 6 : 12);
+        const top = items.filter((it) => it.master || it.launch);
+        // At most two pieces per maker: one agency's portfolio is not a range of references.
+        const perMaker = new Map();
+        const open = items.filter((it) => !it.master && !it.launch).filter((it) => {
+          const k = String(it.creator || it.url).toLowerCase();
+          perMaker.set(k, (perMaker.get(k) || 0) + 1);
+          return perMaker.get(k) <= 2;
+        }).slice(0, top.length >= 6 ? 6 : 12);
         items = [...top, ...open.map((it) => ({ ...it, open: true }))];
       }
       if (!items.length) return text(`Nothing found.${errs.length ? ` ${errs.join("; ")}` : ""} Try broader words (the kind of film or a technique), or source "masters".`, true);
-      const list = items.slice(0, 24);
-      const imgs = await Promise.all(list.map((it) => (it.poster ? fetchImage(it.poster).then((r) => r.buf).catch(() => null) : null)));
+      const first = items.slice(0, 30);
+      const got = await Promise.all(first.map((it) => (it.poster ? fetchImage(it.poster).then((r) => r.buf).catch(() => null) : null)));
+      // A blank tile can't be judged: drop search results whose poster didn't load (vetted launch films stay).
+      const keep = first.map((it, i) => ({ it, img: got[i] })).filter((x) => x.img?.length || x.it.launch).slice(0, 24);
+      const list = keep.map((x) => x.it);
+      const imgs = keep.map((x) => x.img);
       const sheet = await sheetInBrowser(imgs, { cols: 6, tileW: 300, tileH: 169, config });
       updateState((st) => {
         if (st.task) (st.task.motion ||= { studied: [], renders: [] }).searched = [...(st.task.motion.searched || []), ...queries].slice(-20);
       });
       const lines = list.map(
         (it, i) =>
-          `${i + 1}. ${it.master ? `[MASTER: ${it.master}] ` : `[${it.from}${it.open ? ", open search: judge before using" : ""}] `}${it.title}${it.creator && it.creator !== it.master ? ` — ${it.creator}` : ""}${it.likes ? ` · ${it.likes} likes` : ""}${it.seconds ? ` · ${it.seconds}s` : ""}${it.tags?.length ? ` · ${it.tags.slice(0, 5).join(", ")}` : ""}\n   ${it.url}\n   video: ${it.video}${it.code ? `\n   code: ${it.code}` : ""}`,
+          `${i + 1}. ${it.launch ? "[LAUNCH FILM] " : it.master ? `[MASTER: ${it.master}] ` : `[${it.from}${it.open ? ", open search: judge before using" : ""}] `}${it.title}${it.creator && it.creator !== it.master ? ` — ${it.creator}` : ""}${it.likes ? ` · ${it.likes} likes` : ""}${it.seconds ? ` · ${it.seconds}s` : ""}${it.tags?.length ? ` · ${it.tags.slice(0, 5).join(", ")}` : ""}${it.why ? `\n   why: ${it.why}` : ""}\n   ${it.url}\n   video: ${it.video}${it.code ? `\n   code: ${it.code}` : ""}`,
       );
       const masters = [...new Set(list.filter((it) => it.master && it.style).map((it) => `${it.master}: ${it.style}`))];
       return blocks([
@@ -143,7 +156,7 @@ export function register(server, ctx) {
           `${list.length} films, best first (sheet numbers = list numbers).${errs.length ? ` Skipped: ${errs.join("; ")}.` : ""}\n` +
             (masters.length ? `MASTERS here and why they are the bar:\n${masters.map((m) => `- ${m}`).join("\n")}\n` : "") +
             `${lines.join("\n")}\n\n` +
-            "NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble shot URL, and a role: moves / look / story / sound). Prefer masters' work; an open-search result earns its place only if it is as good. Study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off.",
+            "NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble shot URL, and a role: moves / look / story / sound). For a launch, study at least one LAUNCH FILM (how a real company announced a real product) and one master's piece (craft). Prefer those; an open-search result earns its place only if it is as good. Study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off.",
         ),
         imageBlock(sheet),
       ]);
@@ -155,11 +168,11 @@ export function register(server, ctx) {
     {
       title: "Watch a film and measure it",
       description:
-        "Watch a reference film (a video URL from motion_refs, a local .mp4/.webm, or a web page with a <video>) or your own render: it seeks through the video and returns a timestamped contact sheet plus what it measured: duration, hard cuts and the average shot length, still stretches, and a rhythm line of how much changes per moment. " +
+        "Watch a reference film (a video URL from motion_refs; a YouTube, X, Vimeo, Instagram, TikTok or LinkedIn post (public, no account needed: fetched as a 720p MP4); a local .mp4/.webm; a web page with a <video>) or your own render: it seeks through the video and returns a timestamped contact sheet plus what it measured: duration, hard cuts and the average shot length, still stretches, and a rhythm line of how much changes per moment. " +
         "Measured is measured; easing curves, layers and intent are your reading of the frames: say which is which. Studying a MOVES reference (how things enter, transform, connect) is required before motion_storyboard. " +
-        'Example: motion_study({ source: "https://cdn.kisto.app/previews/v2/<id>.webm", role: "moves" }) · motion_study({ source: "film/out/launch.mp4" }) to check your render',
+        'Example: motion_study({ source: "https://x.com/<brand>/status/<id>", role: "moves" }) for a brand launch film found with WebSearch · motion_study({ source: "film/out/launch.mp4" }) to check your render',
       inputSchema: {
-        source: z.string().describe("Video URL, local video file, or page URL with a video"),
+        source: z.string().describe("Video URL; YouTube/X/Vimeo/Instagram/TikTok/LinkedIn post URL; local video file; or page URL with a video"),
         role: z.enum(ROLES).optional().describe("What you study it for: moves (choreography, transitions, timing), look (type, colour, composition), story (structure, hook), sound"),
         every: z.number().min(0.1).max(10).optional().describe("Seconds between samples (default: ~100 samples over the film)"),
       },
@@ -174,8 +187,10 @@ export function register(server, ctx) {
         if (sh?.videos?.length) abs = sh.videos[0];
         else return text(`That Dribbble shot has no video I can reach (or Dribbble is rate-limiting). Use the video URL motion_refs listed for it.`, true);
       }
+      // A file in the project is your own render; anything else is a reference.
+      const own = !/^https?:/i.test(abs) && path.resolve(abs).toLowerCase().startsWith(path.resolve(projectDir()).toLowerCase());
       const r = await sampleVideo(abs, { every, max: 100, config });
-      if (!r.frames.length) return text(`Could not play a video at ${source} (no duration). For Vimeo/YouTube pages, use the film's direct preview (motion_refs gives one) or a downloaded file the user provides.`, true);
+      if (!r.frames.length) return text(`Could not play a video at ${source} (no duration). Pass the post itself (a YouTube, X or Vimeo URL), a direct video URL, or a file the user provides.`, true);
       const m = await measureFrames(r.frames.map((f) => f.buf), { config });
       const ts = r.frames.map((f) => f.t);
       const j = judgeFrames(ts, m);
@@ -234,7 +249,12 @@ export function register(server, ctx) {
             (moves.length ? `Fast moves, not cuts (the change spreads over several frames: a camera push, whip or morph): ${moves.slice(0, 10).map(fmtT).join(", ")}.\n` : "") +
             `Rhythm (change per second): ${sparkline(perSec)}\n` +
             (j.holds.length ? `Still stretches: ${j.holds.map(([a, b]) => `${fmtT(a)}-${fmtT(b)}`).join(", ")}\n` : "") +
-            (j.issues.length ? `Flags: ${j.issues.join("; ")}\n` : "") +
+            (j.issues.length
+              ? own
+                ? `Flags: ${j.issues.join("; ")}\n`
+                : // Someone else's film: what it does, not advice to fix it (a sparse, white film may be the point).
+                  `Observed: ${j.issues.map((s) => s.replace(/:\s[^:]*$/, "")).join("; ")}\n`
+              : "") +
             `Sheet: ${file} (✂ = a hard cut lands on that frame).\n\n` +
             "Now READ it like a motion designer (inferred, say so): the one idea it communicates; what the eye follows; how things enter, transform and leave; what carries across each transition; where it rests; how the timing feels (snappy, floaty, weighty). Then name 1-3 techniques you take, and what would be wrong to take for this brief. Those go in motion_storyboard's references (take).",
         ),

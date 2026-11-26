@@ -179,3 +179,22 @@ test("a v1 state file still loads", () => {
   fs.writeFileSync(path.join(p, ".drip", "state.json"), JSON.stringify({ version: 1, task: t, history: [] }));
   assert.equal(loadState(p).task.title, "legacy");
 });
+
+test("stop lets the turn end when the agent is waiting on the user (a plan to approve), and speaks of films as films", () => {
+  const p = project();
+  const task = newTask({ title: "film", size: "full", surface: "other", guides: ["video"], mode: "motion" });
+  task.lastUiWriteAt = new Date().toISOString();
+  task.uiWrites = [{ file: "film/index.html", at: task.lastUiWriteAt }];
+  saveState({ version: 1, task, history: [] }, p);
+  const waiting = "I'm waiting on your OK for the film plan (prompt, slop page, paint wipe, logo) before I build anything. Say go, or tell me what to change.";
+  assert.equal(runHook("stop.mjs", { last_assistant_message: waiting }, p), null);
+  assert.equal(runHook("stop.mjs", { last_assistant_message: "Which of the two directions do you want?" }, p), null);
+  // From the transcript when the host doesn't pass the message.
+  const tr = path.join(p, "t.jsonl");
+  fs.writeFileSync(tr, [JSON.stringify({ type: "user", message: { content: "make a trailer" } }), JSON.stringify({ type: "assistant", message: { content: [{ type: "text", text: waiting }] } })].join("\n"));
+  assert.equal(runHook("stop.mjs", { transcript_path: tr }, p), null);
+  const r = runHook("stop.mjs", { last_assistant_message: "Done: the film is built." }, p);
+  assert.equal(r?.decision, "block");
+  assert.match(r.reason, /changed the film .*frame check/);
+  assert.doesNotMatch(r.reason, /fit check/);
+});

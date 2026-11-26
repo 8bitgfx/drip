@@ -15,6 +15,7 @@ import { serveDir } from "../../core/serve.mjs";
 import { vendorResolve } from "../../core/vendor.mjs";
 import { get } from "../../core/http.mjs";
 import { vendoredFfmpeg } from "./renderers.mjs";
+import { fetchSiteVideo, isPlatformVideo } from "./sitevideo.mjs";
 
 /** Runs in the page: the composition's clock, or null. */
 export const PROBE = `(() => {
@@ -281,6 +282,8 @@ export function sparkline(values) {
  * Returns { duration, frames: [{ t, buf }] }. Pages that lazy-load the video get a click on it first.
  */
 export async function sampleVideo(source, { every, times, fractions = false, max = 120, width = 1280, height = 720, config } = {}) {
+  // YouTube, X, Vimeo, Instagram, TikTok…: fetched as an MP4 first (their pages don't play for a logged-out tab).
+  if (isPlatformVideo(source)) return sampleVideo(await fetchSiteVideo(source), { every, times, fractions, max, width, height, config });
   const isFile = !/^https?:/i.test(source);
   if (isFile || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(source)) {
     // The video plays from memory (a blob), so it seeks whether or not its host serves byte ranges.
@@ -311,7 +314,16 @@ export async function sampleVideo(source, { every, times, fractions = false, max
       for (const f of [`${id}.${ext}`, `${id}.html`]) fs.rmSync(path.join(dir, f), { force: true });
     }
   }
-  return sampleVideoAt(source, { every, times, fractions, max, width, height, config });
+  const seen = await sampleVideoAt(source, { every, times, fractions, max, width, height, config });
+  if (seen.duration) return seen;
+  // No playable <video> on the page: yt-dlp's generic extractor finds embedded players (Vimeo, Wistia, JW…).
+  let local;
+  try {
+    local = await fetchSiteVideo(source);
+  } catch {
+    return seen;
+  }
+  return sampleVideo(local, { every, times, fractions, max, width, height, config });
 }
 
 async function sampleVideoAt(url, { every, times, fractions, max, width, height, config }) {

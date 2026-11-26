@@ -42,16 +42,31 @@ before its left edge; the content blurs out in 0.2s" is one.
 
 | Tool | Use |
 |---|---|
-| `motion_refs` | References best first: MASTERS (Drip's vetted list of studios and designers whose work is the bar, picked by the kind of film), then Dribbble's animation category with a quality floor (video, no paid boosts, 40+ likes) and Kisto (curated studio motion, AI clips dropped). `designers: [...]` pulls a named designer's video shots. 24fps.dev (indie films made in code) only with `source: "24fps"`, for technique, never for taste. One numbered sheet |
+| `motion_refs` | References best first. For a launch, product, AI, SaaS or app brief: LAUNCH FILMS (official launch and brand films of AI, SaaS, developer-tool and tech brands, posted by the brands on YouTube, X or Vimeo, picked by topic; a brand named in a query comes first). Then MASTERS (Drip's vetted list of studios and designers whose work is the bar, picked by the kind of film), then Dribbble's animation category with a quality floor (video, no paid boosts, 40+ likes) and Kisto (curated studio motion, AI clips dropped). `designers: [...]` pulls a named designer's video shots. 24fps.dev (indie films made in code) only with `source: "24fps"`, for technique, never for taste. One numbered sheet |
 | `motion_study` | Watch a film: a timestamped contact sheet plus measured duration, hard cuts and average shot length, and a rhythm curve |
 
 Search the idea and the moves, not the product: "liquid morph transition", "kinetic typography launch", "abstract
 geometric brand film", "ui product demo cursor". Use technique words and feelings. Searching the competitor's name
 returns their film, which you already know.
 
-`motion_study` takes a video URL (the `video` from `motion_refs`), a local `.mp4` or `.webm`, or a web page with a
-`<video>`. For Vimeo and YouTube pages, use the film's direct preview or a file the user provides. Pass `role` with
-what you study it for. The sheet shows each shot's first frame plus even samples.
+`motion_study` takes a video URL (the `video` from `motion_refs`); a public YouTube, X, Vimeo, Instagram, TikTok or
+LinkedIn post (fetched as a 720p MP4, no account needed); a local `.mp4` or `.webm`; or a web page with a `<video>`.
+Pass `role` with what you study it for. The sheet shows each shot's first frame plus even samples.
+
+### Launch films: study how real companies announced real products
+
+A launch film is judged against the launches its audience has seen, not against freelance Dribbble shots. For a
+launch brief:
+
+1. `motion_refs` with the category and the moves ("ai product launch", "developer tool launch ui"). Its LAUNCH FILMS
+   come first.
+2. Find the 2-3 launches closest to this one that the list doesn't have, with WebSearch: the category leader's
+   latest launch ("<brand> launch video", "<brand> introducing"), the brand's YouTube channel or X account, the
+   user's competitors. Take the official post (the brand's own account), never a reupload or a reaction.
+3. `motion_study` each post URL with a role. Study at least one launch film (story: how the product is revealed,
+   when the name appears, how the UI is shown) and one master's piece (moves: the craft).
+
+Search words, not the brand you are making the film for: Drip's own name finds nothing about how launches are made.
 
 ### Measured versus inferred
 
@@ -68,6 +83,8 @@ inference from a few frames; write it as one.
 
 ## Other sources
 
+- **A brand's own posts:** its launch video on YouTube, X or Vimeo, found with WebSearch. Give the post URL to
+  `motion_study`.
 - **A web page with a video:** a brand's own launch page. Give the page URL to `motion_study`.
 - **The user's own files:** an older film, a competitor's film they like, a brand reel. A reference the user gave
   counts as studied: mark it `given: true` in the storyboard references.

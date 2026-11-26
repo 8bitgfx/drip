@@ -2,6 +2,7 @@
 // (full loop: fitcheck_shot + fitcheck_done; quick loop: fitcheck_done or at least fitcheck_lint).
 // Gives up after 3 blocks in a row so a session can never get stuck.
 import { agentsRunning, allow, evidenceStale, loadConfig, loadState, needsFitcheck, out, readInput, reconcileWorkspace, run, updateState, hookDir } from "./lib.mjs";
+import { lastAssistantText, waitingOnUser } from "./transcript.mjs";
 
 const MAX_BLOCKS = 3;
 
@@ -19,10 +20,16 @@ run(async () => {
   // The critic (or any subagent) is still running in the background: the agent is waiting for it, not skipping the check.
   // Don't block and don't count it; the Stop after it finishes is judged as usual (a subagent that never reports expires after 10 minutes).
   if (agentsRunning(task).length) return allow();
+  // The agent asked the user something (a plan to approve, a direction to pick): the turn ends so they can answer.
+  // Re-prompting it only makes it repeat "still waiting" (the user saw that three times in a row on a film plan).
+  if (waitingOnUser(lastAssistantText(input))) {
+    if (task.stopBlocks) updateState((st) => st.task && (st.task.stopBlocks = 0), dir);
+    return allow();
+  }
   const blocks = task.stopBlocks || 0;
   if (blocks >= MAX_BLOCKS) {
     // Never stuck, never silent: the turn may end, but the user is told, in Drip's words, what wasn't checked.
-    const why = needsFitcheck(task, config) ? "the latest UI changes weren't checked (no fit check of this version, or a critic REVISE the user hasn't ruled on)" : "the checks weren't finished";
+    const why = task.mode === "motion" ? "the latest version of the film wasn't looked at (no motion_frames sweep of it, or a critic REVISE the user hasn't ruled on)" : needsFitcheck(task, config) ? "the latest UI changes weren't checked (no fit check of this version, or a critic REVISE the user hasn't ruled on)" : "the checks weren't finished";
     updateState((st) => {
       if (!st.task) return;
       st.task.stopBlocks = 0;
@@ -49,6 +56,6 @@ run(async () => {
       : "Call fitcheck_lint on the changed files and look at the change (fitcheck_shot if the page runs), then fitcheck_done.";
   out({
     decision: "block",
-    reason: `[Drip] You changed UI (${files}) after the last fit check${unseen.length ? ` (${unseen.length} edit(s) Drip never saw: ${unseen.slice(0, 5).map((u) => u.file).join(", ")})` : ""}${evidenceStale(task).length ? `; the evidence is stale (${evidenceStale(task).join("; ")})` : ""}. ${how} If you are waiting on the user (e.g. a direction choice), say so and they can reply; if the user said to skip, call drip_skip with their words.`,
+    reason: `[Drip] You changed ${task.mode === "motion" ? "the film" : "UI"} (${files}) after the last ${task.mode === "motion" ? "frame check (motion_frames)" : "fit check"}${unseen.length ? ` (${unseen.length} edit(s) Drip never saw: ${unseen.slice(0, 5).map((u) => u.file).join(", ")})` : ""}${evidenceStale(task).length ? `; the evidence is stale (${evidenceStale(task).join("; ")})` : ""}. ${how} If you are waiting on the user (e.g. a direction choice), say so and they can reply; if the user said to skip, call drip_skip with their words.`,
   });
 });

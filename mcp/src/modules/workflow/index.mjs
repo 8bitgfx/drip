@@ -264,7 +264,8 @@ function startMotion({ task, pk, memory, ctx }) {
         : "ASK ONCE (one AskUserQuestion round, only what the request leaves open, your pick first): what the film is for and where it plays (launch post 16:9 / social 9:16 / site hero loop ...), length, what real material exists (product screens, logo, brand colours), sound (music and effects / effects only / silent). Read the project first: never ask what you can look up.\n") +
       "\nFIRST CALLS (one message):\n" +
       '1. motion_refs({ queries: [<the moves you need, e.g. "shape morph transition">, <the look, e.g. "minimal product launch type">] }).\n' +
-      "2. When back: motion_study the 1-3 best (pass the video URL; role moves / look / story). Read them as a motion designer.\n" +
+      "   For a launch, product, AI or SaaS film it lists real brands' LAUNCH FILMS first. In the same message, WebSearch the 1-2 closest real launches it may lack (the category leader's latest, the competitors': \"<brand> launch video\"); their YouTube, X or Vimeo post URLs play in motion_study.\n" +
+      "2. When back: motion_study the 1-3 best (pass the video or post URL; role moves / look / story): at least one launch film for a launch. Read them as a motion designer.\n" +
       "3. The concept, then motion_storyboard. Composition files are held until the storyboard is recorded.\n" +
       'Then: drip_kit({ template: "motion" }) into the film\'s folder, style frames first (motion_frames at those times), the whole timeline, motion_frames sweep and around the transitions, motion_export({ draft: true }) and motion_study it, the critic once (critic_prepare kind "motion"), fix, the final render, motion_study the file, drip_end.\n' +
       "Builders: a film has ONE clock and one choreography, and you own the master timeline. A drip:builder may build a self-contained piece (a procedural background, a UI mock, a 3D object) to your spec via build_prepare; it never times the film.\n" +

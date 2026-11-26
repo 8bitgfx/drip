@@ -1,0 +1,530 @@
+{
+  "about": "Official launch and brand films of AI, SaaS, developer-tool and tech brands, posted by the brands (YouTube, X). Each was checked to play with yt-dlp and looked at by poster. study: moves = made with motion design (study the craft); story = mostly people on camera (study how the product is revealed, not the moves). Add films only after checking they play and who posted them.",
+  "checked": "2026-11-26",
+  "films": [
+    {
+      "brand": "Google DeepMind",
+      "title": "A new era of intelligence with Gemini 3",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=98DcoXwGX6I",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "ui-heavy",
+        "light"
+      ],
+      "why": "Model-launch film mixing UI demos with abstract gradient transitions.",
+      "seconds": 117,
+      "poster": "https://i.ytimg.com/vi_webp/98DcoXwGX6I/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Cursor",
+      "title": "Introducing Cursor 2.0",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=An8IM-kPyms",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "devtool",
+        "ui-heavy",
+        "dark"
+      ],
+      "why": "Dense UI choreography: panels, agents and diffs animating in sync with a calm voiceover.",
+      "seconds": 64,
+      "poster": "https://i.ytimg.com/vi_webp/An8IM-kPyms/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Google DeepMind",
+      "title": "Veo 3 is now available in preview",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=3NxT1kxL1nY",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "cinematic",
+        "kinetic-type"
+      ],
+      "why": "Fast montage cut to beats with clean title cards; rhythm of generated clips.",
+      "seconds": 110,
+      "poster": "https://i.ytimg.com/vi_webp/3NxT1kxL1nY/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Linear",
+      "title": "Introducing Linear Releases",
+      "year": 2026,
+      "url": "https://www.youtube.com/watch?v=6dIwFoQ0eVg",
+      "platform": "youtube",
+      "kind": "feature",
+      "tags": [
+        "saas",
+        "devtool",
+        "ui-heavy",
+        "dark",
+        "minimal"
+      ],
+      "why": "Linear's house style: tightly masked UI close-ups, subtle easing, sparse type.",
+      "seconds": 30,
+      "poster": "https://i.ytimg.com/vi_webp/6dIwFoQ0eVg/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Linear",
+      "title": "Introducing Linear Initiatives",
+      "year": 2024,
+      "url": "https://www.youtube.com/watch?v=FlDVDvzCmn0",
+      "platform": "youtube",
+      "kind": "feature",
+      "tags": [
+        "saas",
+        "ui-heavy",
+        "dark",
+        "minimal"
+      ],
+      "why": "Feature walkthrough with narration paced to UI state changes.",
+      "seconds": 254,
+      "poster": "https://i.ytimg.com/vi_webp/FlDVDvzCmn0/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Vercel",
+      "title": "Introducing v0: Generative UI",
+      "year": 2023,
+      "url": "https://www.youtube.com/watch?v=By9wCB9IZp0",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "devtool",
+        "dark",
+        "minimal",
+        "ui-heavy"
+      ],
+      "why": "Black-and-white launch film: prompt-to-UI reveals and precise, monochrome type.",
+      "seconds": 48,
+      "poster": "https://i.ytimg.com/vi/By9wCB9IZp0/maxresdefault.jpg",
+      "study": "moves"
+    },
+    {
+      "brand": "Notion",
+      "title": "New Year. New You. Introducing Notion Faces.",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=a12S4ap6bgw",
+      "platform": "youtube",
+      "kind": "feature",
+      "tags": [
+        "saas",
+        "consumer",
+        "playful",
+        "illustration",
+        "light"
+      ],
+      "why": "Illustrated, character-driven feature film with hand-drawn motion language.",
+      "seconds": 29,
+      "poster": "https://i.ytimg.com/vi_webp/a12S4ap6bgw/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Notion",
+      "title": "Think it. Make it.",
+      "year": 2024,
+      "url": "https://www.youtube.com/watch?v=RqC_B-IbVzk",
+      "platform": "youtube",
+      "kind": "brand",
+      "tags": [
+        "saas",
+        "illustration",
+        "playful",
+        "light"
+      ],
+      "why": "Brand spot using Notion's line-drawing style; paper-like transitions and pacing.",
+      "seconds": 30,
+      "poster": "https://i.ytimg.com/vi_webp/RqC_B-IbVzk/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Notion",
+      "title": "Introducing Notion 3.0 Agents",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=R1cF4T4lgI4",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "saas",
+        "ai",
+        "illustration",
+        "ui-heavy",
+        "light"
+      ],
+      "why": "Illustration blended with UI choreography to introduce an agent concept.",
+      "seconds": 90,
+      "poster": "https://i.ytimg.com/vi_webp/R1cF4T4lgI4/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Raycast",
+      "title": "New Raycast. Coming 2026",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=Mi173xGb0ZA",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "saas",
+        "devtool",
+        "dark",
+        "ui-heavy",
+        "kinetic-type"
+      ],
+      "why": "Teaser with glossy, high-contrast UI motion and tight kinetic type.",
+      "seconds": 39,
+      "poster": "https://i.ytimg.com/vi_webp/Mi173xGb0ZA/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Raycast",
+      "title": "It's out",
+      "year": 2026,
+      "url": "https://www.youtube.com/watch?v=uJ70iGerYzE",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "saas",
+        "devtool",
+        "dark",
+        "ui-heavy"
+      ],
+      "why": "Release film following the teaser; shows how a teaser resolves into product reveal.",
+      "seconds": 161,
+      "poster": "https://i.ytimg.com/vi/uJ70iGerYzE/maxresdefault.jpg",
+      "study": "moves"
+    },
+    {
+      "brand": "Runway",
+      "title": "Gen-3 Alpha: Available Now",
+      "year": 2024,
+      "url": "https://www.youtube.com/watch?v=nByslCkykj8",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "cinematic",
+        "minimal"
+      ],
+      "why": "Footage-forward launch; clip sequencing and minimal title treatments.",
+      "seconds": 142,
+      "poster": "https://i.ytimg.com/vi_webp/nByslCkykj8/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "ElevenLabs",
+      "title": "ElevenLabs launch",
+      "year": 2025,
+      "url": "https://x.com/elevenlabsio/status/2019048384011854087",
+      "platform": "x",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "minimal",
+        "kinetic-type"
+      ],
+      "why": "Social launch film; audio-reactive type and waveform motion.",
+      "seconds": 106,
+      "poster": "https://pbs.twimg.com/amplify_video_thumb/2019040324606107648/img/mJJLGMInGYSOE2tg.jpg?name=orig",
+      "study": "moves"
+    },
+    {
+      "brand": "Cognition",
+      "title": "Introducing Devin",
+      "year": 2024,
+      "url": "https://x.com/cognition_labs/status/1767548763134964000",
+      "platform": "x",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "devtool",
+        "dark",
+        "ui-heavy"
+      ],
+      "why": "Agent-in-a-workspace demo; shows how a long process is edited into legible beats.",
+      "seconds": 109,
+      "poster": "https://pbs.twimg.com/ext_tw_video_thumb/1767545515930009601/pu/img/mjItmVhDLslkPZOp.jpg?name=orig",
+      "study": "moves"
+    },
+    {
+      "brand": "Lovable",
+      "title": "Lovable 2.0 is here. Multiplayer vibe coding. Smarter & more secure.",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=xDwR1_vrIg8",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "saas",
+        "ui-heavy",
+        "playful"
+      ],
+      "why": "Feature-list launch with cursor and multiplayer presence choreography.",
+      "seconds": 80,
+      "poster": "https://i.ytimg.com/vi/xDwR1_vrIg8/maxresdefault.jpg",
+      "study": "moves"
+    },
+    {
+      "brand": "Replit",
+      "title": "Now Available: Replit Agent 3",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=nr6qrQTv7QI",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "devtool",
+        "ui-heavy"
+      ],
+      "why": "Agent launch with UI zooms and concise feature captions.",
+      "seconds": 139,
+      "poster": "https://i.ytimg.com/vi_webp/nr6qrQTv7QI/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Ramp",
+      "title": "Meet Ramp",
+      "year": 2024,
+      "url": "https://www.youtube.com/watch?v=yazRO0jRTag",
+      "platform": "youtube",
+      "kind": "brand",
+      "tags": [
+        "fintech",
+        "saas",
+        "ui-heavy",
+        "kinetic-type"
+      ],
+      "why": "Fast kinetic-type and UI explainer with crisp transitions.",
+      "seconds": 158,
+      "poster": "https://i.ytimg.com/vi_webp/yazRO0jRTag/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Slack",
+      "title": "Slack vs Email",
+      "year": 2023,
+      "url": "https://www.youtube.com/watch?v=SQsA2oiD_xA",
+      "platform": "youtube",
+      "kind": "brand",
+      "tags": [
+        "saas",
+        "playful",
+        "illustration"
+      ],
+      "why": "Playful character animation with clear before/after contrast structure.",
+      "seconds": 70,
+      "poster": "https://i.ytimg.com/vi/SQsA2oiD_xA/maxresdefault.jpg",
+      "study": "moves"
+    },
+    {
+      "brand": "Rive",
+      "title": "Announcing the new Rive",
+      "year": null,
+      "url": "https://www.youtube.com/watch?v=inNaaPYsRCU",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "saas",
+        "ui-heavy",
+        "playful"
+      ],
+      "why": "Product announcement from an animation-tool maker; expect polished interactive motion.",
+      "seconds": 127,
+      "poster": "https://i.ytimg.com/vi_webp/inNaaPYsRCU/maxresdefault.webp",
+      "study": "moves"
+    },
+    {
+      "brand": "Superhuman",
+      "title": "Introducing Superhuman",
+      "year": null,
+      "url": "https://www.youtube.com/watch?v=hyHvZ-mUpiU",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "saas",
+        "ui-heavy",
+        "dark"
+      ],
+      "why": "Keyboard-driven UI demo timed to the speed claim.",
+      "seconds": 97,
+      "poster": "https://i.ytimg.com/vi/hyHvZ-mUpiU/maxresdefault.jpg",
+      "study": "moves"
+    },
+    {
+      "brand": "Anthropic",
+      "title": "Claude, Computer use for coding",
+      "year": 2024,
+      "url": "https://www.youtube.com/watch?v=vH2f7cjXjKI",
+      "platform": "youtube",
+      "kind": "feature",
+      "tags": [
+        "ai",
+        "devtool",
+        "ui-heavy",
+        "live-action"
+      ],
+      "why": "Screen-recording demo with cursor choreography and cuts that keep one idea per shot.",
+      "seconds": 183,
+      "poster": "https://i.ytimg.com/vi_webp/vH2f7cjXjKI/maxresdefault.webp",
+      "study": "story"
+    },
+    {
+      "brand": "Anthropic",
+      "title": "Introducing Claude Code",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=AJpK3YTTKZ4",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "devtool",
+        "ui-heavy",
+        "dark",
+        "live-action"
+      ],
+      "why": "Terminal-first product film: how a text-only UI is staged, typed and paced to read as clearly as a polished interface.",
+      "seconds": 234,
+      "poster": "https://i.ytimg.com/vi/AJpK3YTTKZ4/maxresdefault.jpg",
+      "study": "story"
+    },
+    {
+      "brand": "Google DeepMind",
+      "title": "Project Astra, our vision for the future of AI assistants",
+      "year": 2024,
+      "url": "https://www.youtube.com/watch?v=nXVvvRhiGjI",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "cinematic",
+        "ui-heavy",
+        "live-action"
+      ],
+      "why": "Single-take camera feel with minimal UI overlays; restraint in annotation timing.",
+      "seconds": 137,
+      "poster": "https://i.ytimg.com/vi_webp/nXVvvRhiGjI/maxresdefault.webp",
+      "study": "story"
+    },
+    {
+      "brand": "Perplexity",
+      "title": "Perplexity: where knowledge begins",
+      "year": 2024,
+      "url": "https://www.youtube.com/watch?v=hrggcbweDjc",
+      "platform": "youtube",
+      "kind": "brand",
+      "tags": [
+        "ai",
+        "consumer",
+        "minimal",
+        "kinetic-type",
+        "live-action"
+      ],
+      "why": "Brand spot built on search-bar and answer-card motion; type-led storytelling.",
+      "seconds": 69,
+      "poster": "https://i.ytimg.com/vi/hrggcbweDjc/maxresdefault.jpg",
+      "study": "story"
+    },
+    {
+      "brand": "Cursor",
+      "title": "Introducing Cursor 3",
+      "year": 2026,
+      "url": "https://www.youtube.com/watch?v=UxbULt_hCdA",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "devtool",
+        "ui-heavy",
+        "live-action"
+      ],
+      "why": "Agent-first interface reveal; how new layout is introduced via zooms and focus pulls.",
+      "seconds": 90,
+      "poster": "https://i.ytimg.com/vi_webp/UxbULt_hCdA/maxresdefault.webp",
+      "study": "story"
+    },
+    {
+      "brand": "GitHub",
+      "title": "What is GitHub?",
+      "year": 2022,
+      "url": "https://www.youtube.com/watch?v=pBy1zgt0XPc",
+      "platform": "youtube",
+      "kind": "brand",
+      "tags": [
+        "devtool",
+        "illustration",
+        "3d",
+        "playful",
+        "kinetic-type",
+        "live-action"
+      ],
+      "why": "Studio-made (Buck) explainer: metaphor-led illustration, smooth shape morphs and transitions.",
+      "seconds": 163,
+      "poster": "https://i.ytimg.com/vi_webp/pBy1zgt0XPc/maxresdefault.webp",
+      "study": "story"
+    },
+    {
+      "brand": "bolt.new",
+      "title": "bolt.new launch",
+      "year": 2025,
+      "url": "https://x.com/boltdotnew/status/1973063093849567591",
+      "platform": "x",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "devtool",
+        "ui-heavy",
+        "live-action"
+      ],
+      "why": "Social launch cut for an AI app builder; compressed UI demo choreography.",
+      "seconds": 210,
+      "poster": "https://pbs.twimg.com/media/G2Gq0TvXwAAMLZD.jpg?name=small",
+      "study": "story"
+    },
+    {
+      "brand": "Lovable",
+      "title": "Introducing Lovable Cloud & AI",
+      "year": 2025,
+      "url": "https://www.youtube.com/watch?v=kcOrTOT7Kko",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "ai",
+        "saas",
+        "ui-heavy",
+        "playful",
+        "live-action"
+      ],
+      "why": "Gradient-forward brand look with prompt-to-app UI transitions.",
+      "seconds": 113,
+      "poster": "https://i.ytimg.com/vi_webp/kcOrTOT7Kko/maxresdefault.webp",
+      "study": "story"
+    },
+    {
+      "brand": "Supabase",
+      "title": "Supabase Launch Week 7",
+      "year": 2023,
+      "url": "https://www.youtube.com/watch?v=e6a4yC3muew",
+      "platform": "youtube",
+      "kind": "launch",
+      "tags": [
+        "devtool",
+        "dark",
+        "kinetic-type",
+        "live-action"
+      ],
+      "why": "Launch-week wrap film with branded type reveals.",
+      "seconds": 48,
+      "poster": "https://i.ytimg.com/vi/e6a4yC3muew/hq720_2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYOCAvKH8wDw==&rs=AOn4CLCBkVW4Qz78TbI2U0F6-0M99DN8Og",
+      "study": "story"
+    }
+  ]
+}

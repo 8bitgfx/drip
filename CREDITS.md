@@ -74,3 +74,5 @@ Drip's guides contain modified, rewritten adaptations of their ideas.
 
 - **taste-skill** (https://github.com/Leonxlnx/taste-skill, MIT): Drip clones it on first use (pinned commit) for its ready-made parts (effects, scenes, moments, UI fragments, cards, diagrams, objects, hero layouts), its photo library and its layout, palette and type dealers (`parts_*`, `layout_deal`, images_search source `library`). Not copied into this repo.
 - **SnapCN** (https://snapcn.dev, repo snapcndev/snapcn, Sri Nath): MIT for the free components (repo LICENSE, Copyright 2026 Sri Nath); Pro source is paid and not redistributable. Drip lists its public registry in the catalogue and `video/components` describes how to port its Remotion pieces; no SnapCN code is copied into this repo and its paid MCP is not used.
+- **yt-dlp** (https://github.com/yt-dlp/yt-dlp, Unlicense): `motion_study` fetches its official release binary on first use into `~/.drip/vendor/bin` to read public YouTube, X and Vimeo posts. Not copied into this repo.
+- **Launch films** (`content/data/launch-films.json`): links to the brands' own posts, for study only; no video is copied or redistributed.

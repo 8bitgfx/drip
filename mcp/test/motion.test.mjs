@@ -108,11 +108,13 @@ test("frame judge: blank middles are faults, empty openings are notes, cuts and 
   assert.equal(fmtT(65.25), "1:05.3");
 });
 
-test("reference search relaxes long queries word by word", () => {
+test("reference search relaxes long queries into pairs, never lone words", () => {
   const q = relaxQuery("shape morph product launch video");
   assert.equal(q[0], "shape morph product launch video");
-  assert.ok(q.includes("shape morph") && q.includes("shape"));
-  assert.ok(!q.includes("video"));
+  assert.ok(q.includes("shape morph"));
+  // "launch" or "ai" alone finds anything tagged with it (the off-topic sheets users saw).
+  assert.ok(!q.includes("shape") && !q.includes("launch") && !q.includes("video"));
+  assert.deepEqual(relaxQuery("typography"), ["typography"]);
 });
 
 test("motion gates: a reference look, then a storyboard, before composition files", () => {

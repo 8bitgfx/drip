@@ -98,3 +98,48 @@ export function criticVerdict(tr, after = "") {
   for (const m of line.matchAll(/([a-z][a-z &/-]*?)\s+(\d+(?:\.\d+)?)\s*\/\s*10/gi)) scores[m[1].toLowerCase().replace(/[^a-z]/g, "")] = Number(m[2]);
   return verdict ? { verdict, scores, at: last.at } : null;
 }
+
+/** The text of the agent's last message (what the user is reading now), from the hook input or the transcript's tail. */
+export function lastAssistantText(input) {
+  if (typeof input?.last_assistant_message === "string") return input.last_assistant_message;
+  const file = input?.transcript_path;
+  if (!file || !fs.existsSync(file)) return "";
+  let raw;
+  try {
+    const fd = fs.openSync(file, "r");
+    const size = fs.fstatSync(fd).size;
+    const len = Math.min(size, 256 * 1024);
+    const buf = Buffer.alloc(len);
+    fs.readSync(fd, buf, 0, len, size - len);
+    fs.closeSync(fd);
+    raw = buf.toString("utf8");
+  } catch {
+    return "";
+  }
+  const lines = raw.split("\n");
+  for (let i = lines.length - 1; i >= 0; i--) {
+    let o;
+    try {
+      o = JSON.parse(lines[i]);
+    } catch {
+      continue;
+    }
+    if (o.type === "user" && !o.isMeta && !(Array.isArray(o.message?.content) && o.message.content.some((b) => b?.type === "tool_result"))) return "";
+    if (o.type !== "assistant") continue;
+    const t = textOf(o.message?.content).trim();
+    if (t) return t;
+  }
+  return "";
+}
+
+/**
+ * Is the agent's last message a question to the user, or a plain "waiting for your go"? Then ending the turn is the
+ * right thing: the user has to answer, and a Stop hook re-prompting it only makes it repeat itself.
+ */
+export function waitingOnUser(text) {
+  const t = String(text || "").trim();
+  if (!t) return false;
+  const tail = t.slice(-600);
+  if (/\?\s*(\*\*|_|`)*\s*$/.test(tail)) return true;
+  return /\b(waiting (on|for) (you|your)|your (go|ok|okay|go-ahead|call|answer|pick|choice|approval)|say go|tell me (what|which|if)|let me know (if|which|what)|which (one|do you|would you)|shall i|should i|want me to|approve the|before i (build|start|render|record|go on))\b/i.test(tail);
+}
