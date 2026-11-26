@@ -2,6 +2,12 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.9.5: the repo reorganised
+- One home for everything: `content/` holds rules, examples, data, kit and the Film viewer; the workflow module has its own folder; host packages copy `content/` (the Film viewer was missing from them).
+- Shared helpers live once in `mcp/src/core` (HTML escape, slug, sha1, paths, entity decode, the local page server, the browser opener, the Chrome finder).
+- Docs: one file per area; stale plans removed; release history moved here; `AGENTS.md` and `docs/ARCHITECTURE.md` describe the layout.
+- No behaviour change: same tools, schemas and checks (279 tests).
+
 ## 0.9.4: stick to the references, hard
 - `refs_study` needs `fits` (why this reference fits this brief) for every reference except the before shot; studies also keep layout, type, colour, the move and the picture.
 - `build_prepare` refuses until EVERY section names the studied reference it follows in `from` (was: only the hero). Each builder brief carries that reference: its picture (open it first), what was measured on it, and the order to match its layout, composition, proportions, spacing, type scale and motion, changing only content and brand colours.
