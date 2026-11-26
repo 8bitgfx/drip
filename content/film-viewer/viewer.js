@@ -262,15 +262,15 @@
     if (bk >= 0 && bk < 1) {
       const y0 = cur.band.y0, y1 = cur.band.y1;
       set(band, 'opacity', (Math.sin(Math.PI * Math.min(1, bk * 1.4)) * 0.9).toFixed(3));
-      set(band, 'transform', 'translate3d(' + (6).toFixed(1) + 'px,' + ((y0 - scroll) * k + 4).toFixed(1) + 'px,0)');
-      set(band, 'width', (L.vw - 12) + 'px');
+      set(band, 'transform', 'translate3d(10px,' + ((y0 - scroll) * k + 6).toFixed(1) + 'px,0)');
+      set(band, 'width', (L.vw - 20) + 'px');
       set(band, 'height', Math.max(12, (y1 - y0) * k - 8) + 'px');
     } else set(band, 'opacity', '0');
 
     // write marks
     const ms = F.marksAt(s, t);
     const colour = (id) => (s.agents.find((a) => a.id === id) || {}).color || '#fff';
-    while (markEls.length < ms.length) { const m = document.createElement('div'); m.className = 'mark'; $('marks').appendChild(m); markEls.push(m); }
+    while (markEls.length < ms.length) { const m = document.createElement('div'); m.className = 'mark'; m.innerHTML = '<i></i><i></i><i></i><i></i>'; $('marks').appendChild(m); markEls.push(m); }
     markEls.forEach((m, i) => {
       const it = ms[i];
       if (!it) { set(m, 'opacity', '0'); return; }
@@ -278,8 +278,8 @@
       const o = it.k < 0.15 ? it.k / 0.15 : 1 - F.ease((it.k - 0.5) / 0.5);
       const grow = 1 + 0.04 * (1 - F.easeOut(it.k / 0.4));
       set(m, 'opacity', o.toFixed(3));
-      set(m, 'borderColor', c);
-      set(m, 'background', c + '14');
+      set(m, 'color', c);
+      set(m, 'background', c + '12');
       set(m, 'width', tg.w * k + 'px');
       set(m, 'height', tg.h * k + 'px');
       set(m, 'transform', 'translate3d(' + (tg.x * k).toFixed(1) + 'px,' + ((tg.y - scroll) * k).toFixed(1) + 'px,0) scale(' + grow.toFixed(3) + ')');

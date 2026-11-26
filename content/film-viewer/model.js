@@ -5,7 +5,7 @@
   'use strict';
 
   // Agent colours: Director first, then builders, then everyone else, in start order.
-  const COLORS = ['#7C93FF', '#C8F031', '#FF9EC7', '#6FE3D2', '#F4EFE4', '#B9A3FF', '#FFD36E'];
+  const COLORS = ['#93A2FF', '#C8F031', '#FF9EC7', '#6FE3D2', '#F4EFE4', '#B9A3FF', '#FFD36E'];
   const KIND_NAME = { director: 'Director', builder: 'Builder', helper: 'Helper', scout: 'Scout', checker: 'Checker', critic: 'Critic' };
   const IMG = /\.(png|jpe?g|webp|avif|gif|svg)(\?|$)/i;
 
