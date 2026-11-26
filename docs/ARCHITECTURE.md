@@ -140,14 +140,15 @@ The roles are in `skills/drip/fast.md` (Roles; `drip_guide fast`).
 
 ## Drip Film: watch the swarm build
 
-A Drip task records who did what and frames of the page as it is built. The user watches it live and gets a montage at the end, in any IDE: the viewer is a static page Drip serves on localhost.
+A Drip task records the story of the work: the references, assets and pieces before building, who did what and where on the page, and frames of the whole page as it is built. The user watches it live (it opens at `drip_start`) and gets a montage at the end, in any IDE: the viewer is a static page Drip serves on localhost. The recorded format: [FILM.md](FILM.md).
 
 ### Pieces
 
 | Part | Where | What |
 |---|---|---|
-| Events | `hooks/agent-start.mjs`, `agent-stop.mjs`, `post-write.mjs`, `film.mjs` | Append-only lines in `.drip/film/<task>/events.jsonl`: a subagent's start (type, label, section, piece from its brief), its end (SubagentStop), every UI write and every Drip tool call, each with the `agent_id` Claude Code puts on hook input (`main` for the director). Hosts without these hooks: the server logs its own tool calls (`registry.mjs`, `filmed`). |
-| Frames | `mcp/src/modules/film/index.mjs` (`tick`, every 5 s in server mode) | When the page changed (a write, stitch or install) and at most every 12 s, a 1440x900 JPEG of `task.filmUrl` (set by `drip_serve` and the first `fitcheck_shot`) into `frames/`, indexed in `frames.json`. |
+| Events | `hooks/agent-start.mjs`, `agent-stop.mjs`, `post-write.mjs`, `film.mjs` | Append-only lines in `.drip/film/<task>/events.jsonl`: a subagent's start (type, label, section, piece from its brief), its end (SubagentStop), every UI write and every Drip tool call, each with the `agent_id` Claude Code puts on hook input (`main` for the director); writes carry hints for where they land. Hosts without these hooks: the server logs its own tool calls (`registry.mjs`, `filmed`). |
+| Process | `mcp/src/modules/film/record.mjs` (`filmRecord`, `filmAsset`) | References (`refs_site`, `refs_gallery`, `refs_study`), assets (`images_save`, `gen_image`, `art_generate`, `mockup_render`) and pieces (`pieces_preview`, `pieces_install`) as events with thumbnails in `thumbs/`. |
+| Frames | `mcp/src/modules/film/index.mjs` (`tick`, every 5 s in server mode) | When the page changed (a write or stitch) and at most every 12 s, the whole page at 720 px wide into `frames/`; error overlays, blank and loading pages are skipped. Each frame also places the pending writes (`targets.json`). |
 | film.json | `mcp/src/core/film.mjs` (`buildFilm`) | Agents (a start is matched to the first unseen `agent_id` of its type), events and frames (each frame knows who was working). The one file the viewer reads. Contract: `version`, `task`, `agents[]`, `events[]`, `frames[]`. |
 | Viewer | `content/film-viewer/` (designed with Drip) | Live: agents as cards, the feed, the latest frame. Montage: the frames as a time-lapse with a lane per agent. `drip_film` copies it next to film.json and serves the folder; without it a small built-in viewer is used. |
 | Montage | `finishFilm` at `drip_end` | A last frame, `endedAt`, the link in drip_end's reply, and `montage.mp4` when ffmpeg is on PATH. |
