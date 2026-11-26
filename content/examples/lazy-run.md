@@ -1,6 +1,6 @@
 # What a lazy run looks like (and what Drip does about it)
 
-Same request: "/drip:design a portfolio for Claude".
+Same request: "/drip:ui a portfolio for Claude".
 
 | The lazy run does | What comes out | What Drip does |
 |---|---|---|

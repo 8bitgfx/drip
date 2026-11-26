@@ -230,6 +230,35 @@
       "preview": "https://magicui.design/docs/components/{name}"
     },
     {
+      "id": "snapcn",
+      "name": "SnapCN",
+      "url": "https://snapcn.dev",
+      "category": "motion",
+      "what": "shadcn-style registry of ~145 video-native Remotion components: kinetic text, captions, logo reveals, device frames, cursors, AI-chat demos, transitions, whole scenes. Every frame is a pure function of useCurrentFrame, so they seek.",
+      "useWhen": "Films and motion pieces: kinetic type, product demos, logo and end cards. Port the frame maths into a seekable Drip composition (see drip_guide video/components).",
+      "avoidWhen": "Web pages (they are Remotion, not DOM-in-browser components). Pro templates and the MCP are paid. Remotion itself has its own company licence terms.",
+      "price": "free (MIT) + paid pro",
+      "license": "MIT (free components; repo LICENSE, Copyright 2026 Sri Nath); Pro source may not be redistributed",
+      "stack": [
+        "react",
+        "remotion",
+        "motion-video"
+      ],
+      "install": "npx shadcn@latest add @snapcn/<name>",
+      "registry": {
+        "index": "https://snapcn.dev/r/registry.json",
+        "item": "https://snapcn.dev/r/{name}.json"
+      },
+      "fit": [
+        "video",
+        "motion",
+        "saas",
+        "playful"
+      ],
+      "quality": 4,
+      "preview": "https://snapcn.dev/docs/components"
+    },
+    {
       "id": "aceternity",
       "name": "Aceternity UI",
       "url": "https://ui.aceternity.com",

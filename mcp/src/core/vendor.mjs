@@ -15,6 +15,7 @@ export const VENDOR_DEPS = {
   resvg: "@resvg/resvg-js",
   "ts-morph": "ts-morph",
   fontkit: "fontkit",
+  ffmpeg: "ffmpeg-static",
 };
 
 export const vendorDir = () => path.join(process.env.DRIP_HOME || homeDripDir, "vendor");

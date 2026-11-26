@@ -1,7 +1,7 @@
 {
   "name": "drip",
   "displayName": "Drip",
-  "version": "0.9.9",
+  "version": "0.10.0",
   "description": "Taste for your coding agent. A real designer's process: it asks first, studies references, shows you two directions, builds with real components and checks its work with an independent critic. Works in Claude Code, Codex, Cursor and any MCP agent. Opt-in: it only steps in when you start it.",
   "author": {
     "name": "Drip contributors"
@@ -63,7 +63,19 @@
       "images-assets.nasa.gov",
       "openaccess-api.clevelandart.org",
       "imageory.in",
-      "pub-4d1656c9a8f7435f9c38544499f72988.r2.dev"
+      "pub-4d1656c9a8f7435f9c38544499f72988.r2.dev",
+      "24fps.dev",
+      "kisto.app",
+      "cdn.kisto.app",
+      "pbs.twimg.com",
+      "sfx.akalan.dev",
+      "rudqlsdla.github.io",
+      "hipdiscovery.github.io",
+      "raw.githubusercontent.com",
+      "cdn.freesound.org",
+      "prod-1.storage.jamendo.com",
+      "api.elevenlabs.io",
+      "snapcn.dev"
     ]
   },
   "skills": [

@@ -55,7 +55,7 @@ GitHub follows the visitor's theme. A light screenshot on a dark page is a glari
 ````markdown
 ```mermaid
 flowchart TD
-  A[/drip:design/] --> B[Intake: 4 questions]
+  A[/drip:ui/] --> B[Intake: 4 questions]
   B --> C[Study references]
   C --> D[Directions + style tiles]
   D --> E{Critic ranks}

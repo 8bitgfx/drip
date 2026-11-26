@@ -404,6 +404,12 @@ export function register(server, ctx) {
       // Briefs go to files: the builders read them; the director's context keeps only the launch lines.
       const body = prompts.map(({ ids, prompt }) => launchLine("builder", `Build ${ids.join(", ")}`.slice(0, 60), prompt, writeBrief(`build-${ids.join("-")}`, prompt))).join("\n");
       const stitchable = list.map((s) => slug(s.section)).filter((id) => ![...OWN, ...WHOLE].includes(id));
+      if (task?.mode === "motion")
+        return text(
+          head +
+            body +
+            "\n\nA FILM: the builder makes a self-contained piece (a product screen, a logo, a procedural layer) that exposes its states or a progress value; it never times the film. When it finishes, you place it on the master timeline at the storyboard's times, then motion_frames and motion_trace the beat it lives in.",
+        );
       const tail = stitchable.length
         ? `\n\nWhen they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.`
         : `\n\nWhen it finishes: fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to the builder (SendMessage to it).`;

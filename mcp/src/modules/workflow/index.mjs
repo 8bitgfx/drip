@@ -16,11 +16,12 @@ import { text } from "../../core/result.mjs";
 import { isProjectPack, matchPacks } from "../../core/packs.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { kitDir, projectDir } from "../../core/paths.mjs";
+import { kitDir, projectDir, projectDripDir } from "../../core/paths.mjs";
 import { setupNotes } from "../../core/setup.mjs";
 import { hostHasSubagents, swarmInstructions, swarmOn } from "../swarm/index.mjs";
 import { ownedKits } from "../parts/pieces.mjs";
 import { finishFilm, openLiveFilm } from "../film/index.mjs";
+import { startRendererSetup } from "../motion/index.mjs";
 
 const SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
@@ -57,6 +58,9 @@ export function guess(task) {
   return { surface, size };
 }
 
+// A film, not a page: only clear video words ("add motion to the hero" is a page task).
+const MOTION_WORDS = /\b((launch|promo|product|brand|explainer|marketing|motion|animated|intro|social|demo|teaser|announcement|hype) (video|film|ad|clip)|motion graphics|motion design|mograph|showreel|sizzle reel|trailer|logo (animation|reveal|sting)|animated (logo|intro|explainer|ad)|intro animation|title sequence|kinetic typography)\b/i;
+const PAGE_WORDS = /\b(landing page|website|web site|homepage|site for|app screen|dashboard|web app|component|pricing page)\b/i;
 const LOGO_WORDS = /\b(logo|logotype|wordmark|lettermark|monogram|brand mark|brandmark|icon for|app icon|identity|branding)\b/i;
 const REFS_ONLY = /\b(just|only)\b.{0,20}\b(refs|references|inspiration)\b|^\s*(find|show|get)\b.{0,30}\b(references|inspiration)\b/i;
 const BOARD_ONLY = /\b(just|only)\b.{0,20}\bmood ?board\b|^\s*(make|build|create)\b.{0,15}\bmood ?board\b/i;
@@ -64,11 +68,12 @@ const BOARD_ONLY = /\b(just|only)\b.{0,20}\bmood ?board\b|^\s*(make|build|create
 function guessMode(task) {
   if (BOARD_ONLY.test(task)) return "board";
   if (REFS_ONLY.test(task)) return "refs";
+  if (MOTION_WORDS.test(task) && !PAGE_WORDS.test(task)) return "motion";
   if (LOGO_WORDS.test(task)) return "logo";
   return null;
 }
 
-const PERSUADE = (surface, mode) => ["landing", "other"].includes(surface) && !["logo", "refs", "board"].includes(mode);
+const PERSUADE = (surface, mode) => ["landing", "other"].includes(surface) && !["logo", "refs", "board", "motion"].includes(mode);
 
 // What must be read before UI is written. Kept small on purpose: the playbook carries the numbers; deep guides are on demand.
 function requiredGuides(size, surface, task, mode, packs) {
@@ -87,6 +92,14 @@ function requiredGuides(size, surface, task, mode, packs) {
 }
 
 export function nextStep(task, config) {
+  if (task.mode === "motion") {
+    const missing = missingBeforeUi(task, config);
+    if (missing.length) return `NEXT: ${missing.map((m) => m.how).join("; then ")}.`;
+    const mo = task.motion || {};
+    if (!task.uiWrites?.length) return 'NEXT: drip_kit({ template: "motion", out: "<film folder>/index.html" }), set its FORMAT from the storyboard, build the style frames (hook, biggest transformation, end card) and motion_frames them at those times.';
+    if (!mo.frames?.clean || !mo.frames?.sweep) return "NEXT: finish the timeline, then motion_frames (full sweep) and motion_frames({ around: [<beat boundaries>] }); fix what they show.";
+    return 'NEXT: motion_export({ draft: true }) and motion_study it for the movement; the critic once (critic_prepare({ kind: "motion", targets: [<composition>] }) -> Agent drip:critic -> critic_record); fix; motion_export the final and motion_study the file; drip_end.';
+  }
   if (task.size === "full" && config.gates.requireBrief && !task.brief) return `NEXT: ${task.intake?.max === 0 ? "no questions needed: drip_brief with your assumptions" : `ask at most ${task.intake?.max ?? 2} intake question(s) (AskUserQuestion; see INTAKE), then drip_brief with the answers.`}`;
   const missing = missingBeforeUi(task, config);
   // Everything missing at once: each refusal found one at a time costs the director a full call.
@@ -201,18 +214,73 @@ export function playbookFloor(pb) {
 
 const TALK = `TALK: decisions first, 3-6 short lines per message; show (board link, screenshots) instead of describing; one question at a time with buttons; never paste tool output.`;
 
+// Drip Motion: a film made in code. Its own short loop: look at real motion, storyboard, style frames, build, look at the
+// frames, critic once, render, check the file.
+function startMotion({ task, pk, memory, ctx }) {
+  const t = newTask({ title: task, size: "full", surface: "other", guides: ["video"], mode: "motion", packs: pk });
+  t.loop = "motion";
+  t.brief = { what: task, audience: "", job: "", feel: [], ambition: "polished", assumed: true, at: new Date().toISOString() };
+  t.noAsk = /\b(don'?t ask|no questions|just do it|decide for me|without asking|surprise me)\b/i.test(task);
+  t.motion = { studied: [], renders: [] };
+  if (memory !== "fresh") t.memory = buildTaskMemory({ taskText: task, mode: memory });
+  const memCtx = t.memory ? projectContext({ task: t }) : null;
+  const guide = readGuide("video");
+  if (guide) t.guidesRead.push("video");
+  updateState((st) => {
+    if (st.task) st.history.push({ ...st.task, endedAt: new Date().toISOString(), endedBy: "new task" });
+    st.task = t;
+  });
+  try {
+    takeSnapshot(t);
+  } catch {
+    /* a read-only project must not stop the task */
+  }
+  warmBrowser(ctx.config());
+  // The renderers install and test themselves in the background on the first film (never asked of the user).
+  startRendererSetup(ctx.config());
+  let identity = "";
+  try {
+    const f = path.join(projectDripDir(), "motion", "IDENTITY.md");
+    if (fs.existsSync(f)) identity = fs.readFileSync(f, "utf8").slice(0, 3500);
+  } catch {
+    /* no identity yet */
+  }
+  const packs = pk.filter((p) => !isProjectPack(p));
+  const others = otherTasks();
+  return text(
+    `Drip Motion task started (task id ${t.id}): a film made in code (HTML + GSAP/CSS/canvas/three.js), rendered locally frame by frame.\n` +
+      (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}): never touch them.\n` : "") +
+      (identity ? `THIS PROJECT'S MOTION IDENTITY (.drip/motion/IDENTITY.md, approved on earlier films; keep it unless the user asks for a change):\n${identity}\n` : "") +
+      (memCtx ? `PROJECT BRAND (${t.memory.mode}): ${memCtx.text}\n` : "") +
+      (packs.length ? `Niche packs on: ${packs.join(", ")} (drip_guide pack:<id>).\n` : "") +
+      (t.noAsk
+        ? "The user said not to ask: decide the format and length from the request (default 1920x1080, 30 fps, 15-30s for a launch film, 4-8s for a logo animation) and state it in one line.\n"
+        : "ASK ONCE (one AskUserQuestion round, only what the request leaves open, your pick first): what the film is for and where it plays (launch post 16:9 / social 9:16 / site hero loop ...), length, what real material exists (product screens, logo, brand colours), sound (music and effects / effects only / silent). Read the project first: never ask what you can look up.\n") +
+      "\nFIRST CALLS (one message):\n" +
+      '1. motion_refs({ queries: [<the moves you need, e.g. "shape morph transition">, <the look, e.g. "minimal product launch type">] }).\n' +
+      "2. When back: motion_study the 1-3 best (pass the video URL; role moves / look / story). Read them as a motion designer.\n" +
+      "3. The concept, then motion_storyboard. Composition files are held until the storyboard is recorded.\n" +
+      'Then: drip_kit({ template: "motion" }) into the film\'s folder, style frames first (motion_frames at those times), the whole timeline, motion_frames sweep and around the transitions, motion_export({ draft: true }) and motion_study it, the critic once (critic_prepare kind "motion"), fix, the final render, motion_study the file, drip_end.\n' +
+      "Builders: a film has ONE clock and one choreography, and you own the master timeline. A drip:builder may build a self-contained piece (a procedural background, a UI mock, a 3D object) to your spec via build_prepare; it never times the film.\n" +
+      "UI AND LOGOS IN THE FILM: this is not a page or logo task, but their tools are yours: real product screens (the user's own first; else components_find, pieces_preview, mockup_render; never a fake dashboard), a logo or end card (logo_sheet, logo_test, or the brand's own mark), fonts_search, palette_generate, icons_search. The page and logo gates don't apply here; the film's do (storyboard, frames, trace, critic).\n" +
+      "REVIEWING MOTION: one still says nothing about movement. motion_frames shows the frames; motion_trace measures the moves (onion skins of each move's path and spacing, speed curves against the beats, flags for pops, dead stops, linear moves, everything starting at once). Use both on every beat you change.\n\n" +
+      `${TALK}\n\n` +
+      (guide ? `=================== GUIDE: video ===================\n${guide}` : ""),
+  );
+}
+
 export function register(server, ctx) {
   server.registerTool(
     "drip_start",
     {
       title: "Start a design task",
       description:
-        "Start a Drip design task (the user ran /drip:design or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. " +
+        "Start a Drip design task (the user ran /drip:ui or /drip:logo or asked for Drip / a proper design process): a new page, screen, component, redesign, or a polish pass. " +
         "It decides the loop (full for new/redesigned UI, quick for tweaks) and returns the one guide you need (the playbook for pages) in full, so no extra reads. " +
         "While the task is open, the plugin blocks writing UI files until its requirements are met; close it with drip_end.",
       inputSchema: {
         task: z.string().describe("What you are designing, in the user's words plus context. e.g. 'portfolio site for Claude', 'logo for a bakery called Crumb', 'polish the pricing cards'"),
-        mode: z.enum(["design", "logo", "refs", "board", "polish"]).optional().describe("design = new UI/redesign; logo = logo/wordmark/identity; refs = references only; board = moodboard only; polish = tweak existing UI. Omit to let Drip decide."),
+        mode: z.enum(["design", "logo", "motion", "refs", "board", "polish"]).optional().describe("design = new UI/redesign; logo = logo/wordmark/icon/identity; motion = a motion-design film (launch film, brand film, explainer, ad, logo animation, loop) made in code and rendered to video; refs = references only; board = moodboard only; polish = tweak existing UI. Omit to let Drip decide."),
         size: z.enum(["full", "quick"]).optional().describe("Overrides the loop size. Omit normally."),
         surface: z.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
         packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
@@ -225,8 +293,9 @@ export function register(server, ctx) {
       const g = guess(task);
       const m = mode || guessMode(task) || (g.size === "quick" ? "polish" : "design");
       const s = size || (m === "polish" ? "quick" : "full");
-      const sf = surface || (m === "logo" ? "brand" : g.surface);
+      const sf = surface || (m === "logo" ? "brand" : m === "motion" ? "other" : g.surface);
       const pk = packs || matchPacks(task).map((p) => p.id);
+      if (m === "motion") return startMotion({ task, pk, memory, ctx });
       const fast = m === "design" && s === "full" && (loop || process.env.DRIP_LOOP || ctx.config().loop || "fast") === "fast" && !/\b(full (process|loop)|moodboard|three directions|3 directions|brand (book|system|identity))\b/i.test(task);
       const guides = fast ? ["taste", "fast", ...pk.filter((p) => !isProjectPack(p)).map((p) => `pack:${p}`)] : requiredGuides(s, sf, task, m, pk);
       const t = newTask({ title: task, size: s, surface: sf, guides, mode: m, packs: pk });
@@ -346,7 +415,7 @@ export function register(server, ctx) {
         "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" }). " +
         "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills), \"readme-art\" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).",
       inputSchema: {
-        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system"]).optional().describe("Default base-css"),
+        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system", "motion"]).optional().describe("Default base-css. motion: a seekable film composition (Drip Motion)"),
         out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; assets/readme/src/readme-art.mjs)"),
         overwrite: z.boolean().optional(),
       },
@@ -355,8 +424,8 @@ export function register(server, ctx) {
       const root = projectDir();
       if (template === "base-css" && loadState().task?.surface === "readme")
         return text("GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: \"readme-art\" }), render it with render_html (scale 2), and check it with readme_check.", true);
-      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html" };
-      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs.existsSync(path.join(root, "src")) ? "src/styles/system.html" : "styles/system.html" };
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html", motion: "motion.html" };
+      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs.existsSync(path.join(root, "src")) ? "src/styles/system.html" : "styles/system.html", motion: "film/index.html" };
       const rel = out || DEF[template];
       const dest = path.resolve(root, rel);
       if (fs.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
@@ -367,6 +436,11 @@ export function register(server, ctx) {
       if (template === "comp") return text(`Wrote ${rel}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
       if (template === "readme-art") return text(`Wrote ${rel}: a TEMPLATE (greys, [bracketed] copy, dashed art slots). Set the CHANGE ME tokens to the brand, replace every [bracket] and slot with real words and objects, then run node ${rel}. It writes hero.png and bento-light/dark.png next to its folder. Guide: drip_guide readme/art.`);
       if (template === "system") return text(`Wrote ${rel}: the living design system. It reads every colour, type role and spacing step from the project's drip-base.css (set the link at the top if it lives elsewhere), so it never drifts. Add a specimen for every component the pages use, in its states, and build them here first. Shoot it with fitcheck_shot to check it.`);
+      if (template === "motion")
+        return text(
+          `Wrote ${rel}: a seekable composition. Set FORMAT from the storyboard, put each beat on the master timeline \`tl\` at its storyboard time (a label per beat), keep every random number seeded (rand()), and never use timers or real time. ` +
+            "Open it in a browser to scrub (space plays, arrow keys step a frame, ?t=3.2 opens at a time). motion_frames sees exactly what the render will.",
+        );
       if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +
@@ -545,9 +619,15 @@ export function register(server, ctx) {
         if (unseen.length) open.push(`UI edits Drip never saw: ${unseen.slice(0, 6).map((u) => u.file).join(", ")}`);
         // Fast loop: the critic is one reality check at the final version, and it has to happen once. The director's own
         // scores aren't a review.
+        if (cur.mode === "motion" && cur.uiWrites?.length && !(cur.critic?.records || []).some((r) => r.kind === "motion"))
+          open.push('the critic hasn\'t seen the film: critic_prepare({ kind: "motion", targets: [<composition or rendered video>] }) -> Agent drip:critic -> critic_record');
         if (cur.loop === "fast" && config.gates.fastCritic && cur.uiWrites?.length && !(cur.critic?.records || []).some((r) => r.kind === "build"))
           open.push('the critic hasn\'t seen the finished page once: critic_prepare({ kind: "build", targets: [<page URL>] }) -> Agent drip:critic -> critic_record');
-        if (open.length) return text(`Not closed: ${[...new Set(open)].join("; ")}.\nShoot the page again (fitcheck_shot), fix, review, fitcheck_done; or, if the user accepts shipping as is, drip_end with acceptOpen quoting their words.`, true);
+        if (open.length)
+          return text(
+            `Not closed: ${[...new Set(open)].join("; ")}.\n${cur.mode === "motion" ? "Look at the film again (motion_frames sweep), fix, the critic" : "Shoot the page again (fitcheck_shot), fix, review, fitcheck_done"}; or, if the user accepts shipping as is, drip_end with acceptOpen quoting their words.`,
+            true,
+          );
       }
       let film = "";
       if (cur) {
@@ -573,6 +653,8 @@ export function register(server, ctx) {
       }
       // The design system is the user's call, once the design is agreed: offer it, never write it unasked.
       let offer = "";
+      if (cur?.mode === "motion" && cur.motion?.storyboard)
+        offer = "\nMotion identity: once the user is happy with the film, ask once whether to keep its look, moves, sound, motif and what they rejected for the next film. On yes, write or update .drip/motion/IDENTITY.md (sections: Look, Moves, Sound, Motifs, Pacing, Rejected, Films) from the storyboard and their feedback; the next /drip:motion reads it.";
       try {
         if (cur && !cur.skipped && cur.uiWrites?.length && ["design", "polish"].includes(cur.mode || "design") && !designDoc(undefined, cur))
           offer = '\nNo design system yet. Once the user is happy with this design, ask once (AskUserQuestion): "Save this design as the project\'s design system (DESIGN.md)?" On yes: drip_kit({ template: "design-md" }) and fill it from the finished page (its palette, type, spacing, components and what it refuses). On no, leave it.';

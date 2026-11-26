@@ -10,7 +10,7 @@ export const DEFAULTS = {
   modules: { refs: true, board: true, components: true, assets: true, gen: true, fitcheck: true, critic: true, logo: true, packs: true, project: true },
 
   // What the hooks enforce.
-  //   mode "task"   (default) Drip only acts while a Drip task is active (/drip:design or drip_start).
+  //   mode "task"   (default) Drip only acts while a Drip task is active (/drip:ui or drip_start).
   //                 Without a task the hooks stay silent: no blocking, no nudges, no lint.
   //   mode "always" every UI write needs a Drip task (strict; for teams that want it on every change).
   //   enforce:false advisory only: the tools and guides work, nothing is blocked.

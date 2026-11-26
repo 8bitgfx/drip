@@ -28,7 +28,7 @@ Project wins over personal, personal wins over the defaults (`mcp/src/core/confi
 }
 ```
 
-- `gates.mode`: `"task"` (default) means Drip only acts while a Drip task is open (`/drip:design` … `drip_end`); with no task the hooks are silent. `"always"` means every UI write needs a Drip task, and design prompts get a reminder (strict, for teams).
+- `gates.mode`: `"task"` (default) means Drip only acts while a Drip task is open (`/drip:ui` … `drip_end`); with no task the hooks are silent. `"always"` means every UI write needs a Drip task, and design prompts get a reminder (strict, for teams).
 - `gates.enforce: false` makes Drip advisory: no blocking, the guides and tools still work.
 - `loop`: "fast" (default: look, deal pieces, builders, check once per pass, the critic only at the final version) or "full" (the old process with intake, references by role, three comps you rank yourself, a plan and one critic at the final version).
 - `tools`: "core" (default: the fast loop's tools are listed; every other tool is reached through drip_search and drip_execute) or "all".

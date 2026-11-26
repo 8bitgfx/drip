@@ -180,7 +180,7 @@ export function newTask({ title, size, surface, guides, mode = "design", packs =
     id: Date.now().toString(36),
     title,
     size, // "full" | "quick"
-    mode, // "design" | "logo" | "refs" | "board" | "polish"
+    mode, // "design" | "logo" | "motion" | "refs" | "board" | "polish"
     surface, // "landing" | "app" | "mobile" | "component" | "brand" | "other"
     startedAt: new Date().toISOString(),
     requiredGuides: guides,
@@ -203,7 +203,7 @@ export function newTask({ title, size, surface, guides, mode = "design", packs =
 export function isPersuade(task) {
   if (!task) return true;
   if (task.surface === "readme") return false; // README art is judged as images in a GitHub column, not as a web page
-  return ["landing", "other"].includes(task.surface) && !["logo", "refs", "board"].includes(task.mode);
+  return ["landing", "other"].includes(task.surface) && !["logo", "refs", "board", "motion"].includes(task.mode);
 }
 
 /** Distinct designers among studied references. */
@@ -292,6 +292,14 @@ export function missingBeforeUi(task, config) {
   if (task.skipped || !config.gates.enforce) return [];
   const g = config.gates;
   const missing = [];
+  // A film: one look at real motion work, then the storyboard, then the composition.
+  if (task.mode === "motion") {
+    const mo = task.motion || {};
+    if (!(mo.studied || []).length && !(mo.storyboard?.references || []).some((r) => r.given))
+      missing.push({ need: "a motion reference", how: 'motion_refs({ queries: [<the moves you need>, <the look>] }), then motion_study the 1-3 that fit (one for MOVES at least)' });
+    if (!mo.storyboard) missing.push({ need: "storyboard", how: "motion_storyboard({ concept, hook, motif, format, look, moves, beats, references }): the plan, checked, before any composition file" });
+    return missing;
+  }
   if (task.loop === "fast" && task.size === "full") {
     // A look is pictures of real work: shipped sites, a gallery, references opened. A search listing alone isn't one.
     const looked = (task.refs?.viewed || []).length + (task.refs?.studied || []).length + Object.keys(task.toolUse || {}).filter((k) => /^refs_(site|gallery|view|zoom)$/.test(k)).length;
@@ -391,6 +399,11 @@ export function criticRounds(task, config) {
 /** True when the build changed after the last passing critic verdict (full loop only). */
 export function needsCritic(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
+  // A film: like the fast loop, one critic look at the final cut; a REVISE stands until the user rules or a new round passes.
+  if (task.mode === "motion") {
+    const rec = lastCritique(task, "motion");
+    return !!rec && rec.verdict !== "pass" && !(task.critic?.shipAt && task.critic.shipAt >= rec.at);
+  }
   // Fast loop: the critic is optional, but once it has said REVISE or REJECT on the build, the director can't overrule it
   // alone: the user chooses (ship with the open points) or a new critic round passes.
   if (task.loop === "fast") {
@@ -418,7 +431,7 @@ export function evidenceStale(task) {
   const fc = task.fitcheck || {};
   if (fc.doneRev && fc.doneRev !== now) stale.push("the fit check passed on an earlier version");
   if (fc.shotRev && fc.shotRev !== now) stale.push("the last fitcheck_shot shows an earlier version");
-  const b = lastCritique(task, "build");
+  const b = lastCritique(task, task.mode === "motion" ? "motion" : "build");
   if (b?.rev && b.rev !== now) stale.push("the critic reviewed an earlier version");
   return stale;
 }
@@ -445,6 +458,20 @@ export function checklist(task, config) {
   if (!task) return "No Drip task is active. Call drip_start first.";
   const tick = (ok) => (ok ? "[x]" : "[ ]");
   const g = config.gates;
+  if (task.mode === "motion") {
+    const mo = task.motion || {};
+    const fc = task.fitcheck || {};
+    const rec = lastCritique(task, "motion");
+    return [
+      `Task: ${task.title}  (motion film)`,
+      `${tick((mo.studied || []).length > 0)} studied motion references${(mo.studied || []).length ? ` (${mo.studied.length})` : ""}`,
+      `${tick(!!mo.storyboard)} storyboard${mo.storyboard ? `: ${mo.storyboard.concept} (${(mo.storyboard.beats || []).length} beats, ${mo.storyboard.format?.duration}s)` : ""}`,
+      `${tick(task.uiWrites.length > 0)} composition built (${task.uiWrites.length} writes)`,
+      `${tick(!!fc.doneAt && !needsFitcheck(task, config))} clean motion_frames sweep on the current version`,
+      `${tick(!!rec && rec.verdict === "pass")} critic on the film${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : " (before drip_end)"}`,
+      `${tick((mo.renders || []).some((r) => !r.draft))} rendered${(mo.renders || []).length ? `: ${mo.renders.at(-1).file}` : ""}`,
+    ].join("\n");
+  }
   if (task.loop === "fast" && task.size === "full") {
     const fc = task.fitcheck || {};
     const rec = lastCritique(task, "build");

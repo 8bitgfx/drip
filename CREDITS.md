@@ -36,6 +36,18 @@ Full research notes: [docs/research/public-skills-2026-11.md](docs/research/publ
 Component libraries, icon sets, fonts and reference sites listed in `content/data/catalogue.json` belong to
 their authors; Drip links to them and never redistributes them.
 
+## Drip Motion
+
+Ideas adapted in Drip's own words from MIT-licensed motion skills: motionsmith (manuvegax), product-launch-motion (AbubakrChan),
+motion-graphics-skills (charlie947), claude-motion-director (abdullatif06), motion-design-skill (LottieFiles).
+References searched through Kisto (kisto.app, which credits and links each creator; works are studied, never copied) and
+24fps.dev. Studio and artist work studied for `video/studios` and `video/house-style` (TimeFrame on Dribbble, Ordinary Folk,
+BUCK, ManvsMachine, Giant Ant, Tendril, Animade, Oddfellows, Gunner, Jorge R. Canedo E.) belongs to its makers; the guides
+describe techniques, they don't reproduce frames or copy.
+Sound: sfx.akalan.dev (CC0, includes Wyzowl's SFX Kit, CC0), foleykit (rudqlsdla, CC0 presets), Kenney's interface sounds via
+hipdiscovery/Free-Sound-Effects (CC0), Openverse (Freesound, Jamendo; licence per item, recorded in each film's sound/LICENCES.md).
+Narration and optional music generation run on the user's own ElevenLabs account.
+
 ## Notices
 
 Taste Skill — Copyright (c) 2026 Leonxlnx. Emil Kowalski's skills — Copyright (c) 2026 Emil Kowalski.
@@ -60,3 +72,4 @@ are licensed under the Apache License 2.0 (http://www.apache.org/licenses/LICENS
 Drip's guides contain modified, rewritten adaptations of their ideas.
 
 - **taste-skill** (https://github.com/Leonxlnx/taste-skill, MIT): Drip clones it on first use (pinned commit) for its ready-made parts (effects, scenes, moments, UI fragments, cards, diagrams, objects, hero layouts), its photo library and its layout, palette and type dealers (`parts_*`, `layout_deal`, images_search source `library`). Not copied into this repo.
+- **SnapCN** (https://snapcn.dev, repo snapcndev/snapcn, Sri Nath): MIT for the free components (repo LICENSE, Copyright 2026 Sri Nath); Pro source is paid and not redistributable. Drip lists its public registry in the catalogue and `video/components` describes how to port its Remotion pieces; no SnapCN code is copied into this repo and its paid MCP is not used.

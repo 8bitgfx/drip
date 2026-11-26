@@ -11,6 +11,7 @@ export const KEY_ENV = {
   pexels: ["PEXELS_API_KEY"],
   openverse: ["OPENVERSE_TOKEN"],
   pixabay: ["PIXABAY_API_KEY"],
+  elevenlabs: ["ELEVENLABS_API_KEY", "XI_API_KEY"],
 };
 
 const file = path.join(homeDripDir, "keys.json");

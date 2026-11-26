@@ -34,6 +34,7 @@ Hooks hold each step: no UI before the look, no builders before the pieces were 
 
 - **Pieces before homemade:** search ~3,300 free components across 15 libraries by what you need ("image comparison", "kanban", "pricing toggle"): shadcn and its blocks, Magic UI, React Bits, Cult UI, Smooth UI, Spell UI, Aceternity, efferd, bencho, Kibo, coss, Eldora, Motion Primitives, Animate UI and taste-skill. Every result is checked to install without a login and previewed from its own page, cropped to the component. Own a paid kit (Aceternity Pro, Breeze UI…)? Tell Drip once and it uses it too.
 - **Landing pages and app screens:** software pages are built as React + Tailwind so library pieces install as they are; products, services and places as one static page.
+- **Motion films (`/drip:motion`):** launch films, explainers, ads and logo animations made in code and rendered to MP4 on your machine. Drip studies real studio work first, writes a checked storyboard, then looks at the film the way a motion designer would: frame sheets, a measured dopesheet and onion skins of every move. Music and calm UI sounds come from licensed libraries (tempo, bars and drops measured), and narration from your ElevenLabs key. No generative video.
 - **Also:** references from Dribbble, Awwwards, Godly and more, licensed photos, a [Studio](docs/STUDIO.md) for original art, shader backgrounds and mockups on real device models, and image generation with your own OpenAI or Gemini key. No key is required.
 
 ## Built for agents
@@ -58,7 +59,7 @@ Hooks hold each step: no UI before the look, no builders before the pieces were 
 /plugin install drip@drip-design
 ```
 
-Restart Claude Code, then run `/drip:design a pricing page for my app`.
+Restart Claude Code, then run `/drip:ui a pricing page for my app`.
 
 **Codex** (native plugin)
 
@@ -85,10 +86,12 @@ Needs Node 22+ and Chrome or Edge for screenshots.
 
 | Command | What it does |
 |---|---|
-| `/drip:design` | Design a page, screen, logo or polish pass |
-| `/drip:critic` | Independent review of any page, screenshot or image |
-| `/drip:adapt` | Teach it a niche: game UI, fintech, e-commerce… |
-| `/drip:settings` | Status, API keys, pause or stop a task |
+| `/drip:ui` | Design a page, app screen, site, dashboard, component or polish pass |
+| `/drip:logo` | Logo, wordmark, app icon or vector mark |
+| `/drip:motion` | A motion-design film made in code: launch film, explainer, ad, logo animation, loop. Rendered locally to MP4 |
+| `/drip:critic` | Independent review of a page, screenshot, logo, film or video |
+| `/drip:adapt` | Teach it a niche, a style or a workflow (game UI, fintech, risograph, your team's Figma flow…) |
+| `/drip:settings` | Status, API keys, switches, pause or stop a task |
 
 ## Docs
 

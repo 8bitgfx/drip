@@ -1,6 +1,6 @@
 ---
 name: drip-adapt
-description: Specialises Drip in a niche such as game UI, fintech dashboards, album art or luxury e-commerce by researching its standards, references and top artists into a niche pack that later tasks load automatically. Use for /drip:adapt <niche>, or to refresh a pack.
+description: Specialises Drip in a niche, a style or a workflow (game UI, fintech dashboards, album art, risograph, a studio motion language, a team's hand-off flow) by researching its standards, references and top artists into a pack that later UI, logo and motion tasks load automatically. Use for /drip:adapt <niche, style or workflow>, or to refresh a pack.
 user-invocable: false
 ---
 

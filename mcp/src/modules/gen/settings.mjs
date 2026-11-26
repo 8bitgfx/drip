@@ -21,6 +21,7 @@ export const KEYS = [
   ["pexels", "Photo search"],
   ["pixabay", "Photo search"],
   ["openverse", "Photo search (openly licensed)"],
+  ["elevenlabs", "Narration for films (ElevenLabs text to speech)"],
 ];
 export const KITS = ["Aceternity Pro", "Magic UI Pro", "bencho Pro", "Breeze UI", "Tailark", "efferd Pro", "Skiper UI", "shadcnblocks"];
 
@@ -95,7 +96,7 @@ export function renderSettings({ token, cwd, msg = "", doctor = "" }) {
 <pre>${esc(checklist(task, config))}</pre>
 <div class="actions">${task.skipped ? "" : `<form method="post" action="${t("/task/skip")}"><button class="ghost">Turn checks off for this task</button></form>`}
 <form method="post" action="${t("/task/end")}" onsubmit="return confirm('End this Drip task? Its page and files stay.')"><button class="danger">End the task</button></form></div>`
-    : `<p class="help" style="margin:0">No task open. Start one by asking for a design (/drip:design in Claude Code).</p>`;
+    : `<p class="help" style="margin:0">No task open. Start one by asking for a design (/drip:ui in Claude Code).</p>`;
   const keyRows = keys
     .map((k, i) => {
       const purpose = KEYS[i][1];

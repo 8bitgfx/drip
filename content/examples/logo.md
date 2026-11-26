@@ -1,4 +1,4 @@
-# Worked run: "/drip:design a logo for Crumb, a sourdough bakery"
+# Worked run: "/drip:logo a logo for Crumb, a sourdough bakery"
 
 ```
 drip_start({ task: "logo for Crumb, a neighbourhood sourdough bakery" })     → mode logo

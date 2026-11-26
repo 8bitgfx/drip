@@ -34,8 +34,13 @@ run(async () => {
   const files = [...new Set(task.uiWrites.map((w) => w.file))].slice(-8).join(", ");
   const fcDone = task.fitcheck?.doneAt && task.fitcheck.doneAt >= task.lastUiWriteAt;
   const critic = (task.critic?.records || []).filter((r) => r.kind === "build").at(-1);
+  const filmCritic = (task.critic?.records || []).filter((r) => r.kind === "motion").at(-1);
   const how =
-    task.loop === "fast" && critic && critic.verdict !== "pass"
+    task.mode === "motion"
+      ? fcDone && filmCritic && filmCritic.verdict !== "pass"
+        ? `The critic said ${String(filmCritic.verdict).toUpperCase()} on the film ("${filmCritic.worst || ""}"). Fix what it listed and look again (motion_frames), then ask the user: "Ship with these open points" (list them) or "One more critic round". If they ship: drip_end({ acceptOpen: "<their words>" }).`
+        : "Look at the film as it is now: motion_frames({ target: <composition> }) (the full sweep) and fix what it flags; the critic once on the finished cut (critic_prepare kind \"motion\")."
+      : task.loop === "fast" && critic && critic.verdict !== "pass"
       ? `The critic said ${String(critic.verdict).toUpperCase()} on this build ("${critic.worst || ""}"), and your own pass doesn't overrule it. Fix what it listed, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round". If they ship: fitcheck_done({ ..., acceptedByUser: true }).`
       : task.size === "full"
       ? fcDone

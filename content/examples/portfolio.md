@@ -1,4 +1,4 @@
-# Worked run: "/drip:design a portfolio for a ceramics studio"
+# Worked run: "/drip:ui a portfolio for a ceramics studio"
 
 The shape of a good run, call by call. Copy the shape, never the content: the subject, faces and colours here are deliberately absent. About 25 tool calls and 10-12 minutes, most of it spent building.
 

@@ -23,11 +23,12 @@ import * as studio from "../modules/studio/index.mjs";
 import * as swarm from "../modules/swarm/index.mjs";
 import * as parts from "../modules/parts/index.mjs";
 import * as film from "../modules/film/index.mjs";
+import * as motion from "../modules/motion/index.mjs";
 
 export const ctx = { config: () => loadConfig() };
 
 // Order matters only for listings. A module can be turned off in .drip/config.json ("modules": { "<name>": false }).
-export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm, parts, film };
+export const MODULES = { refs, board, components, assets, gen, fitcheck, critic, logo, packs, codemode, patterns, project, inspire, studio, swarm, parts, film, motion };
 
 // Which tools a task used (task.toolUse): lets gates ask for steps no prose can enforce, such as searching
 // components and picture sources before building. Counting never fails a call.
@@ -91,6 +92,7 @@ export const CORE = new Set([
   "fitcheck_shot", "fitcheck_done", "critic_prepare", "critic_record",
   "build_prepare", "page_stitch",
   "board_create", "board_directions", "board_tile", "board_choose", "logo_sheet", "logo_test",
+  "motion_refs", "motion_study", "motion_storyboard", "motion_frames", "motion_trace", "motion_export", "motion_music", "motion_sound", "motion_voice",
 ]);
 
 export function registerAll(server, c = ctx) {

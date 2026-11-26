@@ -19,6 +19,10 @@ import { loadBoard, updateBoard } from "../board/store.mjs";
 import { designDoc, relevantSkills } from "../../core/skills.mjs";
 import { toUrl } from "../../core/serve.mjs";
 import { loadPieces } from "../parts/pieces.mjs";
+import { filmSheets, isVideo } from "../motion/sheets.mjs";
+import { fmtT } from "../motion/capture.mjs";
+import { storyboardBrief } from "../motion/story.mjs";
+import { traceTarget } from "../motion/index.mjs";
 
 /** The first phrase in a critic context that argues for the work instead of stating a fact, or null. */
 export function defends(context) {
@@ -75,6 +79,8 @@ const KIND_BRIEF = {
     "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
   build:
     "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
+  motion:
+    "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions, half-drawn shapes, clipped text), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). Name timestamps for every problem.",
   logo:
     "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a cliché), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack:
@@ -86,6 +92,7 @@ const AXES = {
   directions: ["appeal", "craft potential", "brief fit", "eye candy", "different ideas"],
   build: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy", "UX & motion", "copy", "brief/direction fit"],
   logo: ["idea", "distinctiveness", "construction", "small-size", "typography", "versatility"],
+  motion: ["hook", "concept & metaphor", "composition & type", "choreography & timing", "continuity", "pacing & rest", "brand & product fit", "finish", "not generic"],
   pack: ["specificity", "accuracy", "usefulness", "coverage"],
   any: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy"],
 };
@@ -136,10 +143,10 @@ export function register(server, ctx) {
       description:
         "Prepares an independent review by the drip:critic subagent (Sonnet, no history, harsh). It renders the work to image files and returns the exact prompt to pass to the subagent: " +
         'Agent({ subagent_type: "drip:critic", description: "Critic review", prompt: <returned prompt> }). Pass the prompt unchanged; never add your own defence of the work. ' +
-        "kind: directions (uses the board's first-viewport comps), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. " +
+        "kind: directions (uses the board's first-viewport comps), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), motion (a film: its composition .html or a rendered .mp4/.webm, shot as timestamped frame sheets plus strips around each transition), pack (a niche pack id), any. " +
         'Examples: critic_prepare({ kind: "directions" }) · critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) · critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })',
       inputSchema: {
-        kind: z.enum(["directions", "build", "logo", "pack", "any"]),
+        kind: z.enum(["directions", "build", "logo", "motion", "pack", "any"]),
         targets: z.array(z.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id. Pass every state of an app screen at once (?state=typing, ?state=result, ...): each keeps its own screenshots"),
         context: z.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses."),
         steps: z.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (hover, click, open, generate...), same as fitcheck_shot steps. For a transition, add waits of ~150ms between shots: the critic judges motion from that frame strip"),
@@ -203,7 +210,55 @@ export function register(server, ctx) {
         }
       }
 
-      const list = kind === "directions" || kind === "pack" ? [] : targets;
+      if (kind === "motion") {
+        if (!targets.length) return text("Pass the film: targets: [<composition .html or rendered .mp4>].", true);
+        const sb = task?.motion?.storyboard;
+        const fmt = sb?.format || {};
+        const t0 = targets[0];
+        const whole = await filmSheets(t0, { times: { count: isVideo(t0) ? 32 : 24 }, width: fmt.width, height: fmt.height, per: 12, config });
+        whole.sheets.forEach((b, i) => {
+          const f = path.join(dir, `film-${i + 1}.jpg`);
+          fs.writeFileSync(f, b);
+          files.push(f);
+          notes.push(`the whole film, sheet ${i + 1} of ${whole.sheets.length} (timestamps on each frame)`);
+        });
+        // Transitions: the storyboard's beat boundaries, else the measured hard changes.
+        const bounds = (sb?.beats || []).slice(1).map((b) => b.at);
+        const around = (bounds.length ? bounds : whole.judge.cuts).slice(0, 6);
+        if (around.length && !isVideo(t0)) {
+          const tr = await filmSheets(t0, { times: { around }, width: fmt.width, height: fmt.height, per: 15, cols: 5, config });
+          tr.sheets.forEach((b, i) => {
+            const f = path.join(dir, `transitions-${i + 1}.jpg`);
+            fs.writeFileSync(f, b);
+            files.push(f);
+            notes.push(`transitions close up (each row: -0.25s, -0.1s, the boundary, +0.1s, +0.25s) around ${around.map(fmtT).join(", ")}`);
+          });
+        }
+        // How it moves: the dopesheet and onion skins (stills can't show timing, spacing or choreography).
+        let traced = null;
+        if (!isVideo(t0)) {
+          try {
+            traced = await traceTarget(t0, { storyboard: sb, config, maxOnions: 5 });
+            const f = path.join(dir, "dopesheet.png");
+            fs.writeFileSync(f, traced.sheet);
+            files.push(f);
+            notes.push("DOPESHEET: a lane per element; bars = when it moves, the curve = its speed, the grey foot line = opacity, dashed lines = beats. Read it for choreography: who leads, who follows, overlap, rest, everything-at-once");
+            traced.onions.forEach((o, i) => {
+              const g = path.join(dir, `onion-${i + 1}.png`);
+              fs.writeFileSync(g, o.buf);
+              files.push(g);
+              notes.push(`ONION SKIN ${fmtT(o.from)}-${fmtT(o.to)}: frames ghosted (older fainter) plus each element's measured path, one dot per frame. Even dots = linear; dots bunching = easing; past the end and back = overshoot; straight lines where an arc would feel natural = mechanical`);
+            });
+          } catch (e) {
+            notes.push(`(motion trace failed: ${e.message})`);
+          }
+        }
+        if (traced) measured.push(`MOTION (measured from the page, contextual, not automatic faults): ${[...traced.a.flags, ...traced.a.notes].join("; ") || "no flags"}`);
+        const flags = [...whole.errors.map((e) => `page: ${e}`), ...whole.judge.issues, ...(whole.clipped.length ? [`text cut by the frame edge: ${whole.clipped.slice(0, 3).join("; ")}`] : [])];
+        measured.push(`film: ${whole.probe?.duration ? `${whole.probe.duration.toFixed(1)}s` : "?"}; ${whole.judge.notes.join("; ") || "no hard cuts or long holds"}${flags.length ? `\nBLOCKERS: ${flags.join("; ")}` : ""}`);
+        if (sb) context = `${context ? `${context}\n` : ""}THE STORYBOARD (what the film is meant to do; judge the frames against it):\n${storyboardBrief(sb)}`;
+      }
+      const list = kind === "directions" || kind === "pack" || kind === "motion" ? [] : targets;
       for (const [ti, t0] of list.entries()) {
         // Several targets (states of one screen, several pages) each keep their own files.
         const tag = list.length > 1 ? `t${ti + 1}-` : "";
@@ -336,7 +391,7 @@ export function register(server, ctx) {
         "verdict: pass (ship it / show it), revise (fix the listed problems), reject (start over / replace). For directions, include perDirection so the board shows the critic's ranking. " +
         'Example: critic_record({ kind: "build", verdict: "revise", scores: { concept: 6, typography: 4 }, worst: "the hero has nothing to look at: a headline on a flat ground", fixes: ["put the real product UI as layered cards beside the headline", "cut the three equal cards"], summary: "competent template, not a portfolio anyone remembers" })',
       inputSchema: {
-        kind: z.enum(["directions", "build", "logo", "pack", "any"]),
+        kind: z.enum(["directions", "build", "logo", "motion", "pack", "any"]),
         verdict: z.enum(["pass", "revise", "reject"]),
         scores: z.record(z.string(), z.number().min(1).max(10)),
         worst: z.string(),
@@ -396,6 +451,8 @@ export function register(server, ctx) {
             ? "NEXT: show the user the two strongest comps (Read the tile images and present them side by side, with the critic's ranking and your pick), ask them to choose with buttons, then board_choose. No moodboard page unless they ask (board_open)."
             : rec.kind === "build"
               ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)."
+              : rec.kind === "motion"
+                ? "NEXT: motion_export the final, motion_study the file, then hand off (the video, the critic's summary, what's left) and drip_end."
               : "NEXT: continue."
           : rounds >= max + (st.task?.critic?.extraRounds || 0) && rec.kind === "build"
             ? `That's ${rounds} critic rounds, the limit. Fix what you can, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round" (critic_prepare with extraRound: true). Don't stop silently.`
