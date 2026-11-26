@@ -12,6 +12,7 @@ export const KEY_ENV = {
   openverse: ["OPENVERSE_TOKEN"],
   pixabay: ["PIXABAY_API_KEY"],
   elevenlabs: ["ELEVENLABS_API_KEY", "XI_API_KEY"],
+  jamendo: ["JAMENDO_CLIENT_ID"],
 };
 
 const file = path.join(homeDripDir, "keys.json");

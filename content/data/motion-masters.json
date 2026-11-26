@@ -345,6 +345,138 @@
       "watched": [
         "https://vimeo.com/1204201820"
       ]
+    },
+    {
+      "name": "Outer Studio",
+      "dribbble": "outerstudio",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "brand-film"
+      ],
+      "style": "Inteller reveal: the wordmark blurs away, a dot grows into the four-petal mark which rotates and settles, then the wordmark slides back out of it; one idea, soft depth-of-field, no effects pile-up.",
+      "watched": [
+        "https://dribbble.com/shots/14748514-Inteller-Logo"
+      ]
+    },
+    {
+      "name": "Lisa Jacobs",
+      "dribbble": "lisajacobsdesign",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "kinetic-type"
+      ],
+      "style": "Monoline marks drawn on by a single travelling stroke (LJ ligature) and un-drawn on exit; stroke-follow easing, ink-like and exact, the construction of the glyph is the animation.",
+      "watched": [
+        "https://dribbble.com/shots/17571466-LJ-Personal-Logo-animation"
+      ]
+    },
+    {
+      "name": "Zauri Miminoshvili",
+      "dribbble": "zaurmiminoshvili",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "abstract"
+      ],
+      "style": "Geometry-first logo reveals: primitives (square, circle, triangle) morph in sequence and resolve into the mark, with concept-driven builds like the Integral all-seeing eye whose facets fold into the symbol.",
+      "watched": [
+        "https://dribbble.com/shots/20416573-Meta-redesign-logo-animation",
+        "https://dribbble.com/shots/20835486-Integral-logo-animation-with-The-All-Seeing-Eye"
+      ]
+    },
+    {
+      "name": "Afternow",
+      "dribbble": "afternow-co",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "brand-film"
+      ],
+      "style": "Torii identity: the house mark is built from the brand's own colour petals that bloom across the frame then collapse into the icon; palette and shape language carry the story, wordmark types in last.",
+      "watched": [
+        "https://dribbble.com/shots/19697814-Torii-Logo-Animation"
+      ]
+    },
+    {
+      "name": "Ali Nazari",
+      "dribbble": "AliNazarii",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "kinetic-type"
+      ],
+      "style": "Elisa wordmark: a smile (two dots and a curve) blinks into life, then the curve extends into the handwritten script; the logo's personality is the reveal.",
+      "watched": [
+        "https://dribbble.com/shots/17653027-Elisa-Logo-Animation"
+      ]
+    },
+    {
+      "name": "tubik",
+      "dribbble": "Tubik",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "brand-film"
+      ],
+      "style": "Gotikket: a character mark with blinking eyes that squashes into a card, swaps to the wordmark with letters sliding in and returns to the icon; clean squash-and-stretch timing, one colour pair.",
+      "watched": [
+        "https://dribbble.com/shots/11132803-Gotikket-Logo-Animation"
+      ]
+    },
+    {
+      "name": "Alex Gorbunov",
+      "dribbble": "alexgoo",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "ui-motion"
+      ],
+      "style": "Notion concept: a notebook card is assembled from the product's own block types (headings, checkboxes, tags) as rounded tiles that cluster, then fold into the N mark; the mark made of what the product does.",
+      "watched": [
+        "https://dribbble.com/shots/15105524-Notion-Logo-Animation-Concept"
+      ]
+    },
+    {
+      "name": "Evan Place",
+      "dribbble": "evanplace",
+      "kisto": null,
+      "kinds": [
+        "logo",
+        "abstract"
+      ],
+      "style": "OpenAI concept: eight orbiting dots draw together and collapse to a point, then the knot mark blooms from it; physics-like attraction easing, mark built from its own petals.",
+      "watched": [
+        "https://dribbble.com/shots/21478632-OpenAI-Logo-Animation-Concept"
+      ]
+    },
+    {
+      "name": "Kxjou.motion",
+      "dribbble": null,
+      "kisto": "Kxjou.motion",
+      "kinds": [
+        "logo",
+        "brand-film"
+      ],
+      "style": "Brand-concept logo animations (Logitech, Duolingo, Discord): product forms morph into the mark, e.g. mouse to webcam to keycaps resolving into the logo, with crisp 2D motion.",
+      "watched": [
+        "https://cdn.kisto.app/previews/v2/003d4fa3-6f76-4cc7-9c63-912b5dd9370e.webm",
+        "https://cdn.kisto.app/previews/v2/4f5ebd83-2a4d-48da-b7fb-7bca527b9cac.webm"
+      ]
+    },
+    {
+      "name": "Kim Holm",
+      "dribbble": null,
+      "kisto": "Kim Holm",
+      "kinds": [
+        "logo",
+        "brand-film"
+      ],
+      "style": "Norwegian Design Council ident: folded paper strips tunnel through nested triangles and settle into the mark; tactile materials, camera moves tied to the logo's geometry.",
+      "watched": [
+        "https://cdn.kisto.app/previews/v2/538c3976-9351-4acb-90bc-9022484966e0.webm"
+      ]
     }
   ],
   "rejected": [
@@ -379,6 +511,38 @@
     {
       "name": "Ramotion",
       "why": "UI showcase animations, not films"
+    },
+    {
+      "name": "Lepisov Branding",
+      "why": "glossy generic logo reveals, same fade-in-with-shine on every brand"
+    },
+    {
+      "name": "Maks Fede",
+      "why": "NOBL sting is glitch and flash cuts, no construction idea"
+    },
+    {
+      "name": "Butcher.studio",
+      "why": "brand film with a photo and motion blur, logo not the subject"
+    },
+    {
+      "name": "Dima Grubin",
+      "why": "Pause Festival: paper shards, the logo never legibly forms"
+    },
+    {
+      "name": "Oto Motion",
+      "why": "MobiTech: stock glitch line-draw template"
+    },
+    {
+      "name": "Mihai Dolganiuc",
+      "why": "Behance-style multi-logo showcase board, nothing built"
+    },
+    {
+      "name": "Daniel Bodea / Kreatank",
+      "why": "Okara pixel-dot reveal, competent but template-like"
+    },
+    {
+      "name": "VADYM REUTSKYI",
+      "why": "Food Art: cute but basic slide-in wordmark"
     }
   ]
 }

@@ -160,7 +160,13 @@ window.run = async () => {
     let v = 0; for (let i = 0; i < L.length; i++) v += (L[i] - mean) ** 2;
     let diff = null;
     if (prev) { diff = 0; for (let i = 0; i < L.length; i++) diff += Math.abs(L[i] - prev[i]); diff /= L.length; }
-    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1) });
+    // Fill: the share of the frame that isn't the background (the most common colour, coarsely bucketed).
+    const buckets = new Map();
+    for (let i = 0; i < L.length; i++) { const k = ((d[i * 4] >> 4) << 8) | ((d[i * 4 + 1] >> 4) << 4) | (d[i * 4 + 2] >> 4); buckets.set(k, (buckets.get(k) || 0) + 1); }
+    let modeK = 0, modeN = -1; for (const [k, n] of buckets) if (n > modeN) { modeN = n; modeK = k; }
+    const mr = ((modeK >> 8) & 15) * 16 + 8, mg = ((modeK >> 4) & 15) * 16 + 8, mb = (modeK & 15) * 16 + 8;
+    let filled = 0; for (let i = 0; i < L.length; i++) if (Math.abs(d[i * 4] - mr) + Math.abs(d[i * 4 + 1] - mg) + Math.abs(d[i * 4 + 2] - mb) > 48) filled++;
+    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1), fill: +(filled / L.length).toFixed(3) });
     prev = L;
   }
   return out;
@@ -221,6 +227,14 @@ export function judgeFrames(times, m, { dense = false } = {}) {
   }
   if (cuts.length) notes.push(`hard changes at ${cuts.slice(0, 10).map(fmtT).join(", ")}${cuts.length > 10 ? ` (+${cuts.length - 10})` : ""}`);
   if (holds.length) notes.push(`still stretches: ${holds.slice(0, 6).map(([a, b]) => `${fmtT(a)}-${fmtT(b)}`).join(", ")}`);
+  // Mostly empty frames: under 12% of the picture is anything but background. A rest can be spare; a film that is
+  // mostly empty frames reads as unfinished ("not enough going on").
+  const sparse = times.filter((t, i) => i >= lead && i < tail && m[i] && m[i].fill != null && m[i].fill < 0.12 && m[i].spread >= 2.5);
+  const filledShare = m.filter((x) => x?.fill != null).map((x) => x.fill);
+  const meanFill = filledShare.length ? filledShare.reduce((x, y) => x + y, 0) / filledShare.length : null;
+  if (sparse.length >= 3 && sparse.length / Math.max(1, tail - lead) > 0.25)
+    issues.push(`mostly empty frames (under 12% of the picture has anything on it) at ${sparse.slice(0, 6).map(fmtT).join(", ")}${sparse.length > 6 ? ` (+${sparse.length - 6})` : ""}: add a living background (light field, glow, grain), scale the subject up, or layer a second element`);
+  if (meanFill != null) notes.push(`frames are ${Math.round(meanFill * 100)}% filled on average`);
   const energy = m.slice(1).map((x) => x?.diff ?? 0);
   return { issues: [...new Set(issues)], notes, cuts, holds, energy };
 }

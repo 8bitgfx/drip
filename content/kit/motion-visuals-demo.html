@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drip visuals demo</title>
+<!--
+  Demo of motion-visuals.js on the Drip Motion kit contract (same structure as motion.html).
+  One paused timeline `tl`; every visual is a pure function of tl.time() through DripVisuals.drive.
+  Layers: lightField + grain always; camera drift on the world; plane3d UI card with glow and light sweeps;
+  particles forming a word; count-up and chart inside the card; globe with orbiting chips; blob + type to close.
+-->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="./motion-visuals.js"></script>
+<style>
+  :root {
+    --ground: #08090d;
+    --ink: #f3f1ec;
+    --muted: #8a90a0;
+    --accent: #ff5b3a;
+    --glow: #ffb36b;
+    --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--ground); color: var(--ink); font-family: var(--font-text); transform-origin: 0 0; }
+  #world { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  .abs { position: absolute; }
+  .card { background: linear-gradient(155deg, #1a1c26 0%, #10121a 60%, #0c0e15 100%); border-radius: 28px; overflow: hidden; }
+  .lbl { font: 500 24px/1 var(--font-text); color: var(--muted); letter-spacing: -0.005em; }
+  .pill { font: 600 22px/1 var(--font-text); color: #ffd8c8; padding: 10px 16px; border-radius: 999px; background: rgba(255,91,58,.16); box-shadow: inset 0 0 0 1px rgba(255,91,58,.4); }
+
+  #ui { position: fixed; left: 16px; right: 16px; bottom: 14px; display: none; gap: 12px; align-items: center;
+        font: 12px/1 ui-monospace, monospace; color: #ddd; background: rgba(20,20,22,.82); padding: 10px 12px;
+        border-radius: 10px; backdrop-filter: blur(8px); z-index: 10; }
+  #ui input { flex: 1; accent-color: var(--accent); }
+  #ui button { all: unset; cursor: pointer; padding: 4px 8px; border-radius: 6px; background: #333; }
+  html[data-live] #ui { display: flex; }
+  html[data-rendering] #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="stage" data-composition-id="main" data-start="0" data-duration="12" data-width="1920" data-height="1080">
+  <div id="world">
+    <!-- the UI card: the visuals wrap it, the film never positions it again -->
+    <div id="card" class="abs card" style="left:120px;top:262px;width:880px;height:590px">
+      <div class="abs lbl" style="left:44px;top:38px">Monthly revenue</div>
+      <div class="abs pill" id="pill" style="right:44px;top:28px">+24.8%</div>
+    </div>
+  </div>
+</div>
+<div id="ui"><button id="play">play</button><input id="scrub" type="range" min="0" step="0.001" value="0"><span id="time">0:00.00</span></div>
+
+<script>
+const FORMAT = { width: 1920, height: 1080, fps: 30, duration: 12 };
+function mulberry32(a) { return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const rand = mulberry32(20261126);
+
+gsap.ticker.lagSmoothing(0);
+const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+const S = (sel) => document.querySelector(sel);
+const W = FORMAT.width, H = FORMAT.height;
+const stage = S("#stage"), world = S("#world"), card = S("#card");
+stage.style.width = W + "px";
+stage.style.height = H + "px";
+
+// ---- the visuals (all pure functions of time) ----
+const V = DripVisuals;
+const light = V.lightField(world, { seed: 4, intensity: 0.85, z: 0 });
+// card first: plane3d takes the card over; glow and sweep then follow it
+const cardCount = V.countUp(card, { value: 48210, prefix: "$", x: 44, y: 74, size: 150, start: 3.7, dur: 2.2 });
+const cardChart = V.barGrow(card, { data: [34, 41, 38, 52, 49, 63, 60, 78, 74, 92], type: "both", x: 44, y: 262, w: 792, h: 290, start: 4.3, dur: 1.5, grid: 3 });
+const plane = V.plane3d(world, { target: card, start: 2.6, dur: 8, from: { rx: 15, ry: -17, rz: 1.4, x: 0 }, to: { rx: 9, ry: -10, rz: 0.4, x: 20 }, enter: { start: 2.7, dur: 1.0, y: 70 }, hide: 8.3, fade: 0.7 });
+const sweep = V.lightSweep(world, { target: card, times: [4.6, 7.2], dur: 1.2 });
+const cardGlow = V.glow(world, { target: plane.el, scale: 1.6, intensity: 0.95, pulse: { period: 3.2, amount: 0.2 }, show: 2.7, hide: 8.3, fade: 0.8 });
+const heroGlow = V.glow(world, { x: 960, y: 470, size: 1100, intensity: 0.8, pulse: { period: 2.4, amount: 0.25 }, show: 0.2, hide: 3.3, fade: 0.9 });
+const word = V.particlesToShape(world, { text: "Drip", size: 230, weight: 700, x: 960, y: 470, n: 2600, start: 0.2, dur: 1.9, disperse: { start: 3.0, dur: 1.4 }, seed: 8 });
+const sub = V.typeReveal(world, { text: "Motion that *feels* made.", x: 960, y: 640, w: 1200, align: "center", size: 60, start: 1.7, stagger: 0.13, out: { start: 3.0 } });
+const head = V.typeReveal(world, { text: "Every frame, *alive.*", x: 120, y: 112, w: 1100, size: 72, weight: 600, start: 3.3, stagger: 0.14, out: { start: 8.0 } });
+const sub2 = V.typeReveal(world, { text: "Light. Depth. Grain. Motion.", x: 124, y: 196, w: 1100, size: 36, weight: 500, color: "#8a90a0", start: 3.9, stagger: 0.1, out: { start: 8.0 } });
+const globe = V.dotGlobe(world, { x: 1405, y: 540, r: 175, speed: 0.1, arcs: 6, seed: 5, show: 3.4, hide: 8.3, fade: 0.8 });
+const globeGlow = V.glow(world, { x: 1405, y: 540, size: 760, intensity: 0.6, show: 3.4, hide: 8.3, fade: 0.9, behind: false, z: 1 });
+const orbit = V.orbitCards(world, { x: 1405, y: 540, rx: 345, ry: 120, items: ["Design", "Motion", "Brand", "Type", "Colour", "Layout", "Icons", "Craft"], start: 4.3, dur: 1.2, speed: 0.06, show: 4.2, hide: 8.2, fade: 0.6 });
+const link = V.lineDraw(world, { paths: [{ d: "M 1010 600 C 1090 680, 1150 420, 1240 520", width: 4 }], viewBox: [1920, 1080], w: 1920, h: 1080, start: 5.0, dur: 1.2, tip: true, show: 4.9, hide: 8.3, fade: 0.5 });
+const blobGlow = V.glow(world, { x: 960, y: 470, size: 1000, intensity: 0.8, pulse: { period: 2.6, amount: 0.22 }, show: 8.6, fade: 1.0 });
+const blob = V.liquidBlob(world, { x: 960, y: 450, size: 560, keys: [{ t: 8.4, shape: "cluster" }, { t: 9.5, shape: "drop" }, { t: 10.9, shape: "ring" }, { t: 12, shape: "drop" }], show: 8.4, fade: 0.6 });
+const end = V.typeReveal(world, { text: "Drip *Motion*", x: 960, y: 800, w: 1200, align: "center", size: 84, weight: 600, start: 9.3, stagger: 0.18 });
+const end2 = V.typeReveal(world, { text: "Films made in code.", x: 960, y: 906, w: 1200, align: "center", size: 36, color: "#8a90a0", start: 10.0, stagger: 0.1 });
+const drift = V.cameraDrift(stage, { target: world, rx: 1.6, ry: 2.6, period: 9, scale: 1.05 });
+const grain = V.grain(stage, { opacity: 0.075, seed: 3 });
+
+// fade the film in and out with a short dip so loops start clean
+tl.addLabel("hook", 0)
+  .from("#pill", { scale: 0.6, opacity: 0, duration: 0.5, ease: "back.out(1.6)", transformOrigin: "100% 50%" }, 4.2)
+  .to({}, { duration: FORMAT.duration });
+
+V.drive(tl, [light, cardCount, cardChart, plane, sweep, cardGlow, heroGlow, word, sub, head, sub2, globe, globeGlow, orbit, link, blobGlow, blob, end, end2, drift, grain]);
+
+function fit() {
+  const k = Math.min(innerWidth / W, innerHeight / H);
+  stage.style.transform = `translate(${(innerWidth - W * k) / 2}px, ${(innerHeight - H * k) / 2}px) scale(${k})`;
+}
+addEventListener("resize", fit);
+fit();
+
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = tl;
+let ready = document.fonts ? document.fonts.ready : Promise.resolve();
+function show(t) { tl.seek(Math.min(Math.max(0, t), FORMAT.duration), false); }
+window.__drip = {
+  ...FORMAT,
+  async seek(t) {
+    document.documentElement.dataset.rendering = "1";
+    playing = false;
+    await ready;
+    show(t);
+  },
+};
+
+const scrub = S("#scrub"), time = S("#time"), playBtn = S("#play");
+scrub.max = FORMAT.duration;
+let now = 0, playing = false, loop = true, last = 0;
+const fmt = (t) => `${Math.floor(t / 60)}:${(t % 60).toFixed(2).padStart(5, "0")}`;
+function set(t) { now = Math.min(Math.max(0, t), FORMAT.duration); show(now); scrub.value = now; time.textContent = `${fmt(now)} / ${fmt(FORMAT.duration)}`; }
+function frame(ts) {
+  if (!playing) return;
+  const dt = last ? (ts - last) / 1000 : 0; last = ts;
+  let t = now + dt;
+  if (t >= FORMAT.duration) { if (loop) t = 0; else { t = FORMAT.duration; playing = false; playBtn.textContent = "play"; } }
+  set(t);
+  requestAnimationFrame(frame);
+}
+function toggle() { playing = !playing; playBtn.textContent = playing ? "pause" : "play"; last = 0; if (playing) requestAnimationFrame(frame); }
+playBtn.onclick = toggle;
+scrub.oninput = () => { playing = false; playBtn.textContent = "play"; set(+scrub.value); };
+addEventListener("keydown", (e) => {
+  if (e.code === "Space") { e.preventDefault(); toggle(); }
+  if (e.code === "ArrowRight") set(now + (e.shiftKey ? 1 : 1 / FORMAT.fps));
+  if (e.code === "ArrowLeft") set(now - (e.shiftKey ? 1 : 1 / FORMAT.fps));
+  if (e.code === "KeyL") loop = !loop;
+});
+const live = () => { if (!document.documentElement.dataset.rendering) document.documentElement.dataset.live = "1"; };
+addEventListener("mousemove", live, { once: true });
+addEventListener("keydown", live, { once: true });
+ready.then(() => set(+(new URLSearchParams(location.search).get("t") || 0)));
+</script>
+</body>
+</html>

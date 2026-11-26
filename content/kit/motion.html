@@ -14,6 +14,8 @@
   the script tag at it, so the render never depends on the network.
 -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<!-- Seekable visuals: light, depth, particles, numbers (drip_guide video/visuals). drip_kit copies it beside this file. -->
+<script src="motion-visuals.js"></script>
 <style>
   /* CHANGE ME: from the storyboard's look. */
   :root {
@@ -111,6 +113,12 @@ fit();
 // HyperFrames / Kinetograph / FrameVelo: one paused root timeline registered by composition id.
 window.__timelines = window.__timelines || {};
 window.__timelines["main"] = tl;
+// A living ground from frame 0: never a dead flat background (drip_guide video/visuals). Add every beat's own
+// visuals to this list: glow, plane3d, lightSweep, particlesToShape, countUp...
+if (window.DripVisuals) {
+  const V = window.DripVisuals;
+  V.drive(tl, [V.lightField(stage, { seed: 7, intensity: 0.7 }), V.grain(stage, { opacity: 0.06, seed: 3 })]);
+}
 // Drip's own capture (and anything that calls seek(t) directly).
 let ready = document.fonts ? document.fonts.ready : Promise.resolve();
 function show(t) {

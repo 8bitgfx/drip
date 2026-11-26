@@ -64,7 +64,13 @@ export async function traceTarget(target, { from, to, fps, storyboard, config, m
     tr = await traceComposition(url, { from: a0, to, fps: rate, width: W, height: H, ghostTimes: gt, config });
   }
   const beats = (storyboard?.beats || []).slice(1).map((b) => b.at);
-  const a = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats });
+  // Pixel change between the tiny frames, so canvas visuals count as something happening.
+  let pixels = [];
+  if (tr.thumbs?.length > 1) {
+    const m = await measureFrames(tr.thumbs.map((x) => x.buf), { config });
+    pixels = tr.thumbs.map((x, i) => ({ t: x.t, diff: m[i]?.diff ?? 0 }));
+  }
+  const a = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats, pixels });
   const sheet = await dopesheet({ labels: tr.labels, times: tr.times, speeds: a.speeds, segments: a.segments, samples: tr.samples, beats, config });
   const onions = [];
   for (const [s, e] of stretchesNow) onions.push({ from: s, to: e, buf: await onionSkin({ ghosts: tr.ghosts, labels: tr.labels, times: tr.times, samples: tr.samples, from: s, to: e, width: W, height: H, config }) });
@@ -227,12 +233,15 @@ export function register(server, ctx) {
         format: z.object({ width: z.number().int(), height: z.number().int(), fps: z.number().int().min(12).max(120), duration: z.number().positive() }),
         look: z.string().describe("Palette, type, materials, ground"),
         moves: z.string().describe("The motion language: physics and weight, easing character per material, how compositions connect, camera"),
+        layers: z.string().optional().describe("What keeps every frame alive behind the action: a light field, grain, a slow camera drift, background blur (never a dead flat ground)"),
         sound: z.string().optional().describe("Music feel and tempo, where the accents land; 'silent' is a choice"),
         beats: z.array(
           z.object({
             at: z.number().min(0),
             len: z.number().positive(),
             action: z.string().describe("Concrete verbs: what moves, what it causes"),
+            visual: z.string().optional().describe("What is cool to look at in this beat: the eye candy (a glow behind the product, UI on a tilted 3D plane with a light sweep, particles forming the word, a number rolling, a dot globe)"),
+            moments: z.array(z.string()).optional().describe("The smaller things that start inside the beat, in order (a chip pops, the camera eases in, a second card slides behind): something new every ~0.8-1.5 s"),
             text: z.string().optional().describe("On-screen copy, if any"),
             transition: z.string().optional().describe("How this beat arrives from the last one (morph, match cut, push, mask wipe...)"),
             energy: z.number().int().min(1).max(5).optional(),

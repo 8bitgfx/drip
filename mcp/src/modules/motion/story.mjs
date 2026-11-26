@@ -67,6 +67,14 @@ export function checkStoryboard(sb, { studied = [] } = {}) {
     const secs = b.len || 1;
     if (words > 3 + secs * 3.2) warnings.push(`beat ${i + 1}: ${words} words in ${secs}s is more than anyone reads while it moves (about 3 words a second plus a beat to settle)`);
   }
+  // Something to look at, and something happening: every beat names its visual (the eye candy: light, depth, a 3D
+  // plane, particles, a data moment, the product as an object), and long beats name the smaller moments inside them.
+  const bare = beats.filter((b) => !String(b.visual || "").trim());
+  if (bare.length) warnings.push(`beat${bare.length > 1 ? "s" : ""} ${bare.map((b) => beats.indexOf(b) + 1).join(", ")} name no visual: what is cool to look at there (a glow behind the subject, UI on a tilted plane, particles forming a shape, a number rolling, a light sweep)? A flat shape on a flat ground is not enough`);
+  const thin = beats.filter((b) => b.len / ((b.moments || []).length + 1) > 1.6 && (b.energy ?? 3) >= 2);
+  if (thin.length) warnings.push(`beat${thin.length > 1 ? "s" : ""} ${thin.map((b) => beats.indexOf(b) + 1).join(", ")}: one move over more than 1.6 s; add moments inside (a second element reacting, the camera moving, a light sweep, a chip, a number) so something new starts every ~0.8-1.5 s`);
+  const kinds = beats.map((b) => String(b.visual || "").toLowerCase().split(/[,;]/)[0].trim()).filter(Boolean);
+  if (kinds.length >= 4 && new Set(kinds).size <= Math.ceil(kinds.length / 3)) warnings.push("most beats use the same visual: vary what is cool to look at from beat to beat");
   if (!String(sb.motif || "").trim()) warnings.push("no motif: name the object or shape that survives from beat to beat (it is what makes the film continuous)");
   return { errors: [...new Set(errors)], warnings: [...new Set(warnings)], duration: D, beats };
 }
@@ -83,11 +91,12 @@ export function storyboardMd(sb) {
     `**Format:** ${f.width || 1920}x${f.height || 1080}, ${f.fps || 30} fps, ${f.duration || "?"}s`,
     `**Look:** ${sb.look}`,
     `**Moves:** ${sb.moves}`,
+    sb.layers ? `**Layers (always alive):** ${sb.layers}` : "",
     sb.sound ? `**Sound:** ${sb.sound}` : "",
     "",
-    "| # | at | len | action | on screen | transition in | energy | sound |",
-    "|---|---|---|---|---|---|---|---|",
-    ...(sb.beats || []).map((b, i) => `| ${i + 1} | ${b.at}s | ${b.len}s | ${b.action} | ${b.text || ""} | ${b.transition || ""} | ${b.energy ?? ""} | ${b.sound || ""} |`),
+    "| # | at | len | action | visual | moments | on screen | transition in | energy | sound |",
+    "|---|---|---|---|---|---|---|---|---|---|",
+    ...(sb.beats || []).map((b, i) => `| ${i + 1} | ${b.at}s | ${b.len}s | ${b.action} | ${b.visual || ""} | ${(b.moments || []).join("; ")} | ${b.text || ""} | ${b.transition || ""} | ${b.energy ?? ""} | ${b.sound || ""} |`),
     "",
     "## References",
     ...(sb.references || []).map((r) => `- **${r.role}** ${r.source}: ${r.take}`),

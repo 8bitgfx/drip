@@ -30,6 +30,7 @@ Film tasks run in `drip_start` mode `motion` (`/drip:motion`). **Call `drip_guid
 | Product demos, cursors, UI on screen | `drip_guide video/product` |
 | 2.5D or 3D camera, parallax, pull-backs, three.js | `drip_guide video/camera` |
 | Music (find, analyse, drops), calm UI sounds, licences, the mix | `drip_guide video/sound` |
+| Light, depth, particles, globes, numbers: the seekable visuals that make a beat rich | `drip_guide video/visuals` |
 | Narration: script for the ear, casting a voice, ElevenLabs settings, timing to picture | `drip_guide video/voice` |
 | Contract, determinism, renderers, formats, ffmpeg, alpha | `drip_guide video/render` |
 | Self-review, the anti-slop table, the 12-point checklist | `drip_guide video/critic` |

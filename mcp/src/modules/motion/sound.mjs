@@ -91,35 +91,81 @@ export function searchCatalogue(cat, { query, category, seconds, limit = 12 }) {
 }
 
 /** Openverse audio (anonymous; 100 requests a minute). Effects: CC0 only. Music: any licence that allows reuse, shown per track. */
-export async function searchOpenverse(query, { music = false, limit = 8 } = {}) {
+/** Vocals from a track's tags: "instrumental", "vocal" or "unknown". Pure (tested). */
+export function vocalsOf(tags = [], title = "") {
+  const t = tags.map((x) => String(x).toLowerCase());
+  if (t.includes("instrumental")) return "instrumental";
+  if (t.some((x) => /^(vocal|vocals|singing|singer|rap|lyrics|female|male|choir|voice)$/.test(x)) || /\b(feat\.?|ft\.|vocal|remix by)\b/i.test(title)) return "vocal";
+  return "unknown";
+}
+
+/** Jamendo's speed tag as a tempo hint. */
+const SPEED = { speed_verylow: "very slow", speed_low: "slow", speed_medium: "medium tempo", speed_high: "fast", speed_veryhigh: "very fast" };
+
+export async function searchOpenverse(query, { music = false, limit = 8, vocals = "no" } = {}) {
   const ask = async (extra) => {
-    const q = new URLSearchParams({ q: query, page_size: String(limit), ...extra });
+    const q = new URLSearchParams({ q: query, page_size: String(Math.min(20, limit * 3)), ...extra });
     return (await get(`https://api.openverse.org/v1/audio/?${q}`, { as: "json", ttlMs: 24 * 3600e3, headers: UA })).body.results || [];
   };
   // Music: whole tracks (Jamendo, and anything filed as music), licences that allow commercial use; never ND for
-  // a film (no edits means no cutting it to picture), at least 20 seconds long.
+  // a film (no edits means no cutting it to picture), at least 20 seconds long. Instrumental first: a track with
+  // words fights the picture and any narration.
   const raw = music
     ? (await Promise.all([ask({ license_type: "commercial", source: "jamendo" }), ask({ license_type: "commercial", category: "music" })]))
         .flat()
         .filter((r, i, all) => all.findIndex((x) => x.id === r.id) === i)
         .filter((r) => !/nd/i.test(r.license || "") && (r.duration || 0) >= 20000)
     : await ask({ license: "cc0" });
-  return raw.slice(0, limit * 2).map((r) => ({
-    id: `openverse:${r.id}`,
-    name: r.title,
-    category: music ? (r.genres || []).join(", ") || "music" : r.category || "sound",
-    tags: (r.tags || []).map((t) => t.name).slice(0, 8),
-    use: [],
-    avoid: [],
-    seconds: r.duration ? r.duration / 1000 : null,
-    sync: null,
-    file: r.url,
-    preview: r.url,
-    licence: `${String(r.license || "").toUpperCase()} ${r.license_version || ""}`.trim(),
-    licenceUrl: r.license_url,
-    attribution: r.attribution,
-    source: `${r.provider || "openverse"}${r.creator ? ` / ${r.creator}` : ""}`,
-  }));
+  const mapped = raw.map((r) => {
+    const tags = (r.tags || []).map((t) => t.name);
+    return {
+      id: `openverse:${r.id}`,
+      name: r.title,
+      category: music ? (r.genres || []).join(", ") || "music" : r.category || "sound",
+      tags: tags.slice(0, 8),
+      vocals: music ? vocalsOf(tags, r.title) : undefined,
+      tempo: tags.map((t) => SPEED[t]).find(Boolean),
+      use: [],
+      avoid: [],
+      seconds: r.duration ? r.duration / 1000 : null,
+      sync: null,
+      file: r.url,
+      preview: r.url,
+      licence: `${String(r.license || "").toUpperCase()} ${r.license_version || ""}`.trim(),
+      licenceUrl: r.license_url,
+      attribution: r.attribution,
+      source: `${r.provider || "openverse"}${r.creator ? ` / ${r.creator}` : ""}`,
+    };
+  });
+  if (!music || vocals === "any") return mapped.slice(0, limit * 2);
+  // vocals "no": confirmed instrumentals first, unknowns after (labelled), never a track tagged with vocals.
+  const rank = { instrumental: 0, unknown: 1 };
+  return mapped.filter((m) => m.vocals !== "vocal").sort((a, b) => rank[a.vocals] - rank[b.vocals]).slice(0, limit * 2);
+}
+
+/** Jamendo's own API (a free client id on the settings page): a real instrumental filter and popularity order. */
+export async function searchJamendo(query, { clientId, limit = 10, vocals = "no" } = {}) {
+  const q = new URLSearchParams({ client_id: clientId, format: "json", limit: String(limit), search: query, include: "musicinfo licenses", audioformat: "mp32", order: "popularity_total", audiodlformat: "mp32" });
+  if (vocals !== "any") q.set("vocalinstrumental", "instrumental");
+  const { body } = await get(`https://api.jamendo.com/v3.0/tracks/?${q}`, { as: "json", ttlMs: 24 * 3600e3, headers: UA });
+  return (body.results || [])
+    .filter((r) => r.audiodownload_allowed !== false && !/-nd/i.test(r.license_ccurl || ""))
+    .map((r) => ({
+      id: `jamendo:${r.id}`,
+      name: `${r.name} — ${r.artist_name}`,
+      category: (r.musicinfo?.tags?.genres || []).join(", ") || "music",
+      tags: [...(r.musicinfo?.tags?.vartags || []), ...(r.musicinfo?.tags?.instruments || [])].slice(0, 8),
+      vocals: r.musicinfo?.vocalinstrumental === "instrumental" ? "instrumental" : r.musicinfo?.vocalinstrumental === "vocal" ? "vocal" : "unknown",
+      tempo: r.musicinfo?.speed ? `${r.musicinfo.speed} tempo` : undefined,
+      seconds: r.duration,
+      file: r.audiodownload || r.audio,
+      preview: r.audio,
+      licence: (r.license_ccurl || "").replace(/^https?:\/\/creativecommons\.org\/licenses\//, "CC ").replace(/\/$/, "").toUpperCase() || "see Jamendo",
+      licenceUrl: r.license_ccurl,
+      attribution: `${r.name} by ${r.artist_name} (Jamendo)`,
+      source: `jamendo / ${r.artist_name}`,
+      pro: r.prourl || null,
+    }));
 }
 
 /** Where each cue's file starts so that its sync point (or its start) lands on `at`. */

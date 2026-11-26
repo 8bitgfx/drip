@@ -99663,7 +99663,8 @@ var KEY_ENV = {
   pexels: ["PEXELS_API_KEY"],
   openverse: ["OPENVERSE_TOKEN"],
   pixabay: ["PIXABAY_API_KEY"],
-  elevenlabs: ["ELEVENLABS_API_KEY", "XI_API_KEY"]
+  elevenlabs: ["ELEVENLABS_API_KEY", "XI_API_KEY"],
+  jamendo: ["JAMENDO_CLIENT_ID"]
 };
 var file2 = path23.join(homeDripDir, "keys.json");
 function readFile2() {
@@ -101098,7 +101099,13 @@ window.run = async () => {
     let v = 0; for (let i = 0; i < L.length; i++) v += (L[i] - mean) ** 2;
     let diff = null;
     if (prev) { diff = 0; for (let i = 0; i < L.length; i++) diff += Math.abs(L[i] - prev[i]); diff /= L.length; }
-    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1) });
+    // Fill: the share of the frame that isn't the background (the most common colour, coarsely bucketed).
+    const buckets = new Map();
+    for (let i = 0; i < L.length; i++) { const k = ((d[i * 4] >> 4) << 8) | ((d[i * 4 + 1] >> 4) << 4) | (d[i * 4 + 2] >> 4); buckets.set(k, (buckets.get(k) || 0) + 1); }
+    let modeK = 0, modeN = -1; for (const [k, n] of buckets) if (n > modeN) { modeN = n; modeK = k; }
+    const mr = ((modeK >> 8) & 15) * 16 + 8, mg = ((modeK >> 4) & 15) * 16 + 8, mb = (modeK & 15) * 16 + 8;
+    let filled = 0; for (let i = 0; i < L.length; i++) if (Math.abs(d[i * 4] - mr) + Math.abs(d[i * 4 + 1] - mg) + Math.abs(d[i * 4 + 2] - mb) > 48) filled++;
+    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1), fill: +(filled / L.length).toFixed(3) });
     prev = L;
   }
   return out;
@@ -101152,6 +101159,12 @@ function judgeFrames(times, m, { dense = false } = {}) {
   }
   if (cuts.length) notes.push(`hard changes at ${cuts.slice(0, 10).map(fmtT).join(", ")}${cuts.length > 10 ? ` (+${cuts.length - 10})` : ""}`);
   if (holds.length) notes.push(`still stretches: ${holds.slice(0, 6).map(([a2, b]) => `${fmtT(a2)}-${fmtT(b)}`).join(", ")}`);
+  const sparse = times.filter((t2, i2) => i2 >= lead && i2 < tail2 && m[i2] && m[i2].fill != null && m[i2].fill < 0.12 && m[i2].spread >= 2.5);
+  const filledShare = m.filter((x2) => x2?.fill != null).map((x2) => x2.fill);
+  const meanFill = filledShare.length ? filledShare.reduce((x2, y2) => x2 + y2, 0) / filledShare.length : null;
+  if (sparse.length >= 3 && sparse.length / Math.max(1, tail2 - lead) > 0.25)
+    issues.push(`mostly empty frames (under 12% of the picture has anything on it) at ${sparse.slice(0, 6).map(fmtT).join(", ")}${sparse.length > 6 ? ` (+${sparse.length - 6})` : ""}: add a living background (light field, glow, grain), scale the subject up, or layer a second element`);
+  if (meanFill != null) notes.push(`frames are ${Math.round(meanFill * 100)}% filled on average`);
   const energy = m.slice(1).map((x2) => x2?.diff ?? 0);
   return { issues: [...new Set(issues)], notes, cuts, holds, energy };
 }
@@ -101410,6 +101423,12 @@ function checkStoryboard(sb, { studied = [] } = {}) {
     const secs = b.len || 1;
     if (words4 > 3 + secs * 3.2) warnings.push(`beat ${i2 + 1}: ${words4} words in ${secs}s is more than anyone reads while it moves (about 3 words a second plus a beat to settle)`);
   }
+  const bare = beats.filter((b) => !String(b.visual || "").trim());
+  if (bare.length) warnings.push(`beat${bare.length > 1 ? "s" : ""} ${bare.map((b) => beats.indexOf(b) + 1).join(", ")} name no visual: what is cool to look at there (a glow behind the subject, UI on a tilted plane, particles forming a shape, a number rolling, a light sweep)? A flat shape on a flat ground is not enough`);
+  const thin = beats.filter((b) => b.len / ((b.moments || []).length + 1) > 1.6 && (b.energy ?? 3) >= 2);
+  if (thin.length) warnings.push(`beat${thin.length > 1 ? "s" : ""} ${thin.map((b) => beats.indexOf(b) + 1).join(", ")}: one move over more than 1.6 s; add moments inside (a second element reacting, the camera moving, a light sweep, a chip, a number) so something new starts every ~0.8-1.5 s`);
+  const kinds = beats.map((b) => String(b.visual || "").toLowerCase().split(/[,;]/)[0].trim()).filter(Boolean);
+  if (kinds.length >= 4 && new Set(kinds).size <= Math.ceil(kinds.length / 3)) warnings.push("most beats use the same visual: vary what is cool to look at from beat to beat");
   if (!String(sb.motif || "").trim()) warnings.push("no motif: name the object or shape that survives from beat to beat (it is what makes the film continuous)");
   return { errors: [...new Set(errors)], warnings: [...new Set(warnings)], duration: D, beats };
 }
@@ -101424,11 +101443,12 @@ function storyboardMd(sb) {
     `**Format:** ${f3.width || 1920}x${f3.height || 1080}, ${f3.fps || 30} fps, ${f3.duration || "?"}s`,
     `**Look:** ${sb.look}`,
     `**Moves:** ${sb.moves}`,
+    sb.layers ? `**Layers (always alive):** ${sb.layers}` : "",
     sb.sound ? `**Sound:** ${sb.sound}` : "",
     "",
-    "| # | at | len | action | on screen | transition in | energy | sound |",
-    "|---|---|---|---|---|---|---|---|",
-    ...(sb.beats || []).map((b, i2) => `| ${i2 + 1} | ${b.at}s | ${b.len}s | ${b.action} | ${b.text || ""} | ${b.transition || ""} | ${b.energy ?? ""} | ${b.sound || ""} |`),
+    "| # | at | len | action | visual | moments | on screen | transition in | energy | sound |",
+    "|---|---|---|---|---|---|---|---|---|---|",
+    ...(sb.beats || []).map((b, i2) => `| ${i2 + 1} | ${b.at}s | ${b.len}s | ${b.action} | ${b.visual || ""} | ${(b.moments || []).join("; ")} | ${b.text || ""} | ${b.transition || ""} | ${b.energy ?? ""} | ${b.sound || ""} |`),
     "",
     "## References",
     ...(sb.references || []).map((r2) => `- **${r2.role}** ${r2.source}: ${r2.take}`)
@@ -101488,21 +101508,26 @@ async function traceComposition(url2, { from = 0, to: to2, fps = 30, width = 192
     const samples = [];
     const want = new Set(ghostTimes.map((t2) => Math.round((t2 - from) / dt)));
     const ghosts = [];
+    const thumbs = [];
     for (let i2 = 0; i2 < n3; i2++) {
       const t2 = +(from + i2 * dt).toFixed(4);
       await evalJson(tab.s, seekExpr(t2));
       times.push(t2);
       samples.push(await evalJson(tab.s, SAMPLE));
+      if (i2 % Math.max(1, Math.round(fps / 4)) === 0) {
+        const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 60, clip: { x: 0, y: 0, width, height, scale: Math.min(1, 192 / width) } });
+        thumbs.push({ t: t2, buf: Buffer.from(data, "base64") });
+      }
       if (want.has(i2)) {
         const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 78, clip: { x: 0, y: 0, width, height, scale: Math.min(1, 960 / width) } });
         ghosts.push({ t: t2, buf: Buffer.from(data, "base64") });
       }
     }
-    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts };
+    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts, thumbs };
   });
 }
 var dist = (a2, b) => Math.hypot(a2[0] - b[0], a2[1] - b[1]);
-function analyzeTrace({ labels, times, samples, width = 1920, beats = [] }) {
+function analyzeTrace({ labels, times, samples, width = 1920, beats = [], pixels = [] }) {
   const n3 = times.length;
   if (n3 < 3) return { segments: [], flags: [], notes: [], speeds: [] };
   const dt = (times[n3 - 1] - times[0]) / (n3 - 1);
@@ -101597,6 +101622,19 @@ function analyzeTrace({ labels, times, samples, width = 1920, beats = [] }) {
   let still = 0;
   for (let i2 = 1; i2 < n3; i2++) if (speeds.every((sp, k) => sp[i2] <= moveThr && fadeRate[k][i2] <= 0.25)) still++;
   notes.push(`${Math.round(still / (n3 - 1) * 100)}% of the time nothing moves`);
+  const starts = [...new Set(segments.filter((x2) => x2.travel > 12 || x2.fade).map((x2) => +x2.from.toFixed(2)))].sort((p2, q2) => p2 - q2);
+  const span = times[n3 - 1] - times[0];
+  const gaps = [];
+  let prevT = times[0];
+  for (const t0 of [...starts, times[n3 - 1]]) {
+    if (t0 - prevT > 2.2) gaps.push([prevT, t0]);
+    prevT = Math.max(prevT, t0);
+  }
+  const busy3 = ([a0, b0]) => pixels.some((p2) => p2.t > a0 + 0.2 && p2.t < b0 - 0.2 && p2.diff > 3);
+  const longGaps = gaps.filter(([a0, b0]) => b0 - a0 > 2.2 && !busy3([a0, b0]));
+  if (longGaps.length > 1 || longGaps.some(([a0, b0]) => b0 - a0 > 3.2))
+    flags.push(`nothing new starts for ${longGaps.map(([a0, b0]) => `${(b0 - a0).toFixed(1)}s (${fmtT(a0)}-${fmtT(b0)})`).join(", ")}: a launch film starts something every ~0.8-1.5 s (a second element, the camera, a light sweep, a number, a chip) and rests at most once after a peak`);
+  if (span > 4) notes.push(`${(starts.length / span).toFixed(2)} new moves a second (the house style aims for about 0.7-1.2 in a launch film)`);
   const quiet = beats.filter((b) => b > times[0] + 0.05 && !segments.some((s2) => Math.abs(s2.from - b) <= 0.25));
   if (quiet.length) notes.push(`no move starts within 0.25s of the beat at ${quiet.slice(0, 6).map(fmtT).join(", ")}`);
   return { segments, flags, notes, speeds, dt };
@@ -102204,27 +102242,63 @@ function searchCatalogue(cat, { query, category, seconds, limit = 12 }) {
   }
   return scored.sort((a2, b) => b[0] - a2[0]).slice(0, limit).map(([, s2]) => s2);
 }
-async function searchOpenverse(query, { music = false, limit = 8 } = {}) {
+function vocalsOf(tags = [], title = "") {
+  const t2 = tags.map((x2) => String(x2).toLowerCase());
+  if (t2.includes("instrumental")) return "instrumental";
+  if (t2.some((x2) => /^(vocal|vocals|singing|singer|rap|lyrics|female|male|choir|voice)$/.test(x2)) || /\b(feat\.?|ft\.|vocal|remix by)\b/i.test(title)) return "vocal";
+  return "unknown";
+}
+var SPEED = { speed_verylow: "very slow", speed_low: "slow", speed_medium: "medium tempo", speed_high: "fast", speed_veryhigh: "very fast" };
+async function searchOpenverse(query, { music = false, limit = 8, vocals = "no" } = {}) {
   const ask = async (extra) => {
-    const q2 = new URLSearchParams({ q: query, page_size: String(limit), ...extra });
+    const q2 = new URLSearchParams({ q: query, page_size: String(Math.min(20, limit * 3)), ...extra });
     return (await get(`https://api.openverse.org/v1/audio/?${q2}`, { as: "json", ttlMs: 24 * 36e5, headers: UA })).body.results || [];
   };
   const raw = music ? (await Promise.all([ask({ license_type: "commercial", source: "jamendo" }), ask({ license_type: "commercial", category: "music" })])).flat().filter((r2, i2, all) => all.findIndex((x2) => x2.id === r2.id) === i2).filter((r2) => !/nd/i.test(r2.license || "") && (r2.duration || 0) >= 2e4) : await ask({ license: "cc0" });
-  return raw.slice(0, limit * 2).map((r2) => ({
-    id: `openverse:${r2.id}`,
-    name: r2.title,
-    category: music ? (r2.genres || []).join(", ") || "music" : r2.category || "sound",
-    tags: (r2.tags || []).map((t2) => t2.name).slice(0, 8),
-    use: [],
-    avoid: [],
-    seconds: r2.duration ? r2.duration / 1e3 : null,
-    sync: null,
-    file: r2.url,
-    preview: r2.url,
-    licence: `${String(r2.license || "").toUpperCase()} ${r2.license_version || ""}`.trim(),
-    licenceUrl: r2.license_url,
-    attribution: r2.attribution,
-    source: `${r2.provider || "openverse"}${r2.creator ? ` / ${r2.creator}` : ""}`
+  const mapped = raw.map((r2) => {
+    const tags = (r2.tags || []).map((t2) => t2.name);
+    return {
+      id: `openverse:${r2.id}`,
+      name: r2.title,
+      category: music ? (r2.genres || []).join(", ") || "music" : r2.category || "sound",
+      tags: tags.slice(0, 8),
+      vocals: music ? vocalsOf(tags, r2.title) : void 0,
+      tempo: tags.map((t2) => SPEED[t2]).find(Boolean),
+      use: [],
+      avoid: [],
+      seconds: r2.duration ? r2.duration / 1e3 : null,
+      sync: null,
+      file: r2.url,
+      preview: r2.url,
+      licence: `${String(r2.license || "").toUpperCase()} ${r2.license_version || ""}`.trim(),
+      licenceUrl: r2.license_url,
+      attribution: r2.attribution,
+      source: `${r2.provider || "openverse"}${r2.creator ? ` / ${r2.creator}` : ""}`
+    };
+  });
+  if (!music || vocals === "any") return mapped.slice(0, limit * 2);
+  const rank2 = { instrumental: 0, unknown: 1 };
+  return mapped.filter((m) => m.vocals !== "vocal").sort((a2, b) => rank2[a2.vocals] - rank2[b.vocals]).slice(0, limit * 2);
+}
+async function searchJamendo(query, { clientId, limit = 10, vocals = "no" } = {}) {
+  const q2 = new URLSearchParams({ client_id: clientId, format: "json", limit: String(limit), search: query, include: "musicinfo licenses", audioformat: "mp32", order: "popularity_total", audiodlformat: "mp32" });
+  if (vocals !== "any") q2.set("vocalinstrumental", "instrumental");
+  const { body } = await get(`https://api.jamendo.com/v3.0/tracks/?${q2}`, { as: "json", ttlMs: 24 * 36e5, headers: UA });
+  return (body.results || []).filter((r2) => r2.audiodownload_allowed !== false && !/-nd/i.test(r2.license_ccurl || "")).map((r2) => ({
+    id: `jamendo:${r2.id}`,
+    name: `${r2.name} \u2014 ${r2.artist_name}`,
+    category: (r2.musicinfo?.tags?.genres || []).join(", ") || "music",
+    tags: [...r2.musicinfo?.tags?.vartags || [], ...r2.musicinfo?.tags?.instruments || []].slice(0, 8),
+    vocals: r2.musicinfo?.vocalinstrumental === "instrumental" ? "instrumental" : r2.musicinfo?.vocalinstrumental === "vocal" ? "vocal" : "unknown",
+    tempo: r2.musicinfo?.speed ? `${r2.musicinfo.speed} tempo` : void 0,
+    seconds: r2.duration,
+    file: r2.audiodownload || r2.audio,
+    preview: r2.audio,
+    licence: (r2.license_ccurl || "").replace(/^https?:\/\/creativecommons\.org\/licenses\//, "CC ").replace(/\/$/, "").toUpperCase() || "see Jamendo",
+    licenceUrl: r2.license_ccurl,
+    attribution: `${r2.name} by ${r2.artist_name} (Jamendo)`,
+    source: `jamendo / ${r2.artist_name}`,
+    pro: r2.prourl || null
   }));
 }
 function placeCue(cue, sound) {
@@ -102333,6 +102407,7 @@ function registerAudio(server2, ctx2) {
         styles: external_exports.array(external_exports.string()).optional().describe("generate: global styles: genre, mood, instruments, '112 BPM', 'D minor'"),
         avoid: external_exports.array(external_exports.string()).optional().describe("generate: what to keep out: 'vocals', 'cheesy corporate ukulele', 'big risers'"),
         query: external_exports.string().optional(),
+        vocals: external_exports.enum(["no", "any"]).optional().describe("search: default no (instrumental only); any when the user wants a song with words"),
         source: external_exports.string().optional().describe("A file in the project or an audio URL"),
         licence: external_exports.string().optional(),
         credit: external_exports.string().optional(),
@@ -102341,7 +102416,7 @@ function registerAudio(server2, ctx2) {
         fadeOut: external_exports.number().optional()
       }
     },
-    safe(async ({ action, query, source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
       const config2 = ctx2.config();
       const { task } = loadState();
       if (action === "generate") {
@@ -102367,12 +102442,25 @@ function registerAudio(server2, ctx2) {
       }
       if (action === "search") {
         if (!query) return text('Pass query: the feel in music words ("minimal electronic pulse", "warm lo-fi piano", "cinematic build").', true);
-        const r2 = await searchOpenverse(query, { music: true, limit: 10 });
-        if (!r2.length) return text("No tracks found. Try fewer, broader words; or use a track the user owns.", true);
+        const jamendoId = getKey("jamendo");
+        const found = [];
+        const notes = [];
+        if (jamendoId) found.push(...await searchJamendo(query, { clientId: jamendoId, vocals }).catch((e2) => (notes.push(`Jamendo: ${e2.message}`), [])));
+        else notes.push("Jamendo's own API (a real instrumental filter, popularity order) needs a free client id: add it on /drip:settings \u2192 API keys");
+        const seen = new Set(found.map((t2) => t2.name.toLowerCase()));
+        for (const v of relaxQuery(query)) {
+          for (const t2 of await searchOpenverse(v, { music: true, limit: 10, vocals }).catch(() => [])) if (!seen.has(t2.name.toLowerCase()) && seen.add(t2.name.toLowerCase())) found.push(t2);
+          if (found.length >= 12) break;
+        }
+        const r2 = found.slice(0, 14);
+        if (!r2.length) return text("No tracks found. Try fewer, broader words (a genre and a feel); or use a track the user owns.", true);
         return text(
-          `${r2.length} tracks (Openverse; licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND means no edits, so no cutting it to picture):
-` + r2.map((t2, i2) => `${i2 + 1}. ${t2.name} \xB7 ${t2.seconds ? `${Math.round(t2.seconds)}s` : "?"} \xB7 ${t2.licence} \xB7 ${t2.source}
-   ${t2.preview}`).join("\n") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion music: a clear pulse (90-128 BPM), a build into one drop or lift near the film's big moment, a clean ending, no vocals over narration."
+          `PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: "Epidemic Sound subscription"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.
+
+${r2.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND, already left out, forbids cutting to picture):
+` + r2.map((t2, i2) => `${i2 + 1}. ${t2.name} \xB7 ${t2.seconds ? `${Math.round(t2.seconds)}s` : "?"} \xB7 ${t2.vocals === "instrumental" ? "instrumental" : t2.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t2.tempo ? ` \xB7 ${t2.tempo}` : ""} \xB7 ${t2.licence} \xB7 ${t2.source}${t2.category && t2.category !== "music" ? ` \xB7 ${t2.category}` : ""}
+   ${t2.preview}`).join("\n") + (notes.length ? `
+(${notes.join("; ")})` : "") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion music: instrumental, a clear pulse (90-128 BPM), a build into one drop or lift near the film's big moment, a clean ending. Music with words only when the user asks for it."
         );
       }
       if (!source) return text("Pass source: a project file or an audio URL.", true);
@@ -102744,7 +102832,12 @@ async function traceTarget(target, { from, to: to2, fps, storyboard, config: con
     tr = await traceComposition(url2, { from: a0, to: to2, fps: rate, width: W, height: H, ghostTimes: gt, config: config2 });
   }
   const beats = (storyboard?.beats || []).slice(1).map((b) => b.at);
-  const a2 = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats });
+  let pixels = [];
+  if (tr.thumbs?.length > 1) {
+    const m = await measureFrames(tr.thumbs.map((x2) => x2.buf), { config: config2 });
+    pixels = tr.thumbs.map((x2, i2) => ({ t: x2.t, diff: m[i2]?.diff ?? 0 }));
+  }
+  const a2 = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats, pixels });
   const sheet = await dopesheet({ labels: tr.labels, times: tr.times, speeds: a2.speeds, segments: a2.segments, samples: tr.samples, beats, config: config2 });
   const onions = [];
   for (const [s2, e2] of stretchesNow) onions.push({ from: s2, to: e2, buf: await onionSkin({ ghosts: tr.ghosts, labels: tr.labels, times: tr.times, samples: tr.samples, from: s2, to: e2, width: W, height: H, config: config2 }) });
@@ -102892,12 +102985,15 @@ Now READ it like a motion designer (inferred, say so): the one idea it communica
         format: external_exports.object({ width: external_exports.number().int(), height: external_exports.number().int(), fps: external_exports.number().int().min(12).max(120), duration: external_exports.number().positive() }),
         look: external_exports.string().describe("Palette, type, materials, ground"),
         moves: external_exports.string().describe("The motion language: physics and weight, easing character per material, how compositions connect, camera"),
+        layers: external_exports.string().optional().describe("What keeps every frame alive behind the action: a light field, grain, a slow camera drift, background blur (never a dead flat ground)"),
         sound: external_exports.string().optional().describe("Music feel and tempo, where the accents land; 'silent' is a choice"),
         beats: external_exports.array(
           external_exports.object({
             at: external_exports.number().min(0),
             len: external_exports.number().positive(),
             action: external_exports.string().describe("Concrete verbs: what moves, what it causes"),
+            visual: external_exports.string().optional().describe("What is cool to look at in this beat: the eye candy (a glow behind the product, UI on a tilted 3D plane with a light sweep, particles forming the word, a number rolling, a dot globe)"),
+            moments: external_exports.array(external_exports.string()).optional().describe("The smaller things that start inside the beat, in order (a chip pops, the camera eases in, a second card slides behind): something new every ~0.8-1.5 s"),
             text: external_exports.string().optional().describe("On-screen copy, if any"),
             transition: external_exports.string().optional().describe("How this beat arrives from the last one (morph, match cut, push, mask wipe...)"),
             energy: external_exports.number().int().min(1).max(5).optional(),
@@ -103478,7 +103574,7 @@ ${b}`).join("\n\n")
       title: "Copy the base kit into the project",
       description: `Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: "src/styles/base.css" }). Other templates: template "design-md" (DESIGN.md skeleton the critic and fitcheck_lint check against), "comp" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), "brand-board" (the HTML board_brand fills), "readme-art" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).`,
       inputSchema: {
-        template: external_exports.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system", "motion"]).optional().describe("Default base-css. motion: a seekable film composition (Drip Motion)"),
+        template: external_exports.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system", "motion", "motion-visuals"]).optional().describe("Default base-css. motion: a seekable film composition (Drip Motion), with the seekable visuals library next to it. motion-visuals: a layered demo film using every visual (light field, glow, grain, 3D planes, light sweep, particles to shape, dot globe, orbiting cards, liquid blob, line draw, numbers, depth stack, type reveal) to copy from"),
         out: external_exports.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; assets/readme/src/readme-art.mjs)"),
         overwrite: external_exports.boolean().optional()
       }
@@ -103487,13 +103583,17 @@ ${b}`).join("\n\n")
       const root = projectDir();
       if (template === "base-css" && loadState().task?.surface === "readme")
         return text('GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: "readme-art" }), render it with render_html (scale 2), and check it with readme_check.', true);
-      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html", motion: "motion.html" };
-      const DEF = { "base-css": fs43.existsSync(path41.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs43.existsSync(path41.join(root, "src")) ? "src/styles/system.html" : "styles/system.html", motion: "film/index.html" };
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html", motion: "motion.html", "motion-visuals": "motion-visuals-demo.html" };
+      const DEF = { "base-css": fs43.existsSync(path41.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs43.existsSync(path41.join(root, "src")) ? "src/styles/system.html" : "styles/system.html", motion: "film/index.html", "motion-visuals": "film/visuals-demo.html" };
       const rel3 = out || DEF[template];
       const dest = path41.resolve(root, rel3);
       if (fs43.existsSync(dest) && !overwrite) return text(`${rel3} already exists. Pass overwrite: true to replace it, or edit it.`, true);
       fs43.mkdirSync(path41.dirname(dest), { recursive: true });
       fs43.copyFileSync(path41.join(kitDir, SRC[template]), dest);
+      if (["motion", "motion-visuals"].includes(template)) {
+        const lib = path41.join(path41.dirname(dest), "motion-visuals.js");
+        if (!fs43.existsSync(lib)) fs43.copyFileSync(path41.join(kitDir, "motion-visuals.js"), lib);
+      }
       if (template === "design-md") updateState((st) => st.task && (st.task.designDoc = rel3));
       if (template === "design-md") return text(`Wrote ${rel3}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
       if (template === "comp") return text(`Wrote ${rel3}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
@@ -103501,8 +103601,11 @@ ${b}`).join("\n\n")
       if (template === "system") return text(`Wrote ${rel3}: the living design system. It reads every colour, type role and spacing step from the project's drip-base.css (set the link at the top if it lives elsewhere), so it never drifts. Add a specimen for every component the pages use, in its states, and build them here first. Shoot it with fitcheck_shot to check it.`);
       if (template === "motion")
         return text(
-          `Wrote ${rel3}: a seekable composition. Set FORMAT from the storyboard, put each beat on the master timeline \`tl\` at its storyboard time (a label per beat), keep every random number seeded (rand()), and never use timers or real time. Open it in a browser to scrub (space plays, arrow keys step a frame, ?t=3.2 opens at a time). motion_frames sees exactly what the render will.`
+          `Wrote ${rel3}: a seekable composition. Set FORMAT from the storyboard, put each beat on the master timeline \`tl\` at its storyboard time (a label per beat), keep every random number seeded (rand()), and never use timers or real time. Open it in a browser to scrub (space plays, arrow keys step a frame, ?t=3.2 opens at a time). motion_frames sees exactly what the render will.
+motion-visuals.js sits beside it: seekable light fields, glows, grain, 3D planes, light sweeps, particles that form shapes, dot globes, orbiting cards, numbers and more (drip_guide video/visuals). Load it with a <script src> and give every beat its visual; DripVisuals.drive(tl, [...]) keeps them on the clock.`
         );
+      if (template === "motion-visuals")
+        return text(`Wrote ${rel3}: a layered demo film using the visuals library (motion-visuals.js beside it). Open it to see what each visual looks like, motion_frames it, and copy the pieces you need into the film.`);
       if (template === "brand-board") return text(`Wrote ${rel3}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel3}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then drip_mark system (DESIGN.md only when the user asks for it).`
@@ -110769,7 +110872,8 @@ var KEYS2 = [
   ["pexels", "Photo search"],
   ["pixabay", "Photo search"],
   ["openverse", "Photo search (openly licensed)"],
-  ["elevenlabs", "Narration for films (ElevenLabs text to speech)"]
+  ["elevenlabs", "Narration for films (ElevenLabs text to speech)"],
+  ["jamendo", "Instrumental music search for films (Jamendo client id, free at devportal.jamendo.com)"]
 ];
 var KITS = ["Aceternity Pro", "Magic UI Pro", "bencho Pro", "Breeze UI", "Tailark", "efferd Pro", "Skiper UI", "shadcnblocks"];
 var SWITCHES = [
@@ -111666,7 +111770,7 @@ function hoverSteps(task) {
 var KIND_BRIEF = {
   directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
-  motion: "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions, half-drawn shapes, clipped text), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). Name timestamps for every problem.",
+  motion: "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions, half-drawn shapes, clipped text), whether there is ENOUGH TO LOOK AT (light, depth, layered visuals, the product as a rich object, something new starting about every second; a launch film of flat shapes on an empty ground with one move per beat is basic, however clean), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). Name timestamps for every problem.",
   logo: "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a clich\xE9), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack: "You are judging a NICHE PACK: written guidance meant to make a designer excellent in one niche. Is it specific to the niche (real standards, real artists, real techniques, real numbers) or generic design advice with the niche's name pasted in? Name every generic or wrong statement and what's missing.",
   any: "You are judging a design. Judge only what you see against the brief (if any)."

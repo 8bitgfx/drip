@@ -22,6 +22,7 @@ export const KEYS = [
   ["pixabay", "Photo search"],
   ["openverse", "Photo search (openly licensed)"],
   ["elevenlabs", "Narration for films (ElevenLabs text to speech)"],
+  ["jamendo", "Instrumental music search for films (Jamendo client id, free at devportal.jamendo.com)"],
 ];
 export const KITS = ["Aceternity Pro", "Magic UI Pro", "bencho Pro", "Breeze UI", "Tailark", "efferd Pro", "Skiper UI", "shadcnblocks"];
 

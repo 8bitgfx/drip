@@ -49,17 +49,23 @@ export async function traceComposition(url, { from = 0, to, fps = 30, width = 19
     const samples = [];
     const want = new Set(ghostTimes.map((t) => Math.round((t - from) / dt)));
     const ghosts = [];
+    const thumbs = [];
     for (let i = 0; i < n; i++) {
       const t = +(from + i * dt).toFixed(4);
       await evalJson(tab.s, seekExpr(t));
       times.push(t);
       samples.push(await evalJson(tab.s, SAMPLE));
+      // Tiny frames about 4 times a second: canvas visuals (particles, globes, light fields) change pixels, not boxes.
+      if (i % Math.max(1, Math.round(fps / 4)) === 0) {
+        const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 60, clip: { x: 0, y: 0, width, height, scale: Math.min(1, 192 / width) } });
+        thumbs.push({ t, buf: Buffer.from(data, "base64") });
+      }
       if (want.has(i)) {
         const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 78, clip: { x: 0, y: 0, width, height, scale: Math.min(1, 960 / width) } });
         ghosts.push({ t, buf: Buffer.from(data, "base64") });
       }
     }
-    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts };
+    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts, thumbs };
   });
 }
 
@@ -69,7 +75,7 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
  * The numbers: per element its moving segments, and the flags. Pure (tested).
  * A segment: { el, from, to, travel, peak, endRatio, linear, hitchAt, overshoot, fade }.
  */
-export function analyzeTrace({ labels, times, samples, width = 1920, beats = [] }) {
+export function analyzeTrace({ labels, times, samples, width = 1920, beats = [], pixels = [] }) {
   const n = times.length;
   if (n < 3) return { segments: [], flags: [], notes: [], speeds: [] };
   const dt = (times[n - 1] - times[0]) / (n - 1);
@@ -173,6 +179,23 @@ export function analyzeTrace({ labels, times, samples, width = 1920, beats = [] 
   let still = 0;
   for (let i = 1; i < n; i++) if (speeds.every((sp, k) => sp[i] <= moveThr && fadeRate[k][i] <= 0.25)) still++;
   notes.push(`${Math.round((still / (n - 1)) * 100)}% of the time nothing moves`);
+  // Something new: a distinct move starting (any element). Gaps over 2.2 s with nothing new read as "not enough going
+  // on"; launch films in the house style start something every ~0.8-1.5 s, with one 1-2 s rest after a peak.
+  const starts = [...new Set(segments.filter((x) => x.travel > 12 || x.fade).map((x) => +x.from.toFixed(2)))].sort((p, q) => p - q);
+  const span = times[n - 1] - times[0];
+  const gaps = [];
+  let prevT = times[0];
+  for (const t0 of [...starts, times[n - 1]]) {
+    if (t0 - prevT > 2.2) gaps.push([prevT, t0]);
+    prevT = Math.max(prevT, t0);
+  }
+  // A gap only counts when the picture is also still: pixels = [{ t, diff }] from tiny frames (canvas visuals move
+  // pixels, not element boxes). Without pixel data every gap counts.
+  const busy = ([a0, b0]) => pixels.some((p) => p.t > a0 + 0.2 && p.t < b0 - 0.2 && p.diff > 3);
+  const longGaps = gaps.filter(([a0, b0]) => b0 - a0 > 2.2 && !busy([a0, b0]));
+  if (longGaps.length > 1 || longGaps.some(([a0, b0]) => b0 - a0 > 3.2))
+    flags.push(`nothing new starts for ${longGaps.map(([a0, b0]) => `${(b0 - a0).toFixed(1)}s (${fmtT(a0)}-${fmtT(b0)})`).join(", ")}: a launch film starts something every ~0.8-1.5 s (a second element, the camera, a light sweep, a number, a chip) and rests at most once after a peak`);
+  if (span > 4) notes.push(`${(starts.length / span).toFixed(2)} new moves a second (the house style aims for about 0.7-1.2 in a launch film)`);
   // Beats with nothing starting near them.
   const quiet = beats.filter((b) => b > times[0] + 0.05 && !segments.some((s) => Math.abs(s.from - b) <= 0.25));
   if (quiet.length) notes.push(`no move starts within 0.25s of the beat at ${quiet.slice(0, 6).map(fmtT).join(", ")}`);

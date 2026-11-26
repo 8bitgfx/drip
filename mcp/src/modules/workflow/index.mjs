@@ -415,7 +415,7 @@ export function register(server, ctx) {
         "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" }). " +
         "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills), \"readme-art\" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).",
       inputSchema: {
-        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system", "motion"]).optional().describe("Default base-css. motion: a seekable film composition (Drip Motion)"),
+        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system", "motion", "motion-visuals"]).optional().describe("Default base-css. motion: a seekable film composition (Drip Motion), with the seekable visuals library next to it. motion-visuals: a layered demo film using every visual (light field, glow, grain, 3D planes, light sweep, particles to shape, dot globe, orbiting cards, liquid blob, line draw, numbers, depth stack, type reveal) to copy from"),
         out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; assets/readme/src/readme-art.mjs)"),
         overwrite: z.boolean().optional(),
       },
@@ -424,13 +424,18 @@ export function register(server, ctx) {
       const root = projectDir();
       if (template === "base-css" && loadState().task?.surface === "readme")
         return text("GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: \"readme-art\" }), render it with render_html (scale 2), and check it with readme_check.", true);
-      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html", motion: "motion.html" };
-      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs.existsSync(path.join(root, "src")) ? "src/styles/system.html" : "styles/system.html", motion: "film/index.html" };
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html", motion: "motion.html", "motion-visuals": "motion-visuals-demo.html" };
+      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs.existsSync(path.join(root, "src")) ? "src/styles/system.html" : "styles/system.html", motion: "film/index.html", "motion-visuals": "film/visuals-demo.html" };
       const rel = out || DEF[template];
       const dest = path.resolve(root, rel);
       if (fs.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
       fs.mkdirSync(path.dirname(dest), { recursive: true });
       fs.copyFileSync(path.join(kitDir, SRC[template]), dest);
+      // A film's composition always has the visuals library beside it (seekable light, depth, particles...).
+      if (["motion", "motion-visuals"].includes(template)) {
+        const lib = path.join(path.dirname(dest), "motion-visuals.js");
+        if (!fs.existsSync(lib)) fs.copyFileSync(path.join(kitDir, "motion-visuals.js"), lib);
+      }
       if (template === "design-md") updateState((st) => st.task && (st.task.designDoc = rel));
       if (template === "design-md") return text(`Wrote ${rel}: fill every section (THESIS ... REFUSES, the colour roles, the type). The critic judges the build against it; fitcheck_lint checks it matches the CSS. Then drip_mark system.`);
       if (template === "comp") return text(`Wrote ${rel}: one direction's first viewport at 1440x1000. Copy per direction (.drip/comps/<name>.html), set faces, colours, the real headline and picture, then board_tile({ custom: [{ direction, file }] }).`);
@@ -439,8 +444,11 @@ export function register(server, ctx) {
       if (template === "motion")
         return text(
           `Wrote ${rel}: a seekable composition. Set FORMAT from the storyboard, put each beat on the master timeline \`tl\` at its storyboard time (a label per beat), keep every random number seeded (rand()), and never use timers or real time. ` +
-            "Open it in a browser to scrub (space plays, arrow keys step a frame, ?t=3.2 opens at a time). motion_frames sees exactly what the render will.",
+            "Open it in a browser to scrub (space plays, arrow keys step a frame, ?t=3.2 opens at a time). motion_frames sees exactly what the render will.\n" +
+            "motion-visuals.js sits beside it: seekable light fields, glows, grain, 3D planes, light sweeps, particles that form shapes, dot globes, orbiting cards, numbers and more (drip_guide video/visuals). Load it with a <script src> and give every beat its visual; DripVisuals.drive(tl, [...]) keeps them on the clock.",
         );
+      if (template === "motion-visuals")
+        return text(`Wrote ${rel}: a layered demo film using the visuals library (motion-visuals.js beside it). Open it to see what each visual looks like, motion_frames it, and copy the pieces you need into the film.`);
       if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +

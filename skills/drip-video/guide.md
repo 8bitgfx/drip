@@ -118,6 +118,14 @@ double the holds.
 12. **Test at real viewing size**, on a phone for 9:16, and with the sound off.
 13. **Keep approved decisions between revisions.** Change one sequence at a time and say which.
 14. **Separate visual identity from motion identity.** "Less bouncy" changes motion parameters, not the logo.
+15. **Never a dead frame, always something to look at.** Every beat names its visual: light (a glow behind the
+    subject, a sweep across it), depth (UI on tilted planes, parallax, blur on what isn't the subject), a rich
+    object (particles forming a shape, a dot globe, a number rolling, orbiting cards). Layers stay alive behind the
+    action (a light field, grain, a slow camera drift). Something new starts about every 0.8-1.5 s; one rest of
+    1-2 s after a peak. A brand that is flat colour still gets light, depth and layering: flat fills on an empty
+    ground with one move per beat is basic, however clean. The seekable visuals in `drip_kit({ template:
+    "motion-visuals" })` are the starting point (`drip_guide video/visuals`). `motion_frames` flags mostly empty
+    frames; `motion_trace` flags stretches where nothing new starts.
 
 ## Craft in one screen
 
@@ -215,6 +223,7 @@ its source and licence in `sound/LICENCES.md`. See `drip_guide video/sound`.
 | `drip_guide video/product` | Product demos, cursors, device frames, real screens |
 | `drip_guide video/camera` | 2.5D and 3D camera, parallax, pull-backs |
 | `drip_guide video/sound` | Music (find, analyse, drops), calm UI sounds, licences, the mix |
+| `drip_guide video/visuals` | The seekable visuals library: light fields, glows, 3D planes, particles to shape, globes, numbers; making each beat rich |
 | `drip_guide video/voice` | Narration: script for the ear, casting, ElevenLabs models and settings, timing to picture |
 | `drip_guide video/render` | The seek contract, determinism, renderers, formats |
 | `drip_guide video/critic` | Anti-slop table, 12-point checklist, self-review |

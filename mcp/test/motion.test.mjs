@@ -29,9 +29,9 @@ const base = {
   look: "off-white, ink, one coral accent",
   moves: "paper tabs, light overshoot",
   beats: [
-    { at: 0, len: 2.5, action: "tabs pile in and snap into a line", text: "You have 47 tabs open.", energy: 4 },
-    { at: 2.5, len: 3.5, action: "the line folds into one window", transition: "morph", energy: 2 },
-    { at: 6, len: 4, action: "the window settles; the name writes on", text: "We can fix that.", transition: "push", energy: 3 },
+    { at: 0, len: 2.5, action: "tabs pile in and snap into a line", text: "You have 47 tabs open.", energy: 4, visual: "glass tabs on a tilted plane, glow behind", moments: ["a tab shudders", "the rest snap into line"] },
+    { at: 2.5, len: 3.5, action: "the line folds into one window", transition: "morph", energy: 2, visual: "a window with a light sweep", moments: ["the fold", "the light sweeps", "a cursor eases in"] },
+    { at: 6, len: 4, action: "the window settles; the name writes on", text: "We can fix that.", transition: "push", energy: 3, visual: "particles forming the wordmark", moments: ["camera pulls back", "particles gather", "the name lands"] },
   ],
   references: [{ source: "https://x/ref.mp4", role: "moves", take: "trailing edges spring later than leading ones" }],
 };
@@ -70,6 +70,8 @@ test("storyboard: warnings for gaps, no rest, slides, too many words, no motif",
   assert.match(w, /every transition is a cut or a fade/);
   assert.match(w, /12 words in 2s/);
   assert.match(w, /no motif/);
+  assert.match(w, /name no visual/);
+  assert.match(w, /one move over more than 1\.6 s/);
   assert.deepEqual(checkStoryboard(base, { studied }).warnings, []);
   assert.match(storyboardMd(base), /\| 2 \| 2\.5s \| 3\.5s \| the line folds into one window/);
 });
@@ -129,6 +131,7 @@ test("motion gates: a reference look, then a storyboard, before composition file
 test("the kit composition seeks to exact times and passes a sweep", { skip }, async () => {
   fs.mkdirSync(path.join(project, "film"), { recursive: true });
   fs.copyFileSync(path.resolve(here, "..", "..", "content", "kit", "motion.html"), path.join(project, "film", "index.html"));
+  fs.copyFileSync(path.resolve(here, "..", "..", "content", "kit", "motion-visuals.js"), path.join(project, "film", "motion-visuals.js"));
   const { filmSheets } = await import("../src/modules/motion/sheets.mjs");
   const config = loadConfig(project);
   // The template loads GSAP from a CDN: without the network there is no clock to test.
@@ -143,7 +146,9 @@ test("the kit composition seeks to exact times and passes a sweep", { skip }, as
   assert.equal(r.probe.duration, 8);
   assert.equal(r.times.length, 6);
   assert.equal(r.sheets.length, 1);
-  assert.deepEqual(r.judge.issues, []);
+  // The bare template is a skeleton: the only thing allowed to complain is that it is still mostly empty.
+  assert.deepEqual(r.judge.issues.filter((x) => !/mostly empty frames/.test(x)), []);
+  assert.deepEqual(r.errors, []);
   // The same time twice gives the same picture: seeking, not playback.
   const again = await filmSheets("film/index.html", { times: { times: [1.5, 1.5001] }, width: 960, height: 540, config });
   assert.ok(again.measures[1].diff < 0.5);
