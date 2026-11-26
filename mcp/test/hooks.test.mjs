@@ -195,6 +195,6 @@ test("stop lets the turn end when the agent is waiting on the user (a plan to ap
   assert.equal(runHook("stop.mjs", { transcript_path: tr }, p), null);
   const r = runHook("stop.mjs", { last_assistant_message: "Done: the film is built." }, p);
   assert.equal(r?.decision, "block");
-  assert.match(r.reason, /changed the film .*frame check/);
+  assert.match(r.reason, /changed the film .*frame and speed check/);
   assert.doesNotMatch(r.reason, /fit check/);
 });

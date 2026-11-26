@@ -88,7 +88,9 @@ export function checkStoryboard(sb, { studied = [] } = {}) {
     const c = continuity(sb.motif, beats);
     if (beats.length >= 3 && c.missing.length > beats.length / 2 && c.breaks.length >= (beats.length - 1) / 2)
       errors.push(`the motif ("${sb.motif}") is in ${beats.length - c.missing.length} of ${beats.length} beats: beats ${c.missing.map((i) => i + 1).join(", ")} never mention it. A film of separate scenes joined by cuts has no continuity: write in each beat where the motif is and what it becomes`);
-    else if (c.missing.length) warnings.push(`beats ${c.missing.map((i) => i + 1).join(", ")} don't mention the motif ("${sb.motif}"): where is it there?`);
+    // A beat entered by a morph, a match or a push carries the motif through its transition.
+    const loose = c.missing.filter((i) => i === 0 || /^(cut|hard cut|fade|crossfade|dissolve|)$/.test(String(beats[i].transition || "").trim().toLowerCase()));
+    if (!(beats.length >= 3 && c.missing.length > beats.length / 2 && c.breaks.length >= (beats.length - 1) / 2) && loose.length) warnings.push(`beats ${loose.map((i) => i + 1).join(", ")} don't mention the motif ("${sb.motif}"): where is it there?`);
     if (c.breaks.length) warnings.push(`nothing carries across ${c.breaks.map((i) => `beat ${i} → ${i + 1}`).join(", ")} (a bare cut between beats without the motif): match a shape, a position or the camera across it`);
   }
   return { errors: [...new Set(errors)], warnings: [...new Set(warnings)], duration: D, beats };

@@ -56,8 +56,11 @@ read slower, slow the camera and hold, not the UI.
   0.1 s (`drip_guide video/product` has the cursor rules). No cursor that wanders without a job.
 - **Show the change, then the result.** Click → the state changes → the consequence lands (a number rolls, a
   list fills, a chart grows). That's one beat with three moments.
-- **The UI as an object.** Put screens on tilted planes (`plane3d`, 10-18 degrees) with a glow behind and a
-  light sweep across (`drip_guide video/visuals`); magnify the part that matters instead of showing the whole app.
+- **Freeze the real UI and animate its parts (the default).** `motion_ui_freeze({ url, name })` turns the running
+  page into a static copy with named elements; `DripVisuals.uiFrame(stage, { src, width, height })` mounts it and
+  `ui.$("<name>")` is the real element: the card lifts, the value counts, the button presses, the list fills,
+  the camera (`cameraRig`) travels and magnifies the part that matters. A screenshot on a tilted plane is the
+  exception (a quick establishing shot), never the film: a deck of screenshots reads as a slideshow.
 - **Continuity.** A UI element can become the next scene (a card grows into a window, a chip becomes a tag on the
   next screen). Don't cut from one full screenshot to another.
 - **One focus at a time.** At the busiest moment one region is sharp and lit; the rest is dimmed or blurred.

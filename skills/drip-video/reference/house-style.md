@@ -3,7 +3,9 @@
 This is Drip Motion's default look and pace for product films, promos, launches and explainers. It comes from a
 close study of one motion designer's SaaS promo work, TimeFrame (https://dribbble.com/TimeFrame_motion), chosen
 by the user as the bar. Everything below is our own description of what was measured and seen; nothing is copied.
-The brief or the project's `IDENTITY.md` overrides any of it.
+The brief, the brand's own rules (BRAND.md, DESIGN.md: flat paint, no highlights) and the project's `IDENTITY.md`
+override any of it: the glows and tilted planes below are this house look, not a requirement. Its product
+windows are the real UI frozen with `motion_ui_freeze` and animated part by part, not screenshots.
 
 Studied as video (13 shots, 14 films with one showreel), sampled every 0.75 s and read frame by frame:
 [Connected Workspace for Smarter Team Management](https://dribbble.com/shots/27894209),

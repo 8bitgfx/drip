@@ -5,8 +5,9 @@ Everything else (cursor, camera, framing) exists to make the real thing legible 
 
 ## Real screens only
 
-- Use screenshots or recordings from the product, taken at 2x. Ask the user or read the project for them
-  (`public/`, `docs/`, `assets/`). Take new ones with `fitcheck_shot` on the running product if it exists.
+- Freeze the running product with `motion_ui_freeze` (a dev server or the live site) and animate its real
+  elements (`drip_guide video/ui`). Screenshots or recordings (taken at 2x) are the fallback when the product
+  can't be opened: ask the user or read the project for them (`public/`, `docs/`, `assets/`).
 - Never invent a dashboard, a chart, a metric, a user, or a feature. A made-up screen is a lie, and the critic
   and the user will find it.
 - If real data is private, replace it with clearly labelled example data ("Example data" on screen), and say so

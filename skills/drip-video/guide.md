@@ -10,6 +10,13 @@ still. The copy is short and specific, and nothing on screen is invented: no fak
 Most AI-made films fail the same way: every element fades in, cards slide in one after another, particles float
 for no reason, and a glow tries to hide that nothing was decided. This guide exists to prevent that.
 
+**Choreography and continuity first, effects last.** A film is good when one thing leads the eye, the next move
+is caused by the last one, and something carries across every transition. Light, depth and particles only make a
+good film richer; they never rescue a disconnected one, and a glossy 3D render of the idea reads as a tech demo,
+not motion design. A product film animates the product's real UI, frozen from the page (`motion_ui_freeze`) so
+its own headings, cards and buttons move, not a screenshot on a tilted plane. The brand's rules (its BRAND.md,
+DESIGN.md, IDENTITY.md: flat paint, no highlights, one accent) override every visual default here.
+
 ## The procedure
 
 0. **Defaults.** The default look and pacing come from `drip_guide video/house-style` (its DEFAULTS block) unless the brief or the project's `IDENTITY.md` says otherwise.
@@ -45,12 +52,16 @@ for no reason, and a glow tries to hide that nothing was decided. This guide exi
 7. **Build the timeline.** Everything on `tl` at absolute times, one label per beat. Write the motif's journey
    first, then the text, then secondary motion. Springs with bounce 0-0.25, per-object easing, overlapped
    action. Put sound accents on labels. Procedural elements are precomputed into arrays at load
-   (`drip_guide video/procedural`). Product screens are real (`drip_guide video/product`).
+   (`drip_guide video/procedural`). Product screens are real and frozen, not screenshots:
+   `motion_ui_freeze` the running product (a dev server works), mount it with `DripVisuals.uiFrame` and animate its
+   named elements (`drip_guide video/ui`). The camera is `DripVisuals.cameraRig` with keys: its speed carries through
+   every key (a hand-rolled camera that eases in and out of each key stops on every one, and that reads as jitter).
 8. **Look at real frames.** `motion_frames` with no times: a 16-frame sweep of the whole film. Then
    `around: [every transition]` (shots at -0.25, -0.1, 0, +0.1, +0.25 s) and `from`/`to`/`step` (about 0.033)
    on the fastest moments and every morph. Judge the whole morph, not its ends. A clean sweep on the current
-   files is also what lets the turn end. Then **measure the movement**: `motion_trace` (one still says nothing
-   about motion). Its dopesheet shows choreography (who leads, who follows, rests, everything-at-once) and its
+   files is half of what lets the turn end. Then **measure the movement**: `motion_trace` over the whole film
+   (one still says nothing about motion). Its speed curve is the other half of the check: stop-starts, sudden
+   speed-ups and judder must be gone before the film counts as checked. Its dopesheet shows choreography (who leads, who follows, rests, everything-at-once) and its
    onion skins show spacing and arcs (bunching dots = easing, even dots = linear, a dot past the end = overshoot).
    Fix what it flags (dead stops, linear moves, hitches, one duration for every move) unless it's deliberate.
    Give important elements `data-track="name"` so the lanes read.
@@ -121,15 +132,18 @@ double the holds.
 12. **Test at real viewing size**, on a phone for 9:16, and with the sound off.
 13. **Keep approved decisions between revisions.** Change one sequence at a time and say which.
 14. **Separate visual identity from motion identity.** "Less bouncy" changes motion parameters, not the logo.
-15. **Never a dead frame, always something to look at.** Every beat names its visual: light (a glow behind the
-    subject, a sweep across it), depth (UI on tilted planes, parallax, blur on what isn't the subject), a rich
-    object (particles forming a shape, a dot globe, a number rolling, orbiting cards). Layers stay alive behind the
-    action (a light field, grain, a slow camera drift). Something new starts about every 0.8-1.5 s; one rest of
-    1-2 s after a peak. A brand that is flat colour still gets light, depth and layering: flat fills on an empty
-    ground with one move per beat is basic, however clean. The seekable visuals in `drip_kit({ template:
+15. **Never a dead frame, always something to look at, in the brand's own terms.** Every beat names what the eye
+    follows and what moves it: the motif transforming, the real UI changing state, type in motion, a number
+    rolling, the camera travelling through the product. Something new starts about every 0.8-1.5 s; one rest of
+    1-2 s after a peak. Light (a glow, a sweep) and depth (parallax, a plane) are tools for a brand that has them;
+    a flat-colour brand stays flat and gets its richness from choreography, layered flat shapes and camera moves,
+    never from highlights and gradients the brand forbids. The seekable visuals in `drip_kit({ template:
     "motion-visuals" })` are the starting point (`drip_guide video/visuals`). `motion_frames` flags mostly empty
     frames; `motion_trace` flags stretches where nothing new starts.
-16. **The product's UI meets Drip's UI bar.** Real screens or rebuilt ones with real content, one system, real
+16. **Brand rules beat these defaults.** When the brand's files say flat, no highlights, one accent or no 3D, that
+    wins over anything in `video/visuals` and the house style. Read them before the style frames and name them in
+    the storyboard's look.
+17. **The product's UI meets Drip's UI bar.** Real screens or rebuilt ones with real content, one system, real
     states, readable at video size (22 px+ at 1080p), and UI feedback at real UI timings (100-300 ms) while the
     camera and light carry the film's slower time (`drip_guide video/ui`).
 

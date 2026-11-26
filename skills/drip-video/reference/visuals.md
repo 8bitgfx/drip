@@ -1,5 +1,8 @@
 # Visuals: something worth looking at in every beat
 
+These serve the choreography, never replace it, and the brand's rules come first: a brand that says flat colour, no
+highlights or no 3D does not get glows, sheens, glass or raymarched liquid from this page. Use what fits it.
+
 A launch film fails quietly when it is clean but empty: flat shapes on a flat ground, one move per beat, mostly
 black frames. Premium motion layers light, depth and a rich object in every frame, and starts something new about
 every second. `motion-visuals.js` (copied next to every composition by `drip_kit({ template: "motion" })`) gives
@@ -28,7 +31,8 @@ Colours default to the film's CSS variables (`--accent`, `--ground`, `--ink`, `-
 | Layer | Always? | Visuals |
 |---|---|---|
 | Ground that lives | yes | `lightField` (slow mesh-gradient light), `grain` (film grain, 24 fps cadence) |
-| Camera | yes | `cameraDrift` (2-4 degree drift and a slight push over the whole film) |
+| Camera | yes | `cameraRig` (keyed moves whose speed carries through every key), `cameraDrift` (2-4 degree drift and a slight push over the whole film) |
+| Real UI | product films | `uiFrame` (a screen frozen by `motion_ui_freeze`; `ui.$(name)` is its real element to animate) |
 | Light on the subject | most beats | `glow` (bloom behind a target, optional pulse), `lightSweep` (specular pass across a target) |
 | Depth | most beats | `plane3d` (UI or a card on a tilted plane with shadow, glass edge, sheen), `depthStack` (layered panels with parallax and depth of field), `orbitCards` (chips orbiting in depth, back ones blurred) |
 | The rich object | every beat has one | `particlesToShape` (particles converge into text, a path or an image, and disperse), `dotGlobe`, `liquidBlob` (goo morphs: drop, ring, pill, cluster, split, drip), `lineDraw` (paths with a glowing pen tip) |
@@ -43,6 +47,8 @@ Colours default to the film's CSS variables (`--accent`, `--ground`, `--ink`, `-
 | `glow` | `target` or `x,y`, `size` or `scale` (x the target), `intensity` .9, `pulse: { period, amount }` |
 | `grain` | `opacity` .07, `fps` 24, `blend` "overlay" |
 | `plane3d` | `target`, `from`/`to` `{ rx, ry, rz, x, y, z, s }` or `keys: [{ t, ... }]`, `start`, `dur`, `enter`, `hide` |
+| `cameraRig` | `target`, `keys` [{ t, x, y, s, rx, ry, rz, hold }], `perspective` 1800 |
+| `uiFrame` | `src`, `width`, `height` (as frozen), `x`, `y`, `scale`, `radius`, `scroll` (px or [{ t, y }]); `ready`, `$(name)` |
 | `cameraDrift` | `target`, `rx` 2.2, `ry` 3, `rz` .35 (degrees), `period` 9, `scale` 1.03 |
 | `lightSweep` | `target`, `start` or `times: [...]`, `dur` 1.1, `angle` 18, `width` .34 |
 | `particlesToShape` | `text` + `size`, or `path` + `viewBox`, or `image`; `x, y`, `n` 1800, `start`, `dur`, `disperse: { start, dur }`, `seed` |

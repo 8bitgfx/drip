@@ -10,6 +10,14 @@ Move the camera only for a reason (reveal, emphasise, connect), and design where
 3. Then design the path: how long, what curve, what passes through the frame on the way.
 4. Check the frames between with `motion_frames` and `from`, `to`, `step`.
 
+## The rig: never stop on a key
+
+A camera that eases in and out of every keyframe stops on each one, and a camera that stops and starts reads as
+jitter. Use `DripVisuals.cameraRig(stage, { target, keys: [{ t, x, y, s, rx, ry, rz }] })`: one smooth curve through
+every key, so its speed carries through them (no overshoot past a key's value). It eases only out of the first key,
+into the last, and into a key marked `hold: true` (a deliberate stop). It marks its target `data-camera`, so
+`motion_trace` reports its moves as the camera's; the trace's speed curve flags any stop-start that is left.
+
 A camera move that ends on an accidental frame (a half-cropped word, a focal point on the edge) is the most common
 fault. Fix the destination, not the path.
 
