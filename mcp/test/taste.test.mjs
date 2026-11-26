@@ -128,3 +128,12 @@ test("intake asks only what the request leaves open, never padded to 4", async (
   assert.equal(intakePlan("pricing page for developers, minimal and dark", { mode: "design" }).max, 1);
   assert.equal(intakePlan("make a portfolio site, decide for me", { mode: "design" }).max, 0);
 });
+
+test("a product named with what it does is designed as the product, not a landing page about it", async () => {
+  const { guess } = await import("../src/modules/workflow.mjs");
+  assert.equal(guess("An AI animation studio for turning still illustrations into living, breathing anime scenes.").surface, "app");
+  assert.equal(guess("a music workspace that turns hums into songs").surface, "app");
+  assert.equal(guess("a landing page for an AI animation studio for turning stills into scenes").surface, "landing");
+  assert.equal(guess("a website for a design studio in Lisbon").surface, "landing");
+  assert.equal(guess("something cool for my bakery").surface, "other");
+});

@@ -78,4 +78,13 @@ export function patchToClaudeCalls(patch) {
   return parsePatch(patch).map((f) => (f.kind === "add" ? { tool_name: "Write", tool_input: { file_path: f.file, content: f.added.join("\n") } } : { tool_name: "Edit", tool_input: { file_path: f.file, new_string: f.added.join("\n") } }));
 }
 
+/** Codex runs commands through its shell tool (Bash in hook payloads; older builds name it shell / exec_command). */
+export const isShellTool = (name) => /^(bash|shell|exec_command|local_shell|shell_command|unified_exec|powershell)$/i.test(String(name || ""));
+
+/** The command line from a shell tool's input: a string, or argv such as ["bash", "-lc", "cat > a.css <<EOF ..."]. */
+export function shellCommand(ti) {
+  const c = ti?.command ?? ti?.cmd ?? ti?.input ?? (typeof ti === "string" ? ti : "");
+  return Array.isArray(c) ? c.join(" ") : String(c || "");
+}
+
 export const isFileWriteTool = (name) => /^(apply_patch|patch|edit|write|multiedit|str_replace_editor|str_replace_based_edit_tool|create)$/i.test(String(name || ""));

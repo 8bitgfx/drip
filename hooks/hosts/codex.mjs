@@ -5,7 +5,7 @@
 // File edits arrive as the apply_patch tool; its patch text is in tool_input (the docs call the field `command`).
 // Answers: PreToolUse deny = hookSpecificOutput.permissionDecision "deny"; Stop block = { decision: "block", reason };
 // extra context = hookSpecificOutput.additionalContext. Those are the same shapes Claude Code uses.
-import { emit, interpret, isFileWriteTool, patchToClaudeCalls, readStdinJson, runDripHook } from "./adapter.mjs";
+import { emit, interpret, isFileWriteTool, isShellTool, patchToClaudeCalls, readStdinJson, runDripHook, shellCommand } from "./adapter.mjs";
 
 const HOST = "codex";
 
@@ -30,6 +30,12 @@ export async function handle(event, p) {
     return r.context ? { hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: r.context } } : null;
   }
   if (event === "PreToolUse") {
+    if (isShellTool(p.tool_name)) {
+      // UI files and Drip's own state are never written from the shell while a task is open (pre-shell.mjs).
+      const command = shellCommand(p.tool_input);
+      const r = command ? run("pre-shell.mjs", { hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command } }) : {};
+      return r.deny ? { hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: `[Drip] ${r.deny.replace(/^\[Drip\] /, "")}` } } : null;
+    }
     if (!isFileWriteTool(p.tool_name)) return null;
     for (const call of claudeCalls(p)) {
       const r = run("pre-write.mjs", { hook_event_name: "PreToolUse", ...call });

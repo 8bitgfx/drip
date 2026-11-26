@@ -62,6 +62,20 @@ test("the prompt hook opens the round on a built page and says what to do", () =
   assert.ok(state.loadState(project).task.rework?.at > 0);
 });
 
+test("a builder's or the critic's report is never the user asking for a new round", () => {
+  fs.mkdirSync(path.join(project, ".drip"), { recursive: true });
+  state.saveState({ task: builtTask() }, project);
+  const note = "<task-notification>\n<status>completed</status>\n<result>REVISE: the pricing reads generic and the hero is a template; boring footer. Redo the showcase.</result>\n</task-notification>";
+  for (const prompt of [note, `${note}\n<system-reminder>x</system-reminder>`, "Stop hook feedback: the page is boring"]) {
+    const r = spawnSync(process.execPath, [path.join(hooks, "prompt.mjs")], { input: JSON.stringify({ cwd: project, prompt }), encoding: "utf8", env: { ...process.env, CLAUDE_PROJECT_DIR: project } });
+    assert.doesNotMatch(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /NEW ROUND/);
+    assert.equal(state.loadState(project).task.rework, undefined);
+  }
+  // The user's own words typed alongside a queued notification still count.
+  const r = spawnSync(process.execPath, [path.join(hooks, "prompt.mjs")], { input: JSON.stringify({ cwd: project, prompt: `${note}\nit's boring, redo it` }), encoding: "utf8", env: { ...process.env, CLAUDE_PROJECT_DIR: project } });
+  assert.match(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /NEW ROUND/);
+});
+
 test("shell writes are found: redirects, heredocs, tee, sed -i, PowerShell, inline node", () => {
   assert.deepEqual(shellWrites("cat >> src/index.css <<'EOF'\n.a{}\nEOF"), ["src/index.css"]);
   assert.deepEqual(shellWrites("cd app && echo hi > src/App.tsx"), ["src/App.tsx"]);

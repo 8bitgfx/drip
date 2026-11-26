@@ -157,20 +157,29 @@ export function studiedTakes(task) {
   return `\nWHAT THE DIRECTOR STUDIED (match this level of craft; never copy a reference's colours or surface):\n${st.map((s) => `- ${s.source || s.key}: take ${s.take}${s.motion ? `; motion: ${s.motion}` : ""}`).join("\n")}`;
 }
 
-export function buildPrompt({ section, spec, files, url, task, piece, page }) {
-  const chosen = task?.board?.chosen;
-  const pg = page || pageOf(task);
-  // The system of THIS page: its own DESIGN.md (a page in a subfolder never inherits the repo's), else its tokens.
-  const doc = pg && pg.rel !== "." ? designDoc(pg.root) : designDoc(undefined, task);
-  const stack = pg?.stack || "html";
+/** At most this many builders per build_prepare: the director directs one or two builders, never a swarm. */
+export const MAX_BUILDERS = 2;
+const PER_BUILDER = 3;
+
+/** Split the sections over the builders, in page order: one builder up to 3 sections, two beyond. Sections that write
+ *  the page's own index.html (nav, hero, footer) or the whole page stay with one builder, so two never edit one file. */
+export function groupSections(list, max = MAX_BUILDERS) {
+  const n = Math.min(max, Math.max(1, Math.ceil(list.length / PER_BUILDER)));
+  if (n === 1 || list.some((s) => WHOLE.includes(slug(s.section)))) return [list];
+  const shared = new Set(list.filter((s) => OWN.includes(slug(s.section))));
+  const groups = [[...shared], []];
+  for (const s of list) {
+    if (shared.has(s)) continue;
+    (groups[0].length <= groups[1].length ? groups[0] : groups[1]).push(s);
+  }
+  // Keep page order inside each group.
+  return groups.filter((g) => g.length).map((g) => list.filter((s) => g.includes(s)));
+}
+
+/** One section's part of a builder's brief: its spec, piece and files. */
+function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
+  const id = slug(section);
   const mine = files?.length ? files : sectionFiles(section, stack);
-  const where = pg ? `The page: ${pg.rel}/ (${stack === "react" ? "React + Vite + Tailwind v4" : "one static HTML page"}).` : "";
-  const system =
-    stack === "react"
-      ? "THE SYSTEM (src/index.css, taste-skill's numbers): colours bg-background, text-foreground, bg-card, text-muted-foreground, bg-primary text-primary-foreground, text-brand, border-border; type roles ONLY text-display, text-h1, text-h2, text-h3, text-lead, text-body, text-small, text-label, text-stat with font-display for headings (never text-5xl / text-[68px]); layout: wrap for the column (same edges as every section), section-pad for a section's rhythm, head-gap under a section heading; the hover layer: lift on cards, press on buttons, photo-zoom on framed pictures; enter on hero children (style={{ \"--i\": n }} orders them). rounded-[var(--radius)]. Never add a colour, size or font. Images in public/ (or remote URLs). Icons: lucide-react."
-      : doc
-        ? `THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; follow it, change nothing in it):\n${doc.text.slice(0, 5000)}`
-        : "THE SYSTEM: the page's own head: the :root tokens (--p-bg, --p-surface, --p-ink, --p-muted, --p-accent, --p-action; --font-display, --font-text) and the kit in assets/ (system.css type roles and spacing, .button, the motion layer). Use its classes and variables; never add a size or a colour.";
   const pieceLine = piece
     ? /^custom/i.test(piece)
       ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.`
@@ -178,31 +187,63 @@ export function buildPrompt({ section, spec, files, url, task, piece, page }) {
         ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}`
         : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.`
     : "";
+  const placement =
+    stack === "react"
+      ? [...OWN, ...WHOLE].includes(id)
+        ? ""
+        : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${id}">.`
+      : WHOLE.includes(id)
+        ? "You build the whole page: index.html and its own styles and scripts."
+        : OWN.includes(id)
+          ? "Edit the page's own nav / hero / footer in index.html (and its <style>)."
+          : `${mine[0]} holds the <section id="${id}"> element alone (no <html>/<head>), ${mine[1]} its styles.`;
   return [
-    `DRIP BUILDER · section: ${section}`,
+    many ? `=== SECTION: ${section} ===` : "",
+    "THE SECTION SPEC (from the director; build exactly this)",
+    spec,
+    pieceLine,
+    stack === "react" && id === "hero" && pg && fs.existsSync(path.join(pg.root, "src", "sections", "hero.recipe.html"))
+      ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it."
+      : "",
+    `Files: ${mine.join(", ")}. ${placement}`,
+  ].filter((x) => x !== "");
+}
+
+/** The brief for one builder: one section (section, spec, piece, files) or several (items: [...]). */
+export function buildPrompt({ section, spec, files, url, task, piece, page, items }) {
+  const list = items?.length ? items : [{ section, spec, files, piece }];
+  const chosen = task?.board?.chosen;
+  const pg = page || pageOf(task);
+  // The system of THIS page: its own DESIGN.md (a page in a subfolder never inherits the repo's), else its tokens.
+  const doc = pg && pg.rel !== "." ? designDoc(pg.root) : designDoc(undefined, task);
+  const stack = pg?.stack || "html";
+  const many = list.length > 1;
+  const mine = [...new Set(list.flatMap((s) => (s.files?.length ? s.files : sectionFiles(s.section, stack))))];
+  const where = pg ? `The page: ${pg.rel}/ (${stack === "react" ? "React + Vite + Tailwind v4" : "one static HTML page"}).` : "";
+  const system =
+    stack === "react"
+      ? "THE SYSTEM (src/index.css, taste-skill's numbers): colours bg-background, text-foreground, bg-card, text-muted-foreground, bg-primary text-primary-foreground, text-brand, border-border; type roles ONLY text-display, text-h1, text-h2, text-h3, text-lead, text-body, text-small, text-label, text-stat with font-display for headings (never text-5xl / text-[68px]); layout: wrap for the column (same edges as every section), section-pad for a section's rhythm, head-gap under a section heading; the hover layer: lift on cards, press on buttons, photo-zoom on framed pictures; enter on hero children (style={{ \"--i\": n }} orders them). rounded-[var(--radius)]. Never add a colour, size or font. Images in public/ (or remote URLs). Icons: lucide-react."
+      : doc
+        ? `THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; follow it, change nothing in it):\n${doc.text.slice(0, 5000)}`
+        : "THE SYSTEM: the page's own head: the :root tokens (--p-bg, --p-surface, --p-ink, --p-muted, --p-accent, --p-action; --font-display, --font-text) and the kit in assets/ (system.css type roles and spacing, .button, the motion layer). Use its classes and variables; never add a size or a colour.";
+  const ids = list.map((s) => s.section);
+  return [
+    `DRIP BUILDER · ${many ? `sections: ${ids.join(", ")}` : `section: ${ids[0]}`}`,
     "",
     "THE BRIEF",
     briefBlock(task),
     chosen ? `Chosen direction: ${chosen}` : "",
     "",
-    "THE SECTION SPEC (from the director; build exactly this)",
-    spec,
-    pieceLine,
+    many ? `You build ${list.length} sections, in this order, one after another; they share one system, so keep their rhythm and detail consistent with each other.` : "",
+    ...list.flatMap((s) => [...sectionBlock(s, pg, stack, many), ""]),
     studiedTakes(task),
     "",
     where,
     system,
-    stack === "react" && slug(section) === "hero" && pg && fs.existsSync(path.join(pg.root, "src", "sections", "hero.recipe.html"))
-      ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it."
+    `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for these sections)" : ""}.`,
+    list.some((s) => ![...OWN, ...WHOLE].includes(slug(s.section)))
+      ? `Another builder may write other sections at the same time; the director stitches them into ${stack === "react" ? "App.tsx" : "the page"}.`
       : "",
-    `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for this section)" : ""}.`,
-    stack === "react"
-      ? `${[...OWN, ...WHOLE].includes(slug(section)) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${slug(section)}">. `}Other builders write the other sections at the same time; the director stitches them into App.tsx.`
-      : WHOLE.includes(slug(section))
-        ? "You build the whole page: index.html and its own styles and scripts."
-        : OWN.includes(slug(section))
-        ? "Edit the page's own nav / hero / footer in index.html (and its <style>)."
-        : `${mine[0]} holds the <section id="${slug(section)}"> element alone (no <html>/<head>), ${mine[1]} its styles. Other builders write the other sections at the same time; the director stitches them in.`,
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
     "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers, times or quotes: a number the spec doesn't give is a [bracket].",
     url ? `The page runs at ${url} if you need to look at it.` : "",
@@ -237,7 +278,7 @@ export function swarmInstructions(task, { env = process.env } = {}) {
   lines.push(
     "- Research: scout_prepare once per role (style, competitor, page; before when redesigning) and launch the scouts IN PARALLEL in one message. They study through refs_study, so the gates count their work.",
     "- Decide: brief, thesis, directions and the choice stay with you. Write each section's spec yourself.",
-    "- Build: ONE build_prepare with every section (each names its library piece), then all drip:builder agents (Sonnet) in ONE message. You write specs, not code: small fixes only.",
+    `- Build: ONE build_prepare with every section (each names its library piece); it groups them over one or two drip:builder agents (Sonnet, never more than ${MAX_BUILDERS}). You are the director: you write specs, not code (small fixes only), and you never hand the task to another session.`,
     "- Small jobs (install, download, rename, copy fixes, a re-check): a drip:helper (Haiku) with a one-paragraph task.",
     "- Measure: one fitcheck_shot of the whole page (or checker_prepare -> drip:checker for numbers only).",
     "- Judge: the critic once, at the final version. The critic is never a scout, builder or checker.",
@@ -283,7 +324,7 @@ export function register(server, ctx) {
     {
       title: "Prepare section builders",
       description:
-        "Swarm Mode. Returns the exact prompt for each drip:builder subagent (Sonnet): pass EVERY section in one call (sections: [...]) and launch all the builders in ONE message. " +
+        `Swarm Mode. Pass EVERY section in one call (sections: [...]); it groups them over at most ${MAX_BUILDERS} drip:builder subagents (Sonnet; one builder up to ${PER_BUILDER} sections) and returns each builder's exact prompt. Launch them in ONE message. ` +
         "Each section names its piece (a library component it is built on) or says why it is custom. The builders write code; you direct. " +
         'Example: build_prepare({ page: "saas-award-4", sections: [{ section: "features", spec: "Bento of four live features...", piece: "https://magicui.design/r/bento-grid.json" }, { section: "proof", spec: "...", piece: "custom: a single quote with the founder photo" }] })',
       inputSchema: {
@@ -312,7 +353,8 @@ export function register(server, ctx) {
           true,
         );
       const pg = pageOf(task, page);
-      const prompts = list.map((s) => ({ s, prompt: buildPrompt({ section: s.section, spec: s.from ? `${s.spec}\nTAKES FROM: ${s.from}` : s.spec, files: s.files, url, task, piece: s.piece, page: pg }) }));
+      const withFrom = list.map((s) => ({ ...s, spec: s.from ? `${s.spec}\nTAKES FROM: ${s.from}` : s.spec }));
+      const prompts = groupSections(withFrom).map((items) => ({ ids: items.map((s) => s.section), prompt: buildPrompt({ items, url, task, page: pg }) }));
       updateState((st) => {
         if (!st.task) return;
         st.task.built = [...new Set([...(st.task.built || []), ...list.map((s) => slug(s.section))])];
@@ -325,8 +367,8 @@ export function register(server, ctx) {
       const toInstall = react ? list.map((s) => s.piece).filter((p) => p && /^https?:/.test(p) && !(task?.pieces || []).includes(p)) : [];
       const head =
         (toInstall.length ? `FIRST: pieces_install({ page: "${pg.rel}", urls: ${JSON.stringify(toInstall)} }) (one run; then launch).\n\n` : "") +
-        `NOW: launch ${prompts.length === 1 ? "the builder" : `all ${prompts.length} builders in ONE message`} with exactly these prompts (do not edit them):\n`;
-      const body = prompts.map(({ s, prompt }) => `${launch("builder", `Build ${s.section}`)}\n----------------------------------------\n${prompt}\n----------------------------------------`).join("\n\n");
+        `NOW: launch ${prompts.length === 1 ? "ONE builder" : `the ${prompts.length} builders in ONE message`} with exactly ${prompts.length === 1 ? "this prompt" : "these prompts"} (do not edit them, do not split them into more agents):\n`;
+      const body = prompts.map(({ ids, prompt }) => `${launch("builder", `Build ${ids.join(", ")}`.slice(0, 60))}\n----------------------------------------\n${prompt}\n----------------------------------------`).join("\n\n");
       const stitchable = list.map((s) => slug(s.section)).filter((id) => ![...OWN, ...WHOLE].includes(id));
       const tail = stitchable.length
         ? `\n\nWhen they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.`

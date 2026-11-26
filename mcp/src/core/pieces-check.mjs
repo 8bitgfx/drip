@@ -37,8 +37,10 @@ export function unusedPieces(task, root = projectDir()) {
   for (const [id, s] of Object.entries(task.sections)) {
     const key = pieceKey(s.piece);
     if (!key || key.length < 4) continue;
-    // The piece's file: its name, or its folder (shadcn installs some as components/<name>/index.tsx).
-    const mine = comps.filter((f) => norm(path.basename(f).replace(/\.\w+$/, "")) === key || norm(path.basename(path.dirname(f))) === key);
+    // The piece's file: its name, or its folder (shadcn installs some as components/<name>/index.tsx), or the file names
+    // its registry item installed (pieces_install records them: "header3" installs header.tsx).
+    const keys = new Set([key, ...(task.pieceFiles?.[s.piece] || []).map(norm).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f) => keys.has(norm(path.basename(f).replace(/\.\w+$/, ""))) || keys.has(norm(path.basename(path.dirname(f)))));
     if (!mine.length) {
       out.push(`piece not on the page: #${id} names ${s.piece}, but no ${key} component is installed under src/components (pieces_install it, or name what the section really uses)`);
       continue;

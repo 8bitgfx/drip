@@ -1,6 +1,7 @@
 // UserPromptSubmit: keep Claude on track while a Drip task is active. In "always" mode, also
 // remind it to start Drip on design prompts. Otherwise silent: Drip is opt-in.
 import { REWORK_WORDS, allow, checklist, loadConfig, loadState, out, readInput, run, updateState } from "./lib.mjs";
+import { userWords } from "./transcript.mjs";
 
 const LOAD = "If the drip_* tools are not loaded, ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide.";
 
@@ -12,16 +13,18 @@ run(async () => {
   if (task) {
     // A big-change request on a page that's already built opens a new round: a fresh look and pieces before any UI
     // write (reworkMissing in state.mjs). Without it every gate is already met and the agent hand-rolls effects.
-    const rework = (task.uiWrites || []).length > 0 && !task.skipped && REWORK_WORDS.test(input.prompt || "");
+    // Only the user's own words count: a builder's or the critic's report ("generic", "template") is not a request.
+    const said = userWords(input.prompt);
+    const rework = (task.uiWrites || []).length > 0 && !task.skipped && REWORK_WORDS.test(said);
     if (rework) {
       updateState((st) => {
-        if (st.task) st.task.rework = { at: Date.now(), prompt: String(input.prompt || "").slice(0, 200) };
+        if (st.task) st.task.rework = { at: Date.now(), prompt: said.slice(0, 200) };
       }, dir);
     }
     const round = rework
       ? `\nThis is a NEW ROUND on the built page: the user wants a big change, not a touch-up. Run the loop's front half again before writing UI (the write gate holds until you do): ` +
         `1) look: refs_site on 2-3 shipped sites that are clearly better at what's asked + refs_gallery for the pattern, in one message; name what you take from each. ` +
-        `2) one drip_execute with a components_find per upgrade, then ONE pieces_preview. 3) pieces_install, ONE build_prepare with every upgrade on its piece, drip:builder agents in one message. 4) fitcheck_shot. ` +
+        `2) one drip_execute with a components_find per upgrade, then ONE pieces_preview. 3) pieces_install, ONE build_prepare with every upgrade on its piece, its one or two drip:builder agents in one message. 4) fitcheck_shot. ` +
         `Re-read taste.md (drip_guide taste) first. "Better" means bigger real pictures, a stronger composition and finished library pieces, never stacked effects (glow, glass, grain or shine sweeps as decoration, tilt on everything). Every effect has to earn its place on the page.`
       : "";
     return out({

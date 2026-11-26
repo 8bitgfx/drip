@@ -58,7 +58,12 @@ export function renderTemplates() {
   return out;
 }
 
+/** The root plugin.json (Codex marketplace install) points at hooks/codex-plugin.json: generated too, so it never drifts. */
+const PLUGIN_HOOKS = path.join(root, "hooks", "codex-plugin.json");
+const pluginHooks = () => `${JSON.stringify(codex.hooksJson(tpl({ pluginRoot: "${PLUGIN_ROOT}" }), { plugin: true }), null, 2)}\n`;
+
 function writeTemplates() {
+  fs.writeFileSync(PLUGIN_HOOKS, pluginHooks());
   const files = renderTemplates();
   const dir = path.join(root, "hosts");
   fs.rmSync(dir, { recursive: true, force: true });
@@ -73,6 +78,7 @@ function writeTemplates() {
 function checkTemplates() {
   const files = renderTemplates();
   const stale = [];
+  if (!fs.existsSync(PLUGIN_HOOKS) || fs.readFileSync(PLUGIN_HOOKS, "utf8").replace(/\r\n/g, "\n") !== pluginHooks()) stale.push("../hooks/codex-plugin.json");
   for (const [rel, content] of Object.entries(files)) {
     const f = path.join(root, "hosts", rel);
     if (!fs.existsSync(f) || fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n") !== content) stale.push(rel);

@@ -21,6 +21,8 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first, then [docs/SKILL_FORMAT
 - **esbuild bundle**: a dynamic `import()` of a module that is also imported statically breaks zod's init order ("Class2 is not a constructor"). Use static imports.
 - **designDoc** (`core/skills.mjs`): a page Drip builds in its own folder (`task.page.dir`) reads only its own DESIGN.md. Falling back to the host repo's guide fed one product's style guide to another product's critic.
 - **Transcript checks** (`hooks/transcript.mjs`, `hooks/claims.mjs`): claims on the user's or critic's behalf are checked against the Claude Code transcript. Hook feedback, task notifications and system reminders arrive as "user" rows: never count them as the user. Other hosts have no transcript, so the checks pass there.
+- **Prompts that aren't the user**: task notifications (builder and critic reports), system reminders and hook feedback arrive through UserPromptSubmit too. Anything that reacts to what the user asked (the new-round words) reads `userWords(prompt)`; a critic report saying "generic" once forced a whole rebuild.
+- **Generated files**: `hosts/` and `hooks/codex-plugin.json` come from `npm run build:hosts`; never edit them by hand.
 - **Gates count calls, not work**, unless written carefully. Every gate added so far was dodged by the cheapest call that satisfies it; check the result (files on disk, the page, the transcript), not that a tool ran.
 
 See [docs/NEXT.md](docs/NEXT.md) for the open problems and the user's latest feedback.

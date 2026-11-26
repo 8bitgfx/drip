@@ -105,6 +105,20 @@ test("a named piece must be on the page", () => {
   assert.deepEqual(unusedPieces(t, root), []);
 });
 
+test("a piece installed under its own file name counts, without wrapper files", () => {
+  const root = tmp("page-root-2");
+  const src = path.join(root, "page", "src");
+  fs.mkdirSync(path.join(src, "components"), { recursive: true });
+  fs.mkdirSync(path.join(src, "sections"), { recursive: true });
+  fs.writeFileSync(path.join(src, "App.tsx"), 'import Nav from "./sections/Nav";');
+  fs.writeFileSync(path.join(src, "components", "header.tsx"), "export const Header = () => null;");
+  fs.writeFileSync(path.join(src, "sections", "Nav.tsx"), 'import { Header } from "@/components/header";');
+  const url = "https://www.efferd.com/r/header3.json";
+  const t = { page: { dir: "page" }, sections: { nav: { piece: url } } };
+  assert.match(unusedPieces(t, root)[0] || "", /no header3 component/, "unknown file names: the URL name is all there is");
+  assert.deepEqual(unusedPieces({ ...t, pieceFiles: { [url]: ["header"] } }, root), [], "the registry's own file name is found");
+});
+
 test("the critic's context states facts, it doesn't argue", () => {
   assert.equal(defends("Logged-in workspace home of a thumbnail maker; the pictures are real outputs."), null);
   assert.ok(defends("The tilted cards are intentional"));

@@ -35,6 +35,7 @@ export function tomlBlock(o) {
 }
 
 const MATCH_WRITE = "apply_patch|Edit|Write";
+const MATCH_SHELL = "Bash|shell|exec_command|local_shell|shell_command|unified_exec";
 
 /** Codex-format hooks.json content for Drip. Used by Codex's own hooks.json and by the ChatGPT/Codex plugin package. */
 export function hooksJson(o, { plugin = false } = {}) {
@@ -48,7 +49,10 @@ export function hooksJson(o, { plugin = false } = {}) {
     hooks: {
       SessionStart: [{ hooks: [cmd("SessionStart")] }],
       UserPromptSubmit: [{ hooks: [cmd("UserPromptSubmit")] }],
-      PreToolUse: [{ matcher: MATCH_WRITE, hooks: [cmd("PreToolUse")] }],
+      PreToolUse: [
+        { matcher: MATCH_WRITE, hooks: [cmd("PreToolUse")] },
+        { matcher: MATCH_SHELL, hooks: [cmd("PreToolUse")] },
+      ],
       PostToolUse: [
         { matcher: MATCH_WRITE, hooks: [cmd("PostToolUse")] },
         { matcher: "drip_start", hooks: [cmd("PostToolUse")] },

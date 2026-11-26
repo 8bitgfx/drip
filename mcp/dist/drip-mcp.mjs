@@ -87946,6 +87946,9 @@ function reworkNames(rec) {
   return low.join(", ");
 }
 var AGENT_TTL_MS = 10 * 6e4;
+function agentsRunning(task, now = Date.now()) {
+  return (task?.agents || []).filter((a2) => now - Date.parse(a2.at) < AGENT_TTL_MS);
+}
 function lastCritique(task, kind) {
   return [...task?.critic?.records || []].reverse().find((r2) => r2.kind === kind) || null;
 }
@@ -90605,10 +90608,12 @@ function setupNotes(config2, { chrome, force = false } = {}) {
 // src/modules/swarm/index.mjs
 var swarm_exports = {};
 __export(swarm_exports, {
+  MAX_BUILDERS: () => MAX_BUILDERS,
   ROLES: () => ROLES,
   buildGaps: () => buildGaps,
   buildPrompt: () => buildPrompt,
   checkerPrompt: () => checkerPrompt,
+  groupSections: () => groupSections,
   hostHasSubagents: () => hostHasSubagents,
   pageOf: () => pageOf,
   pascal: () => pascal2,
@@ -90743,33 +90748,60 @@ function studiedTakes(task) {
 WHAT THE DIRECTOR STUDIED (match this level of craft; never copy a reference's colours or surface):
 ${st.map((s2) => `- ${s2.source || s2.key}: take ${s2.take}${s2.motion ? `; motion: ${s2.motion}` : ""}`).join("\n")}`;
 }
-function buildPrompt({ section, spec, files, url: url2, task, piece, page: page2 }) {
+var MAX_BUILDERS = 2;
+var PER_BUILDER = 3;
+function groupSections(list4, max = MAX_BUILDERS) {
+  const n3 = Math.min(max, Math.max(1, Math.ceil(list4.length / PER_BUILDER)));
+  if (n3 === 1 || list4.some((s2) => WHOLE.includes(slug2(s2.section)))) return [list4];
+  const shared2 = new Set(list4.filter((s2) => OWN.includes(slug2(s2.section))));
+  const groups = [[...shared2], []];
+  for (const s2 of list4) {
+    if (shared2.has(s2)) continue;
+    (groups[0].length <= groups[1].length ? groups[0] : groups[1]).push(s2);
+  }
+  return groups.filter((g) => g.length).map((g) => list4.filter((s2) => g.includes(s2)));
+}
+function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
+  const id = slug2(section);
+  const mine = files?.length ? files : sectionFiles(section, stack);
+  const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
+  const placement = stack === "react" ? [...OWN, ...WHOLE].includes(id) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${id}">.` : WHOLE.includes(id) ? "You build the whole page: index.html and its own styles and scripts." : OWN.includes(id) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${id}"> element alone (no <html>/<head>), ${mine[1]} its styles.`;
+  return [
+    many ? `=== SECTION: ${section} ===` : "",
+    "THE SECTION SPEC (from the director; build exactly this)",
+    spec,
+    pieceLine,
+    stack === "react" && id === "hero" && pg && fs23.existsSync(path23.join(pg.root, "src", "sections", "hero.recipe.html")) ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it." : "",
+    `Files: ${mine.join(", ")}. ${placement}`
+  ].filter((x2) => x2 !== "");
+}
+function buildPrompt({ section, spec, files, url: url2, task, piece, page: page2, items }) {
+  const list4 = items?.length ? items : [{ section, spec, files, piece }];
   const chosen = task?.board?.chosen;
   const pg = page2 || pageOf(task);
   const doc = pg && pg.rel !== "." ? designDoc(pg.root) : designDoc(void 0, task);
   const stack = pg?.stack || "html";
-  const mine = files?.length ? files : sectionFiles(section, stack);
+  const many = list4.length > 1;
+  const mine = [...new Set(list4.flatMap((s2) => s2.files?.length ? s2.files : sectionFiles(s2.section, stack)))];
   const where = pg ? `The page: ${pg.rel}/ (${stack === "react" ? "React + Vite + Tailwind v4" : "one static HTML page"}).` : "";
   const system = stack === "react" ? `THE SYSTEM (src/index.css, taste-skill's numbers): colours bg-background, text-foreground, bg-card, text-muted-foreground, bg-primary text-primary-foreground, text-brand, border-border; type roles ONLY text-display, text-h1, text-h2, text-h3, text-lead, text-body, text-small, text-label, text-stat with font-display for headings (never text-5xl / text-[68px]); layout: wrap for the column (same edges as every section), section-pad for a section's rhythm, head-gap under a section heading; the hover layer: lift on cards, press on buttons, photo-zoom on framed pictures; enter on hero children (style={{ "--i": n }} orders them). rounded-[var(--radius)]. Never add a colour, size or font. Images in public/ (or remote URLs). Icons: lucide-react.` : doc ? `THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; follow it, change nothing in it):
 ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens (--p-bg, --p-surface, --p-ink, --p-muted, --p-accent, --p-action; --font-display, --font-text) and the kit in assets/ (system.css type roles and spacing, .button, the motion layer). Use its classes and variables; never add a size or a colour.";
-  const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
+  const ids = list4.map((s2) => s2.section);
   return [
-    `DRIP BUILDER \xB7 section: ${section}`,
+    `DRIP BUILDER \xB7 ${many ? `sections: ${ids.join(", ")}` : `section: ${ids[0]}`}`,
     "",
     "THE BRIEF",
     briefBlock(task),
     chosen ? `Chosen direction: ${chosen}` : "",
     "",
-    "THE SECTION SPEC (from the director; build exactly this)",
-    spec,
-    pieceLine,
+    many ? `You build ${list4.length} sections, in this order, one after another; they share one system, so keep their rhythm and detail consistent with each other.` : "",
+    ...list4.flatMap((s2) => [...sectionBlock(s2, pg, stack, many), ""]),
     studiedTakes(task),
     "",
     where,
     system,
-    stack === "react" && slug2(section) === "hero" && pg && fs23.existsSync(path23.join(pg.root, "src", "sections", "hero.recipe.html")) ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it." : "",
-    `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for this section)" : ""}.`,
-    stack === "react" ? `${[...OWN, ...WHOLE].includes(slug2(section)) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${slug2(section)}">. `}Other builders write the other sections at the same time; the director stitches them into App.tsx.` : WHOLE.includes(slug2(section)) ? "You build the whole page: index.html and its own styles and scripts." : OWN.includes(slug2(section)) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${slug2(section)}"> element alone (no <html>/<head>), ${mine[1]} its styles. Other builders write the other sections at the same time; the director stitches them in.`,
+    `YOU MAY TOUCH ONLY: ${mine.join(", ")}${stack === "react" ? " (and new files under src/components/ for these sections)" : ""}.`,
+    list4.some((s2) => ![...OWN, ...WHOLE].includes(slug2(s2.section))) ? `Another builder may write other sections at the same time; the director stitches them into ${stack === "react" ? "App.tsx" : "the page"}.` : "",
     "Add the hover layer (cards lift 2px, photos zoom 1.02, buttons step and press) and the section's motion; respect prefers-reduced-motion. 375px and 1440px must both hold.",
     "No screenshots and no fit checks: the director checks the whole page once. Real copy only (from the spec), never lorem, never invented logos, numbers, times or quotes: a number the spec doesn't give is a [bracket].",
     url2 ? `The page runs at ${url2} if you need to look at it.` : "",
@@ -90798,7 +90830,7 @@ function swarmInstructions(task, { env = process.env } = {}) {
   lines.push(
     "- Research: scout_prepare once per role (style, competitor, page; before when redesigning) and launch the scouts IN PARALLEL in one message. They study through refs_study, so the gates count their work.",
     "- Decide: brief, thesis, directions and the choice stay with you. Write each section's spec yourself.",
-    "- Build: ONE build_prepare with every section (each names its library piece), then all drip:builder agents (Sonnet) in ONE message. You write specs, not code: small fixes only.",
+    `- Build: ONE build_prepare with every section (each names its library piece); it groups them over one or two drip:builder agents (Sonnet, never more than ${MAX_BUILDERS}). You are the director: you write specs, not code (small fixes only), and you never hand the task to another session.`,
     "- Small jobs (install, download, rename, copy fixes, a re-check): a drip:helper (Haiku) with a one-paragraph task.",
     "- Measure: one fitcheck_shot of the whole page (or checker_prepare -> drip:checker for numbers only).",
     "- Judge: the critic once, at the final version. The critic is never a scout, builder or checker.",
@@ -90836,7 +90868,7 @@ function register(server2, ctx2) {
     "build_prepare",
     {
       title: "Prepare section builders",
-      description: 'Swarm Mode. Returns the exact prompt for each drip:builder subagent (Sonnet): pass EVERY section in one call (sections: [...]) and launch all the builders in ONE message. Each section names its piece (a library component it is built on) or says why it is custom. The builders write code; you direct. Example: build_prepare({ page: "saas-award-4", sections: [{ section: "features", spec: "Bento of four live features...", piece: "https://magicui.design/r/bento-grid.json" }, { section: "proof", spec: "...", piece: "custom: a single quote with the founder photo" }] })',
+      description: `Swarm Mode. Pass EVERY section in one call (sections: [...]); it groups them over at most ${MAX_BUILDERS} drip:builder subagents (Sonnet; one builder up to ${PER_BUILDER} sections) and returns each builder's exact prompt. Launch them in ONE message. Each section names its piece (a library component it is built on) or says why it is custom. The builders write code; you direct. Example: build_prepare({ page: "saas-award-4", sections: [{ section: "features", spec: "Bento of four live features...", piece: "https://magicui.design/r/bento-grid.json" }, { section: "proof", spec: "...", piece: "custom: a single quote with the founder photo" }] })`,
       inputSchema: {
         sections: external_exports.array(SECTION).min(1).max(12).optional().describe("Every section to build now"),
         page: external_exports.string().optional().describe("The page folder (default: the one layout_deal wrote)"),
@@ -90865,8 +90897,9 @@ Then build_prepare again.`, true);
           true
         );
       const pg = pageOf(task, page2);
-      const prompts = list4.map((s2) => ({ s: s2, prompt: buildPrompt({ section: s2.section, spec: s2.from ? `${s2.spec}
-TAKES FROM: ${s2.from}` : s2.spec, files: s2.files, url: url2, task, piece: s2.piece, page: pg }) }));
+      const withFrom = list4.map((s2) => ({ ...s2, spec: s2.from ? `${s2.spec}
+TAKES FROM: ${s2.from}` : s2.spec }));
+      const prompts = groupSections(withFrom).map((items) => ({ ids: items.map((s2) => s2.section), prompt: buildPrompt({ items, url: url2, task, page: pg }) }));
       updateState((st) => {
         if (!st.task) return;
         st.task.built = [.../* @__PURE__ */ new Set([...st.task.built || [], ...list4.map((s2) => slug2(s2.section))])];
@@ -90878,9 +90911,9 @@ TAKES FROM: ${s2.from}` : s2.spec, files: s2.files, url: url2, task, piece: s2.p
       const toInstall = react ? list4.map((s2) => s2.piece).filter((p2) => p2 && /^https?:/.test(p2) && !(task?.pieces || []).includes(p2)) : [];
       const head = (toInstall.length ? `FIRST: pieces_install({ page: "${pg.rel}", urls: ${JSON.stringify(toInstall)} }) (one run; then launch).
 
-` : "") + `NOW: launch ${prompts.length === 1 ? "the builder" : `all ${prompts.length} builders in ONE message`} with exactly these prompts (do not edit them):
+` : "") + `NOW: launch ${prompts.length === 1 ? "ONE builder" : `the ${prompts.length} builders in ONE message`} with exactly ${prompts.length === 1 ? "this prompt" : "these prompts"} (do not edit them, do not split them into more agents):
 `;
-      const body = prompts.map(({ s: s2, prompt }) => `${launch2("builder", `Build ${s2.section}`)}
+      const body = prompts.map(({ ids, prompt }) => `${launch2("builder", `Build ${ids.join(", ")}`.slice(0, 60))}
 ----------------------------------------
 ${prompt}
 ----------------------------------------`).join("\n\n");
@@ -91281,8 +91314,10 @@ var TOPIC_WORDS = {
 };
 var FULL_WORDS = /\b(new|design|redesign|redo|rewrite|build|create|make|landing|page|screen|site|dashboard|from scratch|revamp|overhaul)\b/i;
 var QUICK_WORDS = /\b(tweak|fix|adjust|nudge|small|slightly|change the|bump|align|rename|padding|margin)\b/i;
+var PRODUCT_WORDS = /\b(studio|workspace|generator|maker|builder|playground|simulator|planner|tracker|platform|engine|assistant|copilot|software|editor|tool)s?\b[^.]{0,80}?\b(for|that|to)\s+(\w+ing\b|turn|make|create|edit|build|generate|animate|design|track|plan|write|compose|mix|record|render|draw|paint|model)/i;
 function guess(task) {
-  const surface = Object.entries(SURFACE_WORDS).find(([, re]) => re.test(task))?.[0] || "other";
+  let surface = Object.entries(SURFACE_WORDS).find(([, re]) => re.test(task))?.[0] || "other";
+  if (surface === "other" && PRODUCT_WORDS.test(task)) surface = "app";
   const size = QUICK_WORDS.test(task) && !/\b(new|redesign|from scratch)\b/i.test(task) ? "quick" : FULL_WORDS.test(task) ? "full" : "quick";
   return { surface, size };
 }
@@ -91455,6 +91490,7 @@ function register3(server2, ctx2) {
 ` + (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o2) => `"${o2.title}"`).join(", ")}): never touch them.
 ` : "") + (memCtx ? `PROJECT MEMORY (${t2.memory.mode}): ${memCtx.text}
 ` : "") + (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.
+` : "") + (!surface && sf === "app" && !SURFACE_WORDS.app.test(task) ? `SURFACE: the request names a product, not a page, so you design the product itself: its main screen working (e.g. an editor with its canvas or viewport, timeline and settings, real content in it), not a landing page about it. If the user may have meant a marketing page, make that one of the questions ("The product's main screen" first / "Its landing page"); on "landing page", drip_start again with surface: "landing".
 ` : "") + (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.
 ` : "") + (t2.noAsk ? `The user said not to ask: state your assumptions in one line and decide.
 ` : `ASK ONCE, after the look and the deal and before any building: one AskUserQuestion round of 2-4 clickable questions (only what the request leaves open), then drip_brief with the answers. Building waits for it. What to ask is in fast.md ("The questions").
@@ -91462,7 +91498,7 @@ function register3(server2, ctx2) {
 ` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") + (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).
 ` : "") + `
 FIRST CALLS (one message):
-1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).
+1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> ${sf === "app" ? "app screen" : "landing hero"}" }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).
 2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).
 3. Right after: ONE drip_execute that runs components_find for every section's need (the recipe is in "Code Mode" below), then ONE pieces_preview of the best.
 Then the loop below from step 4 (build, check once).${t2.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}
@@ -105232,6 +105268,7 @@ __export(parts_exports, {
   installTaste: () => installTaste,
   register: () => register12,
   registerDeal: () => registerDeal,
+  registryFileNames: () => registryFileNames,
   scaffoldPage: () => scaffoldPage,
   scaffoldReactPage: () => scaffoldReactPage,
   tasteAssets: () => tasteAssets,
@@ -105528,6 +105565,14 @@ ${section}
 `);
   return scaffoldReact({ dir, rel: rel3, title: trade ? trade.replace(/\b\w/g, (c3) => c3.toUpperCase()) : "Page", head, radius, heroRecipe });
 }
+async function registryFileNames(url2) {
+  try {
+    const item = JSON.parse(await get(url2, { timeoutMs: 1e4, retries: 1 }));
+    return [...new Set((item.files || []).map((f3) => String(f3.target || f3.path || "")).filter((p2) => /\.(tsx|jsx|ts|js)$/.test(p2) && !/(^|\/)(lib|hooks)\//.test(p2)).map((p2) => p2.split("/").pop().replace(/\.\w+$/, "")).filter((n3) => n3 && n3 !== "index"))];
+  } catch {
+    return [];
+  }
+}
 function registerDeal(server2, ctx2) {
   server2.registerTool(
     "pieces_install",
@@ -105548,8 +105593,11 @@ function registerDeal(server2, ctx2) {
       await ensureInstalled(root);
       const outp = await sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u2) => `"${u2}"`).join(" ")}`, root).catch((e2) => `FAILED: ${e2.message}`);
       const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f3) => f3.replace(/\\/g, "/")))];
+      const names3 = Object.fromEntries(await Promise.all(urls.map(async (u2) => [u2, await registryFileNames(u2)])));
       updateState((st) => {
-        if (st.task) st.task.pieces = [.../* @__PURE__ */ new Set([...st.task.pieces || [], ...urls])];
+        if (!st.task) return;
+        st.task.pieces = [.../* @__PURE__ */ new Set([...st.task.pieces || [], ...urls])];
+        st.task.pieceFiles = { ...st.task.pieceFiles || {}, ...Object.fromEntries(Object.entries(names3).filter(([, n3]) => n3.length)) };
       });
       return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path46.relative(projectDir(), root)}.`}${files.length ? `
 Files: ${files.join(", ")}` : ""}
@@ -106971,7 +107019,8 @@ function unusedPieces(task, root = projectDir()) {
   for (const [id, s2] of Object.entries(task.sections)) {
     const key = pieceKey(s2.piece);
     if (!key || key.length < 4) continue;
-    const mine = comps.filter((f3) => norm5(path55.basename(f3).replace(/\.\w+$/, "")) === key || norm5(path55.basename(path55.dirname(f3))) === key);
+    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm5).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f3) => keys.has(norm5(path55.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm5(path55.basename(path55.dirname(f3)))));
     if (!mine.length) {
       out.push(`piece not on the page: #${id} names ${s2.piece}, but no ${key} component is installed under src/components (pieces_install it, or name what the section really uses)`);
       continue;
@@ -107145,7 +107194,7 @@ ${hard.map((b) => `- ${b}`).join("\n")}
 ${soft.map((b) => `- ${b}`).join("\n")}
 
 ` : "";
-      head = hero ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare, every builder in one message): the user sees the finished page, not a question."}`}` : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version. Look at the sheet once and fix what looks wrong."} Before you show the user the finished page: the critic, once (critic_prepare kind build -> drip:critic -> critic_record). drip_end refuses without it, and a REVISE needs the user\u2019s choice, not your own pass.`;
+      head = hero ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare with every section; its one or two builders in one message): the user sees the finished page, not a question."}`}` : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version. Look at the sheet once and fix what looks wrong."} Before you show the user the finished page: the critic, once (critic_prepare kind build -> drip:critic -> critic_record). drip_end refuses without it, and a REVISE needs the user\u2019s choice, not your own pass.`;
     }
     content.unshift(textBlock(head));
     return blocks(content);
@@ -107381,6 +107430,9 @@ function register22(server2, ctx2) {
           true
         );
       const { task } = loadState();
+      const building = kind === "build" ? agentsRunning(task).filter((a2) => /builder/i.test(a2.type)) : [];
+      if (building.length)
+        return text(`${building.length} builder${building.length > 1 ? "s are" : " is"} still writing sections. Wait for ${building.length > 1 ? "them" : "it"} to finish, then page_stitch and one fitcheck_shot; the critic judges the finished page, once.`, true);
       const prevRounds = (task?.critic?.records || []).filter((r2) => r2.kind === kind);
       const decided = task?.intake?.max === 0;
       if (kind === "build" && decided && !extraRound && !task?.critic?.extraRounds && prevRounds.length >= criticRounds(task, config2)) extraRound = true;
@@ -114871,7 +114923,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.8.21";
+var VERSION = "0.8.22";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

@@ -10,7 +10,7 @@ import { examplesDir, projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
 import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
-import { criticRounds, isPersuade, loadState, updateState } from "../../core/state.mjs";
+import { agentsRunning, criticRounds, isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { artifactRev } from "../../core/evidence.mjs";
 import { offDirectionFixes, recordFeedback } from "../../core/memory.mjs";
 import { projectContext } from "../../core/project.mjs";
@@ -155,6 +155,10 @@ export function register(server, ctx) {
           true,
         );
       const { task } = loadState();
+      // The critic judges the finished page once: a review while a builder is still writing a section is a wasted round.
+      const building = kind === "build" ? agentsRunning(task).filter((a) => /builder/i.test(a.type)) : [];
+      if (building.length)
+        return text(`${building.length} builder${building.length > 1 ? "s are" : " is"} still writing sections. Wait for ${building.length > 1 ? "them" : "it"} to finish, then page_stitch and one fitcheck_shot; the critic judges the finished page, once.`, true);
       const prevRounds = (task?.critic?.records || []).filter((r) => r.kind === kind);
       // The user said "decide for me": that standing answer covers one more round without a question.
       const decided = task?.intake?.max === 0;

@@ -292,6 +292,22 @@ test("codex adapter: a UI write is denied while the design loop is incomplete; l
   assert.equal(runAdapter("codex", "PreToolUse", { cwd: project, tool_name: "apply_patch", tool_input: { command: "garbage" } }, project), null);
 });
 
+test("codex adapter: UI and Drip state are never written from Codex's shell tool", () => {
+  const project = projectWithTask();
+  for (const [tool_name, command] of [
+    ["Bash", "cat >> src/index.css <<'EOF'\n.a{}\nEOF"],
+    ["shell", ["bash", "-lc", "echo '.b{}' > src/App.css"]],
+    ["exec_command", "rm .drip/state.json"],
+  ]) {
+    const deny = runAdapter("codex", "PreToolUse", { cwd: project, tool_name, tool_input: { command } }, project);
+    assert.equal(deny?.hookSpecificOutput.permissionDecision, "deny", `${tool_name}: ${command}`);
+    assert.match(deny.hookSpecificOutput.permissionDecisionReason, /^\[Drip\] /);
+  }
+  assert.equal(runAdapter("codex", "PreToolUse", { cwd: project, tool_name: "shell", tool_input: { command: ["npm", "run", "build"] } }, project), null);
+  const hooks = rj(path.join(root, "hosts", "codex", "hooks.json"));
+  assert.ok(hooks.hooks.PreToolUse.some((g) => /\bBash\b/.test(g.matcher) && /shell/.test(g.matcher)), "the shell gate is wired for Codex");
+});
+
 test("codex adapter: no Drip task means no blocking; post-write records the UI change; stop blocks until a fit check", () => {
   const empty = tmp("empty");
   assert.equal(runAdapter("codex", "PreToolUse", { cwd: empty, tool_name: "apply_patch", tool_input: { command: PATCH } }, empty), null);

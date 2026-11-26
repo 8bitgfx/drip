@@ -22,7 +22,7 @@ The order of work for a page in about ten minutes. What good looks like is in `t
 5. **Check once.** `drip_serve`, then `fitcheck_shot({ url, hero: true })`. Anything it calls BROKEN is fixed before going on; numbers get one edit, not a round. Then straight on to the sections (unless the user asked to see the hero first).
 
 ## The sections
-6. A one-line spec per section: its idea, its piece, its picture, its motion; no two neighbours alike. **Each section shows a different real picture.** The client's site rarely has enough: `images_search`, make them (`art_generate`, `gen_image`, `mockup_render`), or ask the user for their own work. One picture repeated across the page is blocked by the page check. `pieces_install` once, ONE `build_prepare` with every section, every builder in ONE message.
+6. A one-line spec per section: its idea, its piece, its picture, its motion; no two neighbours alike. **Each section shows a different real picture.** The client's site rarely has enough: `images_search`, make them (`art_generate`, `gen_image`, `mockup_render`), or ask the user for their own work. One picture repeated across the page is blocked by the page check. `pieces_install` once, ONE `build_prepare` with every section; it groups them over one or two builders (never more), launched in ONE message. You stay the director: never hand the task to another session.
 7. `page_stitch` once when they finish (later shots re-stitch by themselves). `fitcheck_shot({ url })` once; fix what matters in one pass (a 1-2% number is not worth a round). Show the page, `drip_end`: it closes the film and opens the montage for the user.
 
 ## A new round

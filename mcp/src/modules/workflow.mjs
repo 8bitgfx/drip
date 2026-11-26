@@ -46,8 +46,13 @@ const TOPIC_WORDS = {
 const FULL_WORDS = /\b(new|design|redesign|redo|rewrite|build|create|make|landing|page|screen|site|dashboard|from scratch|revamp|overhaul)\b/i;
 const QUICK_WORDS = /\b(tweak|fix|adjust|nudge|small|slightly|change the|bump|align|rename|padding|margin)\b/i;
 
-function guess(task) {
-  const surface = Object.entries(SURFACE_WORDS).find(([, re]) => re.test(task))?.[0] || "other";
+// "An AI animation studio for turning stills into anime scenes" names a product and what it does, not a page: the
+// product's own main screen (an editor with its viewport, timeline and settings), not a landing page about it.
+const PRODUCT_WORDS = /\b(studio|workspace|generator|maker|builder|playground|simulator|planner|tracker|platform|engine|assistant|copilot|software|editor|tool)s?\b[^.]{0,80}?\b(for|that|to)\s+(\w+ing\b|turn|make|create|edit|build|generate|animate|design|track|plan|write|compose|mix|record|render|draw|paint|model)/i;
+
+export function guess(task) {
+  let surface = Object.entries(SURFACE_WORDS).find(([, re]) => re.test(task))?.[0] || "other";
+  if (surface === "other" && PRODUCT_WORDS.test(task)) surface = "app";
   const size = QUICK_WORDS.test(task) && !/\b(new|redesign|from scratch)\b/i.test(task) ? "quick" : FULL_WORDS.test(task) ? "full" : "quick";
   return { surface, size };
 }
@@ -277,6 +282,9 @@ export function register(server, ctx) {
             (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}): never touch them.\n` : "") +
             (memCtx ? `PROJECT MEMORY (${t.memory.mode}): ${memCtx.text}\n` : "") +
             (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.\n` : "") +
+            (!surface && sf === "app" && !SURFACE_WORDS.app.test(task)
+              ? `SURFACE: the request names a product, not a page, so you design the product itself: its main screen working (e.g. an editor with its canvas or viewport, timeline and settings, real content in it), not a landing page about it. If the user may have meant a marketing page, make that one of the questions ("The product's main screen" first / "Its landing page"); on "landing page", drip_start again with surface: "landing".\n`
+              : "") +
             (redesignUrl ? `Redesign: refs_site({ urls: ["${redesignUrl}"], before: true }) shoots the current site first. Keep its brand (colours, ground, logo, fonts, real copy and numbers); a different ground or colour story is a proposal shown beside the faithful version.\n` : "") +
             (t.noAsk
               ? `The user said not to ask: state your assumptions in one line and decide.\n`
@@ -285,7 +293,7 @@ export function register(server, ctx) {
             (swarmOn(config, t) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") +
             (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).\n` : "") +
             `\nFIRST CALLS (one message):\n` +
-            `1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> landing hero" }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).\n` +
+            `1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> ${sf === "app" ? "app screen" : "landing hero"}" }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).\n` +
             `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).\n` +
             `3. Right after: ONE drip_execute that runs components_find for every section's need (the recipe is in "Code Mode" below), then ONE pieces_preview of the best.\n` +
             `Then the loop below from step 4 (build, check once).${t.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}\n\n` +

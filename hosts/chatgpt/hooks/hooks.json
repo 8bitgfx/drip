@@ -35,6 +35,17 @@
             "commandWindows": "node \"%PLUGIN_ROOT%/hooks/hosts/codex.mjs\" PreToolUse"
           }
         ]
+      },
+      {
+        "matcher": "Bash|shell|exec_command|local_shell|shell_command|unified_exec",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/hooks/hosts/codex.mjs\" PreToolUse",
+            "timeout": 30,
+            "commandWindows": "node \"%PLUGIN_ROOT%/hooks/hosts/codex.mjs\" PreToolUse"
+          }
+        ]
       }
     ],
     "PostToolUse": [

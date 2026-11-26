@@ -110,7 +110,7 @@ test("a niche pack learns from later tasks and travels as one file, privacy-chec
   assert.ok(packs.learnInPack("roblox-ui", "thumbnails need one big readable word", { cwd: project }));
   assert.equal(packs.learnInPack("roblox-ui", "thumbnails need one big readable word", { cwd: project }), false, "once");
   assert.match(readGuide("pack:roblox-ui"), /Learned on later tasks[\s\S]*one big readable word/);
-  const { pack, found } = packs.exportPack("roblox-ui", { cwd: project });
+  const { found } = packs.exportPack("roblox-ui", { cwd: project });
   assert.ok(found.some((f) => f.what === "an email address") && found.some((f) => f.what === "a local path"), "private bits are listed before sharing");
   const clean = packs.exportPack("roblox-ui", { redact: true, cwd: project }).pack;
   assert.doesNotMatch(clean.files["sources.md"], /example\.com|Users/);
@@ -214,6 +214,22 @@ test("builder prompts: the piece is used as it is, the stack decides the files, 
   const html = swarm.buildPrompt({ section: "proof", spec: "One quote from the head of ops, with photo", piece: "custom: a single quote", page: swarm.pageOf(null, "sp/index.html"), task: null });
   assert.match(html, /sections\/proof\.html, styles\/sections\/proof\.css/);
   assert.match(html, /PIECE: none/);
+});
+
+test("build_prepare groups sections over one or two builders, never more", () => {
+  const sec = (id) => ({ section: id, spec: `The ${id} section, real copy`, piece: "custom: tiny" });
+  assert.equal(swarm.groupSections(["a", "b", "c"].map(sec)).length, 1, "up to three sections: one builder");
+  const seven = ["nav", "hero", "features", "gallery", "pricing", "faq", "footer"].map(sec);
+  const g = swarm.groupSections(seven);
+  assert.equal(g.length, 2);
+  assert.equal(g.flat().length, 7, "every section is built");
+  const withIndex = g.filter((x) => x.some((s) => ["nav", "hero", "footer"].includes(s.section)));
+  assert.equal(withIndex.length, 1, "index.html sections stay with one builder");
+  assert.equal(swarm.groupSections(Array.from({ length: 12 }, (_, i) => sec(`s${i}`))).length, swarm.MAX_BUILDERS);
+  assert.equal(swarm.groupSections([sec("page"), sec("features"), sec("faq"), sec("cta")]).length, 1, "a whole-page build is one builder");
+  const p = swarm.buildPrompt({ items: g[1], page: swarm.pageOf(null, "sp/index.html"), task: null });
+  assert.match(p, /DRIP BUILDER · sections: /);
+  for (const s of g[1]) assert.match(p, new RegExp(`=== SECTION: ${s.section} ===`));
 });
 
 test("the director writes small fixes; a big write in the fast loop goes to a builder", () => {

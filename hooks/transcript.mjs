@@ -3,7 +3,16 @@
 // round, the brief, the critic's verdict) are checked against this instead of the agent's word.
 import fs from "node:fs";
 
-const NOT_THE_USER = /^\s*(<task-notification|<system-reminder|Stop hook feedback|This session is being continued|\[Request interrupted|Caveat:|<command-|<local-command|\[SYSTEM NOTIFICATION)/i;
+export const NOT_THE_USER = /^\s*(<task-notification|<system-reminder|Stop hook feedback|This session is being continued|\[Request interrupted|Caveat:|<command-|<local-command|\[SYSTEM NOTIFICATION)/i;
+
+/** The user's own words in a prompt: task notifications (a builder's or the critic's report), system reminders and
+ *  hook feedback arrive as prompts too, and are never the user asking for something. */
+export function userWords(prompt) {
+  const t = String(prompt || "")
+    .replace(/<(task-notification|system-reminder|local-command-stdout|local-command-stderr)>[\s\S]*?<\/\1>/gi, "")
+    .trim();
+  return !t || NOT_THE_USER.test(t) ? "" : t;
+}
 
 const textOf = (c) => (typeof c === "string" ? c : Array.isArray(c) ? c.map((b) => (b?.type === "text" ? b.text : typeof b === "string" ? b : "")).join("\n") : "");
 

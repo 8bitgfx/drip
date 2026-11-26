@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { blocks, safe, text } from "../../core/result.mjs";
+import { get } from "../../core/http.mjs";
 import { imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
 import { screenshot } from "../fitcheck/chrome.mjs";
 import { serveDir } from "../../core/serve.mjs";
@@ -316,6 +317,16 @@ export async function scaffoldReactPage({ out, kind, hero, palette, type, radius
   return scaffoldReact({ dir, rel, title: trade ? trade.replace(/\b\w/g, (c) => c.toUpperCase()) : "Page", head, radius, heroRecipe });
 }
 
+/** The component file names a shadcn registry item installs ("registry/blocks/header.tsx" -> "header"); [] when unknown. */
+export async function registryFileNames(url) {
+  try {
+    const item = JSON.parse(await get(url, { timeoutMs: 10000, retries: 1 }));
+    return [...new Set((item.files || []).map((f) => String(f.target || f.path || "")).filter((p) => /\.(tsx|jsx|ts|js)$/.test(p) && !/(^|\/)(lib|hooks)\//.test(p)).map((p) => p.split("/").pop().replace(/\.\w+$/, "")).filter((n) => n && n !== "index"))];
+  } catch {
+    return [];
+  }
+}
+
 export function registerDeal(server, ctx) {
   server.registerTool(
     "pieces_install",
@@ -338,8 +349,13 @@ export function registerDeal(server, ctx) {
       await ensureInstalled(root);
       const outp = await sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u) => `"${u}"`).join(" ")}`, root).catch((e) => `FAILED: ${e.message}`);
       const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f) => f.replace(/\\/g, "/")))];
+      // A registry item's files are often named apart from the item (efferd's "header3" installs header.tsx): keep its real
+      // file names, so the page check finds the piece by what it installed, not by its URL.
+      const names = Object.fromEntries(await Promise.all(urls.map(async (u) => [u, await registryFileNames(u)])));
       updateState((st) => {
-        if (st.task) st.task.pieces = [...new Set([...(st.task.pieces || []), ...urls])];
+        if (!st.task) return;
+        st.task.pieces = [...new Set([...(st.task.pieces || []), ...urls])];
+        st.task.pieceFiles = { ...(st.task.pieceFiles || {}), ...Object.fromEntries(Object.entries(names).filter(([, n]) => n.length)) };
       });
       return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path.relative(projectDir(), root)}.`}${files.length ? `\nFiles: ${files.join(", ")}` : ""}\nBuilders import them from @/components/... and use them as they are: restyle to the tokens and the client's content, never rewrite their motion.`, /^FAILED/.test(outp));
     }),
