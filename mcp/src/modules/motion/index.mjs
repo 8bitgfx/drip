@@ -82,6 +82,79 @@ export async function traceTarget(target, { from, to, fps, storyboard, config, m
 // Reference sources live in refsources.mjs (masters first, then open search with a quality floor).
 export { relaxQuery } from "./refsources.mjs";
 
+/**
+ * The stretches of a film where the most changes: [from, to] in whole seconds, best first, not overlapping, each clearly
+ * busier than the film's average stretch. perSec is the change per second from the full study.
+ */
+export function busiestWindows(perSec, { len = 12, n = 2 } = {}) {
+  if (perSec.length <= len) return [];
+  const sums = [];
+  for (let s = 0; s + len <= perSec.length; s++) sums.push(perSec.slice(s, s + len).reduce((a, b) => a + b, 0));
+  const avg = sums.reduce((a, b) => a + b, 0) / sums.length;
+  const out = [];
+  const order = sums.map((v, s) => [v, s]).sort((a, b) => b[0] - a[0]);
+  for (const [v, s] of order) {
+    if (out.length >= n || v < avg * 1.4 || v <= 0) break;
+    if (out.some(([a, b]) => s < b && s + len > a)) continue;
+    out.push([s, s + len]);
+  }
+  return out;
+}
+
+/** The times a close-up samples: about 36 frames over the window (never sparser than 3 a second when it fits). */
+export function closeUpTimes(from, to, every) {
+  const a = Math.max(0, from ?? 0);
+  const b = Math.min(to ?? a + 10, a + 30);
+  const step = every || Math.max(1 / 12, (b - a) / 35);
+  const ts = [];
+  for (let t = a; t <= b + 1e-6 && ts.length < 36; t += step) ts.push(+t.toFixed(3));
+  return ts;
+}
+
+/** motion_study's close-up: a dense run of frames over one stretch, to see how a transition is built. */
+async function closeUp({ source, abs, role, every, from, to, config }) {
+  if (from != null && to != null && to <= from) return text("to must be after from (seconds).", true);
+  const times = closeUpTimes(from, to, every);
+  const r = await sampleVideo(abs, { times, config });
+  if (!r.frames.length) return text(`Nothing to show between ${fmtT(times[0])} and ${fmtT(times.at(-1))}${r.duration ? `: the film is ${r.duration.toFixed(1)}s long` : ""}.`, true);
+  const ts = r.frames.map((f) => f.t);
+  const m = await measureFrames(r.frames.map((f) => f.buf), { config });
+  const diffs = m.map((x, i) => (i ? x?.diff ?? 0 : 0));
+  const top = diffs
+    .map((d, i) => [d, i])
+    .filter(([d, i]) => i && d > 0)
+    .sort((x, y) => y[0] - x[0])
+    .slice(0, 3)
+    .sort((x, y) => x[1] - y[1]);
+  const shown = r.frames.slice(0, 36);
+  const sheet = await sheetInBrowser(
+    shown.map((f) => f.buf),
+    { cols: 6, tileW: 300, tileH: Math.round(300 / (16 / 9)), labels: shown.map((f) => fmtT(f.t)), fit: "contain", config },
+  );
+  const dir = rendersDir(`study-${stamp()}`);
+  const file = path.join(dir, "closeup.jpg");
+  fs.writeFileSync(file, sheet);
+  updateState((st) => {
+    if (!st.task) return;
+    const mo = (st.task.motion ||= { studied: [], renders: [] });
+    const prev = (mo.studied || []).find((s) => s.source === source);
+    const closeups = [...(prev?.closeups || []), [ts[0], ts.at(-1)]].slice(-6);
+    const entry = { ...(prev || { source, duration: r.duration ? +r.duration.toFixed(2) : null, at: new Date().toISOString() }), role: role || prev?.role || null, closeups };
+    mo.studied = [...(mo.studied || []).filter((s) => s.source !== source), entry].slice(-20);
+  });
+  const gap = ts.length > 1 ? (ts.at(-1) - ts[0]) / (ts.length - 1) : 0;
+  return blocks([
+    textBlock(
+      `CLOSE-UP ${fmtT(ts[0])}-${fmtT(ts.at(-1))}: ${ts.length} frames, one every ${gap.toFixed(2)}s (read left to right, top to bottom).\n` +
+        `Change frame to frame: ${sparkline(diffs.slice(1))}\n` +
+        (top.length ? `Biggest changes land at: ${top.map(([, i]) => fmtT(ts[i])).join(", ")}.\n` : "") +
+        `Sheet: ${file}\n\n` +
+        "READ THE TRANSITION (inferred from the frames, say so): follow ONE element across the frames: what it was, what it becomes, when. What stays put and anchors the eye while the rest changes? Spacing between frames is the easing: big jumps then small ones = ease-out; small, big, small = ease-in-out; a step past the final position = overshoot. What leads and what follows, and by how many frames? Write it as a take you can build: \"the input box widens over ~0.5s with an ease-out, its border becomes the window frame, content fades in 0.2s after it lands\".",
+    ),
+    imageBlock(sheet),
+  ]);
+}
+
 export function register(server, ctx) {
   registerAudio(server, ctx);
   registerVoice(server, ctx);
@@ -176,15 +249,17 @@ export function register(server, ctx) {
       title: "Watch a film and measure it",
       description:
         "Watch a reference film (a video URL from motion_refs; a YouTube, X, Vimeo, Instagram, TikTok or LinkedIn post (public, no account needed: fetched as a 720p MP4); a local .mp4/.webm; a web page with a <video>) or your own render: it seeks through the video and returns a timestamped contact sheet plus what it measured: duration, hard cuts and the average shot length, still stretches, and a rhythm line of how much changes per moment. " +
-        "Measured is measured; easing curves, layers and intent are your reading of the frames: say which is which. Studying a MOVES reference (how things enter, transform, connect) is required before motion_storyboard. " +
+        "CLOSE-UP: from and to (seconds) watch one stretch densely (~36 frames, up to 30 s): the full study names the busiest stretches; a transition only shows its build there. Measured is measured; easing curves, layers and intent are your reading of the frames: say which is which. Studying a MOVES reference (how things enter, transform, connect) is required before motion_storyboard. " +
         'Example: motion_study({ source: "https://x.com/<brand>/status/<id>", role: "moves" }) for a brand launch film found with WebSearch · motion_study({ source: "film/out/launch.mp4" }) to check your render',
       inputSchema: {
         source: z.string().describe("Video URL; YouTube/X/Vimeo/Instagram/TikTok/LinkedIn post URL; local video file; or page URL with a video"),
         role: z.enum(ROLES).optional().describe("What you study it for: moves (choreography, transitions, timing), look (type, colour, composition), story (structure, hook), sound"),
-        every: z.number().min(0.1).max(10).optional().describe("Seconds between samples (default: ~100 samples over the film)"),
+        every: z.number().min(0.04).max(10).optional().describe("Seconds between samples (default: ~100 samples over the film; in a close-up, ~36 frames over the window)"),
+        from: z.number().min(0).optional().describe("Close-up: start of a stretch to watch densely (seconds), e.g. a transition the full study found. Use with to"),
+        to: z.number().min(0).optional().describe("Close-up: end of the stretch (at most 30 s after from)"),
       },
     },
-    safe(async ({ source, role, every }) => {
+    safe(async ({ source, role, every, from, to }) => {
       const config = ctx.config();
       let abs = /^https?:/i.test(source) ? source : path.resolve(projectDir(), source);
       // A Dribbble shot page: play its full video (the listing gives a small teaser).
@@ -196,6 +271,7 @@ export function register(server, ctx) {
       }
       // A file in the project is your own render; anything else is a reference.
       const own = !/^https?:/i.test(abs) && path.resolve(abs).toLowerCase().startsWith(path.resolve(projectDir()).toLowerCase());
+      if (from != null || to != null) return closeUp({ source, abs, role, every, from, to, config });
       const r = await sampleVideo(abs, { every, max: 100, config });
       if (!r.frames.length) return text(`Could not play a video at ${source} (no duration). Pass the post itself (a YouTube, X or Vimeo URL), a direct video URL, or a file the user provides.`, true);
       const m = await measureFrames(r.frames.map((f) => f.buf), { config });
@@ -241,7 +317,8 @@ export function register(server, ctx) {
       updateState((st) => {
         if (st.task) {
           const mo = (st.task.motion ||= { studied: [], renders: [] });
-          mo.studied = [...(mo.studied || []).filter((s) => s.source !== source), studied].slice(-20);
+          const prev = (mo.studied || []).find((s) => s.source === source);
+          mo.studied = [...(mo.studied || []).filter((s) => s.source !== source), { ...studied, ...(prev?.closeups ? { closeups: prev.closeups } : {}) }].slice(-20);
         }
       });
       // Per-second energy for the rhythm line.
@@ -255,6 +332,11 @@ export function register(server, ctx) {
           `MEASURED: ${r.duration.toFixed(1)}s, ${shots} shot${shots > 1 ? "s" : ""} (${j.cuts.length} hard cut${j.cuts.length === 1 ? "" : "s"}${j.cuts.length ? ` at ${j.cuts.slice(0, 12).map(fmtT).join(", ")}` : ""}), average shot ${asl.toFixed(1)}s.\n` +
             (moves.length ? `Fast moves, not cuts (the change spreads over several frames: a camera push, whip or morph): ${moves.slice(0, 10).map(fmtT).join(", ")}.\n` : "") +
             `Rhythm (change per second): ${sparkline(perSec)}\n` +
+            (() => {
+              // Where the film works hardest: the sheet's samples skip what happens between them, so point at a close-up.
+              const w = busiestWindows(perSec, { len: Math.min(15, Math.max(4, Math.round(r.duration / 8))) });
+              return w.length ? `Busiest stretches (watch these closely, the sheet skips between its frames): ${w.map(([a, b]) => `${fmtT(a)}-${fmtT(b)}`).join(", ")} → motion_study({ source: ${JSON.stringify(source)}, from: ${w[0][0]}, to: ${w[0][1]} })\n` : "";
+            })() +
             (j.holds.length ? `Still stretches: ${j.holds.map(([a, b]) => `${fmtT(a)}-${fmtT(b)}`).join(", ")}\n` : "") +
             (j.issues.length
               ? own

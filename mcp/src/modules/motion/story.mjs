@@ -41,6 +41,11 @@ export function checkStoryboard(sb, { studied = [] } = {}) {
   const backed = refs.filter((r) => seen.has(String(r.source)) || r.given);
   if (!backed.length)
     errors.push("no studied reference: motion_refs, then motion_study on 1-3 films (a MOVES reference at least), and name each in references with what you take from it. A reference the user gave counts: mark it given: true");
+  // A moves take read off a sheet sampled seconds apart is a guess about the transition: a close-up shows its build.
+  const moveRefs = backed.filter((r) => r.role === "moves" && !r.given);
+  const closeLooked = moveRefs.some((r) => studied.find((s) => String(s.source) === String(r.source))?.closeups?.length);
+  const short = moveRefs.every((r) => (studied.find((s) => String(s.source) === String(r.source))?.duration || 0) <= 15);
+  if (moveRefs.length && !closeLooked && !short) warnings.push("no moves reference was watched up close: the study sheet skips between its frames. motion_study({ source, from, to }) on the busiest stretch it named, then write the take from what the frames show");
   for (const r of refs) if (!String(r.take || "").trim() || String(r.take).trim().split(/\s+/).length < 4) errors.push(`reference ${r.source}: say what you take from it (\"take\", a concrete technique: \"the trailing edge springs later than the leading edge\")`);
   for (const s of slopIn(beats)) errors.push(`beat ${s.beat}: "${s.word}": ${s.why}`);
   // Timing: gaps and overlaps are usually typos; an intentional overlap is a crossfade and says so.

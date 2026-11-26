@@ -53,6 +53,12 @@ returns their film, which you already know.
 LinkedIn post (fetched as a 720p MP4, no account needed); a local `.mp4` or `.webm`; or a web page with a `<video>`.
 Pass `role` with what you study it for. The sheet shows each shot's first frame plus even samples.
 
+**Close-ups.** The full sheet samples a frame every few seconds, so it skips the transitions themselves. The study names
+the busiest stretches; watch one with `motion_study({ source, from, to })`: about 36 frames over up to 30 seconds
+(3 a second for a 12-second stretch). Follow one element across the frames (what it was, what it becomes), read the
+easing from the spacing between frames, and write the take from that. `motion_storyboard` warns when no moves
+reference was watched up close.
+
 ### Launch films: study how real companies announced real products
 
 A launch film is judged against the launches its audience has seen, not against freelance Dribbble shots. For a

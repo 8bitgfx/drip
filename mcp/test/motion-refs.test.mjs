@@ -126,3 +126,30 @@ test("music reads as text: energy bar by bar with builds, drops and storyboard b
   assert.match(lines[1], /beat@16\.2s/);
   assert.match(lines[0], /build 0:10\.0-0:16\.0/);
 });
+
+test("close-ups: the busiest stretches are found, and a window samples ~36 frames", async () => {
+  const { busiestWindows, closeUpTimes } = await import("../src/modules/motion/index.mjs");
+  const calm = Array(40).fill(0.1);
+  const busy = calm.map((v, s) => (s >= 10 && s < 16 ? 5 : s >= 30 && s < 34 ? 3 : v));
+  const w = busiestWindows(busy, { len: 6 });
+  assert.deepEqual(w[0], [10, 16]);
+  assert.ok(w.length === 2 && w[1][0] >= 28 && w[1][0] <= 30);
+  assert.deepEqual(busiestWindows(calm, { len: 6 }), [], "an even film has no stretch to point at");
+  const t = closeUpTimes(40, 52);
+  assert.equal(t.length, 36);
+  assert.equal(t[0], 40);
+  assert.ok(Math.abs(t.at(-1) - 52) < 0.01);
+  assert.ok(closeUpTimes(0, 100).at(-1) <= 30, "a window is at most 30 s");
+  assert.equal(closeUpTimes(10, 11)[1], 10.083, "short windows go no denser than 12 a second");
+});
+
+test("storyboard: a long moves reference not watched up close is a warning; a close-up clears it", async () => {
+  const { checkStoryboard } = await import("../src/modules/motion/story.mjs");
+  const sb = { format: { duration: 10 }, beats: [{ at: 0, len: 10, action: "a box snaps open", energy: 3 }], references: [{ source: "https://youtu.be/x", role: "moves", take: "the box widens with an ease-out, then content fades in" }] };
+  const far = checkStoryboard(sb, { studied: [{ source: "https://youtu.be/x", duration: 117 }] });
+  assert.ok(far.warnings.some((w) => /up close/.test(w)));
+  const near = checkStoryboard(sb, { studied: [{ source: "https://youtu.be/x", duration: 117, closeups: [[40, 52]] }] });
+  assert.ok(!near.warnings.some((w) => /up close/.test(w)));
+  const clip = checkStoryboard(sb, { studied: [{ source: "https://youtu.be/x", duration: 8 }] });
+  assert.ok(!clip.warnings.some((w) => /up close/.test(w)), "a short clip is dense enough already");
+});

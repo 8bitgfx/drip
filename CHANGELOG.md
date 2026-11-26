@@ -2,6 +2,9 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.10.6: close-ups of a film
+- **Close-ups**: `motion_study({ source, from, to })` watches one stretch densely (about 36 frames over up to 30 s, 3 a second for a 12-second stretch) with the change frame to frame and where it peaks, and asks for the transition read from the frames: one element followed across them, easing from the spacing. The full study now names its busiest stretches with the close-up call ready (on the Gemini 3 film: 0:40-0:55, where the input box becomes the whole UI, which the full sheet skips). `motion_storyboard` warns when no moves reference longer than 15 s was watched up close.
+
 ## 0.10.5: narration after the cut is approved, launch films, any post studied
 - **No paid voice before the picture is final**: `motion_voice` speak and audition (ElevenLabs, paid per character) need a rendered video of the current version, a clean frame sweep of it, and the user's own words approving the cut (`cutApproved`, checked against the chat by the claims hook); the approval holds for that version only. Before that everything is free: casting from preview links, and `speak` with `dryRun` now estimates each line's start and end so the animatic is timed to the script. Generated music's `userAsked` is checked against the chat too.
 - **Any post can be studied**: `motion_study` plays public YouTube, X, Vimeo, Instagram, TikTok and LinkedIn posts (yt-dlp's official release, fetched once into `~/.drip/vendor/bin`, takes a 720p MP4 with no account; Vimeo through its player URL). Pages with no playable video fall back to it too. A brand's launch film can now be studied from its own post.
