@@ -5,7 +5,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import { get } from "../../core/http.mjs";
 import { fetchImage, imageBlock, textBlock } from "../../core/images.mjs";
 import { sheetInBrowser } from "../../core/imaging.mjs";
 import { projectDir, projectDripDir } from "../../core/paths.mjs";
@@ -17,6 +16,8 @@ import { findFfmpeg, fmtT, judgeFrames, measureFrames, renderComposition, sample
 import { compositionUrl, filmSheets, isVideo } from "./sheets.mjs";
 import { ROLES, checkStoryboard, storyboardMd } from "./story.mjs";
 import { analyzeTrace, dopesheet, onionSkin, stretches, traceComposition } from "./trace.mjs";
+import { mastersWork, parseLikes, search24fps, searchDribbbleMotion, searchKisto, searchRelaxed } from "./refsources.mjs";
+import { listing, shot as dribbbleShot, thumbUrl } from "../refs/dribbble.mjs";
 import { registerAudio } from "./audio.mjs";
 import { registerVoice } from "./voice.mjs";
 import { mixGraph, soundTracks } from "./sound.mjs";
@@ -70,59 +71,8 @@ export async function traceTarget(target, { from, to, fps, storyboard, config, m
   return { labels: tr.labels, a, sheet, onions, duration: D };
 }
 
-// ---- reference sources (login-free) ----
-async function search24fps(q, limit) {
-  const { body } = await get(`https://24fps.dev/api/clips?q=${encodeURIComponent(q)}`, { as: "json", ttlMs: 24 * 3600e3 });
-  return (body?.results || []).slice(0, limit).map((c) => ({
-    from: "24fps",
-    title: c.title,
-    creator: c.creator,
-    url: c.url,
-    post: c.original_post,
-    poster: c.poster,
-    video: c.preview_mp4 || null,
-    seconds: c.duration_s,
-    tags: [c.category, c.framework].filter(Boolean),
-    licence: c.license,
-    code: c.source && c.source !== "none" ? `${c.source} source on its 24fps page` : null,
-  }));
-}
-async function searchKisto(q, limit) {
-  const { body } = await get(`https://kisto.app/api/v1/items?q=${encodeURIComponent(q)}&limit=${Math.min(50, limit)}`, { as: "json", ttlMs: 24 * 3600e3, delayMs: 1100 });
-  return (body?.items || []).slice(0, limit).map((it) => ({
-    from: "kisto",
-    title: it.title,
-    creator: it.creator?.name,
-    url: it.url,
-    post: it.source?.url,
-    poster: it.thumbnailUrl,
-    video: it.previewUrl || null,
-    seconds: it.durationSeconds,
-    tags: [...(it.disciplines || []), ...(it.tags || []).slice(0, 5)],
-    licence: "credit and link the creator; study only",
-  }));
-}
-
-/** Both sources match every word: when a long query finds little, relax it (pairs of words, then single words). */
-export function relaxQuery(q) {
-  const stop = new Set("a an the and of for with in on to my our video film animation motion design".split(" "));
-  const w = q.toLowerCase().split(/\s+/).filter((x) => x && !stop.has(x));
-  const out = [q];
-  for (let i = 0; i + 1 < w.length; i++) out.push(`${w[i]} ${w[i + 1]}`);
-  out.push(...w);
-  return [...new Set(out)].slice(0, 5);
-}
-
-async function searchRelaxed(fn, q, per) {
-  const got = [];
-  const seen = new Set();
-  for (const v of relaxQuery(q)) {
-    const r = await fn(v, per);
-    for (const it of r) if (!seen.has(it.url) && seen.add(it.url)) got.push(it);
-    if (got.length >= per) break;
-  }
-  return got.slice(0, per);
-}
+// Reference sources live in refsources.mjs (masters first, then open search with a quality floor).
+export { relaxQuery } from "./refsources.mjs";
 
 export function register(server, ctx) {
   registerAudio(server, ctx);
@@ -130,43 +80,63 @@ export function register(server, ctx) {
   server.registerTool(
     "motion_refs",
     {
-      title: "Search motion design references",
+      title: "Find motion design references (masters first)",
       description:
-        "Search professional motion work: Kisto (curated studio motion design from Vimeo/ArtStation: mograph, 2d, 3d; previews Drip can play) and 24fps.dev (films made in code, many with prompts, some with open source). " +
-        "Returns ONE numbered sheet of posters plus a list with each film's playable preview. Then motion_study the 1-3 that fit (by number: pass its `video`). " +
-        "Search the IDEA and the MOVES you need, not the product: \"liquid morph transition\", \"kinetic typography launch\", \"abstract geometric brand film\", \"ui product demo cursor\". " +
-        'Example: motion_refs({ queries: ["shape morph product launch", "kinetic type minimal"] })',
+        "References for a film, best first. MASTERS: the studios and designers whose work is the bar (TimeFrame and others in Drip's vetted list), picked by the kind of film your queries describe (product launch, UI motion, brand film, explainer, kinetic type, 3D product, abstract, logo); their Dribbble video shots and Kisto pieces. " +
+        "Then open search with a quality floor: Dribbble's animation category (video shots, no paid boosts, 40+ likes, best liked first) and Kisto (curated studio motion; AI-generated clips dropped). 24fps.dev (indie films made in code) only with source \"24fps\": for how something is built, never for taste. " +
+        "Returns ONE numbered poster sheet and a list with each film's playable video. Then motion_study the 1-3 that fit. Search the IDEA and the MOVES, not the product: \"product launch ui motion\", \"shape morph transition\", \"kinetic typography\". Name a designer to see their work: designers: [\"TimeFrame_motion\"]. " +
+        'Example: motion_refs({ queries: ["saas product launch", "ui motion continuous"] })',
       inputSchema: {
         queries: z.array(z.string()).min(1).max(4).describe("1-4 searches, run at once"),
-        source: z.enum(["all", "kisto", "24fps"]).optional().describe("Default all"),
-        per: z.number().int().min(2).max(12).optional().describe("Results per query and source (default 6)"),
+        source: z.enum(["best", "masters", "dribbble", "kisto", "24fps"]).optional().describe("Default best: masters, then Dribbble and Kisto with the quality floor"),
+        designers: z.array(z.string()).max(4).optional().describe("Dribbble usernames to pull video shots from (e.g. one the user named)"),
+        per: z.number().int().min(2).max(12).optional().describe("Results per source and query (default 6)"),
+        minLikes: z.number().int().min(0).optional().describe("Dribbble like floor (default 40)"),
       },
     },
-    safe(async ({ queries, source = "all", per = 6 }) => {
-      const jobs = [];
-      for (const q of queries) {
-        if (source !== "24fps") jobs.push(searchRelaxed(searchKisto, q, per).catch((e) => ({ error: `kisto "${q}": ${e.message}` })));
-        if (source !== "kisto") jobs.push(searchRelaxed(search24fps, q, per).catch((e) => ({ error: `24fps "${q}": ${e.message}` })));
-      }
-      const res = await Promise.all(jobs);
-      const errs = res.filter((r) => r.error).map((r) => r.error);
+    safe(async ({ queries, source = "best", designers = [], per = 6, minLikes = 40 }) => {
+      const config = ctx.config();
+      const errs = [];
+      const tryIt = (label, p) => p.catch((e) => (errs.push(`${label}: ${e.message}`), []));
+      const groups = [];
+      if (designers.length)
+        for (const u of designers)
+          groups.push(
+            await tryIt(
+              `dribbble ${u}`,
+              listing("designer", { username: u }, config).then((r) => r.cards.filter((c) => c.video).map((c) => ({ from: "dribbble", master: c.designer || u, title: c.title, creator: c.designer || u, url: c.url, poster: c.image ? thumbUrl(c.image, 400, 300) : null, video: c.video, likes: parseLikes(c.likes), tags: ["animation"] })).sort((x, y) => y.likes - x.likes).slice(0, per * 2)),
+            ),
+          );
+      if (["best", "masters"].includes(source)) groups.push(await tryIt("masters", mastersWork(queries, { config, per: Math.max(2, Math.ceil(per / 2)) })));
+      if (["best", "dribbble"].includes(source)) for (const q of queries.slice(0, 2)) groups.push(await tryIt(`dribbble "${q}"`, searchDribbbleMotion(q, { per, minLikes, config })));
+      if (["best", "kisto"].includes(source)) groups.push(...(await Promise.all(queries.map((q) => tryIt(`kisto "${q}"`, searchRelaxed(searchKisto, q, per))))));
+      if (source === "24fps") groups.push(...(await Promise.all(queries.map((q) => tryIt(`24fps "${q}"`, searchRelaxed(search24fps, q, per))))));
       const seen = new Set();
-      const items = res.flatMap((r) => (Array.isArray(r) ? r : [])).filter((it) => it.url && !seen.has(it.url) && seen.add(it.url));
-      if (!items.length) return text(`Nothing found.${errs.length ? ` ${errs.join("; ")}` : ""} Try broader words (a technique or a feeling, not a product name).`, true);
+      let items = groups.flat().filter((it) => it.url && it.video && !seen.has(it.url) && seen.add(it.url));
+      // In the default mode masters lead; open search adds a few, to be judged before use.
+      if (source === "best") {
+        const top = items.filter((it) => it.master);
+        const open = items.filter((it) => !it.master).slice(0, top.length >= 6 ? 6 : 12);
+        items = [...top, ...open.map((it) => ({ ...it, open: true }))];
+      }
+      if (!items.length) return text(`Nothing found.${errs.length ? ` ${errs.join("; ")}` : ""} Try broader words (the kind of film or a technique), or source "masters".`, true);
       const list = items.slice(0, 24);
       const imgs = await Promise.all(list.map((it) => (it.poster ? fetchImage(it.poster).then((r) => r.buf).catch(() => null) : null)));
-      const sheet = await sheetInBrowser(imgs, { cols: 6, tileW: 300, tileH: 169, config: ctx.config() });
+      const sheet = await sheetInBrowser(imgs, { cols: 6, tileW: 300, tileH: 169, config });
       updateState((st) => {
         if (st.task) (st.task.motion ||= { studied: [], renders: [] }).searched = [...(st.task.motion.searched || []), ...queries].slice(-20);
       });
       const lines = list.map(
         (it, i) =>
-          `${i + 1}. [${it.from}] ${it.title}${it.creator ? ` — ${it.creator}` : ""}${it.seconds ? ` · ${it.seconds}s` : ""} · ${it.tags.join(", ")}\n   ${it.url}${it.video ? `\n   video: ${it.video}` : " (no playable preview: open the post)"}${it.code ? `\n   code: ${it.code}` : ""}`,
+          `${i + 1}. ${it.master ? `[MASTER: ${it.master}] ` : `[${it.from}${it.open ? ", open search: judge before using" : ""}] `}${it.title}${it.creator && it.creator !== it.master ? ` — ${it.creator}` : ""}${it.likes ? ` · ${it.likes} likes` : ""}${it.seconds ? ` · ${it.seconds}s` : ""}${it.tags?.length ? ` · ${it.tags.slice(0, 5).join(", ")}` : ""}\n   ${it.url}\n   video: ${it.video}${it.code ? `\n   code: ${it.code}` : ""}`,
       );
+      const masters = [...new Set(list.filter((it) => it.master && it.style).map((it) => `${it.master}: ${it.style}`))];
       return blocks([
         textBlock(
-          `${list.length} films (sheet numbers = list numbers).${errs.length ? ` Skipped: ${errs.join("; ")}.` : ""}\n${lines.join("\n")}\n\n` +
-            "NEXT: motion_study the 1-3 that best fit (pass its video URL, and a role: moves / look / story / sound). Licences: study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off.",
+          `${list.length} films, best first (sheet numbers = list numbers).${errs.length ? ` Skipped: ${errs.join("; ")}.` : ""}\n` +
+            (masters.length ? `MASTERS here and why they are the bar:\n${masters.map((m) => `- ${m}`).join("\n")}\n` : "") +
+            `${lines.join("\n")}\n\n` +
+            "NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble shot URL, and a role: moves / look / story / sound). Prefer masters' work; an open-search result earns its place only if it is as good. Study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off.",
         ),
         imageBlock(sheet),
       ]);
@@ -189,7 +159,14 @@ export function register(server, ctx) {
     },
     safe(async ({ source, role, every }) => {
       const config = ctx.config();
-      const abs = /^https?:/i.test(source) ? source : path.resolve(projectDir(), source);
+      let abs = /^https?:/i.test(source) ? source : path.resolve(projectDir(), source);
+      // A Dribbble shot page: play its full video (the listing gives a small teaser).
+      const shotId = String(source).match(/dribbble\.com\/shots\/(\d+)/)?.[1];
+      if (shotId) {
+        const sh = await dribbbleShot(shotId, config).catch(() => null);
+        if (sh?.videos?.length) abs = sh.videos[0];
+        else return text(`That Dribbble shot has no video I can reach (or Dribbble is rate-limiting). Use the video URL motion_refs listed for it.`, true);
+      }
       const r = await sampleVideo(abs, { every, max: 100, config });
       if (!r.frames.length) return text(`Could not play a video at ${source} (no duration). For Vimeo/YouTube pages, use the film's direct preview (motion_refs gives one) or a downloaded file the user provides.`, true);
       const m = await measureFrames(r.frames.map((f) => f.buf), { config });

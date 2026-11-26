@@ -1,0 +1,384 @@
+{
+  "_about": "Motion designers and studios whose work is the reference bar for Drip Motion. Vetted by watching their work (2026-11-26). motion_refs searches their work first. Their work belongs to them: study, never copy. 'rejected': makers watched and found below the bar; open search drops their work.",
+  "masters": [
+    {
+      "name": "TimeFrame",
+      "dribbble": "TimeFrame_motion",
+      "kisto": null,
+      "kinds": [
+        "product-launch",
+        "ui-motion"
+      ],
+      "style": "SaaS promos where the UI is the set: panels blur, flip and morph into the next scene every 1-2 s over glowing gradient fields; continuous transformation, never a static dashboard.",
+      "watched": [
+        "https://dribbble.com/shots/27894209-Connected-Workspace-for-Smarter-Team-Management"
+      ]
+    },
+    {
+      "name": "Tendril",
+      "dribbble": null,
+      "kisto": "Tendril",
+      "kinds": [
+        "brand-film",
+        "3d-product",
+        "product-launch"
+      ],
+      "style": "Cinematic CG launch films (Coinbase CB1, IBM, Qualcomm): dark macro product shots, light sweeping across surfaces, tactile materials.",
+      "watched": [
+        "https://vimeo.com/1129824992"
+      ]
+    },
+    {
+      "name": "Ordinary Folk",
+      "dribbble": null,
+      "kisto": "Ordinary Folk",
+      "kinds": [
+        "explainer",
+        "product-launch",
+        "brand-film"
+      ],
+      "style": "Fluid, elastic 2D/3D launch films (Introducing Spline); shapes morph scene to scene with confident colour and character.",
+      "watched": [
+        "https://vimeo.com/686028247"
+      ]
+    },
+    {
+      "name": "Oddfellows",
+      "dribbble": null,
+      "kisto": "Oddfellows",
+      "kinds": [
+        "explainer",
+        "product-launch",
+        "brand-film"
+      ],
+      "style": "Tech-brand explainers (Adobe, Salesforce, Spotify) with seamless camera moves and objects handing off between scenes.",
+      "watched": [
+        "https://vimeo.com/374274258"
+      ]
+    },
+    {
+      "name": "Aikhan Naimanov",
+      "dribbble": null,
+      "kisto": "Aikhan Naimanov",
+      "kinds": [
+        "ui-motion",
+        "kinetic-type",
+        "product-launch"
+      ],
+      "style": "Fast AI-product UI motion (Lovable): UI chips grow into the next screen, tight type swaps, hard cuts on the beat.",
+      "watched": [
+        "https://vimeo.com/1181172462"
+      ]
+    },
+    {
+      "name": "ManvsMachine",
+      "dribbble": null,
+      "kisto": "ManvsMachine",
+      "kinds": [
+        "brand-film",
+        "3d-product",
+        "abstract"
+      ],
+      "style": "Art-directed CG with weighty, glossy materials and graphic cuts (Squarespace x Koons, Nike Air Max Day); the premium brand-film bar.",
+      "watched": [
+        "https://vimeo.com/1022943150"
+      ]
+    },
+    {
+      "name": "Gunner",
+      "dribbble": null,
+      "kisto": "Gunner",
+      "kinds": [
+        "explainer",
+        "brand-film"
+      ],
+      "style": "Mixed 2D/3D explainers (Herman Miller): a scene reconfigures into a diagram and back; continuous camera, clear idea.",
+      "watched": [
+        "https://vimeo.com/391522071"
+      ]
+    },
+    {
+      "name": "Kris Zeljukina (Motion for SaaS)",
+      "dribbble": null,
+      "kisto": "Kris Zeljukina",
+      "kinds": [
+        "product-launch",
+        "ui-motion",
+        "kinetic-type"
+      ],
+      "style": "Clean SaaS feature films: line of type resolves into the product screen which tilts into 3D; airy light palette, one idea per beat.",
+      "watched": [
+        "https://vimeo.com/1183623175"
+      ]
+    },
+    {
+      "name": "Tomas Puerta",
+      "dribbble": null,
+      "kisto": "Tomas Puerta",
+      "kinds": [
+        "product-launch",
+        "ui-motion",
+        "explainer"
+      ],
+      "style": "Google-grade SaaS motion: a glowing AI orb becomes the product input, type dissolves into UI; calm, precise, minimal.",
+      "watched": [
+        "https://vimeo.com/1199078558"
+      ]
+    },
+    {
+      "name": "Not Real",
+      "dribbble": null,
+      "kisto": "Not Real",
+      "kinds": [
+        "ui-motion",
+        "3d-product"
+      ],
+      "style": "RingCentral-style isometric product UI loops: layered glass UI planes floating in 3D with soft shadow, seamless.",
+      "watched": [
+        "https://vimeo.com/561282448"
+      ]
+    },
+    {
+      "name": "Giant Ant",
+      "dribbble": null,
+      "kisto": "Giant Ant",
+      "kinds": [
+        "brand-film",
+        "explainer"
+      ],
+      "style": "Craft-heavy 2D/3D brand films with painterly colour and strong match cuts.",
+      "watched": [
+        "https://vimeo.com/1082723132"
+      ]
+    },
+    {
+      "name": "Golden Wolf",
+      "dribbble": null,
+      "kisto": "Golden Wolf",
+      "kinds": [
+        "brand-film",
+        "abstract"
+      ],
+      "style": "High-energy stylised 3D/2D with explosive transitions that carry one subject through changing worlds.",
+      "watched": [
+        "https://vimeo.com/1084695349"
+      ]
+    },
+    {
+      "name": "Hornet",
+      "dribbble": null,
+      "kisto": "Hornet",
+      "kinds": [
+        "brand-film"
+      ],
+      "style": "Tactile stop-motion/puppet craft with rhythmic cuts; the bar for handmade brand film energy.",
+      "watched": [
+        "https://vimeo.com/1183449487"
+      ]
+    },
+    {
+      "name": "Builders Club",
+      "dribbble": null,
+      "kisto": "Builders Club",
+      "kinds": [
+        "3d-product",
+        "brand-film"
+      ],
+      "style": "Premium product CGI (Meta AI glasses with Tendril): macro objects, warm studio light, one object morphs into the hero.",
+      "watched": [
+        "https://www.stashmedia.tv/builders-club-tendril-launch-meta-ai-glasses-in-style"
+      ]
+    },
+    {
+      "name": "Ina Kavaliuk",
+      "dribbble": null,
+      "kisto": "Ina Kavaliuk",
+      "kinds": [
+        "kinetic-type",
+        "abstract"
+      ],
+      "style": "Type as pattern: glyph fields that warp, collapse and re-form into the next word with graphic colour blocks.",
+      "watched": [
+        "https://vimeo.com/851697025"
+      ]
+    },
+    {
+      "name": "Arsenii Stepchenkov",
+      "dribbble": null,
+      "kisto": "Arsenii Stepchenkov",
+      "kinds": [
+        "kinetic-type"
+      ],
+      "style": "Dense kinetic type with mask reveals and text-stack transitions; fast and rhythmic.",
+      "watched": [
+        "https://vimeo.com/1193756440"
+      ]
+    },
+    {
+      "name": "HOLOGRAPHIK",
+      "dribbble": "holographik",
+      "kisto": null,
+      "kinds": [
+        "kinetic-type",
+        "brand-film"
+      ],
+      "style": "Bold kinetic typography: words stretch, wrap and replace each other on a tight rhythm with saturated colour.",
+      "watched": [
+        "https://dribbble.com/shots/16174007-Kinetic-Typography"
+      ]
+    },
+    {
+      "name": "Kickin",
+      "dribbble": "Kickin",
+      "kisto": null,
+      "kinds": [
+        "kinetic-type",
+        "abstract"
+      ],
+      "style": "Daily motion posters and kinetic type; strong graphic composition, clean loops.",
+      "watched": [
+        "https://dribbble.com/shots/23866670-Kickin-Kinetic-typography-262"
+      ]
+    },
+    {
+      "name": "motionatwork",
+      "dribbble": null,
+      "kisto": "motionatwork",
+      "kinds": [
+        "product-launch",
+        "logo",
+        "abstract"
+      ],
+      "style": "Shape-continuity SaaS launch: a pill morphs into type, buttons and finally the logo; glossy soft-3D look.",
+      "watched": [
+        "https://vimeo.com/1209223977"
+      ]
+    },
+    {
+      "name": "Yildiz Tokmak",
+      "dribbble": null,
+      "kisto": "Yildiz Tokmak",
+      "kinds": [
+        "product-launch",
+        "ui-motion"
+      ],
+      "style": "Light, glassy SaaS teaser: word swaps flow into UI sheets that fly in with perspective.",
+      "watched": [
+        "https://vimeo.com/1210060828"
+      ]
+    },
+    {
+      "name": "Buck",
+      "dribbble": null,
+      "kisto": "Buck",
+      "kinds": [
+        "brand-film",
+        "explainer"
+      ],
+      "style": "Top-tier design-led animation (Airbnb, Cox); crafted worlds with elegant match-cut transformations.",
+      "watched": [
+        "https://vimeo.com/1148699808"
+      ]
+    },
+    {
+      "name": "Animade",
+      "dribbble": null,
+      "kisto": "Animade",
+      "kinds": [
+        "brand-film",
+        "explainer"
+      ],
+      "style": "Minimal 2D craft with sharp timing and clever object transformations.",
+      "watched": [
+        "https://vimeo.com/channels/wineaftercoffee/1147671929"
+      ]
+    },
+    {
+      "name": "Paper Crowns",
+      "dribbble": null,
+      "kisto": "Paper Crowns",
+      "kinds": [
+        "3d-product",
+        "product-launch"
+      ],
+      "style": "Hardware launch films (Herman Miller Gaming): macro machined detail, HUD type overlays, crisp transitions.",
+      "watched": [
+        "https://www.stashmedia.tv/paper-crowns-dials-up-launch-film-for-herman-miller-gaming"
+      ]
+    },
+    {
+      "name": "Tomorrow Bureau",
+      "dribbble": null,
+      "kisto": "Tomorrow Bureau",
+      "kinds": [
+        "3d-product",
+        "abstract"
+      ],
+      "style": "Abstract product visualisation (Aston Martin): textures and forms slide across frame into the hero object.",
+      "watched": [
+        "https://www.stashmedia.tv/outrageous-muscle-tomorrow-bureau-launches-the-aston"
+      ]
+    },
+    {
+      "name": "Hui Kai Su",
+      "dribbble": null,
+      "kisto": "Hui Kai Su",
+      "kinds": [
+        "abstract",
+        "product-launch",
+        "3d-product"
+      ],
+      "style": "Light-driven reveals (MSI launch film): a sliver of light opens into saturated colour rooms; minimal and cinematic.",
+      "watched": [
+        "https://vimeo.com/555022865"
+      ]
+    },
+    {
+      "name": "Anna Schiavino",
+      "dribbble": null,
+      "kisto": "Anna Schiavino",
+      "kinds": [
+        "3d-product",
+        "product-launch"
+      ],
+      "style": "Tech product-visualization teasers with spark, light and a hard cut to black.",
+      "watched": [
+        "https://vimeo.com/1204201820"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "name": "ImpactFrames",
+      "why": "same output farm as TimeFrame, weaker pink-gradient template look"
+    },
+    {
+      "name": "Outcrowd",
+      "why": "UI showcase boards that merely animate"
+    },
+    {
+      "name": "Videxa.io",
+      "why": "dark dashboard, mostly static"
+    },
+    {
+      "name": "Issam Eleyan",
+      "why": "weak SaaS demo"
+    },
+    {
+      "name": "Halo Lab",
+      "why": "UI showcase animations, not films"
+    },
+    {
+      "name": "Geex",
+      "why": "UI showcase animations, not films"
+    },
+    {
+      "name": "Phenomenon",
+      "why": "UI showcase animations, not films"
+    },
+    {
+      "name": "Ramotion",
+      "why": "UI showcase animations, not films"
+    }
+  ]
+}

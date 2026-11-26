@@ -42,7 +42,7 @@ before its left edge; the content blurs out in 0.2s" is one.
 
 | Tool | Use |
 |---|---|
-| `motion_refs` | Search professional motion design. Sources: Kisto (curated studio work from Vimeo and ArtStation, with playable previews) and 24fps.dev (films made in code, many with prompts, some open source). Searches run at once; results come as one numbered sheet |
+| `motion_refs` | References best first: MASTERS (Drip's vetted list of studios and designers whose work is the bar, picked by the kind of film), then Dribbble's animation category with a quality floor (video, no paid boosts, 40+ likes) and Kisto (curated studio motion, AI clips dropped). `designers: [...]` pulls a named designer's video shots. 24fps.dev (indie films made in code) only with `source: "24fps"`, for technique, never for taste. One numbered sheet |
 | `motion_study` | Watch a film: a timestamped contact sheet plus measured duration, hard cuts and average shot length, and a rhythm curve |
 
 Search the idea and the moves, not the product: "liquid morph transition", "kinetic typography launch", "abstract
@@ -81,6 +81,7 @@ inference from a few frames; write it as one.
 - Do not take frames, characters, copy or the unique motif of a film. A direct reference is credited; a copy is
   not acceptable.
 - If a reference is a competitor's, learn from the structure and invert the look.
+- Keyword search finds what is tagged with the words, not what is good: a template reel or an animated landing page can top it. Prefer masters' work; an open-search result earns a place only when it is as good, and you say why.
 - When a reference came from 24fps.dev with open source, check its licence before reusing any code.
 
 ## From study to storyboard

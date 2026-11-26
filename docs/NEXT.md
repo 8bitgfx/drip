@@ -5,6 +5,7 @@ What shipped is in [CHANGELOG.md](../CHANGELOG.md). Still to measure from 0.9.0:
 ## Still open
 
 ### Drip Motion (0.10.0)
+- `motion-masters.json` is thin for logo animation (1 master) and only 3 masters have Dribbble handles; grow it by watching work (Zauri Miminoshvili, Outer Studio and HOLOGRAPHIK are candidates from open search).
 - The final MP4 encode and the sound mix are untested on a machine with ffmpeg (none on the dev machine); frames, trace, study and music analysis are tested.
 - The cut detector in `motion_study` counts a fast continuous zoom or a blur as many cuts, and misses wipes and dissolves.
 - Renderer setup measured on the dev PC (Windows, Node 26), the kit film 8 s at 1080p: FrameVelo 2.9 s, Kinetograph 6.0 s, HyperFrames 13.1 s, Drip capture 19.1 s; all four frame-identical in timing. Kinetograph renders colours a little more saturated than Chrome (the coral accent reads redder): compare a frame when colour matters. Kinetograph's bundled FFmpeg is minimal (raw video and WAV only), so the setup also installs ffmpeg-static and ffprobe-static.

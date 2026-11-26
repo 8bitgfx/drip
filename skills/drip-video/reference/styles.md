@@ -84,8 +84,8 @@ and write down the technique, not the look.
 ## Professional references to search
 
 Studios whose film and brand work is worth looking at for craft: BUCK, Ordinary Folk, ManvsMachine, Giant Ant,
-Tendril, Found Studio. Publications and galleries: Motionographer, Stash. `motion_refs` searches Kisto (curated
-studio motion design) and 24fps.dev (films made in code); search studio names and techniques as words. Credit what
+Tendril, Found Studio. Publications and galleries: Motionographer, Stash. `motion_refs` starts from Drip's vetted masters,
+then searches Dribbble animation and Kisto with a quality floor; search the kind of film and the technique. Credit what
 you learn; never copy frames, characters or copy.
 
 ## Choosing
