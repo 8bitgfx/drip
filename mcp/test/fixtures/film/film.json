@@ -1,0 +1,397 @@
+{
+ "version": 2,
+ "task": {
+  "id": "fixture",
+  "title": "Landing page for Kiln, a ceramics studio",
+  "startedAt": "2026-11-25T10:00:00.000Z",
+  "endedAt": "2026-11-25T10:12:40.000Z",
+  "page": "kiln",
+  "url": "http://127.0.0.1:5173/"
+ },
+ "agents": [
+  {
+   "id": "main",
+   "type": "director",
+   "model": "opus",
+   "label": "Director",
+   "startedAt": "2026-11-25T10:00:00.000Z",
+   "endedAt": "2026-11-25T10:12:40.000Z",
+   "status": "done"
+  },
+  {
+   "id": "b1",
+   "type": "builder",
+   "model": "sonnet",
+   "label": "Build nav, hero, pricing",
+   "startedAt": "2026-11-25T10:01:50.000Z",
+   "endedAt": "2026-11-25T10:09:20.000Z",
+   "status": "done"
+  },
+  {
+   "id": "b2",
+   "type": "builder",
+   "model": "sonnet",
+   "label": "Build features, faq, footer",
+   "startedAt": "2026-11-25T10:01:55.000Z",
+   "endedAt": "2026-11-25T10:11:20.000Z",
+   "status": "done"
+  }
+ ],
+ "events": [
+  {
+   "t": "2026-11-25T10:00:20.000Z",
+   "agent": "main",
+   "kind": "ref",
+   "title": "Ceramic studio, warm editorial",
+   "url": "https://www.ceramicstudio.example/",
+   "image": "refs/r1.jpg"
+  },
+  {
+   "t": "2026-11-25T10:00:29.000Z",
+   "agent": "main",
+   "kind": "ref",
+   "title": "Workshop booking, calm grid",
+   "url": "https://www.workshops.example/",
+   "image": "refs/r2.jpg"
+  },
+  {
+   "t": "2026-11-25T10:00:38.000Z",
+   "agent": "main",
+   "kind": "ref",
+   "title": "Craft shop, product first",
+   "url": "https://www.craftshop.example/",
+   "image": "refs/r3.jpg"
+  },
+  {
+   "t": "2026-11-25T10:00:47.000Z",
+   "agent": "main",
+   "kind": "ref",
+   "title": "Pottery school, dark hero",
+   "url": "https://www.potteryschool.example/",
+   "image": "refs/r4.jpg"
+  },
+  {
+   "t": "2026-11-25T10:01:10.000Z",
+   "agent": "main",
+   "kind": "asset",
+   "file": "public/img/hero-vase.jpg",
+   "assetKind": "image",
+   "src": "assets/hero-vase.jpg"
+  },
+  {
+   "t": "2026-11-25T10:01:12.000Z",
+   "agent": "main",
+   "kind": "asset",
+   "file": "src/fonts/newsreader.woff2",
+   "assetKind": "font",
+   "src": null
+  },
+  {
+   "t": "2026-11-25T10:01:20.000Z",
+   "agent": "main",
+   "kind": "piece",
+   "name": "bento-grid",
+   "url": "https://magicui.design/r/bento-grid.json",
+   "image": "pieces/p1.jpg"
+  },
+  {
+   "t": "2026-11-25T10:01:26.000Z",
+   "agent": "main",
+   "kind": "piece",
+   "name": "pricing-cards",
+   "url": "https://ui.example/r/pricing-cards.json",
+   "image": "pieces/p2.jpg"
+  },
+  {
+   "t": "2026-11-25T10:01:32.000Z",
+   "agent": "main",
+   "kind": "piece",
+   "name": "accordion",
+   "url": "https://ui.example/r/accordion.json",
+   "image": "pieces/p3.jpg"
+  },
+  {
+   "t": "2026-11-25T10:01:50.000Z",
+   "agent": "main",
+   "kind": "start",
+   "id": "b1",
+   "type": "builder",
+   "label": "Build nav, hero, pricing"
+  },
+  {
+   "t": "2026-11-25T10:01:55.000Z",
+   "agent": "main",
+   "kind": "start",
+   "id": "b2",
+   "type": "builder",
+   "label": "Build features, faq, footer"
+  },
+  {
+   "t": "2026-11-25T10:02:10.000Z",
+   "agent": "b1",
+   "kind": "write",
+   "file": "src/components/nav.tsx",
+   "summary": "wrote nav.tsx",
+   "target": {
+    "selector": "header",
+    "x": 0,
+    "y": 0,
+    "w": 1440,
+    "h": 80
+   }
+  },
+  {
+   "t": "2026-11-25T10:02:20.000Z",
+   "agent": "b1",
+   "kind": "write",
+   "file": "src/components/hero.tsx",
+   "summary": "wrote hero.tsx",
+   "target": {
+    "selector": "#hero h1",
+    "x": 120,
+    "y": 230,
+    "w": 700,
+    "h": 200
+   }
+  },
+  {
+   "t": "2026-11-25T10:02:25.000Z",
+   "agent": "b2",
+   "kind": "write",
+   "file": "src/components/features.tsx",
+   "summary": "wrote features.tsx",
+   "target": null
+  },
+  {
+   "t": "2026-11-25T10:02:30.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0001.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 900
+  },
+  {
+   "t": "2026-11-25T10:03:20.000Z",
+   "agent": "main",
+   "kind": "write",
+   "file": "src/styles/tokens.css",
+   "summary": "wrote tokens.css",
+   "target": {
+    "selector": ":root",
+    "x": 120,
+    "y": 520,
+    "w": 520,
+    "h": 160
+   }
+  },
+  {
+   "t": "2026-11-25T10:03:35.000Z",
+   "agent": "b1",
+   "kind": "write",
+   "file": "src/components/hero.tsx",
+   "summary": "wrote hero.tsx",
+   "target": {
+    "selector": "#hero .cta",
+    "x": 120,
+    "y": 580,
+    "w": 300,
+    "h": 60
+   }
+  },
+  {
+   "t": "2026-11-25T10:03:50.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0002.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 900
+  },
+  {
+   "t": "2026-11-25T10:05:00.000Z",
+   "agent": "b2",
+   "kind": "write",
+   "file": "src/components/features.tsx",
+   "summary": "wrote features.tsx",
+   "target": {
+    "selector": "#features",
+    "x": 120,
+    "y": 1000,
+    "w": 1200,
+    "h": 560
+   }
+  },
+  {
+   "t": "2026-11-25T10:05:20.000Z",
+   "agent": "b2",
+   "kind": "write",
+   "file": "src/components/features.tsx",
+   "summary": "wrote features.tsx",
+   "target": {
+    "selector": "#features .big",
+    "x": 120,
+    "y": 1110,
+    "w": 600,
+    "h": 440
+   }
+  },
+  {
+   "t": "2026-11-25T10:05:30.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0003.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 1700
+  },
+  {
+   "t": "2026-11-25T10:06:30.000Z",
+   "agent": "b1",
+   "kind": "write",
+   "file": "src/components/pricing.tsx",
+   "summary": "wrote pricing.tsx",
+   "target": {
+    "selector": "#pricing",
+    "x": 120,
+    "y": 1800,
+    "w": 1200,
+    "h": 600
+   }
+  },
+  {
+   "t": "2026-11-25T10:07:00.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0004.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 2500
+  },
+  {
+   "t": "2026-11-25T10:07:35.000Z",
+   "agent": "b1",
+   "kind": "write",
+   "file": "src/components/pricing.tsx",
+   "summary": "wrote pricing.tsx",
+   "target": {
+    "selector": "#pricing .mid",
+    "x": 549,
+    "y": 1890,
+    "w": 342,
+    "h": 420
+   }
+  },
+  {
+   "t": "2026-11-25T10:07:50.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0005.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 900
+  },
+  {
+   "t": "2026-11-25T10:08:20.000Z",
+   "agent": "b1",
+   "kind": "write",
+   "file": "src/components/pricing.tsx",
+   "summary": "wrote pricing.tsx",
+   "target": {
+    "selector": "#pricing .mid",
+    "x": 549,
+    "y": 1890,
+    "w": 342,
+    "h": 420
+   }
+  },
+  {
+   "t": "2026-11-25T10:08:40.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0006.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 2500
+  },
+  {
+   "t": "2026-11-25T10:09:20.000Z",
+   "agent": "b1",
+   "kind": "stop",
+   "id": "b1"
+  },
+  {
+   "t": "2026-11-25T10:09:20.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0007.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 900
+  },
+  {
+   "t": "2026-11-25T10:10:00.000Z",
+   "agent": "b2",
+   "kind": "write",
+   "file": "src/components/faq.tsx",
+   "summary": "wrote faq.tsx",
+   "target": {
+    "selector": "#faq",
+    "x": 120,
+    "y": 2600,
+    "w": 1200,
+    "h": 300
+   }
+  },
+  {
+   "t": "2026-11-25T10:10:50.000Z",
+   "agent": "b2",
+   "kind": "write",
+   "file": "src/components/footer.tsx",
+   "summary": "wrote footer.tsx",
+   "target": {
+    "selector": "footer",
+    "x": 0,
+    "y": 3000,
+    "w": 1440,
+    "h": 200
+   }
+  },
+  {
+   "t": "2026-11-25T10:11:20.000Z",
+   "agent": "b2",
+   "kind": "stop",
+   "id": "b2"
+  },
+  {
+   "t": "2026-11-25T10:11:30.000Z",
+   "agent": "main",
+   "kind": "write",
+   "file": "src/app.tsx",
+   "summary": "wrote app.tsx",
+   "target": {
+    "selector": "main",
+    "x": 0,
+    "y": 0,
+    "w": 1440,
+    "h": 900
+   }
+  },
+  {
+   "t": "2026-11-25T10:11:40.000Z",
+   "agent": "main",
+   "kind": "frame",
+   "image": "frames/0008.jpg",
+   "url": "http://127.0.0.1:5173/",
+   "width": 1440,
+   "height": 3200
+  },
+  {
+   "t": "2026-11-25T10:12:40.000Z",
+   "agent": "main",
+   "kind": "done",
+   "at": "2026-11-25T10:12:40.000Z"
+  }
+ ],
+ "frames": []
+}

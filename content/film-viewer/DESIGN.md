@@ -1,15 +1,17 @@
 # Drip Film viewer: design
 
-Direction "README bento" (board drip-film-viewer, the user's pick). System = Drip's README art (brand branch, `assets/brand/src/readme.mjs`, `brand.mjs`): the viewer is a page of that README.
+**THESIS.** A film, not a dashboard. The run is told as a short story: the references Drip looked at fly in, then the pieces and assets it picked, then they pour into one browser window where the page is built while a cursor per agent glides to what it writes. It ends on a finished card laid over the last frame, never instead of it.
 
-**THESIS.** One question per tile: what is on the page, who is working, when, how long. Refuses the dense observability dashboard every agent tool ships.
+**BRAND.** Drip's own identity from the `brand` branch (`assets/brand/BRAND.md`, idea "Out of bounds"): `wordmark-dark.svg` in the header, `mark-dark.svg` (the selection box with ultramarine paint running out of it) on the finished card, `icon.svg` as the favicon. Copied here unchanged; never redraw them (no droplets, no orbs). Ink #0D0E12, Paper #F5F2EC for text, Ultramarine #2340FF for play and Replay, Frame-on-dark #93A2FF. Write marks and the change outline are the mark's selection box: a hairline frame with white handles.
 
-**WORLD.** Ink #0D0E12 ground, 12px page padding and gaps. README tiles #17181D r22, inset 1px #24252C, padding 24px 24px 0. Chips 34px r17 #202128 / inset #2E2F37, 13.5px/500. One ultramarine #2340FF tile (the summary). Light: ground #FAF9F6, tiles #F3F2EE / #E7E5DF, chips #FFF / #E2E0DA. Models: Opus #2340FF, Sonnet #F4EFE4 (light #121318), Haiku #C8F031; #FF6A3D only for a failed agent.
+**WORLD.** Ink stage with a faint dot grid fading out from the centre (a design canvas). One window: r14, a thin bar with the page's address, the frame inside. Cards on the wall: r12 shots with a quiet caption (title, site). Agents: Director #93A2FF, then #C8F031, #FF9EC7, #6FE3D2, ... in start order, named Director / Builder 1 / Builder 2 (cursor arrow and its name tag in that colour; the tag shows the file while it writes). The Live dot pulses in #93A2FF.
 
-**TYPE.** Inter 15/1.4; tile captions 17px, line-height 1.35, -0.01em, ink2 #9A9CA6 with a bold lead-in in ink #EEEEF1 ("**Frame 06.** Features: the first two cards."). Bricolage Grotesque 800, -0.04em, for big numbers only. JetBrains Mono 500 for times and paths. Nothing under 12px.
+**TYPE.** Inter 15; one line per scene in 17/500 ("Looked at 4 references"); Bricolage Grotesque 700 only for the intro title and the finished line ("Built in 12 min 40 s."); JetBrains Mono 500 for times, files and the address.
 
-**FIRST VIEWPORT (1440x900).** Header row 60px: the Drip mark + "Drip Film" only (no title pill), Live/Montage chips right. Grid 2fr / 1fr, rows 1fr / 244px. Stage tile: caption + transport on one line, the frame as a window cut by the tile's bottom edge. Agents tile: caption, a stack of 44px pill rows, the active agent's piece and file under its row. Timeline tile: caption + ruler times, 8px pill bars per lane, playhead with a brand handle. Summary: the ultramarine tile, chips, the Bricolage time.
+**CHROME.** Header: the wordmark, the task's title, Live (only while the run is live). Footer: play, time, the timeline, duration, speed. The timeline is split by chapter (references, pieces, build) with a tiny tick per write in its agent's colour; click or drag anywhere lands exactly there. Top right of the stage: who is working now and the run's own clock. Nothing else: no panels, chips, badges or feeds.
 
-**SIGNATURE.** The montage ends on the README hero: the stage tile becomes ultramarine paint in a selected frame, dripping off its bottom edge (brand.mjs `paint()`), "Built in 14m 10s." on it, Replay.
+**MOTION.** Everything on screen is a pure function of the story time (`model.js`), so seeking, keyboard steps and playback always agree. Cards enter with blur and a turn, frames cross-fade, a selection box outlines what changed, the camera pans tall frames to the change or the write and tours the whole page at the end. Reduced motion stops the Live pulse.
 
-**REFUSES.** Title pills, tiny text, orange as decoration, gradients, glow, glass.
+**DATA.** `model.js` reads old and new film.json (see the notes at its top and `mcp/test/film-viewer.test.mjs`); blank frames, dev-server error overlays and unchanged frames are measured in the browser and skipped. The fixture film for development is `mcp/test/fixtures/film` (`node mcp/test/fixtures/film/make.mjs` remakes it); open `content/film-viewer/index.html?film=../../mcp/test/fixtures/film/film.json` from a static server at the repo root.
+
+**REFUSES.** Pills, tags, badges, text panels, tiny text, a summary card replacing the video, orange as decoration.
