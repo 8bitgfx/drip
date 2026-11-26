@@ -603,6 +603,67 @@
       "quality": 3
     },
     {
+      "id": "sensory-ui",
+      "name": "sensory-ui (Shadcn Labs)",
+      "url": "https://sensory-ui.com",
+      "category": "micro",
+      "what": "Sound for shadcn/ui: 24 drop-in components (button, switch, checkbox, slider, tabs, dialog, drawer, select, command, toast, accordion, carousel, pagination...) that play a meaningful cue through a sound prop. 17 sound roles, 9 sound packs, synthesized live with Web Audio (no files, no latency). Opt-in, per-category kill switches, volume, reduced motion respected. The best UI sound library there is.",
+      "useWhen": "UI sound: whenever a page or app should sound as good as it looks (the brief or the user asks for sound, a tactile or playful product, a tool people use all day, a demo that should feel physical). Wrap the app in its SensoryUIProvider; small actions get small sounds, milestones a chime.",
+      "avoidWhen": "Non-React stacks. Never sound on by default for hover or scroll; never more than one sound per action.",
+      "price": "free",
+      "license": "MIT",
+      "stack": [
+        "react",
+        "tailwind"
+      ],
+      "install": "npx shadcn@latest add https://www.sensory-ui.com/r/<name> (the first one also installs sensory-ui-core: the engine, provider and packs)",
+      "registry": {
+        "index": "https://raw.githubusercontent.com/shadcn-labs/sensory-ui/master/components/ui/sensory-ui/registry.json",
+        "item": "https://www.sensory-ui.com/r/{name}"
+      },
+      "fit": [
+        "product-ui",
+        "playful",
+        "saas",
+        "dashboard",
+        "tactile",
+        "any"
+      ],
+      "quality": 5,
+      "preview": "https://www.sensory-ui.com/docs/components"
+    },
+    {
+      "id": "amicro",
+      "name": "Amicro",
+      "url": "https://amicro.dev",
+      "category": "motion",
+      "what": "176 micro-interactions in Motion + Tailwind: morphing icon buttons (save, like, download, theme, lock...), magnetic, glare and ring buttons, card spreads, 3D carousels, canvas loaders, shape morphs, text reveals, mono telemetry and dither charts, scroll and cursor effects, AI chat bits. Calm defaults: [0.16, 1, 0.3, 1] easing, 200-350ms, reduced motion respected.",
+      "useWhen": "The small moments that make a page or app feel alive: buttons and icons that answer a click, loaders, card spreads, charts that draw in. Strong for product UI and quiet premium landings.",
+      "avoidWhen": "Non-React stacks. Don't put a morph on every icon: the actions that matter get one.",
+      "price": "free",
+      "license": "MIT",
+      "stack": [
+        "react",
+        "tailwind",
+        "motion"
+      ],
+      "install": "npx shadcn@latest add https://raw.githubusercontent.com/Subhan-code/Amicro--Micro-transitions-/main/public/r/<name>.json (amicro.dev itself answers scripts with a bot check, so the registry is read from its GitHub repo)",
+      "registry": {
+        "index": "https://raw.githubusercontent.com/Subhan-code/Amicro--Micro-transitions-/main/public/r/index.json",
+        "item": "https://raw.githubusercontent.com/Subhan-code/Amicro--Micro-transitions-/main/public/r/{name}.json"
+      },
+      "fit": [
+        "saas",
+        "product-ui",
+        "minimal",
+        "motion",
+        "landing",
+        "dashboard"
+      ],
+      "quality": 5,
+      "preview": "https://amicro.dev"
+    },
+    {
       "id": "libraries-dev",
       "name": "Libraries.dev",
       "url": "https://libraries.dev",

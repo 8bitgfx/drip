@@ -2,6 +2,10 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.10.2: Amicro and sensory-ui
+- **Amicro** (amicro.dev, MIT): 176 Motion + Tailwind micro-interactions (morphing icon buttons, magnetic and glare buttons, card spreads, 3D carousels, loaders, text reveals, mono and dither charts) in the catalogue, searchable with components_find. amicro.dev answers scripts with a Vercel bot check, so its registry is read from the GitHub repo.
+- **sensory-ui** (Shadcn Labs, MIT): sound for shadcn/ui, 24 drop-in components with a `sound` prop, synthesized with Web Audio. taste.md says when a page gets sound (opt-in, small actions small sounds, never on hover or scroll).
+
 ## 0.10.1: /drip:settings without the model, and fixes from a drip-saas run
 - The prompt hook catches `/drip:settings`, starts the settings page in its own background process (`drip settings --ttl 60`, which stops by itself after an hour), opens the browser and stops the prompt with the link. No model call, no tokens. `commands/settings.md` stays as the fallback for hosts without the hook.
 - **page_stitch is safe to run twice**: a section App.tsx already imports or renders outside Drip's markers is left there, and a second import of one name is removed (it blanked the page with no error).

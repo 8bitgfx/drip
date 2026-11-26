@@ -1,6 +1,6 @@
 {
   "name": "drip-mcp",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Drip's MCP server: design references, moodboards, components, assets, image generation and fit checks for coding agents.",
   "type": "module",
   "private": true,

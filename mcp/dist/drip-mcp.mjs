@@ -119250,7 +119250,7 @@ ${ttl ? `The page runs for ${Number(flags.ttl)} minutes.` : "The page runs while
 }
 
 // src/index.mjs
-var VERSION = "0.10.1";
+var VERSION = "0.10.2";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

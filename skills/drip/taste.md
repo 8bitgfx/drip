@@ -83,6 +83,8 @@ The motion and effects in the best component libraries (Magic UI, Aceternity, Re
 - **Grounds and light**: aurora, blobs and soft blur, mesh gradients, spotlights that follow the cursor, beams, grain over a gradient, dot and grid patterns that fade, particles and stars.
 - **Surfaces**: glowing and animated borders, magic cards, glass over a picture, bento grids with live cells, tilt and 3D cards, shine on hover.
 - **Movement**: marquees of real things, orbiting icons, animated beams between logos, scroll-linked reveals, number tickers, dock and magnetic buttons, smooth page transitions.
+- **Small moments**: Amicro's micro-interactions (morphing icon buttons, magnetic and glare buttons, card spreads, loaders, charts that draw in) for the actions that matter.
+- **Sound**: when a page or app should sound as good as it looks, sensory-ui (`components_find({ query: "sensory" })`): drop-in shadcn components with a `sound` prop, synthesized cues, opt-in. Small actions get small sounds; never on hover or scroll.
 Take them from the libraries (`components_find`, `pieces_preview`): their timing and easing took weeks. A hand-drawn imitation (a CSS blob you made, a glow you guessed) is what looks cheap.
 
 ## The real AI tells (never)
