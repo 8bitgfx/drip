@@ -94,11 +94,31 @@ function workspaces() {
   return map;
 }
 
+// A redirect belongs to the session that made it: several sessions share one folder, and another session's drip_end once
+// removed a film's redirect so its renders and state went to that session's repo. With a session id (the server knows
+// it from CLAUDE_CODE_SESSION_ID, hooks from their input) the redirect is kept under it; without one, for the folder.
+let wsSession = process.env.CLAUDE_CODE_SESSION_ID || null;
+export function setWorkspaceSession(sid) {
+  wsSession = sid || null;
+}
+
 /** Send this folder's Drip work to another folder (dir), or stop doing so (dir null). */
 export function setWorkspace(from, dir) {
   const map = { ...workspaces() };
   const key = norm(from);
-  if (dir) map[key] = { dir: path.resolve(dir), at: new Date().toISOString() };
+  const entry = { ...(map[key] || {}) };
+  const val = dir ? { dir: path.resolve(dir), at: new Date().toISOString() } : null;
+  if (wsSession) {
+    entry.sessions = { ...(entry.sessions || {}) };
+    if (val) entry.sessions[wsSession] = val;
+    else delete entry.sessions[wsSession];
+    if (!Object.keys(entry.sessions).length) delete entry.sessions;
+  } else if (val) Object.assign(entry, val);
+  else {
+    delete entry.dir;
+    delete entry.at;
+  }
+  if (entry.dir || entry.sessions) map[key] = entry;
   else delete map[key];
   fs.mkdirSync(path.dirname(wsFile()), { recursive: true });
   fs.writeFileSync(wsFile(), JSON.stringify(map, null, 2));
@@ -108,7 +128,9 @@ export function setWorkspace(from, dir) {
 /** The folder this one's Drip work is redirected to, or null. */
 export function workspaceFor(from) {
   const w = workspaces()[norm(from)];
-  return w && fs.existsSync(w.dir) ? w.dir : null;
+  if (!w) return null;
+  const d = wsSession ? w.sessions?.[wsSession]?.dir : w.dir;
+  return d && fs.existsSync(d) ? d : null;
 }
 
 /** The folder Drip works in: the session's project, or where a drip_start({ project }) sent it. */

@@ -108,7 +108,11 @@ const GOOD = {
   motion: /\b(electronic|electronica|electro|pop|synthpop|synth|future garage|chillwave|nu ?disco|deep house|house|funk|funky|groove|groovy|beat|beats|percussion|pluck|plucky|minimal|tech|modern|clean|upbeat|uplifting|optimistic|bright|positive|corporate|instrumental|glitch|chillhop|hip ?hop|breakbeat|indie)\b/i,
   energetic: /\b(electronic|electro|house|future ?bass|funk|pop|upbeat|energetic|happy|groove|disco|indie|dance|synthpop|bright|optimistic|uplifting|driving|punchy)\b/i,
   ambient: /\b(ambient|atmospheric|cinematic|pads?|soft|dreamy|minimal|electronic|calm|elegant|clean)\b/i,
+  // A launch film's trailer sound: a pulse that builds to one hit, hybrid electronic with cinematic weight.
+  cinematic: /\b(cinematic|trailer|epic|hybrid|pulse|pulsing|build|building|rise|rising|tension|dramatic|score|soundtrack|film|orchestral|electronic|synth|drums|percussion|powerful|inspiring|uplifting|modern|synthwave)\b/i,
 };
+// What "no beat to cut to" means for a cinematic film: only the sleepy kinds (orchestral and epic are its home).
+const SLEEPY = /\b(drone|darkambient|new ?age|meditation|sleep|relax|relaxing|relaxation|lullaby|ballad|solo piano|piano solo)\b/i;
 // No beat to cut to: right for a slow atmospheric piece (feel "ambient"), wrong for a launch film.
 const BEATLESS = /\b(ambient|drone|darkambient|new ?age|meditation|sleep|relax|relaxing|relaxation|lullaby|classical|orchestral|orchestra|epic|choir|acoustic|folk|ballad|solo piano|piano solo|beatless|soundscape|filmscore)\b/i;
 const BAD = /\b(rock|metal|punk|hardcore|grind|drum ?n ?bass|dnb|dubstep|hardstyle|gabber|industrial|noise|aggressive|dark|horror|screamo|trap|rap|reggae|country|polka|schlager|march|military|christmas|kids|comedy|world)\b/i;
@@ -118,6 +122,7 @@ const SPEED_SCORE = {
   motion: { speed_verylow: -3, speed_low: -1, speed_medium: 2, speed_high: 1, speed_veryhigh: -2 },
   energetic: { speed_verylow: -3, speed_low: -1, speed_medium: 1, speed_high: 2, speed_veryhigh: 0 },
   ambient: { speed_verylow: 1, speed_low: 2, speed_medium: 1, speed_high: -2, speed_veryhigh: -3 },
+  cinematic: { speed_verylow: -2, speed_low: 0, speed_medium: 2, speed_high: 1, speed_veryhigh: -1 },
 };
 // Fine music, wrong room for a product film: bar jazz, blues, Latin, lounge, battle themes.
 const OFF = /\b(jazz|blues|bossa ?nova|bossanova|latin|salsa|tango|swing|lounge|bar|cafe|war|battle|fight|ethnic|tribal)\b/i;
@@ -129,7 +134,8 @@ export function motionFit(t, feel = "motion") {
   const words = `${t.category || ""} ${(t.tags || []).join(" ")} ${t.name || ""}`;
   let s = count(GOOD[f], words);
   s -= 8 * count(BAD, words); // one is enough to rule a track out
-  if (f !== "ambient") s -= 3 * count(BEATLESS, words);
+  if (f === "cinematic") s -= 3 * count(SLEEPY, words);
+  else if (f !== "ambient") s -= 3 * count(BEATLESS, words);
   s -= 4 * count(OFF, words);
   if (CLUB.test(words)) s -= f === "energetic" ? 1 : 3;
   for (const tag of t.tags || []) s += SPEED_SCORE[f][tag] ?? 0;
@@ -301,7 +307,27 @@ const BEDS = {
   motion: ["upbeat electronic", "synthpop", "funky electronic", "nu disco", "future garage", "chillhop", "electro pop"],
   energetic: ["energetic electronic", "future bass", "electro house", "indie dance", "funk"],
   ambient: ["ambient electronic", "cinematic ambient", "soft synth", "atmospheric"],
+  cinematic: ["cinematic electronic", "epic trailer", "hybrid trailer", "cinematic pulse", "dramatic build", "synthwave"],
 };
+
+/** The feel a query asks for when none was passed: "cinematic trailer" means cinematic, not the motion default. */
+export function feelFor(query, feel) {
+  if (feel) return feel;
+  const q = String(query || "");
+  if (/\b(cinematic|trailer|epic|orchestral|film ?score|dramatic|hybrid)\b/i.test(q)) return "cinematic";
+  if (/\b(ambient|atmospheric|calm|slow)\b/i.test(q)) return "ambient";
+  if (/\b(energetic|punchy|hype|loud)\b/i.test(q)) return "energetic";
+  return "motion";
+}
+
+/** The query's music words a track carries: the genre asked for leads the list, others drop. Pure (tested). */
+export function queryFit(t, query) {
+  const want = String(query || "").replace(NOT_MUSIC, " ").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
+  if (!want.length) return 0;
+  const words = `${t.category || ""} ${(t.tags || []).join(" ")} ${t.name || ""}`.toLowerCase();
+  const hits = want.filter((w) => new RegExp(`\\b${w}`).test(words)).length;
+  return hits ? 3 * hits : -2;
+}
 
 /** The searches to run for a music query: its music words, or the motion-design beds for the feel. Pure (tested). */
 export function musicQueries(query, feel = "motion") {

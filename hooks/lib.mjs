@@ -1,10 +1,10 @@
 // Shared bits for the hook scripts. Hooks must be fast and must never crash the session:
 // on any unexpected error they exit 0 with no output (= allow).
 export { loadConfig } from "../mcp/src/core/config.mjs";
-import { projectDir } from "../mcp/src/core/paths.mjs";
+import { projectDir, setWorkspaceSession } from "../mcp/src/core/paths.mjs";
 
 /** The folder a hook works in: the session's project, or where drip_start({ project }) sent its task. */
-export const hookDir = (input) => projectDir(process.env.CLAUDE_PROJECT_DIR || input.cwd);
+export const hookDir = (input) => (setWorkspaceSession(input.session_id || null), projectDir(process.env.CLAUDE_PROJECT_DIR || input.cwd));
 export { REWORK_WORDS, agentFinished, agentStarted, agentsRunning, bindSession, orphanTasks, checklist, evidenceStale, isUiFile, loadState, missingBeforeUi, needsFitcheck, otherTasks, reconcileWorkspace, saveState, updateState } from "../mcp/src/core/state.mjs";
 export { hashFile, markSeen, shotHash } from "../mcp/src/core/evidence.mjs";
 export { filmEvent, startEvent, writeHints } from "../mcp/src/core/film.mjs";

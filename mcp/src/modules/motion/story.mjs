@@ -37,14 +37,16 @@ export function checkStoryboard(sb, { studied = [] } = {}) {
   const D = sb.format?.duration || (beats.length ? Math.max(...beats.map((b) => b.at + b.len)) : 0);
   if (!beats.length) errors.push("no beats: the film needs a timed beat list (at, len, action)");
   const refs = sb.references || [];
-  const seen = new Set(studied.map((s) => String(s.source)));
-  const backed = refs.filter((r) => seen.has(String(r.source)) || r.given);
+  // The same film written two ways (a trailing slash, a share parameter, a relative path) is still the film studied.
+  const key = (s) => String(s || "").trim().replace(/[?&](si|feature|utm_[a-z]+)=[^&#]*/gi, "").replace(/\\/g, "/").replace(/\/+$/, "").replace(/^\.\//, "").toLowerCase();
+  const seen = new Set(studied.map((s) => key(s.source)));
+  const backed = refs.filter((r) => seen.has(key(r.source)) || r.given);
   if (!backed.length)
     errors.push("no studied reference: motion_refs, then motion_study on 1-3 films (a MOVES reference at least), and name each in references with what you take from it. A reference the user gave counts: mark it given: true");
   // A moves take read off a sheet sampled seconds apart is a guess about the transition: a close-up shows its build.
   const moveRefs = backed.filter((r) => r.role === "moves" && !r.given);
-  const closeLooked = moveRefs.some((r) => studied.find((s) => String(s.source) === String(r.source))?.closeups?.length);
-  const short = moveRefs.every((r) => (studied.find((s) => String(s.source) === String(r.source))?.duration || 0) <= 15);
+  const closeLooked = moveRefs.some((r) => studied.find((s) => key(s.source) === key(r.source))?.closeups?.length);
+  const short = moveRefs.every((r) => (studied.find((s) => key(s.source) === key(r.source))?.duration || 0) <= 15);
   if (moveRefs.length && !closeLooked && !short) warnings.push("no moves reference was watched up close: the study sheet skips between its frames. motion_study({ source, from, to }) on the busiest stretch it named, then write the take from what the frames show");
   for (const r of refs) if (!String(r.take || "").trim() || String(r.take).trim().split(/\s+/).length < 4) errors.push(`reference ${r.source}: say what you take from it (\"take\", a concrete technique: \"the trailing edge springs later than the leading edge\")`);
   for (const s of slopIn(beats)) errors.push(`beat ${s.beat}: "${s.word}": ${s.why}`);

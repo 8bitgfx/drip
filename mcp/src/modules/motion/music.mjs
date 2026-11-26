@@ -92,9 +92,17 @@ export function structure({ sr, hop, duration, rms, hi, lo }) {
     const a = Math.round(b * fps);
     const e = Math.round((bars[i + 1] ?? duration) * fps);
     let s = 0;
-    for (let f = a; f < e; f++) s += rms[f] ** 2;
-    return +db(Math.sqrt(s / Math.max(1, e - a))).toFixed(1);
+    // Bars past the last analysed frame (the beat grid runs to the end) count only the frames that exist: an
+    // undefined frame once made every section "NaN dB".
+    let n = 0;
+    for (let f = a; f < Math.min(e, N); f++) {
+      s += (rms[f] || 0) ** 2;
+      n++;
+    }
+    return n ? +db(Math.sqrt(s / n)).toFixed(1) : null;
   });
+  // A bar with no frames at all (past the end) takes its neighbour's level rather than reading as silence.
+  for (let i = 0; i < barE.length; i++) if (barE[i] == null) barE[i] = barE[i - 1] ?? barE.find((v) => v != null) ?? -100;
   const peak = Math.max(...barE);
   // Sections: a new one where the bar energy moves 4 dB or more from the running level.
   const sections = [];

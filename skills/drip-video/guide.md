@@ -57,7 +57,7 @@ for no reason, and a glow tries to hide that nothing was decided. This guide exi
    **Sound and voice** run alongside: music found and analysed early when it drives the story (`motion_music`:
    tempo, bars, drops; beats on bar lines, the big moment on the drop), narration cast and recorded with
    `motion_voice` (`drip_guide video/voice`), a few calm UI sounds at most (`motion_sound`).
-9. **Draft render, then measure it.** `motion_export` with `draft: true` (half size, 15 fps) to catch errors
+9. **Draft render, then measure it.** `motion_export` with `draft: true` (half size, full frame rate) to catch errors
    fast. `motion_study` the file: duration, cuts, rhythm and shot lengths must match the storyboard.
 10. **Critic once.** `critic_prepare({ kind: "motion", targets: [...] })`, then the Agent `drip:critic` with the prompt
     unchanged, then `critic_record`. It is one review of the near-final cut, not a gate: fix what you agree with, and

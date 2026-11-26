@@ -82,7 +82,7 @@ It reads the format from the recorded storyboard; edits after the last clean swe
 | `from`, `to` | render a slice; useful for checking one scene at full quality |
 | `audio` | one sound or music file mixed under the picture |
 | `alpha: true` | WebM with transparency; the page background must be transparent |
-| `draft: true` | half size at 15 fps: fast sanity check |
+| `draft: true` | half size at the full frame rate: a quick check that still shows the motion as it will move |
 | `engine` | `auto` (default), `kinetograph`, `framevelo`, `hyperframes`, `drip` |
 
 Engines, set up by Drip itself (never ask the user to install anything):

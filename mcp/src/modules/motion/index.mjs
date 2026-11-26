@@ -10,7 +10,7 @@ import { describeRefs, refText } from "./refinfo.mjs";
 import { sheetInBrowser } from "../../core/imaging.mjs";
 import { projectDir, projectDripDir } from "../../core/paths.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
-import { blocks, safe, text } from "../../core/result.mjs";
+import { blocks, progress, safe, text } from "../../core/result.mjs";
 import { loadState, reconcileWorkspace, updateState } from "../../core/state.mjs";
 import { artifactRev } from "../../core/evidence.mjs";
 import { fidelity, findFfmpeg, fmtT, judgeFrames, measureFrames, renderComposition, sampleVideo, sparkline } from "./capture.mjs";
@@ -389,7 +389,15 @@ export function register(server, ctx) {
       if (uiBeats.length && task && !(task.guidesRead || []).includes("video/ui"))
         return text(`Beats ${uiBeats.map((b) => (sb.beats || []).indexOf(b) + 1).join(", ")} show UI. Read drip_guide video/ui first (Drip's UI bar inside a film: real content, one system, states, video sizes, UI timings vs film timings), then record the storyboard.`, true);
       const r = checkStoryboard(sb, { studied: motionOf(task).studied || [] });
-      if (r.errors.length) return text(`Storyboard not recorded:\n${r.errors.map((e) => `- ${e}`).join("\n")}`, true);
+      if (r.errors.length) {
+        const studiedList = motionOf(task).studied || [];
+        const where = !task
+          ? `\n(No Drip task is open in ${projectDir()}: studies are kept with the task. Is this the folder drip_start used? drip_status shows it.)`
+          : studiedList.length && r.errors.some((e) => e.startsWith("no studied reference"))
+            ? `\nStudied in this task: ${studiedList.map((s) => s.source).join(", ")}. Name one of these in references.`
+            : "";
+        return text(`Storyboard not recorded:\n${r.errors.map((e) => `- ${e}`).join("\n")}${where}`, true);
+      }
       const dir = path.join(projectDripDir(), "motion", task?.id || "draft");
       fs.mkdirSync(dir, { recursive: true });
       const file = path.join(dir, "storyboard.md");
@@ -579,7 +587,7 @@ export function register(server, ctx) {
     {
       title: "Render the film to video",
       description:
-        "Renders a composition frame by frame (each frame a seek, never real-time playback, so it is exact and repeatable) and encodes it with ffmpeg: MP4 (H.264), or WebM with transparency (alpha: true). draft: true renders half size at 15 fps for a quick look at the movement. " +
+        "Renders a composition frame by frame (each frame a seek, never real-time playback, so it is exact and repeatable) and encodes it with ffmpeg: MP4 (H.264), or WebM with transparency (alpha: true). draft: true renders half size at the film's full frame rate (smooth motion, a quarter of the pixels) for a quick look at the movement. " +
         "engine auto (default): on the first film Drip installs the renderers itself into ~/.drip/vendor (Kinetograph >=0.4.0-rc.1: GPU, no browser, carries FFmpeg; FrameVelo; HyperFrames), test-renders a 1s clip with each and keeps the fastest that works; never asks the user. Fallbacks run in measured order, Drip's own Chrome capture last. Drafts, ranges and alpha always use Drip's capture. The film's music, effects and narration are mixed on afterwards. " +
         "After rendering, motion_study the file: the final check is on the video itself. " +
         'Example: motion_export({ target: "film/launch/index.html", out: "film/launch/out/launch.mp4", audio: "film/launch/assets/music.mp3" })',
@@ -597,7 +605,8 @@ export function register(server, ctx) {
         engine: z.enum(["auto", "kinetograph", "framevelo", "hyperframes", "drip"]).optional().describe("Default auto: the renderer this machine picked on its first film (fastest that worked), falling back through the rest"),
       },
     },
-    safe(async ({ target, out, fps, width, height, from = 0, to, audio, alpha, draft, engine = "auto" }) => {
+    safe(async ({ target, out, fps, width, height, from = 0, to, audio, alpha, draft, engine = "auto" }, extra) => {
+      const prog = progress(extra);
       const config = ctx.config();
       const { task } = loadState();
       const fmt = motionOf(task).storyboard?.format || {};
@@ -626,7 +635,9 @@ export function register(server, ctx) {
             continue;
           }
           const tmp = outFile.replace(/(\.[^.]+)$/, `.${eng}-video$1`);
-          const r = await renderWith(eng, abs, tmp);
+          prog.tick(`rendering with ${eng}`);
+          const beat = setInterval(() => prog.tick(`still rendering with ${eng}`), 15e3);
+          const r = await renderWith(eng, abs, tmp).finally(() => clearInterval(beat));
           if (!r.ok) {
             fails.push(`${eng}: ${r.why}`);
             continue;
@@ -681,7 +692,7 @@ export function register(server, ctx) {
       }
       const r = await renderComposition(url, {
         out: outFile,
-        fps: draft ? Math.min(15, F) : F,
+        fps: F,
         width: draft ? Math.round(W / 2) : W,
         height: draft ? Math.round(H / 2) : H,
         from,
@@ -692,6 +703,7 @@ export function register(server, ctx) {
         alpha,
         ffmpeg,
         config,
+        onProgress: (i, n) => prog.report(i, n, `frame ${i} of ${n}`),
       });
       updateState((st) => {
         if (st.task) {
@@ -700,7 +712,7 @@ export function register(server, ctx) {
         }
       });
       return text(
-        `Rendered ${path.relative(projectDir(), r.file)} with Drip's Chrome capture: ${r.frames} frames in ${r.seconds.toFixed(0)}s${draft ? " (draft: half size, 15 fps)" : ""}${mixFor ? `, with ${tracks.length} sound track(s) mixed (music ducked under the voice)` : ""}.\n` +
+        `Rendered ${path.relative(projectDir(), r.file)} with Drip's Chrome capture: ${r.frames} frames in ${r.seconds.toFixed(0)}s${draft ? ` (draft: half size, full ${F} fps so the motion reads as it will)` : ""}${mixFor ? `, with ${tracks.length} sound track(s) mixed (music ducked under the voice)` : ""}.\n` +
           (fellBack.length ? `(the faster renderers were not used: ${fellBack.join("; ")})\n` : "") +
           `NEXT: motion_study({ source: "${path.relative(projectDir(), r.file).replace(/\\/g, "/")}" }) to check the video itself (cuts where you meant them, no blank or held frames), then show the user the file.`,
       );

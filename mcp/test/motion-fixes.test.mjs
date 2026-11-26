@@ -28,6 +28,23 @@ test("a task can keep its Drip state in its own folder, and hands the session fo
   assert.equal(paths.projectDir(), session);
 });
 
+test("a redirect belongs to its session: another session in the folder ending its task leaves it alone", () => {
+  const film = tmp("film-a");
+  try {
+    paths.setWorkspaceSession("sess-a");
+    paths.setWorkspace(paths.sessionDir(), film);
+    paths.setWorkspaceSession("sess-b");
+    assert.equal(paths.projectDir(), session, "session b still works in its own folder");
+    paths.setWorkspace(paths.sessionDir(), null); // b's drip_end
+    paths.setWorkspaceSession("sess-a");
+    assert.equal(paths.projectDir(), path.resolve(film), "a's film keeps its folder");
+    paths.setWorkspace(paths.sessionDir(), null);
+    assert.equal(paths.projectDir(), session);
+  } finally {
+    paths.setWorkspaceSession(null);
+  }
+});
+
 test("a film's critic is one review, not a gate", () => {
   const config = loadConfig(session);
   const t = state.newTask({ title: "film", size: "full", surface: "other", guides: [], mode: "motion" });

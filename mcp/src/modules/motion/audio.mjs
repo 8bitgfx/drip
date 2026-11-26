@@ -12,13 +12,18 @@ import { blocks, safe, text } from "../../core/result.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { fmtT } from "./capture.mjs";
 import { alignToMusic, analyseMusic, energyLines } from "./music.mjs";
-import { checkCues, loadCatalogue, motionFit, musicQueries, placeCue, searchCatalogue, searchJamendo, searchOpenverse } from "./sound.mjs";
+import { checkCues, feelFor, loadCatalogue, motionFit, musicQueries, queryFit, placeCue, searchCatalogue, searchJamendo, searchOpenverse } from "./sound.mjs";
 import { relaxQuery } from "./refsources.mjs";
 
 /** The film's folder: where the storyboard says the composition lives, else film/. */
+/** The film's own folder: the composition's (from the last frame check or render), else the project folder. */
 export function filmDir(task) {
-  const f = task?.motion?.storyboard?.file;
-  return path.resolve(projectDir(), f ? path.dirname(f) : "film");
+  const mo = task?.motion || {};
+  const comp = [mo.frames?.target, mo.storyboard?.file].find((f) => f && !/^https?:/i.test(f));
+  if (comp) return path.dirname(path.resolve(projectDir(), comp));
+  const render = mo.renders?.at(-1)?.file;
+  if (render) return path.dirname(path.dirname(path.resolve(projectDir(), render))); // <film>/out/x.mp4
+  return projectDir();
 }
 
 /** Copy or download a sound into <film>/sound/ and note its licence. Returns the project-relative path. */
@@ -56,7 +61,23 @@ export async function bringSound(task, source, { name, licence, credit, url } = 
   const dir = path.join(filmDir(task), "sound");
   fs.mkdirSync(dir, { recursive: true });
   const { base, ext } = soundFileName(source, name || credit);
-  const file = path.join(dir, `${base}${ext}`);
+  // One name, one sound: a second track that happens to get the same name gets its own file (it once silently reused
+  // the first). Which source each file came from is kept beside them.
+  const srcFile = path.join(dir, ".sources.json");
+  let sources = {};
+  try {
+    sources = JSON.parse(fs.readFileSync(srcFile, "utf8"));
+  } catch {
+    /* none yet */
+  }
+  const key = String(source);
+  let file = path.join(dir, `${base}${ext}`);
+  for (let i = 2; fs.existsSync(file) && sources[path.basename(file)] && sources[path.basename(file)] !== key; i++) file = path.join(dir, `${base}-${i}${ext}`);
+  if (fs.existsSync(file) && !sources[path.basename(file)] && /^https?:/i.test(key)) file = path.join(dir, `${base}-${Date.now().toString(36)}${ext}`);
+  if (sources[path.basename(file)] !== key) {
+    sources[path.basename(file)] = key;
+    fs.writeFileSync(srcFile, JSON.stringify(sources, null, 2));
+  }
   if (!fs.existsSync(file)) {
     if (/^https?:/i.test(source)) fs.writeFileSync(file, (await get(source, { as: "buffer", ttlMs: 30 * 24 * 3600e3, timeoutMs: 120000, headers: { "User-Agent": "drip-design-plugin" } })).body);
     else fs.copyFileSync(path.resolve(projectDir(), source), file);
@@ -92,7 +113,7 @@ export function registerAudio(server, ctx) {
         styles: z.array(z.string()).optional().describe("generate: global styles: genre, mood, instruments, '112 BPM', 'D minor'"),
         avoid: z.array(z.string()).optional().describe("generate: what to keep out: 'vocals', 'cheesy corporate ukulele', 'big risers'"),
         query: z.string().optional(),
-        feel: z.enum(["motion", "energetic", "ambient"]).optional().describe("search: default motion (rhythmic, clean electronic to cut to: steady 100-125 BPM pulse, crisp percussion, plucky synths, a tight groove, a lift for the reveal); energetic for a big punchy launch; ambient only for a slow atmospheric brand piece"),
+        feel: z.enum(["motion", "energetic", "ambient", "cinematic"]).optional().describe("search: cinematic for a launch film with trailer weight (a pulse building to one hit; read from the query when it says cinematic/trailer/epic); default motion (rhythmic, clean electronic to cut to: steady 100-125 BPM pulse, crisp percussion, plucky synths, a tight groove, a lift for the reveal); energetic for a big punchy launch; ambient only for a slow atmospheric brand piece"),
         vocals: z.enum(["no", "any"]).optional().describe("search: default no (instrumental only); any when the user wants a song with words"),
         source: z.string().optional().describe("A file in the project or an audio URL"),
         licence: z.string().optional(),
@@ -102,7 +123,7 @@ export function registerAudio(server, ctx) {
         fadeOut: z.number().optional(),
       },
     },
-    safe(async ({ action, query, feel = "motion", vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, feel, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
       const config = ctx.config();
       const { task } = loadState();
       if (action === "generate") {
@@ -130,6 +151,7 @@ export function registerAudio(server, ctx) {
       if (action === "search") {
         // No words given: the motion-design bed for the feel.
         if (!query) query = "";
+        feel = feelFor(query, feel);
         const jamendoId = getKey("jamendo");
         const found = [];
         const notes = [];
@@ -153,7 +175,7 @@ export function registerAudio(server, ctx) {
         // Licence matters as much as fit: setting music to picture makes the film an adaptation, so ShareAlike (SA) would
         // put the whole film under the same licence, and NC forbids commercial use. CC0 and CC BY first.
         const licScore = (t) => (/cc0|public/i.test(t.licence) ? 3 : /nc/i.test(t.licence) ? -6 : /sa/i.test(t.licence) ? -3 : /by/i.test(t.licence) ? 2 : 0);
-        const r = found.map((t) => ({ ...t, fit: motionFit(t, feel) + licScore(t) })).filter((t) => t.fit > -4).sort((a, b) => b.fit - a.fit).slice(0, 14);
+        const r = found.map((t) => ({ ...t, fit: motionFit(t, feel) + licScore(t) + queryFit(t, query) })).filter((t) => t.fit > -4).sort((a, b) => b.fit - a.fit).slice(0, 14);
         if (!r.length) return text("No tracks found. Try fewer, broader words (a genre and a feel); or use a track the user owns.", true);
         return text(
           "PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: \"Epidemic Sound subscription\"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.\n\n" +

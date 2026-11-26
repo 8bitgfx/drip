@@ -9,7 +9,7 @@ import { readPackFile } from "../../core/packs.mjs";
 import { examplesDir, projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
 import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
-import { safe, text } from "../../core/result.mjs";
+import { progress, safe, text } from "../../core/result.mjs";
 import { launchLine, writeBrief } from "../../core/briefs.mjs";
 import { agentsRunning, criticRounds, isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { artifactRev } from "../../core/evidence.mjs";
@@ -31,6 +31,29 @@ export function defends(context) {
   if (s.length > 400) return `${s.length} characters: a context that long is a pitch`;
   const m = s.match(/\b(intentional(ly)?|deliberate(ly)?|on purpose|by design|as designed|(already|now) (fixed|improved|addressed|better)|we (fixed|improved|chose)|i (fixed|improved|chose)|don'?t (judge|penali[sz]e|count|mark)|ignore|not a (bug|flaw|mistake)|this is fine|should pass|please (pass|be kind)|was (fixed|improved)|much better|huge improvement)\b/i);
   return m ? m[0] : null;
+}
+
+/**
+ * The context with its arguments taken out: sentences that defend the work are dropped and the rest is cut to 400
+ * characters at a sentence. Never refuses (a director sent back three times for one word looked stuck).
+ */
+export function cleanContext(context) {
+  let s = String(context || "").trim();
+  const dropped = [];
+  const sentences = s.split(/(?<=[.!?;])\s+|\n+/).filter(Boolean);
+  const kept = sentences.filter((x) => {
+    const p = defends(x.length > 400 ? x.slice(0, 400) : x);
+    if (p) dropped.push(p);
+    return !p;
+  });
+  s = kept.join(" ");
+  if (s.length > 400) {
+    const cut = s.slice(0, 400);
+    const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("; "));
+    s = end > 200 ? cut.slice(0, end + 1) : cut;
+    dropped.push("the part over 400 characters");
+  }
+  return { context: s || undefined, dropped };
 }
 
 const INTERACTIVE =/accordion|expand|hover|carousel|slider|tabs?\b|toggle|marquee|tilt|reveal|drag|compare|before.?after|flip|stack|swipe|scroll|dock|magnet|spotlight|morph|gallery/i;
@@ -154,15 +177,14 @@ export function register(server, ctx) {
         extraRound: z.boolean().optional().describe("Only when the user chose 'one more round' after the round limit"),
       },
     },
-    safe(async ({ kind, targets = [], context, steps, extraRound }) => {
+    safe(async ({ kind, targets = [], context, steps, extraRound }, extra) => {
+      const prog = progress(extra);
       const config = ctx.config();
       // Context is facts the critic can't see (what screen this is, who uses it), never a case for the work.
-      const pleading = defends(context);
-      if (pleading)
-        return text(
-          `The context argues for the work ("${pleading}"). The critic must judge what it sees: give only facts it can't see (what the screen is, who uses it, what's real data), in under 400 characters, and let the work speak.`,
-          true,
-        );
+      // Arguments are taken out, not sent back: the review goes ahead on the facts.
+      const cleaned = cleanContext(context);
+      context = cleaned.context;
+      const contextNote = cleaned.dropped.length ? `Context trimmed (${cleaned.dropped.join(", ")}): the critic gets facts only, never a case for the work.` : "";
       const { task } = loadState();
       // The critic judges the finished page once: a review while a builder is still writing a section is a wasted round.
       const building = kind === "build" ? agentsRunning(task).filter((a) => /builder/i.test(a.type)) : [];
@@ -216,6 +238,7 @@ export function register(server, ctx) {
         const sb = task?.motion?.storyboard;
         const fmt = sb?.format || {};
         const t0 = targets[0];
+        prog.tick("critic: shooting the whole film (1 of 4)");
         const whole = await filmSheets(t0, { times: { count: isVideo(t0) ? 32 : 24 }, width: fmt.width, height: fmt.height, per: 12, config });
         whole.sheets.forEach((b, i) => {
           const f = path.join(dir, `film-${i + 1}.jpg`);
@@ -227,6 +250,7 @@ export function register(server, ctx) {
         const bounds = (sb?.beats || []).slice(1).map((b) => b.at);
         const around = (bounds.length ? bounds : whole.judge.cuts).slice(0, 6);
         if (around.length && !isVideo(t0)) {
+          prog.tick("critic: transitions close up (2 of 4)");
           const tr = await filmSheets(t0, { times: { around }, width: fmt.width, height: fmt.height, per: 15, cols: 5, config });
           tr.sheets.forEach((b, i) => {
             const f = path.join(dir, `transitions-${i + 1}.jpg`);
@@ -241,6 +265,7 @@ export function register(server, ctx) {
             const D = whole.probe?.duration || fmt.duration || 10;
             const beatMids = (sb?.beats || []).filter((b) => b.len >= 1.5).map((b) => b.at + b.len * 0.6);
             const keyTimes = (beatMids.length >= 3 ? [beatMids[0], beatMids[Math.floor(beatMids.length / 2)], beatMids.at(-1)] : [0.3, 0.55, 0.85].map((p) => p * D)).map((x) => +x.toFixed(2));
+            prog.tick("critic: full-size key frames (3 of 4)");
             const full = await shootComposition(await compositionUrl(t0), { times: { times: keyTimes }, width: fmt.width || 1920, height: fmt.height || 1080, scale: 1, quality: 85, config });
             full.frames.forEach((f, i) => {
               const g = path.join(dir, `full-${i + 1}.jpg`);
@@ -256,6 +281,7 @@ export function register(server, ctx) {
         let traced = null;
         if (!isVideo(t0)) {
           try {
+            prog.tick("critic: tracing the motion (4 of 4)");
             traced = await traceTarget(t0, { storyboard: sb, config, maxOnions: 5 });
             const f = path.join(dir, "dopesheet.png");
             fs.writeFileSync(f, traced.sheet);
@@ -394,7 +420,7 @@ export function register(server, ctx) {
       // The brief goes to a file: the critic reads it, the director's context never carries it.
       const brief = writeBrief(`critic-${kind}`, prompt);
       return text(
-        `Prepared ${id}: ${files.length} image(s) in ${dir}; the critic's brief is in ${brief}.\n\nNOW: launch the critic with exactly this call (do not add your opinion; you don't need to read the brief):\n${launchLine("critic", `Critic review ${kind}`, prompt, brief)}\n\n` +
+        `Prepared ${id}: ${files.length} image(s) in ${dir}; the critic's brief is in ${brief}.${contextNote ? `\n${contextNote}` : ""}\n\nNOW: launch the critic with exactly this call (do not add your opinion; you don't need to read the brief):\n${launchLine("critic", `Critic review ${kind}`, prompt, brief)}\n\n` +
           "Then critic_record the verdict and show the user the critic's own words.",
       );
     }),

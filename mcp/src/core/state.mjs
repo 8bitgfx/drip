@@ -3,7 +3,7 @@
 // No dependencies: hooks import this file directly.
 import fs from "node:fs";
 import path from "node:path";
-import { ensureProjectDrip, projectDripDir } from "./paths.mjs";
+import { ensureProjectDrip, projectDripDir, setWorkspaceSession } from "./paths.mjs";
 import { loadConfig } from "./config.mjs";
 import { artifactRev, refreshSnapshot, workspaceDiff } from "./evidence.mjs";
 
@@ -18,6 +18,7 @@ const me = { session: process.env.CLAUDE_CODE_SESSION_ID || null, server: false,
 export function setIdentity({ session, server } = {}) {
   if (session) me.session = session;
   else if (session === null) me.session = null; // explicit: no session (tests run inside a Claude session inherit its id)
+  if (session !== undefined) setWorkspaceSession(me.session);
   if (server !== undefined) me.server = server;
 }
 
