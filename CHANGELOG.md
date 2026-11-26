@@ -2,6 +2,9 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.10.4: /drip:settings reads as a result, not an error
+- The settings shortcut ends the prompt with continue: false and a plain message (the link), instead of decision "block", which the desktop app showed as a red "A hook blocked your prompt" card. The typed command is left out of the stop message.
+
 ## 0.10.3: SnapCN pieces in films
 - **SnapCN pieces in films**: `motion_piece` searches SnapCN's ~145 video pieces and adds one to a film: its MIT source goes into `<film>/pieces/src`, bundled (esbuild, installed by the agent) into `pieces/<name>.js` with a clean-room Remotion stand-in driven by the film's clock, so pieces seek exactly and every renderer plays them (mount with `DripPieces.mount`). `motion_storyboard` lists SnapCN pieces that may fit each beat, and film tasks check SnapCN and the visuals library before hand-building. Tested on text-reveal, dot-bloom, count-grid and logo-assemble. Seeks now wait for images and fonts (the same time always gives the same picture); `DripVisuals.drive` adds to what the timeline drives instead of replacing it; the light field always sits behind the stage; a renderer that mismatches Chrome is skipped for that film only.
 

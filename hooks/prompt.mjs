@@ -12,7 +12,12 @@ run(async () => {
   // /drip:settings is a page, not a conversation: open it here and stop the prompt, so no model is involved.
   if (isSettingsCommand(input.prompt)) {
     const url = await openSettingsInBackground(dir);
-    return out({ decision: "block", reason: url ? `Drip settings opened in your browser: ${url}` : "Drip settings couldn't start here. Run `drip settings` in a terminal." });
+    // continue: false ends the turn with a plain message; decision "block" showed as a red "A hook blocked your prompt" card.
+    return out({
+      continue: false,
+      stopReason: url ? `Drip settings opened in your browser: ${url}` : "Drip settings couldn't start here. Run `drip settings` in a terminal.",
+      hookSpecificOutput: { hookEventName: "UserPromptSubmit", suppressOriginalPrompt: true },
+    });
   }
   const config = loadConfig(dir);
   const { task } = loadState(dir);
