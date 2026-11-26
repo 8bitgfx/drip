@@ -122,7 +122,7 @@ test("taste guards through the server", { skip, timeout: 240000 }, async (t) => 
 });
 
 test("intake asks only what the request leaves open, never padded to 4", async () => {
-  const { intakePlan } = await import("../src/modules/workflow.mjs");
+  const { intakePlan } = await import("../src/modules/workflow/index.mjs");
   assert.equal(intakePlan("use drip and make a cool 3d + mockups brandsheet for drip, a showcase", { mode: "design", memory: { mode: "fidelity" } }).max <= 1, true);
   assert.equal(intakePlan("design a landing page for my bakery", { mode: "design" }).max, 2);
   assert.equal(intakePlan("pricing page for developers, minimal and dark", { mode: "design" }).max, 1);
@@ -130,7 +130,7 @@ test("intake asks only what the request leaves open, never padded to 4", async (
 });
 
 test("a product named with what it does is designed as the product, not a landing page about it", async () => {
-  const { guess } = await import("../src/modules/workflow.mjs");
+  const { guess } = await import("../src/modules/workflow/index.mjs");
   assert.equal(guess("An AI animation studio for turning still illustrations into living, breathing anime scenes.").surface, "app");
   assert.equal(guess("a music workspace that turns hums into songs").surface, "app");
   assert.equal(guess("a landing page for an AI animation studio for turning stills into scenes").surface, "landing");

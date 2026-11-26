@@ -1,4 +1,4 @@
-// Pieces: finished components from proven free libraries (data/pieces.json), dealt per section so a page is assembled
+// Pieces: finished components from proven free libraries (content/data/pieces.json), dealt per section so a page is assembled
 // from crafted parts (their motion, their detail) instead of hand-rolled from scratch. React pages install them with the
 // shadcn CLI; plain pages get taste-skill parts (and the few plain-HTML libraries).
 import fs from "node:fs";

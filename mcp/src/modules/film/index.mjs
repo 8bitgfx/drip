@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { addFrame, buildFilm, filmDir, lastChangeAt, readFrames } from "../../core/film.mjs";
-import { pluginRoot, projectDripDir } from "../../core/paths.mjs";
+import { filmViewerDir, projectDripDir } from "../../core/paths.mjs";
 import { openInBrowser } from "../../core/localpage.mjs";
 import { screenshot } from "../../core/chrome.mjs";
 import { serveDir } from "../../core/serve.mjs";
@@ -71,7 +71,7 @@ export function startRecorder(config) {
 
 /** The viewer next to film.json: Drip's designed viewer when the plugin has it, else a small built-in one. */
 function placeViewer(d) {
-  const src = path.join(pluginRoot, "film", "viewer");
+  const src = filmViewerDir;
   if (fs.existsSync(path.join(src, "index.html"))) {
     for (const f of fs.readdirSync(src)) if (/\.(html|css|js|svg|woff2?)$/.test(f)) fs.copyFileSync(path.join(src, f), path.join(d, f));
     return "designed";

@@ -1,26 +1,26 @@
 // The process tools: start a task, read guides, see what is left, skip, finish.
 // These are what make Drip enforce the designer loop instead of hoping Claude reads a skill.
 import { z } from "zod";
-import { listGuides, normalizeTopic, readGuide, subTopics } from "../core/guides.mjs";
-import { checklist, evidenceStale, loadState, missingBeforeUi, needsFitcheck, newTask, otherTasks, reconcileWorkspace, updateState } from "../core/state.mjs";
-import { takeSnapshot } from "../core/evidence.mjs";
-import { graphOf, indexProject } from "../core/indexer/index.mjs";
-import { subjectWords } from "./inspire/contract.mjs";
-import { buildTaskMemory, hasMemory, projectContext } from "../core/project.mjs";
-import { writeProjectSkill } from "../core/memory.mjs";
-import { serveDir } from "../core/serve.mjs";
-import { warmBrowser } from "../core/browser.mjs";
-import { designDoc, relevantSkills } from "../core/skills.mjs";
-import { getKey } from "../core/keys.mjs";
-import { text } from "../core/result.mjs";
-import { isProjectPack, matchPacks } from "../core/packs.mjs";
+import { listGuides, normalizeTopic, readGuide, subTopics } from "../../core/guides.mjs";
+import { checklist, evidenceStale, loadState, missingBeforeUi, needsFitcheck, newTask, otherTasks, reconcileWorkspace, updateState } from "../../core/state.mjs";
+import { takeSnapshot } from "../../core/evidence.mjs";
+import { graphOf, indexProject } from "../../core/indexer/index.mjs";
+import { subjectWords } from "../inspire/contract.mjs";
+import { buildTaskMemory, hasMemory, projectContext } from "../../core/project.mjs";
+import { writeProjectSkill } from "../../core/memory.mjs";
+import { serveDir } from "../../core/serve.mjs";
+import { warmBrowser } from "../../core/browser.mjs";
+import { designDoc, relevantSkills } from "../../core/skills.mjs";
+import { getKey } from "../../core/keys.mjs";
+import { text } from "../../core/result.mjs";
+import { isProjectPack, matchPacks } from "../../core/packs.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { kitDir, projectDir } from "../core/paths.mjs";
-import { setupNotes } from "../core/setup.mjs";
-import { hostHasSubagents, swarmInstructions, swarmOn } from "./swarm/index.mjs";
-import { ownedKits } from "./parts/pieces.mjs";
-import { finishFilm } from "./film/index.mjs";
+import { kitDir, projectDir } from "../../core/paths.mjs";
+import { setupNotes } from "../../core/setup.mjs";
+import { hostHasSubagents, swarmInstructions, swarmOn } from "../swarm/index.mjs";
+import { ownedKits } from "../parts/pieces.mjs";
+import { finishFilm } from "../film/index.mjs";
 
 const SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,

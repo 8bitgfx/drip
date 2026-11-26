@@ -37,7 +37,7 @@ Project wins over personal, personal wins over the defaults (`mcp/src/core/confi
 
 ## Your own slop rules: `.drip/slop.json`
 
-Same shape as `data/slop.json`. They run in `fitcheck_lint` and after every UI edit.
+Same shape as `content/data/slop.json`. They run in `fitcheck_lint` and after every UI edit.
 
 ```json
 { "rules": [
@@ -47,7 +47,7 @@ Same shape as `data/slop.json`. They run in `fitcheck_lint` and after every UI e
 
 ## Your own libraries: `.drip/catalogue.json`
 
-Same shape as `data/catalogue.json` `entries`. Add an internal component registry and `components_find` searches it:
+Same shape as `content/data/catalogue.json` `entries`. Add an internal component registry and `components_find` searches it:
 
 ```json
 { "entries": [
@@ -64,9 +64,9 @@ Or ask Claude: "add a Drip image provider for <service>" and point it at the tem
 
 ## Editing the guides
 
-Guides are Markdown in `skills/drip-<topic>/guide.md` and `skills/drip-<topic>/reference/*.md`; shared rules in `rules/`.
+Guides are Markdown in `skills/drip-<topic>/guide.md` and `skills/drip-<topic>/reference/*.md`; shared rules in `content/rules/`.
 Format rules: [SKILL_FORMAT.md](SKILL_FORMAT.md). A new reference file becomes `drip_guide <topic>/<file>` automatically.
-To make a guide required for a kind of task, edit `requiredGuides()` in `mcp/src/modules/workflow.mjs`.
+To make a guide required for a kind of task, edit `requiredGuides()` in `mcp/src/modules/workflow/index.mjs`.
 
 ## Changing the server
 

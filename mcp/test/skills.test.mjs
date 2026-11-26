@@ -19,7 +19,7 @@ const TOOLS = new Set(walk(srcDir).filter((f) => f.endsWith(".mjs")).flatMap((f)
 const TOPICS = new Set(listGuides().map((g) => g.topic));
 const TOOL_PREFIXES = /^(drip|refs|board|components|palette|fonts|icons|gradient|images|gen|keys|fitcheck|critic|logo|pack)_[a-z_]+$/;
 const skills = fs.readdirSync(skillsDir).filter((d) => fs.statSync(path.join(skillsDir, d)).isDirectory());
-const mdFiles = walk(skillsDir).concat(walk(path.join(root, "rules")), walk(path.join(root, "commands")), walk(path.join(root, "agents")), fs.existsSync(path.join(root, "examples")) ? walk(path.join(root, "examples")) : []).filter((f) => f.endsWith(".md"));
+const mdFiles = walk(skillsDir).concat(walk(path.join(root, "content", "rules")), walk(path.join(root, "commands")), walk(path.join(root, "agents")), walk(path.join(root, "content", "examples"))).filter((f) => f.endsWith(".md"));
 
 test("there are 24+ skills, each with SKILL.md and guide.md", () => {
   assert.ok(skills.length >= 24, `skills: ${skills.join(", ")}`);

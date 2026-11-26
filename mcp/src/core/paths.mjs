@@ -23,10 +23,14 @@ function findPluginRoot() {
 
 export const pluginRoot = findPluginRoot();
 export const skillsDir = path.join(pluginRoot, "skills");
-export const rulesDir = path.join(pluginRoot, "rules");
-export const dataDir = path.join(pluginRoot, "data");
-export const examplesDir = path.join(pluginRoot, "examples");
-export const kitDir = path.join(pluginRoot, "kit");
+// What the server serves or copies lives in content/: rules and examples (drip_guide), data (catalogue, pieces,
+// font pairs, slop rules), kit (templates drip_kit copies) and the Film viewer.
+export const contentDir = path.join(pluginRoot, "content");
+export const rulesDir = path.join(contentDir, "rules");
+export const dataDir = path.join(contentDir, "data");
+export const examplesDir = path.join(contentDir, "examples");
+export const kitDir = path.join(contentDir, "kit");
+export const filmViewerDir = path.join(contentDir, "film-viewer");
 
 /** The installed Drip version, from the plugin manifest ("" when it can't be read). */
 export function pluginVersion() {

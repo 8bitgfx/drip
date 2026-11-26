@@ -1,4 +1,4 @@
-// Static slop / polish checks. Rules are data: data/slop.json (+ <project>/.drip/slop.json).
+// Static slop / polish checks. Rules are data: content/data/slop.json (+ <project>/.drip/slop.json).
 // No dependencies: the PostToolUse hook imports this file directly.
 import fs from "node:fs";
 import path from "node:path";

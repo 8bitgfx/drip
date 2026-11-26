@@ -9,7 +9,7 @@ const globals = require("globals");
 const FILES = ["mcp/src/**/*.mjs", "mcp/test/**/*.mjs", "mcp/*.mjs", "hooks/**/*.mjs"];
 
 export default [
-  { ignores: ["mcp/dist/**", "**/node_modules/**", "portfolio-claude/**", "tapin-landing/**", "assets/**", "site/**", "examples/**"] },
+  { ignores: ["mcp/dist/**", "**/node_modules/**"] },
   { ...js.configs.recommended, files: FILES },
   {
     files: FILES,

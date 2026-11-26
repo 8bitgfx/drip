@@ -1,4 +1,4 @@
-// Components: the curated catalogue (data/catalogue.json) + live search across shadcn-style registries,
+// Components: the curated catalogue (content/data/catalogue.json) + live search across shadcn-style registries,
 // so Claude installs proven components and restyles them instead of hand-rolling everything.
 import fs from "node:fs";
 import path from "node:path";

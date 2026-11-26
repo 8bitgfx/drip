@@ -393,7 +393,7 @@ test("adapted skills and rules contain no Claude Code only wording", () => {
     }
   };
   walk(path.join(root, "skills"));
-  walk(path.join(root, "rules"));
+  walk(path.join(root, "content", "rules"));
   for (const host of ["codex", "cursor", "opencode", "claude-desktop", "chatgpt"]) {
     for (const f of files) {
       const t = adaptText(read(f), host);
@@ -428,7 +428,7 @@ function assertPluginFolder(dir) {
     const file = /"([^"]+)"/.exec(c)[1].replace("${PLUGIN_ROOT}", dir);
     assert.ok(fs.existsSync(file), `hook adapter ${file}`);
   }
-  for (const rel of ["skills/drip/SKILL.md", "skills/drip/playbook.md", "rules/hard-rules.md", "data/slop.json", "kit/base.css", ".claude-plugin/plugin.json", "hooks/lib.mjs", "mcp/src/core/state.mjs"]) assert.ok(fs.existsSync(path.join(dir, rel)), rel);
+  for (const rel of ["skills/drip/SKILL.md", "skills/drip/playbook.md", "content/rules/hard-rules.md", "content/data/slop.json", "content/kit/base.css", "content/film-viewer/index.html", ".claude-plugin/plugin.json", "hooks/lib.mjs", "mcp/src/core/state.mjs"]) assert.ok(fs.existsSync(path.join(dir, rel)), rel);
   assert.ok(!fs.existsSync(path.join(dir, "node_modules")));
   assert.ok(!/ToolSearch/.test(read(path.join(dir, "skills", "drip", "SKILL.md"))));
   // The packaged hook adapter runs from inside the package.

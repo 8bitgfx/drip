@@ -1,12 +1,22 @@
 # Working on Drip (for coding agents)
 
-Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first, then [docs/SKILL_FORMAT.md](docs/SKILL_FORMAT.md) before touching any skill.
+Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first (the tree: where every file lives), then [docs/SKILL_FORMAT.md](docs/SKILL_FORMAT.md) before touching any skill. Open problems: [docs/NEXT.md](docs/NEXT.md); release history: [CHANGELOG.md](CHANGELOG.md).
+
+## Where things go
+- Plugin parts stay where the hosts look: `skills/`, `agents/`, `commands/`, `hooks/`, `.claude-plugin/`, root `plugin.json` and `mcp.json`.
+- Anything the server reads or copies goes in `content/` (`rules/`, `examples/`, `data/`, `kit/`, `film-viewer/`), reached through the dirs in `mcp/src/core/paths.mjs`, never a hand-built path.
+- Server code: `mcp/src/modules/<area>/index.mjs` registers that area's tools; logic lives in sibling files as plain functions. Code two areas need goes in `mcp/src/core/`.
+- **Everything lives once.** Before writing a helper, look in `core/util.mjs` (escHtml, slug, sha1, fwd, relPath, decodeHtml, stripTags), `core/jsonstore.mjs` (readJson, atomic writes), `core/localpage.mjs` (token-guarded local pages, openInBrowser), `core/paths.mjs` (dirs, pluginVersion), `core/result.mjs`, `core/briefs.mjs`. Add to them rather than copying.
+- Docs: one file per area in `docs/`; user-facing text in README.md, agent rules here. Change the doc that owns a topic instead of restating it elsewhere.
+
+## Rules
 
 - **Skills**: `skills/drip-<topic>/SKILL.md` stays short (first-screen rules + "call drip_guide"); depth goes in `guide.md` and `reference/*.md`. Every reference file must be listed in its SKILL.md table. Reference other guides by topic name, never by path. Only mention MCP tools that exist (list in SKILL_FORMAT.md).
 - **Enforcement lives in tools and hooks, not prose.** If agents keep skipping something, add a gate (`missingBeforeUi` in `mcp/src/core/state.mjs`) or a tool error that names the right call, not another paragraph.
-- **Server**: plain ESM JavaScript in `mcp/src`. Files under `mcp/src/core` that hooks import (`paths`, `config`, `state`) and `modules/fitcheck/lint.mjs` must stay dependency-free.
+- **Server**: plain ESM JavaScript in `mcp/src`. Files hooks import must stay on Node built-ins only: `core/paths`, `config`, `state`, `evidence`, `skills`, `film`, `jsonstore`, `util`, and `modules/fitcheck/lint.mjs`.
 - **Always lint, rebuild and test** after server changes: `cd mcp && npm run check` (lint + build + tests, the same as CI in `.github/workflows/ci.yml`; CI also fails when the committed `mcp/dist` bundle is stale). Run `npm run smoke` for network paths (it calls Dribbble, Iconify, Fontsource, registries; it never calls paid APIs).
 - **Commit `mcp/dist/drip-mcp.mjs`**: users run the plugin without `npm install`.
+- **Data files** (`content/data/*.json`) are the place for catalogue entries, font pairings and slop rules; keep `price`/`license` as "check" unless verified.
 - **Brand and README art live on the `brand` branch** (logo sources, renders, `assets/readme/*.png`); the README loads them by raw URL. Keep `main` free of them; only `.claude-plugin/icon.png` stays here.
 - **Licences**: guides adapt MIT/Apache sources in our own words with credit (CREDITS.md); paraphrase-only for sources without a reuse licence. Never commit third-party assets.
 - **Be polite to Dribbble**: keep requests throttled and cached (`core/http.mjs`); never add bulk downloading.
@@ -24,7 +34,3 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first, then [docs/SKILL_FORMAT
 - **Prompts that aren't the user**: task notifications (builder and critic reports), system reminders and hook feedback arrive through UserPromptSubmit too. Anything that reacts to what the user asked (the new-round words) reads `userWords(prompt)`; a critic report saying "generic" once forced a whole rebuild.
 - **Generated files**: `hosts/` and `hooks/codex-plugin.json` come from `npm run build:hosts`; never edit them by hand.
 - **Gates count calls, not work**, unless written carefully. Every gate added so far was dodged by the cheapest call that satisfies it; check the result (files on disk, the page, the transcript), not that a tool ran.
-
-See [docs/NEXT.md](docs/NEXT.md) for the open problems and the user's latest feedback.
-
-- **Data files** (`data/*.json`) are the place for catalogue entries, font pairings and slop rules; keep `price`/`license` as "check" unless verified.

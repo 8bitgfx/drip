@@ -33,7 +33,7 @@ here with its notice; where it does not, Drip only paraphrases ideas (no copied 
 
 Full research notes: [docs/research/public-skills-2026-11.md](docs/research/public-skills-2026-11.md).
 
-Component libraries, icon sets, fonts and reference sites listed in `data/catalogue.json` belong to
+Component libraries, icon sets, fonts and reference sites listed in `content/data/catalogue.json` belong to
 their authors; Drip links to them and never redistributes them.
 
 ## Notices

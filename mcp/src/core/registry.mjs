@@ -4,7 +4,7 @@
 import { loadConfig } from "./config.mjs";
 import { loadState, updateState } from "./state.mjs";
 import { filmEvent } from "./film.mjs";
-import * as workflow from "../modules/workflow.mjs";
+import * as workflow from "../modules/workflow/index.mjs";
 import * as refs from "../modules/refs/index.mjs";
 import * as board from "../modules/board/index.mjs";
 import * as components from "../modules/components/index.mjs";

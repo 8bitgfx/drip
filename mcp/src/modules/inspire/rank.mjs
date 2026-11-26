@@ -1,4 +1,4 @@
-// Ranking of the curated catalogue (data/catalogue.json) by stack, design fit and quality.
+// Ranking of the curated catalogue (content/data/catalogue.json) by stack, design fit and quality.
 // The metadata (fit tags, quality 1-5) is Drip's own hint; components_find ignores it.
 import fs from "node:fs";
 import path from "node:path";

@@ -28,7 +28,7 @@ export function copyRuntime(root, dest, host) {
   copyTree(need("mcp/src"), path.join(dest, "mcp", "src"), null, { skip: (n) => SKIP.has(n) });
   fs.copyFileSync(need("mcp/package.json"), path.join(dest, "mcp", "package.json"));
   copyTree(need("hooks"), path.join(dest, "hooks"), null, { skip: (n) => SKIP.has(n) || n === "hooks.json" });
-  for (const dir of ["rules", "data", "kit", "examples", "agents"]) if (fs.existsSync(need(dir))) copyTree(need(dir), path.join(dest, dir), null, { skip: (n) => SKIP.has(n) });
+  for (const dir of ["content", "agents"]) if (fs.existsSync(need(dir))) copyTree(need(dir), path.join(dest, dir), null, { skip: (n) => SKIP.has(n) });
   copyTree(need("skills"), path.join(dest, "skills"), (rel, t) => adaptText(t, host), { skip: (n) => SKIP.has(n) });
   // The marker the server walks up to find the plugin root.
   fs.mkdirSync(path.join(dest, ".claude-plugin"), { recursive: true });

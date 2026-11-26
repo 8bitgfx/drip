@@ -91,7 +91,7 @@ OpenType shaping (contextual alternates, stylistic sets).
 
 ## Catalogue ranking
 
-`data/catalogue.json` entries gained `fit` (design-fit tags such as `saas`, `dashboard`, `editorial`, `motion`, `accessible`) and
+`content/data/catalogue.json` entries gained `fit` (design-fit tags such as `saas`, `dashboard`, `editorial`, `motion`, `accessible`) and
 `quality` (1-5, Drip's own judgement). `components_find` ignores both. The `references` list gained the new sources with a `provider`
 id. `rankEntries()` in `modules/inspire/rank.mjs` scores stack match, fit overlap and quality; `catalogue_rank` exposes it.
 

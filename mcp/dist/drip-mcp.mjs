@@ -7419,16 +7419,18 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }
-var here, pluginRoot, skillsDir, rulesDir, dataDir, examplesDir, kitDir, HOST_PROJECT_VARS, rootCache, GITIGNORE_BEGIN, GITIGNORE_END, LEGACY_HEAD, LEGACY_LINES, gitignoreChecked, homeDripDir;
+var here, pluginRoot, skillsDir, contentDir, rulesDir, dataDir, examplesDir, kitDir, filmViewerDir, HOST_PROJECT_VARS, rootCache, GITIGNORE_BEGIN, GITIGNORE_END, LEGACY_HEAD, LEGACY_LINES, gitignoreChecked, homeDripDir;
 var init_paths = __esm({
   "src/core/paths.mjs"() {
     here = path.dirname(fileURLToPath(import.meta.url));
     pluginRoot = findPluginRoot();
     skillsDir = path.join(pluginRoot, "skills");
-    rulesDir = path.join(pluginRoot, "rules");
-    dataDir = path.join(pluginRoot, "data");
-    examplesDir = path.join(pluginRoot, "examples");
-    kitDir = path.join(pluginRoot, "kit");
+    contentDir = path.join(pluginRoot, "content");
+    rulesDir = path.join(contentDir, "rules");
+    dataDir = path.join(contentDir, "data");
+    examplesDir = path.join(contentDir, "examples");
+    kitDir = path.join(contentDir, "kit");
+    filmViewerDir = path.join(contentDir, "film-viewer");
     HOST_PROJECT_VARS = ["DRIP_PROJECT_DIR", "CLAUDE_PROJECT_DIR", "CURSOR_PROJECT_DIR", "CODEX_PROJECT_DIR", "OPENCODE_PROJECT_DIR"];
     rootCache = /* @__PURE__ */ new Map();
     GITIGNORE_BEGIN = "# >>> drip (generated; put your own lines outside this block) >>>";
@@ -90522,7 +90524,7 @@ function adoptApproved({ task, acceptUnreviewed = false, cwd } = {}) {
   return { ok: true, ptr: ap, unreviewed: !reviewed };
 }
 
-// src/modules/workflow.mjs
+// src/modules/workflow/index.mjs
 init_serve();
 init_browser();
 
@@ -90587,7 +90589,7 @@ function safe(handler) {
   };
 }
 
-// src/modules/workflow.mjs
+// src/modules/workflow/index.mjs
 init_paths();
 import fs26 from "node:fs";
 import path28 from "node:path";
@@ -91355,7 +91357,7 @@ function startRecorder(config2) {
   timer.unref();
 }
 function placeViewer(d) {
-  const src = path27.join(pluginRoot, "film", "viewer");
+  const src = filmViewerDir;
   if (fs25.existsSync(path27.join(src, "index.html"))) {
     for (const f3 of fs25.readdirSync(src)) if (/\.(html|css|js|svg|woff2?)$/.test(f3)) fs25.copyFileSync(path27.join(src, f3), path27.join(d, f3));
     return "designed";
@@ -91437,7 +91439,7 @@ $("#scrub").oninput=(e)=>show(+e.target.value);$("#play").onclick=()=>{playing=!
 load();
 </script></body></html>`;
 
-// src/modules/workflow.mjs
+// src/modules/workflow/index.mjs
 var SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
   landing: /\b(landing|marketing|homepage|home page|hero|website|site|pricing page|waitlist|portfolio|company)\b/i,
@@ -104258,7 +104260,7 @@ ${tail(r2.out)}`,
   if (want("fitcheck-lint")) {
     const indexed = Object.keys(index.files).filter((r2) => UI_RE.test(r2) && !index.files[r2].facts.isTest && !index.files[r2].facts.isStory && (!scope || scope.has(r2)));
     const ui = [.../* @__PURE__ */ new Set([...indexed, ...lintableUiFiles(root).filter((r2) => UI_RE.test(r2) && !(r2 in index.files) && (!scope || scope.has(r2)))])];
-    const slopHash = hashText(readIf(path41.join(pluginRoot, "data", "slop.json")) + readIf(path41.join(projectDripDir(root), "slop.json")));
+    const slopHash = hashText(readIf(path41.join(dataDir, "slop.json")) + readIf(path41.join(projectDripDir(root), "slop.json")));
     const designHash = hashText(["DESIGN.md", "design.md"].map((f3) => readIf(path41.join(root, f3))).join(""));
     const hash2 = hashText([ui.map((r2) => `${r2}:${snapshot[r2]}`).join(","), slopHash, designHash, assets, cfgHash].join("|"));
     await withReceipt("fitcheck-lint", hash2, async () => {
