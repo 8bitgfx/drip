@@ -1,7 +1,7 @@
 {
   "name": "drip",
   "displayName": "Drip",
-  "version": "0.10.7",
+  "version": "0.11.0",
   "description": "Taste for your coding agent. A real designer's process: it asks first, studies references, shows you two directions, builds with real components and checks its work with an independent critic. Works in Claude Code, Codex, Cursor and any MCP agent. Opt-in: it only steps in when you start it.",
   "author": {
     "name": "Drip contributors"

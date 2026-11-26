@@ -2,6 +2,30 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.11.0: what the Drip trailer v3 taught
+
+A launch film came out jittery, disconnected and slideshow-like, and Drip's checks passed it. Fixed at the causes:
+
+- **A task's folder belongs to its session.** Another session in the same folder ending its task removed the film's
+  redirect, so renders went to that repo and its state was read instead: the storyboard then said "no studied
+  reference". Redirects are now kept per session.
+- **The film is checked only when it moves smoothly.** `motion_trace` reads the whole picture's speed curve
+  (stop-starts at a key, sudden speed-ups, judder; DOM, canvas or WebGL alike). The check counts once both a clean
+  `motion_frames` sweep and a smooth speed curve of the same version exist; the stop hook asks for both.
+- **Continuity is checked, not just named.** A storyboard whose motif is missing from most beats, joined by bare
+  cuts, isn't recorded; beats and boundaries that drop it are warned about.
+- **The real UI, frozen.** `motion_ui_freeze` opens the page, scrolls it, bakes and stops its animations, strips
+  scripts, inlines its CSS and saves fonts and images; `DripVisuals.uiFrame` mounts it and `ui.$(name)` animates its
+  real elements. Renders wait for it.
+- **A camera that doesn't stop.** `DripVisuals.cameraRig`: a smooth curve through every key, easing only at the
+  ends and at a `hold` key.
+- **Guides**: choreography and continuity before effects; frozen UI is the default, screenshots on planes the
+  exception; the brand's own rules (flat, no highlights) beat the visual defaults.
+- **Smaller fixes**: drafts render at the film's full frame rate; `critic_prepare` trims arguments from the context
+  instead of refusing it, and both it and renders report progress; dark frames on an ink ground no longer read as
+  empty; music search has a cinematic feel and ranks the asked genre first; sections never read "NaN dB"; two
+  tracks never share one file, and sounds go into the film's own folder.
+
 ## 0.10.7: references on one sheet again
 - `motion_refs` returns one numbered sheet (a frame of each film) and one numbered list with each film's words (what its maker says, the facts), instead of a frame per film: one image, read at a glance.
 
