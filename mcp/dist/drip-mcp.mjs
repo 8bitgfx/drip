@@ -7036,8 +7036,8 @@ var require_formats = __commonJS({
         return false;
       const year = +matches2[1];
       const month = +matches2[2];
-      const day = +matches2[3];
-      return month >= 1 && month <= 12 && day >= 1 && day <= (month === 2 && isLeapYear(year) ? 29 : DAYS[month]);
+      const day2 = +matches2[3];
+      return month >= 1 && month <= 12 && day2 >= 1 && day2 <= (month === 2 && isLeapYear(year) ? 29 : DAYS[month]);
     }
     function compareDate(d1, d2) {
       if (!(d1 && d2))
@@ -24842,11 +24842,11 @@ var require_date = __commonJS({
       timeParts = timeParts.map(parseNumber);
       var year = dateParts[0];
       var month = dateParts[1] - 1;
-      var day = dateParts[2];
+      var day2 = dateParts[2];
       var hours2 = timeParts[0];
       var minutes2 = timeParts[1];
       var seconds = timeParts[2];
-      var date5 = Date.UTC(year, month, day, hours2, minutes2, seconds, 0);
+      var date5 = Date.UTC(year, month, day2, hours2, minutes2, seconds, 0);
       var timestamp = date5 / 1e3;
       return timestamp;
     }
@@ -35448,7 +35448,7 @@ var require_builder = __commonJS({
           }
           render = /* @__PURE__ */ (function(_this) {
             return function(element, obj) {
-              var attr, child, entry, index, key, value;
+              var attr2, child, entry, index, key, value;
               if (typeof obj !== "object") {
                 if (_this.options.cdata && requiresCDATA(obj)) {
                   element.raw(wrapCDATA(obj));
@@ -35470,9 +35470,9 @@ var require_builder = __commonJS({
                   child = obj[key];
                   if (key === attrkey) {
                     if (typeof child === "object") {
-                      for (attr in child) {
-                        value = child[attr];
-                        element = element.att(attr, value);
+                      for (attr2 in child) {
+                        value = child[attr2];
+                        element = element.att(attr2, value);
                       }
                     }
                   } else if (key === charkey) {
@@ -88125,7 +88125,7 @@ function checklist(task, config2) {
     const dc = lastCritique(task, "directions");
     if (dc) lines.push(`${tick2(dc.verdict === "pass")} critic on the directions (optional): ${dc.verdict.toUpperCase()} (${dc.summary})${dc.verdict === "pass" ? "" : ` NOT PASSED: rework ${reworkNames(dc) || "the weak directions"}`}`);
     lines.push(`${tick2(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
-    lines.push(`${tick2(task.system)} system written (kit/base.css + DESIGN.md)`);
+    lines.push(`${tick2(task.system)} system set (kit/base.css tokens)`);
     if (["landing", "app", "mobile"].includes(task.surface)) lines.push(`${tick2(!!task.plan)} section plan${task.plan ? `: ${task.plan.sections.length} sections, ${new Set(task.plan.sections.map((s2) => s2.form)).size} forms, ${task.plan.sections.filter((s2) => s2.candy).length} eye-candy` : " (board_plan)"}`);
     if (isPersuade(task)) lines.push(`${tick2(!!task.fitcheck.heroPassedAt)} hero gate passed (fitcheck_shot hero: true, before the sections)`);
   }
@@ -91378,7 +91378,7 @@ ${missing.map((m) => `- ${m.need}: ${m.how}`).join("\n")}`;
   if (task.mode === "refs") return "NEXT: summarise what the studied references have in common and where they differ (6-10 lines), then offer a moodboard.";
   if (task.mode === "board") return "NEXT: board_open, present the critic-ranked directions with your pick, ask the user to choose with buttons. Then drip_end.";
   if (task.size === "full" && !task.system)
-    return task.mode === "logo" ? "NEXT: sketch 12-20 concepts and render them with logo_sheet." : PERSUADE(task.surface, task.mode) ? "NEXT: drip_kit (copies kit/base.css), fill in faces and colours from the direction, write DESIGN.md (playbook P22), drip_mark system." : "NEXT: write DESIGN.md + tokens from the chosen direction (drip_kit for the type roles and floor), then drip_mark system.";
+    return task.mode === "logo" ? "NEXT: sketch 12-20 concepts and render them with logo_sheet." : PERSUADE(task.surface, task.mode) ? "NEXT: drip_kit (copies kit/base.css), fill in faces and colours from the direction in the page's tokens, drip_mark system. No DESIGN.md: that is written only when the user asks, after they approve the design." : "NEXT: tokens from the chosen direction (drip_kit for the type roles and floor), then drip_mark system. No DESIGN.md until the user asks for one.";
   if (PERSUADE(task.surface, task.mode) && task.size === "full" && !task.fitcheck?.heroPassedAt)
     return "NEXT: plan the sections (playbook P23), then build the nav + hero ONLY and run fitcheck_shot({ url, hero: true }). No section before the hero gate passes.";
   return "NEXT: build the sections in plan order. Then fitcheck_shot (the page gate), fix every blocker, the critic once (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), one confirming round, fitcheck_done.";
@@ -91513,7 +91513,8 @@ function register3(server2, ctx2) {
         const kind = /\b(game|gaming)\b/i.test(task) ? "gaming" : /\b(hardware|device|gadget|controller|headphone|keyboard|drone|robot)\b/i.test(task) ? "tech" : /\b(cafe|café|bakery|restaurant|bar|hotel|shop|store|gym|salon|florist|guesthouse)\b/i.test(task) ? "place" : /\b(clinic|agency|studio|law|consult|dentist|architect)\b/i.test(task) ? "service" : /\b(saas|app|ai|platform|tool|api|dashboard|software|startup|fintech)\b/i.test(task) ? "software" : "product";
         return text(
           `Drip task started (task id ${t2.id}): FAST LOOP, surface ${sf}, kind ${kind}. Ambition: polished (a cooler, cleaner take on proven designs; never "unique" for its own sake).
-` + (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o2) => `"${o2.title}"`).join(", ")}): never touch them.
+` + (!memCtx && !redesignUrl ? `LOOK: unless the brief or brand says otherwise, the default look in taste.md ("The default look"): a painted world or a field of light behind a calm, large headline with one italic word, one rounded action${sf === "app" ? "" : ", the product rising from the bottom of the hero"}. The deal's layout and type apply; take the palette from the picture.
+` : "") + (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o2) => `"${o2.title}"`).join(", ")}): never touch them.
 ` : "") + (memCtx ? `PROJECT MEMORY (${t2.memory.mode}): ${memCtx.text}
 ` : "") + (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.
 ` : "") + (!surface && sf === "app" && !SURFACE_WORDS.app.test(task) ? `SURFACE: the request names a product, not a page, so you design the product itself: its main screen working (e.g. an editor with its canvas or viewport, timeline and settings, real content in it), not a landing page about it. If the user may have meant a marketing page, make that one of the questions ("The product's main screen" first / "Its landing page"); on "landing page", drip_start again with surface: "landing".
@@ -91524,7 +91525,7 @@ function register3(server2, ctx2) {
 ` : "") + (swarmOn(config2, t2) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") + (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).
 ` : "") + `
 FIRST CALLS (one message):
-1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> ${sf === "app" ? "app screen" : "landing hero"}" }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).
+1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ ${sf === "app" ? 'query: "<the product kind> app screen"' : 'need: "hero"'} }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).
 2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).
 3. Right after: ONE drip_execute that runs components_find for every section's need (the recipe is in "Code Mode" below), then ONE pieces_preview of the best.
 Then the loop below from step 4 (build, check once).${t2.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}
@@ -91598,7 +91599,7 @@ ${b}`).join("\n\n")
       if (template === "system") return text(`Wrote ${rel3}: the living design system. It reads every colour, type role and spacing step from the project's drip-base.css (set the link at the top if it lives elsewhere), so it never drifts. Add a specimen for every component the pages use, in its states, and build them here first. Shoot it with fitcheck_shot to check it.`);
       if (template === "brand-board") return text(`Wrote ${rel3}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
-        `Wrote ${rel3}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then DESIGN.md and drip_mark system.`
+        `Wrote ${rel3}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then drip_mark system (DESIGN.md only when the user asks for it).`
       );
     }
   );
@@ -91777,8 +91778,15 @@ Shoot the page again (fitcheck_shot), fix, review, fitcheck_done; or, if the use
         } catch {
         }
       }
+      let offer = "";
+      try {
+        if (cur && !cur.skipped && cur.uiWrites?.length && ["design", "polish"].includes(cur.mode || "design") && !designDoc(void 0, cur))
+          offer = `
+No design system yet. Once the user is happy with this design, ask once (AskUserQuestion): "Save this design as the project's design system (DESIGN.md)?" On yes: drip_kit({ template: "design-md" }) and fill it from the finished page (its palette, type, spacing, components and what it refuses). On no, leave it.`;
+      } catch {
+      }
       return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}${film ? `
-${film}` : ""}`);
+${film}` : ""}${offer}`);
     }
   );
 }
@@ -100758,6 +100766,279 @@ import path31 from "node:path";
 
 // src/core/cdp.mjs
 init_browser();
+
+// src/core/ai-tells.mjs
+function aiTellsInPage() {
+  const out = [];
+  const add2 = (sev, kind, text2, detail) => out.push({ sev, kind, text: String(text2 || "").trim().replace(/\s+/g, " ").slice(0, 60), detail });
+  const W = innerWidth;
+  const phone = W < 600;
+  const visible = (el) => {
+    const r2 = el.getBoundingClientRect();
+    if (r2.width < 2 || r2.height < 2) return false;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === "hidden" || cs.display === "none") return false;
+    for (let a2 = el; a2 && a2 !== document.documentElement; a2 = a2.parentElement) {
+      const ac = getComputedStyle(a2);
+      if (+ac.opacity < 0.15) return false;
+      if (a2 !== el && /hidden|clip/.test(ac.overflow + ac.overflowY + ac.overflowX)) {
+        const p2 = a2.getBoundingClientRect();
+        if (r2.bottom <= p2.top + 1 || r2.top >= p2.bottom - 1 || r2.right <= p2.left + 1 || r2.left >= p2.right - 1) return false;
+      }
+    }
+    return true;
+  };
+  const ink2 = (el) => {
+    const cs = getComputedStyle(el);
+    const fill = parse3(cs.webkitTextFillColor);
+    const c3 = fill && cs.webkitTextFillColor !== cs.color ? fill : parse3(cs.color);
+    return c3 && c3.a >= 0.1 ? c3 : null;
+  };
+  const holder = (el) => {
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let t2;
+    while (t2 = w.nextNode()) if (t2.textContent.trim() && t2.parentElement && visible(t2.parentElement)) return t2.parentElement;
+    return el;
+  };
+  const oneLabel = (el) => {
+    let k = 0;
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let t2;
+    while (t2 = w.nextNode()) if (t2.textContent.trim()) k++;
+    return k === 1;
+  };
+  const parse3 = (c3) => {
+    const m = String(c3 || "").match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const p2 = m[1].split(/[ ,/]+/).filter(Boolean).map(Number);
+    return { r: p2[0], g: p2[1], b: p2[2], a: p2.length > 3 ? p2[3] : 1 };
+  };
+  const over = (top, under) => ({ r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1 });
+  const lum2 = (c3) => {
+    const f3 = (v) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f3(c3.r) + 0.7152 * f3(c3.g) + 0.0722 * f3(c3.b);
+  };
+  const ratio = (a2, b) => {
+    const x2 = lum2(a2), y2 = lum2(b);
+    return (Math.max(x2, y2) + 0.05) / (Math.min(x2, y2) + 0.05);
+  };
+  const behind = (el) => {
+    const layers = [];
+    for (let a2 = el; a2; a2 = a2.parentElement) {
+      const cs = getComputedStyle(a2);
+      if (/url\(/.test(cs.backgroundImage)) return null;
+      if (/gradient/.test(cs.backgroundImage)) {
+        const stops = (cs.backgroundImage.match(/rgba?\([^)]+\)/g) || []).map(parse3).filter(Boolean);
+        if (stops.length) {
+          const avg = stops.reduce((s2, c4) => ({ r: s2.r + c4.r / stops.length, g: s2.g + c4.g / stops.length, b: s2.b + c4.b / stops.length, a: Math.max(s2.a, c4.a) }), { r: 0, g: 0, b: 0, a: 0 });
+          layers.push(avg);
+          if (avg.a >= 0.95) break;
+        }
+      }
+      const bg = parse3(cs.backgroundColor);
+      if (bg && bg.a > 0) {
+        layers.push(bg);
+        if (bg.a >= 0.95) break;
+      }
+      if (a2 !== el && /^(IMG|VIDEO|CANVAS|PICTURE)$/.test(a2.tagName)) return null;
+    }
+    let c3 = { r: 255, g: 255, b: 255, a: 1 };
+    for (let i2 = layers.length - 1; i2 >= 0; i2--) c3 = over(layers[i2], c3);
+    const r2 = el.getBoundingClientRect();
+    const x2 = r2.left + r2.width / 2, y2 = r2.top + r2.height / 2;
+    if (x2 > 0 && y2 > 0 && x2 < innerWidth && y2 < innerHeight) {
+      for (const hit of document.elementsFromPoint(x2, y2)) {
+        if (hit === el || el.contains(hit)) continue;
+        if (/^(IMG|VIDEO|CANVAS)$/.test(hit.tagName) && !hit.closest("button, a")) return null;
+        if (hit.contains(el)) break;
+      }
+    }
+    return c3;
+  };
+  const label = (el) => (el.innerText || el.value || el.getAttribute("aria-label") || "").trim();
+  const controls = [...document.querySelectorAll("button, [role=button], input[type=submit], input[type=button], a")].filter(visible);
+  const styled = controls.filter((el) => {
+    const r2 = el.getBoundingClientRect();
+    if (r2.width > 420 || r2.height > 96) return false;
+    if (el.tagName !== "A") return true;
+    const cs = getComputedStyle(el);
+    const bg = parse3(cs.backgroundColor);
+    return bg && bg.a > 0.2 || parseFloat(cs.borderTopWidth) > 0 || /gradient/.test(cs.backgroundImage);
+  });
+  const lines = (el) => {
+    const cs = getComputedStyle(el);
+    const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.25;
+    let top = Infinity, bottom = -Infinity;
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let t2;
+    while (t2 = w.nextNode()) {
+      if (!t2.textContent.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(t2);
+      for (const q2 of range.getClientRects()) {
+        if (q2.width < 2) continue;
+        top = Math.min(top, q2.top);
+        bottom = Math.max(bottom, q2.bottom);
+      }
+    }
+    return bottom - top > lh * 1.7 ? 2 : 1;
+  };
+  const named = (el) => !!(label(el) || el.getAttribute("aria-label") || el.getAttribute("aria-labelledby") || el.getAttribute("title") || el.querySelector("img[alt]:not([alt='']), svg title, [aria-label]"));
+  const fills = /* @__PURE__ */ new Map();
+  const labels = /* @__PURE__ */ new Map();
+  let lowLabels = 0;
+  for (const el of styled) {
+    const cs = getComputedStyle(el);
+    const text2 = label(el);
+    const r2 = el.getBoundingClientRect();
+    const ownFill = parse3(cs.backgroundColor);
+    if (text2 && ownFill && ownFill.a > 0.5) labels.set(text2.toLowerCase(), (labels.get(text2.toLowerCase()) || 0) + 1);
+    const words3 = holder(el);
+    const fg = ink2(words3);
+    const bg = behind(words3);
+    if (text2 && fg && bg && el.innerText.trim()) {
+      const c3 = ratio(over(fg, bg), bg);
+      const ws = getComputedStyle(words3);
+      const size = parseFloat(ws.fontSize), bold = parseInt(ws.fontWeight, 10) >= 600;
+      const large = size >= 24 || bold && size >= 18.66;
+      if (c3 < 1.6) add2("block", "unreadable button", text2, `its label is the colour of its fill (contrast ${c3.toFixed(2)}:1): nobody can read it`);
+      else if (c3 < 3 && lowLabels++ < 4) add2(el.closest("[role=tablist], [role=tab], [aria-selected], [aria-pressed]") ? "warn" : "block", "unreadable button", text2, `label contrast ${c3.toFixed(2)}:1 on its fill (needs ${large ? 3 : 4.5}:1)`);
+      else if (c3 < (large ? 3 : 4.5) && lowLabels++ < 4) add2("warn", "faint button label", text2, `label contrast ${c3.toFixed(2)}:1 on its fill (WCAG asks ${large ? 3 : 4.5}:1)`);
+    }
+    if (text2 && el.scrollWidth > el.clientWidth + 8 && /hidden|clip/.test(cs.overflow + cs.overflowX)) add2("block", "button label cut off", text2, `the label is ${el.scrollWidth - el.clientWidth}px wider than the button`);
+    if (text2 && text2.length <= 24 && oneLabel(el) && lines(el) > 1) add2("warn", "button label wraps", text2, "a short label breaks onto two lines; give it white-space: nowrap or a wider button");
+    if (!named(el)) add2("warn", "button with no name", el.outerHTML.slice(0, 60), 'an icon-only control needs aria-label (screen readers say just "button")');
+    if (phone && (r2.height < 36 || r2.width < 36) && el.tagName !== "A") add2("warn", "tap target too small", text2 || el.tagName.toLowerCase(), `${Math.round(r2.width)}x${Math.round(r2.height)}px; 44px is comfortable, 36px the least`);
+    const own2 = parse3(cs.backgroundColor);
+    const parentBg = el.parentElement ? behind(el.parentElement) : null;
+    if (el.tagName === "BUTTON" && text2 && own2 && own2.a > 0.9 && parentBg && ratio(own2, parentBg) < 1.08 && !(parseFloat(cs.borderTopWidth) > 0) && cs.boxShadow === "none" && parseFloat(cs.paddingLeft) >= 12)
+      add2("warn", "button doesn't look like a button", text2, "its fill is the colour of the surface and it has no border or shadow");
+    if (own2 && own2.a > 0.5 && text2) fills.set(`${Math.round(own2.r)},${Math.round(own2.g)},${Math.round(own2.b)}|${cs.borderRadius}`, text2);
+    if (own2 && own2.a > 0.8 && [[99, 102, 241], [79, 70, 229], [67, 56, 202], [124, 58, 237], [139, 92, 246], [147, 51, 234], [168, 85, 247]].some(([R, G, B]) => Math.abs(own2.r - R) + Math.abs(own2.g - G) + Math.abs(own2.b - B) < 24))
+      add2("warn", "default indigo button", text2, "Tailwind's indigo/violet: the colour of every AI-made page. Use the brand's own action colour");
+  }
+  const filled = [...fills.keys()].length;
+  if (filled > 4) add2("warn", "too many button styles", [...fills.values()].slice(0, 4).join(" / "), `${filled} different filled button styles (fill x radius); one primary, one secondary`);
+  for (const [t2, n4] of labels) if (n4 >= 4 && t2.length > 2) add2("warn", "same button everywhere", t2, `"${t2}" appears on ${n4} buttons: each section's action can say what it does there`);
+  const dead = [...document.querySelectorAll("a")].filter(visible).filter((a2) => {
+    const h = (a2.getAttribute("href") || "").trim();
+    if (!a2.hasAttribute("href")) return false;
+    if (a2.hasAttribute("aria-haspopup") || a2.hasAttribute("aria-expanded") || a2.getAttribute("role") === "button") return false;
+    return h === "#" || h === "" || /^javascript:/i.test(h);
+  });
+  const deadStyled = dead.filter((a2) => styled.includes(a2));
+  if (deadStyled.length) add2("block", "dead button", deadStyled.slice(0, 4).map(label).join(", "), `${deadStyled.length} button-styled link(s) go nowhere (href="#"): link them to the page, section or sign-up they promise`);
+  else if (dead.length >= 3) add2("warn", "dead links", dead.slice(0, 4).map(label).join(", "), `${dead.length} links go nowhere (href="#")`);
+  let stretched = 0, broken = 0, noAlt = 0;
+  for (const img of [...document.querySelectorAll("img")].filter(visible)) {
+    if (img.complete && img.naturalWidth === 0) {
+      if (broken++ < 3) add2("block", "broken image", img.getAttribute("src") || "", "the picture didn't load: a broken frame on the page");
+      continue;
+    }
+    if (!img.hasAttribute("alt")) noAlt++;
+    const cs = getComputedStyle(img);
+    if (img.naturalWidth && img.naturalHeight && cs.objectFit === "fill") {
+      const r2 = img.getBoundingClientRect();
+      const d = r2.width / r2.height / (img.naturalWidth / img.naturalHeight);
+      if ((d > 1.06 || d < 0.94) && r2.width > 40 && stretched++ < 3) add2("block", "stretched image", img.getAttribute("src") || "", `drawn at ${Math.round(r2.width)}x${Math.round(r2.height)} but it is ${img.naturalWidth}x${img.naturalHeight}: squashed. Use object-fit: cover or its own aspect ratio`);
+    }
+  }
+  if (noAlt >= 3) add2("warn", "images without alt", "", `${noAlt} pictures have no alt attribute (alt="" for decoration)`);
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const placeholders = /* @__PURE__ */ new Set();
+  let n3, oldYear = null, emoji3 = 0;
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
+  while (n3 = walker.nextNode()) {
+    const t2 = n3.textContent;
+    if (!t2.trim() || !n3.parentElement || /^(SCRIPT|STYLE|NOSCRIPT|CODE|PRE|TEXTAREA)$/.test(n3.parentElement.tagName) || !visible(n3.parentElement)) continue;
+    const m = t2.match(/\b(lorem ipsum|dolor sit amet|acme (corp|inc|co)\b|john doe|jane doe|company name here|insert [a-z]+ here)\b|\bTODO:|\[[A-Za-z][^\]\n]{1,28}\]|\{\{[^}]+\}\}/i);
+    if (m && placeholders.size < 6) placeholders.add(m[0]);
+    const y2 = t2.match(/(?:©|&copy;|copyright)\s*(?:\d{4}\s*[-–]\s*)?(20\d\d)|(20\d\d)\s*©/i);
+    if (y2 && +(y2[1] || y2[2]) < year) oldYear = y2[0];
+    if (new RegExp("\\p{Extended_Pictographic}", "u").test(t2) && n3.parentElement.closest("h1, h2, h3, button, a, nav, li")) emoji3++;
+  }
+  if (placeholders.size) add2("block", "placeholder copy", [...placeholders].join(", "), "template words still on the page; write the client's real words, or leave the slot visibly empty for them");
+  if (oldYear) add2("warn", "old year in the footer", oldYear, `the copyright line says a past year (it is ${year})`);
+  if (emoji3 >= 2) add2("warn", "emoji as icons", "", `${emoji3} headings, buttons or nav items carry emoji: use one icon set (icons_search)`);
+  const gradText = [...document.querySelectorAll("h1, h2, h3, span, p, a")].filter((el) => visible(el) && /text/.test(getComputedStyle(el).webkitBackgroundClip + getComputedStyle(el).backgroundClip) && /gradient/.test(getComputedStyle(el).backgroundImage));
+  if (gradText.length > 1) add2("warn", "gradient text", gradText.slice(0, 3).map((e2) => e2.innerText).join(" / "), `${gradText.length} gradient-filled words: once on the page at most, and only with a reason`);
+  let lowBody = 0;
+  for (const p2 of [...document.querySelectorAll("p, li")].filter(visible)) {
+    if ((p2.innerText || "").trim().length < 30) continue;
+    const words3 = holder(p2);
+    const fg = ink2(words3), bg = behind(words3);
+    if (!fg || !bg) continue;
+    const c3 = ratio(over(fg, bg), bg);
+    if (c3 < 4.5 && lowBody++ < 3) add2(c3 < 3 ? "block" : "warn", "low-contrast text", p2.innerText, `contrast ${c3.toFixed(2)}:1 (body text needs 4.5:1)`);
+  }
+  const paras = [...document.querySelectorAll("p")].filter((p2) => visible(p2) && (p2.innerText || "").length > 60);
+  const centred = paras.filter((p2) => getComputedStyle(p2).textAlign === "center").length;
+  if (paras.length >= 6 && centred / paras.length > 0.75) add2("warn", "everything centred", "", `${centred} of ${paras.length} paragraphs are centred: left-align running text; centre only short statements`);
+  let trios = 0;
+  for (const parent of document.querySelectorAll("section, div, ul")) {
+    const kids = [...parent.children].filter(visible);
+    if (kids.length < 3 || kids.length > 4) continue;
+    const rs = kids.map((k) => k.getBoundingClientRect());
+    const sameRow = rs.every((r2) => Math.abs(r2.top - rs[0].top) < 4 && Math.abs(r2.width - rs[0].width) < 6);
+    if (!sameRow || rs[0].width > W / 2.4) continue;
+    const shaped = kids.every((k) => k.querySelector("svg, img") && k.querySelector("h3, h4, strong") && k.querySelector("p"));
+    const iconSmall = kids.every((k) => {
+      const i2 = k.querySelector("svg, img");
+      return i2 && i2.getBoundingClientRect().width <= 64;
+    });
+    if (shaped && iconSmall) trios++;
+  }
+  if (trios) add2("warn", "icon-card row", "", `${trios} row(s) of identical cards, each an icon + heading + line: the stock AI feature grid. Show the feature itself (a screenshot, a demo, a number) instead`);
+  for (const h of [...document.querySelectorAll("p, span, h2, h3, h4, div")].filter((e2) => visible(e2) && /^(trusted|backed|used|loved|chosen) by|teams at|companies like/i.test((e2.innerText || "").trim()) && (e2.innerText || "").length < 80)) {
+    const row = h.nextElementSibling;
+    if (!row) continue;
+    const items = [...row.children].filter(visible);
+    if (items.length >= 4 && items.every((i2) => !i2.querySelector("img, svg") && !/^(IMG|SVG)$/.test(i2.tagName))) {
+      add2("warn", "logos are words", items.slice(0, 4).map((i2) => i2.innerText).join(", "), "the logo row is plain text: use the real logos (SVG), or drop the row");
+      break;
+    }
+  }
+  let hover = false, focus = false, sheetsRead = 0;
+  for (const sheet of document.styleSheets) {
+    let rules;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+    sheetsRead++;
+    const walk2 = (list4) => {
+      for (const r2 of list4) {
+        if (r2.selectorText) {
+          if (/:hover/.test(r2.selectorText)) hover = true;
+          if (/:focus/.test(r2.selectorText)) focus = true;
+        }
+        if (r2.cssRules) walk2(r2.cssRules);
+      }
+    };
+    walk2(rules);
+  }
+  if (sheetsRead && styled.length >= 2) {
+    if (!hover) add2("warn", "no hover states", "", "no :hover rule anywhere: buttons and links don't answer the mouse");
+    if (!focus) add2("warn", "no focus states", "", "no :focus or :focus-visible rule: keyboard users can't see where they are");
+  }
+  return out;
+}
+function judgeTells(tells = []) {
+  const blockers = [];
+  const warnings = [];
+  for (const t2 of tells) {
+    const line = `${t2.kind}${t2.text ? ` "${t2.text}"` : ""}: ${t2.detail}`;
+    (t2.sev === "block" ? blockers : warnings).push(t2.sev === "block" ? `broken: ${line}` : line);
+  }
+  return { blockers, warnings };
+}
+
+// src/core/cdp.mjs
+var TELLS = `(${aiTellsInPage.toString()})()`;
 var AUDIT = `(() => {
   const vw = innerWidth, vh = innerHeight;
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
@@ -101071,6 +101352,7 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
     audit.overlayLeft = await run4(OVERLAY_PROBE) || [];
     audit.covered = await run4(COVERED, true) || [];
     audit.type = await run4(TYPE_CHECK) || [];
+    audit.tells = await run4(TELLS) || [];
     if (brand) audit.brand = await run4(BRAND);
     if (shots) await new Promise((r2) => setTimeout(r2, 150));
     const total = Math.min(audit.height, 3e4);
@@ -101177,6 +101459,9 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   if (bigGaps.length) warnings.push(`${bigGaps.length} empty stretch(es) taller than a screen: ${bigGaps.map(([t2, b]) => `${t2}-${b}px`).join(", ")}`);
   if (a2.media === 0) (persuade ? blockers : warnings).push("no images, video or illustration anywhere on the page");
   if (a2.skeletons > 2) warnings.push(`${a2.skeletons} loading placeholders (skeleton/spinner) still visible: this shot may show a loading state, not the page`);
+  const tells = judgeTells(a2.tells);
+  blockers.push(...tells.blockers);
+  warnings.push(...tells.warnings);
   return { blockers, warnings };
 }
 function formatAudit(a2, j) {
@@ -102175,7 +102460,7 @@ function roles(palette2) {
   return { ground, ink: ink2, accent, support: rest[0] || accent, onAccent, all: p2 };
 }
 var COMP = { width: 1440, height: 1e3 };
-function tileHtml(direction, { brand, headline, body, cta }) {
+function tileHtml(direction, { brand, headline, body, cta: cta2 }) {
   const f3 = fonts(direction.type);
   const r2 = roles(direction.palette || []);
   const layout = direction.layout || "split";
@@ -102213,7 +102498,7 @@ p{font-size:21px;line-height:1.45;max-width:36ch;margin:0 0 32px}
   ${layout === "bleed" ? pic : ""}
   <nav style="position:relative;z-index:1"><b>${esc2(brand)}</b><div><span>Work</span><span>About</span><span>Contact</span></div></nav>
   <div class="hero">
-    <div class="copy"><h1>${esc2(headline)}</h1><p>${esc2(body)}</p><span class="act">${esc2(cta)}</span></div>
+    <div class="copy"><h1>${esc2(headline)}</h1><p>${esc2(body)}</p><span class="act">${esc2(cta2)}</span></div>
     ${layout === "split" ? pic : ""}
   </div>
   ${layout === "type" ? pic : ""}
@@ -103160,7 +103445,7 @@ ${lines.join("\n")}`
     "board_choose",
     {
       title: "Choose the direction",
-      description: "Lock in the direction the user picked (or the one you pick, with the reason, if they told you to decide). Unlocks building. Next: the system (DESIGN.md + tokens). On the project's master board this is also the approval of the project's identity (kept across tasks and sessions); pass approved: false if you chose on the user's behalf and they haven't said yes. When the project already has an approved direction, a different one is a redesign: it is stored as a proposal and the approved one stays until the user says yes (then approved: true, or board_update with style.promote).",
+      description: "Lock in the direction the user picked (or the one you pick, with the reason, if they told you to decide). Unlocks building. Next: the tokens (DESIGN.md only when the user asks, after approving the design). On the project's master board this is also the approval of the project's identity (kept across tasks and sessions); pass approved: false if you chose on the user's behalf and they haven't said yes. When the project already has an approved direction, a different one is a redesign: it is stored as a proposal and the approved one stays until the user says yes (then approved: true, or board_update with style.promote).",
       inputSchema: { direction: external_exports.string(), reason: external_exports.string(), board: external_exports.string().optional(), approved: external_exports.boolean().optional().describe("true: the user approved it. Default true, except in redesign mode where a change needs an explicit true") }
     },
     safe(async ({ direction, reason, board: bid, approved }) => {
@@ -103210,7 +103495,7 @@ ${lines.join("\n")}`
         `${note}${status}Direction locked: "${d.name}" \u2014 ${d.summary}
 Adjectives: ${d.adjectives.join(", ")} \xB7 Palette: ${d.palette.join(" ")} \xB7 Type: ${d.type}
 
-` + (task?.mode === "logo" ? "NEXT: refine the chosen concept in black first, then logo_test, then the critic." : "NEXT: the DESIGN SYSTEM, now that the direction is approved. drip_kit (tokens), fill in the faces (fonts_compare with the real headline) and colour roles (palette_check), write DESIGN.md, drip_mark system. " + (bigProject() ? 'This project is big (several pages, an app, or many components): also drip_kit({ template: "system" }) and fill the living system page (type roles, colours, spacing, buttons, inputs, cards, the signature components) so every later page builds from it. ' : 'When the project grows past one page, offer the user a living system page (drip_kit template "system"). ') + "Then board_plan the page by what matters (what will the user be excited to see?): each section's form, the move it takes from a studied reference, its picture source, two or three eye-candy moments; get the parts (components_find, the picture tools); build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook:\n\n" + buildHalf)
+` + (task?.mode === "logo" ? "NEXT: refine the chosen concept in black first, then logo_test, then the critic." : "NEXT: the DESIGN SYSTEM, now that the direction is approved. drip_kit (tokens), fill in the faces (fonts_compare with the real headline) and colour roles (palette_check) in the page's tokens, drip_mark system (no DESIGN.md until the user asks for one). " + (bigProject() ? 'This project is big (several pages, an app, or many components): also drip_kit({ template: "system" }) and fill the living system page (type roles, colours, spacing, buttons, inputs, cards, the signature components) so every later page builds from it. ' : 'When the project grows past one page, offer the user a living system page (drip_kit template "system"). ') + "Then board_plan the page by what matters (what will the user be excited to see?): each section's form, the move it takes from a studied reference, its picture source, two or three eye-candy moments; get the parts (components_find, the picture tools); build the hero FIRST (fitcheck_shot hero: true). The build half of the playbook:\n\n" + buildHalf)
       );
     })
   );
@@ -108143,7 +108428,7 @@ Judge: which one would a stranger remember? What does the winner do that the oth
       const jpg = await renderHtml(html, `${base}.jpg`, { width: 1600, height: 1e3, format: "jpeg", quality: 88, config: config2 });
       const doc = designDoc();
       return blocks([
-        textBlock(`Saved ${base}.html and ${base}.jpg.${doc ? "" : ' No DESIGN.md yet: drip_kit({ template: "design-md" }) and write the same palette and type into it.'}
+        textBlock(`Saved ${base}.html and ${base}.jpg.${doc ? "" : ""}
 Check: does the mark hold on its ground? Do the shares feel like the direction (one committed colour, not five equal chips)? Is the display face doing work at 150px?`),
         imageBlock(jpg)
       ]);
@@ -108199,7 +108484,7 @@ function unusedPieces(task, root = projectDir()) {
 }
 
 // src/modules/fitcheck/index.mjs
-var isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
+var isHard = (b) => /(^|: )broken:|not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
 var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 function register22(server2, ctx2) {
   register21(server2, ctx2);
@@ -108932,7 +109217,7 @@ var isLight2 = (c3) => {
   const n3 = parseInt(m[1], 16);
   return 0.2126 * (n3 >> 16 & 255) + 0.7152 * (n3 >> 8 & 255) + 0.0722 * (n3 & 255) > 215;
 };
-var mono = (svg, ink2, ground) => svg.replace(/<(linear|radial)Gradient[\s\S]*?<\/\1Gradient>/g, "").replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr, c3) => `${attr}="${isLight2(c3.trim()) ? ground : ink2}"`).replace(/(fill|stroke)\s*:\s*(?!none)([^;"']+)/g, (_, attr, c3) => `${attr}:${isLight2(c3.trim()) ? ground : ink2}`).replace(/currentColor/g, ink2).replace(/<svg([^>]*)>/, (m, a2) => /\sfill=/.test(a2) ? m : `<svg${a2} fill="${ink2}">`);
+var mono = (svg, ink2, ground) => svg.replace(/<(linear|radial)Gradient[\s\S]*?<\/\1Gradient>/g, "").replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr2, c3) => `${attr2}="${isLight2(c3.trim()) ? ground : ink2}"`).replace(/(fill|stroke)\s*:\s*(?!none)([^;"']+)/g, (_, attr2, c3) => `${attr2}:${isLight2(c3.trim()) ? ground : ink2}`).replace(/currentColor/g, ink2).replace(/<svg([^>]*)>/, (m, a2) => /\sfill=/.test(a2) ? m : `<svg${a2} fill="${ink2}">`);
 function pathStats(svg) {
   const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
   return paths.map((d, i2) => {
@@ -111724,6 +112009,7 @@ ${r2.asMaster ? "This is now the project's design memory: project_context shows 
 // src/modules/inspire/index.mjs
 var inspire_exports = {};
 __export(inspire_exports, {
+  ROUTES: () => ROUTES,
   defaultSources: () => defaultSources,
   interleave: () => interleave,
   register: () => register29,
@@ -111770,6 +112056,287 @@ var arena = {
     return parseArena(await res.json()).slice(0, limit);
   }
 };
+
+// src/modules/inspire/providers/design-galleries.mjs
+var day = (s2) => /^\d{4}-\d{2}-\d{2}/.test(s2 || "") ? s2.slice(0, 10) : void 0;
+var attr = (chunk2, name) => chunk2.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
+var titleCase = (slug6) => String(slug6 || "").split("-").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+function parseGetDesign(json2) {
+  let list4;
+  try {
+    list4 = typeof json2 === "string" ? JSON.parse(json2) : json2;
+  } catch {
+    return [];
+  }
+  const out = [];
+  for (const d of Array.isArray(list4) ? list4 : []) {
+    if (!d?.id || d.sponsored || !d.src) continue;
+    const palette2 = (d.info?.palette || []).map((p2) => p2?.[0]).filter((c3) => /^#[0-9a-f]{3,8}$/i.test(c3 || "")).slice(0, 8);
+    out.push(
+      makeItem("getdesign", {
+        id: d.id,
+        title: d.t || d.id,
+        url: `https://getdesign.ai/#design/${encodeURIComponent(d.id)}`,
+        image: abs(d.src, "https://getdesign.ai"),
+        author: d.by,
+        tags: [...d.tags || [], d.c].filter(Boolean),
+        kind: "design-md",
+        live: d.url || void 0,
+        description: d.desc || void 0,
+        ...palette2.length ? { palette: palette2 } : {},
+        ...d.pro ? { pro: true } : {},
+        ...d.post ? { post: d.post } : {}
+      })
+    );
+  }
+  return out;
+}
+var getdesign = {
+  id: "getdesign",
+  label: "getdesign.ai",
+  kinds: ["section", "site"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parseGetDesign(await getHtml("https://getdesign.ai/api/designs", config2)), query).slice(0, limit);
+  }
+};
+function parsePostsDesign(html) {
+  const out = [];
+  for (const chunk2 of html.split("<article data-item-id=").slice(1)) {
+    const id = chunk2.match(/^"([^"]+)"/)?.[1];
+    const href = attr(chunk2, "data-detail-href");
+    const image2 = chunk2.match(/<img width="\d+" height="\d+"[^>]*?\ssrc="([^"]+)"/)?.[1];
+    const cap = chunk2.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/)?.[1];
+    if (!id || !href || !image2 || !cap) continue;
+    const parts = strip(cap.replace(/<!--[\s\S]*?-->/g, "")).replace(/\.\s*Captured\s*\S*\.?\s*$/, "").split(" \xB7 ").map((s2) => s2.trim()).filter(Boolean);
+    const [title, brand, ...rest] = parts;
+    out.push(
+      makeItem("posts", {
+        id,
+        title,
+        url: abs(href, "https://posts.design"),
+        image: abs(image2, "https://posts.design"),
+        author: brand,
+        tags: rest.filter((t2) => !t2.startsWith("@")),
+        kind: "social",
+        postedAt: day(chunk2.match(/<time dateTime="([^"]+)"/)?.[1])
+      })
+    );
+  }
+  return out;
+}
+var posts = {
+  id: "posts",
+  label: "posts.design",
+  kinds: ["image"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parsePostsDesign(await getHtml("https://posts.design/", config2)), query).slice(0, limit);
+  }
+};
+function parseLoadmore(html) {
+  const out = [];
+  for (const chunk2 of html.split('<div class="post">').slice(1)) {
+    const slug6 = chunk2.match(/href="https?:\/\/loadmo\.re\/posts\/([^"/]+)"/)?.[1];
+    const image2 = chunk2.match(/background-image:\s*url\(([^)]+)\)/)?.[1];
+    const name = chunk2.match(/class="post-sitename">([\s\S]*?)<\/p>/)?.[1];
+    if (!slug6 || !image2 || !name) continue;
+    const credit = chunk2.match(/class="post-credits">([\s\S]*?)<\/p>/)?.[1] || "";
+    const studio = strip(credit).replace(/^by\s+/i, "");
+    out.push(
+      makeItem("loadmore", {
+        id: slug6,
+        title: strip(name),
+        url: `https://loadmo.re/posts/${slug6}`,
+        image: abs(image2.replace(/^['"]|['"]$/g, ""), "https://loadmo.re"),
+        author: studio || "loadmo.re",
+        tags: ["mobile"],
+        kind: "mobile",
+        live: credit.match(/href="(https?:[^"]+)"/)?.[1]
+      })
+    );
+  }
+  return out;
+}
+var loadmore = {
+  id: "loadmore",
+  label: "loadmo.re",
+  kinds: ["site"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parseLoadmore(await getHtml("https://loadmo.re/", config2)), query).slice(0, limit);
+  }
+};
+function parseRecentDesign(html) {
+  const out = [];
+  for (const chunk2 of html.split("<article").slice(1)) {
+    if (!/data-slot="feed-media-card"/.test(chunk2)) continue;
+    const label = chunk2.match(/aria-label="View post: ([^"]*)"/)?.[1];
+    const href = chunk2.match(/href="(\/i\/[^"]+)"/)?.[1];
+    const image2 = chunk2.match(/<img[^>]*\ssrc="(https:\/\/cdn\.recent\.design\/items\/[^"]+)"/)?.[1];
+    if (!label || !href || !image2) continue;
+    const author = chunk2.match(/<img[^>]*\ssrc="https:\/\/cdn\.recent\.design\/entities\/[^"]*"[^>]*?\salt="([^"]*)"/)?.[1];
+    out.push(makeItem("recentdesign", { id: href.replace(/^\/i\//, ""), title: label, url: abs(href, "https://recent.design"), image: image2, author: author || "recent.design", tags: ["recent", "ui"], kind: "motion" }));
+  }
+  return out;
+}
+var recentdesign = {
+  id: "recentdesign",
+  label: "recent.design",
+  kinds: ["motion"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parseRecentDesign(await getHtml("https://recent.design/", config2)), query).slice(0, limit);
+  }
+};
+function parse60fps(html) {
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  const re = /<a [^>]*href="\.\/shots\/([a-z0-9-]+)"[^>]*>\s*<div[^>]*>\s*<p[^>]*>([^<]+)<\/p>/g;
+  let m;
+  while (m = re.exec(html)) {
+    const [, slug6, title] = m;
+    if (seen.has(slug6) || slug6 === "filter" || slug6 === "watch") continue;
+    const before = html.slice(Math.max(0, m.index - 12e3), m.index);
+    const poster = [...before.matchAll(/poster="([^"]+)"/g)].pop()?.[1];
+    if (!poster) continue;
+    seen.add(slug6);
+    const app = [...before.matchAll(/href="\.\/apps\/([a-z0-9-]+)"/g)].pop()?.[1];
+    out.push(
+      makeItem("fps60", {
+        id: slug6,
+        title: strip(title),
+        url: `https://60fps.design/shots/${slug6}`,
+        image: abs(poster, "https://60fps.design"),
+        author: app ? titleCase(app) : "60fps",
+        tags: ["motion", "ios", ...app ? [app] : []],
+        kind: "motion"
+      })
+    );
+  }
+  return out;
+}
+var fps60 = {
+  id: "fps60",
+  label: "60fps.design",
+  kinds: ["motion"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parse60fps(await getHtml("https://60fps.design/", config2)), query).slice(0, limit);
+  }
+};
+function parseSupahero(html) {
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  const re = /<a [^>]*href="\/hero\/([^"]+)"[^>]*>\s*<div[^>]*>\s*<img src="([^"]+)" alt="([^"]*)"/g;
+  let m;
+  while (m = re.exec(html)) {
+    const [, slug6, image2, alt] = m;
+    if (seen.has(slug6)) continue;
+    seen.add(slug6);
+    out.push(makeItem("supahero", { id: slug6, title: alt || titleCase(slug6), url: `https://supahero.io/hero/${slug6}`, image: abs(image2, "https://supahero.io"), author: "supahero.io", tags: ["hero"], kind: "hero" }));
+  }
+  return out;
+}
+var supahero = {
+  id: "supahero",
+  label: "Supahero",
+  kinds: ["section"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parseSupahero(await getHtml("https://supahero.io/", config2)), query).slice(0, limit);
+  }
+};
+function parseNavbarGallery(html) {
+  const out = [];
+  for (const chunk2 of html.split('<div class="card" data-slug=').slice(1)) {
+    const slug6 = chunk2.match(/^"([^"]+)"/)?.[1];
+    const image2 = chunk2.match(/<img src="(https:\/\/cdn\.navbar\.gallery\/[^"]+)"/)?.[1];
+    if (!slug6 || !image2) continue;
+    const title = chunk2.match(/aria-label="([^"]*)"\s+data-file/)?.[1] || titleCase(slug6);
+    const site = attr(chunk2, "data-site");
+    out.push(
+      makeItem("navbar", {
+        id: slug6,
+        title,
+        url: `https://www.navbar.gallery/navbar/${slug6}`,
+        image: image2,
+        author: slug6,
+        tags: ["navbar", ...String(attr(chunk2, "data-types") || "").split(/[|,]/), ...decode4(attr(chunk2, "data-styles") || "").split("|"), attr(chunk2, "data-platform")].filter(Boolean),
+        kind: "nav",
+        live: site || void 0
+      })
+    );
+  }
+  return out;
+}
+var navbar = {
+  id: "navbar",
+  label: "Navbar Gallery",
+  kinds: ["section"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parseNavbarGallery(await getHtml("https://www.navbar.gallery/", config2)), query).slice(0, limit);
+  }
+};
+function parseCtaGallery(html) {
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  const re = /<a [^>]*href="\.\/cta\/([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
+  let m;
+  while (m = re.exec(html)) {
+    const [, slug6, inner] = m;
+    if (seen.has(slug6)) continue;
+    const image2 = [...inner.matchAll(/<img[^>]*?\swidth="(\d+)"[^>]*?\ssrc="([^"]+)"/g)].find((x2) => Number(x2[1]) >= 300)?.[2];
+    const title = strip(inner);
+    if (!image2 || !title) continue;
+    seen.add(slug6);
+    out.push(makeItem("cta", { id: slug6, title, url: `https://www.cta.gallery/cta/${slug6}`, image: abs(image2, "https://www.cta.gallery"), author: title, tags: ["cta"], kind: "cta" }));
+  }
+  return out;
+}
+var cta = {
+  id: "cta",
+  label: "cta.gallery",
+  kinds: ["section"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parseCtaGallery(await getHtml("https://www.cta.gallery/", config2)), query).slice(0, limit);
+  }
+};
+function parseInspora(html) {
+  const out = [];
+  for (const chunk2 of html.split("<article").slice(1)) {
+    const path84 = attr(chunk2, "data-feed-post-pathname");
+    const title = attr(chunk2, "data-feed-post-title");
+    const media = chunk2.match(/<(?:video|img)\s[^>]*data-feed-transition-media[^>]*>/)?.[0] || "";
+    const poster = attr(media, "poster") || attr(media, "src");
+    if (!path84 || !title || !poster) continue;
+    out.push(
+      makeItem("inspora", {
+        id: path84.replace(/^\/posts\//, "") || slugify2(title),
+        title,
+        url: abs(path84, "https://www.inspora.design"),
+        image: abs(poster, "https://www.inspora.design"),
+        author: attr(chunk2, "data-feed-creator-name"),
+        tags: ["visual"],
+        kind: "site",
+        description: strip(attr(media, "aria-label") || attr(media, "alt") || "") || void 0
+      })
+    );
+  }
+  return out;
+}
+var inspora = {
+  id: "inspora",
+  label: "Inspora",
+  kinds: ["site"],
+  status: "feed",
+  async search(query, { limit = 24, config: config2 }) {
+    return rankByQuery(parseInspora(await getHtml("https://www.inspora.design/", config2)), query).slice(0, limit);
+  }
+};
+var providers2 = [getdesign, posts, loadmore, recentdesign, fps60, supahero, navbar, cta, inspora];
 
 // src/modules/inspire/providers/galleries.mjs
 var q = encodeURIComponent;
@@ -111818,9 +112385,9 @@ var awwwards = {
     return (found.length && same / found.length > 0.6 ? found.map((i2) => ({ ...i2, feed: true })) : found).slice(0, limit);
   }
 };
-function parseMinimalGallery(posts) {
+function parseMinimalGallery(posts2) {
   const out = [];
-  for (const p2 of Array.isArray(posts) ? posts : []) {
+  for (const p2 of Array.isArray(posts2) ? posts2 : []) {
     const media = p2._embedded?.["wp:featuredmedia"]?.[0];
     const image2 = media?.media_details?.sizes?.large?.source_url || media?.source_url;
     if (!image2 || !p2.link) continue;
@@ -111902,7 +112469,7 @@ var godly = {
     return rankByQuery(parseGodly(await getHtml("https://godly.website/", config2)), query).slice(0, limit);
   }
 };
-var providers2 = [awwwards, minimalgallery, httpster, darkmode, godly];
+var providers3 = [awwwards, minimalgallery, httpster, darkmode, godly];
 
 // src/modules/inspire/providers/onepagelove.mjs
 var ENDPOINT = "https://api.onepagelove.com/mcp";
@@ -112056,7 +112623,7 @@ var twentyfirst = {
 };
 
 // src/modules/inspire/providers/index.mjs
-var list3 = [...providers2.filter((p2) => ["awwwards", "minimalgallery"].includes(p2.id)), onepagelove, twentyfirst, arena, ...providers2.filter((p2) => ["httpster", "darkmode", "godly"].includes(p2.id))];
+var list3 = [...providers3.filter((p2) => ["awwwards", "minimalgallery"].includes(p2.id)), onepagelove, twentyfirst, arena, ...providers3.filter((p2) => ["httpster", "darkmode", "godly"].includes(p2.id)), ...providers2];
 var allProviders = () => [...list3];
 var getProvider = (id) => list3.find((p2) => p2.id === id || p2.id === String(id).toLowerCase().replace(/[^a-z0-9]/g, ""));
 var NOT_USABLE = [
@@ -112103,6 +112670,16 @@ function rankEntries(entries, { stack = [], fit: fit2 = [], category } = {}) {
 var KINDS4 = ["site", "section", "component", "motion", "image"];
 var recent = /* @__PURE__ */ new Map();
 var NEXT = 'NEXT: the sheet is for choosing. refs_pick the 2-5 that solve THIS brief (tagged numbers like "L3-7", one reason each), then refs_view them and refs_study with values. Sites here are shipped work (good evidence for Operate and Read surfaces); components and sections are for behaviour and structure: build your own version, take one move, never the whole.';
+var ROUTES = {
+  hero: ["supahero", "onepagelove"],
+  nav: ["navbar"],
+  cta: ["cta"],
+  mobile: ["loadmore"],
+  social: ["posts"],
+  motion: ["fps60", "godly", "recentdesign"],
+  "design-md": ["getdesign"],
+  fresh: ["recentdesign", "inspora", "godly"]
+};
 function defaultSources(kind) {
   return allProviders().filter((p2) => p2.kinds.includes(kind) && p2.status === "works" && (!p2.needsKey || (p2.id === "arena" ? token() : true)));
 }
@@ -112155,17 +112732,19 @@ function register29(server2, ctx2) {
     "refs_gallery",
     {
       title: "Search design galleries",
-      description: 'Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Land-book, Lapa Ninja, Minimal Gallery, 21st.dev (components), and feeds (Httpster, Dark Mode Design, Godly). Returns a numbered list AND a contact sheet; the numbers work in refs_pick, refs_view, refs_study and board_add. Without `source` it asks every working source for that kind and mixes the results. kind: site (default: shipped pages), section (pricing tables, FAQs, footers... One Page Love), component (21st.dev), motion (Godly). Example: refs_gallery({ query: "fintech dashboard dark", limit: 24 }) or refs_gallery({ source: "onepagelove", kind: "section", query: "pricing table" }). refs_sources shows what each source is good for and whether it works right now.',
+      description: 'Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Minimal Gallery, 21st.dev (components), feeds (Httpster, Dark Mode Design, Godly), and libraries of one thing reached with need: hero (Supahero), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps), design-md (getdesign.ai), fresh (Recent.design, Inspora). For one part of the page, pass need: it is the quickest way to the best examples of exactly that. Returns a numbered list AND a contact sheet; the numbers work in refs_pick, refs_view, refs_study and board_add. Without `source` it asks every working source for that kind and mixes the results. kind: site (default: shipped pages), section (pricing tables, FAQs, footers... One Page Love), component (21st.dev), motion (Godly). Example: refs_gallery({ query: "fintech dashboard dark", limit: 24 }) or refs_gallery({ source: "onepagelove", kind: "section", query: "pricing table" }). refs_sources shows what each source is good for and whether it works right now.',
       inputSchema: {
         query: external_exports.string().optional().describe(`1-3 words naming WHAT the product is: "coffee", "ai tool", "gaming", "fintech". Not the task sentence, not the client's domain. Empty = the source's latest`),
         source: external_exports.union([external_exports.string(), external_exports.array(external_exports.string())]).optional().describe('One id or several ("awwwards", ["landbook", "lapaninja"]) or "all". See refs_sources'),
         kind: external_exports.enum(KINDS4).optional().describe("What to look for (default site)"),
+        need: external_exports.enum(Object.keys(ROUTES)).optional().describe("The one thing you need, routed to the gallery made for it: hero (Supahero, One Page Love), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps, Godly, Recent), design-md (getdesign.ai), fresh (Recent.design, Inspora, Godly: this month's best). Their latest picks count even without a subject match"),
         limit: external_exports.number().int().min(4).max(48).optional().describe("Items on the sheet (default 24)"),
         page: external_exports.number().int().min(1).max(20).optional(),
         sheet: external_exports.boolean().optional().describe("Include the contact sheet image (default true)")
       }
     },
-    safe(async ({ query: asked = "", source, kind = "site", limit = 12, page: page2 = 1, sheet = true }) => {
+    safe(async ({ query: asked = "", source, kind = "site", need, limit = 12, page: page2 = 1, sheet = true }) => {
+      if (need && !source) source = ROUTES[need];
       const words3 = subjectWords(asked);
       if (asked.trim() && !words3.length)
         return text(
@@ -112190,8 +112769,9 @@ function register29(server2, ctx2) {
           }
         })
       );
-      const dropped = query ? results.reduce((n3, r2) => n3 + r2.items.filter((i2) => i2.feed).length, 0) : 0;
-      const items = interleave(results.map((r2) => query ? r2.items.filter((i2) => !i2.feed) : r2.items), limit);
+      const strict = query && !need;
+      const dropped = strict ? results.reduce((n3, r2) => n3 + r2.items.filter((i2) => i2.feed).length, 0) : 0;
+      const items = interleave(results.map((r2) => strict ? r2.items.filter((i2) => !i2.feed) : [...r2.items.filter((i2) => !i2.feed), ...r2.items.filter((i2) => i2.feed)]), limit);
       const thin = query && items.length < Math.min(8, limit / 3);
       const notes = results.filter((r2) => r2.error).map((r2) => `${r2.p.label}: ${r2.error}`);
       const feedNote = results.filter((r2) => r2.p.status === "feed" && r2.items.length).map((r2) => r2.p.label);
@@ -115207,7 +115787,7 @@ The page runs while this command does. Press Ctrl+C to stop.`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.1";
+var VERSION = "0.9.2";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

@@ -22,7 +22,16 @@ Your own cooler, cleaner take on designs that are already proven: the pages peop
 | service (clinic, agency, studio) | photographs of the people, rooms and work | none |
 | place (cafe, shop, hotel) | 12-20 photographs of the place | none |
 
-Proven hero patterns: a glowing product mockup (the real UI in a rounded frame rising out of soft light), a fan of real output cards, a bento of live UI, a lit render on dark, a wall of real work, a character in a framed world.
+## The default look (unless the brief or the brand says otherwise)
+The house style, from the heroes the user saves (Slice, Closer, GrowthOS, Proposa, Operon, Solara, PeakPath, Slicker):
+- **A painted world or a field of light behind the hero.** A full-bleed painterly illustration, gouache or anime-film style, of a landscape whose mood fits the product: meadows and wildflowers, a waterfall in a green valley, mountains at golden hour, a blossoming tree against blue sky. When no world fits: a field of light instead (vertical aurora streaks, a soft glow on deep navy or forest green, a pale sky gradient). The picture carries the colour; never a flat colour block.
+- **A calm, large headline**, centred over the sky or set left: an elegant serif or a crisp grotesk, two lines, one word set in italic for the stress ("Sleep *better*", "while you *close deals*"). One or two quiet lines under it, muted.
+- **One rounded action**: a dark pill on a light picture, or a light or accent pill on a dark one; a quiet text link beside it at most.
+- **The product rising from the world**: for software, its real UI in a light rounded window coming up from the bottom edge of the hero, overlapping the painting.
+- **Then a muted logo row and air.** Minimal nav: the logo left, four or five links, one login or action right. Light, airy sections below with the picture's colours as accents.
+- Pictures for this: `art_generate` / `gen_image` (a painted landscape for the product's mood, no text in it), else `images_search` for painted landscape illustrations. Never stock photos of people at laptops. References: `refs_gallery({ need: "hero" })` and `need: "fresh"`.
+
+Proven hero patterns: a painted world with the product rising out of it, a glowing product mockup (the real UI in a rounded frame rising out of soft light), a fan of real output cards, a bento of live UI, a lit render on dark, a wall of real work, a character in a framed world.
 
 ## Look and colour
 - **Colour comes from the picture.** A calm ground (white, near-black or a soft tint), colour carried by the imagery, a soft light behind the hero picture, one accent on the action. Loud, drenched grounds only when the brief asks for loud.

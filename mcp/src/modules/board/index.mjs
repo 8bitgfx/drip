@@ -604,7 +604,7 @@ export function register(server, ctx) {
     {
       title: "Choose the direction",
       description:
-        "Lock in the direction the user picked (or the one you pick, with the reason, if they told you to decide). Unlocks building. Next: the system (DESIGN.md + tokens). " +
+        "Lock in the direction the user picked (or the one you pick, with the reason, if they told you to decide). Unlocks building. Next: the tokens (DESIGN.md only when the user asks, after approving the design). " +
         "On the project's master board this is also the approval of the project's identity (kept across tasks and sessions); pass approved: false if you chose on the user's behalf and they haven't said yes. " +
         "When the project already has an approved direction, a different one is a redesign: it is stored as a proposal and the approved one stays until the user says yes (then approved: true, or board_update with style.promote).",
       inputSchema: { direction: z.string(), reason: z.string(), board: z.string().optional(), approved: z.boolean().optional().describe("true: the user approved it. Default true, except in redesign mode where a change needs an explicit true") },
@@ -663,7 +663,7 @@ export function register(server, ctx) {
         `${note}${status}Direction locked: "${d.name}" — ${d.summary}\nAdjectives: ${d.adjectives.join(", ")} · Palette: ${d.palette.join(" ")} · Type: ${d.type}\n\n` +
           (task?.mode === "logo"
             ? "NEXT: refine the chosen concept in black first, then logo_test, then the critic."
-            : "NEXT: the DESIGN SYSTEM, now that the direction is approved. drip_kit (tokens), fill in the faces (fonts_compare with the real headline) and colour roles (palette_check), write DESIGN.md, drip_mark system. " +
+            : "NEXT: the DESIGN SYSTEM, now that the direction is approved. drip_kit (tokens), fill in the faces (fonts_compare with the real headline) and colour roles (palette_check) in the page's tokens, drip_mark system (no DESIGN.md until the user asks for one). " +
               (bigProject()
                 ? 'This project is big (several pages, an app, or many components): also drip_kit({ template: "system" }) and fill the living system page (type roles, colours, spacing, buttons, inputs, cards, the signature components) so every later page builds from it. '
                 : 'When the project grows past one page, offer the user a living system page (drip_kit template "system"). ') +

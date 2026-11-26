@@ -10,7 +10,7 @@ import { buildTaskMemory, hasMemory, projectContext } from "../core/project.mjs"
 import { writeProjectSkill } from "../core/memory.mjs";
 import { serveDir } from "../core/serve.mjs";
 import { warmBrowser } from "../core/browser.mjs";
-import { relevantSkills } from "../core/skills.mjs";
+import { designDoc, relevantSkills } from "../core/skills.mjs";
 import { getKey } from "../core/keys.mjs";
 import { text } from "../core/result.mjs";
 import { isProjectPack, matchPacks } from "../core/packs.mjs";
@@ -97,8 +97,8 @@ export function nextStep(task, config) {
     return task.mode === "logo"
       ? "NEXT: sketch 12-20 concepts and render them with logo_sheet."
       : PERSUADE(task.surface, task.mode)
-        ? "NEXT: drip_kit (copies kit/base.css), fill in faces and colours from the direction, write DESIGN.md (playbook P22), drip_mark system."
-        : "NEXT: write DESIGN.md + tokens from the chosen direction (drip_kit for the type roles and floor), then drip_mark system.";
+        ? "NEXT: drip_kit (copies kit/base.css), fill in faces and colours from the direction in the page's tokens, drip_mark system. No DESIGN.md: that is written only when the user asks, after they approve the design."
+        : "NEXT: tokens from the chosen direction (drip_kit for the type roles and floor), then drip_mark system. No DESIGN.md until the user asks for one.";
   if (PERSUADE(task.surface, task.mode) && task.size === "full" && !task.fitcheck?.heroPassedAt)
     return "NEXT: plan the sections (playbook P23), then build the nav + hero ONLY and run fitcheck_shot({ url, hero: true }). No section before the hero gate passes.";
   return "NEXT: build the sections in plan order. Then fitcheck_shot (the page gate), fix every blocker, the critic once (critic_prepare kind 'build' -> Agent drip:critic -> critic_record), one confirming round, fitcheck_done.";
@@ -280,6 +280,7 @@ export function register(server, ctx) {
         const kind = /\b(game|gaming)\b/i.test(task) ? "gaming" : /\b(hardware|device|gadget|controller|headphone|keyboard|drone|robot)\b/i.test(task) ? "tech" : /\b(cafe|café|bakery|restaurant|bar|hotel|shop|store|gym|salon|florist|guesthouse)\b/i.test(task) ? "place" : /\b(clinic|agency|studio|law|consult|dentist|architect)\b/i.test(task) ? "service" : /\b(saas|app|ai|platform|tool|api|dashboard|software|startup|fintech)\b/i.test(task) ? "software" : "product";
         return text(
           `Drip task started (task id ${t.id}): FAST LOOP, surface ${sf}, kind ${kind}. Ambition: polished (a cooler, cleaner take on proven designs; never "unique" for its own sake).\n` +
+            (!memCtx && !redesignUrl ? `LOOK: unless the brief or brand says otherwise, the default look in taste.md ("The default look"): a painted world or a field of light behind a calm, large headline with one italic word, one rounded action${sf === "app" ? "" : ", the product rising from the bottom of the hero"}. The deal's layout and type apply; take the palette from the picture.\n` : "") +
             (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}): never touch them.\n` : "") +
             (memCtx ? `PROJECT MEMORY (${t.memory.mode}): ${memCtx.text}\n` : "") +
             (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.\n` : "") +
@@ -294,7 +295,7 @@ export function register(server, ctx) {
             (swarmOn(config, t) && hostHasSubagents() ? "" : "This host has no Drip subagents: you build the sections yourself, in the same order.\n") +
             (ownedKits() === null ? `ONCE (alongside the first calls): ask which paid UI kits the user owns (AskUserQuestion, multiSelect: Aceternity Pro, Magic UI Pro, bencho Pro, Breeze UI, Tailark, efferd Pro, Skiper UI, shadcnblocks; or none), then drip_kits({ owned }).\n` : "") +
             `\nFIRST CALLS (one message):\n` +
-            `1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ query: "<the product kind> ${sf === "app" ? "app screen" : "landing hero"}" }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).\n` +
+            `1. refs_site({ urls: [3-4 shipped sites people compare this with, or the best in the category] })${redesignUrl ? " (the client's site goes in its own call with before: true)" : ""} and refs_gallery({ ${sf === "app" ? 'query: "<the product kind> app screen"' : 'need: "hero"'} }); when they are back, ONE refs_study of the 3 best (with motion: what hover, scroll and load do).\n` +
             `2. layout_deal({ kind: "${kind}", trade: "<what is sold>", has: [<ui|photo|object>], out: "<new page folder>"${sf === "app" ? ', surface: "app"' : ""} }).\n` +
             `3. Right after: ONE drip_execute that runs components_find for every section's need (the recipe is in "Code Mode" below), then ONE pieces_preview of the best.\n` +
             `Then the loop below from step 4 (build, check once).${t.whole ? " Build the whole page in this turn: the hero, its check, then every section; show the user the finished page." : " The user asked to see the hero first: stop after it and show it."}\n\n` +
@@ -364,7 +365,7 @@ export function register(server, ctx) {
       if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +
-          "Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then DESIGN.md and drip_mark system.",
+          "Use the classes (.display/h1, .statement, h2, h3, .lead, p, .small, .container, .grid, .button, .band, data-visual, .enter) instead of new sizes. Then drip_mark system (DESIGN.md only when the user asks for it).",
       );
     },
   );
@@ -565,7 +566,15 @@ export function register(server, ctx) {
           /* the skill is regenerated on the next approval */
         }
       }
-      return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}${film ? `\n${film}` : ""}`);
+      // The design system is the user's call, once the design is agreed: offer it, never write it unasked.
+      let offer = "";
+      try {
+        if (cur && !cur.skipped && cur.uiWrites?.length && ["design", "polish"].includes(cur.mode || "design") && !designDoc(undefined, cur))
+          offer = '\nNo design system yet. Once the user is happy with this design, ask once (AskUserQuestion): "Save this design as the project\'s design system (DESIGN.md)?" On yes: drip_kit({ template: "design-md" }) and fill it from the finished page (its palette, type, spacing, components and what it refuses). On no, leave it.';
+      } catch {
+        /* no page to look at: no offer */
+      }
+      return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}${film ? `\n${film}` : ""}${offer}`);
     },
   );
 }

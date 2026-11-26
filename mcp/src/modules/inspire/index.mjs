@@ -20,6 +20,18 @@ const NEXT =
   "NEXT: the sheet is for choosing. refs_pick the 2-5 that solve THIS brief (tagged numbers like \"L3-7\", one reason each), then refs_view them and refs_study with values. " +
   "Sites here are shipped work (good evidence for Operate and Read surfaces); components and sections are for behaviour and structure: build your own version, take one move, never the whole.";
 
+/** The best gallery for each need: a curated library of exactly that thing beats a search across everything. */
+export const ROUTES = {
+  hero: ["supahero", "onepagelove"],
+  nav: ["navbar"],
+  cta: ["cta"],
+  mobile: ["loadmore"],
+  social: ["posts"],
+  motion: ["fps60", "godly", "recentdesign"],
+  "design-md": ["getdesign"],
+  fresh: ["recentdesign", "inspora", "godly"],
+};
+
 /** Providers searched when `source` is not given: working ones for this kind (key-gated ones only with a key). */
 export function defaultSources(kind) {
   return allProviders().filter((p) => p.kinds.includes(kind) && p.status === "works" && (!p.needsKey || (p.id === "arena" ? arenaToken() : true)));
@@ -79,7 +91,8 @@ export function register(server, ctx) {
     {
       title: "Search design galleries",
       description:
-        "Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Land-book, Lapa Ninja, Minimal Gallery, 21st.dev (components), and feeds (Httpster, Dark Mode Design, Godly). " +
+        "Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Minimal Gallery, 21st.dev (components), feeds (Httpster, Dark Mode Design, Godly), and libraries of one thing reached with need: hero (Supahero), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps), design-md (getdesign.ai), fresh (Recent.design, Inspora). " +
+        "For one part of the page, pass need: it is the quickest way to the best examples of exactly that. " +
         "Returns a numbered list AND a contact sheet; the numbers work in refs_pick, refs_view, refs_study and board_add. Without `source` it asks every working source for that kind and mixes the results. " +
         "kind: site (default: shipped pages), section (pricing tables, FAQs, footers... One Page Love), component (21st.dev), motion (Godly). " +
         'Example: refs_gallery({ query: "fintech dashboard dark", limit: 24 }) or refs_gallery({ source: "onepagelove", kind: "section", query: "pricing table" }). ' +
@@ -88,12 +101,14 @@ export function register(server, ctx) {
         query: z.string().optional().describe("1-3 words naming WHAT the product is: \"coffee\", \"ai tool\", \"gaming\", \"fintech\". Not the task sentence, not the client's domain. Empty = the source's latest"),
         source: z.union([z.string(), z.array(z.string())]).optional().describe('One id or several ("awwwards", ["landbook", "lapaninja"]) or "all". See refs_sources'),
         kind: z.enum(KINDS).optional().describe("What to look for (default site)"),
+        need: z.enum(Object.keys(ROUTES)).optional().describe("The one thing you need, routed to the gallery made for it: hero (Supahero, One Page Love), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps, Godly, Recent), design-md (getdesign.ai), fresh (Recent.design, Inspora, Godly: this month's best). Their latest picks count even without a subject match"),
         limit: z.number().int().min(4).max(48).optional().describe("Items on the sheet (default 24)"),
         page: z.number().int().min(1).max(20).optional(),
         sheet: z.boolean().optional().describe("Include the contact sheet image (default true)"),
       },
     },
-    safe(async ({ query: asked = "", source, kind = "site", limit = 12, page = 1, sheet = true }) => {
+    safe(async ({ query: asked = "", source, kind = "site", need, limit = 12, page = 1, sheet = true }) => {
+      if (need && !source) source = ROUTES[need];
       // Galleries match the subject. A task sentence ("redesign vizzbees.com landing and main screen") matches nothing and
       // every source then answers with its latest posts: random references. Search the subject words, or say what's missing.
       const words = subjectWords(asked);
@@ -122,8 +137,10 @@ export function register(server, ctx) {
         }),
       );
       // With a query, only real matches: a source's latest posts are not references for this subject.
-      const dropped = query ? results.reduce((n, r) => n + r.items.filter((i) => i.feed).length, 0) : 0;
-      const items = interleave(results.map((r) => (query ? r.items.filter((i) => !i.feed) : r.items)), limit);
+      // A curated library of one thing (need) is good evidence even unmatched: keep its latest picks, matches first.
+      const strict = query && !need;
+      const dropped = strict ? results.reduce((n, r) => n + r.items.filter((i) => i.feed).length, 0) : 0;
+      const items = interleave(results.map((r) => (strict ? r.items.filter((i) => !i.feed) : [...r.items.filter((i) => !i.feed), ...r.items.filter((i) => i.feed)])), limit);
       const thin = query && items.length < Math.min(8, limit / 3);
       const notes = results.filter((r) => r.error).map((r) => `${r.p.label}: ${r.error}`);
       const feedNote = results.filter((r) => r.p.status === "feed" && r.items.length).map((r) => r.p.label);

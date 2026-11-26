@@ -78,7 +78,7 @@ In `taste.md`.
 19. Container: `min(100% - 2 gutters, 1312px)`, with gutters of 64 / 48 / 24. Use 12 columns with a 32px gap. Every block starts on a column line, and the left text edge is the same from the nav to the footer.
 20. Spacing follows the scale 4 8 12 16 24 32 48 64 96 128 144 176. Section gaps are 96-176, mixed and earned by mass. A heading sits 16-24px above its line, and the head block sits 48-64px above its content.
 21. Measure: 45-70ch on paragraphs, and a `max-width` in ch on each heading. Use `text-wrap: balance` on heads, `pretty` on body, and `tabular-nums` on figures that compare.
-22. Run `drip_kit`, fill in the faces and colours, and write a DESIGN.md of about 150 words: THESIS, WORLD, STORY, FIRST VIEWPORT (h1 px and columns, picture columns and px height, where the action sits), SIGNATURE, REFUSES. Then `drip_mark system`.
+22. Run `drip_kit` and fill in the faces and colours in the page's own tokens. Then `drip_mark system`. No DESIGN.md yet: the design system is written only when the user asks for it, after they have approved the design (`drip_end` offers it).
 
 ## Plan the page
 23. Plan 6-9 sections with `board_plan`, hero and footer included. One line per section: its id, its one idea, the reference move it borrows (which studied page, which decision), its picture (what kind and which tool or file makes it), its mass, and how the thesis shows there. No two neighbouring sections share a layout; three sections on one layout is a template.

@@ -477,7 +477,7 @@ export function checklist(task, config) {
     const dc = lastCritique(task, "directions");
     if (dc) lines.push(`${tick(dc.verdict === "pass")} critic on the directions (optional): ${dc.verdict.toUpperCase()} (${dc.summary})${dc.verdict === "pass" ? "" : ` NOT PASSED: rework ${reworkNames(dc) || "the weak directions"}`}`);
     lines.push(`${tick(!!task.board?.chosen)} direction chosen${task.board?.chosen ? `: ${task.board.chosen}` : ""}`);
-    lines.push(`${tick(task.system)} system written (kit/base.css + DESIGN.md)`);
+    lines.push(`${tick(task.system)} system set (kit/base.css tokens)`);
     if (["landing", "app", "mobile"].includes(task.surface)) lines.push(`${tick(!!task.plan)} section plan${task.plan ? `: ${task.plan.sections.length} sections, ${new Set(task.plan.sections.map((s) => s.form)).size} forms, ${task.plan.sections.filter((s) => s.candy).length} eye-candy` : " (board_plan)"}`);
     if (isPersuade(task)) lines.push(`${tick(!!task.fitcheck.heroPassedAt)} hero gate passed (fitcheck_shot hero: true, before the sections)`);
   }

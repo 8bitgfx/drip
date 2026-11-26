@@ -152,7 +152,7 @@ ${title ? `<h1>${esc(title)}</h1>` : ""}<div class="g">${imgs.map((it, i) => `<f
       const jpg = await renderHtml(html, `${base}.jpg`, { width: 1600, height: 1000, format: "jpeg", quality: 88, config });
       const doc = designDoc();
       return blocks([
-        textBlock(`Saved ${base}.html and ${base}.jpg.${doc ? "" : " No DESIGN.md yet: drip_kit({ template: \"design-md\" }) and write the same palette and type into it."}\nCheck: does the mark hold on its ground? Do the shares feel like the direction (one committed colour, not five equal chips)? Is the display face doing work at 150px?`),
+        textBlock(`Saved ${base}.html and ${base}.jpg.${doc ? "" : ""}\nCheck: does the mark hold on its ground? Do the shares feel like the direction (one committed colour, not five equal chips)? Is the display face doing work at 150px?`),
         imageBlock(jpg),
       ]);
     }),

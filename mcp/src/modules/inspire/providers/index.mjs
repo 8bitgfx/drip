@@ -1,11 +1,12 @@
 // Every reference provider in one list. Add a provider by pushing it here (or, in tests and from a project,
 // with registerProvider). Dribbble and refs_site stay in modules/refs; these are the extra sources.
 import { arena } from "./arena.mjs";
+import { providers as designGalleries } from "./design-galleries.mjs";
 import { providers as galleries } from "./galleries.mjs";
 import { onepagelove } from "./onepagelove.mjs";
 import { twentyfirst } from "./twentyfirst.mjs";
 
-const list = [...galleries.filter((p) => ["awwwards", "minimalgallery"].includes(p.id)), onepagelove, twentyfirst, arena, ...galleries.filter((p) => ["httpster", "darkmode", "godly"].includes(p.id))];
+const list = [...galleries.filter((p) => ["awwwards", "minimalgallery"].includes(p.id)), onepagelove, twentyfirst, arena, ...galleries.filter((p) => ["httpster", "darkmode", "godly"].includes(p.id)), ...designGalleries];
 
 export const allProviders = () => [...list];
 

@@ -3,6 +3,10 @@
 // judgements see the WHOLE page and rest on measured facts, not just the first screen.
 import { z } from "zod";
 import { openPage, settle, withTab } from "./browser.mjs";
+import { aiTellsInPage, judgeTells } from "./ai-tells.mjs";
+
+// Sent to the page as source: a real function (linted, testable) instead of another escaped template string.
+const TELLS = `(${aiTellsInPage.toString()})()`;
 
 /** The audit script, run inside the page. Returns plain JSON. */
 const AUDIT = `(() => {
@@ -437,6 +441,7 @@ export async function capture(url, { width = 1440, height = 900, maxSlices = 6, 
     audit.overlayLeft = (await run(OVERLAY_PROBE)) || [];
     audit.covered = (await run(COVERED, true)) || [];
     audit.type = (await run(TYPE_CHECK)) || [];
+    audit.tells = (await run(TELLS)) || [];
     if (brand) audit.brand = await run(BRAND);
     // The audit scrolled the page and came back: let headers that hide on scroll slide back before anything is shot.
     if (shots) await new Promise((r) => setTimeout(r, 150));
@@ -554,6 +559,10 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   if (bigGaps.length) warnings.push(`${bigGaps.length} empty stretch(es) taller than a screen: ${bigGaps.map(([t, b]) => `${t}-${b}px`).join(", ")}`);
   if (a.media === 0) (persuade ? blockers : warnings).push("no images, video or illustration anywhere on the page");
   if (a.skeletons > 2) warnings.push(`${a.skeletons} loading placeholders (skeleton/spinner) still visible: this shot may show a loading state, not the page`);
+  // The mistakes AI-built pages ship most (core/ai-tells.mjs): unreadable or dead buttons, stretched pictures, template copy...
+  const tells = judgeTells(a.tells);
+  blockers.push(...tells.blockers);
+  warnings.push(...tells.warnings);
   return { blockers, warnings };
 }
 
