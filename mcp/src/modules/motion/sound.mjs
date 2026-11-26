@@ -99,29 +99,45 @@ export function vocalsOf(tags = [], title = "") {
   return "unknown";
 }
 
-// What motion-design music sounds like: calm and clean under the picture (ambient, minimal electronic, piano, lo-fi,
-// downtempo, soft cinematic), steady and unhurried. What fights the picture: rock, metal, drum and bass, hard techno,
-// aggressive or very fast tracks, and anything with words.
-const CALM_GOOD = /\b(ambient|minimal|minimalism|electronic|electronica|piano|lo-?fi|lofi|downtempo|chill|chillout|cinematic|filmscore|soundtrack|corporate|calm|peaceful|relax|relaxing|soft|dreamy|atmospheric|pads?|synth(wave)?|instrumental|neutral|uplifting|inspiring|elegant|clean|modern|tech|future)\b/i;
-const UPBEAT_GOOD = /\b(electronic|electro|house|future ?bass|funk|pop|upbeat|energetic|happy|groove|disco|indie|dance|synthpop|bright|optimistic|uplifting)\b/i;
-const BAD = /\b(rock|metal|punk|hardcore|grind|drum ?n ?bass|dnb|dubstep|hardstyle|gabber|industrial|noise|aggressive|dark|horror|screamo|trap|rap|hip ?hop|reggae|country|polka|schlager|march|military|christmas|kids|comedy|world)\b/i;
-// Club tracks are made for dance floors, not under a film: out of a calm bed.
-const CLUB = /\b(techno|club|party|trance|goa|psy|disco|dj|mix|remix|edm|rave|bass ?boost|banger)\b/i;
-const SPEED_SCORE = { calm: { speed_verylow: 0, speed_low: 2, speed_medium: 2, speed_high: -1, speed_veryhigh: -3 }, upbeat: { speed_verylow: -2, speed_low: 0, speed_medium: 2, speed_high: 2, speed_veryhigh: -1 } };
+// What motion-design music sounds like: rhythmic and clean, made to cut to. A steady pulse (about 100-125 BPM), crisp
+// percussion and plucky synths with sharp attacks so transitions land on hits, a tight bass groove, a build and a
+// lift for the reveal: modern electronic, synth-pop, nu-disco, future garage, chillhop beats, funky electronic.
+// "Calm" means restrained, never ambient: drones, solo piano, new age and orchestral swells have no beat to cut to.
+// Aggressive genres and club mixes fight the picture; words fight any narration.
+const GOOD = {
+  motion: /\b(electronic|electronica|electro|pop|synthpop|synth|future garage|chillwave|nu ?disco|deep house|house|funk|funky|groove|groovy|beat|beats|percussion|pluck|plucky|minimal|tech|modern|clean|upbeat|uplifting|optimistic|bright|positive|corporate|instrumental|glitch|chillhop|hip ?hop|breakbeat|indie)\b/i,
+  energetic: /\b(electronic|electro|house|future ?bass|funk|pop|upbeat|energetic|happy|groove|disco|indie|dance|synthpop|bright|optimistic|uplifting|driving|punchy)\b/i,
+  ambient: /\b(ambient|atmospheric|cinematic|pads?|soft|dreamy|minimal|electronic|calm|elegant|clean)\b/i,
+};
+// No beat to cut to: right for a slow atmospheric piece (feel "ambient"), wrong for a launch film.
+const BEATLESS = /\b(ambient|drone|darkambient|new ?age|meditation|sleep|relax|relaxing|relaxation|lullaby|classical|orchestral|orchestra|epic|choir|acoustic|folk|ballad|solo piano|piano solo|beatless|soundscape|filmscore)\b/i;
+const BAD = /\b(rock|metal|punk|hardcore|grind|drum ?n ?bass|dnb|dubstep|hardstyle|gabber|industrial|noise|aggressive|dark|horror|screamo|trap|rap|reggae|country|polka|schlager|march|military|christmas|kids|comedy|world)\b/i;
+// Club tracks are made for dance floors (long DJ mixes, trance builds), not under a 20 s film.
+const CLUB = /\b(techno|club|party|trance|goa|psy|dj|mix|remix|edm|rave|bass ?boost|banger)\b/i;
+const SPEED_SCORE = {
+  motion: { speed_verylow: -3, speed_low: -1, speed_medium: 2, speed_high: 1, speed_veryhigh: -2 },
+  energetic: { speed_verylow: -3, speed_low: -1, speed_medium: 1, speed_high: 2, speed_veryhigh: 0 },
+  ambient: { speed_verylow: 1, speed_low: 2, speed_medium: 1, speed_high: -2, speed_veryhigh: -3 },
+};
+// Fine music, wrong room for a product film: bar jazz, blues, Latin, lounge, battle themes.
+const OFF = /\b(jazz|blues|bossa ?nova|bossanova|latin|salsa|tango|swing|lounge|bar|cafe|war|battle|fight|ethnic|tribal)\b/i;
+const count = (re, txt) => (txt.match(new RegExp(re.source, "gi")) || []).length;
 
-/** How well a track fits motion design for a feel ("calm" default, or "upbeat"). Pure (tested). */
-export function motionFit(t, feel = "calm") {
+/** How well a track fits a film, for a feel: "motion" (default), "energetic" or "ambient". Pure (tested). */
+export function motionFit(t, feel = "motion") {
+  const f = GOOD[feel] ? feel : "motion";
   const words = `${t.category || ""} ${(t.tags || []).join(" ")} ${t.name || ""}`;
-  let s = 0;
-  s += (words.match(new RegExp((feel === "upbeat" ? UPBEAT_GOOD : CALM_GOOD).source, "gi")) || []).length;
-  s -= 8 * (words.match(new RegExp(BAD.source, "gi")) || []).length; // one is enough to rule a track out
-  for (const tag of t.tags || []) s += SPEED_SCORE[feel]?.[tag] ?? 0;
-  if (t.tempo) s += /very fast/.test(t.tempo) ? -3 : /fast/.test(t.tempo) ? (feel === "calm" ? -1 : 1) : /slow|medium/.test(t.tempo) ? (feel === "calm" ? 2 : 0) : 0;
-  if (feel === "calm" && CLUB.test(words)) s -= 5;
+  let s = count(GOOD[f], words);
+  s -= 8 * count(BAD, words); // one is enough to rule a track out
+  if (f !== "ambient") s -= 3 * count(BEATLESS, words);
+  s -= 4 * count(OFF, words);
+  if (CLUB.test(words)) s -= f === "energetic" ? 1 : 3;
+  for (const tag of t.tags || []) s += SPEED_SCORE[f][tag] ?? 0;
+  if (t.tempo) s += /very fast/.test(t.tempo) ? -2 : /very slow/.test(t.tempo) ? (f === "ambient" ? 1 : -3) : /slow/.test(t.tempo) ? (f === "ambient" ? 2 : -1) : /medium/.test(t.tempo) ? 2 : /fast/.test(t.tempo) ? (f === "motion" ? 1 : 2) : 0;
   if (t.vocals === "instrumental") s += 2;
   if (t.vocals === "vocal") s -= 6;
   // A film needs 20 s to 4 min of track; a 7-minute mix is hard to cut.
-  if (t.seconds && t.seconds > 360) s -= 1;
+  if (t.seconds && t.seconds > 360) s -= 2;
   return s;
 }
 
@@ -170,11 +186,10 @@ export async function searchOpenverse(query, { music = false, limit = 8, vocals 
 }
 
 /** Jamendo's own API (a free client id on the settings page): a real instrumental filter and popularity order. */
-export async function searchJamendo(query, { clientId, limit = 10, vocals = "no", feel = "calm" } = {}) {
+export async function searchJamendo(query, { clientId, limit = 10, vocals = "no", feel = "motion" } = {}) {
   const q = new URLSearchParams({ client_id: clientId, format: "json", limit: String(limit), search: query, include: "musicinfo licenses", audioformat: "mp32", order: "popularity_total", audiodlformat: "mp32" });
   if (vocals !== "any") q.set("vocalinstrumental", "instrumental");
-  if (feel === "calm") q.set("speed", "low+medium");
-  else if (feel === "upbeat") q.set("speed", "medium+high");
+  q.set("speed", feel === "ambient" ? "low+medium" : feel === "energetic" ? "medium+high" : "medium+high");
   const { body } = await get(`https://api.jamendo.com/v3.0/tracks/?${q}`, { as: "json", ttlMs: 24 * 3600e3, headers: UA });
   return (body.results || [])
     .filter((r) => r.audiodownload_allowed !== false && !/-nd/i.test(r.license_ccurl || ""))
@@ -283,13 +298,14 @@ export function mixGraph(tracks, { duration }) {
 // Words about the film, not the music: a library can't match "launch" or "saas". They become music searches.
 const NOT_MUSIC = /\b(launch|product|saas|app|startup|film|video|promo|trailer|brand|explainer|teaser|demo|ad|commercial|motion|design|logo|website|tech company)\b/gi;
 const BEDS = {
-  calm: ["ambient electronic", "chill piano", "lofi chill", "cinematic ambient", "downtempo", "soft synth"],
-  upbeat: ["upbeat electronic", "future bass", "indie electronic", "funk groove", "synthpop"],
+  motion: ["upbeat electronic", "synthpop", "funky electronic", "nu disco", "future garage", "chillhop", "electro pop"],
+  energetic: ["energetic electronic", "future bass", "electro house", "indie dance", "funk"],
+  ambient: ["ambient electronic", "cinematic ambient", "soft synth", "atmospheric"],
 };
 
 /** The searches to run for a music query: its music words, or the motion-design beds for the feel. Pure (tested). */
-export function musicQueries(query, feel = "calm") {
+export function musicQueries(query, feel = "motion") {
   const rest = String(query || "").replace(NOT_MUSIC, " ").replace(/\s+/g, " ").trim();
-  const beds = BEDS[feel] || BEDS.calm;
+  const beds = BEDS[feel] || BEDS.motion;
   return rest.split(" ").filter(Boolean).length >= 1 ? [rest, ...beds.slice(0, 3)] : beds;
 }

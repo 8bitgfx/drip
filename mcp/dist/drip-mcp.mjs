@@ -2235,20 +2235,20 @@ var require_resolve = __commonJS({
       return false;
     }
     function countKeys(schema) {
-      let count = 0;
+      let count2 = 0;
       for (const key in schema) {
         if (key === "$ref")
           return Infinity;
-        count++;
+        count2++;
         if (SIMPLE_INLINED.has(key))
           continue;
         if (typeof schema[key] == "object") {
-          (0, util_1.eachItem)(schema[key], (sch) => count += countKeys(sch));
+          (0, util_1.eachItem)(schema[key], (sch) => count2 += countKeys(sch));
         }
-        if (count === Infinity)
+        if (count2 === Infinity)
           return Infinity;
       }
-      return count;
+      return count2;
     }
     function getFullPath(resolver, id = "", normalize) {
       if (normalize !== false)
@@ -5786,8 +5786,8 @@ var require_contains = __commonJS({
         cxt.result(valid, () => cxt.reset());
         function validateItemsWithCount() {
           const schValid = gen.name("_valid");
-          const count = gen.let("count", 0);
-          validateItems(schValid, () => gen.if(schValid, () => checkLimits(count)));
+          const count2 = gen.let("count", 0);
+          validateItems(schValid, () => gen.if(schValid, () => checkLimits(count2)));
         }
         function validateItems(_valid, block) {
           gen.forRange("i", 0, len, (i2) => {
@@ -5800,16 +5800,16 @@ var require_contains = __commonJS({
             block();
           });
         }
-        function checkLimits(count) {
-          gen.code((0, codegen_1._)`${count}++`);
+        function checkLimits(count2) {
+          gen.code((0, codegen_1._)`${count2}++`);
           if (max === void 0) {
-            gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true).break());
+            gen.if((0, codegen_1._)`${count2} >= ${min}`, () => gen.assign(valid, true).break());
           } else {
-            gen.if((0, codegen_1._)`${count} > ${max}`, () => gen.assign(valid, false).break());
+            gen.if((0, codegen_1._)`${count2} > ${max}`, () => gen.assign(valid, false).break());
             if (min === 1)
               gen.assign(valid, true);
             else
-              gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true));
+              gen.if((0, codegen_1._)`${count2} >= ${min}`, () => gen.assign(valid, true));
           }
         }
       }
@@ -14056,19 +14056,19 @@ var require_chunkstream = __commonJS({
     ChunkStream.prototype._processRead = function(read5) {
       this._reads.shift();
       let pos = 0;
-      let count = 0;
+      let count2 = 0;
       let data = Buffer.alloc(read5.length);
       while (pos < read5.length) {
-        let buf = this._buffers[count++];
+        let buf = this._buffers[count2++];
         let len = Math.min(buf.length, read5.length - pos);
         buf.copy(data, pos, 0, len);
         pos += len;
         if (len !== buf.length) {
-          this._buffers[--count] = buf.slice(len);
+          this._buffers[--count2] = buf.slice(len);
         }
       }
-      if (count > 0) {
-        this._buffers.splice(0, count);
+      if (count2 > 0) {
+        this._buffers.splice(0, count2);
       }
       this._buffered -= read5.length;
       read5.func.call(this, data);
@@ -14800,12 +14800,12 @@ var require_bitmapper = __commonJS({
         }
       }
       return {
-        get: function(count) {
-          while (leftOver.length < count) {
+        get: function(count2) {
+          while (leftOver.length < count2) {
             split();
           }
-          let returner = leftOver.slice(0, count);
-          leftOver = leftOver.slice(count);
+          let returner = leftOver.slice(0, count2);
+          leftOver = leftOver.slice(count2);
           return returner;
         },
         resetAfterLine: function() {
@@ -16570,7 +16570,7 @@ var require_trees = __commonJS({
       var prevlen = -1;
       var curlen;
       var nextlen = tree[0 * 2 + 1];
-      var count = 0;
+      var count2 = 0;
       var max_count = 7;
       var min_count = 4;
       if (nextlen === 0) {
@@ -16581,21 +16581,21 @@ var require_trees = __commonJS({
       for (n3 = 0; n3 <= max_code; n3++) {
         curlen = nextlen;
         nextlen = tree[(n3 + 1) * 2 + 1];
-        if (++count < max_count && curlen === nextlen) {
+        if (++count2 < max_count && curlen === nextlen) {
           continue;
-        } else if (count < min_count) {
-          s2.bl_tree[curlen * 2] += count;
+        } else if (count2 < min_count) {
+          s2.bl_tree[curlen * 2] += count2;
         } else if (curlen !== 0) {
           if (curlen !== prevlen) {
             s2.bl_tree[curlen * 2]++;
           }
           s2.bl_tree[REP_3_6 * 2]++;
-        } else if (count <= 10) {
+        } else if (count2 <= 10) {
           s2.bl_tree[REPZ_3_10 * 2]++;
         } else {
           s2.bl_tree[REPZ_11_138 * 2]++;
         }
-        count = 0;
+        count2 = 0;
         prevlen = curlen;
         if (nextlen === 0) {
           max_count = 138;
@@ -16614,7 +16614,7 @@ var require_trees = __commonJS({
       var prevlen = -1;
       var curlen;
       var nextlen = tree[0 * 2 + 1];
-      var count = 0;
+      var count2 = 0;
       var max_count = 7;
       var min_count = 4;
       if (nextlen === 0) {
@@ -16624,27 +16624,27 @@ var require_trees = __commonJS({
       for (n3 = 0; n3 <= max_code; n3++) {
         curlen = nextlen;
         nextlen = tree[(n3 + 1) * 2 + 1];
-        if (++count < max_count && curlen === nextlen) {
+        if (++count2 < max_count && curlen === nextlen) {
           continue;
-        } else if (count < min_count) {
+        } else if (count2 < min_count) {
           do {
             send_code(s2, curlen, s2.bl_tree);
-          } while (--count !== 0);
+          } while (--count2 !== 0);
         } else if (curlen !== 0) {
           if (curlen !== prevlen) {
             send_code(s2, curlen, s2.bl_tree);
-            count--;
+            count2--;
           }
           send_code(s2, REP_3_6, s2.bl_tree);
-          send_bits(s2, count - 3, 2);
-        } else if (count <= 10) {
+          send_bits(s2, count2 - 3, 2);
+        } else if (count2 <= 10) {
           send_code(s2, REPZ_3_10, s2.bl_tree);
-          send_bits(s2, count - 3, 3);
+          send_bits(s2, count2 - 3, 3);
         } else {
           send_code(s2, REPZ_11_138, s2.bl_tree);
-          send_bits(s2, count - 11, 7);
+          send_bits(s2, count2 - 11, 7);
         }
-        count = 0;
+        count2 = 0;
         prevlen = curlen;
         if (nextlen === 0) {
           max_count = 138;
@@ -18626,20 +18626,20 @@ var require_inftrees = __commonJS({
       var base = null;
       var base_index = 0;
       var end;
-      var count = new utils2.Buf16(MAXBITS + 1);
+      var count2 = new utils2.Buf16(MAXBITS + 1);
       var offs = new utils2.Buf16(MAXBITS + 1);
       var extra = null;
       var extra_index = 0;
       var here_bits, here_op, here_val;
       for (len = 0; len <= MAXBITS; len++) {
-        count[len] = 0;
+        count2[len] = 0;
       }
       for (sym = 0; sym < codes; sym++) {
-        count[lens[lens_index + sym]]++;
+        count2[lens[lens_index + sym]]++;
       }
       root = bits;
       for (max = MAXBITS; max >= 1; max--) {
-        if (count[max] !== 0) {
+        if (count2[max] !== 0) {
           break;
         }
       }
@@ -18653,7 +18653,7 @@ var require_inftrees = __commonJS({
         return 0;
       }
       for (min = 1; min < max; min++) {
-        if (count[min] !== 0) {
+        if (count2[min] !== 0) {
           break;
         }
       }
@@ -18663,7 +18663,7 @@ var require_inftrees = __commonJS({
       left = 1;
       for (len = 1; len <= MAXBITS; len++) {
         left <<= 1;
-        left -= count[len];
+        left -= count2[len];
         if (left < 0) {
           return -1;
         }
@@ -18673,7 +18673,7 @@ var require_inftrees = __commonJS({
       }
       offs[1] = 0;
       for (len = 1; len < MAXBITS; len++) {
-        offs[len + 1] = offs[len] + count[len];
+        offs[len + 1] = offs[len] + count2[len];
       }
       for (sym = 0; sym < codes; sym++) {
         if (lens[lens_index + sym] !== 0) {
@@ -18736,7 +18736,7 @@ var require_inftrees = __commonJS({
           huff = 0;
         }
         sym++;
-        if (--count[len] === 0) {
+        if (--count2[len] === 0) {
           if (len === max) {
             break;
           }
@@ -18750,7 +18750,7 @@ var require_inftrees = __commonJS({
           curr = len - drop;
           left = 1 << curr;
           while (curr + drop < max) {
-            left -= count[curr + drop];
+            left -= count2[curr + drop];
             if (left <= 0) {
               break;
             }
@@ -25903,10 +25903,10 @@ var init_ReadStreamTokenizer = __esm({
         let bytesRead = 0;
         while (bytesRead < normOptions.length) {
           const chunkLength = Math.min(this.maxBufferSize, normOptions.length - bytesRead);
-          const count = await this.streamReader.read(uint8Array.subarray(bytesRead, bytesRead + chunkLength), true);
-          bytesRead += count;
-          this.position += count;
-          if (count < chunkLength) {
+          const count2 = await this.streamReader.read(uint8Array.subarray(bytesRead, bytesRead + chunkLength), true);
+          bytesRead += count2;
+          this.position += count2;
+          if (count2 < chunkLength) {
             break;
           }
         }
@@ -31580,7 +31580,7 @@ var require_XMLCharacterData = __commonJS({
         XMLCharacterData2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLCharacterData2.prototype.substringData = function(offset, count) {
+        XMLCharacterData2.prototype.substringData = function(offset, count2) {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
         };
         XMLCharacterData2.prototype.appendData = function(arg) {
@@ -31589,10 +31589,10 @@ var require_XMLCharacterData = __commonJS({
         XMLCharacterData2.prototype.insertData = function(offset, arg) {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
         };
-        XMLCharacterData2.prototype.deleteData = function(offset, count) {
+        XMLCharacterData2.prototype.deleteData = function(offset, count2) {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
         };
-        XMLCharacterData2.prototype.replaceData = function(offset, count, arg) {
+        XMLCharacterData2.prototype.replaceData = function(offset, count2, arg) {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
         };
         XMLCharacterData2.prototype.isEqualNode = function(node2) {
@@ -37009,8 +37009,8 @@ var require_parse_bmfont_binary = __commonJS({
       var pages = [];
       var text2 = readNameNT(buf, i2);
       var len = text2.length + 1;
-      var count = size / len;
-      for (var c3 = 0; c3 < count; c3++) {
+      var count2 = size / len;
+      for (var c3 = 0; c3 < count2; c3++) {
         pages[c3] = buf.slice(i2, i2 + text2.length).toString("utf8");
         i2 += len;
       }
@@ -37018,8 +37018,8 @@ var require_parse_bmfont_binary = __commonJS({
     }
     function readChars(buf, i2, blockSize) {
       var chars = [];
-      var count = blockSize / 20;
-      for (var c3 = 0; c3 < count; c3++) {
+      var count2 = blockSize / 20;
+      for (var c3 = 0; c3 < count2; c3++) {
         var char = {};
         var off = c3 * 20;
         char.id = buf.readUInt32LE(i2 + 0 + off);
@@ -37038,8 +37038,8 @@ var require_parse_bmfont_binary = __commonJS({
     }
     function readKernings(buf, i2, blockSize) {
       var kernings = [];
-      var count = blockSize / 10;
-      for (var c3 = 0; c3 < count; c3++) {
+      var count2 = blockSize / 10;
+      for (var c3 = 0; c3 < count2; c3++) {
         var kern = {};
         var off = c3 * 10;
         kern.first = buf.readUInt32LE(i2 + 0 + off);
@@ -39721,31 +39721,31 @@ var require_opentype = __commonJS({
       Table.prototype.sizeOf = function() {
         return sizeOf.TABLE(this);
       };
-      function ushortList(itemName, list4, count) {
-        if (count === void 0) {
-          count = list4.length;
+      function ushortList(itemName, list4, count2) {
+        if (count2 === void 0) {
+          count2 = list4.length;
         }
         const fields = new Array(list4.length + 1);
-        fields[0] = { name: itemName + "Count", type: "USHORT", value: count };
+        fields[0] = { name: itemName + "Count", type: "USHORT", value: count2 };
         for (let i2 = 0; i2 < list4.length; i2++) {
           fields[i2 + 1] = { name: itemName + i2, type: "USHORT", value: list4[i2] };
         }
         return fields;
       }
       function tableList(itemName, records, itemCallback) {
-        const count = records.length;
-        const fields = new Array(count + 1);
-        fields[0] = { name: itemName + "Count", type: "USHORT", value: count };
-        for (let i2 = 0; i2 < count; i2++) {
+        const count2 = records.length;
+        const fields = new Array(count2 + 1);
+        fields[0] = { name: itemName + "Count", type: "USHORT", value: count2 };
+        for (let i2 = 0; i2 < count2; i2++) {
           fields[i2 + 1] = { name: itemName + i2, type: "TABLE", value: itemCallback(records[i2], i2) };
         }
         return fields;
       }
       function recordList(itemName, records, itemCallback) {
-        const count = records.length;
+        const count2 = records.length;
         let fields = [];
-        fields[0] = { name: itemName + "Count", type: "USHORT", value: count };
-        for (let i2 = 0; i2 < count; i2++) {
+        fields[0] = { name: itemName + "Count", type: "USHORT", value: count2 };
+        for (let i2 = 0; i2 < count2; i2++) {
           fields = fields.concat(itemCallback(records[i2], i2));
         }
         return fields;
@@ -40042,85 +40042,85 @@ var require_opentype = __commonJS({
         }
         this.relativeOffset += typeOffsets[type] * amount;
       };
-      Parser.prototype.parseULongList = function(count) {
-        if (count === void 0) {
-          count = this.parseULong();
+      Parser.prototype.parseULongList = function(count2) {
+        if (count2 === void 0) {
+          count2 = this.parseULong();
         }
-        const offsets = new Array(count);
+        const offsets = new Array(count2);
         const dataView = this.data;
         let offset = this.offset + this.relativeOffset;
-        for (let i2 = 0; i2 < count; i2++) {
+        for (let i2 = 0; i2 < count2; i2++) {
           offsets[i2] = dataView.getUint32(offset);
           offset += 4;
         }
-        this.relativeOffset += count * 4;
+        this.relativeOffset += count2 * 4;
         return offsets;
       };
-      Parser.prototype.parseOffset16List = Parser.prototype.parseUShortList = function(count) {
-        if (count === void 0) {
-          count = this.parseUShort();
+      Parser.prototype.parseOffset16List = Parser.prototype.parseUShortList = function(count2) {
+        if (count2 === void 0) {
+          count2 = this.parseUShort();
         }
-        const offsets = new Array(count);
+        const offsets = new Array(count2);
         const dataView = this.data;
         let offset = this.offset + this.relativeOffset;
-        for (let i2 = 0; i2 < count; i2++) {
+        for (let i2 = 0; i2 < count2; i2++) {
           offsets[i2] = dataView.getUint16(offset);
           offset += 2;
         }
-        this.relativeOffset += count * 2;
+        this.relativeOffset += count2 * 2;
         return offsets;
       };
-      Parser.prototype.parseShortList = function(count) {
-        const list4 = new Array(count);
+      Parser.prototype.parseShortList = function(count2) {
+        const list4 = new Array(count2);
         const dataView = this.data;
         let offset = this.offset + this.relativeOffset;
-        for (let i2 = 0; i2 < count; i2++) {
+        for (let i2 = 0; i2 < count2; i2++) {
           list4[i2] = dataView.getInt16(offset);
           offset += 2;
         }
-        this.relativeOffset += count * 2;
+        this.relativeOffset += count2 * 2;
         return list4;
       };
-      Parser.prototype.parseByteList = function(count) {
-        const list4 = new Array(count);
+      Parser.prototype.parseByteList = function(count2) {
+        const list4 = new Array(count2);
         const dataView = this.data;
         let offset = this.offset + this.relativeOffset;
-        for (let i2 = 0; i2 < count; i2++) {
+        for (let i2 = 0; i2 < count2; i2++) {
           list4[i2] = dataView.getUint8(offset++);
         }
-        this.relativeOffset += count;
+        this.relativeOffset += count2;
         return list4;
       };
-      Parser.prototype.parseList = function(count, itemCallback) {
+      Parser.prototype.parseList = function(count2, itemCallback) {
         if (!itemCallback) {
-          itemCallback = count;
-          count = this.parseUShort();
+          itemCallback = count2;
+          count2 = this.parseUShort();
         }
-        const list4 = new Array(count);
-        for (let i2 = 0; i2 < count; i2++) {
+        const list4 = new Array(count2);
+        for (let i2 = 0; i2 < count2; i2++) {
           list4[i2] = itemCallback.call(this);
         }
         return list4;
       };
-      Parser.prototype.parseList32 = function(count, itemCallback) {
+      Parser.prototype.parseList32 = function(count2, itemCallback) {
         if (!itemCallback) {
-          itemCallback = count;
-          count = this.parseULong();
+          itemCallback = count2;
+          count2 = this.parseULong();
         }
-        const list4 = new Array(count);
-        for (let i2 = 0; i2 < count; i2++) {
+        const list4 = new Array(count2);
+        for (let i2 = 0; i2 < count2; i2++) {
           list4[i2] = itemCallback.call(this);
         }
         return list4;
       };
-      Parser.prototype.parseRecordList = function(count, recordDescription) {
+      Parser.prototype.parseRecordList = function(count2, recordDescription) {
         if (!recordDescription) {
-          recordDescription = count;
-          count = this.parseUShort();
+          recordDescription = count2;
+          count2 = this.parseUShort();
         }
-        const records = new Array(count);
+        const records = new Array(count2);
         const fields = Object.keys(recordDescription);
-        for (let i2 = 0; i2 < count; i2++) {
+        for (let i2 = 0; i2 < count2; i2++) {
           const rec = {};
           for (let j = 0; j < fields.length; j++) {
             const fieldName = fields[j];
@@ -40131,14 +40131,14 @@ var require_opentype = __commonJS({
         }
         return records;
       };
-      Parser.prototype.parseRecordList32 = function(count, recordDescription) {
+      Parser.prototype.parseRecordList32 = function(count2, recordDescription) {
         if (!recordDescription) {
-          recordDescription = count;
-          count = this.parseULong();
+          recordDescription = count2;
+          count2 = this.parseULong();
         }
-        const records = new Array(count);
+        const records = new Array(count2);
         const fields = Object.keys(recordDescription);
-        for (let i2 = 0; i2 < count; i2++) {
+        for (let i2 = 0; i2 < count2; i2++) {
           const rec = {};
           for (let j = 0; j < fields.length; j++) {
             const fieldName = fields[j];
@@ -40237,10 +40237,10 @@ var require_opentype = __commonJS({
       };
       Parser.prototype.parseListOfLists = function(itemCallback) {
         const offsets = this.parseOffset16List();
-        const count = offsets.length;
+        const count2 = offsets.length;
         const relativeOffset = this.relativeOffset;
-        const list4 = new Array(count);
-        for (let i2 = 0; i2 < count; i2++) {
+        const list4 = new Array(count2);
+        for (let i2 = 0; i2 < count2; i2++) {
           const start2 = offsets[i2];
           if (start2 === 0) {
             list4[i2] = void 0;
@@ -40265,15 +40265,15 @@ var require_opentype = __commonJS({
       Parser.prototype.parseCoverage = function() {
         const startOffset = this.offset + this.relativeOffset;
         const format = this.parseUShort();
-        const count = this.parseUShort();
+        const count2 = this.parseUShort();
         if (format === 1) {
           return {
             format: 1,
-            glyphs: this.parseUShortList(count)
+            glyphs: this.parseUShortList(count2)
           };
         } else if (format === 2) {
-          const ranges = new Array(count);
-          for (let i2 = 0; i2 < count; i2++) {
+          const ranges = new Array(count2);
+          for (let i2 = 0; i2 < count2; i2++) {
             ranges[i2] = {
               start: this.parseUShort(),
               end: this.parseUShort(),
@@ -40311,24 +40311,24 @@ var require_opentype = __commonJS({
           format
         };
       };
-      Parser.list = function(count, itemCallback) {
+      Parser.list = function(count2, itemCallback) {
         return function() {
-          return this.parseList(count, itemCallback);
+          return this.parseList(count2, itemCallback);
         };
       };
-      Parser.list32 = function(count, itemCallback) {
+      Parser.list32 = function(count2, itemCallback) {
         return function() {
-          return this.parseList32(count, itemCallback);
+          return this.parseList32(count2, itemCallback);
         };
       };
-      Parser.recordList = function(count, recordDescription) {
+      Parser.recordList = function(count2, recordDescription) {
         return function() {
-          return this.parseRecordList(count, recordDescription);
+          return this.parseRecordList(count2, recordDescription);
         };
       };
-      Parser.recordList32 = function(count, recordDescription) {
+      Parser.recordList32 = function(count2, recordDescription) {
         return function() {
-          return this.parseRecordList32(count, recordDescription);
+          return this.parseRecordList32(count2, recordDescription);
         };
       };
       Parser.pointer = function(description) {
@@ -40552,11 +40552,11 @@ var require_opentype = __commonJS({
         }
         const tupleVariationCount = this.parseUShort();
         const hasSharedPoints = !!(tupleVariationCount & masks.SHARED_POINT_NUMBERS);
-        const count = tupleVariationCount & masks.COUNT_MASK;
+        const count2 = tupleVariationCount & masks.COUNT_MASK;
         let dataOffset = this.parseOffset16();
         const headers2 = [];
         let sharedPoints = [];
-        for (let h = 0; h < count; h++) {
+        for (let h = 0; h < count2; h++) {
           const headerData = this.parseTupleVariationHeader(axisCount, flavor);
           headers2.push(headerData);
         }
@@ -40568,7 +40568,7 @@ var require_opentype = __commonJS({
           sharedPoints = this.parsePackedPointNumbers();
         }
         let serializedDataOffset = this.relativeOffset;
-        for (let h = 0; h < count; h++) {
+        for (let h = 0; h < count2; h++) {
           const header = headers2[h];
           header.privatePoints = [];
           this.relativeOffset = serializedDataOffset;
@@ -41479,9 +41479,9 @@ var require_opentype = __commonJS({
         const name = {};
         const p2 = new parse_default.Parser(data, start2);
         const format = p2.parseUShort();
-        const count = p2.parseUShort();
+        const count2 = p2.parseUShort();
         const stringOffset = p2.offset + p2.parseUShort();
-        for (let i2 = 0; i2 < count; i2++) {
+        for (let i2 = 0; i2 < count2; i2++) {
           const platformID = p2.parseUShort();
           const encodingID = p2.parseUShort();
           const languageID = p2.parseUShort();
@@ -44487,19 +44487,19 @@ var require_opentype = __commonJS({
       function parseCFFIndex(data, start2, conversionFn, version2) {
         const offsets = [];
         const objects = [];
-        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
+        const count2 = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
         const countLength = version2 > 1 ? 4 : 2;
         let objectOffset;
         let endOffset;
-        if (count !== 0) {
+        if (count2 !== 0) {
           const offsetSize = parse_default.getByte(data, start2 + countLength);
-          objectOffset = start2 + (count + 1) * offsetSize + countLength;
+          objectOffset = start2 + (count2 + 1) * offsetSize + countLength;
           let pos = start2 + countLength + 1;
-          for (let i2 = 0; i2 < count + 1; i2 += 1) {
+          for (let i2 = 0; i2 < count2 + 1; i2 += 1) {
             offsets.push(parse_default.getOffset(data, pos, offsetSize));
             pos += offsetSize;
           }
-          endOffset = objectOffset + offsets[count];
+          endOffset = objectOffset + offsets[count2];
         } else {
           endOffset = start2 + countLength;
         }
@@ -44514,31 +44514,31 @@ var require_opentype = __commonJS({
       }
       function parseCFFIndexLowMemory(data, start2, version2) {
         const offsets = [];
-        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
+        const count2 = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
         const countLength = version2 > 1 ? 4 : 2;
         let objectOffset;
         let endOffset;
-        if (count !== 0) {
+        if (count2 !== 0) {
           const offsetSize = parse_default.getByte(data, start2 + countLength);
-          objectOffset = start2 + (count + 1) * offsetSize + countLength;
+          objectOffset = start2 + (count2 + 1) * offsetSize + countLength;
           let pos = start2 + countLength + 1;
-          for (let i2 = 0; i2 < count + 1; i2 += 1) {
+          for (let i2 = 0; i2 < count2 + 1; i2 += 1) {
             offsets.push(parse_default.getOffset(data, pos, offsetSize));
             pos += offsetSize;
           }
-          endOffset = objectOffset + offsets[count];
+          endOffset = objectOffset + offsets[count2];
         } else {
           endOffset = start2 + countLength;
         }
         return { offsets, startOffset: start2, endOffset };
       }
       function getCffIndexObject(i2, offsets, data, start2, conversionFn, version2) {
-        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
+        const count2 = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
         const countLength = version2 > 1 ? 4 : 2;
         let objectOffset = 0;
-        if (count !== 0) {
+        if (count2 !== 0) {
           const offsetSize = parse_default.getByte(data, start2 + countLength);
-          objectOffset = start2 + (count + 1) * offsetSize + countLength;
+          objectOffset = start2 + (count2 + 1) * offsetSize + countLength;
         }
         let value = parse_default.getBytes(data, objectOffset + offsets[i2], objectOffset + offsets[i2 + 1]);
         if (conversionFn) {
@@ -44838,7 +44838,7 @@ var require_opentype = __commonJS({
       }
       function parseCFFCharset(data, start2, nGlyphs, strings, isCIDFont) {
         let sid;
-        let count;
+        let count2;
         const parser = new parse_default.Parser(data, start2);
         nGlyphs -= 1;
         const charset = [".notdef"];
@@ -44855,8 +44855,8 @@ var require_opentype = __commonJS({
         } else if (format === 1) {
           while (charset.length <= nGlyphs) {
             sid = parser.parseSID();
-            count = parser.parseCard8();
-            for (let i2 = 0; i2 <= count; i2 += 1) {
+            count2 = parser.parseCard8();
+            for (let i2 = 0; i2 <= count2; i2 += 1) {
               if (isCIDFont) {
                 charset.push("cid" + ("00000" + sid).slice(-5));
               } else {
@@ -44868,8 +44868,8 @@ var require_opentype = __commonJS({
         } else if (format === 2) {
           while (charset.length <= nGlyphs) {
             sid = parser.parseSID();
-            count = parser.parseCard16();
-            for (let i2 = 0; i2 <= count; i2 += 1) {
+            count2 = parser.parseCard16();
+            for (let i2 = 0; i2 <= count2; i2 += 1) {
               if (isCIDFont) {
                 charset.push("cid" + ("00000" + sid).slice(-5));
               } else {
@@ -62983,14 +62983,14 @@ function codePointLength(str) {
   const units = str.length;
   if (!highSurrogate.test(str))
     return units;
-  let count = units;
+  let count2 = units;
   for (let i2 = 0; i2 < units - 1; i2++) {
     if ((str.charCodeAt(i2) & 64512) === 55296 && (str.charCodeAt(i2 + 1) & 64512) === 56320) {
-      count--;
+      count2--;
       i2++;
     }
   }
-  return count;
+  return count2;
 }
 function getLengthableOrigin(input2) {
   if (Array.isArray(input2))
@@ -67373,8 +67373,8 @@ function az_default() {
 }
 
 // node_modules/zod/v4/locales/be.js
-function getBelarusianPlural(count, one, few, many) {
-  const absCount = Math.abs(count);
+function getBelarusianPlural(count2, one, few, many) {
+  const absCount = Math.abs(count2);
   const lastDigit = absCount % 10;
   const lastTwoDigits = absCount % 100;
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
@@ -70021,8 +70021,8 @@ function hu_default() {
 }
 
 // node_modules/zod/v4/locales/hy.js
-function getArmenianPlural(count, one, many) {
-  return Math.abs(count) === 1 ? one : many;
+function getArmenianPlural(count2, one, many) {
+  return Math.abs(count2) === 1 ? one : many;
 }
 function withDefiniteArticle(word) {
   if (!word)
@@ -72760,8 +72760,8 @@ function ro_default() {
 }
 
 // node_modules/zod/v4/locales/ru.js
-function getRussianPlural(count, one, few, many) {
-  const absCount = Math.abs(count);
+function getRussianPlural(count2, one, few, many) {
+  const absCount = Math.abs(count2);
   const lastDigit = absCount % 10;
   const lastTwoDigits = absCount % 100;
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
@@ -86577,7 +86577,7 @@ var ExperimentalMcpServerTasks = class {
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 function toolInputElementCount(value, max) {
-  let count = 0;
+  let count2 = 0;
   const stack = [value];
   while (stack.length > 0) {
     const node2 = stack.pop();
@@ -86585,8 +86585,8 @@ function toolInputElementCount(value, max) {
       continue;
     if (Array.isArray(node2)) {
       for (const child of node2) {
-        if (++count > max)
-          return count;
+        if (++count2 > max)
+          return count2;
         if (child !== null && typeof child === "object")
           stack.push(child);
       }
@@ -86594,15 +86594,15 @@ function toolInputElementCount(value, max) {
       for (const key in node2) {
         if (!Object.prototype.hasOwnProperty.call(node2, key))
           continue;
-        if (++count > max)
-          return count;
+        if (++count2 > max)
+          return count2;
         const child = node2[key];
         if (child !== null && typeof child === "object")
           stack.push(child);
       }
     }
   }
-  return count;
+  return count2;
 }
 function resolveMaxToolInputElements(value) {
   if (value === void 0 || value === Infinity)
@@ -98682,13 +98682,13 @@ function graphOf(index) {
       for (const n3 of imp.names || []) bindings.set(n3.name, { target, imported: n3.imported, from: imp.from });
     }
     importGraph[rel3] = [...new Set(edges)];
-    for (const [tag, count] of Object.entries(f3.jsx || {})) {
+    for (const [tag, count2] of Object.entries(f3.jsx || {})) {
       const defs = byName.get(tag) || byName.get(bindings.get(tag)?.imported) || [];
       const b = bindings.get(tag);
       const def = defs.find((d) => b?.target && d.file === b.target) || (!b ? defs.find((d) => d.file === rel3) : null) || (b && !b.target ? null : defs.length === 1 && defs[0].exported ? defs[0] : null);
       if (!def || def.file === rel3 && !b) continue;
       if (!f3.isTest && !f3.isStory) {
-        def.usageCount += count;
+        def.usageCount += count2;
         if (!def.usedBy.includes(rel3) && def.usedBy.length < 12) def.usedBy.push(rel3);
       }
     }
@@ -101025,7 +101025,7 @@ var fmtT = (t2) => {
   const s2 = t2 - m * 60;
   return `${m}:${s2.toFixed(1).padStart(4, "0")}`;
 };
-function planTimes({ duration: duration3, times, around, from, to: to2, step, count = 16 }) {
+function planTimes({ duration: duration3, times, around, from, to: to2, step, count: count2 = 16 }) {
   const D = Math.max(0.1, duration3 || 10);
   const clamp2 = (t2) => Math.min(Math.max(0, t2), Math.max(0, D - 1 / 60));
   if (times?.length) return [...new Set(times.map(clamp2))].sort((a2, b) => a2 - b);
@@ -101042,7 +101042,7 @@ function planTimes({ duration: duration3, times, around, from, to: to2, step, co
     for (let t2 = a2; t2 <= b + 1e-6 && out.length < 60; t2 += st) out.push(+t2.toFixed(3));
     return out;
   }
-  const n3 = Math.max(2, Math.min(48, count));
+  const n3 = Math.max(2, Math.min(48, count2));
   return Array.from({ length: n3 }, (_, i2) => +clamp2(i2 * D / (n3 - 1)).toFixed(3));
 }
 async function shootComposition(url2, { times, duration: duration3, width = 1920, height = 1080, scale = 0.5, quality: quality2 = 82, config: config2 } = {}) {
@@ -102276,22 +102276,34 @@ function vocalsOf(tags = [], title = "") {
   if (t2.some((x2) => /^(vocal|vocals|singing|singer|rap|lyrics|female|male|choir|voice)$/.test(x2)) || /\b(feat\.?|ft\.|vocal|remix by)\b/i.test(title)) return "vocal";
   return "unknown";
 }
-var CALM_GOOD = /\b(ambient|minimal|minimalism|electronic|electronica|piano|lo-?fi|lofi|downtempo|chill|chillout|cinematic|filmscore|soundtrack|corporate|calm|peaceful|relax|relaxing|soft|dreamy|atmospheric|pads?|synth(wave)?|instrumental|neutral|uplifting|inspiring|elegant|clean|modern|tech|future)\b/i;
-var UPBEAT_GOOD = /\b(electronic|electro|house|future ?bass|funk|pop|upbeat|energetic|happy|groove|disco|indie|dance|synthpop|bright|optimistic|uplifting)\b/i;
-var BAD = /\b(rock|metal|punk|hardcore|grind|drum ?n ?bass|dnb|dubstep|hardstyle|gabber|industrial|noise|aggressive|dark|horror|screamo|trap|rap|hip ?hop|reggae|country|polka|schlager|march|military|christmas|kids|comedy|world)\b/i;
-var CLUB = /\b(techno|club|party|trance|goa|psy|disco|dj|mix|remix|edm|rave|bass ?boost|banger)\b/i;
-var SPEED_SCORE = { calm: { speed_verylow: 0, speed_low: 2, speed_medium: 2, speed_high: -1, speed_veryhigh: -3 }, upbeat: { speed_verylow: -2, speed_low: 0, speed_medium: 2, speed_high: 2, speed_veryhigh: -1 } };
-function motionFit(t2, feel = "calm") {
+var GOOD = {
+  motion: /\b(electronic|electronica|electro|pop|synthpop|synth|future garage|chillwave|nu ?disco|deep house|house|funk|funky|groove|groovy|beat|beats|percussion|pluck|plucky|minimal|tech|modern|clean|upbeat|uplifting|optimistic|bright|positive|corporate|instrumental|glitch|chillhop|hip ?hop|breakbeat|indie)\b/i,
+  energetic: /\b(electronic|electro|house|future ?bass|funk|pop|upbeat|energetic|happy|groove|disco|indie|dance|synthpop|bright|optimistic|uplifting|driving|punchy)\b/i,
+  ambient: /\b(ambient|atmospheric|cinematic|pads?|soft|dreamy|minimal|electronic|calm|elegant|clean)\b/i
+};
+var BEATLESS = /\b(ambient|drone|darkambient|new ?age|meditation|sleep|relax|relaxing|relaxation|lullaby|classical|orchestral|orchestra|epic|choir|acoustic|folk|ballad|solo piano|piano solo|beatless|soundscape|filmscore)\b/i;
+var BAD = /\b(rock|metal|punk|hardcore|grind|drum ?n ?bass|dnb|dubstep|hardstyle|gabber|industrial|noise|aggressive|dark|horror|screamo|trap|rap|reggae|country|polka|schlager|march|military|christmas|kids|comedy|world)\b/i;
+var CLUB = /\b(techno|club|party|trance|goa|psy|dj|mix|remix|edm|rave|bass ?boost|banger)\b/i;
+var SPEED_SCORE = {
+  motion: { speed_verylow: -3, speed_low: -1, speed_medium: 2, speed_high: 1, speed_veryhigh: -2 },
+  energetic: { speed_verylow: -3, speed_low: -1, speed_medium: 1, speed_high: 2, speed_veryhigh: 0 },
+  ambient: { speed_verylow: 1, speed_low: 2, speed_medium: 1, speed_high: -2, speed_veryhigh: -3 }
+};
+var OFF = /\b(jazz|blues|bossa ?nova|bossanova|latin|salsa|tango|swing|lounge|bar|cafe|war|battle|fight|ethnic|tribal)\b/i;
+var count = (re, txt) => (txt.match(new RegExp(re.source, "gi")) || []).length;
+function motionFit(t2, feel = "motion") {
+  const f3 = GOOD[feel] ? feel : "motion";
   const words4 = `${t2.category || ""} ${(t2.tags || []).join(" ")} ${t2.name || ""}`;
-  let s2 = 0;
-  s2 += (words4.match(new RegExp((feel === "upbeat" ? UPBEAT_GOOD : CALM_GOOD).source, "gi")) || []).length;
-  s2 -= 8 * (words4.match(new RegExp(BAD.source, "gi")) || []).length;
-  for (const tag of t2.tags || []) s2 += SPEED_SCORE[feel]?.[tag] ?? 0;
-  if (t2.tempo) s2 += /very fast/.test(t2.tempo) ? -3 : /fast/.test(t2.tempo) ? feel === "calm" ? -1 : 1 : /slow|medium/.test(t2.tempo) ? feel === "calm" ? 2 : 0 : 0;
-  if (feel === "calm" && CLUB.test(words4)) s2 -= 5;
+  let s2 = count(GOOD[f3], words4);
+  s2 -= 8 * count(BAD, words4);
+  if (f3 !== "ambient") s2 -= 3 * count(BEATLESS, words4);
+  s2 -= 4 * count(OFF, words4);
+  if (CLUB.test(words4)) s2 -= f3 === "energetic" ? 1 : 3;
+  for (const tag of t2.tags || []) s2 += SPEED_SCORE[f3][tag] ?? 0;
+  if (t2.tempo) s2 += /very fast/.test(t2.tempo) ? -2 : /very slow/.test(t2.tempo) ? f3 === "ambient" ? 1 : -3 : /slow/.test(t2.tempo) ? f3 === "ambient" ? 2 : -1 : /medium/.test(t2.tempo) ? 2 : /fast/.test(t2.tempo) ? f3 === "motion" ? 1 : 2 : 0;
   if (t2.vocals === "instrumental") s2 += 2;
   if (t2.vocals === "vocal") s2 -= 6;
-  if (t2.seconds && t2.seconds > 360) s2 -= 1;
+  if (t2.seconds && t2.seconds > 360) s2 -= 2;
   return s2;
 }
 var SPEED = { speed_verylow: "very slow", speed_low: "slow", speed_medium: "medium tempo", speed_high: "fast", speed_veryhigh: "very fast" };
@@ -102326,11 +102338,10 @@ async function searchOpenverse(query, { music = false, limit = 8, vocals = "no" 
   const rank2 = { instrumental: 0, unknown: 1 };
   return mapped.filter((m) => m.vocals !== "vocal").sort((a2, b) => rank2[a2.vocals] - rank2[b.vocals]).slice(0, limit * 2);
 }
-async function searchJamendo(query, { clientId, limit = 10, vocals = "no", feel = "calm" } = {}) {
+async function searchJamendo(query, { clientId, limit = 10, vocals = "no", feel = "motion" } = {}) {
   const q2 = new URLSearchParams({ client_id: clientId, format: "json", limit: String(limit), search: query, include: "musicinfo licenses", audioformat: "mp32", order: "popularity_total", audiodlformat: "mp32" });
   if (vocals !== "any") q2.set("vocalinstrumental", "instrumental");
-  if (feel === "calm") q2.set("speed", "low+medium");
-  else if (feel === "upbeat") q2.set("speed", "medium+high");
+  q2.set("speed", feel === "ambient" ? "low+medium" : feel === "energetic" ? "medium+high" : "medium+high");
   const { body } = await get(`https://api.jamendo.com/v3.0/tracks/?${q2}`, { as: "json", ttlMs: 24 * 36e5, headers: UA });
   return (body.results || []).filter((r2) => r2.audiodownload_allowed !== false && !/-nd/i.test(r2.license_ccurl || "")).map((r2) => ({
     id: `jamendo:${r2.id}`,
@@ -102421,12 +102432,13 @@ function mixGraph(tracks, { duration: duration3 }) {
 }
 var NOT_MUSIC = /\b(launch|product|saas|app|startup|film|video|promo|trailer|brand|explainer|teaser|demo|ad|commercial|motion|design|logo|website|tech company)\b/gi;
 var BEDS = {
-  calm: ["ambient electronic", "chill piano", "lofi chill", "cinematic ambient", "downtempo", "soft synth"],
-  upbeat: ["upbeat electronic", "future bass", "indie electronic", "funk groove", "synthpop"]
+  motion: ["upbeat electronic", "synthpop", "funky electronic", "nu disco", "future garage", "chillhop", "electro pop"],
+  energetic: ["energetic electronic", "future bass", "electro house", "indie dance", "funk"],
+  ambient: ["ambient electronic", "cinematic ambient", "soft synth", "atmospheric"]
 };
-function musicQueries(query, feel = "calm") {
+function musicQueries(query, feel = "motion") {
   const rest = String(query || "").replace(NOT_MUSIC, " ").replace(/\s+/g, " ").trim();
-  const beds = BEDS[feel] || BEDS.calm;
+  const beds = BEDS[feel] || BEDS.motion;
   return rest.split(" ").filter(Boolean).length >= 1 ? [rest, ...beds.slice(0, 3)] : beds;
 }
 
@@ -102465,7 +102477,7 @@ function registerAudio(server2, ctx2) {
         styles: external_exports.array(external_exports.string()).optional().describe("generate: global styles: genre, mood, instruments, '112 BPM', 'D minor'"),
         avoid: external_exports.array(external_exports.string()).optional().describe("generate: what to keep out: 'vocals', 'cheesy corporate ukulele', 'big risers'"),
         query: external_exports.string().optional(),
-        feel: external_exports.enum(["calm", "upbeat"]).optional().describe("search: default calm (ambient, minimal electronic, piano, lo-fi, soft cinematic at a slow-to-medium pulse: the motion-design bed); upbeat for an energetic launch the user asked for"),
+        feel: external_exports.enum(["motion", "energetic", "ambient"]).optional().describe("search: default motion (rhythmic, clean electronic to cut to: steady 100-125 BPM pulse, crisp percussion, plucky synths, a tight groove, a lift for the reveal); energetic for a big punchy launch; ambient only for a slow atmospheric brand piece"),
         vocals: external_exports.enum(["no", "any"]).optional().describe("search: default no (instrumental only); any when the user wants a song with words"),
         source: external_exports.string().optional().describe("A file in the project or an audio URL"),
         licence: external_exports.string().optional(),
@@ -102475,7 +102487,7 @@ function registerAudio(server2, ctx2) {
         fadeOut: external_exports.number().optional()
       }
     },
-    safe(async ({ action, query, feel = "calm", vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, feel = "motion", vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
       const config2 = ctx2.config();
       const { task } = loadState();
       if (action === "generate") {
@@ -102526,7 +102538,7 @@ function registerAudio(server2, ctx2) {
 ${r2.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND, already left out, forbids cutting to picture):
 ` + r2.map((t2, i2) => `${i2 + 1}. ${t2.name} \xB7 ${t2.seconds ? `${Math.round(t2.seconds)}s` : "?"} \xB7 ${t2.vocals === "instrumental" ? "instrumental" : t2.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t2.tempo ? ` \xB7 ${t2.tempo}` : ""} \xB7 ${t2.licence} \xB7 ${t2.source}${t2.category && t2.category !== "music" ? ` \xB7 ${t2.category}` : ""}
    ${t2.preview}`).join("\n") + (notes.length ? `
-(${notes.join("; ")})` : "") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is a calm, clean bed under the picture: instrumental; a steady, unhurried pulse (about 80-110 BPM; up to 120 for an upbeat launch); soft synths, pads, piano, light percussion; one gentle lift or build near the film's big moment rather than a hard drop; a clean ending. Never rock, metal, drum and bass, hard techno or anything aggressive under a product film. Music with words only when the user asks for it."
+(${notes.join("; ")})` : "") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it."
         );
       }
       if (!source) return text("Pass source: a project file or an audio URL.", true);
@@ -103113,13 +103125,13 @@ NEXT: style frames first: build the 2-3 hardest frames (the hook, the biggest tr
         count: external_exports.number().int().min(4).max(48).optional().describe("Frames in a sweep (default 16)")
       }
     },
-    safe(async ({ target, times, around, from, to: to2, step, count }) => {
+    safe(async ({ target, times, around, from, to: to2, step, count: count2 }) => {
       const config2 = ctx2.config();
       reconcileWorkspace();
       const { task } = loadState();
       const fmt = motionOf(task).storyboard?.format;
       const sweep = !times?.length && !around?.length && from == null && to2 == null;
-      const r2 = await filmSheets(target, { times: { times, around, from, to: to2, step, count: count || 16 }, width: fmt?.width, height: fmt?.height, dense: !!step && step <= 0.05, config: config2 });
+      const r2 = await filmSheets(target, { times: { times, around, from, to: to2, step, count: count2 || 16 }, width: fmt?.width, height: fmt?.height, dense: !!step && step <= 0.05, config: config2 });
       const dir = rendersDir(`frames-${stamp()}`);
       const files = r2.sheets.map((b, i2) => {
         const f3 = path40.join(dir, `sheet-${i2 + 1}.jpg`);
@@ -104566,13 +104578,13 @@ async function typeIssues(url2, { width = 1440, height = 900, config: config2 } 
   });
 }
 function sectionSlices({ total, height, sections = [], maxSlices = 6, hardMax = 10 }) {
-  const count = Math.max(1, Math.ceil(total / height));
+  const count2 = Math.max(1, Math.ceil(total / height));
   const maxY = Math.max(0, total - height);
   const at = (i2) => Math.min(i2 * height, maxY);
   if (maxSlices <= 1) return [0];
-  if (count <= maxSlices) return [...Array(count).keys()].map(at);
+  if (count2 <= maxSlices) return [...Array(count2).keys()].map(at);
   const boxes = sections.filter((x2) => x2 && x2.h > 0).sort((p2, q2) => p2.top - q2.top);
-  if (boxes.length < 2) return [...Array(maxSlices).keys()].map((i2) => at(Math.round(i2 * (count - 1) / (maxSlices - 1))));
+  if (boxes.length < 2) return [...Array(maxSlices).keys()].map((i2) => at(Math.round(i2 * (count2 - 1) / (maxSlices - 1))));
   const seen = (y2, x2) => Math.min(x2.top + x2.h, y2 + height) - Math.max(x2.top, y2) >= Math.min(x2.h, Math.round(height * 0.3));
   let ys = [0];
   for (const x2 of boxes) if (!ys.some((y2) => seen(y2, x2))) ys.push(Math.min(maxY, Math.max(0, x2.top - 16)));
@@ -104617,7 +104629,7 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
     if (brand) audit.brand = await run5(BRAND);
     if (shots) await new Promise((r2) => setTimeout(r2, 150));
     const total = Math.min(audit.height, 3e4);
-    const count = Math.max(1, Math.ceil(total / height));
+    const count2 = Math.max(1, Math.ceil(total / height));
     const maxY = Math.max(0, total - height);
     const shoot2 = async (y2, h) => {
       const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: quality2, captureBeyondViewport: true, clip: { x: 0, y: y2, width, height: Math.max(1, Math.min(h, total - y2)), scale } });
@@ -104630,13 +104642,13 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
       if (box && shots) for (let y2 = box.top, k = 0; y2 < box.top + box.h && k < Math.max(1, maxSlices); y2 += height, k++) slices2.push(await shoot2(y2, Math.min(height, box.top + box.h - y2)));
       return { audit, slices: slices2, sliceCount: box ? Math.max(1, Math.ceil(box.h / height)) : 0 };
     }
-    const ys = slicing === "top" ? [...Array(Math.min(count, Math.max(1, maxSlices))).keys()].map((i2) => Math.min(i2 * height, maxY)) : sectionSlices({ total, height, sections: audit.sectionBoxes || [], maxSlices });
+    const ys = slicing === "top" ? [...Array(Math.min(count2, Math.max(1, maxSlices))).keys()].map((i2) => Math.min(i2 * height, maxY)) : sectionSlices({ total, height, sections: audit.sectionBoxes || [], maxSlices });
     const slices = [];
     const heroBoxes = shots && ys[0] === 0 ? await run5(HERO_BOXES) || [] : [];
     if (shots) for (const y2 of ys) slices.push(await shoot2(y2, height));
     if (heroBoxes.length && slices[0]?.buf) audit.tells = [...audit.tells || [], ...await blankVisuals(slices[0].buf, heroBoxes, scale).catch(() => [])];
     audit.sliceYs = ys;
-    return { audit, slices, sliceCount: count };
+    return { audit, slices, sliceCount: count2 };
   });
 }
 var displayPx = (vw) => Math.min(144, Math.max(48, 19.2 + 0.075 * vw));
@@ -105332,9 +105344,9 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
         lines.push(`${r2.ok ? "\u2713" : "\u2717"} ${r2.msg}`);
       }
       const t2 = loadState().task;
-      const count = t2 ? `
+      const count2 = t2 ? `
 ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.designer)).size} designers (${t2.refs.studied.filter((x2) => x2.onSurface).length} real examples of the surface).` : "";
-      return text(lines.join("\n") + count, bad === list4.length);
+      return text(lines.join("\n") + count2, bad === list4.length);
     })
   );
   async function studyOne(n3) {
@@ -106657,8 +106669,8 @@ function auditIndex(index, { changed = null, root } = {}) {
   }
   let pairsChecked = 0;
   const dupPairs = [];
-  for (const [key, count] of shared2) {
-    if (count < 6) continue;
+  for (const [key, count2] of shared2) {
+    if (count2 < 6) continue;
     const a2 = units[Math.floor(key / 100003)];
     const b = units[key % 100003];
     if (a2.file === b.file && Math.abs(a2.line - b.line) < 2) continue;
@@ -112917,7 +112929,7 @@ function installLib() {
   const hist = (list4, top = 8) => {
     const m = /* @__PURE__ */ new Map();
     for (const v of list4) m.set(v, (m.get(v) || 0) + 1);
-    return [...m.entries()].sort((a2, b) => b[1] - a2[1]).slice(0, top).map(([value, count]) => ({ value, count }));
+    return [...m.entries()].sort((a2, b) => b[1] - a2[1]).slice(0, top).map(([value, count2]) => ({ value, count: count2 }));
   };
   const hasReduced = () => {
     try {
@@ -114013,9 +114025,9 @@ function parseCss(src) {
   }
   return {
     vars,
-    colors: rank(colors, 20).map(([value, count]) => ({ value, count })),
-    type: rank(sizes, 14).map(([size, count]) => ({ size, count })),
-    families: rank(families, 8).map(([family, count]) => ({ family, count })),
+    colors: rank(colors, 20).map(([value, count2]) => ({ value, count: count2 })),
+    type: rank(sizes, 14).map(([size, count2]) => ({ size, count: count2 })),
+    families: rank(families, 8).map(([family, count2]) => ({ family, count: count2 })),
     weights: rank(weights, 6).map(([w]) => w),
     spacing: rank(spacing, 16).map(([v]) => v).sort((a2, b) => a2 - b),
     radii: rank(radii, 8).map(([v]) => v),
@@ -114081,12 +114093,12 @@ var merge4 = (parts) => {
   }
   return {
     vars,
-    colors: rank(colors, 16).map(([value, count]) => ({ value, count, ...roles2.has(value) ? { role: roles2.get(value) } : {} })),
-    type: rank(type, 12).map(([k, count]) => {
+    colors: rank(colors, 16).map(([value, count2]) => ({ value, count: count2, ...roles2.has(value) ? { role: roles2.get(value) } : {} })),
+    type: rank(type, 12).map(([k, count2]) => {
       const [size, weight, family, lineHeight] = k.split("|");
-      return { size: Number(size), ...weight ? { weight } : {}, ...family ? { family } : {}, ...lineHeight ? { lineHeight } : {}, count };
+      return { size: Number(size), ...weight ? { weight } : {}, ...family ? { family } : {}, ...lineHeight ? { lineHeight } : {}, count: count2 };
     }).sort((a2, b) => a2.size - b.size),
-    families: rank(fam, 6).map(([family, count]) => ({ family, count })),
+    families: rank(fam, 6).map(([family, count2]) => ({ family, count: count2 })),
     weights: rank(weights, 5).map(([w]) => w),
     spacing: rank(spacing, 14).map(([v]) => v).sort((a2, b) => a2 - b),
     radii: rank(radii, 6).map(([v]) => v),
@@ -116272,10 +116284,10 @@ function contours(ctx2, p2) {
 }
 function blobs(ctx2, p2, index) {
   const { width, height, rnd, noise, pal } = ctx2;
-  const { count, size, wobble, opacity, colors, blur, blend } = p2;
+  const { count: count2, size, wobble, opacity, colors, blur, blend } = p2;
   const palette2 = inkList(pal, colors, [1, 2]);
   const shapes = [];
-  for (let i2 = 0; i2 < count; i2++) {
+  for (let i2 = 0; i2 < count2; i2++) {
     const r2 = Math.min(width, height) * rnd.range(size[0], size[1]);
     const cx = rnd.range(0, width);
     const cy = rnd.range(0, height);
@@ -116697,10 +116709,10 @@ function unzip(buf) {
     break;
   }
   if (eocd < 0) throw new Error("Not a zip file (no end-of-archive record)");
-  const count = buf.readUInt16LE(eocd + 10);
+  const count2 = buf.readUInt16LE(eocd + 10);
   let p2 = buf.readUInt32LE(eocd + 16);
   const out = [];
-  for (let n3 = 0; n3 < count; n3++) {
+  for (let n3 = 0; n3 < count2; n3++) {
     if (buf.readUInt32LE(p2) !== 33639248) throw new Error("Corrupt zip directory");
     const method = buf.readUInt16LE(p2 + 10);
     const csize = buf.readUInt32LE(p2 + 20);
@@ -117916,10 +117928,10 @@ init_browser();
 init_serve();
 init_paths();
 var wait = (ms) => new Promise((r2) => setTimeout(r2, ms));
-async function captureFrames(tab, { count, seek, format = "webp", quality: quality2 = 78, clip }) {
+async function captureFrames(tab, { count: count2, seek, format = "webp", quality: quality2 = 78, clip }) {
   const frames = [];
   const t0 = Date.now();
-  for (let i2 = 0; i2 < count; i2++) {
+  for (let i2 = 0; i2 < count2; i2++) {
     await seek(i2);
     const { data } = await tab.s("Page.captureScreenshot", { format, ...format !== "png" ? { quality: quality2 } : {}, ...clip ? { clip: { ...clip, scale: 1 } } : {} });
     frames.push({ buf: Buffer.from(data, "base64"), at: Date.now() - t0 });
@@ -117999,7 +118011,7 @@ function register35(server2, ctx2) {
         }
         const natural = naturalDuration(anims2);
         const seconds2 = duration3 || (used2 === "seek" && natural ? Math.min(10, natural / 1e3 + 0.05) : 2);
-        const count = Math.max(2, Math.round(seconds2 * fps));
+        const count2 = Math.max(2, Math.round(seconds2 * fps));
         let clip;
         if (selector) {
           const { result: b } = await tab.s("Runtime.evaluate", { expression: `(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.max(0, r.x), y: Math.max(0, r.y), width: Math.ceil(r.width), height: Math.ceil(r.height) }; })()`, returnByValue: true });
@@ -118009,10 +118021,10 @@ function register35(server2, ctx2) {
         let frames2;
         if (used2 === "seek") {
           await tab.s("Runtime.evaluate", { expression: "window.__motion.pause()" });
-          frames2 = await captureFrames(tab, { count, clip, seek: (i2) => tab.s("Runtime.evaluate", { expression: `window.__motion.seek(${i2 * 1e3 / fps})`, awaitPromise: true }) });
+          frames2 = await captureFrames(tab, { count: count2, clip, seek: (i2) => tab.s("Runtime.evaluate", { expression: `window.__motion.seek(${i2 * 1e3 / fps})`, awaitPromise: true }) });
         } else {
           const t0 = Date.now();
-          frames2 = await captureFrames(tab, { count, clip, seek: async (i2) => wait(Math.max(0, t0 + i2 * 1e3 / fps - Date.now())) });
+          frames2 = await captureFrames(tab, { count: count2, clip, seek: async (i2) => wait(Math.max(0, t0 + i2 * 1e3 / fps - Date.now())) });
         }
         return { anims: anims2, frames: frames2, used: used2, note: note2, seconds: seconds2, fps };
       });

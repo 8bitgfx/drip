@@ -170,8 +170,9 @@ Measured on the 13 shots (lengths 14.5-23.1 s, median about 19 s):
 
 ## 7. Sound fit (inferred; the previews are silent)
 
-Calm, spacious, a little warm. A soft electronic or piano bed at roughly 80-100 bpm, low in the mix, building
-very slightly toward the turn and thinning for the logo. Sound effects are light and tactile: a muted tick for a
+Restrained but rhythmic: a clean electronic or synth-pop bed with a clear pulse at roughly 100-125 bpm, crisp
+percussion and plucky synths so the UI changes land on hits, a tight bass groove, building toward the turn, lifting
+at the reveal and thinning for the logo. Not ambient: a drone or solo piano gives the cuts nothing to land on. Sound effects are light and tactile: a muted tick for a
 click or check, a glassy tap when a card lands, a low airy swell under a big hand-off. No whooshes, no risers
 every scene, no impact hits, no stinger on every title. Silence is allowed during the single-sentence rests (let the
 bed carry). Leave 0.3 s between the final accent and the end. Sound is chosen and logged per `video/sound`; never
@@ -200,7 +201,7 @@ easing:        ease in-out for position (cubic-bezier .45,0,.15,1 or similar), e
 cursor:        28-36 px, curved path, 0.1 s dwell before a click, the UI answers within 0.1 s
 motif:         one object persists (a mark, an orb, a row of bars) and the end returns to it
 logo:          last scene only, 2-4 s, resolves from the previous scene's shape
-sound:         soft bed ~80-100 bpm, low; tick/tap UI sounds on clicks and lands, 1-3 per 5 s; no whooshes;
+sound:         rhythmic clean electronic bed ~100-125 bpm (crisp hits to cut on), under the voice; tick/tap UI sounds on clicks and lands, 1-3 per 5 s; no whooshes;
                silence for 1-2 s at the single-sentence rests
 no:            fake metrics, stock people without a licence, particles without meaning, a bounce, a whoosh, a title card
                in the first 2 s

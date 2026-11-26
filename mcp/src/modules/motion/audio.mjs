@@ -66,7 +66,7 @@ export function registerAudio(server, ctx) {
         styles: z.array(z.string()).optional().describe("generate: global styles: genre, mood, instruments, '112 BPM', 'D minor'"),
         avoid: z.array(z.string()).optional().describe("generate: what to keep out: 'vocals', 'cheesy corporate ukulele', 'big risers'"),
         query: z.string().optional(),
-        feel: z.enum(["calm", "upbeat"]).optional().describe("search: default calm (ambient, minimal electronic, piano, lo-fi, soft cinematic at a slow-to-medium pulse: the motion-design bed); upbeat for an energetic launch the user asked for"),
+        feel: z.enum(["motion", "energetic", "ambient"]).optional().describe("search: default motion (rhythmic, clean electronic to cut to: steady 100-125 BPM pulse, crisp percussion, plucky synths, a tight groove, a lift for the reveal); energetic for a big punchy launch; ambient only for a slow atmospheric brand piece"),
         vocals: z.enum(["no", "any"]).optional().describe("search: default no (instrumental only); any when the user wants a song with words"),
         source: z.string().optional().describe("A file in the project or an audio URL"),
         licence: z.string().optional(),
@@ -76,7 +76,7 @@ export function registerAudio(server, ctx) {
         fadeOut: z.number().optional(),
       },
     },
-    safe(async ({ action, query, feel = "calm", vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, feel = "motion", vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
       const config = ctx.config();
       const { task } = loadState();
       if (action === "generate") {
@@ -131,7 +131,7 @@ export function registerAudio(server, ctx) {
             `${r.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND, already left out, forbids cutting to picture):\n` +
             r.map((t, i) => `${i + 1}. ${t.name} · ${t.seconds ? `${Math.round(t.seconds)}s` : "?"} · ${t.vocals === "instrumental" ? "instrumental" : t.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t.tempo ? ` · ${t.tempo}` : ""} · ${t.licence} · ${t.source}${t.category && t.category !== "music" ? ` · ${t.category}` : ""}\n   ${t.preview}`).join("\n") +
             (notes.length ? `\n(${notes.join("; ")})` : "") +
-            "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is a calm, clean bed under the picture: instrumental; a steady, unhurried pulse (about 80-110 BPM; up to 120 for an upbeat launch); soft synths, pads, piano, light percussion; one gentle lift or build near the film's big moment rather than a hard drop; a clean ending. Never rock, metal, drum and bass, hard techno or anything aggressive under a product film. Music with words only when the user asks for it.",
+            "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it.",
         );
       }
       if (!source) return text("Pass source: a project file or an audio URL.", true);

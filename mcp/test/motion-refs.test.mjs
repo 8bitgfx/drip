@@ -47,16 +47,20 @@ test("long queries relax into pairs and words", () => {
   assert.deepEqual(relaxQuery("shape morph launch").slice(0, 3), ["shape morph launch", "shape morph", "morph launch"]);
 });
 
-test("music ranks calm motion-design beds first and rules out what fights the picture", async () => {
+test("music ranks rhythmic motion-design beds first and rules out what fights the picture", async () => {
   const { motionFit, musicQueries } = await import("../src/modules/motion/sound.mjs");
-  const calm = { name: "Soft Light", tags: ["ambient", "instrumental", "speed_low"], vocals: "instrumental", seconds: 150 };
+  const groove = { name: "Bright Lines", tags: ["electronic", "synthpop", "instrumental", "speed_medium"], vocals: "instrumental", seconds: 150 };
+  const ambient = { name: "Drift", tags: ["ambient", "drone", "instrumental", "speed_verylow"], vocals: "instrumental", seconds: 300 };
   const metal = { name: "Raw ambient black metal", tags: ["instrumental"], vocals: "instrumental", seconds: 200 };
   const club = { name: "Minimal club mix", tags: ["techno", "instrumental", "speed_high"], vocals: "instrumental", seconds: 400 };
+  const jazz = { name: "Funky Blues Bar", tags: ["funk", "jazz", "instrumental"], vocals: "instrumental", seconds: 200 };
   const sung = { name: "Morning", tags: ["pop", "vocal"], vocals: "vocal", seconds: 180 };
-  assert.ok(motionFit(calm) > motionFit(club));
+  assert.ok(motionFit(groove) > motionFit(ambient), "a beat beats a drone for motion design");
+  assert.ok(motionFit(ambient, "ambient") > motionFit(ambient), "ambient has its own feel");
+  assert.ok(motionFit(groove) > motionFit(club));
+  assert.ok(motionFit(groove) > motionFit(jazz));
   assert.ok(motionFit(metal) <= -4); // the search keeps only fits above -4
-  assert.ok(motionFit(sung) < motionFit(calm));
-  assert.ok(motionFit(club, "upbeat") > motionFit(club, "calm"));
-  assert.deepEqual(musicQueries("saas product launch").slice(0, 2), ["ambient electronic", "chill piano"]);
+  assert.ok(motionFit(sung) < motionFit(groove));
+  assert.deepEqual(musicQueries("saas product launch").slice(0, 2), ["upbeat electronic", "synthpop"]);
   assert.equal(musicQueries("warm piano launch")[0], "warm piano");
 });
