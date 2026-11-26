@@ -46,3 +46,17 @@ test("the shipped masters list is valid and names where each master's work is", 
 test("long queries relax into pairs and words", () => {
   assert.deepEqual(relaxQuery("shape morph launch").slice(0, 3), ["shape morph launch", "shape morph", "morph launch"]);
 });
+
+test("music ranks calm motion-design beds first and rules out what fights the picture", async () => {
+  const { motionFit, musicQueries } = await import("../src/modules/motion/sound.mjs");
+  const calm = { name: "Soft Light", tags: ["ambient", "instrumental", "speed_low"], vocals: "instrumental", seconds: 150 };
+  const metal = { name: "Raw ambient black metal", tags: ["instrumental"], vocals: "instrumental", seconds: 200 };
+  const club = { name: "Minimal club mix", tags: ["techno", "instrumental", "speed_high"], vocals: "instrumental", seconds: 400 };
+  const sung = { name: "Morning", tags: ["pop", "vocal"], vocals: "vocal", seconds: 180 };
+  assert.ok(motionFit(calm) > motionFit(club));
+  assert.ok(motionFit(metal) <= -4); // the search keeps only fits above -4
+  assert.ok(motionFit(sung) < motionFit(calm));
+  assert.ok(motionFit(club, "upbeat") > motionFit(club, "calm"));
+  assert.deepEqual(musicQueries("saas product launch").slice(0, 2), ["ambient electronic", "chill piano"]);
+  assert.equal(musicQueries("warm piano launch")[0], "warm piano");
+});

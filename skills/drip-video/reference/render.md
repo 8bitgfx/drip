@@ -91,6 +91,10 @@ Engines, set up by Drip itself (never ask the user to install anything):
   **HyperFrames** into `~/.drip/vendor` in the background, test-renders a one-second clip with each and with Drip's
   own capture, and keeps the fastest that works in `~/.drip/motion-renderer.json`. It never asks again.
 - `auto` renders with that choice and falls back through the others in measured order, Drip's capture last.
+- Every external render is checked against Chrome: four frames of the video are compared with Chrome's frames of
+  the composition at the same moments, region by region. Renderers differ on SVG filters, fonts and some CSS (on the
+  dev machine Kinetograph drew a goo-filter blob black and dropped a rolling number); a mismatch discards that
+  render and tries the next one, and a renderer that mismatches twice is skipped on this machine.
 - Drafts, `from`/`to` slices and `alpha` always use Drip's own capture (it seeks frame by frame).
 - Music, effects and narration are mixed on afterwards with ffmpeg (Kinetograph's own, if none is on PATH).
 - A library a renderer can't run (check Kinetograph's compat list before choosing an exotic one): wrap it so it

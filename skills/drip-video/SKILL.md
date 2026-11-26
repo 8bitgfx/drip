@@ -28,6 +28,7 @@ Film tasks run in `drip_start` mode `motion` (`/drip:motion`). **Call `drip_guid
 | Kinetic typography, type sizes at video size | `drip_guide video/type` |
 | Generative visuals, particles, noise, simulations that must seek | `drip_guide video/procedural` |
 | Product demos, cursors, UI on screen | `drip_guide video/product` |
+| The UI shown in a film: Drip's UI bar (real content, system, states) plus video sizes and real UI timings | `drip_guide video/ui` |
 | 2.5D or 3D camera, parallax, pull-backs, three.js | `drip_guide video/camera` |
 | Music (find, analyse, drops), calm UI sounds, licences, the mix | `drip_guide video/sound` |
 | Light, depth, particles, globes, numbers: the seekable visuals that make a beat rich | `drip_guide video/visuals` |

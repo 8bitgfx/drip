@@ -216,6 +216,8 @@ const TALK = `TALK: decisions first, 3-6 short lines per message; show (board li
 
 // Drip Motion: a film made in code. Its own short loop: look at real motion, storyboard, style frames, build, look at the
 // frames, critic once, render, check the file.
+const UI_FILM = /\b(app|apps|saas|software|platform|dashboard|tool|product|ui|interface|screen|website|plugin|extension|api|startup|agent|editor|workspace)\b/i;
+
 function startMotion({ task, pk, memory, ctx }) {
   const t = newTask({ title: task, size: "full", surface: "other", guides: ["video"], mode: "motion", packs: pk });
   t.loop = "motion";
@@ -225,6 +227,9 @@ function startMotion({ task, pk, memory, ctx }) {
   if (memory !== "fresh") t.memory = buildTaskMemory({ taskText: task, mode: memory });
   const memCtx = t.memory ? projectContext({ task: t }) : null;
   const guide = readGuide("video");
+  // A film about a product shows its UI: Drip's UI bar applies on screen (video/ui), loaded with the film guide.
+  const uiGuide = UI_FILM.test(task) ? readGuide("video/ui") : null;
+  if (uiGuide) t.guidesRead.push("video/ui");
   if (guide) t.guidesRead.push("video");
   updateState((st) => {
     if (st.task) st.history.push({ ...st.task, endedAt: new Date().toISOString(), endedBy: "new task" });
@@ -265,7 +270,8 @@ function startMotion({ task, pk, memory, ctx }) {
       "UI AND LOGOS IN THE FILM: this is not a page or logo task, but their tools are yours: real product screens (the user's own first; else components_find, pieces_preview, mockup_render; never a fake dashboard), a logo or end card (logo_sheet, logo_test, or the brand's own mark), fonts_search, palette_generate, icons_search. The page and logo gates don't apply here; the film's do (storyboard, frames, trace, critic).\n" +
       "REVIEWING MOTION: one still says nothing about movement. motion_frames shows the frames; motion_trace measures the moves (onion skins of each move's path and spacing, speed curves against the beats, flags for pops, dead stops, linear moves, everything starting at once). Use both on every beat you change.\n\n" +
       `${TALK}\n\n` +
-      (guide ? `=================== GUIDE: video ===================\n${guide}` : ""),
+      (guide ? `=================== GUIDE: video ===================\n${guide}` : "") +
+      (uiGuide ? `\n\n=================== GUIDE: video/ui ===================\n${uiGuide}` : ""),
   );
 }
 

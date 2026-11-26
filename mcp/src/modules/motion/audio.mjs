@@ -12,7 +12,7 @@ import { blocks, safe, text } from "../../core/result.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { fmtT } from "./capture.mjs";
 import { alignToMusic, analyseMusic, musicChartHtml } from "./music.mjs";
-import { checkCues, loadCatalogue, placeCue, searchCatalogue, searchJamendo, searchOpenverse } from "./sound.mjs";
+import { checkCues, loadCatalogue, motionFit, musicQueries, placeCue, searchCatalogue, searchJamendo, searchOpenverse } from "./sound.mjs";
 import { drawPage } from "./trace.mjs";
 import { relaxQuery } from "./refsources.mjs";
 
@@ -66,6 +66,7 @@ export function registerAudio(server, ctx) {
         styles: z.array(z.string()).optional().describe("generate: global styles: genre, mood, instruments, '112 BPM', 'D minor'"),
         avoid: z.array(z.string()).optional().describe("generate: what to keep out: 'vocals', 'cheesy corporate ukulele', 'big risers'"),
         query: z.string().optional(),
+        feel: z.enum(["calm", "upbeat"]).optional().describe("search: default calm (ambient, minimal electronic, piano, lo-fi, soft cinematic at a slow-to-medium pulse: the motion-design bed); upbeat for an energetic launch the user asked for"),
         vocals: z.enum(["no", "any"]).optional().describe("search: default no (instrumental only); any when the user wants a song with words"),
         source: z.string().optional().describe("A file in the project or an audio URL"),
         licence: z.string().optional(),
@@ -75,7 +76,7 @@ export function registerAudio(server, ctx) {
         fadeOut: z.number().optional(),
       },
     },
-    safe(async ({ action, query, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, feel = "calm", vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
       const config = ctx.config();
       const { task } = loadState();
       if (action === "generate") {
@@ -101,26 +102,36 @@ export function registerAudio(server, ctx) {
         return text(`Generated ${rel} (${plan.reduce((s, p) => s + p.seconds, 0)}s, ${plan.length} sections). NOW: motion_music analyse it (check the drop really lands at ${plan.slice(0, -1).reduce((s, p) => s + p.seconds, 0)}s-ish and the tempo is steady), then action use. Give the user the file to listen to first.`);
       }
       if (action === "search") {
-        if (!query) return text("Pass query: the feel in music words (\"minimal electronic pulse\", \"warm lo-fi piano\", \"cinematic build\").", true);
+        // No words given: the motion-design bed for the feel.
+        if (!query) query = "";
         const jamendoId = getKey("jamendo");
         const found = [];
         const notes = [];
-        if (jamendoId) found.push(...(await searchJamendo(query, { clientId: jamendoId, vocals }).catch((e) => (notes.push(`Jamendo: ${e.message}`), []))));
+        if (jamendoId) found.push(...(await searchJamendo(musicQueries(query, feel)[0], { clientId: jamendoId, vocals, feel }).catch((e) => (notes.push(`Jamendo: ${e.message}`), []))));
         else notes.push("Jamendo's own API (a real instrumental filter, popularity order) needs a free client id: add it on /drip:settings → API keys");
         const seen = new Set(found.map((t) => t.name.toLowerCase()));
-        // Openverse matches every word: relax a long query until there are enough tracks to choose from.
-        for (const v of relaxQuery(query)) {
-          for (const t of await searchOpenverse(v, { music: true, limit: 10, vocals }).catch(() => [])) if (!seen.has(t.name.toLowerCase()) && seen.add(t.name.toLowerCase())) found.push(t);
-          if (found.length >= 12) break;
+        // Openverse matches every word: run the music words and the feel's beds, relaxing long ones.
+        // A few from each search, so the list spans several kinds of bed (not 14 tracks named "Ambient").
+        for (const q of musicQueries(query, feel)) {
+          let got = 0;
+          for (const v of relaxQuery(q).slice(0, 2)) {
+            for (const t of await searchOpenverse(v, { music: true, limit: 10, vocals }).catch(() => []))
+              if (got < 6 && motionFit(t, feel) > -4 && !seen.has(t.name.toLowerCase()) && seen.add(t.name.toLowerCase())) {
+                found.push(t);
+                got++;
+              }
+            if (got >= 6) break;
+          }
         }
-        const r = found.slice(0, 14);
+        // Best fit for motion design first (calm by default); tracks that fight the picture drop to the bottom or out.
+        const r = found.map((t) => ({ ...t, fit: motionFit(t, feel) })).filter((t) => t.fit > -4).sort((a, b) => b.fit - a.fit).slice(0, 14);
         if (!r.length) return text("No tracks found. Try fewer, broader words (a genre and a feel); or use a track the user owns.", true);
         return text(
           "PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: \"Epidemic Sound subscription\"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.\n\n" +
             `${r.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND, already left out, forbids cutting to picture):\n` +
             r.map((t, i) => `${i + 1}. ${t.name} · ${t.seconds ? `${Math.round(t.seconds)}s` : "?"} · ${t.vocals === "instrumental" ? "instrumental" : t.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t.tempo ? ` · ${t.tempo}` : ""} · ${t.licence} · ${t.source}${t.category && t.category !== "music" ? ` · ${t.category}` : ""}\n   ${t.preview}`).join("\n") +
             (notes.length ? `\n(${notes.join("; ")})` : "") +
-            "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion music: instrumental, a clear pulse (90-128 BPM), a build into one drop or lift near the film's big moment, a clean ending. Music with words only when the user asks for it.",
+            "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is a calm, clean bed under the picture: instrumental; a steady, unhurried pulse (about 80-110 BPM; up to 120 for an upbeat launch); soft synths, pads, piano, light percussion; one gentle lift or build near the film's big moment rather than a hard drop; a clean ending. Never rock, metal, drum and bass, hard techno or anything aggressive under a product film. Music with words only when the user asks for it.",
         );
       }
       if (!source) return text("Pass source: a project file or an audio URL.", true);

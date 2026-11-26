@@ -12,7 +12,7 @@ import { rendersDir, stamp } from "../../core/render.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { loadState, reconcileWorkspace, updateState } from "../../core/state.mjs";
 import { artifactRev } from "../../core/evidence.mjs";
-import { findFfmpeg, fmtT, judgeFrames, measureFrames, renderComposition, sampleVideo, sparkline } from "./capture.mjs";
+import { fidelity, findFfmpeg, fmtT, judgeFrames, measureFrames, renderComposition, sampleVideo, sparkline } from "./capture.mjs";
 import { compositionUrl, filmSheets, isVideo } from "./sheets.mjs";
 import { ROLES, checkStoryboard, storyboardMd } from "./story.mjs";
 import { analyzeTrace, dopesheet, onionSkin, stretches, traceComposition } from "./trace.mjs";
@@ -21,7 +21,7 @@ import { listing, shot as dribbbleShot, thumbUrl } from "../refs/dribbble.mjs";
 import { registerAudio } from "./audio.mjs";
 import { registerVoice } from "./voice.mjs";
 import { mixGraph, soundTracks } from "./sound.mjs";
-import { ensureRenderers, mux, renderWith } from "./renderers.mjs";
+import { ensureRenderers, mux, noteDistrust, readChoice, renderWith } from "./renderers.mjs";
 
 const motionOf = (task) => task?.motion || { studied: [], renders: [] };
 
@@ -254,6 +254,10 @@ export function register(server, ctx) {
     },
     safe(async (sb) => {
       const { task } = loadState();
+      // UI on screen follows Drip's UI bar: read it before planning UI beats (the guide is how the rules arrive).
+      const uiBeats = (sb.beats || []).filter((b) => /\b(ui|screen|dashboard|app|cursor|click|button|card|modal|menu|sidebar|chip|toggle|form|interface|window|panel)\b/i.test(`${b.action} ${b.visual || ""} ${(b.moments || []).join(" ")}`));
+      if (uiBeats.length && task && !(task.guidesRead || []).includes("video/ui"))
+        return text(`Beats ${uiBeats.map((b) => (sb.beats || []).indexOf(b) + 1).join(", ")} show UI. Read drip_guide video/ui first (Drip's UI bar inside a film: real content, one system, states, video sizes, UI timings vs film timings), then record the storyboard.`, true);
       const r = checkStoryboard(sb, { studied: motionOf(task).studied || [] });
       if (r.errors.length) return text(`Storyboard not recorded:\n${r.errors.map((e) => `- ${e}`).join("\n")}`, true);
       const dir = path.join(projectDripDir(), "motion", task?.id || "draft");
@@ -424,12 +428,27 @@ export function register(server, ctx) {
           order = choice.order?.length ? choice.order : ["drip"];
         }
         const fails = [];
+        const distrust = readChoice()?.distrust || {};
+        const compUrl = await compositionUrl(target);
         for (const eng of order) {
           if (eng === "drip") break;
+          if (engine === "auto" && (distrust[eng] || 0) >= 2) {
+            fails.push(`${eng}: skipped (its renders didn't match Chrome twice on this machine)`);
+            continue;
+          }
           const tmp = outFile.replace(/(\.[^.]+)$/, `.${eng}-video$1`);
           const r = await renderWith(eng, abs, tmp);
           if (!r.ok) {
             fails.push(`${eng}: ${r.why}`);
+            continue;
+          }
+          // The video must be the film that was reviewed: compare a few frames with Chrome's (renderers differ on SVG
+          // filters, fonts and some CSS). A mismatch discards this render and tries the next renderer.
+          const fid = await fidelity(tmp, compUrl, { width: fmt.width || 1920, height: fmt.height || 1080, config }).catch((e) => ({ ok: false, why: e.message }));
+          if (!fid.ok) {
+            fs.rmSync(tmp, { force: true });
+            noteDistrust(eng);
+            fails.push(`${eng}: its video doesn't match Chrome's frames${fid.at != null ? ` (worst at ${fmtT(fid.at)}, difference ${fid.worst.toFixed(1)})` : fid.why ? ` (${fid.why})` : ""}`);
             continue;
           }
           const tracks = audio ? [{ file: audio, kind: "music", start: 0 }] : soundTracks(motionOf(task).sound).filter((tr) => fs.existsSync(path.resolve(projectDir(), tr.file)));

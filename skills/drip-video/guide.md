@@ -126,6 +126,9 @@ double the holds.
     ground with one move per beat is basic, however clean. The seekable visuals in `drip_kit({ template:
     "motion-visuals" })` are the starting point (`drip_guide video/visuals`). `motion_frames` flags mostly empty
     frames; `motion_trace` flags stretches where nothing new starts.
+16. **The product's UI meets Drip's UI bar.** Real screens or rebuilt ones with real content, one system, real
+    states, readable at video size (22 px+ at 1080p), and UI feedback at real UI timings (100-300 ms) while the
+    camera and light carry the film's slower time (`drip_guide video/ui`).
 
 ## Craft in one screen
 
@@ -223,6 +226,7 @@ its source and licence in `sound/LICENCES.md`. See `drip_guide video/sound`.
 | `drip_guide video/product` | Product demos, cursors, device frames, real screens |
 | `drip_guide video/camera` | 2.5D and 3D camera, parallax, pull-backs |
 | `drip_guide video/sound` | Music (find, analyse, drops), calm UI sounds, licences, the mix |
+| `drip_guide video/ui` | UI in films: Drip's UI rules applied to the product on screen, sizes for video, UI timings vs film timings |
 | `drip_guide video/visuals` | The seekable visuals library: light fields, glows, 3D planes, particles to shape, globes, numbers; making each beat rich |
 | `drip_guide video/voice` | Narration: script for the ear, casting, ElevenLabs models and settings, timing to picture |
 | `drip_guide video/render` | The seek contract, determinism, renderers, formats |

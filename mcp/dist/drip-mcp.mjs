@@ -18233,7 +18233,7 @@ var require_deflate2 = __commonJS({
 var require_inffast = __commonJS({
   "node_modules/pako/lib/zlib/inffast.js"(exports, module) {
     "use strict";
-    var BAD = 30;
+    var BAD2 = 30;
     var TYPE = 12;
     module.exports = function inflate_fast(strm, start2) {
       var state;
@@ -18335,7 +18335,7 @@ var require_inffast = __commonJS({
                       dist3 += hold & (1 << op) - 1;
                       if (dist3 > dmax) {
                         strm.msg = "invalid distance too far back";
-                        state.mode = BAD;
+                        state.mode = BAD2;
                         break top;
                       }
                       hold >>>= op;
@@ -18346,7 +18346,7 @@ var require_inffast = __commonJS({
                         if (op > whave) {
                           if (state.sane) {
                             strm.msg = "invalid distance too far back";
-                            state.mode = BAD;
+                            state.mode = BAD2;
                             break top;
                           }
                         }
@@ -18424,7 +18424,7 @@ var require_inffast = __commonJS({
                       continue dodist;
                     } else {
                       strm.msg = "invalid distance code";
-                      state.mode = BAD;
+                      state.mode = BAD2;
                       break top;
                     }
                     break;
@@ -18437,7 +18437,7 @@ var require_inffast = __commonJS({
                 break top;
               } else {
                 strm.msg = "invalid literal/length code";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break top;
               }
               break;
@@ -18826,7 +18826,7 @@ var require_inflate = __commonJS({
     var CHECK = 27;
     var LENGTH = 28;
     var DONE = 29;
-    var BAD = 30;
+    var BAD2 = 30;
     var MEM = 31;
     var SYNC = 32;
     var ENOUGH_LENS = 852;
@@ -19097,12 +19097,12 @@ var require_inflate = __commonJS({
               if (!(state.wrap & 1) || /* check if zlib header allowed */
               (((hold & 255) << 8) + (hold >> 8)) % 31) {
                 strm.msg = "incorrect header check";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               if ((hold & 15) !== Z_DEFLATED) {
                 strm.msg = "unknown compression method";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               hold >>>= 4;
@@ -19112,7 +19112,7 @@ var require_inflate = __commonJS({
                 state.wbits = len;
               } else if (len > state.wbits) {
                 strm.msg = "invalid window size";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.dmax = 1 << len;
@@ -19133,12 +19133,12 @@ var require_inflate = __commonJS({
               state.flags = hold;
               if ((state.flags & 255) !== Z_DEFLATED) {
                 strm.msg = "unknown compression method";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               if (state.flags & 57344) {
                 strm.msg = "unknown header flags set";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               if (state.head) {
@@ -19324,7 +19324,7 @@ var require_inflate = __commonJS({
                 }
                 if (hold !== (state.check & 65535)) {
                   strm.msg = "header crc mismatch";
-                  state.mode = BAD;
+                  state.mode = BAD2;
                   break;
                 }
                 hold = 0;
@@ -19405,7 +19405,7 @@ var require_inflate = __commonJS({
                   break;
                 case 3:
                   strm.msg = "invalid block type";
-                  state.mode = BAD;
+                  state.mode = BAD2;
               }
               hold >>>= 2;
               bits -= 2;
@@ -19423,7 +19423,7 @@ var require_inflate = __commonJS({
               }
               if ((hold & 65535) !== (hold >>> 16 ^ 65535)) {
                 strm.msg = "invalid stored block lengths";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.length = hold & 65535;
@@ -19479,7 +19479,7 @@ var require_inflate = __commonJS({
               bits -= 4;
               if (state.nlen > 286 || state.ndist > 30) {
                 strm.msg = "too many length or distance symbols";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.have = 0;
@@ -19509,7 +19509,7 @@ var require_inflate = __commonJS({
               state.lenbits = opts.bits;
               if (ret) {
                 strm.msg = "invalid code lengths set";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.have = 0;
@@ -19551,7 +19551,7 @@ var require_inflate = __commonJS({
                     bits -= here_bits;
                     if (state.have === 0) {
                       strm.msg = "invalid bit length repeat";
-                      state.mode = BAD;
+                      state.mode = BAD2;
                       break;
                     }
                     len = state.lens[state.have - 1];
@@ -19593,7 +19593,7 @@ var require_inflate = __commonJS({
                   }
                   if (state.have + copy > state.nlen + state.ndist) {
                     strm.msg = "invalid bit length repeat";
-                    state.mode = BAD;
+                    state.mode = BAD2;
                     break;
                   }
                   while (copy--) {
@@ -19601,12 +19601,12 @@ var require_inflate = __commonJS({
                   }
                 }
               }
-              if (state.mode === BAD) {
+              if (state.mode === BAD2) {
                 break;
               }
               if (state.lens[256] === 0) {
                 strm.msg = "invalid code -- missing end-of-block";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.lenbits = 9;
@@ -19615,7 +19615,7 @@ var require_inflate = __commonJS({
               state.lenbits = opts.bits;
               if (ret) {
                 strm.msg = "invalid literal/lengths set";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.distbits = 6;
@@ -19625,7 +19625,7 @@ var require_inflate = __commonJS({
               state.distbits = opts.bits;
               if (ret) {
                 strm.msg = "invalid distances set";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.mode = LEN_;
@@ -19712,7 +19712,7 @@ var require_inflate = __commonJS({
               }
               if (here_op & 64) {
                 strm.msg = "invalid literal/length code";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.extra = here_op & 15;
@@ -19781,7 +19781,7 @@ var require_inflate = __commonJS({
               state.back += here_bits;
               if (here_op & 64) {
                 strm.msg = "invalid distance code";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.offset = here_val;
@@ -19806,7 +19806,7 @@ var require_inflate = __commonJS({
               }
               if (state.offset > state.dmax) {
                 strm.msg = "invalid distance too far back";
-                state.mode = BAD;
+                state.mode = BAD2;
                 break;
               }
               state.mode = MATCH;
@@ -19821,7 +19821,7 @@ var require_inflate = __commonJS({
                 if (copy > state.whave) {
                   if (state.sane) {
                     strm.msg = "invalid distance too far back";
-                    state.mode = BAD;
+                    state.mode = BAD2;
                     break;
                   }
                 }
@@ -19880,7 +19880,7 @@ var require_inflate = __commonJS({
                 _out = left;
                 if ((state.flags ? hold : zswap32(hold)) !== state.check) {
                   strm.msg = "incorrect data check";
-                  state.mode = BAD;
+                  state.mode = BAD2;
                   break;
                 }
                 hold = 0;
@@ -19900,7 +19900,7 @@ var require_inflate = __commonJS({
                 }
                 if (hold !== (state.total & 4294967295)) {
                   strm.msg = "incorrect length check";
-                  state.mode = BAD;
+                  state.mode = BAD2;
                   break;
                 }
                 hold = 0;
@@ -19911,7 +19911,7 @@ var require_inflate = __commonJS({
             case DONE:
               ret = Z_STREAM_END;
               break inf_leave;
-            case BAD:
+            case BAD2:
               ret = Z_DATA_ERROR;
               break inf_leave;
             case MEM:
@@ -19928,7 +19928,7 @@ var require_inflate = __commonJS({
       strm.avail_in = have;
       state.hold = hold;
       state.bits = bits;
-      if (state.wsize || _out !== strm.avail_out && state.mode < BAD && (state.mode < CHECK || flush !== Z_FINISH)) {
+      if (state.wsize || _out !== strm.avail_out && state.mode < BAD2 && (state.mode < CHECK || flush !== Z_FINISH)) {
         if (updatewindow(strm, strm.output, strm.next_out, _out - strm.avail_out)) {
           state.mode = MEM;
           return Z_MEM_ERROR;
@@ -100852,6 +100852,12 @@ function run(cmd, args, { cwd, timeout = 15 * 6e4, env } = {}) {
 ${se}`.trim(), ms: Date.now() - t0 }));
   });
 }
+function noteDistrust(engine) {
+  const c3 = readChoice();
+  if (!c3) return;
+  c3.distrust = { ...c3.distrust || {}, [engine]: ((c3.distrust || {})[engine] || 0) + 1 };
+  fs33.writeFileSync(stateFile(), JSON.stringify(c3, null, 2));
+}
 function readChoice() {
   try {
     return JSON.parse(fs33.readFileSync(stateFile(), "utf8"));
@@ -100880,7 +100886,7 @@ function engineCommand(engine, entry, out) {
   }
   if (engine === "framevelo") {
     const bin = binOf("framevelo");
-    return bin ? { cmd: process.execPath, args: [bin, "render", cwd, "--no-hyperframes", "-o", out], cwd } : null;
+    return bin ? { cmd: process.execPath, args: [bin, "render", path31.basename(entry), "--no-hyperframes", "-o", out], cwd } : null;
   }
   if (engine === "hyperframes") {
     const bin = binOf("hyperframes");
@@ -101097,15 +101103,23 @@ window.run = async () => {
     for (let i = 0; i < L.length; i++) { L[i] = 0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]; sum += L[i]; }
     const mean = sum / L.length;
     let v = 0; for (let i = 0; i < L.length; i++) v += (L[i] - mean) ** 2;
-    let diff = null;
-    if (prev) { diff = 0; for (let i = 0; i < L.length; i++) diff += Math.abs(L[i] - prev[i]); diff /= L.length; }
+    let diff = null, block = null;
+    if (prev) {
+      diff = 0; for (let i = 0; i < L.length; i++) diff += Math.abs(L[i] - prev[i]); diff /= L.length;
+      block = 0;
+      for (let by = 0; by < 6; by++) for (let bx = 0; bx < 8; bx++) {
+        let b = 0;
+        for (let y = by * 6; y < by * 6 + 6; y++) for (let x = bx * 8; x < bx * 8 + 8; x++) b += Math.abs(L[y * 64 + x] - prev[y * 64 + x]);
+        block = Math.max(block, b / 48);
+      }
+    }
     // Fill: the share of the frame that isn't the background (the most common colour, coarsely bucketed).
     const buckets = new Map();
     for (let i = 0; i < L.length; i++) { const k = ((d[i * 4] >> 4) << 8) | ((d[i * 4 + 1] >> 4) << 4) | (d[i * 4 + 2] >> 4); buckets.set(k, (buckets.get(k) || 0) + 1); }
     let modeK = 0, modeN = -1; for (const [k, n] of buckets) if (n > modeN) { modeN = n; modeK = k; }
     const mr = ((modeK >> 8) & 15) * 16 + 8, mg = ((modeK >> 4) & 15) * 16 + 8, mb = (modeK & 15) * 16 + 8;
     let filled = 0; for (let i = 0; i < L.length; i++) if (Math.abs(d[i * 4] - mr) + Math.abs(d[i * 4 + 1] - mg) + Math.abs(d[i * 4 + 2] - mb) > 48) filled++;
-    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1), fill: +(filled / L.length).toFixed(3) });
+    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1), block: block == null ? null : +block.toFixed(1), fill: +(filled / L.length).toFixed(3) });
     prev = L;
   }
   return out;
@@ -101173,7 +101187,7 @@ function sparkline(values) {
   const max = Math.max(1, ...values);
   return values.map((v) => bars[Math.min(7, Math.round(v / max * 7))]).join("");
 }
-async function sampleVideo(source, { every, max = 120, width = 1280, height = 720, config: config2 } = {}) {
+async function sampleVideo(source, { every, times, fractions = false, max = 120, width = 1280, height = 720, config: config2 } = {}) {
   const isFile = !/^https?:/i.test(source);
   if (isFile || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(source)) {
     let buf;
@@ -101197,14 +101211,14 @@ async function sampleVideo(source, { every, max = 120, width = 1280, height = 72
     );
     const base = await serveDir(dir);
     try {
-      return await sampleVideoAt(`${base}/${id}.html`, { every, max, width, height, config: config2 });
+      return await sampleVideoAt(`${base}/${id}.html`, { every, times, fractions, max, width, height, config: config2 });
     } finally {
       for (const f3 of [`${id}.${ext}`, `${id}.html`]) fs34.rmSync(path32.join(dir, f3), { force: true });
     }
   }
-  return sampleVideoAt(source, { every, max, width, height, config: config2 });
+  return sampleVideoAt(source, { every, times, fractions, max, width, height, config: config2 });
 }
-async function sampleVideoAt(url2, { every, max, width, height, config: config2 }) {
+async function sampleVideoAt(url2, { every, times, fractions, max, width, height, config: config2 }) {
   return withTab(config2, async (tab) => {
     await openPage(tab, url2, { width, height, settleMs: 800 });
     const info = await evalJson(
@@ -101225,7 +101239,8 @@ async function sampleVideoAt(url2, { every, max, width, height, config: config2 
     const D = info.duration;
     const step = every || Math.max(0.25, D / max);
     const frames = [];
-    for (let t2 = 0; t2 < D && frames.length < max; t2 += step) {
+    const plan = times?.length ? (fractions ? times.map((f3) => +(f3 * D).toFixed(3)) : times).filter((x2) => x2 < D) : null;
+    for (let k = 0, t2 = plan ? plan[0] : 0; plan ? k < plan.length : t2 < D && frames.length < max; k++, t2 = plan ? plan[k] : t2 + step) {
       await evalJson(
         tab.s,
         `(async () => {
@@ -101320,6 +101335,19 @@ async function renderComposition(url2, { out, fps = 30, width = 1920, height = 1
     await done;
     return { file: out, frames: n3, seconds: (Date.now() - t0) / 1e3 };
   });
+}
+async function fidelity(videoFile, url2, { fractions = [0.12, 0.37, 0.62, 0.87], width, height, config: config2 } = {}) {
+  const v = await sampleVideo(videoFile, { times: fractions, fractions: true, config: config2 });
+  const times = v.frames.map((f3) => f3.t);
+  const c3 = await shootComposition(url2, { times: { times }, width, height, scale: Math.min(1, 640 / width), config: config2 });
+  const pairs2 = Math.min(v.frames.length, c3.frames.length);
+  if (!pairs2) return { ok: false, diffs: [], why: "no frames to compare" };
+  const bufs = [];
+  for (let i2 = 0; i2 < pairs2; i2++) bufs.push(c3.frames[i2].buf, v.frames[i2].buf);
+  const m = await measureFrames(bufs, { config: config2 });
+  const diffs = Array.from({ length: pairs2 }, (_, i2) => m[2 * i2 + 1]?.block ?? 99);
+  const worst = Math.max(...diffs);
+  return { ok: worst <= 28, diffs, worst, at: times[diffs.indexOf(worst)] };
 }
 
 // src/modules/motion/sheets.mjs
@@ -101946,8 +101974,8 @@ async function mastersWork(queries, { max = 4, per = 3, config: config2 } = {}) 
   }
   return out;
 }
-var NOT_WORK = /(tutorial|template|course|how to|after effects tutorial|no plugins|preset pack|free download)/i;
-var UI_SHOWCASE = /(landing page|website|web site|dashboard|ui ?\/? ?ux|ui design|app design|web design|homepage)/i;
+var NOT_WORK = /\b(tutorial|template|course|how to|after effects tutorial|no plugins|preset pack|free download)\b/i;
+var UI_SHOWCASE = /\b(landing page|website|web site|dashboard|ui ?\/? ?ux|ui design|app design|web design|homepage)\b/i;
 async function searchDribbbleMotion(q2, { per = 6, minLikes = 40, config: config2 } = {}) {
   const r2 = await listing("search", { query: q2, category: "animation", sort: "popular" }, config2);
   return r2.cards.filter((c3) => c3.video && !c3.boosted && parseLikes(c3.likes) >= minLikes && !isRejected(c3.designer) && !isRejected(c3.designerUrl) && !UI_SHOWCASE.test(c3.title || "") && !NOT_WORK.test(c3.title || "")).sort((a2, b) => parseLikes(b.likes) - parseLikes(a2.likes)).slice(0, per).map((c3) => ({ from: "dribbble", title: c3.title, creator: c3.designer, url: c3.url, poster: c3.image ? thumbUrl(c3.image, 400, 300) : null, video: c3.video, likes: parseLikes(c3.likes), tags: ["animation"] }));
@@ -102248,6 +102276,24 @@ function vocalsOf(tags = [], title = "") {
   if (t2.some((x2) => /^(vocal|vocals|singing|singer|rap|lyrics|female|male|choir|voice)$/.test(x2)) || /\b(feat\.?|ft\.|vocal|remix by)\b/i.test(title)) return "vocal";
   return "unknown";
 }
+var CALM_GOOD = /\b(ambient|minimal|minimalism|electronic|electronica|piano|lo-?fi|lofi|downtempo|chill|chillout|cinematic|filmscore|soundtrack|corporate|calm|peaceful|relax|relaxing|soft|dreamy|atmospheric|pads?|synth(wave)?|instrumental|neutral|uplifting|inspiring|elegant|clean|modern|tech|future)\b/i;
+var UPBEAT_GOOD = /\b(electronic|electro|house|future ?bass|funk|pop|upbeat|energetic|happy|groove|disco|indie|dance|synthpop|bright|optimistic|uplifting)\b/i;
+var BAD = /\b(rock|metal|punk|hardcore|grind|drum ?n ?bass|dnb|dubstep|hardstyle|gabber|industrial|noise|aggressive|dark|horror|screamo|trap|rap|hip ?hop|reggae|country|polka|schlager|march|military|christmas|kids|comedy|world)\b/i;
+var CLUB = /\b(techno|club|party|trance|goa|psy|disco|dj|mix|remix|edm|rave|bass ?boost|banger)\b/i;
+var SPEED_SCORE = { calm: { speed_verylow: 0, speed_low: 2, speed_medium: 2, speed_high: -1, speed_veryhigh: -3 }, upbeat: { speed_verylow: -2, speed_low: 0, speed_medium: 2, speed_high: 2, speed_veryhigh: -1 } };
+function motionFit(t2, feel = "calm") {
+  const words4 = `${t2.category || ""} ${(t2.tags || []).join(" ")} ${t2.name || ""}`;
+  let s2 = 0;
+  s2 += (words4.match(new RegExp((feel === "upbeat" ? UPBEAT_GOOD : CALM_GOOD).source, "gi")) || []).length;
+  s2 -= 8 * (words4.match(new RegExp(BAD.source, "gi")) || []).length;
+  for (const tag of t2.tags || []) s2 += SPEED_SCORE[feel]?.[tag] ?? 0;
+  if (t2.tempo) s2 += /very fast/.test(t2.tempo) ? -3 : /fast/.test(t2.tempo) ? feel === "calm" ? -1 : 1 : /slow|medium/.test(t2.tempo) ? feel === "calm" ? 2 : 0 : 0;
+  if (feel === "calm" && CLUB.test(words4)) s2 -= 5;
+  if (t2.vocals === "instrumental") s2 += 2;
+  if (t2.vocals === "vocal") s2 -= 6;
+  if (t2.seconds && t2.seconds > 360) s2 -= 1;
+  return s2;
+}
 var SPEED = { speed_verylow: "very slow", speed_low: "slow", speed_medium: "medium tempo", speed_high: "fast", speed_veryhigh: "very fast" };
 async function searchOpenverse(query, { music = false, limit = 8, vocals = "no" } = {}) {
   const ask = async (extra) => {
@@ -102280,9 +102326,11 @@ async function searchOpenverse(query, { music = false, limit = 8, vocals = "no" 
   const rank2 = { instrumental: 0, unknown: 1 };
   return mapped.filter((m) => m.vocals !== "vocal").sort((a2, b) => rank2[a2.vocals] - rank2[b.vocals]).slice(0, limit * 2);
 }
-async function searchJamendo(query, { clientId, limit = 10, vocals = "no" } = {}) {
+async function searchJamendo(query, { clientId, limit = 10, vocals = "no", feel = "calm" } = {}) {
   const q2 = new URLSearchParams({ client_id: clientId, format: "json", limit: String(limit), search: query, include: "musicinfo licenses", audioformat: "mp32", order: "popularity_total", audiodlformat: "mp32" });
   if (vocals !== "any") q2.set("vocalinstrumental", "instrumental");
+  if (feel === "calm") q2.set("speed", "low+medium");
+  else if (feel === "upbeat") q2.set("speed", "medium+high");
   const { body } = await get(`https://api.jamendo.com/v3.0/tracks/?${q2}`, { as: "json", ttlMs: 24 * 36e5, headers: UA });
   return (body.results || []).filter((r2) => r2.audiodownload_allowed !== false && !/-nd/i.test(r2.license_ccurl || "")).map((r2) => ({
     id: `jamendo:${r2.id}`,
@@ -102371,6 +102419,16 @@ function mixGraph(tracks, { duration: duration3 }) {
   parts.push(`${sum},atrim=end=${duration3},alimiter=limit=0.89[aout]`);
   return parts.join(";");
 }
+var NOT_MUSIC = /\b(launch|product|saas|app|startup|film|video|promo|trailer|brand|explainer|teaser|demo|ad|commercial|motion|design|logo|website|tech company)\b/gi;
+var BEDS = {
+  calm: ["ambient electronic", "chill piano", "lofi chill", "cinematic ambient", "downtempo", "soft synth"],
+  upbeat: ["upbeat electronic", "future bass", "indie electronic", "funk groove", "synthpop"]
+};
+function musicQueries(query, feel = "calm") {
+  const rest = String(query || "").replace(NOT_MUSIC, " ").replace(/\s+/g, " ").trim();
+  const beds = BEDS[feel] || BEDS.calm;
+  return rest.split(" ").filter(Boolean).length >= 1 ? [rest, ...beds.slice(0, 3)] : beds;
+}
 
 // src/modules/motion/audio.mjs
 function filmDir2(task) {
@@ -102407,6 +102465,7 @@ function registerAudio(server2, ctx2) {
         styles: external_exports.array(external_exports.string()).optional().describe("generate: global styles: genre, mood, instruments, '112 BPM', 'D minor'"),
         avoid: external_exports.array(external_exports.string()).optional().describe("generate: what to keep out: 'vocals', 'cheesy corporate ukulele', 'big risers'"),
         query: external_exports.string().optional(),
+        feel: external_exports.enum(["calm", "upbeat"]).optional().describe("search: default calm (ambient, minimal electronic, piano, lo-fi, soft cinematic at a slow-to-medium pulse: the motion-design bed); upbeat for an energetic launch the user asked for"),
         vocals: external_exports.enum(["no", "any"]).optional().describe("search: default no (instrumental only); any when the user wants a song with words"),
         source: external_exports.string().optional().describe("A file in the project or an audio URL"),
         licence: external_exports.string().optional(),
@@ -102416,7 +102475,7 @@ function registerAudio(server2, ctx2) {
         fadeOut: external_exports.number().optional()
       }
     },
-    safe(async ({ action, query, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, feel = "calm", vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
       const config2 = ctx2.config();
       const { task } = loadState();
       if (action === "generate") {
@@ -102441,18 +102500,25 @@ function registerAudio(server2, ctx2) {
         return text(`Generated ${rel4} (${plan.reduce((s2, p2) => s2 + p2.seconds, 0)}s, ${plan.length} sections). NOW: motion_music analyse it (check the drop really lands at ${plan.slice(0, -1).reduce((s2, p2) => s2 + p2.seconds, 0)}s-ish and the tempo is steady), then action use. Give the user the file to listen to first.`);
       }
       if (action === "search") {
-        if (!query) return text('Pass query: the feel in music words ("minimal electronic pulse", "warm lo-fi piano", "cinematic build").', true);
+        if (!query) query = "";
         const jamendoId = getKey("jamendo");
         const found = [];
         const notes = [];
-        if (jamendoId) found.push(...await searchJamendo(query, { clientId: jamendoId, vocals }).catch((e2) => (notes.push(`Jamendo: ${e2.message}`), [])));
+        if (jamendoId) found.push(...await searchJamendo(musicQueries(query, feel)[0], { clientId: jamendoId, vocals, feel }).catch((e2) => (notes.push(`Jamendo: ${e2.message}`), [])));
         else notes.push("Jamendo's own API (a real instrumental filter, popularity order) needs a free client id: add it on /drip:settings \u2192 API keys");
         const seen = new Set(found.map((t2) => t2.name.toLowerCase()));
-        for (const v of relaxQuery(query)) {
-          for (const t2 of await searchOpenverse(v, { music: true, limit: 10, vocals }).catch(() => [])) if (!seen.has(t2.name.toLowerCase()) && seen.add(t2.name.toLowerCase())) found.push(t2);
-          if (found.length >= 12) break;
+        for (const q2 of musicQueries(query, feel)) {
+          let got = 0;
+          for (const v of relaxQuery(q2).slice(0, 2)) {
+            for (const t2 of await searchOpenverse(v, { music: true, limit: 10, vocals }).catch(() => []))
+              if (got < 6 && motionFit(t2, feel) > -4 && !seen.has(t2.name.toLowerCase()) && seen.add(t2.name.toLowerCase())) {
+                found.push(t2);
+                got++;
+              }
+            if (got >= 6) break;
+          }
         }
-        const r2 = found.slice(0, 14);
+        const r2 = found.map((t2) => ({ ...t2, fit: motionFit(t2, feel) })).filter((t2) => t2.fit > -4).sort((a2, b) => b.fit - a2.fit).slice(0, 14);
         if (!r2.length) return text("No tracks found. Try fewer, broader words (a genre and a feel); or use a track the user owns.", true);
         return text(
           `PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: "Epidemic Sound subscription"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.
@@ -102460,7 +102526,7 @@ function registerAudio(server2, ctx2) {
 ${r2.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND, already left out, forbids cutting to picture):
 ` + r2.map((t2, i2) => `${i2 + 1}. ${t2.name} \xB7 ${t2.seconds ? `${Math.round(t2.seconds)}s` : "?"} \xB7 ${t2.vocals === "instrumental" ? "instrumental" : t2.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t2.tempo ? ` \xB7 ${t2.tempo}` : ""} \xB7 ${t2.licence} \xB7 ${t2.source}${t2.category && t2.category !== "music" ? ` \xB7 ${t2.category}` : ""}
    ${t2.preview}`).join("\n") + (notes.length ? `
-(${notes.join("; ")})` : "") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion music: instrumental, a clear pulse (90-128 BPM), a build into one drop or lift near the film's big moment, a clean ending. Music with words only when the user asks for it."
+(${notes.join("; ")})` : "") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is a calm, clean bed under the picture: instrumental; a steady, unhurried pulse (about 80-110 BPM; up to 120 for an upbeat launch); soft synths, pads, piano, light percussion; one gentle lift or build near the film's big moment rather than a hard drop; a clean ending. Never rock, metal, drum and bass, hard techno or anything aggressive under a product film. Music with words only when the user asks for it."
         );
       }
       if (!source) return text("Pass source: a project file or an audio URL.", true);
@@ -103006,6 +103072,9 @@ Now READ it like a motion designer (inferred, say so): the one idea it communica
     },
     safe(async (sb) => {
       const { task } = loadState();
+      const uiBeats = (sb.beats || []).filter((b) => /\b(ui|screen|dashboard|app|cursor|click|button|card|modal|menu|sidebar|chip|toggle|form|interface|window|panel)\b/i.test(`${b.action} ${b.visual || ""} ${(b.moments || []).join(" ")}`));
+      if (uiBeats.length && task && !(task.guidesRead || []).includes("video/ui"))
+        return text(`Beats ${uiBeats.map((b) => (sb.beats || []).indexOf(b) + 1).join(", ")} show UI. Read drip_guide video/ui first (Drip's UI bar inside a film: real content, one system, states, video sizes, UI timings vs film timings), then record the storyboard.`, true);
       const r2 = checkStoryboard(sb, { studied: motionOf(task).studied || [] });
       if (r2.errors.length) return text(`Storyboard not recorded:
 ${r2.errors.map((e2) => `- ${e2}`).join("\n")}`, true);
@@ -103174,12 +103243,25 @@ Read the dopesheet for choreography (who leads, who follows, where it rests) and
           order = choice.order?.length ? choice.order : ["drip"];
         }
         const fails = [];
+        const distrust = readChoice()?.distrust || {};
+        const compUrl = await compositionUrl(target);
         for (const eng of order) {
           if (eng === "drip") break;
+          if (engine === "auto" && (distrust[eng] || 0) >= 2) {
+            fails.push(`${eng}: skipped (its renders didn't match Chrome twice on this machine)`);
+            continue;
+          }
           const tmp = outFile.replace(/(\.[^.]+)$/, `.${eng}-video$1`);
           const r3 = await renderWith(eng, abs2, tmp);
           if (!r3.ok) {
             fails.push(`${eng}: ${r3.why}`);
+            continue;
+          }
+          const fid = await fidelity(tmp, compUrl, { width: fmt.width || 1920, height: fmt.height || 1080, config: config2 }).catch((e2) => ({ ok: false, why: e2.message }));
+          if (!fid.ok) {
+            fs42.rmSync(tmp, { force: true });
+            noteDistrust(eng);
+            fails.push(`${eng}: its video doesn't match Chrome's frames${fid.at != null ? ` (worst at ${fmtT(fid.at)}, difference ${fid.worst.toFixed(1)})` : fid.why ? ` (${fid.why})` : ""}`);
             continue;
           }
           const tracks2 = audio ? [{ file: audio, kind: "music", start: 0 }] : soundTracks(motionOf(task).sound).filter((tr) => fs42.existsSync(path40.resolve(projectDir(), tr.file)));
@@ -103390,6 +103472,7 @@ ${cut("## Talk").trimEnd()}
 `;
 }
 var TALK = `TALK: decisions first, 3-6 short lines per message; show (board link, screenshots) instead of describing; one question at a time with buttons; never paste tool output.`;
+var UI_FILM = /\b(app|apps|saas|software|platform|dashboard|tool|product|ui|interface|screen|website|plugin|extension|api|startup|agent|editor|workspace)\b/i;
 function startMotion({ task, pk, memory, ctx: ctx2 }) {
   const t2 = newTask({ title: task, size: "full", surface: "other", guides: ["video"], mode: "motion", packs: pk });
   t2.loop = "motion";
@@ -103399,6 +103482,8 @@ function startMotion({ task, pk, memory, ctx: ctx2 }) {
   if (memory !== "fresh") t2.memory = buildTaskMemory({ taskText: task, mode: memory });
   const memCtx = t2.memory ? projectContext({ task: t2 }) : null;
   const guide = readGuide("video");
+  const uiGuide = UI_FILM.test(task) ? readGuide("video/ui") : null;
+  if (uiGuide) t2.guidesRead.push("video/ui");
   if (guide) t2.guidesRead.push("video");
   updateState((st) => {
     if (st.task) st.history.push({ ...st.task, endedAt: (/* @__PURE__ */ new Date()).toISOString(), endedBy: "new task" });
@@ -103438,7 +103523,10 @@ REVIEWING MOTION: one still says nothing about movement. motion_frames shows the
 ${TALK}
 
 ` + (guide ? `=================== GUIDE: video ===================
-${guide}` : "")
+${guide}` : "") + (uiGuide ? `
+
+=================== GUIDE: video/ui ===================
+${uiGuide}` : "")
   );
 }
 function register4(server2, ctx2) {
@@ -111770,7 +111858,7 @@ function hoverSteps(task) {
 var KIND_BRIEF = {
   directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
-  motion: "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions, half-drawn shapes, clipped text), whether there is ENOUGH TO LOOK AT (light, depth, layered visuals, the product as a rich object, something new starting about every second; a launch film of flat shapes on an empty ground with one move per beat is basic, however clean), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). Name timestamps for every problem.",
+  motion: "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions, half-drawn shapes, clipped text), whether any PRODUCT UI on screen meets a good UI bar (real content, not lorem or a generic dashboard; clear hierarchy; one type family and one accent; readable at video size; states that change because of something; UI feedback at real UI speed, not slow and floaty), whether there is ENOUGH TO LOOK AT (light, depth, layered visuals, the product as a rich object, something new starting about every second; a launch film of flat shapes on an empty ground with one move per beat is basic, however clean), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). Name timestamps for every problem.",
   logo: "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a clich\xE9), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack: "You are judging a NICHE PACK: written guidance meant to make a designer excellent in one niche. Is it specific to the niche (real standards, real artists, real techniques, real numbers) or generic design advice with the niche's name pasted in? Name every generic or wrong statement and what's missing.",
   any: "You are judging a design. Judge only what you see against the brief (if any)."

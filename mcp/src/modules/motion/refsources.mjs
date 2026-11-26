@@ -102,8 +102,8 @@ export async function mastersWork(queries, { max = 4, per = 3, config } = {}) {
 
 // Animated UI showcases (a landing page or dashboard that moves) are page design, not films.
 // Teaching material and stock templates aren't references for craft.
-const NOT_WORK = /(tutorial|template|course|how to|after effects tutorial|no plugins|preset pack|free download)/i;
-const UI_SHOWCASE = /(landing page|website|web site|dashboard|ui ?\/? ?ux|ui design|app design|web design|homepage)/i;
+const NOT_WORK = /\b(tutorial|template|course|how to|after effects tutorial|no plugins|preset pack|free download)\b/i;
+const UI_SHOWCASE = /\b(landing page|website|web site|dashboard|ui ?\/? ?ux|ui design|app design|web design|homepage)\b/i;
 
 /** Dribbble's animation category, video shots only, no paid boosts, a like floor, best liked first. */
 export async function searchDribbbleMotion(q, { per = 6, minLikes = 40, config } = {}) {

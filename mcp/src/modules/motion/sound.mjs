@@ -99,6 +99,32 @@ export function vocalsOf(tags = [], title = "") {
   return "unknown";
 }
 
+// What motion-design music sounds like: calm and clean under the picture (ambient, minimal electronic, piano, lo-fi,
+// downtempo, soft cinematic), steady and unhurried. What fights the picture: rock, metal, drum and bass, hard techno,
+// aggressive or very fast tracks, and anything with words.
+const CALM_GOOD = /\b(ambient|minimal|minimalism|electronic|electronica|piano|lo-?fi|lofi|downtempo|chill|chillout|cinematic|filmscore|soundtrack|corporate|calm|peaceful|relax|relaxing|soft|dreamy|atmospheric|pads?|synth(wave)?|instrumental|neutral|uplifting|inspiring|elegant|clean|modern|tech|future)\b/i;
+const UPBEAT_GOOD = /\b(electronic|electro|house|future ?bass|funk|pop|upbeat|energetic|happy|groove|disco|indie|dance|synthpop|bright|optimistic|uplifting)\b/i;
+const BAD = /\b(rock|metal|punk|hardcore|grind|drum ?n ?bass|dnb|dubstep|hardstyle|gabber|industrial|noise|aggressive|dark|horror|screamo|trap|rap|hip ?hop|reggae|country|polka|schlager|march|military|christmas|kids|comedy|world)\b/i;
+// Club tracks are made for dance floors, not under a film: out of a calm bed.
+const CLUB = /\b(techno|club|party|trance|goa|psy|disco|dj|mix|remix|edm|rave|bass ?boost|banger)\b/i;
+const SPEED_SCORE = { calm: { speed_verylow: 0, speed_low: 2, speed_medium: 2, speed_high: -1, speed_veryhigh: -3 }, upbeat: { speed_verylow: -2, speed_low: 0, speed_medium: 2, speed_high: 2, speed_veryhigh: -1 } };
+
+/** How well a track fits motion design for a feel ("calm" default, or "upbeat"). Pure (tested). */
+export function motionFit(t, feel = "calm") {
+  const words = `${t.category || ""} ${(t.tags || []).join(" ")} ${t.name || ""}`;
+  let s = 0;
+  s += (words.match(new RegExp((feel === "upbeat" ? UPBEAT_GOOD : CALM_GOOD).source, "gi")) || []).length;
+  s -= 8 * (words.match(new RegExp(BAD.source, "gi")) || []).length; // one is enough to rule a track out
+  for (const tag of t.tags || []) s += SPEED_SCORE[feel]?.[tag] ?? 0;
+  if (t.tempo) s += /very fast/.test(t.tempo) ? -3 : /fast/.test(t.tempo) ? (feel === "calm" ? -1 : 1) : /slow|medium/.test(t.tempo) ? (feel === "calm" ? 2 : 0) : 0;
+  if (feel === "calm" && CLUB.test(words)) s -= 5;
+  if (t.vocals === "instrumental") s += 2;
+  if (t.vocals === "vocal") s -= 6;
+  // A film needs 20 s to 4 min of track; a 7-minute mix is hard to cut.
+  if (t.seconds && t.seconds > 360) s -= 1;
+  return s;
+}
+
 /** Jamendo's speed tag as a tempo hint. */
 const SPEED = { speed_verylow: "very slow", speed_low: "slow", speed_medium: "medium tempo", speed_high: "fast", speed_veryhigh: "very fast" };
 
@@ -144,9 +170,11 @@ export async function searchOpenverse(query, { music = false, limit = 8, vocals 
 }
 
 /** Jamendo's own API (a free client id on the settings page): a real instrumental filter and popularity order. */
-export async function searchJamendo(query, { clientId, limit = 10, vocals = "no" } = {}) {
+export async function searchJamendo(query, { clientId, limit = 10, vocals = "no", feel = "calm" } = {}) {
   const q = new URLSearchParams({ client_id: clientId, format: "json", limit: String(limit), search: query, include: "musicinfo licenses", audioformat: "mp32", order: "popularity_total", audiodlformat: "mp32" });
   if (vocals !== "any") q.set("vocalinstrumental", "instrumental");
+  if (feel === "calm") q.set("speed", "low+medium");
+  else if (feel === "upbeat") q.set("speed", "medium+high");
   const { body } = await get(`https://api.jamendo.com/v3.0/tracks/?${q}`, { as: "json", ttlMs: 24 * 3600e3, headers: UA });
   return (body.results || [])
     .filter((r) => r.audiodownload_allowed !== false && !/-nd/i.test(r.license_ccurl || ""))
@@ -250,4 +278,18 @@ export function mixGraph(tracks, { duration }) {
   const sum = finals.length === 1 ? `${finals[0]}anull` : `${finals.join("")}amix=inputs=${finals.length}:normalize=0:dropout_transition=0`;
   parts.push(`${sum},atrim=end=${duration},alimiter=limit=0.89[aout]`);
   return parts.join(";");
+}
+
+// Words about the film, not the music: a library can't match "launch" or "saas". They become music searches.
+const NOT_MUSIC = /\b(launch|product|saas|app|startup|film|video|promo|trailer|brand|explainer|teaser|demo|ad|commercial|motion|design|logo|website|tech company)\b/gi;
+const BEDS = {
+  calm: ["ambient electronic", "chill piano", "lofi chill", "cinematic ambient", "downtempo", "soft synth"],
+  upbeat: ["upbeat electronic", "future bass", "indie electronic", "funk groove", "synthpop"],
+};
+
+/** The searches to run for a music query: its music words, or the motion-design beds for the feel. Pure (tested). */
+export function musicQueries(query, feel = "calm") {
+  const rest = String(query || "").replace(NOT_MUSIC, " ").replace(/\s+/g, " ").trim();
+  const beds = BEDS[feel] || BEDS.calm;
+  return rest.split(" ").filter(Boolean).length >= 1 ? [rest, ...beds.slice(0, 3)] : beds;
 }

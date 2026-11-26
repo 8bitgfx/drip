@@ -43,6 +43,14 @@ function run(cmd, args, { cwd, timeout = 15 * 60e3, env } = {}) {
   });
 }
 
+/** Remember a renderer whose video didn't match Chrome; after two, auto stops using it on this machine. */
+export function noteDistrust(engine) {
+  const c = readChoice();
+  if (!c) return;
+  c.distrust = { ...(c.distrust || {}), [engine]: ((c.distrust || {})[engine] || 0) + 1 };
+  fs.writeFileSync(stateFile(), JSON.stringify(c, null, 2));
+}
+
 export function readChoice() {
   try {
     return JSON.parse(fs.readFileSync(stateFile(), "utf8"));
@@ -80,7 +88,7 @@ export function engineCommand(engine, entry, out) {
   }
   if (engine === "framevelo") {
     const bin = binOf("framevelo");
-    return bin ? { cmd: process.execPath, args: [bin, "render", cwd, "--no-hyperframes", "-o", out], cwd } : null;
+    return bin ? { cmd: process.execPath, args: [bin, "render", path.basename(entry), "--no-hyperframes", "-o", out], cwd } : null;
   }
   if (engine === "hyperframes") {
     const bin = binOf("hyperframes");

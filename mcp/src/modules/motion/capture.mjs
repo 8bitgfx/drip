@@ -158,15 +158,23 @@ window.run = async () => {
     for (let i = 0; i < L.length; i++) { L[i] = 0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]; sum += L[i]; }
     const mean = sum / L.length;
     let v = 0; for (let i = 0; i < L.length; i++) v += (L[i] - mean) ** 2;
-    let diff = null;
-    if (prev) { diff = 0; for (let i = 0; i < L.length; i++) diff += Math.abs(L[i] - prev[i]); diff /= L.length; }
+    let diff = null, block = null;
+    if (prev) {
+      diff = 0; for (let i = 0; i < L.length; i++) diff += Math.abs(L[i] - prev[i]); diff /= L.length;
+      block = 0;
+      for (let by = 0; by < 6; by++) for (let bx = 0; bx < 8; bx++) {
+        let b = 0;
+        for (let y = by * 6; y < by * 6 + 6; y++) for (let x = bx * 8; x < bx * 8 + 8; x++) b += Math.abs(L[y * 64 + x] - prev[y * 64 + x]);
+        block = Math.max(block, b / 48);
+      }
+    }
     // Fill: the share of the frame that isn't the background (the most common colour, coarsely bucketed).
     const buckets = new Map();
     for (let i = 0; i < L.length; i++) { const k = ((d[i * 4] >> 4) << 8) | ((d[i * 4 + 1] >> 4) << 4) | (d[i * 4 + 2] >> 4); buckets.set(k, (buckets.get(k) || 0) + 1); }
     let modeK = 0, modeN = -1; for (const [k, n] of buckets) if (n > modeN) { modeN = n; modeK = k; }
     const mr = ((modeK >> 8) & 15) * 16 + 8, mg = ((modeK >> 4) & 15) * 16 + 8, mb = (modeK & 15) * 16 + 8;
     let filled = 0; for (let i = 0; i < L.length; i++) if (Math.abs(d[i * 4] - mr) + Math.abs(d[i * 4 + 1] - mg) + Math.abs(d[i * 4 + 2] - mb) > 48) filled++;
-    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1), fill: +(filled / L.length).toFixed(3) });
+    out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1), block: block == null ? null : +block.toFixed(1), fill: +(filled / L.length).toFixed(3) });
     prev = L;
   }
   return out;
@@ -250,7 +258,7 @@ export function sparkline(values) {
  * Sample a reference video (local file, direct video URL, or a page with a <video>) by seeking its element.
  * Returns { duration, frames: [{ t, buf }] }. Pages that lazy-load the video get a click on it first.
  */
-export async function sampleVideo(source, { every, max = 120, width = 1280, height = 720, config } = {}) {
+export async function sampleVideo(source, { every, times, fractions = false, max = 120, width = 1280, height = 720, config } = {}) {
   const isFile = !/^https?:/i.test(source);
   if (isFile || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(source)) {
     // The video plays from memory (a blob), so it seeks whether or not its host serves byte ranges.
@@ -276,15 +284,15 @@ export async function sampleVideo(source, { every, max = 120, width = 1280, heig
     );
     const base = await serveDir(dir);
     try {
-      return await sampleVideoAt(`${base}/${id}.html`, { every, max, width, height, config });
+      return await sampleVideoAt(`${base}/${id}.html`, { every, times, fractions, max, width, height, config });
     } finally {
       for (const f of [`${id}.${ext}`, `${id}.html`]) fs.rmSync(path.join(dir, f), { force: true });
     }
   }
-  return sampleVideoAt(source, { every, max, width, height, config });
+  return sampleVideoAt(source, { every, times, fractions, max, width, height, config });
 }
 
-async function sampleVideoAt(url, { every, max, width, height, config }) {
+async function sampleVideoAt(url, { every, times, fractions, max, width, height, config }) {
   return withTab(config, async (tab) => {
     await openPage(tab, url, { width, height, settleMs: 800 });
     const info = await evalJson(
@@ -305,7 +313,9 @@ async function sampleVideoAt(url, { every, max, width, height, config }) {
     const D = info.duration;
     const step = every || Math.max(0.25, D / max);
     const frames = [];
-    for (let t = 0; t < D && frames.length < max; t += step) {
+    // times: seconds; fractions of the video's own length when every value is below 1 and fractions is set.
+    const plan = times?.length ? (fractions ? times.map((f) => +(f * D).toFixed(3)) : times).filter((x) => x < D) : null;
+    for (let k = 0, t = plan ? plan[0] : 0; plan ? k < plan.length : t < D && frames.length < max; k++, t = plan ? plan[k] : t + step) {
       // A paused video in a headless tab often doesn't repaint after a seek: draw the decoded frame onto a canvas
       // laid over it (drawing a cross-origin video is allowed; only reading its pixels isn't), and shoot that.
       await evalJson(
@@ -412,4 +422,24 @@ export async function renderComposition(url, { out, fps = 30, width = 1920, heig
     await done;
     return { file: out, frames: n, seconds: (Date.now() - t0) / 1000 };
   });
+}
+
+/**
+ * How far a rendered video strays from what Chrome shows for the same composition: mean pixel difference (0-255,
+ * on 64x36 thumbnails) at a few moments. Another renderer may not support every browser feature (SVG filters,
+ * some fonts); a difference above ~10 means the video is not the film that was reviewed.
+ */
+export async function fidelity(videoFile, url, { fractions = [0.12, 0.37, 0.62, 0.87], width, height, config } = {}) {
+  const v = await sampleVideo(videoFile, { times: fractions, fractions: true, config });
+  const times = v.frames.map((f) => f.t);
+  const c = await shootComposition(url, { times: { times }, width, height, scale: Math.min(1, 640 / width), config });
+  const pairs = Math.min(v.frames.length, c.frames.length);
+  if (!pairs) return { ok: false, diffs: [], why: "no frames to compare" };
+  const bufs = [];
+  for (let i = 0; i < pairs; i++) bufs.push(c.frames[i].buf, v.frames[i].buf);
+  const m = await measureFrames(bufs, { config });
+  // The worst region, not the average: a wrong-coloured object or a missing number is local.
+  const diffs = Array.from({ length: pairs }, (_, i) => m[2 * i + 1]?.block ?? 99);
+  const worst = Math.max(...diffs);
+  return { ok: worst <= 28, diffs, worst, at: times[diffs.indexOf(worst)] };
 }
