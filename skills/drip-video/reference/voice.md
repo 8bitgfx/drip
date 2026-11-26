@@ -11,13 +11,17 @@ what the words don't need to say. All of it goes through `motion_voice` with the
    or on-screen words alone. A voice earns its place when it adds warmth, a point of view or a sentence the
    picture can't show. Ask the user once (with the storyboard) if it isn't obvious.
 2. **Write the script against the storyboard**, one line per beat or half-beat, in film time (`at`). Then
-   `motion_voice({ action: "speak", dryRun: true, ... })`: it checks pace against each beat, slop and numbers, and
-   the characters left on the account, without spending anything.
-3. **Cast.** `motion_voice({ action: "voices", use_case, gender, age, accent, search })`. Shortlist 2-4 that fit
-   the brand and give the user their preview links (AskUserQuestion with the names; they listen and pick). For a
-   close call, `action: "audition"` records the hook line on 2-3 voices (costs characters: say how many).
-4. **Record** with `action: "speak"`. Lines are chained (each request carries the ids of the lines before), so tone
-   and pace stay one performance. Word timings land in `sound/voice-words.js` (and `.json`) on the film's clock.
+   `motion_voice({ action: "speak", dryRun: true, ... })`: free. It checks pace against each beat, slop, numbers and
+   the characters left, and estimates when each line starts and ends. Time the animatic and captions to those.
+3. **Cast for free.** `motion_voice({ action: "voices", use_case, gender, age, accent, search })`. Shortlist 2-4 that
+   fit the brand and give the user their preview links (AskUserQuestion with the names; they listen and pick).
+4. **Record last, after the cut is approved.** Narration costs money per line and per retake, and a picture that
+   changes after recording means recording again. So: render the current version (`motion_export`, a draft is
+   enough), show the user, ask them to approve the cut, then `action: "speak"` with `cutApproved` quoting their words
+   (checked against the chat). The tool refuses before that; the approval holds for that version only. `action:
+   "audition"` (the hook line on 2-3 voices) is paid too and follows the same rule. Lines are chained (each request
+   carries the ids of the lines before), so tone and pace stay one performance. Word timings land in
+   `sound/voice-words.js` (and `.json`) on the film's clock.
 5. **Lock picture to words.** Include `sound/voice-words.js` with a `<script src>` (compositions never fetch) and read `window.__voiceWords`: captions appear on their word, and the
    key visual moment of a beat lands on its key word (a number appears as it is said, the logo on the product name).
 6. **Mix** happens in `motion_export`: the music ducks under the voice automatically. Then play the render through
@@ -83,6 +87,7 @@ Pauses come from punctuation and ellipses, emphasis from one CAPITALISED word at
 
 - [ ] The film works muted (captions or on-screen words) and with the voice.
 - [ ] The user chose the voice by ear (previews or auditions).
+- [ ] The voice was recorded once, after the user approved the cut; nothing paid was spent on a picture that later changed.
 - [ ] Every line fits its beat with air on both sides; no overlaps reported.
 - [ ] Captions and key visuals are timed from `window.__voiceWords`, not guessed.
 - [ ] No invented numbers; every claim is the user's.

@@ -11,6 +11,7 @@ import { getKey, logUsage } from "../../core/keys.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { safe, text } from "../../core/result.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
+import { artifactRev } from "../../core/evidence.mjs";
 import { filmDir } from "./audio.mjs";
 import { SLOP_COPY } from "./story.mjs";
 
@@ -64,6 +65,31 @@ export function wordsFrom(alignment, offset = 0) {
   return out.filter((x) => !/^\[.*\]$/.test(x.w));
 }
 
+/** Estimated start and end of each line at a calm narration pace (free: for timing the animatic). Pure (tested). */
+export function estimateLines(lines, wps = 2.6) {
+  return lines.map((l) => {
+    const words = String(l.text).replace(/\[[^\]]*\]/g, " ").trim().split(/\s+/).filter(Boolean).length;
+    const pauses = (String(l.text).match(/\.\.\.|…|[.,;:!?—]/g) || []).length * 0.12;
+    return { at: l.at, text: l.text, end: +(l.at + words / wps + pauses + 0.15).toFixed(2) };
+  });
+}
+
+/**
+ * Why paid narration can't be recorded yet, or null when it can. The user must have approved the cut they saw: a
+ * rendered video of the current version, checked frame by frame, and their own words (checked against the chat by
+ * the claims hook). An approval holds for the version it was given on; a new picture needs a new approval.
+ */
+export function cutGate(task, words) {
+  const rev = artifactRev(task);
+  const mo = task.motion || {};
+  if (mo.cutApproval?.rev === rev) return null; // approved this exact version already: retakes are fine
+  const free = "Until then everything about the voice is free: cast from the preview links (action voices), time the animatic with speak + dryRun (estimated line timings).";
+  if (task.fitcheck?.doneRev !== rev) return `Narration is recorded last, after the cut is approved: it costs money per line and per retake, and a picture change means recording again. First a clean motion_frames sweep of the current version. ${free}`;
+  if (!(mo.renders || []).some((r) => r.rev === rev)) return `Narration is recorded after the user approves the cut. Render the current version (motion_export, a draft is enough), show it to the user, and ask them to approve the cut. ${free}`;
+  if (!String(words || "").trim()) return `Ask the user to approve the cut they watched (AskUserQuestion: "Approve the cut and record the voice" / "Change something first"), then pass their own words as cutApproved. ${free}`;
+  return null;
+}
+
 /** Check a narration plan before spending characters: pace per beat, slop, tags. Pure (tested). */
 export function checkLines(lines, { beats = [], wps = 2.6 } = {}) {
   const errors = [];
@@ -93,7 +119,7 @@ export function registerVoice(server, ctx) {
     {
       title: "Narration: cast a voice, write and record the lines",
       description:
-        "ElevenLabs narration for the film (the user's key). Plan before spending: the script is written per beat (short spoken sentences, one idea a line, ~2.4-2.8 words a second for calm narration, ellipses for pauses, one emphasis at most). " +
+        "ElevenLabs narration for the film (the user's key). Paid recording (speak, audition) happens LAST, after the user approved the cut they watched: until then cast from free preview links and time the animatic with speak + dryRun (estimated timings). Plan before spending: the script is written per beat (short spoken sentences, one idea a line, ~2.4-2.8 words a second for calm narration, ellipses for pauses, one emphasis at most). " +
         "action voices: shortlist voices from the user's own and the Voice Library (filters: gender, age, accent, language, use_case like narrative_story / advertisement / informative_educational / social_media, search words like 'warm', 'confident', 'calm'); returns names, descriptions and PREVIEW links. Show the user 2-4 with links and let them choose by ear. " +
         "action audition: records ONE line (the hook) with 2-3 voices into <film>/sound/audition/ so the user compares the real line (costs characters; say so). " +
         "action speak: records every line [{ at, text }] with the chosen voice, chained so the delivery is one performance, with word timings saved to sound/voice-words.js (window.__voiceWords, for captions and syncing picture to words) and placed on the film's clock. Checked first: pace against each beat, AI-slop copy, invented numbers, characters left on the account. " +
@@ -115,7 +141,8 @@ export function registerVoice(server, ctx) {
         settings: z.object({ stability: z.number().min(0).max(1).optional(), similarity_boost: z.number().min(0).max(1).optional(), style: z.number().min(0).max(1).optional(), speed: z.number().min(0.7).max(1.2).optional(), use_speaker_boost: z.boolean().optional() }).optional(),
         language_code: z.string().optional(),
         seed: z.number().int().optional(),
-        dryRun: z.boolean().optional().describe("speak: check the plan and the cost without recording"),
+        dryRun: z.boolean().optional().describe("speak: check the plan, the cost and the estimated line timings without recording (free; use it to time the animatic)"),
+        cutApproved: z.string().optional().describe("speak / audition: the user's own words approving the cut they watched (a rendered video of the current version), quoted. Paid narration is recorded only after that"),
       },
     },
     safe(async (a) => {
@@ -166,6 +193,17 @@ export function registerVoice(server, ctx) {
         logUsage({ provider: "elevenlabs", kind: "tts", model, chars: line.length });
         return { rid, audio: Buffer.from(j.audio_base64, "base64"), alignment: j.alignment || j.normalized_alignment };
       };
+      // Paid voice only after the user approved the cut: every line and retake costs money, and narration recorded
+      // before the picture is final gets recorded again. Approval is bound to the version they saw.
+      const paid = a.action === "audition" || (a.action === "speak" && !a.dryRun);
+      if (paid && task && !task.skipped) {
+        const gate = cutGate(task, a.cutApproved);
+        if (gate) return text(gate, true);
+        if (a.cutApproved)
+          updateState((st) => {
+          if (st.task) (st.task.motion ||= { studied: [], renders: [] }).cutApproval = { words: String(a.cutApproved).slice(0, 200), rev: artifactRev(st.task), at: new Date().toISOString() };
+        });
+      }
       if (a.action === "audition") {
         const ids = a.voice_ids || [];
         const line = a.lines?.[0]?.text;
@@ -197,7 +235,16 @@ export function registerVoice(server, ctx) {
         /* not fatal */
       }
       if (left != null && chars > left) return text(`This script needs ${chars} characters; the account has ${left} left this period. Shorten it or ask the user.`, true);
-      if (a.dryRun) return text(`Plan OK: ${lines.length} lines, ${chars} characters (${left != null ? `${left} left` : "balance unknown"}), model ${model}.${chk.warnings.length ? `\nConsider:\n${chk.warnings.map((w) => `- ${w}`).join("\n")}` : ""}`);
+      if (a.dryRun) {
+        // Free timing for the animatic: time captions and picture to the script now, record the voice after approval.
+        const est = estimateLines(lines);
+        return text(
+          `Plan OK: ${lines.length} lines, ${chars} characters (${left != null ? `${left} left` : "balance unknown"}), model ${model}. Nothing recorded, nothing spent.\n` +
+            `Estimated timing (about 2.6 words a second; the real take lands within ~15%):\n${est.map((l) => `- ${l.at.toFixed(2)}-${l.end.toFixed(2)}s "${l.text.slice(0, 60)}"`).join("\n")}\n` +
+            (chk.warnings.length ? `Consider:\n${chk.warnings.map((w) => `- ${w}`).join("\n")}\n` : "") +
+            "Time the animatic to these; record with speak once the user has approved the cut (a rendered video of the current version) and you pass their words as cutApproved.",
+        );
+      }
       const voice = await resolveVoice(a.voice_id, a.voice_owner);
       const prev = [];
       const takes = [];

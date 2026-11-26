@@ -103069,6 +103069,23 @@ function wordsFrom(alignment, offset = 0) {
   if (cur) out.push(cur);
   return out.filter((x2) => !/^\[.*\]$/.test(x2.w));
 }
+function estimateLines(lines, wps = 2.6) {
+  return lines.map((l2) => {
+    const words4 = String(l2.text).replace(/\[[^\]]*\]/g, " ").trim().split(/\s+/).filter(Boolean).length;
+    const pauses = (String(l2.text).match(/\.\.\.|…|[.,;:!?—]/g) || []).length * 0.12;
+    return { at: l2.at, text: l2.text, end: +(l2.at + words4 / wps + pauses + 0.15).toFixed(2) };
+  });
+}
+function cutGate(task, words4) {
+  const rev = artifactRev(task);
+  const mo = task.motion || {};
+  if (mo.cutApproval?.rev === rev) return null;
+  const free = "Until then everything about the voice is free: cast from the preview links (action voices), time the animatic with speak + dryRun (estimated line timings).";
+  if (task.fitcheck?.doneRev !== rev) return `Narration is recorded last, after the cut is approved: it costs money per line and per retake, and a picture change means recording again. First a clean motion_frames sweep of the current version. ${free}`;
+  if (!(mo.renders || []).some((r2) => r2.rev === rev)) return `Narration is recorded after the user approves the cut. Render the current version (motion_export, a draft is enough), show it to the user, and ask them to approve the cut. ${free}`;
+  if (!String(words4 || "").trim()) return `Ask the user to approve the cut they watched (AskUserQuestion: "Approve the cut and record the voice" / "Change something first"), then pass their own words as cutApproved. ${free}`;
+  return null;
+}
 function checkLines(lines, { beats = [], wps = 2.6 } = {}) {
   const errors = [];
   const warnings = [];
@@ -103095,7 +103112,7 @@ function registerVoice(server2, ctx2) {
     "motion_voice",
     {
       title: "Narration: cast a voice, write and record the lines",
-      description: `ElevenLabs narration for the film (the user's key). Plan before spending: the script is written per beat (short spoken sentences, one idea a line, ~2.4-2.8 words a second for calm narration, ellipses for pauses, one emphasis at most). action voices: shortlist voices from the user's own and the Voice Library (filters: gender, age, accent, language, use_case like narrative_story / advertisement / informative_educational / social_media, search words like 'warm', 'confident', 'calm'); returns names, descriptions and PREVIEW links. Show the user 2-4 with links and let them choose by ear. action audition: records ONE line (the hook) with 2-3 voices into <film>/sound/audition/ so the user compares the real line (costs characters; say so). action speak: records every line [{ at, text }] with the chosen voice, chained so the delivery is one performance, with word timings saved to sound/voice-words.js (window.__voiceWords, for captions and syncing picture to words) and placed on the film's clock. Checked first: pace against each beat, AI-slop copy, invented numbers, characters left on the account. Models: eleven_v4 (most expressive, audio tags like [curious] [excited] [whispers] at the start of a line), eleven_multilingual_v2 (steadiest over long reads), eleven_flash_v2_5 (cheap drafts). Settings: stability (lower = more varied and emotive; 0.35-0.55 for narration), similarity_boost (~0.75), style (0-0.3; higher costs stability), speed (0.9-1.1). Same seed for re-takes. Examples: motion_voice({ action: "voices", use_case: "advertisement", gender: "female", search: "warm confident" }) \xB7 motion_voice({ action: "speak", voice_id: "<id>", lines: [{ at: 0.4, text: "You have forty-seven tabs open." }, { at: 3.2, text: "[warmly] We can fix that." }] })`,
+      description: `ElevenLabs narration for the film (the user's key). Paid recording (speak, audition) happens LAST, after the user approved the cut they watched: until then cast from free preview links and time the animatic with speak + dryRun (estimated timings). Plan before spending: the script is written per beat (short spoken sentences, one idea a line, ~2.4-2.8 words a second for calm narration, ellipses for pauses, one emphasis at most). action voices: shortlist voices from the user's own and the Voice Library (filters: gender, age, accent, language, use_case like narrative_story / advertisement / informative_educational / social_media, search words like 'warm', 'confident', 'calm'); returns names, descriptions and PREVIEW links. Show the user 2-4 with links and let them choose by ear. action audition: records ONE line (the hook) with 2-3 voices into <film>/sound/audition/ so the user compares the real line (costs characters; say so). action speak: records every line [{ at, text }] with the chosen voice, chained so the delivery is one performance, with word timings saved to sound/voice-words.js (window.__voiceWords, for captions and syncing picture to words) and placed on the film's clock. Checked first: pace against each beat, AI-slop copy, invented numbers, characters left on the account. Models: eleven_v4 (most expressive, audio tags like [curious] [excited] [whispers] at the start of a line), eleven_multilingual_v2 (steadiest over long reads), eleven_flash_v2_5 (cheap drafts). Settings: stability (lower = more varied and emotive; 0.35-0.55 for narration), similarity_boost (~0.75), style (0-0.3; higher costs stability), speed (0.9-1.1). Same seed for re-takes. Examples: motion_voice({ action: "voices", use_case: "advertisement", gender: "female", search: "warm confident" }) \xB7 motion_voice({ action: "speak", voice_id: "<id>", lines: [{ at: 0.4, text: "You have forty-seven tabs open." }, { at: 3.2, text: "[warmly] We can fix that." }] })`,
       inputSchema: {
         action: external_exports.enum(["voices", "audition", "speak", "account"]),
         search: external_exports.string().optional(),
@@ -103112,7 +103129,8 @@ function registerVoice(server2, ctx2) {
         settings: external_exports.object({ stability: external_exports.number().min(0).max(1).optional(), similarity_boost: external_exports.number().min(0).max(1).optional(), style: external_exports.number().min(0).max(1).optional(), speed: external_exports.number().min(0.7).max(1.2).optional(), use_speaker_boost: external_exports.boolean().optional() }).optional(),
         language_code: external_exports.string().optional(),
         seed: external_exports.number().int().optional(),
-        dryRun: external_exports.boolean().optional().describe("speak: check the plan and the cost without recording")
+        dryRun: external_exports.boolean().optional().describe("speak: check the plan, the cost and the estimated line timings without recording (free; use it to time the animatic)"),
+        cutApproved: external_exports.string().optional().describe("speak / audition: the user's own words approving the cut they watched (a rendered video of the current version), quoted. Paid narration is recorded only after that")
       }
     },
     safe(async (a2) => {
@@ -103169,6 +103187,15 @@ CASTING: match the voice to the brand (a calm product: warm, unhurried, mid-low 
         logUsage({ provider: "elevenlabs", kind: "tts", model, chars: line.length });
         return { rid, audio: Buffer.from(j.audio_base64, "base64"), alignment: j.alignment || j.normalized_alignment };
       };
+      const paid = a2.action === "audition" || a2.action === "speak" && !a2.dryRun;
+      if (paid && task && !task.skipped) {
+        const gate = cutGate(task, a2.cutApproved);
+        if (gate) return text(gate, true);
+        if (a2.cutApproved)
+          updateState((st) => {
+            if (st.task) (st.task.motion ||= { studied: [], renders: [] }).cutApproval = { words: String(a2.cutApproved).slice(0, 200), rev: artifactRev(st.task), at: (/* @__PURE__ */ new Date()).toISOString() };
+          });
+      }
       if (a2.action === "audition") {
         const ids = a2.voice_ids || [];
         const line = a2.lines?.[0]?.text;
@@ -103201,9 +103228,17 @@ ${chk.errors.map((e2) => `- ${e2}`).join("\n")}`, true);
       } catch {
       }
       if (left != null && chars > left) return text(`This script needs ${chars} characters; the account has ${left} left this period. Shorten it or ask the user.`, true);
-      if (a2.dryRun) return text(`Plan OK: ${lines.length} lines, ${chars} characters (${left != null ? `${left} left` : "balance unknown"}), model ${model}.${chk.warnings.length ? `
-Consider:
-${chk.warnings.map((w) => `- ${w}`).join("\n")}` : ""}`);
+      if (a2.dryRun) {
+        const est = estimateLines(lines);
+        return text(
+          `Plan OK: ${lines.length} lines, ${chars} characters (${left != null ? `${left} left` : "balance unknown"}), model ${model}. Nothing recorded, nothing spent.
+Estimated timing (about 2.6 words a second; the real take lands within ~15%):
+${est.map((l2) => `- ${l2.at.toFixed(2)}-${l2.end.toFixed(2)}s "${l2.text.slice(0, 60)}"`).join("\n")}
+` + (chk.warnings.length ? `Consider:
+${chk.warnings.map((w) => `- ${w}`).join("\n")}
+` : "") + "Time the animatic to these; record with speak once the user has approved the cut (a rendered video of the current version) and you pass their words as cutApproved."
+        );
+      }
       const voice = await resolveVoice(a2.voice_id, a2.voice_owner);
       const prev = [];
       const takes = [];

@@ -2,6 +2,9 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.10.5: narration after the cut is approved, launch films, any post studied
+- **No paid voice before the picture is final**: `motion_voice` speak and audition (ElevenLabs, paid per character) need a rendered video of the current version, a clean frame sweep of it, and the user's own words approving the cut (`cutApproved`, checked against the chat by the claims hook); the approval holds for that version only. Before that everything is free: casting from preview links, and `speak` with `dryRun` now estimates each line's start and end so the animatic is timed to the script. Generated music's `userAsked` is checked against the chat too.
+
 ## 0.10.4: /drip:settings reads as a result, not an error
 - The settings shortcut ends the prompt with continue: false and a plain message (the link), instead of decision "block", which the desktop app showed as a red "A hook blocked your prompt" card. The typed command is left out of the stop message.
 

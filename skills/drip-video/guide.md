@@ -193,7 +193,8 @@ lines, the big transformation on the drop, rests in the quiet bars; `from` start
 moment. **Effects are rare and calm**: most beats have none; when used, a smooth UI sound (soft click, glassy tap,
 gentle pop) on a meaningful interaction, never whooshes or risers by default (`motion_sound`, placed by sync point).
 **Narration** is cast and recorded with `motion_voice` (ElevenLabs, the user's key): script for the ear, voices
-chosen by the user by ear, one chained performance, word timings that captions and key visuals lock to
+chosen by the user by ear from free previews, the animatic timed to free estimates, and the paid recording made
+once, after the user approved the cut (a rendered video of the current version): one chained performance, word timings that captions and key visuals lock to
 (`drip_guide video/voice`). `motion_export` mixes it all with the music ducked under the voice. Every sound records
 its source and licence in `sound/LICENCES.md`. See `drip_guide video/sound`.
 

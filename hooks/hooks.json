@@ -31,7 +31,7 @@
         ]
       },
       {
-        "matcher": "mcp__.*drip.*__(drip_skip|drip_end|fitcheck_done|critic_prepare|critic_record|drip_brief)",
+        "matcher": "mcp__.*drip.*__(drip_skip|drip_end|fitcheck_done|critic_prepare|critic_record|drip_brief|motion_voice|motion_music)",
         "hooks": [
           {
             "type": "command",

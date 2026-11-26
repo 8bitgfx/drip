@@ -24,6 +24,11 @@ run(async () => {
     const last = String(tr.user.at(-1)?.text || "").replace(/\s+/g, " ").trim().slice(0, 200);
     return deny(`drip_skip needs the user's own words, copied from their message, and "${String(a.reason || "").slice(0, 80)}" isn't in anything they wrote.${last ? ` Their latest message: "${last}". If that asks to skip, call drip_skip again with reason set to the exact sentence that says so.` : ""} Otherwise keep following the loop; if you think skipping is right, ask them.`);
   }
+  // Money is spent on the user's word only: narration after they approved the cut, generated music when they asked.
+  if (name === "motion_voice" && a.cutApproved && !userSaid(tr, a.cutApproved))
+    return deny(`cutApproved must quote the user approving the cut, and "${String(a.cutApproved).slice(0, 80)}" isn't in anything they wrote. Show them the rendered cut and ask (AskUserQuestion: "Approve the cut and record the voice" / "Change something first"); pass their words.`);
+  if (name === "motion_music" && a.action === "generate" && a.userAsked && !userSaid(tr, a.userAsked))
+    return deny(`userAsked must quote the user asking for a generated track, and "${String(a.userAsked).slice(0, 80)}" isn't in anything they wrote. Found music comes first; generate only when they ask.`);
   if (name === "drip_end" && a.acceptOpen && !/decide for me/i.test(a.acceptOpen) && !userSaid(tr, a.acceptOpen))
     return deny(`acceptOpen must quote the user, and "${String(a.acceptOpen).slice(0, 80)}" isn't in anything they wrote. Ask them whether to ship with the open points (AskUserQuestion), then quote their answer.`);
   if (name === "fitcheck_done" && a.acceptedByUser && !userReplied(tr, SHIP, lastCritic?.at || task?.startedAt || ""))

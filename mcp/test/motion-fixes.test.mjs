@@ -67,3 +67,23 @@ test("font files in @font-face don't count as the families a design uses", async
   fs.writeFileSync(f, ["Inter", "Inter", "Bricolage", "Bricolage"].map((n, i) => `@font-face { font-family: "${n}"; src: url(f${i}.woff2); font-weight: ${400 + i * 100}; }`).join("\n") + "\n.a { font-family: Inter; }\n");
   assert.ok(!lintFiles([f], session).some((i) => i.id === "font-families"));
 });
+
+test("paid narration waits for an approved cut of the current version; timing estimates are free", async () => {
+  const { cutGate, estimateLines } = await import("../src/modules/motion/voice.mjs");
+  const { artifactRev } = await import("../src/core/evidence.mjs");
+  const t = state.newTask({ title: "film", size: "full", surface: "other", guides: [], mode: "motion" });
+  t.motion = { renders: [] };
+  assert.match(cutGate(t, "looks great"), /clean motion_frames sweep/);
+  const rev = artifactRev(t);
+  t.fitcheck.doneRev = rev;
+  assert.match(cutGate(t, "looks great"), /Render the current version/);
+  t.motion.renders.push({ file: "out/draft.mp4", draft: true, rev });
+  assert.match(cutGate(t, ""), /approve the cut/);
+  assert.equal(cutGate(t, "approved, go ahead with the voice"), null);
+  t.motion.cutApproval = { rev, words: "approved" };
+  assert.equal(cutGate(t, ""), null, "retakes on the approved version need no new approval");
+  t.motion.cutApproval.rev = "older";
+  assert.match(cutGate(t, ""), /approve the cut/);
+  const est = estimateLines([{ at: 1, text: "You have forty-seven tabs open." }]);
+  assert.ok(est[0].end > 3 && est[0].end < 4.5, String(est[0].end));
+});
