@@ -2,12 +2,18 @@
 // remind it to start Drip on design prompts. Otherwise silent: Drip is opt-in.
 import { REWORK_WORDS, allow, checklist, loadConfig, loadState, out, readInput, run, updateState } from "./lib.mjs";
 import { userWords } from "./transcript.mjs";
+import { isSettingsCommand, openSettingsInBackground } from "./settings-open.mjs";
 
 const LOAD = "If the drip_* tools are not loaded, ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide.";
 
 run(async () => {
   const input = await readInput();
   const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  // /drip:settings is a page, not a conversation: open it here and stop the prompt, so no model is involved.
+  if (isSettingsCommand(input.prompt)) {
+    const url = await openSettingsInBackground(dir);
+    return out({ decision: "block", reason: url ? `Drip settings opened in your browser: ${url}` : "Drip settings couldn't start here. Run `drip settings` in a terminal." });
+  }
   const config = loadConfig(dir);
   const { task } = loadState(dir);
   if (task) {

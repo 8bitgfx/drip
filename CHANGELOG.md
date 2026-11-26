@@ -2,6 +2,9 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## Unreleased: /drip:settings without the model
+- The prompt hook catches `/drip:settings`, starts the settings page in its own background process (`drip settings --ttl 60`, which stops by itself after an hour), opens the browser and stops the prompt with the link. No model call, no tokens. `commands/settings.md` stays as the fallback for hosts without the hook.
+
 ## 0.10.0: commands by craft, and Drip Motion
 - **Commands**: `/drip:design` is now `/drip:ui` (pages, screens, components, polish); new `/drip:logo` (logos, icons, vector marks) and `/drip:motion` (films). `/drip:adapt` takes a niche, a style or a workflow; `/drip:critic` judges films and videos too.
 - **Drip Motion** (`modules/motion`, skill `drip-video`, `drip_start` mode `motion`): motion-design films made in code (HTML + GSAP/CSS/canvas/three.js) and rendered locally by seeking every frame. Its own loop and gates: a studied motion reference, then a checked storyboard (`motion_storyboard`: concept, hook, motif, beats, references; slop copy is an error), before composition files; a clean `motion_frames` sweep on the current version before a turn ends; the critic once (`critic_prepare` kind `motion`) before `drip_end`. Page and logo gates don't apply, but their tools (pieces, mockups, logo_sheet) are open to a film.

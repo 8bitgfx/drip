@@ -21,7 +21,7 @@ import { toolSignature } from "./codemode/signatures.mjs";
 
 export const EXIT = { OK: 0, TOOL: 1, USAGE: 2, PREREQ: 3 };
 
-const VALUE_FLAGS = new Set(["project", "session", "task", "out", "input", "input-file", "install", "agent", "file", "max-chars", "code"]);
+const VALUE_FLAGS = new Set(["project", "session", "task", "out", "input", "input-file", "install", "agent", "file", "max-chars", "code", "ttl"]);
 const BOOL_FLAGS = new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "no-open", "stdin", "version", "fix", "yes"]);
 const DEFAULT_MAX_CHARS = 20000;
 
@@ -439,8 +439,11 @@ Schema: drip tools schema ${cmd}`);
       case "settings": {
         const url = await openSettingsPage({ cwd: projectDir(), ttlMs: 0, runDoctor: async () => formatDoctor(await runDoctor({})) });
         if (!flags["no-open"]) openInBrowser(url);
-        await writeOut(`Drip settings: ${url}\nThe page runs while this command does. Press Ctrl+C to stop.`);
-        if (!flags["no-wait"]) await new Promise(() => {});
+        // --ttl <minutes>: stop by itself (the /drip:settings hook starts it in the background, so nobody presses Ctrl+C).
+        const ttl = Number(flags.ttl) > 0 ? Number(flags.ttl) * 60000 : 0;
+        await writeOut(`Drip settings: ${url}\n${ttl ? `The page runs for ${Number(flags.ttl)} minutes.` : "The page runs while this command does. Press Ctrl+C to stop."}`);
+        if (ttl) await new Promise((r) => setTimeout(r, ttl));
+        else if (!flags["no-wait"]) await new Promise(() => {});
         return EXIT.OK;
       }
       case "tools":

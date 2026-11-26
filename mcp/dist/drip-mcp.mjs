@@ -118096,7 +118096,7 @@ import path94 from "node:path";
 import { fileURLToPath as fileURLToPath2, pathToFileURL as pathToFileURL8 } from "node:url";
 init_paths();
 var EXIT = { OK: 0, TOOL: 1, USAGE: 2, PREREQ: 3 };
-var VALUE_FLAGS = /* @__PURE__ */ new Set(["project", "session", "task", "out", "input", "input-file", "install", "agent", "file", "max-chars", "code"]);
+var VALUE_FLAGS = /* @__PURE__ */ new Set(["project", "session", "task", "out", "input", "input-file", "install", "agent", "file", "max-chars", "code", "ttl"]);
 var BOOL_FLAGS = /* @__PURE__ */ new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "no-open", "stdin", "version", "fix", "yes"]);
 var DEFAULT_MAX_CHARS = 2e4;
 var UsageError = class extends Error {
@@ -118477,9 +118477,11 @@ Schema: drip tools schema ${cmd}`);
       case "settings": {
         const url2 = await openSettingsPage({ cwd: projectDir(), ttlMs: 0, runDoctor: async () => formatDoctor(await runDoctor({})) });
         if (!flags["no-open"]) openInBrowser(url2);
+        const ttl = Number(flags.ttl) > 0 ? Number(flags.ttl) * 6e4 : 0;
         await writeOut(`Drip settings: ${url2}
-The page runs while this command does. Press Ctrl+C to stop.`);
-        if (!flags["no-wait"]) await new Promise(() => {
+${ttl ? `The page runs for ${Number(flags.ttl)} minutes.` : "The page runs while this command does. Press Ctrl+C to stop."}`);
+        if (ttl) await new Promise((r2) => setTimeout(r2, ttl));
+        else if (!flags["no-wait"]) await new Promise(() => {
         });
         return EXIT.OK;
       }

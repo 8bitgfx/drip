@@ -104,3 +104,17 @@ test("an accented word in the headline is a warning, not a blocker", () => {
   assert.ok(w, warnings.join("\n"));
   assert.ok(!isHard(w));
 });
+
+test("/drip:settings opens the page from the hook and never reaches the model", async () => {
+  const { isSettingsCommand } = await import("../../hooks/settings-open.mjs");
+  assert.ok(isSettingsCommand("/drip:settings") && isSettingsCommand("  /drip:settings  "));
+  assert.ok(!isSettingsCommand("/settings") && !isSettingsCommand("/drip:settings please change the critic") && !isSettingsCommand("open drip settings"));
+  const r = spawnSync(process.execPath, [path.join(hooks, "prompt.mjs")], { input: JSON.stringify({ cwd: project, prompt: "/drip:settings" }), encoding: "utf8", env: { ...process.env, CLAUDE_PROJECT_DIR: project, DRIP_NO_OPEN: "1", DRIP_SETTINGS_TTL: "0.05", DRIP_HOME: tmp("settings-home") }, timeout: 20000 });
+  const outp = JSON.parse(r.stdout);
+  assert.equal(outp.decision, "block", "the prompt stops at the hook");
+  const url = outp.reason.match(/http:\/\/127\.0\.0\.1:\d+\/\?t=[0-9a-f]+/)?.[0];
+  assert.ok(url, outp.reason);
+  const page = await fetch(url);
+  assert.equal(page.status, 200);
+  assert.match(await page.text(), /Drip settings/);
+});
