@@ -137,25 +137,43 @@ export function buildGaps(task, list) {
     }
   }
   // "from" names a reference you studied, not a phrase: its site or designer has to be one you looked at.
+  // Every section follows a reference the director studied, hard: "from" names it and what the section takes.
   const refNames = new Set(
     [...(task.refs?.studied || []).flatMap((r) => [r.source, r.key, r.designer]), ...(task.refs?.viewed || [])]
       .filter(Boolean)
-      .map((x) => String(x).toLowerCase().replace(/^site:/, "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?#]/)[0].split(".")[0])
+      .map(refName)
       .filter((x) => x && x.length >= 3 && !/^[a-z]\d+-\d+$/.test(x)),
   );
-  const big = list.filter((s) => ["hero", "page", "whole-page", "index", "app"].includes(slug(s.section)));
-  for (const s of big) {
-    if (!s.from || s.from.length < 12) gaps.push(`${s.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
-    else if (refNames.size && ![...refNames].some((n) => s.from.toLowerCase().includes(n))) gaps.push(`${s.section}: "from" has to name a reference you looked at (${[...refNames].slice(0, 6).join(", ")}…) and what this section takes from it.`);
+  for (const s of list) {
+    if (!s.from || s.from.length < 12) gaps.push(`${s.section}: say which studied reference it follows and what it takes (from: "linear.app: the product window rising out of soft light, 1100px, bleeding off the bottom").`);
+    else if (refNames.size && ![...refNames].some((n) => s.from.toLowerCase().includes(n))) gaps.push(`${s.section}: "from" has to name a reference you studied (${[...refNames].slice(0, 6).join(", ")}…) and what this section takes from it.`);
   }
   return gaps;
 }
 
-/** What the director studied, for the builders: the craft to match, not a look to copy. */
+const refName = (x) => String(x).toLowerCase().replace(/^site:/, "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?#]/)[0].split(".")[0];
+
+/** The studied reference a section's "from" names (the first one it mentions), or null. */
+export function refFor(task, from) {
+  const f = String(from || "").toLowerCase();
+  if (!f) return null;
+  return (task?.refs?.studied || []).find((r) => r.role !== "before" && [r.source, r.key, r.designer].filter(Boolean).map(refName).some((n) => n.length >= 3 && f.includes(n))) || null;
+}
+
+/** The references and why each fits, for the user: which section follows which reference. */
+export function referenceMap(task, list) {
+  const rows = list.map((s) => {
+    const r = refFor(task, s.from);
+    return `- ${s.section}: ${r ? `${r.source || r.key}` : "(no studied reference named)"}${s.from ? ` · takes: ${String(s.from).slice(0, 140)}` : ""}${r?.fits ? ` · why it fits: ${r.fits}` : ""}`;
+  });
+  return rows.join("\n");
+}
+
+/** What the director studied, for the builders: the references the page follows, closely. */
 export function studiedTakes(task) {
   const st = (task?.refs?.studied || []).filter((s) => s.take && s.role !== "before").slice(-5);
   if (!st.length) return "";
-  return `\nWHAT THE DIRECTOR STUDIED (match this level of craft; never copy a reference's colours or surface):\n${st.map((s) => `- ${s.source || s.key}: take ${s.take}${s.motion ? `; motion: ${s.motion}` : ""}`).join("\n")}`;
+  return `\nTHE REFERENCES THIS PAGE FOLLOWS (stick to them: their layout, composition, spacing, type scale, motion and feel; change the content to the client's and the colours to the brand's own where it has them):\n${st.map((s) => `- ${s.source || s.key}: take ${s.take}${s.fits ? `; fits because ${s.fits}` : ""}${s.motion ? `; motion: ${s.motion}` : ""}`).join("\n")}`;
 }
 
 /** At most this many builders per build_prepare: the director directs one or two builders, never a swarm. */
@@ -178,8 +196,18 @@ export function groupSections(list, max = MAX_BUILDERS) {
 }
 
 /** One section's part of a builder's brief: its spec, piece and files. */
-function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
+function sectionBlock({ section, spec, files, piece, from }, pg, stack, many, task) {
   const id = slug(section);
+  // The reference this section follows, with what was measured on it, so the builder can match it closely.
+  const ref = refFor(task, from);
+  const refLines = ref
+    ? [
+        `THE REFERENCE TO FOLLOW, CLOSELY: ${ref.source || ref.key}${ref.fits ? ` (chosen because ${ref.fits})` : ""}.`,
+        ref.image ? `Its picture: ${ref.image}${/^https?:/.test(ref.image) ? " (download it to look, or open it in a browser)" : " (open it with Read before you write anything)"}.` : "",
+        `What was measured on it: layout ${ref.layout || "?"}${ref.type ? `; type ${ref.type}` : ""}${ref.detail ? `; the move: ${ref.detail}` : ""}${ref.motion ? `; motion: ${ref.motion}` : ""}.`,
+        "Match its layout, composition, proportions, spacing, type scale and motion; take what the spec says from it. Change the content to the client's (and the colours to the brand's own, when it has them). Don't drift back to a generic section.",
+      ].filter(Boolean)
+    : [];
   const mine = files?.length ? files : sectionFiles(section, stack);
   const pieceLine = piece
     ? /^custom/i.test(piece)
@@ -202,6 +230,7 @@ function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
     many ? `=== SECTION: ${section} ===` : "",
     "THE SECTION SPEC (from the director; build exactly this)",
     spec,
+    ...refLines,
     pieceLine,
     stack === "react" && id === "hero" && pg && fs.existsSync(path.join(pg.root, "src", "sections", "hero.recipe.html"))
       ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it."
@@ -236,7 +265,7 @@ export function buildPrompt({ section, spec, files, url, task, piece, page, item
     chosen ? `Chosen direction: ${chosen}` : "",
     "",
     many ? `You build ${list.length} sections, in this order, one after another; they share one system, so keep their rhythm and detail consistent with each other.` : "",
-    ...list.flatMap((s) => [...sectionBlock(s, pg, stack, many), ""]),
+    ...list.flatMap((s) => [...sectionBlock(s, pg, stack, many, task), ""]),
     studiedTakes(task),
     "",
     where,
@@ -377,7 +406,9 @@ export function register(server, ctx) {
       const tail = stitchable.length
         ? `\n\nWhen they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.`
         : `\n\nWhen it finishes: fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to the builder (SendMessage to it).`;
-      return text(head + body + tail);
+      // The user sees which section follows which reference and why: show this map with the page.
+      const map = `\n\nREFERENCE MAP (show the user with the page, in a short table: section, reference, what it takes, why it fits):\n${referenceMap(task, list)}`;
+      return text(head + body + tail + map);
     }),
   );
 

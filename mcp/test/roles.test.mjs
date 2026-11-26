@@ -138,9 +138,9 @@ test("pieces before homemade: custom needs a named reason, and 'searched' needs 
   const gaps = (list) => swarm.buildGaps(task, list);
   assert.match(gaps([{ section: "features", spec: "x", piece: "custom: it's quicker" }]).join(), /needs one of the reasons/);
   assert.match(gaps([{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]).join(), /no components_find/);
-  assert.deepEqual(gaps([{ section: "proof", spec: "x", piece: "custom: data the client's weekly numbers" }]), []);
+  assert.deepEqual(gaps([{ section: "proof", spec: "x", piece: "custom: data the client's weekly numbers", from: "a.com: the chart band at full width" }]), []);
   assert.match(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 }, searches: ["pricing toggle"] }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]).join(), /doesn't match any search/);
-  assert.deepEqual(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 }, searches: ["bento grid of product cards"] }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI" }]), []);
+  assert.deepEqual(swarm.buildGaps({ ...task, toolUse: { pieces_preview: 1, components_find: 2 }, searches: ["bento grid of product cards"] }, [{ section: "features", spec: "x", piece: "custom: searched bento with live UI", from: "b.com: the 3x2 bento of live cells" }]), []);
 });
 
 test("the fast loop asks once before building, unless the user said not to ask", () => {
@@ -256,4 +256,15 @@ test("the director writes small fixes; a big write in the fast loop goes to a bu
   const running = { ...task, agents: [{ type: "drip:builder", at: new Date().toISOString() }] };
   assert.equal(directorTooBig({}, big, running, cfg), null, "an older host that doesn't say who writes: a running builder gets the benefit of the doubt");
   assert.match(directorTooBig({ agent_id: null }, big, running, cfg) || "", /director/, "a host that says it is the main agent is held to it");
+});
+
+test("every section follows a studied reference; the builder gets it, the user gets the map", () => {
+  const task = { refs: { viewed: ["site:linear.app", "site:b.com", "site:c.com", "site:d.com"], studied: [{ key: "site:linear.app", source: "https://linear.app", role: "style", take: "the product window rising out of light", fits: "the same kind of product for the same buyers", layout: "centred headline over a 1100px window bleeding off the bottom", image: "C:/refs/linear-1.jpg" }, { key: "site:b.com" }, { key: "site:c.com" }] }, toolUse: { pieces_preview: 1 } };
+  assert.match(swarm.buildGaps(task, [{ section: "pricing", spec: "three plans", piece: "custom: tiny" }]).join(), /pricing: say which studied reference it follows/);
+  assert.equal(swarm.refFor(task, "linear.app: the window rising out of light").source, "https://linear.app");
+  const p = swarm.buildPrompt({ items: [{ section: "hero", spec: "the hero", from: "linear.app: the window rising out of light" }], page: swarm.pageOf(null, "sp/index.html"), task });
+  assert.match(p, /THE REFERENCE TO FOLLOW, CLOSELY: https:\/\/linear\.app \(chosen because the same kind of product/);
+  assert.match(p, /C:\/refs\/linear-1\.jpg/);
+  assert.match(p, /1100px window/);
+  assert.match(swarm.referenceMap(task, [{ section: "hero", from: "linear.app: the window" }]), /hero: https:\/\/linear\.app · takes: .* · why it fits: the same kind of product/);
 });

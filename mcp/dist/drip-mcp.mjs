@@ -48,9 +48,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/ajv/dist/compile/codegen/code.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
@@ -202,9 +202,9 @@ var require_code = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/scope.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
@@ -347,9 +347,9 @@ var require_scope = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
@@ -1067,9 +1067,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/util.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "node_modules/ajv/dist/compile/util.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
@@ -1234,9 +1234,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/names.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "node_modules/ajv/dist/compile/names.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -1273,9 +1273,9 @@ var require_names = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/errors.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "node_modules/ajv/dist/compile/errors.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
@@ -1395,9 +1395,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/boolSchema.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
@@ -1446,9 +1446,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/rules.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/ajv/dist/compile/rules.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRules = exports.isJSONType = void 0;
@@ -1477,9 +1477,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/applicability.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
@@ -1500,9 +1500,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/dataType.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
@@ -1684,9 +1684,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/defaults.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assignDefaults = void 0;
@@ -1721,9 +1721,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/code.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
@@ -1854,9 +1854,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/keyword.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
@@ -1972,9 +1972,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/subschema.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
@@ -2055,9 +2055,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// node_modules/fast-deep-equal/index.js
+// ../../drip-next/mcp/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/fast-deep-equal/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     module.exports = function equal(a2, b) {
       if (a2 === b) return true;
@@ -2090,9 +2090,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/json-schema-traverse/index.js
+// ../../drip-next/mcp/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/json-schema-traverse/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     var traverse = module.exports = function(schema, opts, cb) {
       if (typeof opts == "function") {
@@ -2178,9 +2178,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/resolve.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
@@ -2334,9 +2334,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
@@ -2842,9 +2842,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/validation_error.js
+// ../../drip-next/mcp/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ValidationError = class extends Error {
@@ -2858,9 +2858,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/ref_error.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var resolve_1 = require_resolve();
@@ -2875,9 +2875,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "node_modules/ajv/dist/compile/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
@@ -3099,9 +3099,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/data.json
+// ../../drip-next/mcp/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "../../drip-next/mcp/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -3118,9 +3118,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/utils.js
+// ../../drip-next/mcp/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
@@ -3652,9 +3652,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/schemes.js
+// ../../drip-next/mcp/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     var { isUUID } = require_utils();
     var URN_REG = /^([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-./:;=@]|%[\da-f]{2})+)$/iu;
@@ -3863,9 +3863,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/fast-uri/index.js
+// ../../drip-next/mcp/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/fast-uri/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     var { normalizeIPv6, removeDotSegments, removeDotSegmentsRelative, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, serializePathEncoding, normalizeQueryFragmentEncoding, encodeQuery, encodeFragment, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
@@ -4293,9 +4293,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/uri.js
+// ../../drip-next/mcp/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var uri = require_fast_uri();
@@ -4304,9 +4304,9 @@ var require_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/core.js
+// ../../drip-next/mcp/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "node_modules/ajv/dist/core.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
@@ -4915,9 +4915,9 @@ var require_core = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/id.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var def = {
@@ -4930,9 +4930,9 @@ var require_id = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/ref.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.callRef = exports.getValidate = void 0;
@@ -5052,9 +5052,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var id_1 = require_id();
@@ -5073,9 +5073,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5105,9 +5105,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5133,9 +5133,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/ucs2length.js
+// ../../drip-next/mcp/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function ucs2length(str) {
@@ -5159,9 +5159,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5191,9 +5191,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/pattern.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5228,9 +5228,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5257,9 +5257,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/required.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5339,9 +5339,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5368,9 +5368,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/equal.js
+// ../../drip-next/mcp/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
@@ -5379,9 +5379,9 @@ var require_equal = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var dataType_1 = require_dataType();
@@ -5446,9 +5446,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/const.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5475,9 +5475,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/enum.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5524,9 +5524,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var limitNumber_1 = require_limitNumber();
@@ -5562,9 +5562,9 @@ var require_validation = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateAdditionalItems = void 0;
@@ -5615,9 +5615,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateTuple = void 0;
@@ -5672,9 +5672,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var items_1 = require_items();
@@ -5689,9 +5689,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5724,9 +5724,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/contains.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5818,9 +5818,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
@@ -5912,9 +5912,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5955,9 +5955,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6061,9 +6061,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/properties.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var validate_1 = require_validate();
@@ -6119,9 +6119,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6193,9 +6193,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/not.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6224,9 +6224,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6241,9 +6241,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6299,9 +6299,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6326,9 +6326,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/if.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6395,9 +6395,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6413,9 +6413,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var additionalItems_1 = require_additionalItems();
@@ -6461,9 +6461,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/format.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6551,9 +6551,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
@@ -6562,9 +6562,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/metadata.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.contentVocabulary = exports.metadataVocabulary = void 0;
@@ -6585,9 +6585,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/draft7.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var core_1 = require_core2();
@@ -6607,9 +6607,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/types.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiscrError = void 0;
@@ -6621,9 +6621,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/index.js
+// ../../drip-next/mcp/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6726,9 +6726,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/json-schema-draft-07.json
+// ../../drip-next/mcp/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "../../drip-next/mcp/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -6883,9 +6883,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/ajv.js
+// ../../drip-next/mcp/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/ajv/dist/ajv.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = exports.Ajv = void 0;
@@ -6953,9 +6953,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/formats.js
+// ../../drip-next/mcp/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "node_modules/ajv-formats/dist/formats.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatNames = exports.fastFormats = exports.fullFormats = void 0;
@@ -7156,9 +7156,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/limit.js
+// ../../drip-next/mcp/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "node_modules/ajv-formats/dist/limit.js"(exports) {
+  "../../drip-next/mcp/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatLimitDefinition = void 0;
@@ -7228,9 +7228,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/index.js
+// ../../drip-next/mcp/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var formats_1 = require_formats();
@@ -8185,9 +8185,9 @@ var init_browser = __esm({
   }
 });
 
-// node_modules/omggif/omggif.js
+// ../../drip-next/mcp/node_modules/omggif/omggif.js
 var require_omggif = __commonJS({
-  "node_modules/omggif/omggif.js"(exports) {
+  "../../drip-next/mcp/node_modules/omggif/omggif.js"(exports) {
     "use strict";
     function GifWriter(buf, width, height, gopts) {
       var p2 = 0;
@@ -8747,9 +8747,9 @@ var require_omggif = __commonJS({
   }
 });
 
-// node_modules/gifwrap/src/bitmapimage.js
+// ../../drip-next/mcp/node_modules/gifwrap/src/bitmapimage.js
 var require_bitmapimage = __commonJS({
-  "node_modules/gifwrap/src/bitmapimage.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/gifwrap/src/bitmapimage.js"(exports, module) {
     "use strict";
     var BitmapImage2 = class _BitmapImage {
       /**
@@ -9016,9 +9016,9 @@ var require_bitmapimage = __commonJS({
   }
 });
 
-// node_modules/gifwrap/src/gif.js
+// ../../drip-next/mcp/node_modules/gifwrap/src/gif.js
 var require_gif = __commonJS({
-  "node_modules/gifwrap/src/gif.js"(exports) {
+  "../../drip-next/mcp/node_modules/gifwrap/src/gif.js"(exports) {
     "use strict";
     var Gif = class {
       // width - width of GIF in pixels
@@ -9078,9 +9078,9 @@ var require_gif = __commonJS({
   }
 });
 
-// node_modules/image-q/dist/cjs/image-q.cjs
+// ../../drip-next/mcp/node_modules/image-q/dist/cjs/image-q.cjs
 var require_image_q = __commonJS({
-  "node_modules/image-q/dist/cjs/image-q.cjs"(exports, module) {
+  "../../drip-next/mcp/node_modules/image-q/dist/cjs/image-q.cjs"(exports, module) {
     var __defProp5 = Object.defineProperty;
     var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
     var __getOwnPropNames2 = Object.getOwnPropertyNames;
@@ -11840,9 +11840,9 @@ var require_image_q = __commonJS({
   }
 });
 
-// node_modules/gifwrap/src/gifframe.js
+// ../../drip-next/mcp/node_modules/gifwrap/src/gifframe.js
 var require_gifframe = __commonJS({
-  "node_modules/gifwrap/src/gifframe.js"(exports) {
+  "../../drip-next/mcp/node_modules/gifwrap/src/gifframe.js"(exports) {
     "use strict";
     var BitmapImage2 = require_bitmapimage();
     var { GifError: GifError2 } = require_gif();
@@ -11943,9 +11943,9 @@ var require_gifframe = __commonJS({
   }
 });
 
-// node_modules/gifwrap/src/gifutil.js
+// ../../drip-next/mcp/node_modules/gifwrap/src/gifutil.js
 var require_gifutil = __commonJS({
-  "node_modules/gifwrap/src/gifutil.js"(exports) {
+  "../../drip-next/mcp/node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
     var fs86 = __require("fs");
     var ImageQ = require_image_q();
@@ -12164,9 +12164,9 @@ var require_gifutil = __commonJS({
   }
 });
 
-// node_modules/gifwrap/src/gifcodec.js
+// ../../drip-next/mcp/node_modules/gifwrap/src/gifcodec.js
 var require_gifcodec = __commonJS({
-  "node_modules/gifwrap/src/gifcodec.js"(exports) {
+  "../../drip-next/mcp/node_modules/gifwrap/src/gifcodec.js"(exports) {
     "use strict";
     var Omggif = require_omggif();
     var { Gif, GifError: GifError2 } = require_gif();
@@ -12529,9 +12529,9 @@ var require_gifcodec = __commonJS({
   }
 });
 
-// node_modules/gifwrap/src/index.js
+// ../../drip-next/mcp/node_modules/gifwrap/src/index.js
 var require_src = __commonJS({
-  "node_modules/gifwrap/src/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/gifwrap/src/index.js"(exports, module) {
     "use strict";
     var BitmapImage2 = require_bitmapimage();
     var { Gif, GifError: GifError2 } = require_gif();
@@ -12549,9 +12549,9 @@ var require_src = __commonJS({
   }
 });
 
-// node_modules/jpeg-js/lib/encoder.js
+// ../../drip-next/mcp/node_modules/jpeg-js/lib/encoder.js
 var require_encoder = __commonJS({
-  "node_modules/jpeg-js/lib/encoder.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/jpeg-js/lib/encoder.js"(exports, module) {
     var btoa2 = btoa2 || function(buf) {
       return Buffer.from(buf).toString("base64");
     };
@@ -13626,9 +13626,9 @@ var require_encoder = __commonJS({
   }
 });
 
-// node_modules/jpeg-js/lib/decoder.js
+// ../../drip-next/mcp/node_modules/jpeg-js/lib/decoder.js
 var require_decoder = __commonJS({
-  "node_modules/jpeg-js/lib/decoder.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/jpeg-js/lib/decoder.js"(exports, module) {
     var JpegImage = (function jpegImage() {
       "use strict";
       var dctZigZag = new Int32Array([
@@ -14688,9 +14688,9 @@ var require_decoder = __commonJS({
   }
 });
 
-// node_modules/jpeg-js/index.js
+// ../../drip-next/mcp/node_modules/jpeg-js/index.js
 var require_jpeg_js = __commonJS({
-  "node_modules/jpeg-js/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/jpeg-js/index.js"(exports, module) {
     var encode6 = require_encoder();
     var decode9 = require_decoder();
     module.exports = {
@@ -14700,9 +14700,9 @@ var require_jpeg_js = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/chunkstream.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/chunkstream.js
 var require_chunkstream = __commonJS({
-  "node_modules/pngjs/lib/chunkstream.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/chunkstream.js"(exports, module) {
     "use strict";
     var util2 = __require("util");
     var Stream = __require("stream");
@@ -14838,9 +14838,9 @@ var require_chunkstream = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/interlace.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/interlace.js
 var require_interlace = __commonJS({
-  "node_modules/pngjs/lib/interlace.js"(exports) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/interlace.js"(exports) {
     "use strict";
     var imagePasses = [
       {
@@ -14921,9 +14921,9 @@ var require_interlace = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/paeth-predictor.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/paeth-predictor.js
 var require_paeth_predictor = __commonJS({
-  "node_modules/pngjs/lib/paeth-predictor.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/paeth-predictor.js"(exports, module) {
     "use strict";
     module.exports = function paethPredictor(left, above, upLeft) {
       let paeth = left + above - upLeft;
@@ -14941,9 +14941,9 @@ var require_paeth_predictor = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/filter-parse.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/filter-parse.js
 var require_filter_parse = __commonJS({
-  "node_modules/pngjs/lib/filter-parse.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/filter-parse.js"(exports, module) {
     "use strict";
     var interlaceUtils = require_interlace();
     var paethPredictor = require_paeth_predictor();
@@ -15082,9 +15082,9 @@ var require_filter_parse = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/filter-parse-async.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/filter-parse-async.js
 var require_filter_parse_async = __commonJS({
-  "node_modules/pngjs/lib/filter-parse-async.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/filter-parse-async.js"(exports, module) {
     "use strict";
     var util2 = __require("util");
     var ChunkStream = require_chunkstream();
@@ -15108,9 +15108,9 @@ var require_filter_parse_async = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/constants.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/constants.js
 var require_constants = __commonJS({
-  "node_modules/pngjs/lib/constants.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/constants.js"(exports, module) {
     "use strict";
     module.exports = {
       PNG_SIGNATURE: [137, 80, 78, 71, 13, 10, 26, 10],
@@ -15143,9 +15143,9 @@ var require_constants = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/crc.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/crc.js
 var require_crc = __commonJS({
-  "node_modules/pngjs/lib/crc.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/crc.js"(exports, module) {
     "use strict";
     var crcTable = [];
     (function() {
@@ -15183,9 +15183,9 @@ var require_crc = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/parser.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/parser.js
 var require_parser = __commonJS({
-  "node_modules/pngjs/lib/parser.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/parser.js"(exports, module) {
     "use strict";
     var constants3 = require_constants();
     var CrcCalculator = require_crc();
@@ -15404,9 +15404,9 @@ var require_parser = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/bitmapper.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/bitmapper.js
 var require_bitmapper = __commonJS({
-  "node_modules/pngjs/lib/bitmapper.js"(exports) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/bitmapper.js"(exports) {
     "use strict";
     var interlaceUtils = require_interlace();
     var pixelBppMapper = [
@@ -15652,9 +15652,9 @@ var require_bitmapper = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/format-normaliser.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/format-normaliser.js
 var require_format_normaliser = __commonJS({
-  "node_modules/pngjs/lib/format-normaliser.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/format-normaliser.js"(exports, module) {
     "use strict";
     function dePalette(indata, outdata, width, height, palette2) {
       let pxPos = 0;
@@ -15733,9 +15733,9 @@ var require_format_normaliser = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/parser-async.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/parser-async.js
 var require_parser_async = __commonJS({
-  "node_modules/pngjs/lib/parser-async.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/parser-async.js"(exports, module) {
     "use strict";
     var util2 = __require("util");
     var zlib2 = __require("zlib");
@@ -15863,9 +15863,9 @@ var require_parser_async = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/bitpacker.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/bitpacker.js
 var require_bitpacker = __commonJS({
-  "node_modules/pngjs/lib/bitpacker.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/bitpacker.js"(exports, module) {
     "use strict";
     var constants3 = require_constants();
     module.exports = function(dataIn, width, height, options) {
@@ -16013,9 +16013,9 @@ var require_bitpacker = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/filter-pack.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/filter-pack.js
 var require_filter_pack = __commonJS({
-  "node_modules/pngjs/lib/filter-pack.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/filter-pack.js"(exports, module) {
     "use strict";
     var paethPredictor = require_paeth_predictor();
     function filterNone(pxData, pxPos, byteWidth, rawData, rawPos) {
@@ -16155,9 +16155,9 @@ var require_filter_pack = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/packer.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/packer.js
 var require_packer = __commonJS({
-  "node_modules/pngjs/lib/packer.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/packer.js"(exports, module) {
     "use strict";
     var constants3 = require_constants();
     var CrcStream = require_crc();
@@ -16255,9 +16255,9 @@ var require_packer = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/packer-async.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/packer-async.js
 var require_packer_async = __commonJS({
-  "node_modules/pngjs/lib/packer-async.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/packer-async.js"(exports, module) {
     "use strict";
     var util2 = __require("util");
     var Stream = __require("stream");
@@ -16297,9 +16297,9 @@ var require_packer_async = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/sync-inflate.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/sync-inflate.js
 var require_sync_inflate = __commonJS({
-  "node_modules/pngjs/lib/sync-inflate.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/sync-inflate.js"(exports, module) {
     "use strict";
     var assert2 = __require("assert").ok;
     var zlib2 = __require("zlib");
@@ -16434,9 +16434,9 @@ var require_sync_inflate = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/sync-reader.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/sync-reader.js
 var require_sync_reader = __commonJS({
-  "node_modules/pngjs/lib/sync-reader.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/sync-reader.js"(exports, module) {
     "use strict";
     var SyncReader = module.exports = function(buffer) {
       this._buffer = buffer;
@@ -16472,9 +16472,9 @@ var require_sync_reader = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/filter-parse-sync.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/filter-parse-sync.js
 var require_filter_parse_sync = __commonJS({
-  "node_modules/pngjs/lib/filter-parse-sync.js"(exports) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/filter-parse-sync.js"(exports) {
     "use strict";
     var SyncReader = require_sync_reader();
     var Filter = require_filter_parse();
@@ -16496,9 +16496,9 @@ var require_filter_parse_sync = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/parser-sync.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/parser-sync.js
 var require_parser_sync = __commonJS({
-  "node_modules/pngjs/lib/parser-sync.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/parser-sync.js"(exports, module) {
     "use strict";
     var hasSyncZlib = true;
     var zlib2 = __require("zlib");
@@ -16591,9 +16591,9 @@ var require_parser_sync = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/packer-sync.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/packer-sync.js
 var require_packer_sync = __commonJS({
-  "node_modules/pngjs/lib/packer-sync.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/packer-sync.js"(exports, module) {
     "use strict";
     var hasSyncZlib = true;
     var zlib2 = __require("zlib");
@@ -16636,9 +16636,9 @@ var require_packer_sync = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/png-sync.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/png-sync.js
 var require_png_sync = __commonJS({
-  "node_modules/pngjs/lib/png-sync.js"(exports) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/png-sync.js"(exports) {
     "use strict";
     var parse3 = require_parser_sync();
     var pack = require_packer_sync();
@@ -16651,9 +16651,9 @@ var require_png_sync = __commonJS({
   }
 });
 
-// node_modules/pngjs/lib/png.js
+// ../../drip-next/mcp/node_modules/pngjs/lib/png.js
 var require_png = __commonJS({
-  "node_modules/pngjs/lib/png.js"(exports) {
+  "../../drip-next/mcp/node_modules/pngjs/lib/png.js"(exports) {
     "use strict";
     var util2 = __require("util");
     var Stream = __require("stream");
@@ -16788,9 +16788,9 @@ var require_png = __commonJS({
   }
 });
 
-// node_modules/pako/lib/utils/common.js
+// ../../drip-next/mcp/node_modules/pako/lib/utils/common.js
 var require_common = __commonJS({
-  "node_modules/pako/lib/utils/common.js"(exports) {
+  "../../drip-next/mcp/node_modules/pako/lib/utils/common.js"(exports) {
     "use strict";
     var TYPED_OK = typeof Uint8Array !== "undefined" && typeof Uint16Array !== "undefined" && typeof Int32Array !== "undefined";
     function _has(obj, key) {
@@ -16879,9 +16879,9 @@ var require_common = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/trees.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/trees.js
 var require_trees = __commonJS({
-  "node_modules/pako/lib/zlib/trees.js"(exports) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/trees.js"(exports) {
     "use strict";
     var utils2 = require_common();
     var Z_FIXED = 4;
@@ -17521,9 +17521,9 @@ var require_trees = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/adler32.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/adler32.js
 var require_adler32 = __commonJS({
-  "node_modules/pako/lib/zlib/adler32.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/adler32.js"(exports, module) {
     "use strict";
     function adler32(adler, buf, len, pos) {
       var s1 = adler & 65535 | 0, s2 = adler >>> 16 & 65535 | 0, n3 = 0;
@@ -17543,9 +17543,9 @@ var require_adler32 = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/crc32.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/crc32.js
 var require_crc32 = __commonJS({
-  "node_modules/pako/lib/zlib/crc32.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/crc32.js"(exports, module) {
     "use strict";
     function makeTable() {
       var c3, table = [];
@@ -17571,9 +17571,9 @@ var require_crc32 = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/messages.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/messages.js
 var require_messages = __commonJS({
-  "node_modules/pako/lib/zlib/messages.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/messages.js"(exports, module) {
     "use strict";
     module.exports = {
       2: "need dictionary",
@@ -17598,9 +17598,9 @@ var require_messages = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/deflate.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/deflate.js
 var require_deflate = __commonJS({
-  "node_modules/pako/lib/zlib/deflate.js"(exports) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/deflate.js"(exports) {
     "use strict";
     var utils2 = require_common();
     var trees = require_trees();
@@ -18647,9 +18647,9 @@ var require_deflate = __commonJS({
   }
 });
 
-// node_modules/pako/lib/utils/strings.js
+// ../../drip-next/mcp/node_modules/pako/lib/utils/strings.js
 var require_strings = __commonJS({
-  "node_modules/pako/lib/utils/strings.js"(exports) {
+  "../../drip-next/mcp/node_modules/pako/lib/utils/strings.js"(exports) {
     "use strict";
     var utils2 = require_common();
     var STR_APPLY_OK = true;
@@ -18789,9 +18789,9 @@ var require_strings = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/zstream.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/zstream.js
 var require_zstream = __commonJS({
-  "node_modules/pako/lib/zlib/zstream.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/zstream.js"(exports, module) {
     "use strict";
     function ZStream() {
       this.input = null;
@@ -18811,9 +18811,9 @@ var require_zstream = __commonJS({
   }
 });
 
-// node_modules/pako/lib/deflate.js
+// ../../drip-next/mcp/node_modules/pako/lib/deflate.js
 var require_deflate2 = __commonJS({
-  "node_modules/pako/lib/deflate.js"(exports) {
+  "../../drip-next/mcp/node_modules/pako/lib/deflate.js"(exports) {
     "use strict";
     var zlib_deflate = require_deflate();
     var utils2 = require_common();
@@ -18972,9 +18972,9 @@ var require_deflate2 = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/inffast.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/inffast.js
 var require_inffast = __commonJS({
-  "node_modules/pako/lib/zlib/inffast.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/inffast.js"(exports, module) {
     "use strict";
     var BAD = 30;
     var TYPE = 12;
@@ -19201,9 +19201,9 @@ var require_inffast = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/inftrees.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/inftrees.js
 var require_inftrees = __commonJS({
-  "node_modules/pako/lib/zlib/inftrees.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/inftrees.js"(exports, module) {
     "use strict";
     var utils2 = require_common();
     var MAXBITS = 15;
@@ -19517,9 +19517,9 @@ var require_inftrees = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/inflate.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/inflate.js
 var require_inflate = __commonJS({
-  "node_modules/pako/lib/zlib/inflate.js"(exports) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/inflate.js"(exports) {
     "use strict";
     var utils2 = require_common();
     var adler32 = require_adler32();
@@ -20756,9 +20756,9 @@ var require_inflate = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/constants.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/constants.js
 var require_constants2 = __commonJS({
-  "node_modules/pako/lib/zlib/constants.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/constants.js"(exports, module) {
     "use strict";
     module.exports = {
       /* Allowed flush values; see deflate() and inflate() below for details */
@@ -20803,9 +20803,9 @@ var require_constants2 = __commonJS({
   }
 });
 
-// node_modules/pako/lib/zlib/gzheader.js
+// ../../drip-next/mcp/node_modules/pako/lib/zlib/gzheader.js
 var require_gzheader = __commonJS({
-  "node_modules/pako/lib/zlib/gzheader.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/lib/zlib/gzheader.js"(exports, module) {
     "use strict";
     function GZheader() {
       this.text = 0;
@@ -20823,9 +20823,9 @@ var require_gzheader = __commonJS({
   }
 });
 
-// node_modules/pako/lib/inflate.js
+// ../../drip-next/mcp/node_modules/pako/lib/inflate.js
 var require_inflate2 = __commonJS({
-  "node_modules/pako/lib/inflate.js"(exports) {
+  "../../drip-next/mcp/node_modules/pako/lib/inflate.js"(exports) {
     "use strict";
     var zlib_inflate = require_inflate();
     var utils2 = require_common();
@@ -20997,9 +20997,9 @@ var require_inflate2 = __commonJS({
   }
 });
 
-// node_modules/pako/index.js
+// ../../drip-next/mcp/node_modules/pako/index.js
 var require_pako = __commonJS({
-  "node_modules/pako/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pako/index.js"(exports, module) {
     "use strict";
     var assign = require_common().assign;
     var deflate = require_deflate2();
@@ -21011,9 +21011,9 @@ var require_pako = __commonJS({
   }
 });
 
-// node_modules/utif2/UTIF.js
+// ../../drip-next/mcp/node_modules/utif2/UTIF.js
 var require_UTIF = __commonJS({
-  "node_modules/utif2/UTIF.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/utif2/UTIF.js"(exports, module) {
     (function() {
       var UTIF = {};
       if (typeof module == "object") {
@@ -24499,9 +24499,9 @@ var require_UTIF = __commonJS({
   }
 });
 
-// node_modules/await-to-js/dist/await-to-js.umd.js
+// ../../drip-next/mcp/node_modules/await-to-js/dist/await-to-js.umd.js
 var require_await_to_js_umd = __commonJS({
-  "node_modules/await-to-js/dist/await-to-js.umd.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/await-to-js/dist/await-to-js.umd.js"(exports, module) {
     (function(global, factory) {
       typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : factory(global.awaitToJs = {});
     })(exports, (function(exports2) {
@@ -24523,9 +24523,9 @@ var require_await_to_js_umd = __commonJS({
   }
 });
 
-// node_modules/mime/Mime.js
+// ../../drip-next/mcp/node_modules/mime/Mime.js
 var require_Mime = __commonJS({
-  "node_modules/mime/Mime.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/mime/Mime.js"(exports, module) {
     "use strict";
     function Mime() {
       this._types = /* @__PURE__ */ Object.create(null);
@@ -24577,25 +24577,25 @@ var require_Mime = __commonJS({
   }
 });
 
-// node_modules/mime/types/standard.js
+// ../../drip-next/mcp/node_modules/mime/types/standard.js
 var require_standard = __commonJS({
-  "node_modules/mime/types/standard.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/mime/types/standard.js"(exports, module) {
     module.exports = { "application/andrew-inset": ["ez"], "application/applixware": ["aw"], "application/atom+xml": ["atom"], "application/atomcat+xml": ["atomcat"], "application/atomdeleted+xml": ["atomdeleted"], "application/atomsvc+xml": ["atomsvc"], "application/atsc-dwd+xml": ["dwd"], "application/atsc-held+xml": ["held"], "application/atsc-rsat+xml": ["rsat"], "application/bdoc": ["bdoc"], "application/calendar+xml": ["xcs"], "application/ccxml+xml": ["ccxml"], "application/cdfx+xml": ["cdfx"], "application/cdmi-capability": ["cdmia"], "application/cdmi-container": ["cdmic"], "application/cdmi-domain": ["cdmid"], "application/cdmi-object": ["cdmio"], "application/cdmi-queue": ["cdmiq"], "application/cu-seeme": ["cu"], "application/dash+xml": ["mpd"], "application/davmount+xml": ["davmount"], "application/docbook+xml": ["dbk"], "application/dssc+der": ["dssc"], "application/dssc+xml": ["xdssc"], "application/ecmascript": ["es", "ecma"], "application/emma+xml": ["emma"], "application/emotionml+xml": ["emotionml"], "application/epub+zip": ["epub"], "application/exi": ["exi"], "application/express": ["exp"], "application/fdt+xml": ["fdt"], "application/font-tdpfr": ["pfr"], "application/geo+json": ["geojson"], "application/gml+xml": ["gml"], "application/gpx+xml": ["gpx"], "application/gxf": ["gxf"], "application/gzip": ["gz"], "application/hjson": ["hjson"], "application/hyperstudio": ["stk"], "application/inkml+xml": ["ink", "inkml"], "application/ipfix": ["ipfix"], "application/its+xml": ["its"], "application/java-archive": ["jar", "war", "ear"], "application/java-serialized-object": ["ser"], "application/java-vm": ["class"], "application/javascript": ["js", "mjs"], "application/json": ["json", "map"], "application/json5": ["json5"], "application/jsonml+json": ["jsonml"], "application/ld+json": ["jsonld"], "application/lgr+xml": ["lgr"], "application/lost+xml": ["lostxml"], "application/mac-binhex40": ["hqx"], "application/mac-compactpro": ["cpt"], "application/mads+xml": ["mads"], "application/manifest+json": ["webmanifest"], "application/marc": ["mrc"], "application/marcxml+xml": ["mrcx"], "application/mathematica": ["ma", "nb", "mb"], "application/mathml+xml": ["mathml"], "application/mbox": ["mbox"], "application/mediaservercontrol+xml": ["mscml"], "application/metalink+xml": ["metalink"], "application/metalink4+xml": ["meta4"], "application/mets+xml": ["mets"], "application/mmt-aei+xml": ["maei"], "application/mmt-usd+xml": ["musd"], "application/mods+xml": ["mods"], "application/mp21": ["m21", "mp21"], "application/mp4": ["mp4s", "m4p"], "application/msword": ["doc", "dot"], "application/mxf": ["mxf"], "application/n-quads": ["nq"], "application/n-triples": ["nt"], "application/node": ["cjs"], "application/octet-stream": ["bin", "dms", "lrf", "mar", "so", "dist", "distz", "pkg", "bpk", "dump", "elc", "deploy", "exe", "dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "buffer"], "application/oda": ["oda"], "application/oebps-package+xml": ["opf"], "application/ogg": ["ogx"], "application/omdoc+xml": ["omdoc"], "application/onenote": ["onetoc", "onetoc2", "onetmp", "onepkg"], "application/oxps": ["oxps"], "application/p2p-overlay+xml": ["relo"], "application/patch-ops-error+xml": ["xer"], "application/pdf": ["pdf"], "application/pgp-encrypted": ["pgp"], "application/pgp-signature": ["asc", "sig"], "application/pics-rules": ["prf"], "application/pkcs10": ["p10"], "application/pkcs7-mime": ["p7m", "p7c"], "application/pkcs7-signature": ["p7s"], "application/pkcs8": ["p8"], "application/pkix-attr-cert": ["ac"], "application/pkix-cert": ["cer"], "application/pkix-crl": ["crl"], "application/pkix-pkipath": ["pkipath"], "application/pkixcmp": ["pki"], "application/pls+xml": ["pls"], "application/postscript": ["ai", "eps", "ps"], "application/provenance+xml": ["provx"], "application/pskc+xml": ["pskcxml"], "application/raml+yaml": ["raml"], "application/rdf+xml": ["rdf", "owl"], "application/reginfo+xml": ["rif"], "application/relax-ng-compact-syntax": ["rnc"], "application/resource-lists+xml": ["rl"], "application/resource-lists-diff+xml": ["rld"], "application/rls-services+xml": ["rs"], "application/route-apd+xml": ["rapd"], "application/route-s-tsid+xml": ["sls"], "application/route-usd+xml": ["rusd"], "application/rpki-ghostbusters": ["gbr"], "application/rpki-manifest": ["mft"], "application/rpki-roa": ["roa"], "application/rsd+xml": ["rsd"], "application/rss+xml": ["rss"], "application/rtf": ["rtf"], "application/sbml+xml": ["sbml"], "application/scvp-cv-request": ["scq"], "application/scvp-cv-response": ["scs"], "application/scvp-vp-request": ["spq"], "application/scvp-vp-response": ["spp"], "application/sdp": ["sdp"], "application/senml+xml": ["senmlx"], "application/sensml+xml": ["sensmlx"], "application/set-payment-initiation": ["setpay"], "application/set-registration-initiation": ["setreg"], "application/shf+xml": ["shf"], "application/sieve": ["siv", "sieve"], "application/smil+xml": ["smi", "smil"], "application/sparql-query": ["rq"], "application/sparql-results+xml": ["srx"], "application/srgs": ["gram"], "application/srgs+xml": ["grxml"], "application/sru+xml": ["sru"], "application/ssdl+xml": ["ssdl"], "application/ssml+xml": ["ssml"], "application/swid+xml": ["swidtag"], "application/tei+xml": ["tei", "teicorpus"], "application/thraud+xml": ["tfi"], "application/timestamped-data": ["tsd"], "application/toml": ["toml"], "application/trig": ["trig"], "application/ttml+xml": ["ttml"], "application/ubjson": ["ubj"], "application/urc-ressheet+xml": ["rsheet"], "application/urc-targetdesc+xml": ["td"], "application/voicexml+xml": ["vxml"], "application/wasm": ["wasm"], "application/widget": ["wgt"], "application/winhlp": ["hlp"], "application/wsdl+xml": ["wsdl"], "application/wspolicy+xml": ["wspolicy"], "application/xaml+xml": ["xaml"], "application/xcap-att+xml": ["xav"], "application/xcap-caps+xml": ["xca"], "application/xcap-diff+xml": ["xdf"], "application/xcap-el+xml": ["xel"], "application/xcap-ns+xml": ["xns"], "application/xenc+xml": ["xenc"], "application/xhtml+xml": ["xhtml", "xht"], "application/xliff+xml": ["xlf"], "application/xml": ["xml", "xsl", "xsd", "rng"], "application/xml-dtd": ["dtd"], "application/xop+xml": ["xop"], "application/xproc+xml": ["xpl"], "application/xslt+xml": ["*xsl", "xslt"], "application/xspf+xml": ["xspf"], "application/xv+xml": ["mxml", "xhvml", "xvml", "xvm"], "application/yang": ["yang"], "application/yin+xml": ["yin"], "application/zip": ["zip"], "audio/3gpp": ["*3gpp"], "audio/adpcm": ["adp"], "audio/amr": ["amr"], "audio/basic": ["au", "snd"], "audio/midi": ["mid", "midi", "kar", "rmi"], "audio/mobile-xmf": ["mxmf"], "audio/mp3": ["*mp3"], "audio/mp4": ["m4a", "mp4a"], "audio/mpeg": ["mpga", "mp2", "mp2a", "mp3", "m2a", "m3a"], "audio/ogg": ["oga", "ogg", "spx", "opus"], "audio/s3m": ["s3m"], "audio/silk": ["sil"], "audio/wav": ["wav"], "audio/wave": ["*wav"], "audio/webm": ["weba"], "audio/xm": ["xm"], "font/collection": ["ttc"], "font/otf": ["otf"], "font/ttf": ["ttf"], "font/woff": ["woff"], "font/woff2": ["woff2"], "image/aces": ["exr"], "image/apng": ["apng"], "image/avif": ["avif"], "image/bmp": ["bmp"], "image/cgm": ["cgm"], "image/dicom-rle": ["drle"], "image/emf": ["emf"], "image/fits": ["fits"], "image/g3fax": ["g3"], "image/gif": ["gif"], "image/heic": ["heic"], "image/heic-sequence": ["heics"], "image/heif": ["heif"], "image/heif-sequence": ["heifs"], "image/hej2k": ["hej2"], "image/hsj2": ["hsj2"], "image/ief": ["ief"], "image/jls": ["jls"], "image/jp2": ["jp2", "jpg2"], "image/jpeg": ["jpeg", "jpg", "jpe"], "image/jph": ["jph"], "image/jphc": ["jhc"], "image/jpm": ["jpm"], "image/jpx": ["jpx", "jpf"], "image/jxr": ["jxr"], "image/jxra": ["jxra"], "image/jxrs": ["jxrs"], "image/jxs": ["jxs"], "image/jxsc": ["jxsc"], "image/jxsi": ["jxsi"], "image/jxss": ["jxss"], "image/ktx": ["ktx"], "image/ktx2": ["ktx2"], "image/png": ["png"], "image/sgi": ["sgi"], "image/svg+xml": ["svg", "svgz"], "image/t38": ["t38"], "image/tiff": ["tif", "tiff"], "image/tiff-fx": ["tfx"], "image/webp": ["webp"], "image/wmf": ["wmf"], "message/disposition-notification": ["disposition-notification"], "message/global": ["u8msg"], "message/global-delivery-status": ["u8dsn"], "message/global-disposition-notification": ["u8mdn"], "message/global-headers": ["u8hdr"], "message/rfc822": ["eml", "mime"], "model/3mf": ["3mf"], "model/gltf+json": ["gltf"], "model/gltf-binary": ["glb"], "model/iges": ["igs", "iges"], "model/mesh": ["msh", "mesh", "silo"], "model/mtl": ["mtl"], "model/obj": ["obj"], "model/step+xml": ["stpx"], "model/step+zip": ["stpz"], "model/step-xml+zip": ["stpxz"], "model/stl": ["stl"], "model/vrml": ["wrl", "vrml"], "model/x3d+binary": ["*x3db", "x3dbz"], "model/x3d+fastinfoset": ["x3db"], "model/x3d+vrml": ["*x3dv", "x3dvz"], "model/x3d+xml": ["x3d", "x3dz"], "model/x3d-vrml": ["x3dv"], "text/cache-manifest": ["appcache", "manifest"], "text/calendar": ["ics", "ifb"], "text/coffeescript": ["coffee", "litcoffee"], "text/css": ["css"], "text/csv": ["csv"], "text/html": ["html", "htm", "shtml"], "text/jade": ["jade"], "text/jsx": ["jsx"], "text/less": ["less"], "text/markdown": ["markdown", "md"], "text/mathml": ["mml"], "text/mdx": ["mdx"], "text/n3": ["n3"], "text/plain": ["txt", "text", "conf", "def", "list", "log", "in", "ini"], "text/richtext": ["rtx"], "text/rtf": ["*rtf"], "text/sgml": ["sgml", "sgm"], "text/shex": ["shex"], "text/slim": ["slim", "slm"], "text/spdx": ["spdx"], "text/stylus": ["stylus", "styl"], "text/tab-separated-values": ["tsv"], "text/troff": ["t", "tr", "roff", "man", "me", "ms"], "text/turtle": ["ttl"], "text/uri-list": ["uri", "uris", "urls"], "text/vcard": ["vcard"], "text/vtt": ["vtt"], "text/xml": ["*xml"], "text/yaml": ["yaml", "yml"], "video/3gpp": ["3gp", "3gpp"], "video/3gpp2": ["3g2"], "video/h261": ["h261"], "video/h263": ["h263"], "video/h264": ["h264"], "video/iso.segment": ["m4s"], "video/jpeg": ["jpgv"], "video/jpm": ["*jpm", "jpgm"], "video/mj2": ["mj2", "mjp2"], "video/mp2t": ["ts"], "video/mp4": ["mp4", "mp4v", "mpg4"], "video/mpeg": ["mpeg", "mpg", "mpe", "m1v", "m2v"], "video/ogg": ["ogv"], "video/quicktime": ["qt", "mov"], "video/webm": ["webm"] };
   }
 });
 
-// node_modules/mime/lite.js
+// ../../drip-next/mcp/node_modules/mime/lite.js
 var require_lite = __commonJS({
-  "node_modules/mime/lite.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/mime/lite.js"(exports, module) {
     "use strict";
     var Mime = require_Mime();
     module.exports = new Mime(require_standard());
   }
 });
 
-// node_modules/exif-parser/lib/jpeg.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/jpeg.js
 var require_jpeg = __commonJS({
-  "node_modules/exif-parser/lib/jpeg.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/jpeg.js"(exports, module) {
     module.exports = {
       parseSections: function(stream, iterator) {
         var len, markerType;
@@ -24671,9 +24671,9 @@ var require_jpeg = __commonJS({
   }
 });
 
-// node_modules/exif-parser/lib/exif.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/exif.js
 var require_exif = __commonJS({
-  "node_modules/exif-parser/lib/exif.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/exif.js"(exports, module) {
     function readExifValue(format, stream) {
       switch (format) {
         case 1:
@@ -24829,9 +24829,9 @@ var require_exif = __commonJS({
   }
 });
 
-// node_modules/exif-parser/lib/date.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/date.js
 var require_date = __commonJS({
-  "node_modules/exif-parser/lib/date.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/date.js"(exports, module) {
     function parseNumber(s2) {
       return parseInt(s2, 10);
     }
@@ -24887,9 +24887,9 @@ var require_date = __commonJS({
   }
 });
 
-// node_modules/exif-parser/lib/simplify.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/simplify.js
 var require_simplify = __commonJS({
-  "node_modules/exif-parser/lib/simplify.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/simplify.js"(exports, module) {
     var exif = require_exif();
     var date5 = require_date();
     var degreeTags = [
@@ -24973,9 +24973,9 @@ var require_simplify = __commonJS({
   }
 });
 
-// node_modules/exif-parser/lib/exif-tags.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/exif-tags.js
 var require_exif_tags = __commonJS({
-  "node_modules/exif-parser/lib/exif-tags.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/exif-tags.js"(exports, module) {
     module.exports = {
       exif: {
         1: "InteropIndex",
@@ -25446,9 +25446,9 @@ var require_exif_tags = __commonJS({
   }
 });
 
-// node_modules/exif-parser/lib/parser.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/parser.js
 var require_parser2 = __commonJS({
-  "node_modules/exif-parser/lib/parser.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/parser.js"(exports, module) {
     var jpeg2 = require_jpeg();
     var exif = require_exif();
     var simplify2 = require_simplify();
@@ -25635,9 +25635,9 @@ var require_parser2 = __commonJS({
   }
 });
 
-// node_modules/exif-parser/lib/dom-bufferstream.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/dom-bufferstream.js
 var require_dom_bufferstream = __commonJS({
-  "node_modules/exif-parser/lib/dom-bufferstream.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/dom-bufferstream.js"(exports, module) {
     function DOMBufferStream(arrayBuffer, offset, length, bigEndian, global, parentOffset) {
       this.global = global;
       offset = offset || 0;
@@ -25734,9 +25734,9 @@ var require_dom_bufferstream = __commonJS({
   }
 });
 
-// node_modules/exif-parser/lib/bufferstream.js
+// ../../drip-next/mcp/node_modules/exif-parser/lib/bufferstream.js
 var require_bufferstream = __commonJS({
-  "node_modules/exif-parser/lib/bufferstream.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/lib/bufferstream.js"(exports, module) {
     function BufferStream(buffer, offset, length, bigEndian) {
       this.buffer = buffer;
       this.offset = offset || 0;
@@ -25826,9 +25826,9 @@ var require_bufferstream = __commonJS({
   }
 });
 
-// node_modules/exif-parser/index.js
+// ../../drip-next/mcp/node_modules/exif-parser/index.js
 var require_exif_parser = __commonJS({
-  "node_modules/exif-parser/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/exif-parser/index.js"(exports, module) {
     var Parser = require_parser2();
     function getGlobal() {
       return (1, eval)("this");
@@ -25848,10 +25848,10 @@ var require_exif_parser = __commonJS({
   }
 });
 
-// node_modules/strtok3/lib/stream/Errors.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/Errors.js
 var defaultMessages, EndOfStreamError, AbortError;
 var init_Errors = __esm({
-  "node_modules/strtok3/lib/stream/Errors.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/Errors.js"() {
     defaultMessages = "End-Of-Stream";
     EndOfStreamError = class extends Error {
       constructor() {
@@ -25868,19 +25868,19 @@ var init_Errors = __esm({
   }
 });
 
-// node_modules/strtok3/lib/AbortSignal.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/AbortSignal.js
 function throwIfAborted(signal) {
   if (signal?.aborted) {
     throw new AbortError();
   }
 }
 var init_AbortSignal = __esm({
-  "node_modules/strtok3/lib/AbortSignal.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/AbortSignal.js"() {
     init_Errors();
   }
 });
 
-// node_modules/strtok3/lib/BufferSizeError.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/BufferSizeError.js
 function getMaxBufferSize(options) {
   const limit = options?.maxBufferSize ?? Number.POSITIVE_INFINITY;
   if (limit !== Number.POSITIVE_INFINITY && (!Number.isSafeInteger(limit) || limit <= 0)) {
@@ -25890,7 +25890,7 @@ function getMaxBufferSize(options) {
 }
 var BufferSizeError;
 var init_BufferSizeError = __esm({
-  "node_modules/strtok3/lib/BufferSizeError.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/BufferSizeError.js"() {
     BufferSizeError = class extends RangeError {
       /**
        * Create an error describing an allocation that exceeds the configured limit.
@@ -25907,10 +25907,10 @@ var init_BufferSizeError = __esm({
   }
 });
 
-// node_modules/strtok3/lib/stream/AbstractStreamReader.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/AbstractStreamReader.js
 var AbstractStreamReader;
 var init_AbstractStreamReader = __esm({
-  "node_modules/strtok3/lib/stream/AbstractStreamReader.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/AbstractStreamReader.js"() {
     init_Errors();
     AbstractStreamReader = class {
       constructor(options) {
@@ -25993,10 +25993,10 @@ var init_AbstractStreamReader = __esm({
   }
 });
 
-// node_modules/strtok3/lib/stream/Deferred.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/Deferred.js
 var Deferred;
 var init_Deferred = __esm({
-  "node_modules/strtok3/lib/stream/Deferred.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/Deferred.js"() {
     Deferred = class {
       constructor() {
         this.resolve = () => null;
@@ -26010,7 +26010,7 @@ var init_Deferred = __esm({
   }
 });
 
-// node_modules/strtok3/lib/stream/StreamReader.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/StreamReader.js
 function handlePostEndError() {
   this.removeListener("close", removePostEndErrorHandler);
 }
@@ -26019,7 +26019,7 @@ function removePostEndErrorHandler() {
 }
 var StreamReader;
 var init_StreamReader = __esm({
-  "node_modules/strtok3/lib/stream/StreamReader.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/StreamReader.js"() {
     init_AbstractStreamReader();
     init_Deferred();
     init_Errors();
@@ -26126,10 +26126,10 @@ var init_StreamReader = __esm({
   }
 });
 
-// node_modules/strtok3/lib/stream/WebStreamReader.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamReader.js
 var WebStreamReader;
 var init_WebStreamReader = __esm({
-  "node_modules/strtok3/lib/stream/WebStreamReader.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamReader.js"() {
     init_AbstractStreamReader();
     WebStreamReader = class extends AbstractStreamReader {
       constructor(reader, options) {
@@ -26147,10 +26147,10 @@ var init_WebStreamReader = __esm({
   }
 });
 
-// node_modules/strtok3/lib/stream/WebStreamByobReader.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamByobReader.js
 var WebStreamByobReader;
 var init_WebStreamByobReader = __esm({
-  "node_modules/strtok3/lib/stream/WebStreamByobReader.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamByobReader.js"() {
     init_WebStreamReader();
     WebStreamByobReader = class extends WebStreamReader {
       /**
@@ -26179,10 +26179,10 @@ var init_WebStreamByobReader = __esm({
   }
 });
 
-// node_modules/strtok3/lib/stream/WebStreamDefaultReader.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamDefaultReader.js
 var WebStreamDefaultReader;
 var init_WebStreamDefaultReader = __esm({
-  "node_modules/strtok3/lib/stream/WebStreamDefaultReader.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamDefaultReader.js"() {
     init_AbstractStreamReader();
     init_Errors();
     WebStreamDefaultReader = class extends AbstractStreamReader {
@@ -26248,7 +26248,7 @@ var init_WebStreamDefaultReader = __esm({
   }
 });
 
-// node_modules/strtok3/lib/stream/WebStreamReaderFactory.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamReaderFactory.js
 function makeWebStreamReader(stream, options) {
   try {
     const reader = stream.getReader({ mode: "byob" });
@@ -26264,15 +26264,15 @@ function makeWebStreamReader(stream, options) {
   }
 }
 var init_WebStreamReaderFactory = __esm({
-  "node_modules/strtok3/lib/stream/WebStreamReaderFactory.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/WebStreamReaderFactory.js"() {
     init_WebStreamByobReader();
     init_WebStreamDefaultReader();
   }
 });
 
-// node_modules/strtok3/lib/stream/index.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/stream/index.js
 var init_stream = __esm({
-  "node_modules/strtok3/lib/stream/index.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/stream/index.js"() {
     init_Errors();
     init_StreamReader();
     init_WebStreamByobReader();
@@ -26281,10 +26281,10 @@ var init_stream = __esm({
   }
 });
 
-// node_modules/strtok3/lib/AbstractTokenizer.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/AbstractTokenizer.js
 var AbstractTokenizer;
 var init_AbstractTokenizer = __esm({
-  "node_modules/strtok3/lib/AbstractTokenizer.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/AbstractTokenizer.js"() {
     init_AbortSignal();
     init_BufferSizeError();
     init_stream();
@@ -26484,10 +26484,10 @@ var init_AbstractTokenizer = __esm({
   }
 });
 
-// node_modules/strtok3/lib/BlobTokenizer.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/BlobTokenizer.js
 var BlobTokenizer;
 var init_BlobTokenizer = __esm({
-  "node_modules/strtok3/lib/BlobTokenizer.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/BlobTokenizer.js"() {
     init_AbstractTokenizer();
     init_stream();
     BlobTokenizer = class extends AbstractTokenizer {
@@ -26548,10 +26548,10 @@ var init_BlobTokenizer = __esm({
   }
 });
 
-// node_modules/strtok3/lib/BufferTokenizer.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/BufferTokenizer.js
 var BufferTokenizer;
 var init_BufferTokenizer = __esm({
-  "node_modules/strtok3/lib/BufferTokenizer.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/BufferTokenizer.js"() {
     init_AbstractTokenizer();
     init_stream();
     BufferTokenizer = class extends AbstractTokenizer {
@@ -26606,10 +26606,10 @@ var init_BufferTokenizer = __esm({
   }
 });
 
-// node_modules/strtok3/lib/ReadStreamTokenizer.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/ReadStreamTokenizer.js
 var ignoreChunkSize, ReadStreamTokenizer;
 var init_ReadStreamTokenizer = __esm({
-  "node_modules/strtok3/lib/ReadStreamTokenizer.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/ReadStreamTokenizer.js"() {
     init_AbstractTokenizer();
     init_stream();
     ignoreChunkSize = 256e3;
@@ -26748,35 +26748,35 @@ var init_ReadStreamTokenizer = __esm({
   }
 });
 
-// node_modules/strtok3/lib/isRandomAccessTokenizer.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/isRandomAccessTokenizer.js
 var init_isRandomAccessTokenizer = __esm({
-  "node_modules/strtok3/lib/isRandomAccessTokenizer.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/isRandomAccessTokenizer.js"() {
   }
 });
 
-// node_modules/strtok3/lib/TokenizerBoundaryError.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/TokenizerBoundaryError.js
 var init_TokenizerBoundaryError = __esm({
-  "node_modules/strtok3/lib/TokenizerBoundaryError.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/TokenizerBoundaryError.js"() {
   }
 });
 
-// node_modules/strtok3/lib/TokenizerView.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/TokenizerView.js
 var init_TokenizerView = __esm({
-  "node_modules/strtok3/lib/TokenizerView.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/TokenizerView.js"() {
     init_isRandomAccessTokenizer();
     init_stream();
     init_TokenizerBoundaryError();
   }
 });
 
-// node_modules/strtok3/lib/TokenWriter.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/TokenWriter.js
 var init_TokenWriter = __esm({
-  "node_modules/strtok3/lib/TokenWriter.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/TokenWriter.js"() {
     init_BufferSizeError();
   }
 });
 
-// node_modules/strtok3/lib/core.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/core.js
 function fromStream(stream, options) {
   getMaxBufferSize(options);
   throwIfAborted(options?.abortSignal);
@@ -26796,7 +26796,7 @@ function fromBlob(blob, options) {
   return new BlobTokenizer(blob, options);
 }
 var init_core = __esm({
-  "node_modules/strtok3/lib/core.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/core.js"() {
     init_AbortSignal();
     init_BlobTokenizer();
     init_BufferSizeError();
@@ -26813,10 +26813,10 @@ var init_core = __esm({
   }
 });
 
-// node_modules/strtok3/lib/NotRegularFileError.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/NotRegularFileError.js
 var NotRegularFileError;
 var init_NotRegularFileError = __esm({
-  "node_modules/strtok3/lib/NotRegularFileError.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
       constructor(path84) {
         super(`Not a regular file: ${path84}`);
@@ -26827,12 +26827,12 @@ var init_NotRegularFileError = __esm({
   }
 });
 
-// node_modules/strtok3/lib/FileTokenizer.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/FileTokenizer.js
 import { constants as constants2 } from "node:fs";
 import fs29, {} from "node:fs/promises";
 var FileTokenizer;
 var init_FileTokenizer = __esm({
-  "node_modules/strtok3/lib/FileTokenizer.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/FileTokenizer.js"() {
     init_AbortSignal();
     init_AbstractTokenizer();
     init_BufferSizeError();
@@ -26925,7 +26925,7 @@ var init_FileTokenizer = __esm({
   }
 });
 
-// node_modules/strtok3/lib/index.js
+// ../../drip-next/mcp/node_modules/strtok3/lib/index.js
 import { stat as fsStat } from "node:fs/promises";
 async function waitForPendingOpen(stream) {
   if (stream.pending !== true || stream.destroyed || stream.errored !== null) {
@@ -26960,7 +26960,7 @@ async function fromStream2(stream, options) {
 }
 var fromFile;
 var init_lib = __esm({
-  "node_modules/strtok3/lib/index.js"() {
+  "../../drip-next/mcp/node_modules/strtok3/lib/index.js"() {
     init_core();
     init_FileTokenizer();
     init_core();
@@ -26970,7 +26970,7 @@ var init_lib = __esm({
   }
 });
 
-// node_modules/@borewit/text-codec/lib/index.js
+// ../../drip-next/mcp/node_modules/@borewit/text-codec/lib/index.js
 function utf8Decoder() {
   if (_utf8Decoder === void 0) {
     try {
@@ -27272,7 +27272,7 @@ function encodeWindows1252(str) {
 }
 var WINDOWS_1252_EXTRA, WINDOWS_1252_REVERSE, _utf8Decoder, _utf8Encoder, CHUNK, REPLACEMENT;
 var init_lib2 = __esm({
-  "node_modules/@borewit/text-codec/lib/index.js"() {
+  "../../drip-next/mcp/node_modules/@borewit/text-codec/lib/index.js"() {
     WINDOWS_1252_EXTRA = {
       128: "\u20AC",
       130: "\u201A",
@@ -27311,9 +27311,9 @@ var init_lib2 = __esm({
   }
 });
 
-// node_modules/ieee754/index.js
+// ../../drip-next/mcp/node_modules/ieee754/index.js
 var require_ieee754 = __commonJS({
-  "node_modules/ieee754/index.js"(exports) {
+  "../../drip-next/mcp/node_modules/ieee754/index.js"(exports) {
     exports.read = function(buffer, offset, isLE, mLen, nBytes) {
       var e2, m;
       var eLen = nBytes * 8 - mLen - 1;
@@ -27394,13 +27394,13 @@ var require_ieee754 = __commonJS({
   }
 });
 
-// node_modules/token-types/dist/lib/index.js
+// ../../drip-next/mcp/node_modules/token-types/dist/lib/index.js
 function dv(array2) {
   return new DataView(array2.buffer, array2.byteOffset);
 }
 var ieee754, UINT8, UINT16_LE, UINT16_BE, UINT32_LE, UINT32_BE, INT32_BE, UINT64_LE, StringType;
 var init_lib3 = __esm({
-  "node_modules/token-types/dist/lib/index.js"() {
+  "../../drip-next/mcp/node_modules/token-types/dist/lib/index.js"() {
     init_lib2();
     ieee754 = __toESM(require_ieee754(), 1);
     UINT8 = {
@@ -27494,9 +27494,9 @@ var init_lib3 = __esm({
   }
 });
 
-// node_modules/ms/index.js
+// ../../drip-next/mcp/node_modules/ms/index.js
 var require_ms = __commonJS({
-  "node_modules/ms/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/ms/index.js"(exports, module) {
     var s2 = 1e3;
     var m = s2 * 60;
     var h = m * 60;
@@ -27610,9 +27610,9 @@ var require_ms = __commonJS({
   }
 });
 
-// node_modules/debug/src/common.js
+// ../../drip-next/mcp/node_modules/debug/src/common.js
 var require_common2 = __commonJS({
-  "node_modules/debug/src/common.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/debug/src/common.js"(exports, module) {
     function setup(env) {
       createDebug.debug = createDebug;
       createDebug.default = createDebug;
@@ -27787,9 +27787,9 @@ var require_common2 = __commonJS({
   }
 });
 
-// node_modules/debug/src/browser.js
+// ../../drip-next/mcp/node_modules/debug/src/browser.js
 var require_browser = __commonJS({
-  "node_modules/debug/src/browser.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/debug/src/browser.js"(exports, module) {
     exports.formatArgs = formatArgs;
     exports.save = save2;
     exports.load = load2;
@@ -27957,9 +27957,9 @@ var require_browser = __commonJS({
   }
 });
 
-// node_modules/has-flag/index.js
+// ../../drip-next/mcp/node_modules/has-flag/index.js
 var require_has_flag = __commonJS({
-  "node_modules/has-flag/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/has-flag/index.js"(exports, module) {
     "use strict";
     module.exports = (flag, argv = process.argv) => {
       const prefix = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
@@ -27970,9 +27970,9 @@ var require_has_flag = __commonJS({
   }
 });
 
-// node_modules/supports-color/index.js
+// ../../drip-next/mcp/node_modules/supports-color/index.js
 var require_supports_color = __commonJS({
-  "node_modules/supports-color/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/supports-color/index.js"(exports, module) {
     "use strict";
     var os14 = __require("os");
     var tty = __require("tty");
@@ -28072,9 +28072,9 @@ var require_supports_color = __commonJS({
   }
 });
 
-// node_modules/debug/src/node.js
+// ../../drip-next/mcp/node_modules/debug/src/node.js
 var require_node = __commonJS({
-  "node_modules/debug/src/node.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/debug/src/node.js"(exports, module) {
     var tty = __require("tty");
     var util2 = __require("util");
     exports.init = init;
@@ -28246,9 +28246,9 @@ var require_node = __commonJS({
   }
 });
 
-// node_modules/debug/src/index.js
+// ../../drip-next/mcp/node_modules/debug/src/index.js
 var require_src2 = __commonJS({
-  "node_modules/debug/src/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/debug/src/index.js"(exports, module) {
     if (typeof process === "undefined" || process.type === "renderer" || process.browser === true || process.__nwjs) {
       module.exports = require_browser();
     } else {
@@ -28257,10 +28257,10 @@ var require_src2 = __commonJS({
   }
 });
 
-// node_modules/@tokenizer/inflate/lib/ZipToken.js
+// ../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/ZipToken.js
 var Signature, DataDescriptor, LocalFileHeaderToken, EndOfCentralDirectoryRecordToken, FileHeader;
 var init_ZipToken = __esm({
-  "node_modules/@tokenizer/inflate/lib/ZipToken.js"() {
+  "../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/ZipToken.js"() {
     init_lib3();
     Signature = {
       LocalFileHeader: 67324752,
@@ -28332,7 +28332,7 @@ var init_ZipToken = __esm({
   }
 });
 
-// node_modules/@tokenizer/inflate/lib/ZipHandler.js
+// ../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/ZipHandler.js
 function signatureToArray(signature) {
   const signatureBytes = new Uint8Array(UINT32_LE.len);
   UINT32_LE.put(signatureBytes, 0, signature);
@@ -28369,7 +28369,7 @@ function mergeArrays(chunks) {
 }
 var import_debug, debug, syncBufferSize, ddSignatureArray, eocdSignatureBytes, ZipHandler;
 var init_ZipHandler = __esm({
-  "node_modules/@tokenizer/inflate/lib/ZipHandler.js"() {
+  "../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/ZipHandler.js"() {
     init_lib3();
     import_debug = __toESM(require_src2(), 1);
     init_ZipToken();
@@ -28549,10 +28549,10 @@ var init_ZipHandler = __esm({
   }
 });
 
-// node_modules/@tokenizer/inflate/lib/GzipHandler.js
+// ../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/GzipHandler.js
 var GzipHandler;
 var init_GzipHandler = __esm({
-  "node_modules/@tokenizer/inflate/lib/GzipHandler.js"() {
+  "../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/GzipHandler.js"() {
     GzipHandler = class {
       constructor(tokenizer) {
         this.tokenizer = tokenizer;
@@ -28575,15 +28575,15 @@ var init_GzipHandler = __esm({
   }
 });
 
-// node_modules/@tokenizer/inflate/lib/index.js
+// ../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/index.js
 var init_lib4 = __esm({
-  "node_modules/@tokenizer/inflate/lib/index.js"() {
+  "../../drip-next/mcp/node_modules/@tokenizer/inflate/lib/index.js"() {
     init_ZipHandler();
     init_GzipHandler();
   }
 });
 
-// node_modules/uint8array-extras/index.js
+// ../../drip-next/mcp/node_modules/uint8array-extras/index.js
 function getUintBE(view) {
   const { byteLength } = view;
   if (byteLength === 6) {
@@ -28607,7 +28607,7 @@ function getUintBE(view) {
 }
 var cachedDecoders, cachedEncoder, byteToHexLookupTable;
 var init_uint8array_extras = __esm({
-  "node_modules/uint8array-extras/index.js"() {
+  "../../drip-next/mcp/node_modules/uint8array-extras/index.js"() {
     cachedDecoders = {
       utf8: new globalThis.TextDecoder("utf8")
     };
@@ -28616,7 +28616,7 @@ var init_uint8array_extras = __esm({
   }
 });
 
-// node_modules/file-type/util.js
+// ../../drip-next/mcp/node_modules/file-type/util.js
 function stringToBytes(string4, encoding) {
   if (encoding === "utf-16le") {
     const bytes = [];
@@ -28652,7 +28652,7 @@ function tarHeaderChecksumMatches(arrayBuffer, offset = 0) {
 }
 var uint32SyncSafeToken;
 var init_util = __esm({
-  "node_modules/file-type/util.js"() {
+  "../../drip-next/mcp/node_modules/file-type/util.js"() {
     init_lib3();
     uint32SyncSafeToken = {
       get: (buffer, offset) => buffer[offset + 3] & 127 | buffer[offset + 2] << 7 | buffer[offset + 1] << 14 | buffer[offset] << 21,
@@ -28661,10 +28661,10 @@ var init_util = __esm({
   }
 });
 
-// node_modules/file-type/supported.js
+// ../../drip-next/mcp/node_modules/file-type/supported.js
 var extensions, mimeTypes;
 var init_supported = __esm({
-  "node_modules/file-type/supported.js"() {
+  "../../drip-next/mcp/node_modules/file-type/supported.js"() {
     extensions = [
       "jpg",
       "png",
@@ -29034,7 +29034,7 @@ var init_supported = __esm({
   }
 });
 
-// node_modules/file-type/core.js
+// ../../drip-next/mcp/node_modules/file-type/core.js
 function patchWebByobTokenizerClose(tokenizer) {
   const streamReader = tokenizer?.streamReader;
   if (streamReader?.constructor?.name !== "WebStreamByobReader") {
@@ -29555,7 +29555,7 @@ async function fileTypeFromTokenizer(tokenizer, options) {
 }
 var reasonableDetectionSizeInBytes, maximumMpegOffsetTolerance, maximumZipEntrySizeInBytes, maximumZipEntryCount, maximumZipBufferedReadSizeInBytes, maximumUntrustedSkipSizeInBytes, maximumUnknownSizePayloadProbeSizeInBytes, maximumZipTextEntrySizeInBytes, maximumNestedGzipDetectionSizeInBytes, maximumNestedGzipProbeDepth, unknownSizeGzipProbeTimeoutInMilliseconds, maximumId3HeaderSizeInBytes, maximumEbmlDocumentTypeSizeInBytes, maximumEbmlElementPayloadSizeInBytes, maximumEbmlElementCount, maximumPngChunkCount, maximumPngStreamScanBudgetInBytes, maximumAsfHeaderObjectCount, maximumTiffTagCount, maximumDetectionReentryCount, maximumPngChunkSizeInBytes, maximumAsfHeaderPayloadSizeInBytes, maximumTiffStreamIfdOffsetInBytes, maximumTiffIfdOffsetInBytes, recoverableZipErrorMessages, recoverableZipErrorMessagePrefixes, recoverableZipErrorCodes, ParserHardLimitError, zipDataDescriptorSignature, zipDataDescriptorLengthInBytes, zipDataDescriptorOverlapLengthInBytes, FileTypeParser, supportedExtensions, supportedMimeTypes;
 var init_core2 = __esm({
-  "node_modules/file-type/core.js"() {
+  "../../drip-next/mcp/node_modules/file-type/core.js"() {
     init_lib3();
     init_core();
     init_lib4();
@@ -31259,7 +31259,7 @@ var init_core2 = __esm({
   }
 });
 
-// node_modules/file-type/index.js
+// ../../drip-next/mcp/node_modules/file-type/index.js
 var file_type_exports = {};
 __export(file_type_exports, {
   FileTypeParser: () => FileTypeParser2,
@@ -31293,7 +31293,7 @@ async function fileTypeStream(readableStream, options = {}) {
 }
 var FileTypeParser2;
 var init_file_type = __esm({
-  "node_modules/file-type/index.js"() {
+  "../../drip-next/mcp/node_modules/file-type/index.js"() {
     init_lib();
     init_core2();
     init_core2();
@@ -31394,9 +31394,9 @@ var init_file_type = __esm({
   }
 });
 
-// node_modules/any-base/src/converter.js
+// ../../drip-next/mcp/node_modules/any-base/src/converter.js
 var require_converter = __commonJS({
-  "node_modules/any-base/src/converter.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/any-base/src/converter.js"(exports, module) {
     "use strict";
     function Converter(srcAlphabet, dstAlphabet) {
       if (!srcAlphabet || !dstAlphabet || !srcAlphabet.length || !dstAlphabet.length) {
@@ -31446,9 +31446,9 @@ var require_converter = __commonJS({
   }
 });
 
-// node_modules/any-base/index.js
+// ../../drip-next/mcp/node_modules/any-base/index.js
 var require_any_base = __commonJS({
-  "node_modules/any-base/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/any-base/index.js"(exports, module) {
     var Converter = require_converter();
     function anyBase2(srcAlphabet, dstAlphabet) {
       var converter = new Converter(srcAlphabet, dstAlphabet);
@@ -31464,9 +31464,9 @@ var require_any_base = __commonJS({
   }
 });
 
-// node_modules/parse-bmfont-ascii/index.js
+// ../../drip-next/mcp/node_modules/parse-bmfont-ascii/index.js
 var require_parse_bmfont_ascii = __commonJS({
-  "node_modules/parse-bmfont-ascii/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/parse-bmfont-ascii/index.js"(exports, module) {
     module.exports = function parseBMFontAscii(data) {
       if (!data)
         throw new Error("no data provided");
@@ -31558,9 +31558,9 @@ var require_parse_bmfont_ascii = __commonJS({
   }
 });
 
-// node_modules/xml2js/lib/defaults.js
+// ../../drip-next/mcp/node_modules/xml2js/lib/defaults.js
 var require_defaults2 = __commonJS({
-  "node_modules/xml2js/lib/defaults.js"(exports) {
+  "../../drip-next/mcp/node_modules/xml2js/lib/defaults.js"(exports) {
     (function() {
       exports.defaults = {
         "0.1": {
@@ -31634,9 +31634,9 @@ var require_defaults2 = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/Utility.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/Utility.js
 var require_Utility = __commonJS({
-  "node_modules/xmlbuilder/lib/Utility.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/Utility.js"(exports, module) {
     (function() {
       var assign, getValue, isArray, isEmpty, isFunction, isObject2, isPlainObject3, slice = [].slice, hasProp = {}.hasOwnProperty;
       assign = function() {
@@ -31705,9 +31705,9 @@ var require_Utility = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDOMImplementation.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMImplementation.js
 var require_XMLDOMImplementation = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDOMImplementation.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMImplementation.js"(exports, module) {
     (function() {
       var XMLDOMImplementation;
       module.exports = XMLDOMImplementation = (function() {
@@ -31734,9 +31734,9 @@ var require_XMLDOMImplementation = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDOMErrorHandler.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMErrorHandler.js
 var require_XMLDOMErrorHandler = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDOMErrorHandler.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMErrorHandler.js"(exports, module) {
     (function() {
       var XMLDOMErrorHandler;
       module.exports = XMLDOMErrorHandler = (function() {
@@ -31751,9 +31751,9 @@ var require_XMLDOMErrorHandler = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDOMStringList.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMStringList.js
 var require_XMLDOMStringList = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDOMStringList.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMStringList.js"(exports, module) {
     (function() {
       var XMLDOMStringList;
       module.exports = XMLDOMStringList = (function() {
@@ -31777,9 +31777,9 @@ var require_XMLDOMStringList = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDOMConfiguration.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMConfiguration.js
 var require_XMLDOMConfiguration = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDOMConfiguration.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDOMConfiguration.js"(exports, module) {
     (function() {
       var XMLDOMConfiguration, XMLDOMErrorHandler, XMLDOMStringList;
       XMLDOMErrorHandler = require_XMLDOMErrorHandler();
@@ -31836,9 +31836,9 @@ var require_XMLDOMConfiguration = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/NodeType.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/NodeType.js
 var require_NodeType = __commonJS({
-  "node_modules/xmlbuilder/lib/NodeType.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/NodeType.js"(exports, module) {
     (function() {
       module.exports = {
         Element: 1,
@@ -31863,9 +31863,9 @@ var require_NodeType = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLAttribute.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLAttribute.js
 var require_XMLAttribute = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLAttribute.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLAttribute.js"(exports, module) {
     (function() {
       var NodeType, XMLAttribute, XMLNode;
       NodeType = require_NodeType();
@@ -31959,9 +31959,9 @@ var require_XMLAttribute = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLNamedNodeMap.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLNamedNodeMap.js
 var require_XMLNamedNodeMap = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLNamedNodeMap.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLNamedNodeMap.js"(exports, module) {
     (function() {
       var XMLNamedNodeMap;
       module.exports = XMLNamedNodeMap = (function() {
@@ -32009,9 +32009,9 @@ var require_XMLNamedNodeMap = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLElement.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLElement.js
 var require_XMLElement = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLElement.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLElement.js"(exports, module) {
     (function() {
       var NodeType, XMLAttribute, XMLElement, XMLNamedNodeMap, XMLNode, getValue, isFunction, isObject2, ref, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32276,9 +32276,9 @@ var require_XMLElement = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLCharacterData.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLCharacterData.js
 var require_XMLCharacterData = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLCharacterData.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLCharacterData.js"(exports, module) {
     (function() {
       var XMLCharacterData, XMLNode, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32353,9 +32353,9 @@ var require_XMLCharacterData = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLCData.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLCData.js
 var require_XMLCData = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLCData.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLCData.js"(exports, module) {
     (function() {
       var NodeType, XMLCData, XMLCharacterData, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32394,9 +32394,9 @@ var require_XMLCData = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLComment.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLComment.js
 var require_XMLComment = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLComment.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLComment.js"(exports, module) {
     (function() {
       var NodeType, XMLCharacterData, XMLComment, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32435,9 +32435,9 @@ var require_XMLComment = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDeclaration.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDeclaration.js
 var require_XMLDeclaration = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDeclaration.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDeclaration.js"(exports, module) {
     (function() {
       var NodeType, XMLDeclaration, XMLNode, isObject2, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32483,9 +32483,9 @@ var require_XMLDeclaration = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDTDAttList.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDAttList.js
 var require_XMLDTDAttList = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDTDAttList.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDAttList.js"(exports, module) {
     (function() {
       var NodeType, XMLDTDAttList, XMLNode, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32544,9 +32544,9 @@ var require_XMLDTDAttList = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDTDEntity.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDEntity.js
 var require_XMLDTDEntity = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDTDEntity.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDEntity.js"(exports, module) {
     (function() {
       var NodeType, XMLDTDEntity, XMLNode, isObject2, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32640,9 +32640,9 @@ var require_XMLDTDEntity = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDTDElement.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDElement.js
 var require_XMLDTDElement = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDTDElement.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDElement.js"(exports, module) {
     (function() {
       var NodeType, XMLDTDElement, XMLNode, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32684,9 +32684,9 @@ var require_XMLDTDElement = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDTDNotation.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDNotation.js
 var require_XMLDTDNotation = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDTDNotation.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDTDNotation.js"(exports, module) {
     (function() {
       var NodeType, XMLDTDNotation, XMLNode, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32740,9 +32740,9 @@ var require_XMLDTDNotation = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDocType.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDocType.js
 var require_XMLDocType = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDocType.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDocType.js"(exports, module) {
     (function() {
       var NodeType, XMLDTDAttList, XMLDTDElement, XMLDTDEntity, XMLDTDNotation, XMLDocType, XMLNamedNodeMap, XMLNode, isObject2, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32909,9 +32909,9 @@ var require_XMLDocType = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLRaw.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLRaw.js
 var require_XMLRaw = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLRaw.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLRaw.js"(exports, module) {
     (function() {
       var NodeType, XMLNode, XMLRaw, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -32949,9 +32949,9 @@ var require_XMLRaw = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLText.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLText.js
 var require_XMLText = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLText.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLText.js"(exports, module) {
     (function() {
       var NodeType, XMLCharacterData, XMLText, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -33019,9 +33019,9 @@ var require_XMLText = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLProcessingInstruction.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLProcessingInstruction.js
 var require_XMLProcessingInstruction = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLProcessingInstruction.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLProcessingInstruction.js"(exports, module) {
     (function() {
       var NodeType, XMLCharacterData, XMLProcessingInstruction, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -33072,9 +33072,9 @@ var require_XMLProcessingInstruction = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDummy.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDummy.js
 var require_XMLDummy = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDummy.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDummy.js"(exports, module) {
     (function() {
       var NodeType, XMLDummy, XMLNode, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -33108,9 +33108,9 @@ var require_XMLDummy = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLNodeList.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLNodeList.js
 var require_XMLNodeList = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLNodeList.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLNodeList.js"(exports, module) {
     (function() {
       var XMLNodeList;
       module.exports = XMLNodeList = (function() {
@@ -33134,9 +33134,9 @@ var require_XMLNodeList = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/DocumentPosition.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/DocumentPosition.js
 var require_DocumentPosition = __commonJS({
-  "node_modules/xmlbuilder/lib/DocumentPosition.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/DocumentPosition.js"(exports, module) {
     (function() {
       module.exports = {
         Disconnected: 1,
@@ -33150,9 +33150,9 @@ var require_DocumentPosition = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLNode.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLNode.js
 var require_XMLNode = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLNode.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLNode.js"(exports, module) {
     (function() {
       var DocumentPosition, NodeType, XMLCData, XMLComment, XMLDeclaration, XMLDocType, XMLDummy, XMLElement, XMLNamedNodeMap, XMLNode, XMLNodeList, XMLProcessingInstruction, XMLRaw, XMLText, getValue, isEmpty, isFunction, isObject2, ref1, hasProp = {}.hasOwnProperty;
       ref1 = require_Utility(), isObject2 = ref1.isObject, isFunction = ref1.isFunction, isEmpty = ref1.isEmpty, getValue = ref1.getValue;
@@ -33843,9 +33843,9 @@ var require_XMLNode = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLStringifier.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLStringifier.js
 var require_XMLStringifier = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLStringifier.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLStringifier.js"(exports, module) {
     (function() {
       var XMLStringifier, bind = function(fn, me2) {
         return function() {
@@ -34058,9 +34058,9 @@ var require_XMLStringifier = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/WriterState.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/WriterState.js
 var require_WriterState = __commonJS({
-  "node_modules/xmlbuilder/lib/WriterState.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/WriterState.js"(exports, module) {
     (function() {
       module.exports = {
         None: 0,
@@ -34072,9 +34072,9 @@ var require_WriterState = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLWriterBase.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLWriterBase.js
 var require_XMLWriterBase = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLWriterBase.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLWriterBase.js"(exports, module) {
     (function() {
       var NodeType, WriterState, XMLCData, XMLComment, XMLDTDAttList, XMLDTDElement, XMLDTDEntity, XMLDTDNotation, XMLDeclaration, XMLDocType, XMLDummy, XMLElement, XMLProcessingInstruction, XMLRaw, XMLText, XMLWriterBase, assign, hasProp = {}.hasOwnProperty;
       assign = require_Utility().assign;
@@ -34467,9 +34467,9 @@ var require_XMLWriterBase = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLStringWriter.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLStringWriter.js
 var require_XMLStringWriter = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLStringWriter.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLStringWriter.js"(exports, module) {
     (function() {
       var XMLStringWriter, XMLWriterBase, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -34509,9 +34509,9 @@ var require_XMLStringWriter = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDocument.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDocument.js
 var require_XMLDocument = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDocument.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDocument.js"(exports, module) {
     (function() {
       var NodeType, XMLDOMConfiguration, XMLDOMImplementation, XMLDocument, XMLNode, XMLStringWriter, XMLStringifier, isPlainObject3, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -34716,9 +34716,9 @@ var require_XMLDocument = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLDocumentCB.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDocumentCB.js
 var require_XMLDocumentCB = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLDocumentCB.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLDocumentCB.js"(exports, module) {
     (function() {
       var NodeType, WriterState, XMLAttribute, XMLCData, XMLComment, XMLDTDAttList, XMLDTDElement, XMLDTDEntity, XMLDTDNotation, XMLDeclaration, XMLDocType, XMLDocument, XMLDocumentCB, XMLElement, XMLProcessingInstruction, XMLRaw, XMLStringWriter, XMLStringifier, XMLText, getValue, isFunction, isObject2, isPlainObject3, ref, hasProp = {}.hasOwnProperty;
       ref = require_Utility(), isObject2 = ref.isObject, isFunction = ref.isFunction, isPlainObject3 = ref.isPlainObject, getValue = ref.getValue;
@@ -35182,9 +35182,9 @@ var require_XMLDocumentCB = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/XMLStreamWriter.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLStreamWriter.js
 var require_XMLStreamWriter = __commonJS({
-  "node_modules/xmlbuilder/lib/XMLStreamWriter.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/XMLStreamWriter.js"(exports, module) {
     (function() {
       var NodeType, WriterState, XMLStreamWriter, XMLWriterBase, extend2 = function(child, parent) {
         for (var key in parent) {
@@ -35349,9 +35349,9 @@ var require_XMLStreamWriter = __commonJS({
   }
 });
 
-// node_modules/xmlbuilder/lib/index.js
+// ../../drip-next/mcp/node_modules/xmlbuilder/lib/index.js
 var require_lib = __commonJS({
-  "node_modules/xmlbuilder/lib/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/xmlbuilder/lib/index.js"(exports, module) {
     (function() {
       var NodeType, WriterState, XMLDOMImplementation, XMLDocument, XMLDocumentCB, XMLStreamWriter, XMLStringWriter, assign, isFunction, ref;
       ref = require_Utility(), assign = ref.assign, isFunction = ref.isFunction;
@@ -35403,9 +35403,9 @@ var require_lib = __commonJS({
   }
 });
 
-// node_modules/xml2js/lib/builder.js
+// ../../drip-next/mcp/node_modules/xml2js/lib/builder.js
 var require_builder = __commonJS({
-  "node_modules/xml2js/lib/builder.js"(exports) {
+  "../../drip-next/mcp/node_modules/xml2js/lib/builder.js"(exports) {
     (function() {
       "use strict";
       var builder, defaults, escapeCDATA, requiresCDATA, wrapCDATA, hasProp = {}.hasOwnProperty;
@@ -35524,9 +35524,9 @@ var require_builder = __commonJS({
   }
 });
 
-// node_modules/sax/lib/sax.js
+// ../../drip-next/mcp/node_modules/sax/lib/sax.js
 var require_sax = __commonJS({
-  "node_modules/sax/lib/sax.js"(exports) {
+  "../../drip-next/mcp/node_modules/sax/lib/sax.js"(exports) {
     (function(sax) {
       sax.parser = function(strict, opt) {
         return new SAXParser(strict, opt);
@@ -37118,9 +37118,9 @@ var require_sax = __commonJS({
   }
 });
 
-// node_modules/xml2js/lib/bom.js
+// ../../drip-next/mcp/node_modules/xml2js/lib/bom.js
 var require_bom = __commonJS({
-  "node_modules/xml2js/lib/bom.js"(exports) {
+  "../../drip-next/mcp/node_modules/xml2js/lib/bom.js"(exports) {
     (function() {
       "use strict";
       exports.stripBOM = function(str) {
@@ -37134,9 +37134,9 @@ var require_bom = __commonJS({
   }
 });
 
-// node_modules/xml2js/lib/processors.js
+// ../../drip-next/mcp/node_modules/xml2js/lib/processors.js
 var require_processors = __commonJS({
-  "node_modules/xml2js/lib/processors.js"(exports) {
+  "../../drip-next/mcp/node_modules/xml2js/lib/processors.js"(exports) {
     (function() {
       "use strict";
       var prefixMatch;
@@ -37166,9 +37166,9 @@ var require_processors = __commonJS({
   }
 });
 
-// node_modules/xml2js/lib/parser.js
+// ../../drip-next/mcp/node_modules/xml2js/lib/parser.js
 var require_parser3 = __commonJS({
-  "node_modules/xml2js/lib/parser.js"(exports) {
+  "../../drip-next/mcp/node_modules/xml2js/lib/parser.js"(exports) {
     (function() {
       "use strict";
       var bom, defaults, events, isEmpty, processItem, processors, sax, setImmediate2, bind = function(fn, me2) {
@@ -37548,9 +37548,9 @@ var require_parser3 = __commonJS({
   }
 });
 
-// node_modules/xml2js/lib/xml2js.js
+// ../../drip-next/mcp/node_modules/xml2js/lib/xml2js.js
 var require_xml2js = __commonJS({
-  "node_modules/xml2js/lib/xml2js.js"(exports) {
+  "../../drip-next/mcp/node_modules/xml2js/lib/xml2js.js"(exports) {
     (function() {
       "use strict";
       var builder, defaults, parser, processors, extend2 = function(child, parent) {
@@ -37586,9 +37586,9 @@ var require_xml2js = __commonJS({
   }
 });
 
-// node_modules/parse-bmfont-xml/lib/parse-attribs.js
+// ../../drip-next/mcp/node_modules/parse-bmfont-xml/lib/parse-attribs.js
 var require_parse_attribs = __commonJS({
-  "node_modules/parse-bmfont-xml/lib/parse-attribs.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/parse-bmfont-xml/lib/parse-attribs.js"(exports, module) {
     var GLYPH_DESIGNER_ERROR = "chasrset";
     module.exports = function parseAttributes(obj) {
       obj = Object.assign({}, obj);
@@ -37614,9 +37614,9 @@ var require_parse_attribs = __commonJS({
   }
 });
 
-// node_modules/parse-bmfont-xml/lib/index.js
+// ../../drip-next/mcp/node_modules/parse-bmfont-xml/lib/index.js
 var require_lib2 = __commonJS({
-  "node_modules/parse-bmfont-xml/lib/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/parse-bmfont-xml/lib/index.js"(exports, module) {
     var xml2js = require_xml2js();
     var parseAttributes = require_parse_attribs();
     module.exports = function parseBMFontXML(data) {
@@ -37660,9 +37660,9 @@ var require_lib2 = __commonJS({
   }
 });
 
-// node_modules/parse-bmfont-binary/index.js
+// ../../drip-next/mcp/node_modules/parse-bmfont-binary/index.js
 var require_parse_bmfont_binary = __commonJS({
-  "node_modules/parse-bmfont-binary/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/parse-bmfont-binary/index.js"(exports, module) {
     var HEADER2 = [66, 77, 70];
     module.exports = function readBMFontBinary(buf) {
       if (buf.length < 6)
@@ -37806,9 +37806,9 @@ var require_parse_bmfont_binary = __commonJS({
   }
 });
 
-// node_modules/pixelmatch/index.js
+// ../../drip-next/mcp/node_modules/pixelmatch/index.js
 var require_pixelmatch = __commonJS({
-  "node_modules/pixelmatch/index.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/pixelmatch/index.js"(exports, module) {
     "use strict";
     module.exports = pixelmatch;
     var defaultOptions2 = {
@@ -38173,9 +38173,9 @@ var init_imaging = __esm({
   }
 });
 
-// node_modules/opentype.js/dist/opentype.js
+// ../../drip-next/mcp/node_modules/opentype.js/dist/opentype.js
 var require_opentype = __commonJS({
-  "node_modules/opentype.js/dist/opentype.js"(exports, module) {
+  "../../drip-next/mcp/node_modules/opentype.js/dist/opentype.js"(exports, module) {
     var opentype3 = (() => {
       var __defProp5 = Object.defineProperty;
       var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
@@ -54374,10 +54374,10 @@ var require_opentype = __commonJS({
   }
 });
 
-// node_modules/@jitl/quickjs-ffi-types/dist/index.mjs
+// ../../drip-next/mcp/node_modules/@jitl/quickjs-ffi-types/dist/index.mjs
 var EvalFlags, IntrinsicsFlags, JSPromiseStateEnum, GetOwnPropertyNamesFlags, IsEqualOp;
 var init_dist = __esm({
-  "node_modules/@jitl/quickjs-ffi-types/dist/index.mjs"() {
+  "../../drip-next/mcp/node_modules/@jitl/quickjs-ffi-types/dist/index.mjs"() {
     EvalFlags = { JS_EVAL_TYPE_GLOBAL: 0, JS_EVAL_TYPE_MODULE: 1, JS_EVAL_TYPE_DIRECT: 2, JS_EVAL_TYPE_INDIRECT: 3, JS_EVAL_TYPE_MASK: 3, JS_EVAL_FLAG_STRICT: 8, JS_EVAL_FLAG_STRIP: 16, JS_EVAL_FLAG_COMPILE_ONLY: 32, JS_EVAL_FLAG_BACKTRACE_BARRIER: 64 };
     IntrinsicsFlags = { BaseObjects: 1, Date: 2, Eval: 4, StringNormalize: 8, RegExp: 16, RegExpCompiler: 32, JSON: 64, Proxy: 128, MapSet: 256, TypedArrays: 512, Promise: 1024, BigInt: 2048, BigFloat: 4096, BigDecimal: 8192, OperatorOverloading: 16384, BignumExt: 32768 };
     JSPromiseStateEnum = { Pending: 0, Fulfilled: 1, Rejected: 2 };
@@ -54386,7 +54386,7 @@ var init_dist = __esm({
   }
 });
 
-// node_modules/quickjs-emscripten-core/dist/chunk-V2S4ZYJR.mjs
+// ../../drip-next/mcp/node_modules/quickjs-emscripten-core/dist/chunk-V2S4ZYJR.mjs
 function debugLog(...args) {
   QTS_DEBUG && console.log("quickjs-emscripten:", ...args);
 }
@@ -54473,7 +54473,7 @@ function applyModuleEvalRuntimeOptions(runtime, options) {
 }
 var __defProp3, __export3, QTS_DEBUG, errors_exports2, QuickJSUnwrapError, QuickJSWrongOwner, QuickJSUseAfterFree, QuickJSNotImplemented, QuickJSAsyncifyError, QuickJSAsyncifySuspended, QuickJSMemoryLeakDetected, QuickJSEmscriptenModuleError, QuickJSUnknownIntrinsic, QuickJSPromisePending, QuickJSEmptyGetOwnPropertyNames, QuickJSHostRefRangeExceeded, QuickJSHostRefInvalid, AwaitYield, UsingDisposable, SymbolDispose, prototypeAsAny, Lifetime, StaticLifetime, WeakLifetime, Scope, AbstractDisposableResult, DisposableSuccess, DisposableFail, DisposableResult, QuickJSDeferredPromise, ModuleMemory, DefaultIntrinsics, QuickJSIterator, INT32_MIN, INT32_MAX, INVALID_HOST_REF_ID, HostRefMap, HostRef, ContextMemory, QuickJSContext, QuickJSRuntime, QuickJSEmscriptenModuleCallbacks, QuickJSModuleCallbacks, QuickJSWASMModule;
 var init_chunk_V2S4ZYJR = __esm({
-  "node_modules/quickjs-emscripten-core/dist/chunk-V2S4ZYJR.mjs"() {
+  "../../drip-next/mcp/node_modules/quickjs-emscripten-core/dist/chunk-V2S4ZYJR.mjs"() {
     init_dist();
     init_dist();
     __defProp3 = Object.defineProperty;
@@ -55503,7 +55503,7 @@ Attempted to suspend at:`);
   }
 });
 
-// node_modules/quickjs-emscripten-core/dist/module-ES6BEMUI.mjs
+// ../../drip-next/mcp/node_modules/quickjs-emscripten-core/dist/module-ES6BEMUI.mjs
 var module_ES6BEMUI_exports = {};
 __export(module_ES6BEMUI_exports, {
   QuickJSModuleCallbacks: () => QuickJSModuleCallbacks,
@@ -55512,29 +55512,29 @@ __export(module_ES6BEMUI_exports, {
   applyModuleEvalRuntimeOptions: () => applyModuleEvalRuntimeOptions
 });
 var init_module_ES6BEMUI = __esm({
-  "node_modules/quickjs-emscripten-core/dist/module-ES6BEMUI.mjs"() {
+  "../../drip-next/mcp/node_modules/quickjs-emscripten-core/dist/module-ES6BEMUI.mjs"() {
     init_chunk_V2S4ZYJR();
   }
 });
 
-// node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/chunk-FGV2HSCH.mjs
+// ../../drip-next/mcp/node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/chunk-FGV2HSCH.mjs
 var __defProp4, __defNormalProp2, __publicField2;
 var init_chunk_FGV2HSCH = __esm({
-  "node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/chunk-FGV2HSCH.mjs"() {
+  "../../drip-next/mcp/node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/chunk-FGV2HSCH.mjs"() {
     __defProp4 = Object.defineProperty;
     __defNormalProp2 = (obj, key, value) => key in obj ? __defProp4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
     __publicField2 = (obj, key, value) => (__defNormalProp2(obj, typeof key != "symbol" ? key + "" : key, value), value);
   }
 });
 
-// node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/ffi.mjs
+// ../../drip-next/mcp/node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/ffi.mjs
 var ffi_exports = {};
 __export(ffi_exports, {
   QuickJSFFI: () => QuickJSFFI
 });
 var QuickJSFFI;
 var init_ffi = __esm({
-  "node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/ffi.mjs"() {
+  "../../drip-next/mcp/node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/ffi.mjs"() {
     QuickJSFFI = class {
       constructor(module) {
         this.module = module;
@@ -55612,7 +55612,7 @@ var init_ffi = __esm({
   }
 });
 
-// node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/emscripten-module-Q67P5WYC.mjs
+// ../../drip-next/mcp/node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/emscripten-module-Q67P5WYC.mjs
 var emscripten_module_Q67P5WYC_exports = {};
 __export(emscripten_module_Q67P5WYC_exports, {
   default: () => emscripten_module_default
@@ -58032,13 +58032,13 @@ Z\x8B\0mm\0\xCF~6\0	\xCB'\0FO\xB7\0\x9Ef?\0-\xEA_\0\xBA'u\0\xE5\xEB\xC7\0={\xF1
 }
 var emscripten_module_default;
 var init_emscripten_module_Q67P5WYC = __esm({
-  "node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/emscripten-module-Q67P5WYC.mjs"() {
+  "../../drip-next/mcp/node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/emscripten-module-Q67P5WYC.mjs"() {
     init_chunk_FGV2HSCH();
     emscripten_module_default = QuickJSRaw;
   }
 });
 
-// node_modules/zod/v3/helpers/util.js
+// ../../drip-next/mcp/node_modules/zod/v3/helpers/util.js
 var util;
 (function(util2) {
   util2.assertEqual = (_) => {
@@ -58172,7 +58172,7 @@ var getParsedType = (data) => {
   }
 };
 
-// node_modules/zod/v3/ZodError.js
+// ../../drip-next/mcp/node_modules/zod/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -58301,7 +58301,7 @@ ZodError.create = (issues) => {
   return error62;
 };
 
-// node_modules/zod/v3/locales/en.js
+// ../../drip-next/mcp/node_modules/zod/v3/locales/en.js
 var errorMap = (issue2, _ctx) => {
   let message;
   switch (issue2.code) {
@@ -58404,13 +58404,13 @@ var errorMap = (issue2, _ctx) => {
 };
 var en_default = errorMap;
 
-// node_modules/zod/v3/errors.js
+// ../../drip-next/mcp/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
 function getErrorMap() {
   return overrideErrorMap;
 }
 
-// node_modules/zod/v3/helpers/parseUtil.js
+// ../../drip-next/mcp/node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
   const { data, path: path84, errorMaps, issueData } = params;
   const fullPath = [...path84, ...issueData.path || []];
@@ -58519,14 +58519,14 @@ var isDirty = (x2) => x2.status === "dirty";
 var isValid = (x2) => x2.status === "valid";
 var isAsync = (x2) => typeof Promise !== "undefined" && x2 instanceof Promise;
 
-// node_modules/zod/v3/helpers/errorUtil.js
+// ../../drip-next/mcp/node_modules/zod/v3/helpers/errorUtil.js
 var errorUtil;
 (function(errorUtil2) {
   errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// node_modules/zod/v3/types.js
+// ../../drip-next/mcp/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path84, key) {
     this._cachedPath = [];
@@ -61933,7 +61933,7 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// node_modules/zod/v4/core/index.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -62250,7 +62250,7 @@ __export(core_exports2, {
   withParser: () => withParser
 });
 
-// node_modules/zod/v4/core/util.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -63106,7 +63106,7 @@ function constantCatch(value) {
   return fn;
 }
 
-// node_modules/zod/v4/core/core.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/core.js
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -63228,7 +63228,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/zod/v4/core/errors.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -63420,7 +63420,7 @@ function prettifyError(error62) {
   return lines.join("\n");
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -63580,7 +63580,7 @@ var _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/zod/v4/core/regexes.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   anyString: () => anyString,
@@ -63752,7 +63752,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/zod/v4/core/checks.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -64228,7 +64228,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/zod/v4/core/doc.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = [], closed = {}) {
     this.content = [];
@@ -64269,14 +64269,14 @@ ${content.join("\n")}
   }
 };
 
-// node_modules/zod/v4/core/versions.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 6,
   patch: 7
 };
 
-// node_modules/zod/v4/core/schemas.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -66718,7 +66718,7 @@ function handleRefineResult(result, payload, input2, inst) {
   }
 }
 
-// node_modules/zod/v4/core/memoizer.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/memoizer.js
 var $ZodCyclicError = class extends Error {
   constructor() {
     super(`Cannot parse a reference cycle that closes through a transform`);
@@ -66995,7 +66995,7 @@ function isBackEdge(ctx2, value) {
   return backEdges !== void 0 && isRef(value) && backEdges.has(value);
 }
 
-// node_modules/zod/v4/locales/index.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -67063,7 +67063,7 @@ __export(locales_exports, {
   zhTW: () => zh_TW_default
 });
 
-// node_modules/zod/v4/locales/ar.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ar.js
 var error = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0641", verb: "\u0623\u0646 \u064A\u062D\u0648\u064A" },
@@ -67175,7 +67175,7 @@ function ar_default() {
   };
 }
 
-// node_modules/zod/v4/locales/az.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/az.js
 var error2 = () => {
   const Sizable = {
     string: { unit: "simvol", verb: "olmal\u0131d\u0131r" },
@@ -67286,7 +67286,7 @@ function az_default() {
   };
 }
 
-// node_modules/zod/v4/locales/be.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/be.js
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -67455,7 +67455,7 @@ function be_default() {
   };
 }
 
-// node_modules/zod/v4/locales/bg.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/bg.js
 var error4 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0430", verb: "\u0434\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430" },
@@ -67581,7 +67581,7 @@ function bg_default() {
   };
 }
 
-// node_modules/zod/v4/locales/bn.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/bn.js
 var error5 = () => {
   const Sizable = {
     string: { unit: "\u0985\u0995\u09CD\u09B7\u09B0", verb: "\u09A5\u09BE\u0995\u09A4\u09C7 \u09B9\u09AC\u09C7" },
@@ -67695,7 +67695,7 @@ function bn_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ca.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ca.js
 var error6 = () => {
   const Sizable = {
     string: { unit: "car\xE0cters", verb: "contenir" },
@@ -67809,7 +67809,7 @@ function ca_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ckb.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ckb.js
 var error7 = () => {
   const Sizable = {
     string: { unit: "\u067E\u06CC\u062A", verb: "\u0628\u06CE\u062A" },
@@ -67942,7 +67942,7 @@ function ckb_default() {
   };
 }
 
-// node_modules/zod/v4/locales/cs.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/cs.js
 var error8 = () => {
   const Sizable = {
     string: { unit: "znak\u016F", verb: "m\xEDt" },
@@ -68059,7 +68059,7 @@ function cs_default() {
   };
 }
 
-// node_modules/zod/v4/locales/da.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/da.js
 var error9 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "havde" },
@@ -68180,7 +68180,7 @@ function da_default() {
   };
 }
 
-// node_modules/zod/v4/locales/de.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/de.js
 var error10 = () => {
   const Sizable = {
     string: { unit: "Zeichen", verb: "zu haben" },
@@ -68294,7 +68294,7 @@ function de_default() {
   };
 }
 
-// node_modules/zod/v4/locales/el.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/el.js
 var error11 = () => {
   const Sizable = {
     string: { unit: "\u03C7\u03B1\u03C1\u03B1\u03BA\u03C4\u03AE\u03C1\u03B5\u03C2", verb: "\u03BD\u03B1 \u03AD\u03C7\u03B5\u03B9" },
@@ -68407,7 +68407,7 @@ function el_default() {
   };
 }
 
-// node_modules/zod/v4/locales/en.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/en.js
 var error12 = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -68532,7 +68532,7 @@ function en_default2() {
   };
 }
 
-// node_modules/zod/v4/locales/eo.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/eo.js
 var error13 = () => {
   const Sizable = {
     string: { unit: "karaktrojn", verb: "havi" },
@@ -68647,7 +68647,7 @@ function eo_default() {
   };
 }
 
-// node_modules/zod/v4/locales/es.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/es.js
 var error14 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "tener" },
@@ -68784,7 +68784,7 @@ function es_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fa.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/fa.js
 var error15 = () => {
   const Sizable = {
     string: { unit: "\u06A9\u0627\u0631\u0627\u06A9\u062A\u0631", verb: "\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F" },
@@ -68904,7 +68904,7 @@ function fa_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fi.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/fi.js
 var error16 = () => {
   const Sizable = {
     string: { unit: "merkki\xE4", subject: "merkkijonon" },
@@ -69022,7 +69022,7 @@ function fi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/fr.js
 var error17 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -69152,7 +69152,7 @@ function fr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr-CA.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/fr-CA.js
 var error18 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -69265,7 +69265,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/zod/v4/locales/gu.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/gu.js
 var error19 = () => {
   const Sizable = {
     string: { unit: "\u0A85\u0A95\u0ACD\u0AB7\u0AB0", verb: "\u0AB9\u0ACB\u0AB5\u0ABE \u0A9C\u0ACB\u0A88\u0A8F" },
@@ -69379,7 +69379,7 @@ function gu_default() {
   };
 }
 
-// node_modules/zod/v4/locales/he.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/he.js
 var error20 = () => {
   const TypeNames = {
     string: { label: "\u05DE\u05D7\u05E8\u05D5\u05D6\u05EA", gender: "f" },
@@ -69581,7 +69581,7 @@ function he_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hi.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/hi.js
 var error21 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F" },
@@ -69693,7 +69693,7 @@ function hi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hr.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/hr.js
 var error22 = () => {
   const Sizable = {
     string: { unit: "znakova", verb: "imati" },
@@ -69820,7 +69820,7 @@ function hr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hu.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/hu.js
 var error23 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "legyen" },
@@ -69934,7 +69934,7 @@ function hu_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hy.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/hy.js
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -70093,7 +70093,7 @@ function hy_default() {
   };
 }
 
-// node_modules/zod/v4/locales/id.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/id.js
 var error25 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "memiliki" },
@@ -70205,7 +70205,7 @@ function id_default() {
   };
 }
 
-// node_modules/zod/v4/locales/is.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/is.js
 var error26 = () => {
   const Sizable = {
     string: { unit: "stafi", verb: "a\xF0 hafa" },
@@ -70320,7 +70320,7 @@ function is_default() {
   };
 }
 
-// node_modules/zod/v4/locales/it.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/it.js
 var error27 = () => {
   const Sizable = {
     string: { unit: "caratteri", verb: "avere" },
@@ -70434,7 +70434,7 @@ function it_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ja.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ja.js
 var error28 = () => {
   const Sizable = {
     string: { unit: "\u6587\u5B57", verb: "\u3067\u3042\u308B" },
@@ -70547,7 +70547,7 @@ function ja_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ka.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ka.js
 var error29 = () => {
   const Sizable = {
     string: { unit: "\u10E1\u10D8\u10DB\u10D1\u10DD\u10DA\u10DD", verb: "\u10E3\u10DC\u10D3\u10D0 \u10E8\u10D4\u10D8\u10EA\u10D0\u10D5\u10D3\u10D4\u10E1" },
@@ -70665,7 +70665,7 @@ function ka_default() {
   };
 }
 
-// node_modules/zod/v4/locales/km.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/km.js
 var error30 = () => {
   const Sizable = {
     string: { unit: "\u178F\u17BD\u17A2\u1780\u17D2\u179F\u179A", verb: "\u1782\u17BD\u179A\u1798\u17B6\u1793" },
@@ -70781,12 +70781,12 @@ function km_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/zod/v4/locales/kn.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/kn.js
 var error31 = () => {
   const Sizable = {
     string: { unit: "\u0C85\u0C95\u0CCD\u0CB7\u0CB0\u0C97\u0CB3\u0CC1", verb: "\u0CB9\u0CCA\u0C82\u0CA6\u0CB2\u0CC1" },
@@ -70902,7 +70902,7 @@ function kn_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ko.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ko.js
 var error32 = () => {
   const Sizable = {
     string: { unit: "\uBB38\uC790", verb: "to have" },
@@ -71019,7 +71019,7 @@ function ko_default() {
   };
 }
 
-// node_modules/zod/v4/locales/lt.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/lt.js
 var capitalizeFirstCharacter = (text2) => {
   return text2.charAt(0).toUpperCase() + text2.slice(1);
 };
@@ -71227,7 +71227,7 @@ function lt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/mk.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/mk.js
 var error34 = () => {
   const Sizable = {
     string: { unit: "\u0437\u043D\u0430\u0446\u0438", verb: "\u0434\u0430 \u0438\u043C\u0430\u0430\u0442" },
@@ -71342,7 +71342,7 @@ function mk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ms.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ms.js
 var error35 = () => {
   const Sizable = {
     string: { unit: "aksara", verb: "mempunyai" },
@@ -71455,7 +71455,7 @@ function ms_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ne.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ne.js
 var error36 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0939\u0941\u0928\u0941\u092A\u0930\u094D\u091B" },
@@ -71567,7 +71567,7 @@ function ne_default() {
   };
 }
 
-// node_modules/zod/v4/locales/nl.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/nl.js
 var error37 = () => {
   const Sizable = {
     string: { unit: "tekens", verb: "heeft" },
@@ -71683,7 +71683,7 @@ function nl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/nn.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/nn.js
 var error38 = () => {
   const Sizable = {
     string: { unit: "teikn", verb: "\xE5 ha" },
@@ -71797,7 +71797,7 @@ function nn_default() {
   };
 }
 
-// node_modules/zod/v4/locales/no.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/no.js
 var error39 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "\xE5 ha" },
@@ -71911,7 +71911,7 @@ function no_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ota.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ota.js
 var error40 = () => {
   const Sizable = {
     string: { unit: "harf", verb: "olmal\u0131d\u0131r" },
@@ -72026,7 +72026,7 @@ function ota_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ps.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ps.js
 var error41 = () => {
   const Sizable = {
     string: { unit: "\u062A\u0648\u06A9\u064A", verb: "\u0648\u0644\u0631\u064A" },
@@ -72146,7 +72146,7 @@ function ps_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pl.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/pl.js
 var error42 = () => {
   const Sizable = {
     string: { unit: "znak\xF3w", verb: "mie\u0107" },
@@ -72261,7 +72261,7 @@ function pl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pt.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/pt.js
 var error43 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -72405,7 +72405,7 @@ function pt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pt-BR.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/pt-BR.js
 var error44 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -72550,7 +72550,7 @@ function pt_BR_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ro.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ro.js
 var error45 = () => {
   const Sizable = {
     string: { unit: "caractere", verb: "s\u0103 aib\u0103" },
@@ -72673,7 +72673,7 @@ function ro_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ru.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ru.js
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -72842,7 +72842,7 @@ function ru_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sk.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/sk.js
 var error47 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "ma\u0165" },
@@ -72959,7 +72959,7 @@ function sk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sl.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/sl.js
 var error48 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "imeti" },
@@ -73074,7 +73074,7 @@ function sl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sv.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/sv.js
 var error49 = () => {
   const Sizable = {
     string: { unit: "tecken", verb: "att ha" },
@@ -73190,7 +73190,7 @@ function sv_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ta.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ta.js
 var error50 = () => {
   const Sizable = {
     string: { unit: "\u0B8E\u0BB4\u0BC1\u0BA4\u0BCD\u0BA4\u0BC1\u0B95\u0BCD\u0B95\u0BB3\u0BCD", verb: "\u0B95\u0BCA\u0BA3\u0BCD\u0B9F\u0BBF\u0BB0\u0BC1\u0B95\u0BCD\u0B95 \u0BB5\u0BC7\u0BA3\u0BCD\u0B9F\u0BC1\u0BAE\u0BCD" },
@@ -73306,7 +73306,7 @@ function ta_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tg.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/tg.js
 var error51 = () => {
   const Sizable = {
     string: { unit: "\u0430\u043B\u043E\u043C\u0430\u0442", verb: "\u0434\u043E\u0448\u0442\u0430 \u0431\u043E\u0448\u0430\u0434" },
@@ -73423,7 +73423,7 @@ function tg_default() {
   };
 }
 
-// node_modules/zod/v4/locales/th.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/th.js
 var error52 = () => {
   const Sizable = {
     string: { unit: "\u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23", verb: "\u0E04\u0E27\u0E23\u0E21\u0E35" },
@@ -73539,7 +73539,7 @@ function th_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tk.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/tk.js
 var error53 = () => {
   const Sizable = {
     string: { unit: "simwol", verb: "bolmaly" },
@@ -73647,7 +73647,7 @@ function tk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tr.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/tr.js
 var error54 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "olmal\u0131" },
@@ -73758,7 +73758,7 @@ function tr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/uk.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/uk.js
 var error55 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0456\u0432", verb: "\u043C\u0430\u0442\u0438\u043C\u0435" },
@@ -73872,12 +73872,12 @@ function uk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/zod/v4/locales/ur.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/ur.js
 var error56 = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0648\u0641", verb: "\u06C1\u0648\u0646\u0627" },
@@ -73993,7 +73993,7 @@ function ur_default() {
   };
 }
 
-// node_modules/zod/v4/locales/uz.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/uz.js
 var error57 = () => {
   const Sizable = {
     string: { unit: "belgi", verb: "bo\u2018lishi kerak" },
@@ -74107,7 +74107,7 @@ function uz_default() {
   };
 }
 
-// node_modules/zod/v4/locales/vi.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/vi.js
 var error58 = () => {
   const Sizable = {
     string: { unit: "k\xFD t\u1EF1", verb: "c\xF3" },
@@ -74221,7 +74221,7 @@ function vi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-CN.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/zh-CN.js
 var error59 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u7B26", verb: "\u5305\u542B" },
@@ -74336,7 +74336,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-TW.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/zh-TW.js
 var error60 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u5143", verb: "\u64C1\u6709" },
@@ -74449,7 +74449,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/zod/v4/locales/yo.js
+// ../../drip-next/mcp/node_modules/zod/v4/locales/yo.js
 var error61 = () => {
   const Sizable = {
     string: { unit: "\xE0mi", verb: "n\xED" },
@@ -74562,7 +74562,7 @@ function yo_default() {
   };
 }
 
-// node_modules/zod/v4/core/registries.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/registries.js
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
 var $input = /* @__PURE__ */ Symbol("ZodInput");
@@ -74612,7 +74612,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/zod/v4/core/compile.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/compile.js
 var INVALID2 = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
@@ -76222,7 +76222,7 @@ function generateTransformCheck(doc, ctx2, schema, accessor) {
   return accessor;
 }
 
-// node_modules/zod/v4/core/api.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -77281,7 +77281,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/zod/v4/core/to-json-schema.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -77811,7 +77811,7 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
   return finalize(ctx2, schema);
 };
 
-// node_modules/zod/v4/core/json-schema-processors.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/json-schema-processors.js
 var narrowMin = (agg, key, value) => {
   if (agg[key] === void 0 || value > agg[key])
     agg[key] = value;
@@ -78559,7 +78559,7 @@ function toJSONSchema(input2, params) {
   return finalize(ctx2, input2);
 }
 
-// node_modules/zod/v4/core/json-schema-generator.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/json-schema-generator.js
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
   get metadataRegistry() {
@@ -78637,10 +78637,10 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/zod/v4/core/json-schema.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 
-// node_modules/zod/v4/mini/schemas.js
+// ../../drip-next/mcp/node_modules/zod/v4/mini/schemas.js
 var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   if (!inst._zod)
     throw new Error("Uninitialized schema in ZodMiniType.");
@@ -78706,7 +78706,7 @@ function object(shape, params) {
   return new ZodMiniObject(def);
 }
 
-// node_modules/zod/v4/core/visit.js
+// ../../drip-next/mcp/node_modules/zod/v4/core/visit.js
 var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
@@ -78861,7 +78861,7 @@ function visit(schema, fnOrHandlers) {
   return run4(schema);
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s2) {
   const schema = s2;
   return !!schema._zod;
@@ -79021,7 +79021,7 @@ function getLiteralValue(schema) {
   return void 0;
 }
 
-// node_modules/zod/v4/classic/external.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -79284,7 +79284,7 @@ __export(external_exports, {
   xor: () => xor
 });
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny2,
@@ -79465,7 +79465,7 @@ __export(schemas_exports2, {
   xor: () => xor
 });
 
-// node_modules/zod/v4/classic/checks.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -79500,7 +79500,7 @@ __export(checks_exports2, {
   uppercase: () => _uppercase
 });
 
-// node_modules/zod/v4/classic/errors.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/errors.js
 var _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
@@ -79546,7 +79546,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, void 0
   Parent: Error
 });
 
-// node_modules/zod/v4/classic/parse.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -79560,7 +79560,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/schemas.js
 function _ensureDefaultLocale() {
   if (!globalConfig.localeError)
     config(en_default2());
@@ -81025,7 +81025,7 @@ function preprocess(fn, schema) {
   });
 }
 
-// node_modules/zod/v4/classic/compat.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/compat.js
 var ZodIssueCode2 = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -81051,7 +81051,7 @@ var ZodFirstPartyTypeKind2;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind3) {
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
-// node_modules/zod/v4/classic/iso.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
 __export(iso_exports2, {
   ZodISODate: () => ZodISODate,
@@ -81076,7 +81076,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/zod/v4/classic/from-json-schema.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/from-json-schema.js
 var z = {
   ...schemas_exports2,
   ...checks_exports2,
@@ -81809,7 +81809,7 @@ function fromJSONSchema(schema, params) {
   return convertSchema(normalized, ctx2);
 }
 
-// node_modules/zod/v4/classic/deep-partial.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/deep-partial.js
 function deepPartial(schema) {
   return visit(schema, {
     object: (s2) => s2.partial(),
@@ -81821,7 +81821,7 @@ function deepPartial(schema) {
   });
 }
 
-// node_modules/zod/v4/classic/in-out.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/in-out.js
 function withChecks(side, checks) {
   if (!checks?.length)
     return side;
@@ -81851,7 +81851,7 @@ function output(schema) {
   });
 }
 
-// node_modules/zod/v4/classic/coerce.js
+// ../../drip-next/mcp/node_modules/zod/v4/classic/coerce.js
 var coerce_exports2 = {};
 __export(coerce_exports2, {
   bigint: () => bigint3,
@@ -81876,7 +81876,7 @@ function date4(params) {
   return _coercedDate(ZodDate2, params);
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -83407,12 +83407,12 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// node_modules/zod-to-json-schema/dist/esm/Options.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/Options.js
 var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
 var defaultOptions = {
   name: void 0,
@@ -83446,7 +83446,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
   ...options
 };
 
-// node_modules/zod-to-json-schema/dist/esm/Refs.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/Refs.js
 var getRefs = (options) => {
   const _options = getDefaultOptions(options);
   const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
@@ -83467,7 +83467,7 @@ var getRefs = (options) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 function addErrorMessage(res, key, errorMessage, refs) {
   if (!refs?.errorMessages)
     return;
@@ -83483,7 +83483,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 var getRelativePath = (pathA, pathB) => {
   let i2 = 0;
   for (; i2 < pathA.length && i2 < pathB.length; i2++) {
@@ -83493,7 +83493,7 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i2).toString(), ...pathB.slice(i2)].join("/");
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 function parseAnyDef(refs) {
   if (refs.target !== "openAi") {
     return {};
@@ -83509,7 +83509,7 @@ function parseAnyDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 function parseArrayDef(def, refs) {
   const res = {
     type: "array"
@@ -83533,7 +83533,7 @@ function parseArrayDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 function parseBigintDef(def, refs) {
   const res = {
     type: "integer",
@@ -83579,24 +83579,24 @@ function parseBigintDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 function parseBooleanDef() {
   return {
     type: "boolean"
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
   if (Array.isArray(strategy)) {
@@ -83655,7 +83655,7 @@ var integerDateParser = (def, refs) => {
   return res;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 function parseDefaultDef(_def, refs) {
   return {
     ...parseDef(_def.innerType._def, refs),
@@ -83663,12 +83663,12 @@ function parseDefaultDef(_def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 function parseEnumDef(def) {
   return {
     type: "string",
@@ -83676,7 +83676,7 @@ function parseEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 var isJsonSchema7AllOfType = (type) => {
   if ("type" in type && type.type === "string")
     return false;
@@ -83718,7 +83718,7 @@ function parseIntersectionDef(def, refs) {
   } : void 0;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 function parseLiteralDef(def, refs) {
   const parsedType2 = typeof def.value;
   if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string") {
@@ -83738,7 +83738,7 @@ function parseLiteralDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 var emojiRegex2 = void 0;
 var zodPatterns = {
   /**
@@ -84063,7 +84063,7 @@ function stringifyRegExpWithFlags(regex, refs) {
   return pattern;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -84115,7 +84115,7 @@ function parseRecordDef(def, refs) {
   return schema;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -84140,7 +84140,7 @@ function parseMapDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 function parseNativeEnumDef(def) {
   const object3 = def.values;
   const actualKeys = Object.keys(def.values).filter((key) => {
@@ -84154,7 +84154,7 @@ function parseNativeEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 function parseNeverDef(refs) {
   return refs.target === "openAi" ? void 0 : {
     not: parseAnyDef({
@@ -84164,7 +84164,7 @@ function parseNeverDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 function parseNullDef(refs) {
   return refs.target === "openApi3" ? {
     enum: ["null"],
@@ -84174,7 +84174,7 @@ function parseNullDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 var primitiveMappings = {
   ZodString: "string",
   ZodNumber: "number",
@@ -84242,7 +84242,7 @@ var asAnyOf = (def, refs) => {
   return anyOf.length ? { anyOf } : void 0;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -84274,7 +84274,7 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 function parseNumberDef(def, refs) {
   const res = {
     type: "number"
@@ -84323,7 +84323,7 @@ function parseNumberDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 function parseObjectDef(def, refs) {
   const forceOptionalIntoNullable = refs.target === "openAi";
   const result = {
@@ -84393,7 +84393,7 @@ function safeIsOptional(schema) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 var parseOptionalDef = (def, refs) => {
   if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
     return parseDef(def.innerType._def, refs);
@@ -84412,7 +84412,7 @@ var parseOptionalDef = (def, refs) => {
   } : parseAnyDef(refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 var parsePipelineDef = (def, refs) => {
   if (refs.pipeStrategy === "input") {
     return parseDef(def.in._def, refs);
@@ -84432,12 +84432,12 @@ var parsePipelineDef = (def, refs) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 function parseSetDef(def, refs) {
   const items = parseDef(def.valueType._def, {
     ...refs,
@@ -84457,7 +84457,7 @@ function parseSetDef(def, refs) {
   return schema;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 function parseTupleDef(def, refs) {
   if (def.rest) {
     return {
@@ -84485,24 +84485,24 @@ function parseTupleDef(def, refs) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 function parseUndefinedDef(refs) {
   return {
     not: parseAnyDef(refs)
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
@@ -84578,7 +84578,7 @@ var selectParser = (def, typeName, refs) => {
   }
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -84634,7 +84634,7 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// ../../drip-next/mcp/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 var zodToJsonSchema = (schema, options) => {
   const refs = getRefs(options);
   let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name2, schema2]) => ({
@@ -84696,7 +84696,7 @@ var zodToJsonSchema = (schema, options) => {
   return combined;
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t2) {
   if (!t2)
     return "draft-7";
@@ -84738,7 +84738,7 @@ function parseWithCompat(schema, data) {
   return result.data;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -85715,7 +85715,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 var import_ajv = __toESM(require_ajv(), 1);
 var import_ajv_formats = __toESM(require_dist(), 1);
 function createDefaultAjvInstance() {
@@ -85783,7 +85783,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 var ExperimentalServerTasks = class {
   constructor(_server) {
     this._server = _server;
@@ -85996,7 +85996,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
     throw new Error(`${entityName} does not support task creation (required for ${method})`);
@@ -86031,7 +86031,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -86402,7 +86402,7 @@ var Server = class extends Protocol {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema) {
   return !!schema && typeof schema === "object" && COMPLETABLE_SYMBOL in schema;
@@ -86416,7 +86416,7 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 var TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 function validateToolName(name) {
   const warnings = [];
@@ -86474,7 +86474,7 @@ function validateAndWarnToolName(name) {
   return result.isValid;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 var ExperimentalMcpServerTasks = class {
   constructor(_mcpServer) {
     this._mcpServer = _mcpServer;
@@ -86489,7 +86489,7 @@ var ExperimentalMcpServerTasks = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 function toolInputElementCount(value, max) {
   let count = 0;
   const stack = [value];
@@ -87330,10 +87330,10 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 import process2 from "node:process";
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 var STDIO_DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
 var ReadBuffer = class {
   constructor(options) {
@@ -87370,7 +87370,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../drip-next/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process2.stdin, _stdout = process2.stdout, options) {
     this._stdin = _stdin;
@@ -90619,6 +90619,8 @@ __export(swarm_exports, {
   hostHasSubagents: () => hostHasSubagents,
   pageOf: () => pageOf,
   pascal: () => pascal2,
+  refFor: () => refFor,
+  referenceMap: () => referenceMap,
   register: () => register,
   restitchIfStale: () => restitchIfStale,
   scoutPrompt: () => scoutPrompt,
@@ -90758,21 +90760,33 @@ function buildGaps(task, list4) {
     }
   }
   const refNames = new Set(
-    [...(task.refs?.studied || []).flatMap((r2) => [r2.source, r2.key, r2.designer]), ...task.refs?.viewed || []].filter(Boolean).map((x2) => String(x2).toLowerCase().replace(/^site:/, "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?#]/)[0].split(".")[0]).filter((x2) => x2 && x2.length >= 3 && !/^[a-z]\d+-\d+$/.test(x2))
+    [...(task.refs?.studied || []).flatMap((r2) => [r2.source, r2.key, r2.designer]), ...task.refs?.viewed || []].filter(Boolean).map(refName).filter((x2) => x2 && x2.length >= 3 && !/^[a-z]\d+-\d+$/.test(x2))
   );
-  const big = list4.filter((s2) => ["hero", "page", "whole-page", "index", "app"].includes(slug2(s2.section)));
-  for (const s2 of big) {
-    if (!s2.from || s2.from.length < 12) gaps.push(`${s2.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
-    else if (refNames.size && ![...refNames].some((n3) => s2.from.toLowerCase().includes(n3))) gaps.push(`${s2.section}: "from" has to name a reference you looked at (${[...refNames].slice(0, 6).join(", ")}\u2026) and what this section takes from it.`);
+  for (const s2 of list4) {
+    if (!s2.from || s2.from.length < 12) gaps.push(`${s2.section}: say which studied reference it follows and what it takes (from: "linear.app: the product window rising out of soft light, 1100px, bleeding off the bottom").`);
+    else if (refNames.size && ![...refNames].some((n3) => s2.from.toLowerCase().includes(n3))) gaps.push(`${s2.section}: "from" has to name a reference you studied (${[...refNames].slice(0, 6).join(", ")}\u2026) and what this section takes from it.`);
   }
   return gaps;
+}
+var refName = (x2) => String(x2).toLowerCase().replace(/^site:/, "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?#]/)[0].split(".")[0];
+function refFor(task, from) {
+  const f3 = String(from || "").toLowerCase();
+  if (!f3) return null;
+  return (task?.refs?.studied || []).find((r2) => r2.role !== "before" && [r2.source, r2.key, r2.designer].filter(Boolean).map(refName).some((n3) => n3.length >= 3 && f3.includes(n3))) || null;
+}
+function referenceMap(task, list4) {
+  const rows = list4.map((s2) => {
+    const r2 = refFor(task, s2.from);
+    return `- ${s2.section}: ${r2 ? `${r2.source || r2.key}` : "(no studied reference named)"}${s2.from ? ` \xB7 takes: ${String(s2.from).slice(0, 140)}` : ""}${r2?.fits ? ` \xB7 why it fits: ${r2.fits}` : ""}`;
+  });
+  return rows.join("\n");
 }
 function studiedTakes(task) {
   const st = (task?.refs?.studied || []).filter((s2) => s2.take && s2.role !== "before").slice(-5);
   if (!st.length) return "";
   return `
-WHAT THE DIRECTOR STUDIED (match this level of craft; never copy a reference's colours or surface):
-${st.map((s2) => `- ${s2.source || s2.key}: take ${s2.take}${s2.motion ? `; motion: ${s2.motion}` : ""}`).join("\n")}`;
+THE REFERENCES THIS PAGE FOLLOWS (stick to them: their layout, composition, spacing, type scale, motion and feel; change the content to the client's and the colours to the brand's own where it has them):
+${st.map((s2) => `- ${s2.source || s2.key}: take ${s2.take}${s2.fits ? `; fits because ${s2.fits}` : ""}${s2.motion ? `; motion: ${s2.motion}` : ""}`).join("\n")}`;
 }
 var MAX_BUILDERS = 2;
 var PER_BUILDER = 3;
@@ -90787,8 +90801,15 @@ function groupSections(list4, max = MAX_BUILDERS) {
   }
   return groups.filter((g) => g.length).map((g) => list4.filter((s2) => g.includes(s2)));
 }
-function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
+function sectionBlock({ section, spec, files, piece, from }, pg, stack, many, task) {
   const id = slug2(section);
+  const ref = refFor(task, from);
+  const refLines = ref ? [
+    `THE REFERENCE TO FOLLOW, CLOSELY: ${ref.source || ref.key}${ref.fits ? ` (chosen because ${ref.fits})` : ""}.`,
+    ref.image ? `Its picture: ${ref.image}${/^https?:/.test(ref.image) ? " (download it to look, or open it in a browser)" : " (open it with Read before you write anything)"}.` : "",
+    `What was measured on it: layout ${ref.layout || "?"}${ref.type ? `; type ${ref.type}` : ""}${ref.detail ? `; the move: ${ref.detail}` : ""}${ref.motion ? `; motion: ${ref.motion}` : ""}.`,
+    "Match its layout, composition, proportions, spacing, type scale and motion; take what the spec says from it. Change the content to the client's (and the colours to the brand's own, when it has them). Don't drift back to a generic section."
+  ].filter(Boolean) : [];
   const mine = files?.length ? files : sectionFiles(section, stack);
   const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
   const placement = stack === "react" ? [...OWN, ...WHOLE].includes(id) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${id}">.` : WHOLE.includes(id) ? "You build the whole page: index.html and its own styles and scripts." : OWN.includes(id) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${id}"> element alone (no <html>/<head>), ${mine[1]} its styles.`;
@@ -90796,6 +90817,7 @@ function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
     many ? `=== SECTION: ${section} ===` : "",
     "THE SECTION SPEC (from the director; build exactly this)",
     spec,
+    ...refLines,
     pieceLine,
     stack === "react" && id === "hero" && pg && fs24.existsSync(path24.join(pg.root, "src", "sections", "hero.recipe.html")) ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it." : "",
     `Files: ${mine.join(", ")}. ${placement}`
@@ -90821,7 +90843,7 @@ ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens 
     chosen ? `Chosen direction: ${chosen}` : "",
     "",
     many ? `You build ${list4.length} sections, in this order, one after another; they share one system, so keep their rhythm and detail consistent with each other.` : "",
-    ...list4.flatMap((s2) => [...sectionBlock(s2, pg, stack, many), ""]),
+    ...list4.flatMap((s2) => [...sectionBlock(s2, pg, stack, many, task), ""]),
     studiedTakes(task),
     "",
     where,
@@ -90948,7 +90970,11 @@ TAKES FROM: ${s2.from}` : s2.spec }));
 When they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.` : `
 
 When it finishes: fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to the builder (SendMessage to it).`;
-      return text(head + body + tail2);
+      const map2 = `
+
+REFERENCE MAP (show the user with the page, in a short table: section, reference, what it takes, why it fits):
+${referenceMap(task, list4)}`;
+      return text(head + body + tail2 + map2);
     })
   );
   server2.registerTool(
@@ -91799,7 +91825,7 @@ __export(refs_exports, {
   register: () => register4
 });
 
-// node_modules/bmp-ts/dist/esm/header-types.js
+// ../../drip-next/mcp/node_modules/bmp-ts/dist/esm/header-types.js
 var HeaderTypes;
 (function(HeaderTypes2) {
   HeaderTypes2[HeaderTypes2["BITMAP_INFO_HEADER"] = 40] = "BITMAP_INFO_HEADER";
@@ -91810,7 +91836,7 @@ var HeaderTypes;
 })(HeaderTypes || (HeaderTypes = {}));
 var header_types_default = HeaderTypes;
 
-// node_modules/bmp-ts/dist/esm/mask-color.js
+// ../../drip-next/mcp/node_modules/bmp-ts/dist/esm/mask-color.js
 function maskColor(maskRed, maskGreen, maskBlue, maskAlpha) {
   const maskRedR = ~maskRed + 1 & maskRed;
   const maskGreenR = ~maskGreen + 1 & maskGreen;
@@ -91828,7 +91854,7 @@ function maskColor(maskRed, maskGreen, maskBlue, maskAlpha) {
   };
 }
 
-// node_modules/bmp-ts/dist/esm/types.js
+// ../../drip-next/mcp/node_modules/bmp-ts/dist/esm/types.js
 var BmpCompression;
 (function(BmpCompression2) {
   BmpCompression2[BmpCompression2["NONE"] = 0] = "NONE";
@@ -91838,7 +91864,7 @@ var BmpCompression;
   BmpCompression2[BmpCompression2["BI_ALPHA_BIT_FIELDS"] = 6] = "BI_ALPHA_BIT_FIELDS";
 })(BmpCompression || (BmpCompression = {}));
 
-// node_modules/bmp-ts/dist/esm/decoder.js
+// ../../drip-next/mcp/node_modules/bmp-ts/dist/esm/decoder.js
 var SUPPORTED_BIT_DEPTHS = [1, 4, 8, 16, 24, 32];
 var BmpDecoder = class {
   constructor(buffer, { toRGBA, maxResolutionInMP = 100 } = { toRGBA: false }) {
@@ -92142,7 +92168,7 @@ var BmpDecoder = class {
   }
 };
 
-// node_modules/bmp-ts/dist/esm/encoder.js
+// ../../drip-next/mcp/node_modules/bmp-ts/dist/esm/encoder.js
 function createInteger(numbers) {
   return numbers.reduce((final, n3) => final << 1 | n3, 0);
 }
@@ -92374,7 +92400,7 @@ var BmpEncoder = class {
   }
 };
 
-// node_modules/bmp-ts/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/bmp-ts/dist/esm/index.js
 function decode5(bmpData, options) {
   return new BmpDecoder(bmpData, options);
 }
@@ -92382,7 +92408,7 @@ function encode3(imgData) {
   return new BmpEncoder(imgData);
 }
 
-// node_modules/tinycolor2/esm/tinycolor.js
+// ../../drip-next/mcp/node_modules/tinycolor2/esm/tinycolor.js
 function _typeof(obj) {
   "@babel/helpers - typeof";
   return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj2) {
@@ -93347,7 +93373,7 @@ function validateWCAG2Parms(parms) {
   };
 }
 
-// node_modules/@jimp/utils/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/utils/dist/esm/index.js
 function clone3(image2) {
   const newBitmap = {
     width: image2.bitmap.width,
@@ -93444,7 +93470,7 @@ function cssColorToHex(cssColor) {
   return parseInt(tinycolor(cssColor).toHex8(), 16);
 }
 
-// node_modules/@jimp/js-bmp/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/js-bmp/dist/esm/index.js
 function encode4(image2, options = {}) {
   scan({ bitmap: image2 }, 0, 0, image2.width, image2.height, function(_, __, index) {
     const red = image2.data[index + 0];
@@ -93486,7 +93512,7 @@ function bmp() {
   };
 }
 
-// node_modules/@jimp/js-gif/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/js-gif/dist/esm/index.js
 var import_omggif = __toESM(require_omggif(), 1);
 var import_gifwrap = __toESM(require_src(), 1);
 function gif() {
@@ -93513,7 +93539,7 @@ function gif() {
   };
 }
 
-// node_modules/@jimp/js-jpeg/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/js-jpeg/dist/esm/index.js
 var import_jpeg_js = __toESM(require_jpeg_js(), 1);
 function jpeg() {
   return {
@@ -93523,10 +93549,10 @@ function jpeg() {
   };
 }
 
-// node_modules/@jimp/js-png/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/js-png/dist/esm/index.js
 var import_pngjs = __toESM(require_png(), 1);
 
-// node_modules/@jimp/js-png/dist/esm/constants.js
+// ../../drip-next/mcp/node_modules/@jimp/js-png/dist/esm/constants.js
 var PNGFilterType;
 (function(PNGFilterType2) {
   PNGFilterType2[PNGFilterType2["AUTO"] = -1] = "AUTO";
@@ -93544,7 +93570,7 @@ var PNGColorType;
   PNGColorType2[PNGColorType2["COLOR_ALPHA"] = 6] = "COLOR_ALPHA";
 })(PNGColorType || (PNGColorType = {}));
 
-// node_modules/@jimp/js-png/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/js-png/dist/esm/index.js
 function png() {
   return {
     mime: "image/png",
@@ -93575,7 +93601,7 @@ function png() {
   };
 }
 
-// node_modules/@jimp/js-tiff/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/js-tiff/dist/esm/index.js
 var import_utif2 = __toESM(require_UTIF(), 1);
 function getDimensionValue(dimension) {
   if (typeof dimension === "number") {
@@ -93621,7 +93647,7 @@ function tiff() {
   };
 }
 
-// node_modules/@jimp/types/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/types/dist/esm/index.js
 var Edge;
 (function(Edge2) {
   Edge2[Edge2["EXTEND"] = 1] = "EXTEND";
@@ -93636,7 +93662,7 @@ var JimpClassSchema = external_exports.object({
   })
 });
 
-// node_modules/@jimp/plugin-blit/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-blit/dist/esm/index.js
 var BlitOptionsSchemaComplex = external_exports.object({
   src: JimpClassSchema,
   /** the x position to blit the image */
@@ -93722,7 +93748,7 @@ var methods = {
   }
 };
 
-// node_modules/@jimp/plugin-blur/dist/esm/blur-tables.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-blur/dist/esm/blur-tables.js
 var mulTable = [
   1,
   57,
@@ -94242,7 +94268,7 @@ var shgTable = [
   18
 ];
 
-// node_modules/@jimp/plugin-blur/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-blur/dist/esm/index.js
 var methods2 = {
   /**
    * A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH quicker
@@ -94421,7 +94447,7 @@ var methods2 = {
   }
 };
 
-// node_modules/@jimp/plugin-circle/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-circle/dist/esm/index.js
 var CircleOptionsSchema = external_exports.object({
   /** the x position to draw the circle */
   x: external_exports.number().optional(),
@@ -94463,7 +94489,7 @@ var methods3 = {
   }
 };
 
-// node_modules/@jimp/plugin-color/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-color/dist/esm/index.js
 var ConvolutionMatrixSchema = external_exports.array(external_exports.number()).min(1).array();
 var ConvolutionComplexOptionsSchema = external_exports.object({
   /** a matrix to weight the neighbors sum */
@@ -95123,19 +95149,19 @@ var methods4 = {
   }
 };
 
-// node_modules/@jimp/core/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/core/dist/esm/index.js
 var import_await_to_js = __toESM(require_await_to_js_umd(), 1);
 
-// node_modules/@jimp/file-ops/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/file-ops/dist/esm/index.js
 import { promises as fs28 } from "fs";
 import { existsSync } from "fs";
 var readFile2 = fs28.readFile;
 var writeFile = fs28.writeFile;
 
-// node_modules/@jimp/core/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/core/dist/esm/index.js
 var import_lite = __toESM(require_lite(), 1);
 
-// node_modules/@jimp/core/dist/esm/utils/constants.js
+// ../../drip-next/mcp/node_modules/@jimp/core/dist/esm/utils/constants.js
 var HorizontalAlign;
 (function(HorizontalAlign2) {
   HorizontalAlign2[HorizontalAlign2["LEFT"] = 1] = "LEFT";
@@ -95163,7 +95189,7 @@ var BlendMode;
   BlendMode2["EXCLUSION"] = "exclusion";
 })(BlendMode || (BlendMode = {}));
 
-// node_modules/@jimp/core/dist/esm/utils/composite-modes.js
+// ../../drip-next/mcp/node_modules/@jimp/core/dist/esm/utils/composite-modes.js
 var composite_modes_exports = {};
 __export(composite_modes_exports, {
   add: () => add,
@@ -95335,7 +95361,7 @@ var names2 = [
   exclusion
 ];
 
-// node_modules/@jimp/core/dist/esm/utils/composite.js
+// ../../drip-next/mcp/node_modules/@jimp/core/dist/esm/utils/composite.js
 function composite(baseImage, src, x2 = 0, y2 = 0, options = {}) {
   if (!(src instanceof baseImage.constructor)) {
     throw new Error("The source must be a Jimp image");
@@ -95384,7 +95410,7 @@ function composite(baseImage, src, x2 = 0, y2 = 0, options = {}) {
   return baseImage;
 }
 
-// node_modules/@jimp/core/dist/esm/utils/image-bitmap.js
+// ../../drip-next/mcp/node_modules/@jimp/core/dist/esm/utils/image-bitmap.js
 var import_exif_parser = __toESM(require_exif_parser(), 1);
 function getExifOrientation(img) {
   const _exif = img._exif;
@@ -95466,7 +95492,7 @@ async function attemptExifRotate(image2, buffer) {
   }
 }
 
-// node_modules/@jimp/core/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/core/dist/esm/index.js
 var emptyBitmap = {
   data: Buffer.alloc(0),
   width: 0,
@@ -95942,7 +95968,7 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
   return CustomJimp;
 }
 
-// node_modules/@jimp/plugin-resize/dist/esm/constants.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-resize/dist/esm/constants.js
 var ResizeStrategy;
 (function(ResizeStrategy2) {
   ResizeStrategy2["NEAREST_NEIGHBOR"] = "nearestNeighbor";
@@ -95952,7 +95978,7 @@ var ResizeStrategy;
   ResizeStrategy2["BEZIER"] = "bezierInterpolation";
 })(ResizeStrategy || (ResizeStrategy = {}));
 
-// node_modules/@jimp/plugin-resize/dist/esm/modules/resize.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-resize/dist/esm/modules/resize.js
 function Resize(widthOriginal, heightOriginal, targetWidth, targetHeight, blendAlpha, interpolationPass, resizeCallback) {
   this.widthOriginal = Math.abs(Math.floor(widthOriginal) || 0);
   this.heightOriginal = Math.abs(Math.floor(heightOriginal) || 0);
@@ -96285,7 +96311,7 @@ Resize.prototype.generateUint8Buffer = function(bufferLength) {
 };
 var resize_default = Resize;
 
-// node_modules/@jimp/plugin-resize/dist/esm/modules/resize2.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-resize/dist/esm/modules/resize2.js
 var operations = {
   nearestNeighbor(src, dst) {
     const wSrc = src.width;
@@ -96466,7 +96492,7 @@ var operations = {
   }
 };
 
-// node_modules/@jimp/plugin-resize/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-resize/dist/esm/index.js
 var ResizeOptionsSchema = external_exports.union([
   external_exports.object({
     /** the width to resize the image to */
@@ -96584,7 +96610,7 @@ var methods5 = {
   }
 };
 
-// node_modules/@jimp/plugin-contain/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-contain/dist/esm/index.js
 var ContainOptionsSchema = external_exports.object({
   /** the width to resize the image to */
   w: external_exports.number(),
@@ -96635,7 +96661,7 @@ var methods6 = {
   }
 };
 
-// node_modules/@jimp/plugin-crop/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-crop/dist/esm/index.js
 var CropOptionsSchema = external_exports.object({
   /** the x position to crop form */
   x: external_exports.number(),
@@ -96816,7 +96842,7 @@ var methods7 = {
   }
 };
 
-// node_modules/@jimp/plugin-cover/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-cover/dist/esm/index.js
 var CoverOptionsSchema = external_exports.object({
   /** the width to resize the image to */
   w: external_exports.number(),
@@ -96863,7 +96889,7 @@ var methods8 = {
   }
 };
 
-// node_modules/@jimp/plugin-displace/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-displace/dist/esm/index.js
 var DisplaceOptionsSchema = external_exports.object({
   /** the source Jimp instance */
   map: JimpClassSchema,
@@ -96900,7 +96926,7 @@ var methods9 = {
   }
 };
 
-// node_modules/@jimp/plugin-dither/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-dither/dist/esm/index.js
 var methods10 = {
   /**
    * Apply a ordered dithering effect.
@@ -96943,7 +96969,7 @@ var methods10 = {
   }
 };
 
-// node_modules/@jimp/plugin-fisheye/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-fisheye/dist/esm/index.js
 var FisheyeOptionsSchema = external_exports.object({
   /** the radius of the circle */
   radius: external_exports.number().min(0).optional()
@@ -96981,7 +97007,7 @@ var methods11 = {
   }
 };
 
-// node_modules/@jimp/plugin-flip/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-flip/dist/esm/index.js
 var FlipOptionsSchema = external_exports.object({
   /** if true the image will be flipped horizontally */
   horizontal: external_exports.boolean().optional(),
@@ -97017,10 +97043,10 @@ var methods12 = {
   }
 };
 
-// node_modules/@jimp/plugin-hash/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-hash/dist/esm/index.js
 var import_any_base = __toESM(require_any_base(), 1);
 
-// node_modules/@jimp/plugin-hash/dist/esm/phash.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-hash/dist/esm/phash.js
 var ImagePHash = class {
   size;
   smallerSize;
@@ -97107,7 +97133,7 @@ function applyDCT(f3, size) {
 }
 var phash_default = ImagePHash;
 
-// node_modules/@jimp/plugin-hash/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-hash/dist/esm/index.js
 var alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_";
 var maxHashLength = [NaN, NaN];
 for (let i2 = 2; i2 < 65; i2++) {
@@ -97173,7 +97199,7 @@ var methods13 = {
   }
 };
 
-// node_modules/@jimp/plugin-mask/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-mask/dist/esm/index.js
 var MaskOptionsObjectSchema = external_exports.object({
   src: JimpClassSchema,
   /** the x position to draw the image */
@@ -97230,7 +97256,7 @@ var methods14 = {
   }
 };
 
-// node_modules/@jimp/plugin-print/dist/esm/measure-text.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-print/dist/esm/measure-text.js
 function measureText(font, text2) {
   let x2 = 0;
   for (let i2 = 0; i2 < text2.length; i2++) {
@@ -97295,7 +97321,7 @@ function measureTextHeight(font, text2, maxWidth) {
   return lines.length * font.common.lineHeight;
 }
 
-// node_modules/@jimp/plugin-print/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-print/dist/esm/index.js
 var PrintOptionsSchema = external_exports.object({
   /** the x position to draw the image */
   x: external_exports.number(),
@@ -97430,7 +97456,7 @@ var methods15 = {
   }
 };
 
-// node_modules/@jimp/plugin-rotate/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-rotate/dist/esm/index.js
 var RotateOptionsSchema = external_exports.union([
   external_exports.number(),
   external_exports.object({
@@ -97591,7 +97617,7 @@ var methods16 = {
   }
 };
 
-// node_modules/@jimp/plugin-threshold/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-threshold/dist/esm/index.js
 var ThresholdOptionsSchema = external_exports.object({
   /** A number auto limited between 0 - 255 */
   max: external_exports.number().min(0).max(255),
@@ -97635,7 +97661,7 @@ var methods17 = {
   }
 };
 
-// node_modules/image-q/dist/esm/image-q.mjs
+// ../../drip-next/mcp/node_modules/image-q/dist/esm/image-q.mjs
 var __defProp2 = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __export2 = (target, all) => {
@@ -100300,7 +100326,7 @@ function paletteQuantizationToPaletteQuantizer(distanceCalculator, paletteQuanti
   }
 }
 
-// node_modules/@jimp/plugin-quantize/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-quantize/dist/esm/index.js
 var QuantizeOptionsSchema = external_exports.object({
   colors: external_exports.number().optional(),
   colorDistanceFormula: external_exports.union([
@@ -100357,12 +100383,12 @@ var methods18 = {
   }
 };
 
-// node_modules/@jimp/plugin-print/dist/esm/load-bitmap-font.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-print/dist/esm/load-bitmap-font.js
 var import_parse_bmfont_ascii = __toESM(require_parse_bmfont_ascii(), 1);
 var import_parse_bmfont_xml = __toESM(require_lib2(), 1);
 var import_parse_bmfont_binary = __toESM(require_parse_bmfont_binary(), 1);
 
-// node_modules/simple-xml-to-json/lib/simpleXmlToJson.min.mjs
+// ../../drip-next/mcp/node_modules/simple-xml-to-json/lib/simpleXmlToJson.min.mjs
 function e(e2) {
   return e2 && e2.__esModule && Object.prototype.hasOwnProperty.call(e2, "default") ? e2.default : e2;
 }
@@ -100588,16 +100614,16 @@ var A = e((function() {
 var C = A.convertXML;
 var L = A.createAST;
 
-// node_modules/@jimp/plugin-print/dist/esm/load-bitmap-font.js
+// ../../drip-next/mcp/node_modules/@jimp/plugin-print/dist/esm/load-bitmap-font.js
 var { convertXML } = A;
 var isWebWorker = typeof self !== "undefined" && self.document === void 0;
 var CharacterJimp = createJimp({ formats: [png] });
 var HEADER = Buffer.from([66, 77, 70, 3]);
 
-// node_modules/@jimp/diff/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/@jimp/diff/dist/esm/index.js
 var import_pixelmatch = __toESM(require_pixelmatch(), 1);
 
-// node_modules/jimp/dist/esm/index.js
+// ../../drip-next/mcp/node_modules/jimp/dist/esm/index.js
 var defaultPlugins = [
   methods,
   methods2,
@@ -102211,7 +102237,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     "refs_study",
     {
       title: "Record what a reference teaches",
-      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, \u2026] })',
+      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render", fits: "the same kind of product (a sales CRM) for the same buyers, and the calm dark look the user asked for" }, \u2026] })',
       inputSchema: {
         studies: external_exports.array(external_exports.object(STUDY_SHAPE)).min(1).max(8).optional(),
         ...Object.fromEntries(Object.entries(STUDY_SHAPE).map(([k, v]) => [k, v.optional()]))
@@ -102219,7 +102245,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     },
     safe(async (args) => {
       const list4 = args.studies?.length ? args.studies : args.shot ? [args] : [];
-      if (!list4.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave }, \u2026].", true);
+      if (!list4.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave, fits }, \u2026].", true);
       const lines = [];
       let bad = 0;
       for (const n3 of list4) {
@@ -102248,6 +102274,8 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
           ok: false,
           msg: `${n3.shot}: too vague. ` + weak.map((f3) => `${f3}: ${!n3[f3] ? "missing" : VAGUE.test(n3[f3].trim()) ? `"${n3[f3].trim()}" is a vibe, not a fact` : `"${n3[f3].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f3]}`).join(" \xB7 ") + (concrete < 3 ? `${weak.length ? " \xB7 " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : "")
         };
+      if (n3.role !== "before" && (!n3.fits || n3.fits.trim().length < 15 || VAGUE.test(n3.fits.trim())))
+        return { ok: false, msg: `${n3.shot}: fits: say why this reference fits this brief (the same kind of product, the audience, the look asked for, a layout that suits the content), in a sentence. The build follows it closely and the user sees why.` };
       const note = `${n3.take} \xB7 layout: ${n3.layout} \xB7 type: ${n3.type} \xB7 colour: ${n3.color} \xB7 density: ${n3.density} \xB7 detail: ${n3.detail} \xB7 leave: ${n3.leave}`;
       const surface = st0.task?.surface;
       const studyRec = { ...n3, at: (/* @__PURE__ */ new Date()).toISOString(), surface, onSurface: onSurface(item), pass: passOf(key), role: n3.role };
@@ -102256,7 +102284,7 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
         if (!s2.task) return;
         s2.task.refs.studied = (s2.task.refs.studied || []).filter((x2) => x2.key !== key);
         const terms = [item.title, item.url, item.designer, n3.take, n3.layout].filter(Boolean).join(" ").slice(0, 600);
-        s2.task.refs.studied.push({ key, role: n3.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n3.take).slice(0, 240), motion: n3.motion ? String(n3.motion).slice(0, 240) : void 0, source: item.url || item.title || key, at: (/* @__PURE__ */ new Date()).toISOString() });
+        s2.task.refs.studied.push({ key, role: n3.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n3.take).slice(0, 240), motion: n3.motion ? String(n3.motion).slice(0, 240) : void 0, fits: n3.fits ? String(n3.fits).slice(0, 240) : void 0, layout: String(n3.layout).slice(0, 300), detail: String(n3.detail).slice(0, 200), type: String(n3.type).slice(0, 160), color: String(n3.color).slice(0, 160), image: item.images?.[0] || item.image || void 0, source: item.url || item.title || key, at: (/* @__PURE__ */ new Date()).toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -102289,7 +102317,8 @@ var STUDY_SHAPE = {
   detail: external_exports.string().describe("ONE specific move worth stealing"),
   take: external_exports.string().describe("What this reference lends the design"),
   leave: external_exports.string().describe("What not to copy / Dribbble fiction"),
-  motion: external_exports.string().optional().describe("How it moves and behaves: what hover, scroll, click or load does (an accordion gallery that widens the hovered panel, cards that lift, a marquee). Stills can't show this, so write it down")
+  motion: external_exports.string().optional().describe("How it moves and behaves: what hover, scroll, click or load does (an accordion gallery that widens the hovered panel, cards that lift, a marquee). Stills can't show this, so write it down"),
+  fits: external_exports.string().optional().describe("Why this one fits THIS brief: the same kind of product, the same audience, the look the user asked for, a layout that suits the content. Required: the user sees it, and the build follows this reference closely")
 };
 
 // src/modules/board/index.mjs
@@ -106832,7 +106861,7 @@ function allowedTools(names3, config2 = {}) {
   return out;
 }
 
-// node_modules/quickjs-emscripten-core/dist/index.mjs
+// ../../drip-next/mcp/node_modules/quickjs-emscripten-core/dist/index.mjs
 init_dist();
 async function newQuickJSWASMModuleFromVariant(variantOrPromise) {
   let variant2 = smartUnwrap(await variantOrPromise), [wasmModuleLoader, QuickJSFFI2, { QuickJSWASMModule: QuickJSWASMModule2 }] = await Promise.all([variant2.importModuleLoader().then(smartUnwrap), variant2.importFFI(), Promise.resolve().then(() => (init_module_ES6BEMUI(), module_ES6BEMUI_exports)).then(smartUnwrap)]), wasmModule = await wasmModuleLoader();
@@ -106844,7 +106873,7 @@ function smartUnwrap(val) {
   return val && "default" in val && val.default ? val.default && "default" in val.default && val.default.default ? val.default.default : val.default : val;
 }
 
-// node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/index.mjs
+// ../../drip-next/mcp/node_modules/@jitl/quickjs-singlefile-mjs-release-sync/dist/index.mjs
 var variant = { type: "sync", importFFI: () => Promise.resolve().then(() => (init_ffi(), ffi_exports)).then((mod) => mod.QuickJSFFI), importModuleLoader: () => Promise.resolve().then(() => (init_emscripten_module_Q67P5WYC(), emscripten_module_Q67P5WYC_exports)).then((mod) => mod.default) };
 var src_default = variant;
 
@@ -115750,7 +115779,7 @@ The page runs while this command does. Press Ctrl+C to stop.`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.3";
+var VERSION = "0.9.4";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

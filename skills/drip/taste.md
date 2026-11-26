@@ -3,7 +3,7 @@
 What Drip designs like. Every task reads this, fast or full; the loop (`fast.md`, `playbook.md`) only says in what order. The numbers are strong defaults: when the brief or the user asks for something else, the brief wins.
 
 ## The job
-Your own cooler, cleaner take on designs that are already proven: the pages people save on Dribbble, Awwwards and Godly, done better. Beautiful, familiar structure; superb craft; real pictures; smooth motion. Never chase "unique": unique is usually ugly. Think creatively, stick to references: the idea is yours, its decisions come from what you studied (a composition, a section idea, an interaction), never a reference's colours or surface.
+Your own cooler, cleaner take on designs that are already proven: the pages people save on Dribbble, Awwwards and Godly, done better. Beautiful, familiar structure; superb craft; real pictures; smooth motion. Never chase "unique": unique is usually ugly. **Stick to the references, hard.** Once you have found ones you like that fit (the same kind of product, the audience, the look asked for), follow them closely: their layout, section ideas, composition, proportions, spacing, type scale, motion and feel. Your craft is in choosing them well, combining them section by section and making the result this product's own (its content, its pictures, its brand colours when it has them). Never drift back to a generic layout because it is easier. Say why each reference fits, and show the user which section follows which one.
 
 ## The bar
 1. Build the page a strong studio would ship this year for this subject. It says plainly what it is, shows the real thing on every screen, and sets it big.

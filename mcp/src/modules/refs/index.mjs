@@ -447,7 +447,7 @@ export function register(server, ctx) {
       description:
         "Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. " +
         "Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). " +
-        'Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, …] })',
+        'Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render", fits: "the same kind of product (a sales CRM) for the same buyers, and the calm dark look the user asked for" }, …] })',
       inputSchema: {
         studies: z.array(z.object(STUDY_SHAPE)).min(1).max(8).optional(),
         ...Object.fromEntries(Object.entries(STUDY_SHAPE).map(([k, v]) => [k, v.optional()])),
@@ -455,7 +455,7 @@ export function register(server, ctx) {
     },
     safe(async (args) => {
       const list = args.studies?.length ? args.studies : args.shot ? [args] : [];
-      if (!list.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave }, …].", true);
+      if (!list.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave, fits }, …].", true);
       const lines = [];
       let bad = 0;
       for (const n of list) {
@@ -487,6 +487,9 @@ export function register(server, ctx) {
             weak.map((f) => `${f}: ${!n[f] ? "missing" : VAGUE.test(n[f].trim()) ? `"${n[f].trim()}" is a vibe, not a fact` : `"${n[f].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f]}`).join(" · ") +
             (concrete < 3 ? `${weak.length ? " · " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : ""),
         };
+      // A reference the build will follow closely needs the reason it fits, in words the user can check.
+      if (n.role !== "before" && (!n.fits || n.fits.trim().length < 15 || VAGUE.test(n.fits.trim())))
+        return { ok: false, msg: `${n.shot}: fits: say why this reference fits this brief (the same kind of product, the audience, the look asked for, a layout that suits the content), in a sentence. The build follows it closely and the user sees why.` };
       const note = `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · density: ${n.density} · detail: ${n.detail} · leave: ${n.leave}`;
       const surface = st0.task?.surface;
       const studyRec = { ...n, at: new Date().toISOString(), surface, onSurface: onSurface(item), pass: passOf(key), role: n.role };
@@ -497,7 +500,7 @@ export function register(server, ctx) {
         // terms: what the reference is about (title, address, notes), so the competitor gate can tell whether it is the same product type.
         const terms = [item.title, item.url, item.designer, n.take, n.layout].filter(Boolean).join(" ").slice(0, 600);
         // take and motion travel on: builders get what was taken from where, the critic how the page is meant to behave.
-        s.task.refs.studied.push({ key, role: n.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n.take).slice(0, 240), motion: n.motion ? String(n.motion).slice(0, 240) : undefined, source: item.url || item.title || key, at: new Date().toISOString() });
+        s.task.refs.studied.push({ key, role: n.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n.take).slice(0, 240), motion: n.motion ? String(n.motion).slice(0, 240) : undefined, fits: n.fits ? String(n.fits).slice(0, 240) : undefined, layout: String(n.layout).slice(0, 300), detail: String(n.detail).slice(0, 200), type: String(n.type).slice(0, 160), color: String(n.color).slice(0, 160), image: item.images?.[0] || item.image || undefined, source: item.url || item.title || key, at: new Date().toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -533,4 +536,5 @@ const STUDY_SHAPE = {
   take: z.string().describe("What this reference lends the design"),
   leave: z.string().describe("What not to copy / Dribbble fiction"),
   motion: z.string().optional().describe("How it moves and behaves: what hover, scroll, click or load does (an accordion gallery that widens the hovered panel, cards that lift, a marquee). Stills can't show this, so write it down"),
+  fits: z.string().optional().describe("Why this one fits THIS brief: the same kind of product, the same audience, the look the user asked for, a layout that suits the content. Required: the user sees it, and the build follows this reference closely"),
 };
