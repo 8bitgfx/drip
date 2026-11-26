@@ -10,7 +10,7 @@ chosen recordings sound produced.
 | Tool | Does |
 |---|---|
 | `motion_music` search | Whole licensed tracks (Jamendo and others via Openverse), each with its licence; never ND (no cutting to picture) |
-| `motion_music` analyse | Measures a track: BPM, beat grid, bars, sections by energy, builds, DROPS, quiet bars; a chart; how far the storyboard's beats sit from bar lines |
+| `motion_music` analyse | Measures a track: BPM, beat grid, bars, sections by energy, builds, DROPS, quiet bars; the energy bar by bar as text (8 bars a line, with builds, drops and your beats marked); how far the storyboard's beats sit from bar lines |
 | `motion_music` use | Copies the track into `<film>/sound/` with its licence; `from` starts it later so its drop meets your moment |
 | `motion_music` generate | FALLBACK only when the user asks (quote them): Eleven Music with a composition plan timed to the storyboard. Suno has no public API; a track made there comes in with `use` |
 | `motion_sound` | Search CC0 recordings and presets (sfx.akalan.dev incl. SFX Kit, foleykit, Kenney, Openverse/Freesound) with sync points; record cues placed so each sound's sync point lands on its moment |

@@ -98,3 +98,31 @@ test("platform videos go through yt-dlp; vimeo pages become their player URL", a
   assert.equal(fetchableUrl("https://vimeo.com/channels/staffpicks/22439234"), "https://player.vimeo.com/video/22439234");
   assert.equal(fetchableUrl("https://x.com/a/status/1"), "https://x.com/a/status/1");
 });
+
+test("a post's description is cleaned for choosing a reference: no links, no follow-us lines, cut at a sentence", async () => {
+  const { cleanAbout } = await import("../src/modules/motion/refsources.mjs");
+  const raw = "Introducing Cursor 2.0.\nOur first coding model.\n\nLearn more: https://cursor.com/blog\nFollow us on X\n___\nFind us on X\n#ai #launch";
+  assert.equal(cleanAbout(raw), "Introducing Cursor 2.0. Our first coding model.");
+  const long = `${"A sentence about the film. ".repeat(20)}`;
+  assert.ok(cleanAbout(long, 100).length <= 100 && cleanAbout(long, 100).endsWith("."));
+});
+
+test("each reference reads as words: kind, title, facts, what its maker says, where to watch", async () => {
+  const { refText } = await import("../src/modules/motion/refinfo.mjs");
+  const t = refText({ from: "kisto", master: "Tomas Puerta", title: "SaaS motion for Google", creator: "Tomas Puerta", aspect: 0.56, posted: "2026-06", views: 12400, about: "A product film.", tags: ["mograph"], url: "https://kisto.app/i/x", video: "https://cdn.kisto.app/x.webm" }, 3);
+  assert.match(t, /^3\. \[MASTER: Tomas Puerta\] SaaS motion for Google · vertical · posted 2026-06 · 12k views/);
+  assert.match(t, /says: "A product film\."/);
+  assert.match(t, /video: https:\/\/cdn\.kisto\.app\/x\.webm/);
+  assert.doesNotMatch(t, /by Tomas Puerta/, "the master's name isn't repeated");
+});
+
+test("music reads as text: energy bar by bar with builds, drops and storyboard beats", async () => {
+  const { energyLines } = await import("../src/modules/motion/music.mjs");
+  const a = { duration: 40, bars: Array.from({ length: 20 }, (_, i) => i * 2), barEnergy: Array.from({ length: 20 }, (_, i) => (i < 8 ? -30 + i : -12)), sections: [{ from: 0, to: 16, level: -25 }, { from: 16, to: 40, level: -12 }], builds: [[10, 16]], drops: [16], quiet: [] };
+  const lines = energyLines(a, { beats: [16.2] }).split("\n");
+  assert.equal(lines.length, 3);
+  assert.match(lines[0], /^\s*0:00\.0  ▁/);
+  assert.match(lines[1], /DROP 0:16\.0/);
+  assert.match(lines[1], /beat@16\.2s/);
+  assert.match(lines[0], /build 0:10\.0-0:16\.0/);
+});

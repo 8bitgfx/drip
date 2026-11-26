@@ -160,33 +160,33 @@ export async function analyseMusic(source, { config } = {}) {
   }
 }
 
-/** The track as a picture: the energy curve, bars, sections, builds and drops, and the storyboard's beats on top. */
-export function musicChartHtml(a, { beats = [] } = {}) {
-  const W = 1600;
-  const H = 300;
-  const step = Math.max(1, Math.round(a.fps / 20)); // ~20 points a second
-  const env = [];
-  for (let i = 0; i < a.rms.length; i += step) env.push(+a.rms.slice(i, i + step).reduce((m, v) => Math.max(m, v), 0).toFixed(4));
-  const data = { W, H, D: a.duration, env, bars: a.bars, sections: a.sections, drops: a.drops, builds: a.builds, beats, bpm: a.bpm };
-  return `<!doctype html><meta charset=utf-8><style>html,body{margin:0;background:#101012}</style><canvas id=c width=${W} height=${H}></canvas><script>
-const D = ${JSON.stringify(data)};
-const x = document.getElementById('c').getContext('2d');
-const L = 50, R = D.W - 20, T = 40, B = D.H - 40, X = (t) => L + (t / D.D) * (R - L);
-x.fillStyle = '#101012'; x.fillRect(0, 0, D.W, D.H);
-x.fillStyle = '#eee'; x.font = '600 14px system-ui';
-x.fillText('MUSIC  ' + D.bpm + ' BPM · bars (grey) · sections (bands) · builds (amber) · drops (red) · storyboard beats (white dashes)', 16, 24);
-D.sections.forEach((s, i) => { x.fillStyle = i % 2 ? '#1b1b22' : '#16161c'; x.fillRect(X(s.from), T, X(s.to) - X(s.from), B - T); x.fillStyle = '#777'; x.font = '11px system-ui'; x.fillText(s.level + ' dB', X(s.from) + 4, T + 12); });
-D.builds.forEach(([a, b]) => { const g = x.createLinearGradient(X(a), 0, X(b), 0); g.addColorStop(0, '#f5b80000'); g.addColorStop(1, '#f5b80066'); x.fillStyle = g; x.fillRect(X(a), T, X(b) - X(a), B - T); });
-x.fillStyle = '#2a2a33'; D.bars.forEach((b) => x.fillRect(X(b), T, 1, B - T));
-const peak = Math.max(...D.env, 1e-4), mid = (T + B) / 2;
-x.fillStyle = '#6ea8ff';
-D.env.forEach((v, i) => { const t = (i / D.env.length) * D.D, h = (v / peak) * (B - T) * 0.48; x.fillRect(X(t), mid - h, Math.max(1, (R - L) / D.env.length), h * 2); });
-x.fillStyle = '#ff3b3b'; D.drops.forEach((d) => { x.fillRect(X(d) - 1, T - 6, 3, B - T + 12); x.font = '12px system-ui'; x.fillText('drop', X(d) + 4, T - 8); });
-x.setLineDash([5, 4]); x.strokeStyle = '#fff'; D.beats.forEach((b) => { x.beginPath(); x.moveTo(X(b), T); x.lineTo(X(b), B); x.stroke(); }); x.setLineDash([]);
-x.fillStyle = '#888'; x.font = '12px ui-monospace, monospace';
-for (let t = 0; t <= D.D; t += D.D > 60 ? 10 : 5) x.fillText(Math.floor(t / 60) + ':' + String(Math.round(t % 60)).padStart(2, '0'), X(t) - 12, D.H - 18);
-window.ready = Promise.resolve();
-</script>`;
+/**
+ * The track's shape as text, 8 bars a line: each bar's loudness as a block (▁ quiet … █ loudest), then what happens in
+ * those bars (section start, build, drop, quiet, a storyboard beat). Numbers the agent can cut to, no picture needed.
+ */
+export function energyLines(a, { beats = [], per = 8 } = {}) {
+  const e = a.barEnergy || [];
+  if (!a.bars?.length || !e.length) return "";
+  const lo = Math.min(...e);
+  const hi = Math.max(...e);
+  const blocks = "▁▂▃▄▅▆▇█";
+  const bar = (v) => blocks[Math.min(7, Math.round(((v - lo) / Math.max(1e-6, hi - lo)) * 7))];
+  const mm = (t) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, "0")}`;
+  const out = [];
+  for (let i = 0; i < a.bars.length; i += per) {
+    const from = a.bars[i];
+    const to = a.bars[i + per] ?? a.duration;
+    const inside = (t) => t >= from && t < to;
+    const notes = [
+      ...a.sections.filter((s) => i && inside(s.from)).map((s) => `section ${mm(s.from)} (${s.level} dB)`),
+      ...a.builds.filter(([x]) => inside(x)).map(([x, y]) => `build ${mm(x)}-${mm(y)}`),
+      ...a.drops.filter(inside).map((d) => `DROP ${mm(d)}`),
+      ...(a.quiet || []).filter(inside).slice(0, 1).map((q) => `quiet from ${mm(q)}`),
+      ...beats.filter(inside).map((t) => `beat@${t}s`),
+    ];
+    out.push(`${mm(from).padStart(6)}  ${e.slice(i, i + per).map(bar).join("")}${notes.length ? `   ${notes.join(" · ")}` : ""}`);
+  }
+  return out.join("\n");
 }
 
 /** How far each storyboard beat sits from the nearest bar line (and whether the big moment meets a drop). */

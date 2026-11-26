@@ -17,7 +17,8 @@
       "why": "Model-launch film mixing UI demos with abstract gradient transitions.",
       "seconds": 117,
       "poster": "https://i.ytimg.com/vi_webp/98DcoXwGX6I/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "We’re releasing Gemini 3, our most intelligent model that helps you bring any idea to life. It’s the best model in the world for multimodal understanding and our most powerful agentic and vibe coding model yet — all built on a foundation of state-of-the-art reasoning."
     },
     {
       "brand": "Cursor",
@@ -35,7 +36,8 @@
       "why": "Dense UI choreography: panels, agents and diffs animating in sync with a calm voiceover.",
       "seconds": 64,
       "poster": "https://i.ytimg.com/vi_webp/An8IM-kPyms/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "Introducing Cursor 2.0. Our first coding model and the best way to code with agents."
     },
     {
       "brand": "Google DeepMind",
@@ -52,7 +54,8 @@
       "why": "Fast montage cut to beats with clean title cards; rhythm of generated clips.",
       "seconds": 110,
       "poster": "https://i.ytimg.com/vi_webp/3NxT1kxL1nY/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "Veo 3, Google's cutting-edge AI video generation model, is now available in paid preview via the Gemini API. First seen at Google I/O 2025, Veo 3 generates video with synchronized audio from a single prompt."
     },
     {
       "brand": "Linear",
@@ -71,7 +74,8 @@
       "why": "Linear's house style: tightly masked UI close-ups, subtle easing, sparse type.",
       "seconds": 30,
       "poster": "https://i.ytimg.com/vi_webp/6dIwFoQ0eVg/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "Plan and track your software releases directly from Linear. Linear Releases integrates with your CI/CD tools to precisely track the deployment environment, version, and status of every issue, giving team members and agents your full deployment context."
     },
     {
       "brand": "Linear",
@@ -89,7 +93,8 @@
       "why": "Feature walkthrough with narration paced to UI state changes.",
       "seconds": 254,
       "poster": "https://i.ytimg.com/vi_webp/FlDVDvzCmn0/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "With Initiatives, you can align projects with larger, strategic product efforts and monitor their progress at scale. Linear's Head of Product, Nan, walks you through the feature and how your organization can use it to plan and execute on their most important streams of work."
     },
     {
       "brand": "Vercel",
@@ -108,7 +113,8 @@
       "why": "Black-and-white launch film: prompt-to-UI reveals and precise, monochrome type.",
       "seconds": 48,
       "poster": "https://i.ytimg.com/vi/By9wCB9IZp0/maxresdefault.jpg",
-      "study": "moves"
+      "study": "moves",
+      "about": "v0 is a generative user interface system by Vercel powered by AI. It generates copy-and-paste friendly React code based on shadcn/ui and Tailwind CSS that people can use in their projects."
     },
     {
       "brand": "Notion",
@@ -127,7 +133,8 @@
       "why": "Illustrated, character-driven feature film with hand-drawn motion language.",
       "seconds": 29,
       "poster": "https://i.ytimg.com/vi_webp/a12S4ap6bgw/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "Bring your best ideas, boldest resolutions, and now a custom self-portrait to life in Notion, the workspace shaped by you. Create & share your portrait →"
     },
     {
       "brand": "Notion",
@@ -145,7 +152,8 @@
       "why": "Brand spot using Notion's line-drawing style; paper-like transitions and pacing.",
       "seconds": 30,
       "poster": "https://i.ytimg.com/vi_webp/RqC_B-IbVzk/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "AIを搭載したNotionワークスペースで、アイデアを行動に移しましょう。 今すぐ始めよう："
     },
     {
       "brand": "Notion",
@@ -164,7 +172,8 @@
       "why": "Illustration blended with UI choreography to introduce an agent concept.",
       "seconds": 90,
       "poster": "https://i.ytimg.com/vi_webp/R1cF4T4lgI4/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "You assign the tasks. Your Agents do the work. The new Notion Agent handles manual work, like a teammate built right into Notion. Share your goals and watch your Agent work. What used to take days now takes minutes."
     },
     {
       "brand": "Raycast",
@@ -183,7 +192,8 @@
       "why": "Teaser with glossy, high-contrast UI motion and tight kinetic type.",
       "seconds": 39,
       "poster": "https://i.ytimg.com/vi_webp/Mi173xGb0ZA/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "It's our biggest update yet, and we think you'll love it."
     },
     {
       "brand": "Raycast",
@@ -201,7 +211,8 @@
       "why": "Release film following the teaser; shows how a teaser resolves into product reveal.",
       "seconds": 161,
       "poster": "https://i.ytimg.com/vi/uJ70iGerYzE/maxresdefault.jpg",
-      "study": "moves"
+      "study": "moves",
+      "about": ""
     },
     {
       "brand": "Runway",
@@ -218,7 +229,8 @@
       "why": "Footage-forward launch; clip sequencing and minimal title treatments.",
       "seconds": 142,
       "poster": "https://i.ytimg.com/vi_webp/nByslCkykj8/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "Gen-3 Alpha Text to Video is now available to everyone. A new frontier for high-fidelity, fast and controllable video generation."
     },
     {
       "brand": "ElevenLabs",
@@ -235,7 +247,8 @@
       "why": "Social launch film; audio-reactive type and waveform motion.",
       "seconds": 106,
       "poster": "https://pbs.twimg.com/amplify_video_thumb/2019040324606107648/img/mJJLGMInGYSOE2tg.jpg?name=orig",
-      "study": "moves"
+      "study": "moves",
+      "about": "We raised $500M at an $11B valuation to transform how people interact with technology."
     },
     {
       "brand": "Cognition",
@@ -253,7 +266,8 @@
       "why": "Agent-in-a-workspace demo; shows how a long process is edited into legible beats.",
       "seconds": 109,
       "poster": "https://pbs.twimg.com/ext_tw_video_thumb/1767545515930009601/pu/img/mjItmVhDLslkPZOp.jpg?name=orig",
-      "study": "moves"
+      "study": "moves",
+      "about": "Today we're excited to introduce Devin, the first AI software engineer. Devin is the new state-of-the-art on the SWE-Bench coding benchmark, has successfully passed practical engineering interviews from leading AI companies, and has even completed real jobs on Upwork. Devin is"
     },
     {
       "brand": "Lovable",
@@ -271,7 +285,8 @@
       "why": "Feature-list launch with cursor and multiplayer presence choreography.",
       "seconds": 80,
       "poster": "https://i.ytimg.com/vi/xDwR1_vrIg8/maxresdefault.jpg",
-      "study": "moves"
+      "study": "moves",
+      "about": "Lovable lets build you apps and websites by chatting with AI. Today, we're making Lovable smarter with a chat mode agent, adding multiplayer so you can collaborate with your team, and making your projects more secure with security scanning."
     },
     {
       "brand": "Replit",
@@ -288,7 +303,8 @@
       "why": "Agent launch with UI zooms and concise feature captions.",
       "seconds": 139,
       "poster": "https://i.ytimg.com/vi_webp/nr6qrQTv7QI/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "Introducing Agent 3, our most autonomous Agent yet 🔥 Tests & fixes the App it builds automatically using a browser- checking buttons, forms, links and APIs. Runs up to 200 mins autonomously as it is building, testing and fixing your app- eliminating the need for manual oversight."
     },
     {
       "brand": "Ramp",
@@ -306,7 +322,8 @@
       "why": "Fast kinetic-type and UI explainer with crisp transitions.",
       "seconds": 158,
       "poster": "https://i.ytimg.com/vi_webp/yazRO0jRTag/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": "Welcome to the product tour for Ramp, the first finance automation platform designed to save you time and money. In this video, we'll showcase how Ramp combines the power of expense management, procurement, accounting automation, corporate cards, and more in one simple, scalable spend management solution."
     },
     {
       "brand": "Slack",
@@ -323,7 +340,8 @@
       "why": "Playful character animation with clear before/after contrast structure.",
       "seconds": 70,
       "poster": "https://i.ytimg.com/vi/SQsA2oiD_xA/maxresdefault.jpg",
-      "study": "moves"
+      "study": "moves",
+      "about": "Email had its time. There’s a new way to work—to get more done with less effort. Meet Slack."
     },
     {
       "brand": "Rive",
@@ -340,7 +358,8 @@
       "why": "Product announcement from an animation-tool maker; expect polished interactive motion.",
       "seconds": 127,
       "poster": "https://i.ytimg.com/vi_webp/inNaaPYsRCU/maxresdefault.webp",
-      "study": "moves"
+      "study": "moves",
+      "about": ""
     },
     {
       "brand": "Superhuman",
@@ -357,7 +376,8 @@
       "why": "Keyboard-driven UI demo timed to the speed claim.",
       "seconds": 97,
       "poster": "https://i.ytimg.com/vi/hyHvZ-mUpiU/maxresdefault.jpg",
-      "study": "moves"
+      "study": "moves",
+      "about": "Superhuman is the fastest email experience ever made. Fly through your inbox twice as fast as before ⚡️"
     },
     {
       "brand": "Anthropic",
@@ -375,7 +395,8 @@
       "why": "Screen-recording demo with cursor choreography and cuts that keep one idea per shot.",
       "seconds": 183,
       "poster": "https://i.ytimg.com/vi_webp/vH2f7cjXjKI/maxresdefault.webp",
-      "study": "story"
+      "study": "story",
+      "about": "With the upgraded Claude 3.5 Sonnet, we’re introducing a new capability in beta: computer use. Developers can now direct Claude to use computers the way people do—by looking at a screen, moving a cursor, clicking, and typing text."
     },
     {
       "brand": "Anthropic",
@@ -394,7 +415,8 @@
       "why": "Terminal-first product film: how a text-only UI is staged, typed and paced to read as clearly as a polished interface.",
       "seconds": 234,
       "poster": "https://i.ytimg.com/vi/AJpK3YTTKZ4/maxresdefault.jpg",
-      "study": "story"
+      "study": "story",
+      "about": "We're launching Claude Code, our agentic coding tool, in a limited research preview. Claude Code lets developers delegate substantial engineering tasks to Claude directly from their terminal. Claude Code has already become indispensable for our team."
     },
     {
       "brand": "Google DeepMind",
@@ -412,7 +434,8 @@
       "why": "Single-take camera feel with minimal UI overlays; restraint in annotation timing.",
       "seconds": 137,
       "poster": "https://i.ytimg.com/vi_webp/nXVvvRhiGjI/maxresdefault.webp",
-      "study": "story"
+      "study": "story",
+      "about": "Introducing Project Astra. We created a demo in which a tester interacts with a prototype of AI agents supported by our multimodal foundation model, Gemini. There are two continuous takes: one with the prototype running on a Google Pixel phone and another on a prototype glasses device."
     },
     {
       "brand": "Perplexity",
@@ -431,7 +454,8 @@
       "why": "Brand spot built on search-bar and answer-card motion; type-led storytelling.",
       "seconds": 69,
       "poster": "https://i.ytimg.com/vi/hrggcbweDjc/maxresdefault.jpg",
-      "study": "story"
+      "study": "story",
+      "about": "Perplexity was founded on the belief that searching for information should be a straightforward, efficient experience, free from the influence of advertising-driven models."
     },
     {
       "brand": "Cursor",
@@ -449,7 +473,8 @@
       "why": "Agent-first interface reveal; how new layout is introduced via zooms and focus pulls.",
       "seconds": 90,
       "poster": "https://i.ytimg.com/vi_webp/UxbULt_hCdA/maxresdefault.webp",
-      "study": "story"
+      "study": "story",
+      "about": "We’re introducing Cursor 3. It is simpler, more powerful, and built for a world where all code is written by agents, while keeping the depth of a development environment."
     },
     {
       "brand": "GitHub",
@@ -469,7 +494,8 @@
       "why": "Studio-made (Buck) explainer: metaphor-led illustration, smooth shape morphs and transitions.",
       "seconds": 163,
       "poster": "https://i.ytimg.com/vi_webp/pBy1zgt0XPc/maxresdefault.webp",
-      "study": "story"
+      "study": "story",
+      "about": "So, what is GitHub? It’s where over 100 million developers create, share, and ship the best code possible. It’s a place for anyone, from anywhere, to build anything—it’s where the world builds software."
     },
     {
       "brand": "bolt.new",
@@ -487,7 +513,8 @@
       "why": "Social launch cut for an AI app builder; compressed UI demo choreography.",
       "seconds": 210,
       "poster": "https://pbs.twimg.com/media/G2Gq0TvXwAAMLZD.jpg?name=small",
-      "study": "story"
+      "study": "story",
+      "about": "Today vibe coding goes pro. Introducing Bolt v2: → World's best agents (Claude Code, Codex) → Built in backend (hosting, DB, storage,...) → No error loops, no setup nightmares Now anyone can build without boundaries."
     },
     {
       "brand": "Lovable",
@@ -506,7 +533,8 @@
       "why": "Gradient-forward brand look with prompt-to-app UI transitions.",
       "seconds": 113,
       "poster": "https://i.ytimg.com/vi_webp/kcOrTOT7Kko/maxresdefault.webp",
-      "study": "story"
+      "study": "story",
+      "about": "Anyone can now build apps with complex AI and backend functionality, just by prompting. 100k+ new ideas, products, and prototypes get built on Lovable every day. Today, we're redefining what's possible. With our new Lovable AI, you can add AI functionality to your apps seamlessly."
     },
     {
       "brand": "Supabase",
@@ -524,7 +552,8 @@
       "why": "Launch-week wrap film with branded type reveals.",
       "seconds": 48,
       "poster": "https://i.ytimg.com/vi/e6a4yC3muew/hq720_2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYOCAvKH8wDw==&rs=AOn4CLCBkVW4Qz78TbI2U0F6-0M99DN8Og",
-      "study": "story"
+      "study": "story",
+      "about": "👇 Learn more about Supabase 👇"
     }
   ]
 }

@@ -76,6 +76,8 @@ export async function fetchSiteVideo(url, { timeoutMs = 6 * 60e3 } = {}) {
   const args = [
     "--no-progress",
     "--no-warnings",
+    "--encoding",
+    "utf-8",
     "--playlist-items",
     "1",
     "--max-filesize",

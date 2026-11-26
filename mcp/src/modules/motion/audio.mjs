@@ -6,14 +6,13 @@ import path from "node:path";
 import { z } from "zod";
 import { get } from "../../core/http.mjs";
 import { getKey, logUsage } from "../../core/keys.mjs";
-import { imageBlock, textBlock } from "../../core/images.mjs";
+import { textBlock } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { fmtT } from "./capture.mjs";
-import { alignToMusic, analyseMusic, musicChartHtml } from "./music.mjs";
+import { alignToMusic, analyseMusic, energyLines } from "./music.mjs";
 import { checkCues, loadCatalogue, motionFit, musicQueries, placeCue, searchCatalogue, searchJamendo, searchOpenverse } from "./sound.mjs";
-import { drawPage } from "./trace.mjs";
 import { relaxQuery } from "./refsources.mjs";
 
 /** The film's folder: where the storyboard says the composition lives, else film/. */
@@ -171,7 +170,6 @@ export function registerAudio(server, ctx) {
         const story = (task?.motion?.storyboard?.beats || []).slice(1).map((b) => b.at + (task?.motion?.sound?.music?.from ? 0 : 0));
         const shift = task?.motion?.sound?.music?.source === source ? task.motion.sound.music.from || 0 : 0;
         const shifted = { ...a, bars: a.bars.map((b) => b - shift), beats: a.beats.map((b) => b - shift), drops: a.drops.map((d) => d - shift) };
-        const chart = await drawPage(musicChartHtml(a, { beats: story.map((t) => t + shift) }), 1600, 300, config);
         const align = story.length ? alignToMusic(story, shifted) : [];
         updateState((st) => {
           if (st.task) {
@@ -188,9 +186,9 @@ export function registerAudio(server, ctx) {
               (align.length
                 ? `Storyboard vs music${shift ? ` (track starts at ${shift}s)` : ""}: ${align.map((x) => `${x.at}s → bar ${x.bar.toFixed(2)}s (${x.offBarMs > 0 ? "+" : ""}${x.offBarMs} ms)`).join("; ")}. Move beat boundaries onto bar lines (within ~40 ms), or start the track later with from.\n`
                 : "No storyboard yet: build its beats on these bars (scene changes on bar lines, the big transformation on the drop).\n") +
+              `\nENERGY BY BAR (8 bars a line, ▁ quiet … █ loudest; track time${story.length ? ", storyboard beats as beat@" : ""}):\n${energyLines(a, { beats: story.map((t) => t + shift) })}\n\n` +
               "WORKING WITH IT: the hook lands on the first downbeat; a build is where things gather or tension rises; the drop is the reveal; quiet bars are where the picture rests. Cut a track to length on bar lines; to land a drop on your moment, start the track later (from = drop - moment).",
           ),
-          imageBlock(chart, "image/png"),
         ]);
       }
       // use

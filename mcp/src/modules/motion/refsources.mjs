@@ -144,6 +144,8 @@ const kistoItem = (it) => ({
   video: it.previewUrl || null,
   seconds: it.durationSeconds,
   tags: [...(it.disciplines || []), ...(it.tags || []).slice(0, 5)],
+  aspect: it.aspectRatio || null,
+  posted: it.publishedAt ? String(it.publishedAt).slice(0, 7) : null,
 });
 
 export async function searchKisto(q, limit) {
@@ -229,5 +231,27 @@ export function searchLaunches(queries, { per = 8, films = loadLaunches() } = {}
   const fit = scored.filter((x) => x.s >= 1).sort((a, b) => b.s - a.s);
   return (fit.length ? fit : LAUNCHY.test(q) ? scored : [])
     .slice(0, per)
-    .map(({ f }) => ({ from: "launch", brand: f.brand, title: `${f.brand}: ${f.title}${f.year ? ` (${f.year})` : ""}`, creator: f.brand, url: f.url, video: f.url, poster: f.poster || null, seconds: f.seconds, tags: f.tags || [], why: f.study === "story" ? `${f.why || ""} (mostly on camera: study it for the story, not the moves)`.trim() : f.why, launch: true }));
+    .map(({ f }) => ({ from: "launch", brand: f.brand, title: `${f.brand}: ${f.title}${f.year ? ` (${f.year})` : ""}`, creator: f.brand, url: f.url, video: f.url, poster: f.poster || null, seconds: f.seconds, about: f.about || null, tags: f.tags || [], why: f.study === "story" ? `${f.why || ""} (mostly on camera: study it for the story, not the moves)`.trim() : f.why, launch: true }));
+}
+
+/**
+ * A post's own description, made readable for choosing a reference: no links, hashtag runs or "follow us" lines,
+ * whitespace collapsed, cut at a sentence near `max` characters.
+ */
+export function cleanAbout(s, max = 320) {
+  const lines = String(s || "")
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((l) => l.replace(/https?:\/\/\S+|\b[\w-]+\.(com|io|app|dev|so|co|ai)\/\S*/gi, "").replace(/(^|\s)#\w+/g, "").replace(/[ \t]+/g, " ").trim())
+    .filter((l) => l && !/^(follow|subscribe|download|like us|visit|learn more|try (it|raycast|now)|sign up|join|website|docs|get started|more videos|connect with|read (our|more)|check out|see (what|everything)|find us|add us|technical deep dive|want to see)\b/i.test(l) && !/^[:\-–—_|•·\s]*$/.test(l) && !/:\s*$/.test(l));
+  let t = lines
+    .join(" ")
+    .replace(/_{2,}.*$/, "")
+    .replace(/\s*\b(try it( now)?|learn more|read more|sign up)( (at|here|on))?\s*$/i, "").replace(/\s+([.,!?])/g, "$1").replace(/\s{2,}/g, " ").trim();
+  if (t.length > max) {
+    const cut = t.slice(0, max);
+    const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+    t = end > max * 0.5 ? cut.slice(0, end + 1) : `${cut.replace(/\s+\S*$/, "")}…`;
+  }
+  return t;
 }
