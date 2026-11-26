@@ -173,7 +173,7 @@ export async function opticalCenter(buf, { detail = 0.06, config } = {}) {
 }
 
 /** A numbered grid of images, laid out and encoded by the browser. Returns a JPEG buffer. */
-export async function sheetInBrowser(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, fit = "cover", quality = 78, config } = {}) {
+export async function sheetInBrowser(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, labels = null, fit = "cover", quality = 78, config } = {}) {
   if (!workDir) workDir = fs.mkdtempSync(path.join(os.tmpdir(), "drip-img-"));
   const id = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
   const names = buffers.map((b, i) => {
@@ -186,7 +186,10 @@ export async function sheetInBrowser(buffers, { cols = 6, tileW = 300, tileH = 2
   const W = cols * tileW + (cols + 1) * gap;
   const H = rows * tileH + (rows + 1) * gap;
   const cells = names
-    .map((n, i) => `<div class=c>${n ? `<img src="${n}">` : ""}<b>${first + i}</b></div>`)
+    .map((n, i) => {
+      const label = labels ? labels[i] : first + i; // labels: one per tile; null leaves a tile unnumbered
+      return `<div class=c>${n ? `<img src="${n}">` : ""}${label == null ? "" : `<b>${label}</b>`}</div>`;
+    })
     .join("");
   fs.writeFileSync(
     path.join(workDir, `${id}.html`),

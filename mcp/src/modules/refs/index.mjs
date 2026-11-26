@@ -13,7 +13,7 @@ import { capture, formatAudit, formatBrand } from "../../core/cdp.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import * as dribbble from "./dribbble.mjs";
-import { mixNote } from "../inspire/contract.mjs";
+import { hostOf, mixNote } from "../inspire/contract.mjs";
 
 const NEXT_STUDY =
   "NEXT: the sheet is only for choosing. refs_pick the 2-5 that solve THIS brief best (use the tagged numbers, e.g. \"L3-7\"; one reason each), " +
@@ -249,7 +249,7 @@ export function register(server, ctx) {
     {
       title: "Study shipped sites",
       description:
-        "Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. " +
+        "Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 on ONE numbered sheet (a row per site, like refs_gallery; the numbers work in refs_pick, refs_view, refs_study), with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. " +
         "The REALITY pass: real type sizes, real density, at real scale. Take the idea from galleries and Dribbble (refs_gallery, refs_tag), the sizes from here. Pick sites known for their design, in the category or a notch above it; never docs, wikis or GitHub pages. " +
         "Waits for app content to load (network idle) and warns when the shot still shows skeletons. Also reads each site's brand as shipped: logo (img src or inline SVG), fonts, colours. " +
         "For a REDESIGN, pass the current site with before: true first: it becomes the 'before' and its logo, fonts and colours go into the brief. " +
@@ -301,22 +301,33 @@ export function register(server, ctx) {
         }),
       );
       const out = [];
+      const ok = results.filter((r) => r.ok);
+      // A numbered listing, like refs_gallery: the numbers work in refs_pick, refs_view, refs_study and board_add.
+      const tag = ok.length ? rememberListing(ok.map((r) => lookup(r.key)).filter(Boolean), { kind: "site", query: "", tag: "sites", category: "web-design" }) : null;
       for (const r of results) {
         if (!r.ok) {
           out.push(textBlock(`${r.url}: could not open (${r.err}).`));
           continue;
         }
-        out.push(textBlock(`=== ${r.audit.title || r.url} (${r.key}) · ${r.slices.length} of ${r.total} screens${before && r === results[0] ? " · THE BEFORE" : ""}\n${formatAudit(r.audit, { blockers: [], warnings: [] })}\n${formatBrand(r.audit.brand)}`));
-        // One small sheet per site, not every screen full size: each image stays in the director's context for the whole
-        // task. The full screens are on disk (refs_view / refs_zoom when a detail matters).
-        if (r.slices.length === 1) out.push(imageBlock(await toJpeg(r.slices[0].buf, 960, 960, 80)));
-        else if (r.slices.length) {
-          const cols = Math.min(r.slices.length, 2);
-          const tileW = Math.floor(960 / cols);
-          out.push(imageBlock(await contactSheet(r.slices.map((s) => s.buf), { cols, tileW, tileH: Math.round(tileW * 0.625), fit: "contain", gap: 6 })));
-        }
+        const n = ok.indexOf(r) + 1;
+        out.push(textBlock(`=== ${tag}-${n}. ${r.audit.title || r.url} (${r.url}) · ${r.slices.length} of ${r.total} screens${before && r === results[0] ? " · THE BEFORE" : ""}\n${formatAudit(r.audit, { blockers: [], warnings: [] })}\n${formatBrand(r.audit.brand)}`));
       }
-      const ok = results.filter((r) => r.ok);
+      // ONE sheet for every site, one row each (its first screens side by side), numbered like a gallery listing. Every
+      // image stays in the director's context for the whole task; the full screens are on disk for refs_view / refs_zoom.
+      if (ok.length) {
+        const cols = Math.max(...ok.map((r) => r.slices.length), 1);
+        const tileW = Math.min(480, Math.floor(1000 / cols));
+        const tiles = [];
+        const labels = [];
+        ok.forEach((r, i) => {
+          for (let c = 0; c < cols; c++) {
+            tiles.push(r.slices[c]?.buf || Buffer.alloc(0));
+            labels.push(c === 0 ? i + 1 : null);
+          }
+        });
+        out.push(textBlock(`Sheet ${tag}: one row per site, its screens left to right from the top (${ok.map((r, i) => `${i + 1} ${hostOf(r.url)}`).join(", ")}).`));
+        out.push(imageBlock(await contactSheet(tiles, { cols, tileW, tileH: Math.round(tileW * 0.625), labels, fit: "contain", gap: 6 })));
+      }
       if (before && results[0]?.ok) {
         const b = results[0];
         updateState((st) => {
@@ -328,7 +339,7 @@ export function register(server, ctx) {
       if (ok.length)
         out.push(
           textBlock(
-            `NEXT: refs_study ${ok.length > 1 ? `all ${ok.length} in one call` : "it"} with the measured numbers (shot = ${ok.map((r) => `"${r.url}"`).join(", ")}): ` +
+            `NEXT: refs_study ${ok.length > 1 ? `the ones that fit, all in one call` : "it"} with the measured numbers (shot = ${ok.map((r, i) => `"${tag}-${i + 1}"`).join(", ")}; refs_view one for its screens full size): ` +
               "the hero's h1 px and column span, the picture's share of the first screen, what each section shows. Note what is bigger and emptier than you would dare.",
           ),
         );

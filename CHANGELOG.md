@@ -2,6 +2,10 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.9.6: shipped sites on one sheet
+- `refs_site` returns ONE numbered sheet for all its sites (a row per site, its first screens left to right), registered as a listing like `refs_gallery`: `L19-2` works in refs_pick, refs_view, refs_study and board_add. One image in the director's context instead of one per site, and the sites side by side to compare; the full screens stay on disk for refs_view / refs_zoom.
+- `contactSheet` takes `labels` (one per tile, null for none), so a row can carry one number.
+
 ## 0.9.5: the repo reorganised
 - One home for everything: `content/` holds rules, examples, data, kit and the Film viewer; the workflow module has its own folder; host packages copy `content/` (the Film viewer was missing from them).
 - Shared helpers live once in `mcp/src/core` (HTML escape, slug, sha1, paths, entity decode, the local page server, the browser opener, the Chrome finder).

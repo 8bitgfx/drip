@@ -38196,7 +38196,7 @@ async function opticalCenter(buf, { detail = 0.06, config: config2 } = {}) {
   if (out.overlay) out.overlay = Buffer.from(out.overlay, "base64");
   return out;
 }
-async function sheetInBrowser(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, fit: fit2 = "cover", quality: quality2 = 78, config: config2 } = {}) {
+async function sheetInBrowser(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, labels = null, fit: fit2 = "cover", quality: quality2 = 78, config: config2 } = {}) {
   if (!workDir) workDir = fs30.mkdtempSync(path29.join(os6.tmpdir(), "drip-img-"));
   const id = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
   const names3 = buffers.map((b, i2) => {
@@ -38208,7 +38208,10 @@ async function sheetInBrowser(buffers, { cols = 6, tileW = 300, tileH = 225, gap
   const rows = Math.ceil(buffers.length / cols);
   const W = cols * tileW + (cols + 1) * gap;
   const H = rows * tileH + (rows + 1) * gap;
-  const cells = names3.map((n3, i2) => `<div class=c>${n3 ? `<img src="${n3}">` : ""}<b>${first + i2}</b></div>`).join("");
+  const cells = names3.map((n3, i2) => {
+    const label = labels ? labels[i2] : first + i2;
+    return `<div class=c>${n3 ? `<img src="${n3}">` : ""}${label == null ? "" : `<b>${label}</b>`}</div>`;
+  }).join("");
   fs30.writeFileSync(
     path29.join(workDir, `${id}.html`),
     `<!doctype html><meta charset=utf-8><style>body{margin:0;background:#f2f2f2}.g{display:grid;grid-template-columns:repeat(${cols},${tileW}px);grid-auto-rows:${tileH}px;gap:${gap}px;padding:${gap}px}.c{position:relative;background:#ddd;overflow:hidden}img{width:100%;height:100%;object-fit:${fit2};display:block}b{position:absolute;left:6px;top:6px;font:700 15px/1 system-ui;color:#fff;background:#111;padding:4px 6px;border-radius:3px}</style><div class=g>${cells}</div>`
@@ -100829,10 +100832,10 @@ function drawLabel(img, x2, y2, label, scale = 3) {
     );
   });
 }
-async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, fit: fit2 = "cover" } = {}) {
+async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap = 8, first = 1, labels = null, fit: fit2 = "cover" } = {}) {
   try {
     const { sheetInBrowser: sheetInBrowser2 } = await Promise.resolve().then(() => (init_imaging(), imaging_exports));
-    return await sheetInBrowser2(buffers, { cols, tileW, tileH, gap, first, fit: fit2 });
+    return await sheetInBrowser2(buffers, { cols, tileW, tileH, gap, first, labels, fit: fit2 });
   } catch {
   }
   const rows = Math.ceil(buffers.length / cols);
@@ -100847,7 +100850,8 @@ async function contactSheet(buffers, { cols = 6, tileW = 300, tileH = 225, gap =
     } catch {
       fillRect(sheet, x2, y2, tileW, tileH, 3435973887);
     }
-    drawLabel(sheet, x2 + 6, y2 + 6, first + i2);
+    const label = labels ? labels[i2] : first + i2;
+    if (label != null) drawLabel(sheet, x2 + 6, y2 + 6, label);
   }
   return sheet.getBuffer("image/jpeg", { quality: 78 });
 }
@@ -102172,7 +102176,7 @@ ${s2.description.slice(0, 1500)}
     "refs_site",
     {
       title: "Study shipped sites",
-      description: `Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. The REALITY pass: real type sizes, real density, at real scale. Take the idea from galleries and Dribbble (refs_gallery, refs_tag), the sizes from here. Pick sites known for their design, in the category or a notch above it; never docs, wikis or GitHub pages. Waits for app content to load (network idle) and warns when the shot still shows skeletons. Also reads each site's brand as shipped: logo (img src or inline SVG), fonts, colours. For a REDESIGN, pass the current site with before: true first: it becomes the 'before' and its logo, fonts and colours go into the brief. Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: ["https://linear.app", "https://www.figma.com"] })`,
+      description: `Opens 1-4 real, shipped websites in a headless browser and shows their first screens at 1440x900 on ONE numbered sheet (a row per site, like refs_gallery; the numbers work in refs_pick, refs_view, refs_study), with MEASURED facts: h1, h2 and body px, the number of sizes, families, the biggest picture in the first screen. The REALITY pass: real type sizes, real density, at real scale. Take the idea from galleries and Dribbble (refs_gallery, refs_tag), the sizes from here. Pick sites known for their design, in the category or a notch above it; never docs, wikis or GitHub pages. Waits for app content to load (network idle) and warns when the shot still shows skeletons. Also reads each site's brand as shipped: logo (img src or inline SVG), fonts, colours. For a REDESIGN, pass the current site with before: true first: it becomes the 'before' and its logo, fonts and colours go into the brief. Counts as viewed and as a real example of the surface; then refs_study them (shot = the url). Example: refs_site({ urls: ["https://linear.app", "https://www.figma.com"] })`,
       inputSchema: {
         urls: external_exports.array(external_exports.string()).min(1).max(4),
         screens: external_exports.number().int().min(1).max(4).optional().describe("Screens per site from the top (default 2)"),
@@ -102218,22 +102222,32 @@ ${s2.description.slice(0, 1500)}
         })
       );
       const out = [];
+      const ok = results.filter((r2) => r2.ok);
+      const tag = ok.length ? rememberListing(ok.map((r2) => lookup(r2.key)).filter(Boolean), { kind: "site", query: "", tag: "sites", category: "web-design" }) : null;
       for (const r2 of results) {
         if (!r2.ok) {
           out.push(textBlock(`${r2.url}: could not open (${r2.err}).`));
           continue;
         }
-        out.push(textBlock(`=== ${r2.audit.title || r2.url} (${r2.key}) \xB7 ${r2.slices.length} of ${r2.total} screens${before && r2 === results[0] ? " \xB7 THE BEFORE" : ""}
+        const n3 = ok.indexOf(r2) + 1;
+        out.push(textBlock(`=== ${tag}-${n3}. ${r2.audit.title || r2.url} (${r2.url}) \xB7 ${r2.slices.length} of ${r2.total} screens${before && r2 === results[0] ? " \xB7 THE BEFORE" : ""}
 ${formatAudit(r2.audit, { blockers: [], warnings: [] })}
 ${formatBrand(r2.audit.brand)}`));
-        if (r2.slices.length === 1) out.push(imageBlock(await toJpeg(r2.slices[0].buf, 960, 960, 80)));
-        else if (r2.slices.length) {
-          const cols = Math.min(r2.slices.length, 2);
-          const tileW = Math.floor(960 / cols);
-          out.push(imageBlock(await contactSheet(r2.slices.map((s2) => s2.buf), { cols, tileW, tileH: Math.round(tileW * 0.625), fit: "contain", gap: 6 })));
-        }
       }
-      const ok = results.filter((r2) => r2.ok);
+      if (ok.length) {
+        const cols = Math.max(...ok.map((r2) => r2.slices.length), 1);
+        const tileW = Math.min(480, Math.floor(1e3 / cols));
+        const tiles = [];
+        const labels = [];
+        ok.forEach((r2, i2) => {
+          for (let c3 = 0; c3 < cols; c3++) {
+            tiles.push(r2.slices[c3]?.buf || Buffer.alloc(0));
+            labels.push(c3 === 0 ? i2 + 1 : null);
+          }
+        });
+        out.push(textBlock(`Sheet ${tag}: one row per site, its screens left to right from the top (${ok.map((r2, i2) => `${i2 + 1} ${hostOf(r2.url)}`).join(", ")}).`));
+        out.push(imageBlock(await contactSheet(tiles, { cols, tileW, tileH: Math.round(tileW * 0.625), labels, fit: "contain", gap: 6 })));
+      }
       if (before && results[0]?.ok) {
         const b = results[0];
         updateState((st) => {
@@ -102245,7 +102259,7 @@ ${formatBrand(r2.audit.brand)}`));
       if (ok.length)
         out.push(
           textBlock(
-            `NEXT: refs_study ${ok.length > 1 ? `all ${ok.length} in one call` : "it"} with the measured numbers (shot = ${ok.map((r2) => `"${r2.url}"`).join(", ")}): the hero's h1 px and column span, the picture's share of the first screen, what each section shows. Note what is bigger and emptier than you would dare.`
+            `NEXT: refs_study ${ok.length > 1 ? `the ones that fit, all in one call` : "it"} with the measured numbers (shot = ${ok.map((r2, i2) => `"${tag}-${i2 + 1}"`).join(", ")}; refs_view one for its screens full size): the hero's h1 px and column span, the picture's share of the first screen, what each section shows. Note what is bigger and emptier than you would dare.`
           )
         );
       return blocks(out);
@@ -115743,7 +115757,7 @@ The page runs while this command does. Press Ctrl+C to stop.`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.5";
+var VERSION = "0.9.6";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;
