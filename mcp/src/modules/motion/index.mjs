@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import { fetchImage, imageBlock, textBlock, toJpeg } from "../../core/images.mjs";
+import { fetchImage, imageBlock, textBlock } from "../../core/images.mjs";
 import { describeRefs, refText } from "./refinfo.mjs";
 import { sheetInBrowser } from "../../core/imaging.mjs";
 import { projectDir, projectDripDir } from "../../core/paths.mjs";
@@ -165,7 +165,7 @@ export function register(server, ctx) {
       description:
         "References for a film, best first. LAUNCH FILMS (for a launch, product, AI, SaaS or app brief): official launch and brand films of AI, SaaS, developer-tool and tech brands, posted by the brands on YouTube, X or Vimeo and checked to play; picked by topic, a brand named in a query first. MASTERS: the studios and designers whose work is the bar (TimeFrame and others in Drip's vetted list), picked by the kind of film your queries describe (product launch, UI motion, brand film, explainer, kinetic type, 3D product, abstract, logo); their Dribbble video shots and Kisto pieces. " +
         "Then open search with a quality floor: Dribbble's animation category (video shots, no paid boosts, 40+ likes, best liked first) and Kisto (curated studio motion; AI-generated clips dropped). 24fps.dev (indie films made in code) only with source \"24fps\": for how something is built, never for taste. " +
-        "Returns each film as its title, what its maker says about it (from the post), facts (length, aspect, date, views, likes, palette, tags) and its playable video, next to one frame of it. Then motion_study the 1-3 that fit. Search the IDEA and the MOVES, not the product: \"product launch ui motion\", \"shape morph transition\", \"kinetic typography\". Name a designer to see their work: designers: [\"TimeFrame_motion\"]. " +
+        "Returns ONE numbered sheet (a frame of each film) and a numbered list: each film's title, what its maker says about it (from the post), facts (length, aspect, date, views, likes, palette, tags) and its playable video. Then motion_study the 1-3 that fit. Search the IDEA and the MOVES, not the product: \"product launch ui motion\", \"shape morph transition\", \"kinetic typography\". Name a designer to see their work: designers: [\"TimeFrame_motion\"]. " +
         "A brand this list doesn't have (a competitor, a brand the user names): find its official launch video with WebSearch (\"<brand> launch video\", its YouTube channel or X account) and motion_study the post URL: YouTube, X and Vimeo posts play. " +
         'Example: motion_refs({ queries: ["saas product launch", "ui motion continuous"] })',
       inputSchema: {
@@ -221,24 +221,20 @@ export function register(server, ctx) {
         if (st.task) (st.task.motion ||= { studied: [], renders: [] }).searched = [...(st.task.motion.searched || []), ...queries].slice(-20);
       });
       const masters = [...new Set(list.filter((it) => it.master && it.style).map((it) => `${it.master}: ${it.style}`))];
+      // One numbered sheet (a frame of each) and one list (what each is, in words): sheet numbers = list numbers.
+      const sheet = await sheetInBrowser(
+        keep.map((x) => x.img?.buf || null),
+        { cols: 6, tileW: 300, tileH: 169, config },
+      );
       const out = [
         textBlock(
-          `${list.length} films, best first. Each one: its words (title, what its maker says, facts), then one frame of it.${errs.length ? ` Skipped: ${errs.join("; ")}.` : ""}` +
-            (masters.length ? `\nMASTERS here and why they are the bar:\n${masters.map((m) => `- ${m}`).join("\n")}` : ""),
+          `${list.length} films, best first (sheet numbers = list numbers). Each: what it is, what its maker says, the facts.${errs.length ? ` Skipped: ${errs.join("; ")}.` : ""}` +
+            (masters.length ? `\nMASTERS here and why they are the bar:\n${masters.map((m) => `- ${m}`).join("\n")}` : "") +
+            `\n${list.map((it, i) => refText(it, i + 1)).join("\n")}\n\n` +
+            "NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble shot URL, and a role: moves / look / story / sound). A frame and a description choose WHICH to watch; only motion_study shows how it moves. For a launch, study at least one LAUNCH FILM (how a real company announced a real product) and one master's piece (craft). Prefer those; an open-search result earns its place only if it is as good. Study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off.",
         ),
+        imageBlock(sheet),
       ];
-      for (const [i, { it, img }] of keep.entries()) {
-        out.push(textBlock(refText(it, i + 1)));
-        if (!img?.buf?.length) continue;
-        const small = await toJpeg(img.buf, 480, 270, 72).catch(() => null);
-        if (small) out.push(imageBlock(small));
-        else if (/^image\/(jpeg|png|webp|gif)$/.test(img.mime)) out.push(imageBlock(img.buf, img.mime));
-      }
-      out.push(
-        textBlock(
-          "NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble shot URL, and a role: moves / look / story / sound). A frame and a description choose WHICH to watch; only motion_study shows how it moves. For a launch, study at least one LAUNCH FILM (how a real company announced a real product) and one master's piece (craft). Prefer those; an open-search result earns its place only if it is as good. Study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off.",
-        ),
-      );
       return blocks(out);
     }),
   );

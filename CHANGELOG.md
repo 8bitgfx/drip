@@ -2,6 +2,9 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.10.7: references on one sheet again
+- `motion_refs` returns one numbered sheet (a frame of each film) and one numbered list with each film's words (what its maker says, the facts), instead of a frame per film: one image, read at a glance.
+
 ## 0.10.6: close-ups of a film
 - **Close-ups**: `motion_study({ source, from, to })` watches one stretch densely (about 36 frames over up to 30 s, 3 a second for a 12-second stretch) with the change frame to frame and where it peaks, and asks for the transition read from the frames: one element followed across them, easing from the spacing. The full study now names its busiest stretches with the close-up call ready (on the Gemini 3 film: 0:40-0:55, where the input box becomes the whole UI, which the full sheet skips). `motion_storyboard` warns when no moves reference longer than 15 s was watched up close.
 

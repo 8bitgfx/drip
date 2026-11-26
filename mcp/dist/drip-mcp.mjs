@@ -103638,7 +103638,7 @@ function register3(server2, ctx2) {
     "motion_refs",
     {
       title: "Find motion design references (launch films and masters first)",
-      description: `References for a film, best first. LAUNCH FILMS (for a launch, product, AI, SaaS or app brief): official launch and brand films of AI, SaaS, developer-tool and tech brands, posted by the brands on YouTube, X or Vimeo and checked to play; picked by topic, a brand named in a query first. MASTERS: the studios and designers whose work is the bar (TimeFrame and others in Drip's vetted list), picked by the kind of film your queries describe (product launch, UI motion, brand film, explainer, kinetic type, 3D product, abstract, logo); their Dribbble video shots and Kisto pieces. Then open search with a quality floor: Dribbble's animation category (video shots, no paid boosts, 40+ likes, best liked first) and Kisto (curated studio motion; AI-generated clips dropped). 24fps.dev (indie films made in code) only with source "24fps": for how something is built, never for taste. Returns each film as its title, what its maker says about it (from the post), facts (length, aspect, date, views, likes, palette, tags) and its playable video, next to one frame of it. Then motion_study the 1-3 that fit. Search the IDEA and the MOVES, not the product: "product launch ui motion", "shape morph transition", "kinetic typography". Name a designer to see their work: designers: ["TimeFrame_motion"]. A brand this list doesn't have (a competitor, a brand the user names): find its official launch video with WebSearch ("<brand> launch video", its YouTube channel or X account) and motion_study the post URL: YouTube, X and Vimeo posts play. Example: motion_refs({ queries: ["saas product launch", "ui motion continuous"] })`,
+      description: `References for a film, best first. LAUNCH FILMS (for a launch, product, AI, SaaS or app brief): official launch and brand films of AI, SaaS, developer-tool and tech brands, posted by the brands on YouTube, X or Vimeo and checked to play; picked by topic, a brand named in a query first. MASTERS: the studios and designers whose work is the bar (TimeFrame and others in Drip's vetted list), picked by the kind of film your queries describe (product launch, UI motion, brand film, explainer, kinetic type, 3D product, abstract, logo); their Dribbble video shots and Kisto pieces. Then open search with a quality floor: Dribbble's animation category (video shots, no paid boosts, 40+ likes, best liked first) and Kisto (curated studio motion; AI-generated clips dropped). 24fps.dev (indie films made in code) only with source "24fps": for how something is built, never for taste. Returns ONE numbered sheet (a frame of each film) and a numbered list: each film's title, what its maker says about it (from the post), facts (length, aspect, date, views, likes, palette, tags) and its playable video. Then motion_study the 1-3 that fit. Search the IDEA and the MOVES, not the product: "product launch ui motion", "shape morph transition", "kinetic typography". Name a designer to see their work: designers: ["TimeFrame_motion"]. A brand this list doesn't have (a competitor, a brand the user names): find its official launch video with WebSearch ("<brand> launch video", its YouTube channel or X account) and motion_study the post URL: YouTube, X and Vimeo posts play. Example: motion_refs({ queries: ["saas product launch", "ui motion continuous"] })`,
       inputSchema: {
         queries: external_exports.array(external_exports.string()).min(1).max(4).describe("1-4 searches, run at once"),
         source: external_exports.enum(["best", "launches", "masters", "dribbble", "kisto", "24fps"]).optional().describe("Default best: launch films (launch/product/AI/SaaS briefs), masters, then Dribbble and Kisto with the quality floor"),
@@ -103688,25 +103688,21 @@ function register3(server2, ctx2) {
         if (st.task) (st.task.motion ||= { studied: [], renders: [] }).searched = [...st.task.motion.searched || [], ...queries].slice(-20);
       });
       const masters = [...new Set(list4.filter((it) => it.master && it.style).map((it) => `${it.master}: ${it.style}`))];
+      const sheet = await sheetInBrowser(
+        keep.map((x2) => x2.img?.buf || null),
+        { cols: 6, tileW: 300, tileH: 169, config: config2 }
+      );
       const out = [
         textBlock(
-          `${list4.length} films, best first. Each one: its words (title, what its maker says, facts), then one frame of it.${errs.length ? ` Skipped: ${errs.join("; ")}.` : ""}` + (masters.length ? `
+          `${list4.length} films, best first (sheet numbers = list numbers). Each: what it is, what its maker says, the facts.${errs.length ? ` Skipped: ${errs.join("; ")}.` : ""}` + (masters.length ? `
 MASTERS here and why they are the bar:
-${masters.map((m) => `- ${m}`).join("\n")}` : "")
-        )
+${masters.map((m) => `- ${m}`).join("\n")}` : "") + `
+${list4.map((it, i2) => refText(it, i2 + 1)).join("\n")}
+
+NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble shot URL, and a role: moves / look / story / sound). A frame and a description choose WHICH to watch; only motion_study shows how it moves. For a launch, study at least one LAUNCH FILM (how a real company announced a real product) and one master's piece (craft). Prefer those; an open-search result earns its place only if it is as good. Study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off.`
+        ),
+        imageBlock(sheet)
       ];
-      for (const [i2, { it, img }] of keep.entries()) {
-        out.push(textBlock(refText(it, i2 + 1)));
-        if (!img?.buf?.length) continue;
-        const small = await toJpeg(img.buf, 480, 270, 72).catch(() => null);
-        if (small) out.push(imageBlock(small));
-        else if (/^image\/(jpeg|png|webp|gif)$/.test(img.mime)) out.push(imageBlock(img.buf, img.mime));
-      }
-      out.push(
-        textBlock(
-          "NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble shot URL, and a role: moves / look / story / sound). A frame and a description choose WHICH to watch; only motion_study shows how it moves. For a launch, study at least one LAUNCH FILM (how a real company announced a real product) and one master's piece (craft). Prefer those; an open-search result earns its place only if it is as good. Study the moves, never copy a film's frames, characters or copy; credit what you learned from in the hand-off."
-        )
-      );
       return blocks(out);
     })
   );
@@ -119801,7 +119797,7 @@ ${ttl ? `The page runs for ${Number(flags.ttl)} minutes.` : "The page runs while
 }
 
 // src/index.mjs
-var VERSION = "0.10.6";
+var VERSION = "0.10.7";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;
