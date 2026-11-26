@@ -7,7 +7,7 @@ run(async () => {
   const dir = hookDir(input);
   // This session's own task, or one an ended session left open (mentioned, never enforced here).
   const own = loadState(dir).task;
-  const task = own || orphanTasks(dir)[0] || null;
+  const task = own || orphanTasks(dir).find((t) => !t.skipped) || null;
   const config = loadConfig(dir);
   const load = "Load its tools with ToolSearch select:mcp__plugin_drip_drip__drip_status,mcp__plugin_drip_drip__drip_start,mcp__plugin_drip_drip__drip_guide.";
   const others = otherTasks(dir);
@@ -18,7 +18,7 @@ run(async () => {
     return out({
       hookSpecificOutput: {
         hookEventName: "SessionStart",
-        additionalContext: `[Drip] A design task from an earlier session is still open:\n${checklist(task, config)}\nIf the user continues it, follow drip_status. If they move on, leave it (it blocks nothing until UI is written) or drip_end it when the user says it is finished.${busy}${mem} ${load}`,
+        additionalContext: `[Drip] A design task from an earlier session is still open:\n${checklist(task, config)}\nIf the user continues it, drip_status({ resume: true }) makes it this session's, then follow it. If they move on, leave it (it blocks nothing until UI is written) or, when the user says it is finished, resume it and drip_end it.${busy}${mem} ${load}`,
       },
     });
   if (busy) return out({ hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: `[Drip]${busy}${mem}` } });

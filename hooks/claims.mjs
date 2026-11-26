@@ -19,8 +19,11 @@ run(async () => {
   const deny = (why) => out({ hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: `[Drip] ${why}` } });
   const lastCritic = (task?.critic?.records || []).filter((r) => r.kind === "build").at(-1);
 
-  if (name === "drip_skip" && !userSaid(tr, a.reason))
-    return deny(`drip_skip needs the user's own words, and "${String(a.reason || "").slice(0, 80)}" isn't in anything they wrote. Keep following the loop; if you think skipping is right, ask them.`);
+  if (name === "drip_skip" && !userSaid(tr, a.reason)) {
+    // Show the user's latest words, so a real request to skip is quoted right the second time instead of guessed again.
+    const last = String(tr.user.at(-1)?.text || "").replace(/\s+/g, " ").trim().slice(0, 200);
+    return deny(`drip_skip needs the user's own words, copied from their message, and "${String(a.reason || "").slice(0, 80)}" isn't in anything they wrote.${last ? ` Their latest message: "${last}". If that asks to skip, call drip_skip again with reason set to the exact sentence that says so.` : ""} Otherwise keep following the loop; if you think skipping is right, ask them.`);
+  }
   if (name === "drip_end" && a.acceptOpen && !/decide for me/i.test(a.acceptOpen) && !userSaid(tr, a.acceptOpen))
     return deny(`acceptOpen must quote the user, and "${String(a.acceptOpen).slice(0, 80)}" isn't in anything they wrote. Ask them whether to ship with the open points (AskUserQuestion), then quote their answer.`);
   if (name === "fitcheck_done" && a.acceptedByUser && !userReplied(tr, SHIP, lastCritic?.at || task?.startedAt || ""))

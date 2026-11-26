@@ -290,7 +290,7 @@ export function register(server, ctx) {
               return f;
             });
             const host = key.slice(5).split("/")[0];
-            remember({ key, source: "site", id: host, title: r.audit.title || host, url, image: files[0], images: files, designer: host, designerUrl: host, tags: ["website"], from: { category: "web-design" } });
+            remember({ key, source: "site", id: host, title: r.audit.title || host, url, image: files[0], images: files, designer: host, designerUrl: host, tags: ["website"], from: { category: "web-design" }, measured: measuredFacts(r.audit) });
             updateState((st) => {
               if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
               if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
@@ -442,6 +442,9 @@ export function register(server, ctx) {
   );
 
   const VAGUE = /^(clean|modern|nice|good|great|minimal|sleek|cool|beautiful|simple|bold|elegant)\.?$/i;
+  /** The measured facts refs_site found, in one line a study can quote. */
+  const measuredFacts = (a) =>
+    a ? [a.h1 && `h1 ${a.h1}px`, a.h2 && `h2 ${a.h2}px`, a.bodyText && `body ${a.bodyText}px`, a.fontSizes?.length && `${a.fontSizes.length} type sizes`, a.families?.length && `type ${a.families.slice(0, 2).map((x) => x[0]).join(" + ")}`, a.words && `${a.words} words`, a.screens && `${a.screens} screens tall`].filter(Boolean).join(", ") || null : null;
   const STUDY_EXAMPLE = {
     layout: '"12-col, headline spans cols 1-8, picture bleeds right at 55% width"',
     type: '"condensed grotesk caps ~140px, body 18px, ratio ~8:1"',
@@ -498,7 +501,9 @@ export function register(server, ctx) {
           msg:
             `${n.shot}: too vague. ` +
             weak.map((f) => `${f}: ${!n[f] ? "missing" : VAGUE.test(n[f].trim()) ? `"${n[f].trim()}" is a vibe, not a fact` : `"${n[f].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f]}`).join(" · ") +
-            (concrete < 3 ? `${weak.length ? " · " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : ""),
+            (concrete < 3 ? `${weak.length ? " · " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3` : "") +
+            `\nAn accepted study looks like: ${Object.entries(STUDY_EXAMPLE).map(([k, v]) => `${k}: ${v}`).join("; ")}.` +
+            (item.measured ? `\nThis site's measured numbers, to use: ${item.measured}.` : ""),
         };
       // A reference the build will follow closely needs the reason it fits, in words the user can check.
       if (n.role !== "before" && (!n.fits || n.fits.trim().length < 15 || VAGUE.test(n.fits.trim())))

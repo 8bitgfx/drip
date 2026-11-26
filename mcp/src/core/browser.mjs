@@ -207,9 +207,26 @@ export async function openPage({ s, sessionId, listeners }, url, { width = 1440,
     listeners.add(onNet);
     await s("Network.enable");
   }
+  // What went wrong in the page (uncaught errors, console.error): a page that renders blank says why.
+  const errors = [];
+  const onErr = (msg) => {
+    if (msg.sessionId !== sessionId || errors.length >= 8) return;
+    if (msg.method === "Runtime.exceptionThrown") {
+      const d = msg.params?.exceptionDetails || {};
+      errors.push(String(d.exception?.description || d.text || "uncaught error").split("\n")[0].slice(0, 220));
+    } else if (msg.method === "Runtime.consoleAPICalled" && msg.params?.type === "error") {
+      errors.push(String((msg.params.args || []).map((a) => a.value ?? a.description ?? "").join(" ")).split("\n")[0].slice(0, 220));
+    }
+  };
+  listeners.add(onErr);
+  await s("Runtime.enable").catch(() => {});
+  // Smooth scrolling animates every scrollTo: the audit would measure the page mid-scroll (a nav "over" the hero, an h1 at a
+  // negative top). Scrolling jumps for as long as the tab is open, on every page it loads.
+  await s("Page.addScriptToEvaluateOnNewDocument", { source: NO_SMOOTH }).catch(() => {});
   try {
     await s("Page.navigate", { url });
     await loaded;
+    await s("Runtime.evaluate", { expression: NO_SMOOTH }).catch(() => {});
     if (idle) {
       const end = Date.now() + 8000;
       while (Date.now() < end && !(inflight <= 1 && Date.now() - lastNet > 600)) await new Promise((r) => setTimeout(r, 100));
@@ -220,7 +237,22 @@ export async function openPage({ s, sessionId, listeners }, url, { width = 1440,
     clearTimeout(timer);
   }
   await settle(s, settleMs);
+  listeners.delete(onErr);
+  return { errors };
 }
+
+/** Run in the page: scrolling jumps instead of gliding (CSS scroll-behavior, Lenis), so measurements are taken at rest. */
+export const NO_SMOOTH = `(() => {
+  const put = () => {
+    if (!document.documentElement || document.getElementById('drip-no-smooth')) return;
+    const st = document.createElement('style'); st.id = 'drip-no-smooth';
+    st.textContent = 'html, body, * { scroll-behavior: auto !important; }';
+    (document.head || document.documentElement).appendChild(st);
+  };
+  put(); document.addEventListener('DOMContentLoaded', put);
+  try { if (window.lenis && window.lenis.destroy) window.lenis.destroy(); } catch (e) {}
+  try { if (window.locomotiveScroll && window.locomotiveScroll.destroy) window.locomotiveScroll.destroy(); } catch (e) {}
+})()`;
 
 /** Wait for web fonts and finite running animations, capped at `ms`. */
 export async function settle(s, ms = 1500) {

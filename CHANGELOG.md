@@ -2,8 +2,17 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
-## Unreleased: /drip:settings without the model
+## 0.10.1: /drip:settings without the model, and fixes from a drip-saas run
 - The prompt hook catches `/drip:settings`, starts the settings page in its own background process (`drip settings --ttl 60`, which stops by itself after an hour), opens the browser and stops the prompt with the link. No model call, no tokens. `commands/settings.md` stays as the fallback for hosts without the hook.
+- **page_stitch is safe to run twice**: a section App.tsx already imports or renders outside Drip's markers is left there, and a second import of one name is removed (it blanked the page with no error).
+- **A blank page says so**: the fit check collects the page's uncaught errors and console errors; a page with no words and no pictures is one blocker, "the page rendered blank", with those errors. Other console errors are a warning.
+- **pieces_install tidies what registry items leave**: new empty stub files are removed, a file the install emptied gets its content back, code written outside `src/` (a stray `components/` at the page root) moves under `src/` (or is removed when it's an identical copy), and empty folders go. `section:` records a piece swap for that section, so replacing a broken piece needs no new `build_prepare`.
+- **Leftover tasks stay their session's**: a session's server no longer takes over a task another session left open (it made a new session's Stop hook demand checks for work it never did). Continuing one is explicit: `drip_status({ resume: true })`. A skipped task no longer shows as "active" in every prompt, nor in the session-start pointer.
+- **Fit-check false alarms**: screen-reader-only text (1px clipped boxes) is never measured as "cut off"; smooth scrolling (CSS `scroll-behavior`, Lenis, Locomotive) is turned off in the measuring tab, so nothing is measured mid-scroll (a nav "covering" an h1 at a negative top).
+- **Canvases that draw nothing**: every canvas below the first screen is scrolled into view and looked at once; one that stays a single flat colour (a WebGL piece that failed in Chrome, solid black) is a blocker.
+- **Type scale**: pieces' own Tailwind sizes (`text-sm`, `text-[15px]`) are listed in the piece review; more than 9 text sizes on a page is "type off the scale" and blocks in the fast loop too, with the stray sizes named.
+- **Dead links**: 6+ links to `href="#"` (a footer of placeholders) block; 3-5 warn, with what to do.
+- **Friendlier refusals**: a vague `refs_study` shows a complete accepted study and the site's own measured numbers; `images_search` rounds a small `limit` up to 4 instead of failing, and filters 30 more watermarked stock sites; a refused `drip_skip` shows the user's latest message to quote.
 
 ## 0.10.0: commands by craft, and Drip Motion
 - **Fixes from the first real film** (the Drip trailer):

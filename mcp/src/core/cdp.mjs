@@ -3,16 +3,19 @@
 // judgements see the WHOLE page and rest on measured facts, not just the first screen.
 import { z } from "zod";
 import { openPage, settle, withTab } from "./browser.mjs";
-import { aiTellsInPage, blankVisuals, heroVisualBoxes, judgeTells } from "./ai-tells.mjs";
+import { aiTellsInPage, blankVisuals, canvasBoxes, deadCanvases, heroVisualBoxes, judgeTells } from "./ai-tells.mjs";
 
 // Sent to the page as source: real functions (linted, testable) instead of more escaped template strings.
 const TELLS = `(${aiTellsInPage.toString()})()`;
 const HERO_BOXES = `(${heroVisualBoxes.toString()})()`;
+const CANVAS_BOXES = `(${canvasBoxes.toString()})()`;
 
 /** The audit script, run inside the page. Returns plain JSON. */
 const AUDIT = `(() => {
   const vw = innerWidth, vh = innerHeight;
-  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
+  // Screen-reader-only copy (a 1px box, clipped away) is not on screen: never measured, never "cut off".
+  const srOnly = (r, cs) => (r.width <= 1.5 && r.height <= 1.5) || cs.clip === 'rect(0px, 0px, 0px, 0px)' || /inset[(](50|100)%/.test(cs.clipPath);
+  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05 && !srOnly(r, cs); };
   // Rendered size: the computed font-size times the scale it is drawn at (an SVG text under a viewBox, a CSS transform), never the attribute.
   const tcache = new Map();
   const scaleOf = (el) => {
@@ -96,7 +99,7 @@ const AUDIT = `(() => {
     return { left, right, ok };
   };
   const clipped = [];
-  const edgeEls = [...new Set([...textEls, ...document.querySelectorAll('a, button, input, select, textarea, [role=button]')])].filter((el) => visible(el) && !el.closest('[data-bleed], [aria-hidden=true]'));
+  const edgeEls = [...new Set([...textEls, ...document.querySelectorAll('a, button, input, select, textarea, [role=button]')])].filter((el) => visible(el) && !el.closest('[data-bleed], [aria-hidden=true], .sr-only, .visually-hidden') && !(() => { for (let a = el.parentElement, i = 0; a && i < 4; a = a.parentElement, i++) if (srOnly(a.getBoundingClientRect(), getComputedStyle(a))) return true; return false; })());
   for (const el of edgeEls) {
     const rects = [];
     if (el.matches('a, button, input, select, textarea, [role=button]')) rects.push(el.getBoundingClientRect());
@@ -427,7 +430,7 @@ export async function capture(url, { width = 1440, height = 900, maxSlices = 6, 
   return withTab(config, async (tab) => {
     const { s } = tab;
     const run = async (expression, awaitPromise = false) => (await s("Runtime.evaluate", { expression, awaitPromise, returnByValue: true })).result?.value;
-    await openPage(tab, url, { width, height, idle });
+    const opened = (await openPage(tab, url, { width, height, idle })) || {};
     const cleared = (await run(CLEAR_OVERLAYS, true)) || {};
     if (cleared.blocked) return { audit: { blocked: cleared.blocked, height: height }, slices: [], sliceCount: 0, blocked: cleared.blocked };
     // Scroll through once so lazy content and scroll-triggered reveals render, then back to the top.
@@ -438,6 +441,7 @@ export async function capture(url, { width = 1440, height = 900, maxSlices = 6, 
     if (again.clicked || again.hidden) await settle(s, 400);
     const result = { value: await run(AUDIT) };
     const audit = result.value;
+    audit.errors = opened.errors || [];
     audit.cleared = { clicked: (cleared.clicked || 0) + (again.clicked || 0), hidden: (cleared.hidden || 0) + (again.hidden || 0), unlocked: !!(cleared.unlocked || again.unlocked), texts: [...(cleared.texts || []), ...(again.texts || [])].slice(0, 6) };
     audit.overlayLeft = (await run(OVERLAY_PROBE)) || [];
     audit.covered = (await run(COVERED, true)) || [];
@@ -467,6 +471,22 @@ export async function capture(url, { width = 1440, height = 900, maxSlices = 6, 
     const heroBoxes = shots && ys[0] === 0 ? (await run(HERO_BOXES)) || [] : [];
     if (shots) for (const y of ys) slices.push(await shoot(y, height));
     if (heroBoxes.length && slices[0]?.buf) audit.tells = [...(audit.tells || []), ...(await blankVisuals(slices[0].buf, heroBoxes, scale).catch(() => []))];
+    // Canvases below the first screen (WebGL galleries, shaders): looked at once each, on screen, after the page shots.
+    if (shots && !idle && maxSlices > 1) {
+      const below = ((await run(CANVAS_BOXES)) || []).filter((b) => b.top >= height);
+      if (below.length) {
+        const look = async (i) => {
+          const box = await run(`(() => { const c = document.querySelectorAll('canvas')[${i}]; if (!c) return null; c.scrollIntoView({ block: 'center' }); const r = c.getBoundingClientRect(); return { x: Math.max(0, r.left) + scrollX, y: Math.max(0, r.top) + scrollY, w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top) }; })()`);
+          if (!box || box.w < 50 || box.h < 50) return null;
+          await new Promise((r) => setTimeout(r, 700)); // a WebGL piece draws on the frames after it comes into view
+          // The clip is in page coordinates (x, y include the scroll).
+          const { data } = await s("Page.captureScreenshot", { format: "jpeg", quality: 70, captureBeyondViewport: true, clip: { x: box.x, y: box.y, width: box.w, height: box.h, scale } });
+          return { buf: Buffer.from(data, "base64"), box };
+        };
+        audit.tells = [...(audit.tells || []), ...(await deadCanvases(below, look, scale).catch(() => []))];
+        await run("scrollTo(0, 0)");
+      }
+    }
     audit.sliceYs = ys;
     return { audit, slices, sliceCount: count };
   });
@@ -479,11 +499,20 @@ export const displayPx = (vw) => Math.min(144, Math.max(48, 19.2 + 0.075 * vw));
  * Hard problems in an audit (block a pass) and softer warnings.
  * persuade: a landing page, portfolio or showcase (the playbook's numbers apply). hero: judge only the first viewport.
  */
+/** Nothing on the page: (almost) no words and no pictures. */
+export const blankPage = (a) => !!a && !a.blocked && typeof a.words === "number" && typeof a.media === "number" && a.words < 3 && a.media === 0;
+
 export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   const blockers = [];
   const warnings = [];
   const desk = a.width >= 1000;
   const phone = a.width < 600;
+  // A page that renders nothing (a bad import, a crash in a section): say so first, with the page's own errors.
+  if (blankPage(a)) {
+    blockers.push(`the page rendered blank (${a.words || 0} words, ${a.media || 0} pictures)${a.errors?.length ? `. The page's errors: ${a.errors.slice(0, 3).join(" | ")}` : ". No error was logged: check the dev server's terminal, the entry file and App.tsx (a duplicate import, a missing export)"}`);
+    return { blockers, warnings };
+  }
+  if (a.errors?.length) warnings.push(`errors in the page's console: ${a.errors.slice(0, 3).join(" | ")}`);
   if (a.hero?.navCovers?.length) blockers.push(`the fixed nav covers the hero: ${a.hero.navCovers.join("; ")}. Start the hero below the nav (padding-top: the nav's height) or make the picture a full-bleed ground behind it`);
   for (const r of a.repeats || []) blockers.push(`the same picture ${r.src} appears ${r.n} times: find, make or ask for more real pictures (images_search, art_generate / gen_image, or ask the user for their own work); one picture never stands in for a gallery`);
   if (phone && a.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
@@ -532,7 +561,11 @@ export function judgeAudit(a, { persuade = true, hero = false } = {}) {
   if (hero) return { blockers, warnings };
   // ---- page gate (playbook P39) ----
   const sizes = a.fontSizes.filter(([, n]) => n >= 2).length;
-  if (sizes > 7) blockers.push(`${sizes} different text sizes; the kit has 7 roles (kit/base.css). Map every size to a role`);
+  if (sizes > 7) {
+    // The odd ones out (fewest words) are usually what installed pieces brought with them.
+    const strays = a.fontSizes.filter(([, n]) => n >= 2).slice(7).map(([px, n]) => `${px}px×${n}`);
+    blockers.push(`${sizes} different text sizes; the system has 7 roles. ${sizes > 9 ? "Type off the scale" : "Map every size to a role"}: ${strays.join(", ")} (usually a piece's own text-sm / text-[15px]) go to the nearest role`);
+  }
   const fams = a.families.filter(([, n]) => n >= 3);
   if (fams.length > (persuade ? 2 : 3)) blockers.push(`${fams.length} font families (${fams.map(([f]) => f).join(", ")}); one display face + one text face`);
   if (a.smallShare > (persuade ? 0.15 : 0.3)) blockers.push(`${Math.round(a.smallShare * 100)}% of the words are under 14px; nothing but the legal line goes under the Small role (14px)`);

@@ -37315,6 +37315,7 @@ var init_chrome = __esm({
 // src/core/browser.mjs
 var browser_exports = {};
 __export(browser_exports, {
+  NO_SMOOTH: () => NO_SMOOTH,
   closeBrowser: () => closeBrowser,
   evalJson: () => evalJson,
   findChrome: () => findChrome,
@@ -37492,9 +37493,26 @@ async function openPage({ s: s2, sessionId, listeners }, url2, { width = 1440, h
     listeners.add(onNet);
     await s2("Network.enable");
   }
+  const errors = [];
+  const onErr = (msg) => {
+    if (msg.sessionId !== sessionId || errors.length >= 8) return;
+    if (msg.method === "Runtime.exceptionThrown") {
+      const d = msg.params?.exceptionDetails || {};
+      errors.push(String(d.exception?.description || d.text || "uncaught error").split("\n")[0].slice(0, 220));
+    } else if (msg.method === "Runtime.consoleAPICalled" && msg.params?.type === "error") {
+      errors.push(String((msg.params.args || []).map((a2) => a2.value ?? a2.description ?? "").join(" ")).split("\n")[0].slice(0, 220));
+    }
+  };
+  listeners.add(onErr);
+  await s2("Runtime.enable").catch(() => {
+  });
+  await s2("Page.addScriptToEvaluateOnNewDocument", { source: NO_SMOOTH }).catch(() => {
+  });
   try {
     await s2("Page.navigate", { url: url2 });
     await loaded;
+    await s2("Runtime.evaluate", { expression: NO_SMOOTH }).catch(() => {
+    });
     if (idle) {
       const end = Date.now() + 8e3;
       while (Date.now() < end && !(inflight <= 1 && Date.now() - lastNet > 600)) await new Promise((r2) => setTimeout(r2, 100));
@@ -37505,6 +37523,8 @@ async function openPage({ s: s2, sessionId, listeners }, url2, { width = 1440, h
     clearTimeout(timer2);
   }
   await settle2(s2, settleMs);
+  listeners.delete(onErr);
+  return { errors };
 }
 async function settle2(s2, ms = 1500) {
   await s2("Runtime.evaluate", {
@@ -37535,7 +37555,7 @@ async function evalJson(s2, expression) {
   if (exceptionDetails) throw new Error(exceptionDetails.exception?.description?.split("\n")[0] || exceptionDetails.text || "page script failed");
   return result.value;
 }
-var IDLE_MS, SEND_TIMEOUT_MS, shared, idleTimer, busy;
+var IDLE_MS, SEND_TIMEOUT_MS, shared, idleTimer, busy, NO_SMOOTH;
 var init_browser = __esm({
   "src/core/browser.mjs"() {
     init_chrome();
@@ -37550,6 +37570,17 @@ var init_browser = __esm({
       });
     });
     process.stdin.once("end", () => closeBrowser());
+    NO_SMOOTH = `(() => {
+  const put = () => {
+    if (!document.documentElement || document.getElementById('drip-no-smooth')) return;
+    const st = document.createElement('style'); st.id = 'drip-no-smooth';
+    st.textContent = 'html, body, * { scroll-behavior: auto !important; }';
+    (document.head || document.documentElement).appendChild(st);
+  };
+  put(); document.addEventListener('DOMContentLoaded', put);
+  try { if (window.lenis && window.lenis.destroy) window.lenis.destroy(); } catch (e) {}
+  try { if (window.locomotiveScroll && window.locomotiveScroll.destroy) window.locomotiveScroll.destroy(); } catch (e) {}
+})()`;
   }
 });
 
@@ -88045,7 +88076,7 @@ function resolveId(raw) {
     const own2 = Object.values(raw.tasks).find((t2) => t2.ownerSession === me.session);
     if (own2) return own2.id;
   }
-  const foreign = (t2) => !me.server && me.session && (t2.ownerSession && t2.ownerSession !== me.session || Object.entries(raw.sessions).some(([sid, id]) => id === t2.id && sid !== me.session));
+  const foreign = (t2) => me.session && (t2.ownerSession && t2.ownerSession !== me.session || Object.entries(raw.sessions).some(([sid, id]) => id === t2.id && sid !== me.session));
   const free = Object.values(raw.tasks).filter((t2) => !foreign(t2) && !ownedByOther(t2, raw));
   return free.length === 1 ? free[0].id : null;
 }
@@ -88058,10 +88089,28 @@ function claim2(raw, task) {
     raw.sessions[me.session] = task.id;
   }
 }
+function orphanTasks(cwd) {
+  const raw = readRaw(cwd);
+  return Object.values(raw.tasks).filter((t2) => t2.ownerSession && t2.ownerSession !== me.session && !alive(t2.ownerPid));
+}
 function otherTasks(cwd) {
   const raw = readRaw(cwd);
   const mine = resolveId(raw);
   return Object.values(raw.tasks).filter((t2) => t2.id !== mine && ownedByOther(t2, raw));
+}
+function resumeOrphan(taskId2, cwd) {
+  const raw = readRaw(cwd);
+  const list4 = orphanTasks(cwd);
+  const t2 = taskId2 ? list4.find((x2) => x2.id === taskId2) : list4.length === 1 ? list4[0] : null;
+  if (!t2) return null;
+  for (const [sid, id] of Object.entries(raw.sessions)) if (id === t2.id) delete raw.sessions[sid];
+  const task = raw.tasks[t2.id];
+  task.ownerSession = me.session || null;
+  task.ownerPid = me.server ? process.pid : task.ownerPid;
+  if (me.session) raw.sessions[me.session] = task.id;
+  if (me.server) me.taskId = task.id;
+  writeRaw(raw, cwd);
+  return task;
 }
 function bindSession(session, taskId2, cwd) {
   const raw = readRaw(cwd);
@@ -99870,6 +99919,7 @@ __export(swarm_exports, {
   sectionFiles: () => sectionFiles,
   slug: () => slug3,
   stitchPage: () => stitchPage,
+  stitchReact: () => stitchReact,
   studiedTakes: () => studiedTakes,
   swarmInstructions: () => swarmInstructions,
   swarmOn: () => swarmOn
@@ -100271,18 +100321,15 @@ function stitchPage(page2, sections) {
   const missing = [];
   if (pg.stack === "react") {
     const app = path27.join(pg.root, "src", "App.tsx");
-    let src = fs29.readFileSync(app, "utf8");
-    for (const id of sections) (fs29.existsSync(path27.join(pg.root, "src", "sections", `${pascal2(id)}.tsx`)) ? found : missing).push(id);
-    const imports = found.map((id) => `import ${pascal2(id)} from "./sections/${pascal2(id)}";`).join("\n");
-    const els = found.map((id) => `        <${pascal2(id)} />`).join("\n");
-    if (!/\/\/ drip:imports[\s\S]*?\/\/ \/drip:imports/.test(src) || !/\{\/\* drip:sections \*\/\}[\s\S]*?\{\/\* \/drip:sections \*\/\}/.test(src))
-      return { error: `${path27.relative(projectDir(), app)} has no drip markers (// drip:imports \u2026 // /drip:imports and {/* drip:sections */} \u2026 {/* /drip:sections */}). Add them, or import the sections by hand.` };
-    src = src.replace(/\/\/ drip:imports[\s\S]*?\/\/ \/drip:imports/, () => `// drip:imports
-${imports}${imports ? "\n" : ""}// /drip:imports`);
-    src = src.replace(/\{\/\* drip:sections \*\/\}[\s\S]*?\{\/\* \/drip:sections \*\/\}/, () => `{/* drip:sections */}
-${els}${els ? "\n" : ""}        {/* /drip:sections */}`);
-    fs29.writeFileSync(app, src);
-    return { summary: `Stitched ${found.length} section(s) into ${pg.rel}/src/App.tsx${found.length ? `: ${found.join(", ")}` : ""}.${missing.length ? ` Not written yet: ${missing.join(", ")} (src/sections/<Id>.tsx).` : ""}`, found, missing };
+    const src = fs29.readFileSync(app, "utf8");
+    const r2 = stitchReact(src, sections, (id) => fs29.existsSync(path27.join(pg.root, "src", "sections", `${pascal2(id)}.tsx`)));
+    if (r2.error) return { error: `${path27.relative(projectDir(), app)} ${r2.error}` };
+    if (r2.src !== src) fs29.writeFileSync(app, r2.src);
+    return {
+      summary: `Stitched ${r2.found.length} section(s) into ${pg.rel}/src/App.tsx${r2.found.length ? `: ${r2.found.join(", ")}` : ""}.` + (r2.already.length ? ` Already in App.tsx outside the markers, left there: ${r2.already.join(", ")}.` : "") + (r2.dropped.length ? ` Removed duplicate import(s): ${r2.dropped.join(", ")}.` : "") + (r2.missing.length ? ` Not written yet: ${r2.missing.join(", ")} (src/sections/<Id>.tsx).` : ""),
+      found: r2.found,
+      missing: r2.missing
+    };
   }
   const abs2 = fs29.statSync(path27.resolve(projectDir(), page2)).isFile() ? path27.resolve(projectDir(), page2) : path27.join(pg.root, "index.html");
   if (!fs29.existsSync(abs2)) return { error: `No page at ${page2}. Write the page (nav + hero) first.` };
@@ -100313,6 +100360,38 @@ ${block}
 </head>`);
   fs29.writeFileSync(abs2, html);
   return { summary: `Stitched ${found.length} section(s) into ${path27.relative(projectDir(), abs2)}${found.length ? `: ${found.join(", ")}` : ""}.${missing.length ? ` Not written yet: ${missing.join(", ")} (sections/<id>.html).` : ""}${links.length ? ` Linked ${links.length} stylesheet(s).` : ""}`, found, missing };
+}
+var IMPORTS_BLOCK = /\/\/ drip:imports[\s\S]*?\/\/ \/drip:imports/;
+var SECTIONS_BLOCK = /\{\/\* drip:sections \*\/\}[\s\S]*?\{\/\* \/drip:sections \*\/\}/;
+function stitchReact(src, sections, exists = () => true) {
+  if (!IMPORTS_BLOCK.test(src) || !SECTIONS_BLOCK.test(src))
+    return { error: "has no drip markers (// drip:imports \u2026 // /drip:imports and {/* drip:sections */} \u2026 {/* /drip:sections */}). Add them, or import the sections by hand." };
+  const outside = src.replace(IMPORTS_BLOCK, "").replace(SECTIONS_BLOCK, "");
+  const found = [];
+  const missing = [];
+  const already = [];
+  for (const id of [...new Set(sections)]) {
+    const name = pascal2(id);
+    if (new RegExp(`import\\s+${name}\\b|import\\s*\\{[^}]*\\b${name}\\b[^}]*\\}|<${name}[\\s/>]`).test(outside)) already.push(id);
+    else (exists(id) ? found : missing).push(id);
+  }
+  const imports = found.map((id) => `import ${pascal2(id)} from "./sections/${pascal2(id)}";`).join("\n");
+  const els = found.map((id) => `        <${pascal2(id)} />`).join("\n");
+  let out = src.replace(IMPORTS_BLOCK, () => `// drip:imports
+${imports}${imports ? "\n" : ""}// /drip:imports`);
+  out = out.replace(SECTIONS_BLOCK, () => `{/* drip:sections */}
+${els}${els ? "\n" : ""}        {/* /drip:sections */}`);
+  const seen = /* @__PURE__ */ new Set();
+  const dropped = [];
+  out = out.replace(/^[ \t]*import\s+([A-Za-z_$][\w$]*)\s+from\s+["'][^"']+["'];?[ \t]*\r?\n/gm, (line, name) => {
+    if (!seen.has(name)) {
+      seen.add(name);
+      return line;
+    }
+    dropped.push(name);
+    return "";
+  });
+  return { src: out, found, missing, already, dropped };
 }
 function restitchIfStale(task) {
   const s2 = task?.stitch;
@@ -103973,11 +104052,18 @@ Deeper guides for this topic: ${subs.join(", ")}` : ""}${tail2}`);
     {
       title: "What is done and what is next",
       description: "Shows the active task's checklist (guides read, references studied, board, direction, system, fit check) and the exact next call. Use it whenever you are unsure what to do next, or when a hook blocked you.",
-      inputSchema: {}
+      inputSchema: { resume: external_exports.union([external_exports.boolean(), external_exports.string()]).optional().describe("Continue a task an earlier session left open (true, or its id), when the user wants to carry on with it. Never needed for this session's own task.") }
     },
-    async () => {
+    async ({ resume } = {}) => {
+      if (resume && !loadState().task && !resumeOrphan(typeof resume === "string" ? resume : null)) {
+        const left = orphanTasks();
+        return text(left.length ? `Say which task to continue: ${left.map((t2) => `drip_status({ resume: "${t2.id}" }) for "${t2.title}"`).join("; ")}.` : "No task from an earlier session is open here.", true);
+      }
       const { task } = loadState();
-      if (!task) return text("No Drip task is active. Call drip_start with what you are designing.");
+      if (!task) {
+        const left = orphanTasks();
+        return text(`No Drip task is active in this session. Call drip_start with what you are designing.${left.length ? ` An earlier session left ${left.length === 1 ? `"${left[0].title}"` : `${left.length} tasks`} open: continue it only if the user asks (drip_status({ resume: true })).` : ""}`);
+      }
       const config2 = ctx2.config();
       const unseen = reconcileWorkspace();
       const cur = loadState().task;
@@ -104343,7 +104429,7 @@ function aiTellsInPage() {
   });
   const deadStyled = dead.filter((a2) => styled.includes(a2));
   if (deadStyled.length) add2("block", "dead button", deadStyled.slice(0, 4).map(label).join(", "), `${deadStyled.length} button-styled link(s) go nowhere (href="#"): link them to the page, section or sign-up they promise`);
-  else if (dead.length >= 3) add2("warn", "dead links", dead.slice(0, 4).map(label).join(", "), `${dead.length} links go nowhere (href="#")`);
+  else if (dead.length >= 3) add2(dead.length >= 6 ? "block" : "warn", "dead links", dead.slice(0, 4).map(label).join(", "), `${dead.length} links go nowhere (href="#"): point each at a real section (#pricing) or page, or remove the ones with nowhere to go`);
   let stretched = 0, broken = 0, noAlt = 0;
   for (const img of [...document.querySelectorAll("img")].filter(visible)) {
     if (img.complete && img.naturalWidth === 0) {
@@ -104479,23 +104565,44 @@ async function blankVisuals(buf, boxes, scale = 1) {
   const img = await Jimp.read(buf);
   const out = [];
   for (const b of boxes) {
-    const x0 = Math.max(0, Math.round(b.x * scale)), y0 = Math.max(0, Math.round(b.y * scale));
-    const x1 = Math.min(img.width, Math.round((b.x + b.w) * scale)), y1 = Math.min(img.height, Math.round((b.y + b.h) * scale));
-    const step = Math.max(2, Math.round(Math.min(x1 - x0, y1 - y0) / 60));
-    const ls = [];
-    const inHole = (x2, y2) => (b.holes || []).some((h) => x2 >= h.x * scale && x2 <= (h.x + h.w) * scale && y2 >= h.y * scale && y2 <= (h.y + h.h) * scale);
-    for (let y2 = y0; y2 < y1; y2 += step)
-      for (let x2 = x0; x2 < x1; x2 += step) {
-        if (inHole(x2, y2)) continue;
-        const c3 = img.getPixelColor(x2, y2);
-        ls.push(0.299 * (c3 >>> 24 & 255) + 0.587 * (c3 >>> 16 & 255) + 0.114 * (c3 >>> 8 & 255));
-      }
-    if (ls.length < 20) continue;
-    const median = [...ls].sort((p2, q2) => p2 - q2)[Math.floor(ls.length / 2)];
-    const flat = ls.filter((l2) => Math.abs(l2 - median) <= 8).length / ls.length;
+    const flat = flatShare2(img, b, scale);
+    if (flat == null) continue;
     const why = "It must look striking on its own (moving by itself: drifting, rotating, flowing, clearly visible on its ground) and get cooler on cursor and scroll";
     if (flat > 0.995) out.push({ sev: "block", kind: "visual blank at rest", text: b.tag, detail: `the ${b.tag} in the first screen is one flat colour until someone interacts. ${why}` });
     else if (flat > 0.985) out.push({ sev: "warn", kind: "visual faint at rest", text: b.tag, detail: `the ${b.tag} in the first screen is ${(flat * 100).toFixed(1)}% one flat colour without input: most visitors see almost nothing. ${why}` });
+  }
+  return out;
+}
+function flatShare2(img, b, scale = 1) {
+  const x0 = Math.max(0, Math.round(b.x * scale)), y0 = Math.max(0, Math.round(b.y * scale));
+  const x1 = Math.min(img.width, Math.round((b.x + b.w) * scale)), y1 = Math.min(img.height, Math.round((b.y + b.h) * scale));
+  const step = Math.max(2, Math.round(Math.min(x1 - x0, y1 - y0) / 60));
+  const ls = [];
+  const inHole = (x2, y2) => (b.holes || []).some((h) => x2 >= h.x * scale && x2 <= (h.x + h.w) * scale && y2 >= h.y * scale && y2 <= (h.y + h.h) * scale);
+  for (let y2 = y0; y2 < y1; y2 += step)
+    for (let x2 = x0; x2 < x1; x2 += step) {
+      if (inHole(x2, y2)) continue;
+      const c3 = img.getPixelColor(x2, y2);
+      ls.push(0.299 * (c3 >>> 24 & 255) + 0.587 * (c3 >>> 16 & 255) + 0.114 * (c3 >>> 8 & 255));
+    }
+  if (ls.length < 20) return null;
+  const median = [...ls].sort((p2, q2) => p2 - q2)[Math.floor(ls.length / 2)];
+  return ls.filter((l2) => Math.abs(l2 - median) <= 8).length / ls.length;
+}
+function canvasBoxes() {
+  return [...document.querySelectorAll("canvas")].map((el, i2) => ({ el, i: i2, r: el.getBoundingClientRect() })).filter(({ el, r: r2 }) => r2.width >= 200 && r2.height >= 150 && getComputedStyle(el).visibility !== "hidden" && +getComputedStyle(el).opacity > 0.05).slice(0, 6).map(({ el, i: i2, r: r2 }) => {
+    const sec = el.parentElement?.closest("section, footer, header, [id]");
+    return { i: i2, top: Math.round(r2.top + scrollY), h: Math.round(r2.height), where: sec ? sec.tagName.toLowerCase() + (sec.id ? "#" + sec.id : "") : "the page" };
+  });
+}
+async function deadCanvases(boxes, look, scale = 1) {
+  const out = [];
+  for (const b of boxes) {
+    const shot3 = await look(b.i).catch(() => null);
+    if (!shot3?.buf?.length || !shot3.box) continue;
+    const flat = flatShare2(await Jimp.read(shot3.buf), { x: 0, y: 0, w: shot3.box.w, h: shot3.box.h }, scale);
+    if (flat != null && flat > 0.995)
+      out.push({ sev: "block", kind: "canvas drew nothing", text: `canvas in ${b.where}`, detail: `it is one flat colour even on screen: a WebGL/canvas piece that failed in Chrome (it shows solid black or empty). Swap it for another piece (pieces_install with section: "<id>" records the swap, no new build_prepare) or fix its setup` });
   }
   return out;
 }
@@ -104512,9 +104619,12 @@ function judgeTells(tells = []) {
 // src/core/cdp.mjs
 var TELLS = `(${aiTellsInPage.toString()})()`;
 var HERO_BOXES = `(${heroVisualBoxes.toString()})()`;
+var CANVAS_BOXES = `(${canvasBoxes.toString()})()`;
 var AUDIT = `(() => {
   const vw = innerWidth, vh = innerHeight;
-  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
+  // Screen-reader-only copy (a 1px box, clipped away) is not on screen: never measured, never "cut off".
+  const srOnly = (r, cs) => (r.width <= 1.5 && r.height <= 1.5) || cs.clip === 'rect(0px, 0px, 0px, 0px)' || /inset[(](50|100)%/.test(cs.clipPath);
+  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05 && !srOnly(r, cs); };
   // Rendered size: the computed font-size times the scale it is drawn at (an SVG text under a viewBox, a CSS transform), never the attribute.
   const tcache = new Map();
   const scaleOf = (el) => {
@@ -104598,7 +104708,7 @@ var AUDIT = `(() => {
     return { left, right, ok };
   };
   const clipped = [];
-  const edgeEls = [...new Set([...textEls, ...document.querySelectorAll('a, button, input, select, textarea, [role=button]')])].filter((el) => visible(el) && !el.closest('[data-bleed], [aria-hidden=true]'));
+  const edgeEls = [...new Set([...textEls, ...document.querySelectorAll('a, button, input, select, textarea, [role=button]')])].filter((el) => visible(el) && !el.closest('[data-bleed], [aria-hidden=true], .sr-only, .visually-hidden') && !(() => { for (let a = el.parentElement, i = 0; a && i < 4; a = a.parentElement, i++) if (srOnly(a.getBoundingClientRect(), getComputedStyle(a))) return true; return false; })());
   for (const el of edgeEls) {
     const rects = [];
     if (el.matches('a, button, input, select, textarea, [role=button]')) rects.push(el.getBoundingClientRect());
@@ -104812,7 +104922,7 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
   return withTab(config2, async (tab) => {
     const { s: s2 } = tab;
     const run5 = async (expression, awaitPromise = false) => (await s2("Runtime.evaluate", { expression, awaitPromise, returnByValue: true })).result?.value;
-    await openPage(tab, url2, { width, height, idle });
+    const opened = await openPage(tab, url2, { width, height, idle }) || {};
     const cleared = await run5(CLEAR_OVERLAYS, true) || {};
     if (cleared.blocked) return { audit: { blocked: cleared.blocked, height }, slices: [], sliceCount: 0, blocked: cleared.blocked };
     await s2("Runtime.evaluate", { expression: "(async()=>{const h=document.documentElement.scrollHeight;const step=Math.max(innerHeight,h/24);for(let y=0;y<h;y+=step){scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}scrollTo(0,0);})()", awaitPromise: true });
@@ -104821,6 +104931,7 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
     if (again.clicked || again.hidden) await settle2(s2, 400);
     const result = { value: await run5(AUDIT) };
     const audit = result.value;
+    audit.errors = opened.errors || [];
     audit.cleared = { clicked: (cleared.clicked || 0) + (again.clicked || 0), hidden: (cleared.hidden || 0) + (again.hidden || 0), unlocked: !!(cleared.unlocked || again.unlocked), texts: [...cleared.texts || [], ...again.texts || []].slice(0, 6) };
     audit.overlayLeft = await run5(OVERLAY_PROBE) || [];
     audit.covered = await run5(COVERED, true) || [];
@@ -104847,16 +104958,36 @@ async function capture(url2, { width = 1440, height = 900, maxSlices = 6, qualit
     const heroBoxes = shots && ys[0] === 0 ? await run5(HERO_BOXES) || [] : [];
     if (shots) for (const y2 of ys) slices.push(await shoot2(y2, height));
     if (heroBoxes.length && slices[0]?.buf) audit.tells = [...audit.tells || [], ...await blankVisuals(slices[0].buf, heroBoxes, scale).catch(() => [])];
+    if (shots && !idle && maxSlices > 1) {
+      const below = (await run5(CANVAS_BOXES) || []).filter((b) => b.top >= height);
+      if (below.length) {
+        const look = async (i2) => {
+          const box = await run5(`(() => { const c = document.querySelectorAll('canvas')[${i2}]; if (!c) return null; c.scrollIntoView({ block: 'center' }); const r = c.getBoundingClientRect(); return { x: Math.max(0, r.left) + scrollX, y: Math.max(0, r.top) + scrollY, w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top) }; })()`);
+          if (!box || box.w < 50 || box.h < 50) return null;
+          await new Promise((r2) => setTimeout(r2, 700));
+          const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: 70, captureBeyondViewport: true, clip: { x: box.x, y: box.y, width: box.w, height: box.h, scale } });
+          return { buf: Buffer.from(data, "base64"), box };
+        };
+        audit.tells = [...audit.tells || [], ...await deadCanvases(below, look, scale).catch(() => [])];
+        await run5("scrollTo(0, 0)");
+      }
+    }
     audit.sliceYs = ys;
     return { audit, slices, sliceCount: count2 };
   });
 }
 var displayPx = (vw) => Math.min(144, Math.max(48, 19.2 + 0.075 * vw));
+var blankPage = (a2) => !!a2 && !a2.blocked && typeof a2.words === "number" && typeof a2.media === "number" && a2.words < 3 && a2.media === 0;
 function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   const blockers = [];
   const warnings = [];
   const desk = a2.width >= 1e3;
   const phone = a2.width < 600;
+  if (blankPage(a2)) {
+    blockers.push(`the page rendered blank (${a2.words || 0} words, ${a2.media || 0} pictures)${a2.errors?.length ? `. The page's errors: ${a2.errors.slice(0, 3).join(" | ")}` : ". No error was logged: check the dev server's terminal, the entry file and App.tsx (a duplicate import, a missing export)"}`);
+    return { blockers, warnings };
+  }
+  if (a2.errors?.length) warnings.push(`errors in the page's console: ${a2.errors.slice(0, 3).join(" | ")}`);
   if (a2.hero?.navCovers?.length) blockers.push(`the fixed nav covers the hero: ${a2.hero.navCovers.join("; ")}. Start the hero below the nav (padding-top: the nav's height) or make the picture a full-bleed ground behind it`);
   for (const r2 of a2.repeats || []) blockers.push(`the same picture ${r2.src} appears ${r2.n} times: find, make or ask for more real pictures (images_search, art_generate / gen_image, or ask the user for their own work); one picture never stands in for a gallery`);
   if (phone && a2.viewportMeta === false) blockers.push('no <meta name="viewport" content="width=device-width, initial-scale=1">: phones render the page at 980px and shrink it');
@@ -104902,7 +105033,10 @@ function judgeAudit(a2, { persuade = true, hero = false } = {}) {
   }
   if (hero) return { blockers, warnings };
   const sizes = a2.fontSizes.filter(([, n3]) => n3 >= 2).length;
-  if (sizes > 7) blockers.push(`${sizes} different text sizes; the kit has 7 roles (kit/base.css). Map every size to a role`);
+  if (sizes > 7) {
+    const strays = a2.fontSizes.filter(([, n3]) => n3 >= 2).slice(7).map(([px, n3]) => `${px}px\xD7${n3}`);
+    blockers.push(`${sizes} different text sizes; the system has 7 roles. ${sizes > 9 ? "Type off the scale" : "Map every size to a role"}: ${strays.join(", ")} (usually a piece's own text-sm / text-[15px]) go to the nearest role`);
+  }
   const fams = a2.families.filter(([, n3]) => n3 >= 3);
   if (fams.length > (persuade ? 2 : 3)) blockers.push(`${fams.length} font families (${fams.map(([f3]) => f3).join(", ")}); one display face + one text face`);
   if (a2.smallShare > (persuade ? 0.15 : 0.3)) blockers.push(`${Math.round(a2.smallShare * 100)}% of the words are under 14px; nothing but the legal line goes under the Small role (14px)`);
@@ -105366,7 +105500,7 @@ ${s2.description.slice(0, 1500)}
               return f3;
             });
             const host = key.slice(5).split("/")[0];
-            remember({ key, source: "site", id: host, title: r2.audit.title || host, url: url2, image: files[0], images: files, designer: host, designerUrl: host, tags: ["website"], from: { category: "web-design" } });
+            remember({ key, source: "site", id: host, title: r2.audit.title || host, url: url2, image: files[0], images: files, designer: host, designerUrl: host, tags: ["website"], from: { category: "web-design" }, measured: measuredFacts(r2.audit) });
             updateState((st) => {
               if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
               if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
@@ -105513,6 +105647,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     })
   );
   const VAGUE = /^(clean|modern|nice|good|great|minimal|sleek|cool|beautiful|simple|bold|elegant)\.?$/i;
+  const measuredFacts = (a2) => a2 ? [a2.h1 && `h1 ${a2.h1}px`, a2.h2 && `h2 ${a2.h2}px`, a2.bodyText && `body ${a2.bodyText}px`, a2.fontSizes?.length && `${a2.fontSizes.length} type sizes`, a2.families?.length && `type ${a2.families.slice(0, 2).map((x2) => x2[0]).join(" + ")}`, a2.words && `${a2.words} words`, a2.screens && `${a2.screens} screens tall`].filter(Boolean).join(", ") || null : null;
   const STUDY_EXAMPLE = {
     layout: '"12-col, headline spans cols 1-8, picture bleeds right at 55% width"',
     type: '"condensed grotesk caps ~140px, body 18px, ratio ~8:1"',
@@ -105562,7 +105697,9 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
       if (weak.length || concrete < 3)
         return {
           ok: false,
-          msg: `${n3.shot}: too vague. ` + weak.map((f3) => `${f3}: ${!n3[f3] ? "missing" : VAGUE.test(n3[f3].trim()) ? `"${n3[f3].trim()}" is a vibe, not a fact` : `"${n3[f3].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f3]}`).join(" \xB7 ") + (concrete < 3 ? `${weak.length ? " \xB7 " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : "")
+          msg: `${n3.shot}: too vague. ` + weak.map((f3) => `${f3}: ${!n3[f3] ? "missing" : VAGUE.test(n3[f3].trim()) ? `"${n3[f3].trim()}" is a vibe, not a fact` : `"${n3[f3].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f3]}`).join(" \xB7 ") + (concrete < 3 ? `${weak.length ? " \xB7 " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3` : "") + `
+An accepted study looks like: ${Object.entries(STUDY_EXAMPLE).map(([k, v]) => `${k}: ${v}`).join("; ")}.` + (item.measured ? `
+This site's measured numbers, to use: ${item.measured}.` : "")
         };
       if (n3.role !== "before" && (!n3.fits || n3.fits.trim().length < 15 || VAGUE.test(n3.fits.trim())))
         return { ok: false, msg: `${n3.shot}: fits: say why this reference fits this brief (the same kind of product, the audience, the look asked for, a layout that suits the content), in a sentence. The build follows it closely and the user sees why.` };
@@ -108867,6 +109004,7 @@ function componentHashes(pageRoot2, base = projectDir()) {
   return out;
 }
 var DEMO_EFFECTS = /\b(?:hover:)?shadow-(?:md|lg|xl|2xl)\b|\bhover:(?:-?translate-y-[\w.[\]]+|scale-1\d\d)\b|\bring-[1-4]\b/g;
+var DEMO_SIZES = /\b(?:[a-z]+:)?text-(?:xs|sm|base|lg|xl|[2-9]xl|\[\d+(?:\.\d+)?(?:px|rem)\])(?![\w-])/g;
 var DEMO_COLOURS = /\b(?:bg|text|border|ring|from|via|to|fill|stroke|shadow|outline|divide)-(?:zinc|slate|gray|neutral|stone|blue|indigo|violet|purple|sky)-\d{2,3}\b/g;
 function unusedPieces(task, root = projectDir()) {
   if (!task?.page?.dir || !task.sections) return [];
@@ -108897,7 +109035,8 @@ function pieceReview(task, root = projectDir()) {
     const unchanged = task.installed && mine.every((f3) => task.installed[relPath(root, f3)] === sha1(fs60.readFileSync(f3)));
     const effects = [...new Set(mine.flatMap((f3) => fs60.readFileSync(f3, "utf8").match(DEMO_EFFECTS) || []))];
     const colours = [...new Set(mine.flatMap((f3) => fs60.readFileSync(f3, "utf8").match(DEMO_COLOURS) || []))];
-    const bits = [effects.length ? `effects ${effects.slice(0, 4).join(", ")}` : "", colours.length >= 3 ? `demo colours ${colours.slice(0, 4).join(", ")}` : ""].filter(Boolean);
+    const sizes = [...new Set(mine.flatMap((f3) => fs60.readFileSync(f3, "utf8").match(DEMO_SIZES) || []))];
+    const bits = [effects.length ? `effects ${effects.slice(0, 4).join(", ")}` : "", colours.length >= 3 ? `demo colours ${colours.slice(0, 4).join(", ")}` : "", sizes.length >= 2 ? `its own type sizes ${sizes.slice(0, 5).join(", ")} (use the page's type roles)` : ""].filter(Boolean);
     if (unchanged || bits.length)
       out.push(`#${id} (${[...names3].join(", ") || piece})${unchanged ? " is unchanged from the library" : ""}${bits.length ? `${unchanged ? ", with" : " still has"} ${bits.join("; ")}` : ""}: keep what fits this page, change what doesn't (its other cards, buttons and hover are the measure)`);
   }
@@ -108920,6 +109059,59 @@ function piecesOnPage(task, root) {
     out.push({ id, piece: s2.piece, names: names3, mine });
   }
   return out;
+}
+var SKIP_DIRS = /* @__PURE__ */ new Set(["node_modules", "dist", "build", "public", ".git", ".drip", ".next", ".vite"]);
+function installSnapshot(pageRoot2) {
+  const out = {};
+  const visit3 = (dir, depth) => {
+    if (depth < 0 || !fs60.existsSync(dir)) return;
+    for (const e2 of fs60.readdirSync(dir, { withFileTypes: true })) {
+      if (SKIP_DIRS.has(e2.name) || e2.name.startsWith(".")) continue;
+      const f3 = path59.join(dir, e2.name);
+      if (e2.isDirectory()) visit3(f3, depth - 1);
+      else if (/\.(tsx|ts|jsx|js|css)$/.test(e2.name) && fs60.statSync(f3).size < 4e5) out[path59.relative(pageRoot2, f3).split(path59.sep).join("/")] = fs60.readFileSync(f3, "utf8");
+    }
+  };
+  visit3(pageRoot2, 7);
+  return out;
+}
+var isStub = (s2) => !String(s2).replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "").replace(/export\s*\{\s*\}\s*;?/g, "").trim();
+function tidyInstall(pageRoot2, before) {
+  const after = installSnapshot(pageRoot2);
+  const done = [];
+  const abs2 = (rel3) => path59.join(pageRoot2, ...rel3.split("/"));
+  const emptied = /* @__PURE__ */ new Set();
+  for (const [rel3, text2] of Object.entries(after)) {
+    const was = before[rel3];
+    if (was === void 0 && isStub(text2)) {
+      fs60.rmSync(abs2(rel3), { force: true });
+      emptied.add(path59.dirname(abs2(rel3)));
+      done.push(`removed the empty file ${rel3}`);
+    } else if (was !== void 0 && !isStub(was) && isStub(text2)) {
+      fs60.writeFileSync(abs2(rel3), was);
+      done.push(`restored ${rel3} (the install emptied it)`);
+    } else if (was === void 0 && !/^src\//.test(rel3) && /\.(tsx|ts|jsx|js|css)$/.test(rel3) && !/^[^/]+\.(c|m)?(js|ts)$/.test(rel3)) {
+      const target = `src/${rel3}`;
+      if (after[target] === void 0) {
+        fs60.mkdirSync(path59.dirname(abs2(target)), { recursive: true });
+        fs60.renameSync(abs2(rel3), abs2(target));
+        done.push(`moved ${rel3} to ${target}`);
+      } else if (after[target] === text2) {
+        fs60.rmSync(abs2(rel3), { force: true });
+        done.push(`removed ${rel3} (a copy of ${target})`);
+      } else {
+        done.push(`left ${rel3}: it is outside src/ and differs from ${target}; merge or delete it`);
+      }
+      emptied.add(path59.dirname(abs2(rel3)));
+    }
+  }
+  for (let d of emptied) {
+    while (d.startsWith(pageRoot2) && d !== pageRoot2 && fs60.existsSync(d) && !fs60.readdirSync(d).length) {
+      fs60.rmdirSync(d);
+      d = path59.dirname(d);
+    }
+  }
+  return done;
 }
 
 // src/modules/parts/index.mjs
@@ -109216,10 +109408,11 @@ function registerDeal(server2, ctx2) {
       description: `Installs the chosen pieces (registry URLs from layout_deal's PIECES ON OFFER or components_find) into a React page in ONE shadcn CLI run, so parallel builders never fight over npm. Waits for the page's npm install first. Example: pieces_install({ page: "saas-award-4", urls: ["https://magicui.design/r/marquee.json", "https://reactbits.dev/r/Silk-TS-TW.json"] })`,
       inputSchema: {
         page: external_exports.string().describe("The React page folder (from layout_deal out)"),
-        urls: external_exports.array(external_exports.string().url()).min(1).max(20)
+        urls: external_exports.array(external_exports.string().url()).min(1).max(20),
+        section: external_exports.string().optional().describe("Swapping a section's piece (one that broke or doesn't fit): the section id from build_prepare. The first url becomes that section's piece, with no new build_prepare; then the builder (or you) swaps the import.")
       }
     },
-    safe(async ({ page: page2, urls }) => {
+    safe(async ({ page: page2, urls, section }) => {
       const dir = path60.resolve(projectDir(), page2);
       const root = fs61.existsSync(dir) && fs61.statSync(dir).isFile() ? path60.dirname(dir) : dir;
       if (!isReactPage(root)) return text(`${page2} is not a React page (no vite.config.ts + src/App.tsx). On a plain page use parts_get, or download a plain-HTML piece.`, true);
@@ -109228,12 +109421,14 @@ function registerDeal(server2, ctx2) {
       await ensureInstalled(root);
       const add2 = () => sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u2) => `"${u2}"`).join(" ")}`, root).catch((e2) => `FAILED: ${e2.message}`);
       const before = componentHashes(root);
+      const snap = installSnapshot(root);
       let outp = await add2();
       for (let i2 = 0; i2 < 2 && /^FAILED/.test(outp) && /timed? ?out|ETIMEDOUT|ECONNRESET|fetch failed|socket hang up|503|502|429/i.test(outp); i2++) {
         await new Promise((r2) => setTimeout(r2, 3e3 * (i2 + 1)));
         outp = await add2();
       }
-      const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f3) => f3.replace(/\\/g, "/")))];
+      const tidied = tidyInstall(root, snap);
+      const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f3) => f3.replace(/\\/g, "/")))].filter((f3) => fs61.existsSync(path60.join(root, f3)));
       const names3 = Object.fromEntries(await Promise.all(urls.map(async (u2) => [u2, await registryFileNames(u2)])));
       const after = componentHashes(root);
       const installed = Object.fromEntries(Object.entries(after).filter(([f3, h]) => before[f3] !== h));
@@ -109242,10 +109437,17 @@ function registerDeal(server2, ctx2) {
         st.task.installed = { ...st.task.installed || {}, ...installed };
         st.task.pieces = [.../* @__PURE__ */ new Set([...st.task.pieces || [], ...urls])];
         st.task.pieceFiles = { ...st.task.pieceFiles || {}, ...Object.fromEntries(Object.entries(names3).filter(([, n3]) => n3.length)) };
+        if (section && !/^FAILED/.test(outp)) {
+          const id = slug(section, { max: Infinity });
+          st.task.sections ||= {};
+          const was = st.task.sections[id];
+          st.task.sections[id] = { ...was || { spec: "" }, piece: urls[0], ...was?.piece && was.piece !== urls[0] ? { replaced: was.piece } : {} };
+        }
       });
       if (!/^FAILED/.test(outp)) for (const u2 of urls) filmRecord("piece", { name: `${new URL(u2).hostname.replace(/^www\./, "").split(".")[0]} ${u2.split("/").pop().replace(/\.json$/i, "")}`, url: u2, picked: true }, null, { tool: "pieces_install" });
-      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path60.relative(projectDir(), root)}.`}${files.length ? `
-Files: ${files.join(", ")}` : ""}
+      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path60.relative(projectDir(), root)}.${section ? ` ${urls[0].split("/").pop()} is now the piece for ${section}: swap its import there (the old piece's file can go).` : ""}`}${files.length ? `
+Files: ${files.join(", ")}` : ""}${tidied.length ? `
+Tidied after the install: ${tidied.join("; ")}.` : ""}
 Builders import them from @/components/... and review them against the page: keep what fits, change what doesn't (tokens, radius, borders, shadows, hover effects, motion timing, content).`, /^FAILED/.test(outp));
     })
   );
@@ -109402,7 +109604,7 @@ var SOURCES2 = {
   },
   async web({ query, orientation, limit }) {
     const { body } = await get(`https://www.bing.com/images/async?q=${encodeURIComponent(query)}&first=0&count=${Math.max(limit * 3, 35)}&qft=+filterui:imagesize-large${orientation === "landscape" ? "+filterui:aspect-wide" : orientation === "portrait" ? "+filterui:aspect-tall" : ""}&adlt=moderate`, { as: "text", headers: BROWSER_UA, ttlMs: 24 * 36e5 });
-    const STOCK = /(alamy|dreamstime|istockphoto|gettyimages|shutterstock|stock.adobe|adobestock|vecteezy|123rf|depositphotos|bigstockphoto|canstockphoto|stocksy|pond5|agefotostock|superstock)./i;
+    const STOCK = /(alamy|dreamstime|istockphoto|gettyimages|shutterstock|stock.adobe|adobestock|vecteezy|123rf|depositphotos|bigstockphoto|canstockphoto|stocksy|pond5|agefotostock|superstock|freepik|pngtree|vectorstock|envato|photodune|colourbox|megapixl|panthermedia|fotosearch|masterfile|westend61|lovepik|pikbest|storyblocks|pixta|crushpixel|yayimages|clipdealer|fotolia|thinkstock|wavebreakmedia|stockfresh|featurepics|mostphotos|eyeem|picfair|imagesbazaar|photocase|rawpixel)./i;
     const perHost = {};
     const host = (u2) => {
       try {
@@ -109498,10 +109700,11 @@ function register14(server2, ctx2) {
         orientation: external_exports.enum(["landscape", "portrait", "square"]).optional(),
         color: external_exports.string().optional().describe("unsplash/pexels/pixabay colour filter, e.g. 'blue', 'black_and_white', 'orange'"),
         kind: external_exports.enum(["photo", "illustration", "vector"]).optional().describe("pixabay only"),
-        limit: external_exports.number().int().min(4).max(30).optional()
+        limit: external_exports.number().int().min(1).max(30).optional().describe("Results wanted (4 at least are shown: a small ask is rounded up)")
       }
     },
-    safe(async ({ query, queries, source, orientation, color: color2, kind, limit = 12 }) => {
+    safe(async ({ query, queries, source, orientation, color: color2, kind, limit: asked = 12 }) => {
+      const limit = Math.max(4, asked);
       const qs = [...new Set([query, ...queries || []].filter(Boolean))];
       if (!qs.length) return text("Pass query (or queries).", true);
       const keyed = ["unsplash", "pexels", "pixabay"].filter((k) => getKey(k));
@@ -111703,7 +111906,7 @@ Check: does the mark hold on its ground? Do the shares feel like the direction (
 
 // src/modules/fitcheck/index.mjs
 init_chrome();
-var isHard = (b) => /(^|: )broken:|not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
+var isHard = (b) => /(^|: )broken:|not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|type off the scale|is drawn over|no h1/i.test(String(b));
 var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 function register23(server2, ctx2) {
   register22(server2, ctx2);
@@ -119047,7 +119250,7 @@ ${ttl ? `The page runs for ${Number(flags.ttl)} minutes.` : "The page runs while
 }
 
 // src/index.mjs
-var VERSION = "0.10.0";
+var VERSION = "0.10.1";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

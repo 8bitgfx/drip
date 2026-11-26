@@ -22,7 +22,7 @@ import { restitchIfStale } from "../swarm/index.mjs";
 import { pieceReview, unusedPieces } from "../../core/pieces-check.mjs";
 
 /** A blocker that means the page is broken (something cut off, covered, sideways, unfilled), not a number to tune. */
-export const isHard = (b) => /(^|: )broken:|not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
+export const isHard = (b) => /(^|: )broken:|not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|type off the scale|is drawn over|no h1/i.test(String(b));
 
 const CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 

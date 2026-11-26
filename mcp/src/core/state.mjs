@@ -81,8 +81,10 @@ function resolveId(raw) {
   // not its business (its Stop hook must not demand fit checks for edits it never made). A resumed session keeps its
   // own task through ownerSession / the sessions map above.
   // A task with no owner (made by the CLI, a test, or a host without session ids) can still be picked up.
-  // The MCP server may resume a task whose session ended (the agent is using Drip's tools); hooks never adopt one.
-  const foreign = (t) => !me.server && me.session && ((t.ownerSession && t.ownerSession !== me.session) || Object.entries(raw.sessions).some(([sid, id]) => id === t.id && sid !== me.session));
+  // A task another session started stays that session's, even after it ended: neither the hooks nor this session's server
+  // pick it up by themselves (a leftover task in a shared folder once took over a new session that only called refs tools,
+  // and its Stop hook then demanded checks for work it never did). Continuing it is explicit: drip_status({ resume: true }).
+  const foreign = (t) => me.session && ((t.ownerSession && t.ownerSession !== me.session) || Object.entries(raw.sessions).some(([sid, id]) => id === t.id && sid !== me.session));
   // No session id, or an ownerless task: a task nobody live is working on is yours.
   const free = Object.values(raw.tasks).filter((t) => !foreign(t) && !ownedByOther(t, raw));
   return free.length === 1 ? free[0].id : null;
@@ -109,6 +111,22 @@ export function otherTasks(cwd) {
   const raw = readRaw(cwd);
   const mine = resolveId(raw);
   return Object.values(raw.tasks).filter((t) => t.id !== mine && ownedByOther(t, raw));
+}
+
+/** Continue a task whose session has ended (the user asked to): this session owns it from now on. Returns it, or null. */
+export function resumeOrphan(taskId, cwd) {
+  const raw = readRaw(cwd);
+  const list = orphanTasks(cwd);
+  const t = taskId ? list.find((x) => x.id === taskId) : list.length === 1 ? list[0] : null;
+  if (!t) return null;
+  for (const [sid, id] of Object.entries(raw.sessions)) if (id === t.id) delete raw.sessions[sid];
+  const task = raw.tasks[t.id];
+  task.ownerSession = me.session || null;
+  task.ownerPid = me.server ? process.pid : task.ownerPid;
+  if (me.session) raw.sessions[me.session] = task.id;
+  if (me.server) me.taskId = task.id;
+  writeRaw(raw, cwd);
+  return task;
 }
 
 /** Hooks: remember that `session` works on task `taskId` (after drip_start answered it). */

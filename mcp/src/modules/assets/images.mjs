@@ -96,7 +96,7 @@ const SOURCES = {
   async web({ query, orientation, limit }) {
     const { body } = await get(`https://www.bing.com/images/async?q=${encodeURIComponent(query)}&first=0&count=${Math.max(limit * 3, 35)}&qft=+filterui:imagesize-large${orientation === "landscape" ? "+filterui:aspect-wide" : orientation === "portrait" ? "+filterui:aspect-tall" : ""}&adlt=moderate`, { as: "text", headers: BROWSER_UA, ttlMs: 24 * 3600e3 });
     // Stock agencies serve watermarked previews: useless even as a draft.
-    const STOCK = /(alamy|dreamstime|istockphoto|gettyimages|shutterstock|stock.adobe|adobestock|vecteezy|123rf|depositphotos|bigstockphoto|canstockphoto|stocksy|pond5|agefotostock|superstock)./i;
+    const STOCK = /(alamy|dreamstime|istockphoto|gettyimages|shutterstock|stock.adobe|adobestock|vecteezy|123rf|depositphotos|bigstockphoto|canstockphoto|stocksy|pond5|agefotostock|superstock|freepik|pngtree|vectorstock|envato|photodune|colourbox|megapixl|panthermedia|fotosearch|masterfile|westend61|lovepik|pikbest|storyblocks|pixta|crushpixel|yayimages|clipdealer|fotolia|thinkstock|wavebreakmedia|stockfresh|featurepics|mostphotos|eyeem|picfair|imagesbazaar|photocase|rawpixel)./i;
     const perHost = {};
     const host = (u) => { try { return new URL(u).hostname; } catch { return u; } };
     return parseBing(body).filter((r) => !STOCK.test(r.page) && !STOCK.test(r.full) && (perHost[host(r.page)] = (perHost[host(r.page)] || 0) + 1) <= 3).slice(0, limit).map((r) => ({ ...r, width: 0, height: 0, author: (() => { try { return new URL(r.page).hostname.replace(/^www\./, ""); } catch { return "web"; } })(), license: "web find (draft: check before shipping)" }));
@@ -202,10 +202,11 @@ export function register(server, ctx) {
         orientation: z.enum(["landscape", "portrait", "square"]).optional(),
         color: z.string().optional().describe("unsplash/pexels/pixabay colour filter, e.g. 'blue', 'black_and_white', 'orange'"),
         kind: z.enum(["photo", "illustration", "vector"]).optional().describe("pixabay only"),
-        limit: z.number().int().min(4).max(30).optional(),
+        limit: z.number().int().min(1).max(30).optional().describe("Results wanted (4 at least are shown: a small ask is rounded up)"),
       },
     },
-    safe(async ({ query, queries, source, orientation, color, kind, limit = 12 }) => {
+    safe(async ({ query, queries, source, orientation, color, kind, limit: asked = 12 }) => {
+      const limit = Math.max(4, asked);
       const qs = [...new Set([query, ...(queries || [])].filter(Boolean))];
       if (!qs.length) return text("Pass query (or queries).", true);
       const keyed = ["unsplash", "pexels", "pixabay"].filter((k) => getKey(k));

@@ -14,8 +14,9 @@ import { serveDir } from "../../core/serve.mjs";
 import { projectDir } from "../../core/paths.mjs";
 import { vendor0 } from "../../core/setup.mjs";
 import { updateState } from "../../core/state.mjs";
+import { slug as slugOf } from "../../core/util.mjs";
 import { dealPieces, formatPieces, ownedKits, saveKits } from "./pieces.mjs";
-import { componentHashes } from "../../core/pieces-check.mjs";
+import { componentHashes, installSnapshot, tidyInstall } from "../../core/pieces-check.mjs";
 import { filmRecord } from "../film/record.mjs";
 import { ensureInstalled, isReactPage, scaffoldReact, sh } from "./react.mjs";
 
@@ -334,9 +335,10 @@ export function registerDeal(server, ctx) {
       inputSchema: {
         page: z.string().describe("The React page folder (from layout_deal out)"),
         urls: z.array(z.string().url()).min(1).max(20),
+        section: z.string().optional().describe("Swapping a section's piece (one that broke or doesn't fit): the section id from build_prepare. The first url becomes that section's piece, with no new build_prepare; then the builder (or you) swaps the import."),
       },
     },
-    safe(async ({ page, urls }) => {
+    safe(async ({ page, urls, section }) => {
       const dir = path.resolve(projectDir(), page);
       const root = fs.existsSync(dir) && fs.statSync(dir).isFile() ? path.dirname(dir) : dir;
       if (!isReactPage(root)) return text(`${page} is not a React page (no vite.config.ts + src/App.tsx). On a plain page use parts_get, or download a plain-HTML piece.`, true);
@@ -348,12 +350,15 @@ export function registerDeal(server, ctx) {
       // Fingerprints of the component files before and after: a file this install wrote is remembered as installed, so
       // the page check can tell a piece that was adapted to the page from one left exactly as it came.
       const before = componentHashes(root);
+      const snap = installSnapshot(root);
       let outp = await add();
       for (let i = 0; i < 2 && /^FAILED/.test(outp) && /timed? ?out|ETIMEDOUT|ECONNRESET|fetch failed|socket hang up|503|502|429/i.test(outp); i++) {
         await new Promise((r) => setTimeout(r, 3000 * (i + 1)));
         outp = await add();
       }
-      const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f) => f.replace(/\\/g, "/")))];
+      // Registry items that ship empty placeholder files or write outside src/: tidied here, never left for the director.
+      const tidied = tidyInstall(root, snap);
+      const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f) => f.replace(/\\/g, "/")))].filter((f) => fs.existsSync(path.join(root, f)));
       // A registry item's files are often named apart from the item (efferd's "header3" installs header.tsx): keep its real
       // file names, so the page check finds the piece by what it installed, not by its URL.
       const names = Object.fromEntries(await Promise.all(urls.map(async (u) => [u, await registryFileNames(u)])));
@@ -364,10 +369,16 @@ export function registerDeal(server, ctx) {
         st.task.installed = { ...(st.task.installed || {}), ...installed };
         st.task.pieces = [...new Set([...(st.task.pieces || []), ...urls])];
         st.task.pieceFiles = { ...(st.task.pieceFiles || {}), ...Object.fromEntries(Object.entries(names).filter(([, n]) => n.length)) };
+        if (section && !/^FAILED/.test(outp)) {
+          const id = slugOf(section, { max: Infinity });
+          st.task.sections ||= {};
+          const was = st.task.sections[id];
+          st.task.sections[id] = { ...(was || { spec: "" }), piece: urls[0], ...(was?.piece && was.piece !== urls[0] ? { replaced: was.piece } : {}) };
+        }
       });
       // Picked: the film shows each with the picture it was previewed with (matched by name).
       if (!/^FAILED/.test(outp)) for (const u of urls) filmRecord("piece", { name: `${new URL(u).hostname.replace(/^www\./, "").split(".")[0]} ${u.split("/").pop().replace(/\.json$/i, "")}`, url: u, picked: true }, null, { tool: "pieces_install" });
-      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path.relative(projectDir(), root)}.`}${files.length ? `\nFiles: ${files.join(", ")}` : ""}\nBuilders import them from @/components/... and review them against the page: keep what fits, change what doesn't (tokens, radius, borders, shadows, hover effects, motion timing, content).`, /^FAILED/.test(outp));
+      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path.relative(projectDir(), root)}.${section ? ` ${urls[0].split("/").pop()} is now the piece for ${section}: swap its import there (the old piece's file can go).` : ""}`}${files.length ? `\nFiles: ${files.join(", ")}` : ""}${tidied.length ? `\nTidied after the install: ${tidied.join("; ")}.` : ""}\nBuilders import them from @/components/... and review them against the page: keep what fits, change what doesn't (tokens, radius, borders, shadows, hover effects, motion timing, content).`, /^FAILED/.test(outp));
     }),
   );
 

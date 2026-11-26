@@ -475,16 +475,19 @@ export function stitchPage(page, sections) {
   const missing = [];
   if (pg.stack === "react") {
     const app = path.join(pg.root, "src", "App.tsx");
-    let src = fs.readFileSync(app, "utf8");
-    for (const id of sections) (fs.existsSync(path.join(pg.root, "src", "sections", `${pascal(id)}.tsx`)) ? found : missing).push(id);
-    const imports = found.map((id) => `import ${pascal(id)} from "./sections/${pascal(id)}";`).join("\n");
-    const els = found.map((id) => `        <${pascal(id)} />`).join("\n");
-    if (!/\/\/ drip:imports[\s\S]*?\/\/ \/drip:imports/.test(src) || !/\{\/\* drip:sections \*\/\}[\s\S]*?\{\/\* \/drip:sections \*\/\}/.test(src))
-      return { error: `${path.relative(projectDir(), app)} has no drip markers (// drip:imports … // /drip:imports and {/* drip:sections */} … {/* /drip:sections */}). Add them, or import the sections by hand.` };
-    src = src.replace(/\/\/ drip:imports[\s\S]*?\/\/ \/drip:imports/, () => `// drip:imports\n${imports}${imports ? "\n" : ""}// /drip:imports`);
-    src = src.replace(/\{\/\* drip:sections \*\/\}[\s\S]*?\{\/\* \/drip:sections \*\/\}/, () => `{/* drip:sections */}\n${els}${els ? "\n" : ""}        {/* /drip:sections */}`);
-    fs.writeFileSync(app, src);
-    return { summary: `Stitched ${found.length} section(s) into ${pg.rel}/src/App.tsx${found.length ? `: ${found.join(", ")}` : ""}.${missing.length ? ` Not written yet: ${missing.join(", ")} (src/sections/<Id>.tsx).` : ""}`, found, missing };
+    const src = fs.readFileSync(app, "utf8");
+    const r = stitchReact(src, sections, (id) => fs.existsSync(path.join(pg.root, "src", "sections", `${pascal(id)}.tsx`)));
+    if (r.error) return { error: `${path.relative(projectDir(), app)} ${r.error}` };
+    if (r.src !== src) fs.writeFileSync(app, r.src);
+    return {
+      summary:
+        `Stitched ${r.found.length} section(s) into ${pg.rel}/src/App.tsx${r.found.length ? `: ${r.found.join(", ")}` : ""}.` +
+        (r.already.length ? ` Already in App.tsx outside the markers, left there: ${r.already.join(", ")}.` : "") +
+        (r.dropped.length ? ` Removed duplicate import(s): ${r.dropped.join(", ")}.` : "") +
+        (r.missing.length ? ` Not written yet: ${r.missing.join(", ")} (src/sections/<Id>.tsx).` : ""),
+      found: r.found,
+      missing: r.missing,
+    };
   }
   const abs = fs.statSync(path.resolve(projectDir(), page)).isFile() ? path.resolve(projectDir(), page) : path.join(pg.root, "index.html");
   if (!fs.existsSync(abs)) return { error: `No page at ${page}. Write the page (nav + hero) first.` };
@@ -511,6 +514,44 @@ export function stitchPage(page, sections) {
   if (links.length) html = html.replace("</head>", `${links.join("\n")}\n</head>`);
   fs.writeFileSync(abs, html);
   return { summary: `Stitched ${found.length} section(s) into ${path.relative(projectDir(), abs)}${found.length ? `: ${found.join(", ")}` : ""}.${missing.length ? ` Not written yet: ${missing.join(", ")} (sections/<id>.html).` : ""}${links.length ? ` Linked ${links.length} stylesheet(s).` : ""}`, found, missing };
+}
+
+const IMPORTS_BLOCK = /\/\/ drip:imports[\s\S]*?\/\/ \/drip:imports/;
+const SECTIONS_BLOCK = /\{\/\* drip:sections \*\/\}[\s\S]*?\{\/\* \/drip:sections \*\/\}/;
+
+/**
+ * App.tsx with the sections put between Drip's markers. Safe to run any number of times: a section the App already imports
+ * or renders outside the markers (a builder or the director added it by hand) is left where it is, never imported twice,
+ * and a second import of the same name anywhere in the file is removed (two imports of one name blank the page).
+ */
+export function stitchReact(src, sections, exists = () => true) {
+  if (!IMPORTS_BLOCK.test(src) || !SECTIONS_BLOCK.test(src))
+    return { error: "has no drip markers (// drip:imports … // /drip:imports and {/* drip:sections */} … {/* /drip:sections */}). Add them, or import the sections by hand." };
+  const outside = src.replace(IMPORTS_BLOCK, "").replace(SECTIONS_BLOCK, "");
+  const found = [];
+  const missing = [];
+  const already = [];
+  for (const id of [...new Set(sections)]) {
+    const name = pascal(id);
+    if (new RegExp(`import\\s+${name}\\b|import\\s*\\{[^}]*\\b${name}\\b[^}]*\\}|<${name}[\\s/>]`).test(outside)) already.push(id);
+    else (exists(id) ? found : missing).push(id);
+  }
+  const imports = found.map((id) => `import ${pascal(id)} from "./sections/${pascal(id)}";`).join("\n");
+  const els = found.map((id) => `        <${pascal(id)} />`).join("\n");
+  let out = src.replace(IMPORTS_BLOCK, () => `// drip:imports\n${imports}${imports ? "\n" : ""}// /drip:imports`);
+  out = out.replace(SECTIONS_BLOCK, () => `{/* drip:sections */}\n${els}${els ? "\n" : ""}        {/* /drip:sections */}`);
+  // One default import per local name: keep the first, drop the repeats.
+  const seen = new Set();
+  const dropped = [];
+  out = out.replace(/^[ \t]*import\s+([A-Za-z_$][\w$]*)\s+from\s+["'][^"']+["'];?[ \t]*\r?\n/gm, (line, name) => {
+    if (!seen.has(name)) {
+      seen.add(name);
+      return line;
+    }
+    dropped.push(name);
+    return "";
+  });
+  return { src: out, found, missing, already, dropped };
 }
 
 /** Re-stitch a static page when a section file changed after the page was last written (fitcheck_shot calls this). */

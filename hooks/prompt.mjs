@@ -16,6 +16,8 @@ run(async () => {
   }
   const config = loadConfig(dir);
   const { task } = loadState(dir);
+  // A skipped task gates nothing: it isn't "active design work" to keep reminding about.
+  if (task?.skipped) return allow();
   if (task) {
     // A big-change request on a page that's already built opens a new round: a fresh look and pieces before any UI
     // write (reworkMissing in state.mjs). Without it every gate is already met and the agent hand-rolls effects.

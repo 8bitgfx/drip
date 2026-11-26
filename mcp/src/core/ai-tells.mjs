@@ -193,7 +193,8 @@ export function aiTellsInPage() {
   });
   const deadStyled = dead.filter((a) => styled.includes(a));
   if (deadStyled.length) add("block", "dead button", deadStyled.slice(0, 4).map(label).join(", "), `${deadStyled.length} button-styled link(s) go nowhere (href="#"): link them to the page, section or sign-up they promise`);
-  else if (dead.length >= 3) add("warn", "dead links", dead.slice(0, 4).map(label).join(", "), `${dead.length} links go nowhere (href="#")`);
+  // A footer or nav full of links to nowhere is placeholder content: link each to a real section or page, or drop it.
+  else if (dead.length >= 3) add(dead.length >= 6 ? "block" : "warn", "dead links", dead.slice(0, 4).map(label).join(", "), `${dead.length} links go nowhere (href="#"): point each at a real section (#pricing) or page, or remove the ones with nowhere to go`);
 
   // ---- pictures ---------------------------------------------------------------------------------------------
   let stretched = 0, broken = 0, noAlt = 0;
@@ -363,24 +364,59 @@ export async function blankVisuals(buf, boxes, scale = 1) {
   const img = await Jimp.read(buf);
   const out = [];
   for (const b of boxes) {
-    const x0 = Math.max(0, Math.round(b.x * scale)), y0 = Math.max(0, Math.round(b.y * scale));
-    const x1 = Math.min(img.width, Math.round((b.x + b.w) * scale)), y1 = Math.min(img.height, Math.round((b.y + b.h) * scale));
-    const step = Math.max(2, Math.round(Math.min(x1 - x0, y1 - y0) / 60));
-    const ls = [];
-    const inHole = (x, y) => (b.holes || []).some((h) => x >= h.x * scale && x <= (h.x + h.w) * scale && y >= h.y * scale && y <= (h.y + h.h) * scale);
-    for (let y = y0; y < y1; y += step)
-      for (let x = x0; x < x1; x += step) {
-        if (inHole(x, y)) continue;
-        const c = img.getPixelColor(x, y);
-        ls.push(0.299 * ((c >>> 24) & 255) + 0.587 * ((c >>> 16) & 255) + 0.114 * ((c >>> 8) & 255));
-      }
-    if (ls.length < 20) continue;
+    const flat = flatShare(img, b, scale);
+    if (flat == null) continue;
     // Blank = nearly all of the box is one flat colour. The headline set over it covers a small share, so it doesn't count.
-    const median = [...ls].sort((p, q) => p - q)[Math.floor(ls.length / 2)];
-    const flat = ls.filter((l) => Math.abs(l - median) <= 8).length / ls.length;
     const why = "It must look striking on its own (moving by itself: drifting, rotating, flowing, clearly visible on its ground) and get cooler on cursor and scroll";
     if (flat > 0.995) out.push({ sev: "block", kind: "visual blank at rest", text: b.tag, detail: `the ${b.tag} in the first screen is one flat colour until someone interacts. ${why}` });
     else if (flat > 0.985) out.push({ sev: "warn", kind: "visual faint at rest", text: b.tag, detail: `the ${b.tag} in the first screen is ${(flat * 100).toFixed(1)}% one flat colour without input: most visitors see almost nothing. ${why}` });
+  }
+  return out;
+}
+
+/** Share of a box (page px, scaled by `scale` into the image) that is one flat colour, text and controls left out; null if too small. */
+export function flatShare(img, b, scale = 1) {
+  const x0 = Math.max(0, Math.round(b.x * scale)), y0 = Math.max(0, Math.round(b.y * scale));
+  const x1 = Math.min(img.width, Math.round((b.x + b.w) * scale)), y1 = Math.min(img.height, Math.round((b.y + b.h) * scale));
+  const step = Math.max(2, Math.round(Math.min(x1 - x0, y1 - y0) / 60));
+  const ls = [];
+  const inHole = (x, y) => (b.holes || []).some((h) => x >= h.x * scale && x <= (h.x + h.w) * scale && y >= h.y * scale && y <= (h.y + h.h) * scale);
+  for (let y = y0; y < y1; y += step)
+    for (let x = x0; x < x1; x += step) {
+      if (inHole(x, y)) continue;
+      const c = img.getPixelColor(x, y);
+      ls.push(0.299 * ((c >>> 24) & 255) + 0.587 * ((c >>> 16) & 255) + 0.114 * ((c >>> 8) & 255));
+    }
+  if (ls.length < 20) return null;
+  const median = [...ls].sort((p, q) => p - q)[Math.floor(ls.length / 2)];
+  return ls.filter((l) => Math.abs(l - median) <= 8).length / ls.length;
+}
+
+/** Run in the page: every canvas big enough to be a piece (WebGL galleries, shaders), in page px, with its section. */
+export function canvasBoxes() {
+  return [...document.querySelectorAll("canvas")]
+    .map((el, i) => ({ el, i, r: el.getBoundingClientRect() }))
+    .filter(({ el, r }) => r.width >= 200 && r.height >= 150 && getComputedStyle(el).visibility !== "hidden" && +getComputedStyle(el).opacity > 0.05)
+    .slice(0, 6)
+    .map(({ el, i, r }) => {
+      const sec = el.parentElement?.closest("section, footer, header, [id]");
+      return { i, top: Math.round(r.top + scrollY), h: Math.round(r.height), where: sec ? sec.tagName.toLowerCase() + (sec.id ? "#" + sec.id : "") : "the page" };
+    });
+}
+
+/**
+ * A canvas that drew nothing once on screen (one flat colour after it scrolled into view): a WebGL piece that failed in this
+ * browser renders solid black with no error on the page. `look(i)` scrolls canvas i into view and returns { buf, box } of
+ * its on-screen box. Returns findings for aiTellsInPage's list.
+ */
+export async function deadCanvases(boxes, look, scale = 1) {
+  const out = [];
+  for (const b of boxes) {
+    const shot = await look(b.i).catch(() => null);
+    if (!shot?.buf?.length || !shot.box) continue;
+    const flat = flatShare(await Jimp.read(shot.buf), { x: 0, y: 0, w: shot.box.w, h: shot.box.h }, scale);
+    if (flat != null && flat > 0.995)
+      out.push({ sev: "block", kind: "canvas drew nothing", text: `canvas in ${b.where}`, detail: `it is one flat colour even on screen: a WebGL/canvas piece that failed in Chrome (it shows solid black or empty). Swap it for another piece (pieces_install with section: "<id>" records the swap, no new build_prepare) or fix its setup` });
   }
   return out;
 }

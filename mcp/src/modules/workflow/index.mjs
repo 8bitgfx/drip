@@ -2,7 +2,7 @@
 // These are what make Drip enforce the designer loop instead of hoping Claude reads a skill.
 import { z } from "zod";
 import { listGuides, normalizeTopic, readGuide, subTopics } from "../../core/guides.mjs";
-import { checklist, evidenceStale, lastCritique, loadState, missingBeforeUi, needsFitcheck, newTask, otherTasks, reconcileWorkspace, updateState } from "../../core/state.mjs";
+import { checklist, evidenceStale, lastCritique, loadState, missingBeforeUi, needsFitcheck, newTask, orphanTasks, otherTasks, reconcileWorkspace, resumeOrphan, updateState } from "../../core/state.mjs";
 import { takeSnapshot } from "../../core/evidence.mjs";
 import { graphOf, indexProject } from "../../core/indexer/index.mjs";
 import { subjectWords } from "../inspire/contract.mjs";
@@ -552,11 +552,18 @@ export function register(server, ctx) {
     {
       title: "What is done and what is next",
       description: "Shows the active task's checklist (guides read, references studied, board, direction, system, fit check) and the exact next call. Use it whenever you are unsure what to do next, or when a hook blocked you.",
-      inputSchema: {},
+      inputSchema: { resume: z.union([z.boolean(), z.string()]).optional().describe("Continue a task an earlier session left open (true, or its id), when the user wants to carry on with it. Never needed for this session's own task.") },
     },
-    async () => {
+    async ({ resume } = {}) => {
+      if (resume && !loadState().task && !resumeOrphan(typeof resume === "string" ? resume : null)) {
+        const left = orphanTasks();
+        return text(left.length ? `Say which task to continue: ${left.map((t) => `drip_status({ resume: "${t.id}" }) for "${t.title}"`).join("; ")}.` : "No task from an earlier session is open here.", true);
+      }
       const { task } = loadState();
-      if (!task) return text("No Drip task is active. Call drip_start with what you are designing.");
+      if (!task) {
+        const left = orphanTasks();
+        return text(`No Drip task is active in this session. Call drip_start with what you are designing.${left.length ? ` An earlier session left ${left.length === 1 ? `"${left[0].title}"` : `${left.length} tasks`} open: continue it only if the user asks (drip_status({ resume: true })).` : ""}`);
+      }
       const config = ctx.config();
       const unseen = reconcileWorkspace();
       const cur = loadState().task;
