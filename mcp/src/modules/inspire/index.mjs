@@ -9,6 +9,7 @@ import { blocks, safe, text } from "../../core/result.mjs";
 import { rememberListing } from "../../core/seen.mjs";
 import { updateState } from "../../core/state.mjs";
 import { mixNote, subjectWords } from "./contract.mjs";
+import { filmRecord } from "../film/record.mjs";
 import { allProviders, getProvider, NOT_USABLE } from "./providers/index.mjs";
 import { token as arenaToken } from "./providers/arena.mjs";
 import { loadEntries, rankEntries } from "./rank.mjs";
@@ -176,10 +177,13 @@ Problems: ${notes.join(" · ")}` : ""}`, true);
             `\nMore: same call with page ${page + 1}.\n${NEXT}`,
         ),
       ];
+      let bufs = [];
       if (sheet) {
-        const bufs = await Promise.all(seen.map((it) => fetchImage(it.image).then((r) => r.buf).catch(() => Buffer.alloc(0))));
+        bufs = await Promise.all(seen.map((it) => fetchImage(it.image).then((r) => r.buf).catch(() => Buffer.alloc(0))));
         content.push(imageBlock(await contactSheet(bufs, { cols: seen.length > 30 ? 8 : 6, tileW: seen.length > 30 ? 240 : 300, tileH: seen.length > 30 ? 180 : 225 })));
       }
+      // The film shows the first few as references looked at (the whole sheet would bury the story).
+      seen.slice(0, 6).forEach((it, i) => filmRecord("ref", { title: it.title, url: it.live || it.url || null, from: "refs_gallery", query: query || need || "" }, bufs[i]?.length ? bufs[i] : it.image, { tool: "refs_gallery" }));
       return blocks(content);
     }),
   );

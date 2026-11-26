@@ -16,6 +16,7 @@ import { vendor0 } from "../../core/setup.mjs";
 import { updateState } from "../../core/state.mjs";
 import { dealPieces, formatPieces, ownedKits, saveKits } from "./pieces.mjs";
 import { componentHashes } from "../../core/pieces-check.mjs";
+import { filmRecord } from "../film/record.mjs";
 import { ensureInstalled, isReactPage, scaffoldReact, sh } from "./react.mjs";
 
 export const TASTE = { repo: "https://github.com/Leonxlnx/taste-skill.git", sha: "6c0b5c78f5d31776e2210305abaa210cdc0030bf" };
@@ -364,6 +365,8 @@ export function registerDeal(server, ctx) {
         st.task.pieces = [...new Set([...(st.task.pieces || []), ...urls])];
         st.task.pieceFiles = { ...(st.task.pieceFiles || {}), ...Object.fromEntries(Object.entries(names).filter(([, n]) => n.length)) };
       });
+      // Picked: the film shows each with the picture it was previewed with (matched by name).
+      if (!/^FAILED/.test(outp)) for (const u of urls) filmRecord("piece", { name: `${new URL(u).hostname.replace(/^www\./, "").split(".")[0]} ${u.split("/").pop().replace(/\.json$/i, "")}`, url: u, picked: true }, null, { tool: "pieces_install" });
       return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path.relative(projectDir(), root)}.`}${files.length ? `\nFiles: ${files.join(", ")}` : ""}\nBuilders import them from @/components/... and review them against the page: keep what fits, change what doesn't (tokens, radius, borders, shadows, hover effects, motion timing, content).`, /^FAILED/.test(outp));
     }),
   );

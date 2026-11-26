@@ -20,7 +20,7 @@ import { kitDir, projectDir } from "../../core/paths.mjs";
 import { setupNotes } from "../../core/setup.mjs";
 import { hostHasSubagents, swarmInstructions, swarmOn } from "../swarm/index.mjs";
 import { ownedKits } from "../parts/pieces.mjs";
-import { finishFilm } from "../film/index.mjs";
+import { finishFilm, openLiveFilm } from "../film/index.mjs";
 
 const SURFACE_WORDS = {
   readme: /\b(readme|github page|repo page|repository page|github profile)\b/i,
@@ -276,10 +276,14 @@ export function register(server, ctx) {
         }
       }
       const config = ctx.config();
+      // The live film opens in the user's browser once per task, so they can watch the work from the first reference on.
+      const live = ["design", "board"].includes(m) ? await openLiveFilm(t).catch(() => ({ url: "" })) : { url: "" };
+      const filmLine = live.url ? `Film (live${live.opened ? ", opened in the user's browser" : ""}): ${live.url}${live.opened ? "" : " (give the user the link)"}\n` : "";
       if (t.loop === "fast") {
         const kind = /\b(game|gaming)\b/i.test(task) ? "gaming" : /\b(hardware|device|gadget|controller|headphone|keyboard|drone|robot)\b/i.test(task) ? "tech" : /\b(cafe|café|bakery|restaurant|bar|hotel|shop|store|gym|salon|florist|guesthouse)\b/i.test(task) ? "place" : /\b(clinic|agency|studio|law|consult|dentist|architect)\b/i.test(task) ? "service" : /\b(saas|app|ai|platform|tool|api|dashboard|software|startup|fintech)\b/i.test(task) ? "software" : "product";
         return text(
           `Drip task started (task id ${t.id}): FAST LOOP, surface ${sf}, kind ${kind}. Ambition: polished (a cooler, cleaner take on proven designs; never "unique" for its own sake).\n` +
+            filmLine +
             (!memCtx && !redesignUrl ? `LOOK: unless the brief or brand says otherwise, the default look in taste.md ("The default look"): calm but insanely clean and premium; beautiful art and cool visuals (blobs, blur, light, renders, painted or abstract art), amazing bentos with live cells, insane visualisations, smooth motion and library effects everywhere, small and big components in every section; a calm large headline and one rounded action${sf === "app" ? "" : ", the product rising out of the art"}. The deal's layout and type apply; take the palette from the art.\n` : "") +
             (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}): never touch them.\n` : "") +
             (memCtx ? `PROJECT MEMORY (${t.memory.mode}): ${memCtx.text}\n` : "") +
@@ -304,6 +308,7 @@ export function register(server, ctx) {
       }
       return text(
         `Drip task started (task id ${t.id}): mode ${m}, ${s} loop, surface ${sf}${pk.length ? `, niche packs: ${pk.join(", ")}` : ""}.\n` +
+          filmLine +
           (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}). They are separate: never drip_end, edit or judge them.\n` : "") +
           (memCtx
             ? `PROJECT MEMORY (${t.memory.mode} mode: ${t.memory.mode === "redesign" ? "propose a new direction; the approved one stays until the user approves the change" : t.memory.mode === "fresh" ? "no inherited direction" : "extend the approved system, new content only"}):\n${memCtx.text}\nInherited: ${t.memory.inherited.join(", ") || "nothing yet"}. Still needed from this task: ${t.memory.needed.join("; ")}.\n`

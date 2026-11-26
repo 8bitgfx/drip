@@ -13,6 +13,7 @@ import { capture, formatAudit, formatBrand } from "../../core/cdp.mjs";
 import { rendersDir, stamp } from "../../core/render.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import * as dribbble from "./dribbble.mjs";
+import { filmRecord } from "../film/record.mjs";
 import { hostOf, mixNote } from "../inspire/contract.mjs";
 
 const NEXT_STUDY =
@@ -294,6 +295,7 @@ export function register(server, ctx) {
               if (st.task && !st.task.refs.viewed.includes(key)) st.task.refs.viewed.push(key);
               if (st.task && !st.task.refs.picked.includes(key)) st.task.refs.picked.push(key);
             });
+            filmRecord("ref", { title: r.audit.title || host, url, from: "refs_site" }, r.slices[0]?.buf, { tool: "refs_site" });
             return { ok: true, url, key, audit: r.audit, slices: r.slices, total: r.sliceCount };
           } catch (err) {
             return { ok: false, url, err: String(err.message || err) };
@@ -502,6 +504,7 @@ export function register(server, ctx) {
       if (n.role !== "before" && (!n.fits || n.fits.trim().length < 15 || VAGUE.test(n.fits.trim())))
         return { ok: false, msg: `${n.shot}: fits: say why this reference fits this brief (the same kind of product, the audience, the look asked for, a layout that suits the content), in a sentence. The build follows it closely and the user sees why.` };
       const note = `${n.take} · layout: ${n.layout} · type: ${n.type} · colour: ${n.color} · density: ${n.density} · detail: ${n.detail} · leave: ${n.leave}`;
+      filmRecord("ref", { title: item.title || key, url: item.url || null, from: "refs_study", studied: true, take: String(n.take).slice(0, 200) }, item.images?.[0] || item.image, { tool: "refs_study" });
       const surface = st0.task?.surface;
       const studyRec = { ...n, at: new Date().toISOString(), surface, onSurface: onSurface(item), pass: passOf(key), role: n.role };
       remember({ ...item, study: studyRec });

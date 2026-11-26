@@ -4,6 +4,7 @@
 import { loadConfig } from "./config.mjs";
 import { loadState, updateState } from "./state.mjs";
 import { filmEvent } from "./film.mjs";
+import { filmAsset } from "../modules/film/record.mjs";
 import * as workflow from "../modules/workflow/index.mjs";
 import * as refs from "../modules/refs/index.mjs";
 import * as board from "../modules/board/index.mjs";
@@ -35,6 +36,7 @@ function tracked(name, handler) {
   if (!TRACKED.test(name)) return handler;
   return async (...args) => {
     const res = await handler(...args);
+    filmAsset(name, args[0], res); // the film shows the pictures made and saved (never throws)
     try {
       if (!res?.isError)
         updateState((st) => {

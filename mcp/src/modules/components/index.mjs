@@ -14,6 +14,7 @@ import { CLEAR_OVERLAYS } from "../../core/cdp.mjs";
 import { Jimp } from "jimp"; // static: a dynamic import of a bundled module reorders zod's init in the bundle
 import { homeDripDir } from "../../core/paths.mjs";
 import { loadPieces } from "../parts/pieces.mjs";
+import { filmRecord } from "../film/record.mjs";
 
 // ---- Availability: a registry lists Pro and private items next to free ones (Aceternity's Pro blocks answer 401), and
 // some items have no page to look at. Check before offering; remember the answer for a week (failures included).
@@ -410,6 +411,7 @@ export function register(server, ctx) {
         }),
       );
       const ok = shots.filter((s) => s.buf);
+      for (const s of ok) filmRecord("piece", { name: s.label, url: s.url }, s.buf, { tool: "pieces_preview" });
       const lines = shots.map((s, i) => `${i + 1}. ${s.label}${s.url ? ` · ${s.url}` : ""}${s.err ? ` (not shown: ${s.err})` : ""}`);
       const n = ok.length;
       const content = [textBlock(`${lines.join("\n")}\nThe sheet numbers the shown ones in order, each cropped to the piece. It shows the library's own colours: on the page it takes yours.`)];
