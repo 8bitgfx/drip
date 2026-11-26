@@ -1,4 +1,4 @@
-# Next session: open problems (updated 2026-11-26, Drip 0.9.3)
+# Next session: open problems (updated 2026-11-26, Drip 0.9.4)
 
 What shipped is in [CHANGELOG.md](../CHANGELOG.md). Still to measure from 0.9.0: re-run the anime studio prompt and compare calls, peak context and total with the 0.8.21 run (116 calls, 411k peak, 28.5M).
 

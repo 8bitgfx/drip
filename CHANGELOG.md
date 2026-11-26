@@ -2,6 +2,12 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.9.4: stick to the references, hard
+- `refs_study` needs `fits` (why this reference fits this brief) for every reference except the before shot; studies also keep layout, type, colour, the move and the picture.
+- `build_prepare` refuses until EVERY section names the studied reference it follows in `from` (was: only the hero). Each builder brief carries that reference: its picture (open it first), what was measured on it, and the order to match its layout, composition, proportions, spacing, type scale and motion, changing only content and brand colours.
+- `build_prepare` prints a REFERENCE MAP (section, reference, what it takes, why it fits); fast.md has the director show it to the user with the page.
+- taste.md: "Stick to the references, hard" replaces "never a reference's colours or surface".
+
 ## 0.9.3
 - **Effects are welcome.** The user's taste: calm but insanely clean and premium, beautiful art and cool visuals (any style, not only nature), amazing bentos, insane visualisations, blob and blur, smooth motion, cool small and big components everywhere. taste.md now has "Effects are welcome" (blur and shiny text, aurora, blobs, glow, animated borders, marquees, tilt... from the libraries) and "The real AI tells", which are about content and craft: fake content, broken craft, the empty template, untouched defaults, reflex furniture. The same change in rules/slop-tells.md, rules/ambition.md, playbook step 10, the critic's hunt list, the new-round text, slop.json (gradient-text and glass-everywhere removed; ai-gradient only flags Tailwind's untouched defaults) and the page checks (no gradient-text warning).
 - **60fps.design removed**: its shots are videos, so a still poster tells a model nothing; listed in NOT_USABLE.

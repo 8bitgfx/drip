@@ -90707,6 +90707,8 @@ __export(swarm_exports, {
   hostHasSubagents: () => hostHasSubagents,
   pageOf: () => pageOf,
   pascal: () => pascal2,
+  refFor: () => refFor,
+  referenceMap: () => referenceMap,
   register: () => register,
   restitchIfStale: () => restitchIfStale,
   scoutPrompt: () => scoutPrompt,
@@ -90845,21 +90847,33 @@ function buildGaps(task, list4) {
     }
   }
   const refNames = new Set(
-    [...(task.refs?.studied || []).flatMap((r2) => [r2.source, r2.key, r2.designer]), ...task.refs?.viewed || []].filter(Boolean).map((x2) => String(x2).toLowerCase().replace(/^site:/, "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?#]/)[0].split(".")[0]).filter((x2) => x2 && x2.length >= 3 && !/^[a-z]\d+-\d+$/.test(x2))
+    [...(task.refs?.studied || []).flatMap((r2) => [r2.source, r2.key, r2.designer]), ...task.refs?.viewed || []].filter(Boolean).map(refName).filter((x2) => x2 && x2.length >= 3 && !/^[a-z]\d+-\d+$/.test(x2))
   );
-  const big = list4.filter((s2) => ["hero", "page", "whole-page", "index", "app"].includes(slug3(s2.section)));
-  for (const s2 of big) {
-    if (!s2.from || s2.from.length < 12) gaps.push(`${s2.section}: say what it takes from which reference (from: "linear.app: the product shot rising out of a soft light; cosmos.so: the wall of real outputs").`);
-    else if (refNames.size && ![...refNames].some((n3) => s2.from.toLowerCase().includes(n3))) gaps.push(`${s2.section}: "from" has to name a reference you looked at (${[...refNames].slice(0, 6).join(", ")}\u2026) and what this section takes from it.`);
+  for (const s2 of list4) {
+    if (!s2.from || s2.from.length < 12) gaps.push(`${s2.section}: say which studied reference it follows and what it takes (from: "linear.app: the product window rising out of soft light, 1100px, bleeding off the bottom").`);
+    else if (refNames.size && ![...refNames].some((n3) => s2.from.toLowerCase().includes(n3))) gaps.push(`${s2.section}: "from" has to name a reference you studied (${[...refNames].slice(0, 6).join(", ")}\u2026) and what this section takes from it.`);
   }
   return gaps;
+}
+var refName = (x2) => String(x2).toLowerCase().replace(/^site:/, "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?#]/)[0].split(".")[0];
+function refFor(task, from) {
+  const f3 = String(from || "").toLowerCase();
+  if (!f3) return null;
+  return (task?.refs?.studied || []).find((r2) => r2.role !== "before" && [r2.source, r2.key, r2.designer].filter(Boolean).map(refName).some((n3) => n3.length >= 3 && f3.includes(n3))) || null;
+}
+function referenceMap(task, list4) {
+  const rows = list4.map((s2) => {
+    const r2 = refFor(task, s2.from);
+    return `- ${s2.section}: ${r2 ? `${r2.source || r2.key}` : "(no studied reference named)"}${s2.from ? ` \xB7 takes: ${String(s2.from).slice(0, 140)}` : ""}${r2?.fits ? ` \xB7 why it fits: ${r2.fits}` : ""}`;
+  });
+  return rows.join("\n");
 }
 function studiedTakes(task) {
   const st = (task?.refs?.studied || []).filter((s2) => s2.take && s2.role !== "before").slice(-5);
   if (!st.length) return "";
   return `
-WHAT THE DIRECTOR STUDIED (match this level of craft; never copy a reference's colours or surface):
-${st.map((s2) => `- ${s2.source || s2.key}: take ${s2.take}${s2.motion ? `; motion: ${s2.motion}` : ""}`).join("\n")}`;
+THE REFERENCES THIS PAGE FOLLOWS (stick to them: their layout, composition, spacing, type scale, motion and feel; change the content to the client's and the colours to the brand's own where it has them):
+${st.map((s2) => `- ${s2.source || s2.key}: take ${s2.take}${s2.fits ? `; fits because ${s2.fits}` : ""}${s2.motion ? `; motion: ${s2.motion}` : ""}`).join("\n")}`;
 }
 var MAX_BUILDERS = 2;
 var PER_BUILDER = 3;
@@ -90874,8 +90888,15 @@ function groupSections(list4, max = MAX_BUILDERS) {
   }
   return groups.filter((g) => g.length).map((g) => list4.filter((s2) => g.includes(s2)));
 }
-function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
+function sectionBlock({ section, spec, files, piece, from }, pg, stack, many, task) {
   const id = slug3(section);
+  const ref = refFor(task, from);
+  const refLines = ref ? [
+    `THE REFERENCE TO FOLLOW, CLOSELY: ${ref.source || ref.key}${ref.fits ? ` (chosen because ${ref.fits})` : ""}.`,
+    ref.image ? `Its picture: ${ref.image}${/^https?:/.test(ref.image) ? " (download it to look, or open it in a browser)" : " (open it with Read before you write anything)"}.` : "",
+    `What was measured on it: layout ${ref.layout || "?"}${ref.type ? `; type ${ref.type}` : ""}${ref.detail ? `; the move: ${ref.detail}` : ""}${ref.motion ? `; motion: ${ref.motion}` : ""}.`,
+    "Match its layout, composition, proportions, spacing, type scale and motion; take what the spec says from it. Change the content to the client's (and the colours to the brand's own, when it has them). Don't drift back to a generic section."
+  ].filter(Boolean) : [];
   const mine = files?.length ? files : sectionFiles(section, stack);
   const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
   const placement = stack === "react" ? [...OWN, ...WHOLE].includes(id) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${id}">.` : WHOLE.includes(id) ? "You build the whole page: index.html and its own styles and scripts." : OWN.includes(id) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${id}"> element alone (no <html>/<head>), ${mine[1]} its styles.`;
@@ -90883,6 +90904,7 @@ function sectionBlock({ section, spec, files, piece }, pg, stack, many) {
     many ? `=== SECTION: ${section} ===` : "",
     "THE SECTION SPEC (from the director; build exactly this)",
     spec,
+    ...refLines,
     pieceLine,
     stack === "react" && id === "hero" && pg && fs23.existsSync(path25.join(pg.root, "src", "sections", "hero.recipe.html")) ? "THE HERO LAYOUT: src/sections/hero.recipe.html is the dealt layout (its grid, sizes and entrance). Follow it in Tailwind; its copy is a demo, never ship it." : "",
     `Files: ${mine.join(", ")}. ${placement}`
@@ -90908,7 +90930,7 @@ ${doc.text.slice(0, 5e3)}` : "THE SYSTEM: the page's own head: the :root tokens 
     chosen ? `Chosen direction: ${chosen}` : "",
     "",
     many ? `You build ${list4.length} sections, in this order, one after another; they share one system, so keep their rhythm and detail consistent with each other.` : "",
-    ...list4.flatMap((s2) => [...sectionBlock(s2, pg, stack, many), ""]),
+    ...list4.flatMap((s2) => [...sectionBlock(s2, pg, stack, many, task), ""]),
     studiedTakes(task),
     "",
     where,
@@ -91035,7 +91057,11 @@ TAKES FROM: ${s2.from}` : s2.spec }));
 When they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.` : `
 
 When it finishes: fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to the builder (SendMessage to it).`;
-      return text(head + body + tail2);
+      const map2 = `
+
+REFERENCE MAP (show the user with the page, in a short table: section, reference, what it takes, why it fits):
+${referenceMap(task, list4)}`;
+      return text(head + body + tail2 + map2);
     })
   );
   server2.registerTool(
@@ -102330,7 +102356,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     "refs_study",
     {
       title: "Record what a reference teaches",
-      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render" }, \u2026] })',
+      description: 'Structured study notes for a reference you viewed (refs_view). Each field needs specifics: sizes, ratios, counts, hex values, named fonts or classes. Vague words are rejected. Counts toward the references the plugin requires, and goes on the moodboard automatically (now, or when you board_create). Study several in ONE call: refs_study({ studies: [{ shot: "L3-7", layout: "centred 2-line headline ~56px over a product dashboard mockup 1100px wide that bleeds off the bottom, logo strip between", type: "crisp grotesk 500, display:body ~3.5:1, 15px nav", color: "near-black #08090C ground, a soft blue radial glow behind the mockup, white pill CTA", density: "~25 words above fold", detail: "nav links in the body face, aligned to the headline baseline", take: "the 10:1 type ratio", leave: "the stock 3D render", fits: "the same kind of product (a sales CRM) for the same buyers, and the calm dark look the user asked for" }, \u2026] })',
       inputSchema: {
         studies: external_exports.array(external_exports.object(STUDY_SHAPE)).min(1).max(8).optional(),
         ...Object.fromEntries(Object.entries(STUDY_SHAPE).map(([k, v]) => [k, v.optional()]))
@@ -102338,7 +102364,7 @@ NEXT: refs_view each, refs_zoom where the detail matters, then refs_study.`);
     },
     safe(async (args) => {
       const list4 = args.studies?.length ? args.studies : args.shot ? [args] : [];
-      if (!list4.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave }, \u2026].", true);
+      if (!list4.length) return text("Pass studies: [{ shot, layout, type, color, density, detail, take, leave, fits }, \u2026].", true);
       const lines = [];
       let bad = 0;
       for (const n3 of list4) {
@@ -102367,6 +102393,8 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
           ok: false,
           msg: `${n3.shot}: too vague. ` + weak.map((f3) => `${f3}: ${!n3[f3] ? "missing" : VAGUE.test(n3[f3].trim()) ? `"${n3[f3].trim()}" is a vibe, not a fact` : `"${n3[f3].trim()}" is too short (min 12 chars)`}; e.g. ${STUDY_EXAMPLE[f3]}`).join(" \xB7 ") + (concrete < 3 ? `${weak.length ? " \xB7 " : ""}only ${concrete} field(s) have a number, hex, px, ratio or named type class; give at least 3 (e.g. density: ${STUDY_EXAMPLE.density})` : "")
         };
+      if (n3.role !== "before" && (!n3.fits || n3.fits.trim().length < 15 || VAGUE.test(n3.fits.trim())))
+        return { ok: false, msg: `${n3.shot}: fits: say why this reference fits this brief (the same kind of product, the audience, the look asked for, a layout that suits the content), in a sentence. The build follows it closely and the user sees why.` };
       const note = `${n3.take} \xB7 layout: ${n3.layout} \xB7 type: ${n3.type} \xB7 colour: ${n3.color} \xB7 density: ${n3.density} \xB7 detail: ${n3.detail} \xB7 leave: ${n3.leave}`;
       const surface = st0.task?.surface;
       const studyRec = { ...n3, at: (/* @__PURE__ */ new Date()).toISOString(), surface, onSurface: onSurface(item), pass: passOf(key), role: n3.role };
@@ -102375,7 +102403,7 @@ ${t2.refs.studied.length} studied from ${new Set(t2.refs.studied.map((x2) => x2.
         if (!s2.task) return;
         s2.task.refs.studied = (s2.task.refs.studied || []).filter((x2) => x2.key !== key);
         const terms = [item.title, item.url, item.designer, n3.take, n3.layout].filter(Boolean).join(" ").slice(0, 600);
-        s2.task.refs.studied.push({ key, role: n3.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n3.take).slice(0, 240), motion: n3.motion ? String(n3.motion).slice(0, 240) : void 0, source: item.url || item.title || key, at: (/* @__PURE__ */ new Date()).toISOString() });
+        s2.task.refs.studied.push({ key, role: n3.role, pass: passOf(key), designer: item.designer || item.designerUrl, onSurface: onSurface(item), terms, take: String(n3.take).slice(0, 240), motion: n3.motion ? String(n3.motion).slice(0, 240) : void 0, fits: n3.fits ? String(n3.fits).slice(0, 240) : void 0, layout: String(n3.layout).slice(0, 300), detail: String(n3.detail).slice(0, 200), type: String(n3.type).slice(0, 160), color: String(n3.color).slice(0, 160), image: item.images?.[0] || item.image || void 0, source: item.url || item.title || key, at: (/* @__PURE__ */ new Date()).toISOString() });
       });
       let boardNote = "It will be added to the moodboard when you board_create.";
       const bid = st.task?.board?.id;
@@ -102408,7 +102436,8 @@ var STUDY_SHAPE = {
   detail: external_exports.string().describe("ONE specific move worth stealing"),
   take: external_exports.string().describe("What this reference lends the design"),
   leave: external_exports.string().describe("What not to copy / Dribbble fiction"),
-  motion: external_exports.string().optional().describe("How it moves and behaves: what hover, scroll, click or load does (an accordion gallery that widens the hovered panel, cards that lift, a marquee). Stills can't show this, so write it down")
+  motion: external_exports.string().optional().describe("How it moves and behaves: what hover, scroll, click or load does (an accordion gallery that widens the hovered panel, cards that lift, a marquee). Stills can't show this, so write it down"),
+  fits: external_exports.string().optional().describe("Why this one fits THIS brief: the same kind of product, the same audience, the look the user asked for, a layout that suits the content. Required: the user sees it, and the build follows this reference closely")
 };
 
 // src/modules/board/index.mjs
@@ -115714,7 +115743,7 @@ The page runs while this command does. Press Ctrl+C to stop.`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.3";
+var VERSION = "0.9.4";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

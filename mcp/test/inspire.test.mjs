@@ -156,7 +156,7 @@ test("refs_gallery lists with tagged numbers that refs_pick, refs_view, refs_stu
     assert.match(pick.t, /Picked 1/);
     const view = await call("refs_view", { shots: [`${tag}-1`] });
     assert.match(view.t, /Stub site 1/);
-    const study = await call("refs_study", { studies: [{ shot: `${tag}-1`, layout: "12-col, headline spans cols 1-8, picture bleeds right at 55%", type: "condensed grotesk caps ~140px, body 18px", color: "#141414 ground, #2340FF accent on the CTA only", density: "~30 words above the fold", detail: "nav in the body face at 15px, aligned to the h1 baseline", take: "the single accent", leave: "the stock 3D render" }] });
+    const study = await call("refs_study", { studies: [{ shot: `${tag}-1`, layout: "12-col, headline spans cols 1-8, picture bleeds right at 55%", type: "condensed grotesk caps ~140px, body 18px", color: "#141414 ground, #2340FF accent on the CTA only", density: "~30 words above the fold", detail: "nav in the body face at 15px, aligned to the h1 baseline", take: "the single accent", leave: "the stock 3D render", fits: "a fintech product for the same buyers, in the dark type-led look the brief asks for" }] });
     assert.match(study.t, /Stub site 1/);
     assert.equal(study.r.isError, undefined);
 
