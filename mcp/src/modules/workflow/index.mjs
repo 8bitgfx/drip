@@ -2,7 +2,7 @@
 // These are what make Drip enforce the designer loop instead of hoping Claude reads a skill.
 import { z } from "zod";
 import { listGuides, normalizeTopic, readGuide, subTopics } from "../../core/guides.mjs";
-import { checklist, evidenceStale, loadState, missingBeforeUi, needsFitcheck, newTask, otherTasks, reconcileWorkspace, updateState } from "../../core/state.mjs";
+import { checklist, evidenceStale, lastCritique, loadState, missingBeforeUi, needsFitcheck, newTask, otherTasks, reconcileWorkspace, updateState } from "../../core/state.mjs";
 import { takeSnapshot } from "../../core/evidence.mjs";
 import { graphOf, indexProject } from "../../core/indexer/index.mjs";
 import { subjectWords } from "../inspire/contract.mjs";
@@ -16,7 +16,7 @@ import { text } from "../../core/result.mjs";
 import { isProjectPack, matchPacks } from "../../core/packs.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { kitDir, projectDir, projectDripDir } from "../../core/paths.mjs";
+import { kitDir, projectDir, projectDripDir, sessionDir, setWorkspace, workspaceFor } from "../../core/paths.mjs";
 import { setupNotes } from "../../core/setup.mjs";
 import { hostHasSubagents, swarmInstructions, swarmOn } from "../swarm/index.mjs";
 import { ownedKits } from "../parts/pieces.mjs";
@@ -254,6 +254,7 @@ function startMotion({ task, pk, memory, ctx }) {
   const others = otherTasks();
   return text(
     `Drip Motion task started (task id ${t.id}): a film made in code (HTML + GSAP/CSS/canvas/three.js), rendered locally frame by frame.\n` +
+      `WORKING FOLDER: ${projectDir()} (the film, its renders and Drip's state go here).${workspaceFor(sessionDir()) ? "" : " If the film isn't part of this repo (a launch film made from some other project's session), call drip_start again now with project: \"<a folder of its own>\" so nothing lands in this repo."}\n` +
       (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o) => `"${o.title}"`).join(", ")}): never touch them.\n` : "") +
       (identity ? `THIS PROJECT'S MOTION IDENTITY (.drip/motion/IDENTITY.md, approved on earlier films; keep it unless the user asks for a change):\n${identity}\n` : "") +
       (memCtx ? `PROJECT BRAND (${t.memory.mode}): ${memCtx.text}\n` : "") +
@@ -292,10 +293,17 @@ export function register(server, ctx) {
         packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
         memory: z.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
         loop: z.enum(["fast", "full"]).optional().describe("fast (default for design): look, deal, build, check once (the critic on request): a page in ~10 minutes. full: the old process (intake, references by role, three comps, critic, design system, plan) for big brand projects or when the user asks for it."),
+        project: z.string().optional().describe("A folder for this task's work and Drip state (.drip, renders, the film) when it does not belong to the repo the session is open in, e.g. a launch film made in C:/Dev/drip-lab/<name>. Hooks and tools follow it until drip_end. Created if missing."),
         swarm: z.boolean().optional().describe("Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. On by default; pass false for a small job, or set \"swarm\": false in .drip/config.json."),
       },
     },
-    async ({ task, mode, size, surface, packs, memory, swarm, loop }) => {
+    async ({ task, mode, size, surface, packs, memory, swarm, loop, project }) => {
+      // Work that doesn't belong to this repo goes to its own folder, with its state (never .drip in the session's repo).
+      if (project) {
+        const dir = path.resolve(sessionDir(), project);
+        fs.mkdirSync(dir, { recursive: true });
+        setWorkspace(sessionDir(), dir);
+      }
       const g = guess(task);
       const m = mode || guessMode(task) || (g.size === "quick" ? "polish" : "design");
       const s = size || (m === "polish" ? "quick" : "full");
@@ -656,6 +664,8 @@ export function register(server, ctx) {
         s.task = null;
         s.history = s.history.slice(-30);
       });
+      // A task that worked in its own folder hands the session's folder back.
+      if (workspaceFor(sessionDir())) setWorkspace(sessionDir(), null);
       let skill = "";
       if (hasMemory()) {
         try {
@@ -675,7 +685,13 @@ export function register(server, ctx) {
       } catch {
         /* no page to look at: no offer */
       }
-      return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}${film ? `\n${film}` : ""}${offer}`);
+      // A film's critic review is one look, not a gate: what it left open goes to the user, in its own words.
+      const filmCrit = cur?.mode === "motion" ? lastCritique(cur, "motion") : null;
+      const openPoints =
+        filmCrit && filmCrit.verdict !== "pass"
+          ? `\nTell the user what the critic left open (${filmCrit.verdict.toUpperCase()}: ${filmCrit.summary}):\n${(filmCrit.fixes || []).slice(0, 6).map((f) => `- ${f}`).join("\n")}\nThey decide whether it ships as is or gets another round.`
+          : "";
+      return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}${film ? `\n${film}` : ""}${openPoints}${offer}`);
     },
   );
 }

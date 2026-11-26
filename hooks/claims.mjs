@@ -2,7 +2,7 @@
 // session transcript. drip_skip / drip_end acceptOpen quote the user; fitcheck_done acceptedByUser and critic_prepare
 // extraRound need the user's reply after the critic; drip_brief needs the user's answers when the loop asks;
 // critic_record must match what the critic wrote. Without a transcript (other hosts) nothing is checked here.
-import { allow, loadState, out, readInput, run } from "./lib.mjs";
+import { allow, loadState, out, readInput, run, hookDir } from "./lib.mjs";
 import { criticVerdict, readTranscript, userReplied, userSaid } from "./transcript.mjs";
 
 const SHIP = /\b(ship|accept|fine|good|ok|okay|as it is|as is|leave it|done|go ahead|yes|keep it|approve|looks (great|good)|love it|finish)\b/i;
@@ -10,7 +10,7 @@ const ROUND = /\b(round|critic|again|another|review|more)\b/i;
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   const name = String(input.tool_name || "").split("__").pop();
   const a = input.tool_input || {};
   const tr = readTranscript(input.transcript_path);

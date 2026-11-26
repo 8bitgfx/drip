@@ -19,7 +19,8 @@ import { loadBoard, updateBoard } from "../board/store.mjs";
 import { designDoc, relevantSkills } from "../../core/skills.mjs";
 import { toUrl } from "../../core/serve.mjs";
 import { loadPieces } from "../parts/pieces.mjs";
-import { filmSheets, isVideo } from "../motion/sheets.mjs";
+import { compositionUrl, filmSheets, isVideo } from "../motion/sheets.mjs";
+import { shootComposition } from "../motion/capture.mjs";
 import { fmtT } from "../motion/capture.mjs";
 import { storyboardBrief } from "../motion/story.mjs";
 import { traceTarget } from "../motion/index.mjs";
@@ -80,7 +81,7 @@ const KIND_BRIEF = {
   build:
     "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
   motion:
-    "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions, half-drawn shapes, clipped text), whether any PRODUCT UI on screen meets a good UI bar (real content, not lorem or a generic dashboard; clear hierarchy; one type family and one accent; readable at video size; states that change because of something; UI feedback at real UI speed, not slow and floaty), whether there is ENOUGH TO LOOK AT (light, depth, layered visuals, the product as a rich object, something new starting about every second; a launch film of flat shapes on an empty ground with one move per beat is basic, however clean), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). Name timestamps for every problem.",
+    "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions or clipped text; a frame caught inside a reveal or a morph is mid-motion, not unfinished: judge the transition, not one of its in-betweens), whether any PRODUCT UI on screen meets a good UI bar (real content, not lorem or a generic dashboard; clear hierarchy; one type family and one accent; readable at video size; states that change because of something; UI feedback at real UI speed, not slow and floaty), whether there is ENOUGH TO LOOK AT (light, depth, layered visuals, the product as a rich object, something new starting about every second; a launch film of flat shapes on an empty ground with one move per beat is basic, however clean), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). SIZES: the sheets are reduced (each tile is about a quarter of the real frame); judge type, chip and label sizes ONLY from the FULL-SIZE frames, at the film's real resolution. THE STORYBOARD is the plan; where the film departs from it on purpose (a line dropped, a beat changed), judge whether the film works, never ask for what the plan listed. Name timestamps for every problem.",
   logo:
     "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a cliché), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack:
@@ -233,6 +234,23 @@ export function register(server, ctx) {
             files.push(f);
             notes.push(`transitions close up (each row: -0.25s, -0.1s, the boundary, +0.1s, +0.25s) around ${around.map(fmtT).join(", ")}`);
           });
+        }
+        // Full-size frames of key moments: sizes are judged here (sheet tiles are a quarter size and mislead).
+        if (!isVideo(t0)) {
+          try {
+            const D = whole.probe?.duration || fmt.duration || 10;
+            const beatMids = (sb?.beats || []).filter((b) => b.len >= 1.5).map((b) => b.at + b.len * 0.6);
+            const keyTimes = (beatMids.length >= 3 ? [beatMids[0], beatMids[Math.floor(beatMids.length / 2)], beatMids.at(-1)] : [0.3, 0.55, 0.85].map((p) => p * D)).map((x) => +x.toFixed(2));
+            const full = await shootComposition(await compositionUrl(t0), { times: { times: keyTimes }, width: fmt.width || 1920, height: fmt.height || 1080, scale: 1, quality: 85, config });
+            full.frames.forEach((f, i) => {
+              const g = path.join(dir, `full-${i + 1}.jpg`);
+              fs.writeFileSync(g, f.buf);
+              files.push(g);
+              notes.push(`FULL-SIZE frame at ${fmtT(f.t)} (${fmt.width || 1920}x${fmt.height || 1080}, real size): judge type and UI sizes here`);
+            });
+          } catch (e) {
+            notes.push(`(full-size frames failed: ${e.message})`);
+          }
         }
         // How it moves: the dopesheet and onion skins (stills can't show timing, spacing or choreography).
         let traced = null;

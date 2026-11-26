@@ -2,11 +2,11 @@
 // requirements are met (guides read, references studied, direction chosen for full loops).
 import fs from "node:fs";
 import path from "node:path";
-import { DRIP_STATE_DENY, allow, directorTooBig, isDripState, isUiFile, loadConfig, loadState, looksVisual, missingBeforeUi, out, readInput, run } from "./lib.mjs";
+import { DRIP_STATE_DENY, allow, directorTooBig, isDripState, isUiFile, loadConfig, loadState, looksVisual, missingBeforeUi, out, readInput, run, hookDir } from "./lib.mjs";
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   const ti = input.tool_input || {};
   const file = ti.file_path;
   if (file && isDripState(file) && !input.agent_id) return out({ hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: `[Drip] ${DRIP_STATE_DENY}` } });
@@ -36,6 +36,8 @@ run(async () => {
     return allow();
   }
 
+  // A film holds only its composition (the HTML that plays) until the storyboard; fonts.css and data files are free.
+  if (task.mode === "motion" && !/\.html?$/i.test(abs)) return allow();
   const missing = missingBeforeUi(task, config);
   if (!missing.length) {
     // The fast loop's roles: the main agent (Opus) directs and makes small fixes; builders (Sonnet) write the sections.

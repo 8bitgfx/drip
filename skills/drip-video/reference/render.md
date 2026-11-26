@@ -18,7 +18,8 @@ renders exact and repeatable, and it sets rules for the composition.
 The kit is HyperFrames-style so every renderer plays the same file: a root element with `data-composition-id="main"`,
 `data-start="0"`, `data-duration`, `data-width` and `data-height` (equal to `FORMAT`), one paused GSAP timeline `tl`
 registered as `window.__timelines["main"]`, and `window.__drip.seek(t)` for Drip's own tools. `seek(t)` may be async
-(it waits for fonts) and must leave the page showing exactly time `t`. No timers, no `Math.random`, no network
+(it waits for fonts) and must leave the page showing exactly time `t`. Mark the group the camera moves with `data-camera` (the world everything sits in): `motion_trace` then reports its
+moves as camera moves and measures each element's own motion inside it. No timers, no `Math.random`, no network
 fetches: data (narration word timings, numbers) comes in through `<script src>` files next to the composition.
 
 ## Determinism rules

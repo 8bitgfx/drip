@@ -1,6 +1,6 @@
 // PostToolUse (Drip's own tools): one line in the task's film for each call, with who made it (the director, or a
 // builder / helper by agent_id), so the film viewer can show the swarm at work.
-import { allow, filmEvent, loadState, readInput, run } from "./lib.mjs";
+import { allow, filmEvent, loadState, readInput, run, hookDir } from "./lib.mjs";
 
 const KIND = { page_stitch: "stitch", pieces_install: "install", fitcheck_shot: "shot", build_prepare: "note", layout_deal: "note", critic_record: "note" };
 const SAY = {
@@ -17,7 +17,7 @@ const SAY = {
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   const { task } = loadState(dir);
   if (!task) return allow();
   const tool = String(input.tool_name || "").replace(/^mcp__plugin_drip_drip__/, "");

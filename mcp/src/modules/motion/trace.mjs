@@ -18,12 +18,17 @@ const PICK = `(() => {
     const root = document.getElementById('stage') || document.body;
     els = [...root.children, ...[...root.children].flatMap((c) => [...c.children])].filter((e) => !bad(e));
   }
+  // The camera, when the film marks it (data-camera, data-track="camera" or #camera): tracked first, and every element
+  // records whether it sits inside it (its screen motion then includes the camera's).
+  const cam = document.querySelector('[data-camera], [data-track="camera"], #camera');
+  if (cam && !els.includes(cam)) els.unshift(cam);
   els = els.slice(0, 24);
-  return els.map((e, i) => {
+  const labels = els.map((e, i) => {
     e.setAttribute('data-drip-k', i);
     const txt = (e.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 18);
     return e.dataset.track || (e.id ? '#' + e.id : e.tagName.toLowerCase() + (txt ? ' "' + txt + '"' : ''));
   });
+  return { labels, cam: cam ? els.indexOf(cam) : -1, inCam: els.map((e) => !!cam && e !== cam && cam.contains(e)) };
 })()`;
 
 // Runs after every seek: centre, size and effective opacity of each tracked element.
@@ -42,7 +47,8 @@ export async function traceComposition(url, { from = 0, to, fps = 30, width = 19
     if (!probe) return { probe: null };
     const D = probe.duration || to || 10;
     const end = Math.min(to ?? D, D);
-    const labels = await evalJson(tab.s, PICK);
+    const picked = await evalJson(tab.s, PICK);
+    const labels = picked.labels;
     const n = Math.min(900, Math.max(2, Math.round((end - from) * fps) + 1));
     const dt = (end - from) / (n - 1);
     const times = [];
@@ -65,7 +71,7 @@ export async function traceComposition(url, { from = 0, to, fps = 30, width = 19
         ghosts.push({ t, buf: Buffer.from(data, "base64") });
       }
     }
-    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts, thumbs };
+    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts, thumbs, cam: picked.cam, inCam: picked.inCam };
   });
 }
 
@@ -75,10 +81,85 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
  * The numbers: per element its moving segments, and the flags. Pure (tested).
  * A segment: { el, from, to, travel, peak, endRatio, linear, hitchAt, overshoot, fade }.
  */
-export function analyzeTrace({ labels, times, samples, width = 1920, beats = [], pixels = [] }) {
+/**
+ * Separate the camera from the choreography. Each frame, fit one shared move (zoom s and pan t) to every visible
+ * element's centre; when most elements follow it, that is the camera, and each element's own motion is what is left
+ * over. Returns { samples: corrected (as if the camera stood still), camera: [{ i, s, tx, ty }] for frames where it
+ * moved }. Pure (tested).
+ */
+export function removeCamera(samples, { width = 1920, cam = -1, inCam = null } = {}) {
+  const n = samples.length;
+  if (n < 2) return { samples, camera: [] };
+  const tol = Math.max(2, width * 0.004);
+  const out = [samples[0].map((p) => (p ? [...p] : p))];
+  const camera = [];
+  const fit = (pairs) => {
+    const k = pairs.length;
+    let mx = 0, my = 0, nx = 0, ny = 0;
+    for (const [a, b] of pairs) {
+      mx += a[0] / k; my += a[1] / k; nx += b[0] / k; ny += b[1] / k;
+    }
+    let num = 0, den = 0;
+    for (const [a, b] of pairs) {
+      num += (a[0] - mx) * (b[0] - nx) + (a[1] - my) * (b[1] - ny);
+      den += (a[0] - mx) ** 2 + (a[1] - my) ** 2;
+    }
+    const s = den > 1 ? num / den : 1;
+    return { s, tx: nx - s * mx, ty: ny - s * my };
+  };
+  for (let i = 1; i < n; i++) {
+    const prev = samples[i - 1];
+    const cur = samples[i];
+    const pairs = [];
+    for (let k = 0; k < cur.length; k++) if (prev[k] && cur[k] && (prev[k][4] ?? 1) > 0.05 && (cur[k][4] ?? 1) > 0.05) pairs.push([prev[k], cur[k], k]);
+    let T = { s: 1, tx: 0, ty: 0 };
+    const markedCam = cam >= 0 && prev[cam] && cur[cam] && prev[cam][2] > 0;
+    if (markedCam) {
+      const s0 = cur[cam][2] / prev[cam][2];
+      const f = { s: s0, tx: cur[cam][0] - s0 * prev[cam][0], ty: cur[cam][1] - s0 * prev[cam][1] };
+      if (Math.abs(f.s - 1) > 0.002 || Math.hypot(f.tx, f.ty) > 0.8) {
+        T = f;
+        camera.push({ i, ...f });
+      }
+    } else if (pairs.length >= 6) {
+      // Unmarked: guess the camera only when most of a busy frame (6+ visible elements, 75%) moves as one.
+      let f = fit(pairs);
+      const res = (p) => Math.hypot(p[1][0] - (f.s * p[0][0] + f.tx), p[1][1] - (f.s * p[0][1] + f.ty));
+      const inl = pairs.filter((p) => res(p) < tol);
+      if (inl.length >= Math.max(5, pairs.length * 0.75)) {
+        f = fit(inl);
+        const moved = Math.abs(f.s - 1) > 0.002 || Math.hypot(f.tx, f.ty) > 0.8;
+        if (moved) {
+          T = f;
+          camera.push({ i, ...f });
+        }
+      }
+    }
+    // Corrected position = last corrected position + the element's own move (what the camera doesn't explain).
+    const row = cur.map((p, k) => {
+      if (!p) return p;
+      // A marked camera moves only what is inside it (and itself); everything else keeps its screen motion.
+      const Tk = markedCam && inCam && !inCam[k] && k !== cam ? { s: 1, tx: 0, ty: 0 } : T;
+      const q = prev[k];
+      const c = out[i - 1][k];
+      if (!q || !c) return [...p];
+      const ex = Tk.s * q[0] + Tk.tx;
+      const ey = Tk.s * q[1] + Tk.ty;
+      const sw = Tk.s ? p[2] / Tk.s : p[2];
+      const sh = Tk.s ? p[3] / Tk.s : p[3];
+      return [c[0] + (p[0] - ex), c[1] + (p[1] - ey), c[2] * (q[2] ? sw / q[2] : 1), c[3] * (q[3] ? sh / q[3] : 1), p[4]];
+    });
+    out.push(row);
+  }
+  return { samples: out, camera };
+}
+
+export function analyzeTrace({ labels, times, samples: raw, width = 1920, beats = [], pixels = [], cam = -1, inCam = null }) {
   const n = times.length;
   if (n < 3) return { segments: [], flags: [], notes: [], speeds: [] };
   const dt = (times[n - 1] - times[0]) / (n - 1);
+  // The camera moves everything at once; that's not choreography. Measure each element's own motion.
+  const { samples, camera } = removeCamera(raw, { width, cam, inCam });
   const moveThr = Math.max(6, width * 0.006); // px per second below which a thing is at rest
   const speeds = labels.map((_, k) =>
     times.map((_, i) => {
@@ -106,6 +187,10 @@ export function analyzeTrace({ labels, times, samples, width = 1920, beats = [],
       while (i < n && active[i]) i++;
       const b = i - 1;
       if (b - a < 1) continue;
+      // Motion nobody can see (an element at opacity 0 waiting for its scene) is not choreography.
+      let vis = 0;
+      for (let j = a - 1; j <= b; j++) vis = Math.max(vis, samples[j]?.[k]?.[4] ?? 0);
+      if (vis < 0.05) continue;
       const seg = sp.slice(a, b + 1);
       const peak = Math.max(...seg);
       const p0 = samples[a - 1][k];
@@ -161,7 +246,24 @@ export function analyzeTrace({ labels, times, samples, width = 1920, beats = [],
     const key = Math.round(s.from / (dt * 1.5));
     byStart.set(key, [...(byStart.get(key) || []), s]);
   }
-  for (const group of byStart.values()) if (new Set(group.map((s) => s.k)).size >= 4) flags.push(`${new Set(group.map((s) => s.k)).size} elements start on the same frame at ${fmtT(group[0].from)} (${group.slice(0, 4).map((s) => s.el).join(", ")}…): lead with one, let the others follow`);
+  // Elements that move rigidly together (a container, a frame growing to fill the screen) are one move, not many:
+  // count units, where a unit is a set of elements whose relative layout holds over the next frames.
+  const units = (ks, i0) => {
+    const i1 = Math.min(n - 1, i0 + 4);
+    const a = Math.max(0, i0 - 1);
+    const pts = ks.filter((k) => raw[a]?.[k] && raw[i1]?.[k]);
+    if (pts.length < 4) return ks.length;
+    const { samples: rel } = removeCamera([pts.map((k) => raw[a][k]), pts.map((k) => raw[i1][k])], { width });
+    const still = pts.filter((_, j) => Math.hypot(rel[1][j][0] - rel[0][j][0], rel[1][j][1] - rel[0][j][1]) < Math.max(3, width * 0.004));
+    return still.length >= 3 ? ks.length - still.length + 1 : ks.length;
+  };
+  for (const group of byStart.values()) {
+    const ks = [...new Set(group.map((s) => s.k))];
+    if (ks.length < 4) continue;
+    const i0 = times.findIndex((t) => t >= group[0].from - 1e-6);
+    const u = units(ks, Math.max(1, i0));
+    if (u >= 4) flags.push(`${u} separate moves start on the same frame at ${fmtT(group[0].from)} (${group.slice(0, 4).map((s) => s.el).join(", ")}…): lead with one, let the others follow`);
+  }
   // One timing for everything: 5+ spatial moves share a duration within one frame.
   const spatial = segments.filter((s) => s.travel > 40);
   const durs = new Map();
@@ -199,7 +301,20 @@ export function analyzeTrace({ labels, times, samples, width = 1920, beats = [],
   // Beats with nothing starting near them.
   const quiet = beats.filter((b) => b > times[0] + 0.05 && !segments.some((s) => Math.abs(s.from - b) <= 0.25));
   if (quiet.length) notes.push(`no move starts within 0.25s of the beat at ${quiet.slice(0, 6).map(fmtT).join(", ")}`);
-  return { segments, flags, notes, speeds, dt };
+  // Report the camera as camera: spans of frames where one shared move carried everything.
+  const camSpans = [];
+  for (const c of camera) {
+    const t0 = times[c.i - 1];
+    const last = camSpans.at(-1);
+    if (last && t0 - last.to <= dt * 2.5) {
+      last.to = times[c.i];
+      last.zoom *= c.s;
+    } else camSpans.push({ from: t0, to: times[c.i], zoom: c.s });
+  }
+  const camLong = camSpans.filter((c) => c.to - c.from >= dt * 2);
+  if (camLong.length)
+    notes.push(`camera moves (one shared move for everything, not counted as choreography): ${camLong.slice(0, 6).map((c) => `${fmtT(c.from)}-${fmtT(c.to)}${Math.abs(c.zoom - 1) > 0.02 ? ` ${c.zoom > 1 ? "push in" : "pull out"} x${c.zoom.toFixed(2)}` : " pan"}`).join(", ")}`);
+  return { segments, flags, notes, speeds, dt, camera: camSpans };
 }
 
 let workDir = null;

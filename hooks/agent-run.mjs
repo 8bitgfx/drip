@@ -1,11 +1,11 @@
 // PostToolUse (Agent | Task): record that the drip:critic subagent actually ran, so critic_record
 // can't be called with an invented verdict. A foreground subagent is also finished here; a background one finishes
 // later (SubagentStop), so it stays "running" for the Stop hook until then.
-import { agentFinished, allow, loadState, readInput, run, updateState } from "./lib.mjs";
+import { agentFinished, allow, loadState, readInput, run, updateState, hookDir } from "./lib.mjs";
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   const type = String(input.tool_input?.subagent_type || "");
   if (!loadState(dir).task) return allow();
   // Hosts may start a subagent in the background without the flag (the result says so): it is still running.

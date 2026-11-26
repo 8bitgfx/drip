@@ -54,10 +54,25 @@ export const seekExpr = (t) => `(async () => {
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height) continue;
     const cs = getComputedStyle(el);
-    if (cs.visibility === 'hidden' || +cs.opacity < 0.2) continue;
+    if (cs.visibility === 'hidden') continue;
     const inside = r.left >= -1 && r.top >= -1 && r.right <= W + 1 && r.bottom <= H + 1;
     const gone = r.right < 0 || r.left > W || r.bottom < 0 || r.top > H;
-    if (!inside && !gone) out.push(el.textContent.trim().slice(0, 40));
+    if (inside || gone) continue;
+    // Only text someone can see counts: opacity multiplies down the tree, and text under a clip-path, a mask (a
+    // reveal in progress) or a container that crops it inside the frame is hidden on purpose.
+    let op = 1, hidden = false;
+    for (let n = el; n && n.nodeType === 1 && !hidden; n = n.parentElement) {
+      const s = getComputedStyle(n);
+      op *= +s.opacity;
+      if (s.display === 'none' || s.visibility === 'hidden') hidden = true;
+      if ((s.clipPath && s.clipPath !== 'none') || (s.maskImage && s.maskImage !== 'none') || (s.webkitMaskImage && s.webkitMaskImage !== 'none')) hidden = true;
+      if (n !== el && /(hidden|clip)/.test(s.overflow + s.overflowX + s.overflowY)) {
+        const b = n.getBoundingClientRect();
+        if (b.left >= -1 && b.top >= -1 && b.right <= W + 1 && b.bottom <= H + 1) hidden = true;
+      }
+    }
+    if (hidden || op < 0.2) continue;
+    out.push(el.textContent.trim().slice(0, 40));
   }
   return { clipped: out };
 })()`;
@@ -233,7 +248,7 @@ export function judgeFrames(times, m, { dense = false } = {}) {
       if (a > 14 && b > 14 && Math.abs((m[i - 1]?.mean ?? 0) - (m[i + 1]?.mean ?? 0)) < 2) issues.push(`possible flicker at ${fmtT(times[i])} (the frame differs from both neighbours, which match)`);
     }
   }
-  if (cuts.length) notes.push(`hard changes at ${cuts.slice(0, 10).map(fmtT).join(", ")}${cuts.length > 10 ? ` (+${cuts.length - 10})` : ""}`);
+  if (cuts.length) notes.push(`big picture changes between samples (a cut or a fast camera move; not counted as cuts here) at ${cuts.slice(0, 10).map(fmtT).join(", ")}${cuts.length > 10 ? ` (+${cuts.length - 10})` : ""}`);
   if (holds.length) notes.push(`still stretches: ${holds.slice(0, 6).map(([a, b]) => `${fmtT(a)}-${fmtT(b)}`).join(", ")}`);
   // Mostly empty frames: under 12% of the picture is anything but background. A rest can be spare; a film that is
   // mostly empty frames reads as unfinished ("not enough going on").

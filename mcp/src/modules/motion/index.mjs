@@ -70,11 +70,11 @@ export async function traceTarget(target, { from, to, fps, storyboard, config, m
     const m = await measureFrames(tr.thumbs.map((x) => x.buf), { config });
     pixels = tr.thumbs.map((x, i) => ({ t: x.t, diff: m[i]?.diff ?? 0 }));
   }
-  const a = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats, pixels });
+  const a = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats, pixels, cam: tr.cam ?? -1, inCam: tr.inCam || null });
   const sheet = await dopesheet({ labels: tr.labels, times: tr.times, speeds: a.speeds, segments: a.segments, samples: tr.samples, beats, config });
   const onions = [];
   for (const [s, e] of stretchesNow) onions.push({ from: s, to: e, buf: await onionSkin({ ghosts: tr.ghosts, labels: tr.labels, times: tr.times, samples: tr.samples, from: s, to: e, width: W, height: H, config }) });
-  return { labels: tr.labels, a, sheet, onions, duration: D };
+  return { labels: tr.labels, a, sheet, onions, duration: D, pixels };
 }
 
 // Reference sources live in refsources.mjs (masters first, then open search with a quality floor).
@@ -178,6 +178,29 @@ export function register(server, ctx) {
       const m = await measureFrames(r.frames.map((f) => f.buf), { config });
       const ts = r.frames.map((f) => f.t);
       const j = judgeFrames(ts, m);
+      // A big change between two samples is a cut only if it happens between two adjacent frames; a fast camera push
+      // or whip spreads it over several. Look inside each candidate at ~30 fps and keep only the real cuts.
+      const moves = [];
+      if (j.cuts.length) {
+        const probe = [];
+        for (const c of j.cuts.slice(0, 20)) {
+          const k = ts.indexOf(c);
+          const a = ts[k - 1] ?? c - 0.25;
+          for (let q = 0; q <= 7; q++) probe.push(+(a + ((c - a) * q) / 7).toFixed(3));
+        }
+        const dense = await sampleVideo(abs, { times: probe, config }).catch(() => null);
+        if (dense?.frames?.length === probe.length) {
+          const dm = await measureFrames(dense.frames.map((f) => f.buf), { config });
+          const real = [];
+          j.cuts.slice(0, 20).forEach((c, g) => {
+            const steps = dm.slice(g * 8 + 1, g * 8 + 8).map((x) => x?.diff ?? 0);
+            const total = steps.reduce((x, y) => x + y, 0) || 1;
+            if (Math.max(...steps) >= 0.55 * total && Math.max(...steps) > 18) real.push(c);
+            else moves.push(c);
+          });
+          j.cuts = [...real, ...j.cuts.slice(20)];
+        }
+      }
       // The sheet: every shot's first frame, topped up with even samples, at most 24.
       const pick = new Set([0]);
       for (const c of j.cuts) pick.add(ts.indexOf(c));
@@ -207,6 +230,7 @@ export function register(server, ctx) {
       return blocks([
         textBlock(
           `MEASURED: ${r.duration.toFixed(1)}s, ${shots} shot${shots > 1 ? "s" : ""} (${j.cuts.length} hard cut${j.cuts.length === 1 ? "" : "s"}${j.cuts.length ? ` at ${j.cuts.slice(0, 12).map(fmtT).join(", ")}` : ""}), average shot ${asl.toFixed(1)}s.\n` +
+            (moves.length ? `Fast moves, not cuts (the change spreads over several frames: a camera push, whip or morph): ${moves.slice(0, 10).map(fmtT).join(", ")}.\n` : "") +
             `Rhythm (change per second): ${sparkline(perSec)}\n` +
             (j.holds.length ? `Still stretches: ${j.holds.map(([a, b]) => `${fmtT(a)}-${fmtT(b)}`).join(", ")}\n` : "") +
             (j.issues.length ? `Flags: ${j.issues.join("; ")}\n` : "") +
@@ -346,7 +370,7 @@ export function register(server, ctx) {
       title: "Measure how things move",
       description:
         "Stills can't show motion; this measures it. Samples the composition every frame and reads each element's position, size and opacity from the page (elements with an id or data-track). Returns: a DOPESHEET (a lane per element: when it moves, its speed curve, its opacity, against the storyboard's beats: stagger, overlap, rest and simultaneity at a glance), ONION SKINS per beat (frames ghosted over each other plus each element's measured path, one dot per frame: even dots = linear, bunching = easing, a dot past the end = overshoot, straight where an arc was meant = mechanical), and measured flags: stops dead, linear moves, hitches, 4+ things starting on one frame, one duration for every move, mostly fades, overshoot %, how much of the film is still, beats where nothing starts. " +
-        "Use it on every beat you build or change, before the critic. Give important elements data-track=\"name\" for readable lanes. " +
+        "Use it on every beat you build or change, before the critic. Give important elements data-track=\"name\" for readable lanes, and mark the camera group data-camera: its moves are reported as camera moves and taken out of everything inside it (a camera push is not 24 things starting at once). " +
         'Examples: motion_trace({ target: "film/index.html" }) · motion_trace({ target: "film/index.html", from: 2, to: 4.6 })',
       inputSchema: {
         target: z.string().describe("The composition (.html or URL). Not a rendered video: it reads the page"),
@@ -373,6 +397,8 @@ export function register(server, ctx) {
       updateState((st) => {
         if (st.task) (st.task.motion ||= { studied: [], renders: [] }).trace = { at: new Date().toISOString(), rev: artifactRev(st.task), flags: r.a.flags.length };
         if (st.task) st.task.motion.traceMoves = r.a.segments.filter((x) => x.travel > 20).map((x) => [x.from, x.to]).slice(0, 300);
+        // Pixel change counts as movement too: an SVG path changing shape, a canvas, a light sweep.
+        if (st.task) st.task.motion.traceActive = (r.pixels || []).filter((p) => p.diff > 3).map((p) => [+(p.t - 0.2).toFixed(2), +(p.t + 0.2).toFixed(2)]).slice(0, 600);
       });
       return blocks([
         textBlock(

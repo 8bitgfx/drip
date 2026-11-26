@@ -399,11 +399,10 @@ export function criticRounds(task, config) {
 /** True when the build changed after the last passing critic verdict (full loop only). */
 export function needsCritic(task, config) {
   if (!task || task.skipped || !config.gates.enforce || !config.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
-  // A film: like the fast loop, one critic look at the final cut; a REVISE stands until the user rules or a new round passes.
-  if (task.mode === "motion") {
-    const rec = lastCritique(task, "motion");
-    return !!rec && rec.verdict !== "pass" && !(task.critic?.shipAt && task.critic.shipAt >= rec.at);
-  }
+  // A film: the critic is one review of the final cut, not a gate. Its open points go to the user in the hand-off
+  // (drip_end lists them); only the frame check holds a turn open. A REVISE that blocked every turn left a session
+  // that was waiting on the user's choice unable to stop.
+  if (task.mode === "motion") return false;
   // Fast loop: the critic is optional, but once it has said REVISE or REJECT on the build, the director can't overrule it
   // alone: the user chooses (ship with the open points) or a new critic round passes.
   if (task.loop === "fast") {
@@ -431,7 +430,8 @@ export function evidenceStale(task) {
   const fc = task.fitcheck || {};
   if (fc.doneRev && fc.doneRev !== now) stale.push("the fit check passed on an earlier version");
   if (fc.shotRev && fc.shotRev !== now) stale.push("the last fitcheck_shot shows an earlier version");
-  const b = lastCritique(task, task.mode === "motion" ? "motion" : "build");
+  // A film's critic is one review, not a gate: fixing what it found must not make the film unclosable.
+  const b = task.mode === "motion" ? null : lastCritique(task, "build");
   if (b?.rev && b.rev !== now) stale.push("the critic reviewed an earlier version");
   return stale;
 }

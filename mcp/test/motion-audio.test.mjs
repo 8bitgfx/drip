@@ -33,7 +33,7 @@ test("trace: a dead stop, a linear move and four things starting on one frame ar
   const flags = a.flags.join("\n");
   assert.match(flags, /stops dead.*#linear|stops dead.*#dead/);
   assert.match(flags, /constant speed.*#linear/);
-  assert.match(flags, /5 elements start on the same frame/);
+  assert.match(flags, /5 separate moves start on the same frame/);
   assert.ok(!/stops dead[^\n]*#eased/.test(flags));
   assert.match(a.notes.join(" "), /of the time nothing moves/);
   assert.deepEqual(stretches(10, [{ at: 0, len: 4 }, { at: 4, len: 6 }]), [[0, 4], [4, 10]]);

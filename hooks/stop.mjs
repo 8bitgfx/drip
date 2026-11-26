@@ -1,13 +1,13 @@
 // Stop: Claude may not end its turn after changing UI until a fit check was recorded
 // (full loop: fitcheck_shot + fitcheck_done; quick loop: fitcheck_done or at least fitcheck_lint).
 // Gives up after 3 blocks in a row so a session can never get stuck.
-import { agentsRunning, allow, evidenceStale, loadConfig, loadState, needsFitcheck, out, readInput, reconcileWorkspace, run, updateState } from "./lib.mjs";
+import { agentsRunning, allow, evidenceStale, loadConfig, loadState, needsFitcheck, out, readInput, reconcileWorkspace, run, updateState, hookDir } from "./lib.mjs";
 
 const MAX_BLOCKS = 3;
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   const config = loadConfig(dir);
   // UI files changed without any hook seeing it (a shell edit, another tool) are folded in as UI writes first.
   const unseen = loadState(dir).task && config.gates.enforce ? reconcileWorkspace(dir) : [];

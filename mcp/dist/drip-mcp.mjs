@@ -7313,10 +7313,37 @@ function findProjectRoot(start2 = process.cwd()) {
   rootCache.set(start2, out);
   return out;
 }
-function projectDir(cwd) {
+function baseProjectDir(cwd) {
   if (cwd) return cwd;
   for (const v of HOST_PROJECT_VARS) if (process.env[v]) return process.env[v];
   return findProjectRoot(process.cwd());
+}
+function workspaces() {
+  if (Date.now() - wsCache.at < 1500) return wsCache.map;
+  let map2 = {};
+  try {
+    map2 = JSON.parse(fs.readFileSync(wsFile(), "utf8"));
+  } catch {
+  }
+  wsCache = { at: Date.now(), map: map2 };
+  return map2;
+}
+function setWorkspace(from, dir) {
+  const map2 = { ...workspaces() };
+  const key = norm(from);
+  if (dir) map2[key] = { dir: path.resolve(dir), at: (/* @__PURE__ */ new Date()).toISOString() };
+  else delete map2[key];
+  fs.mkdirSync(path.dirname(wsFile()), { recursive: true });
+  fs.writeFileSync(wsFile(), JSON.stringify(map2, null, 2));
+  wsCache = { at: Date.now(), map: map2 };
+}
+function workspaceFor(from) {
+  const w = workspaces()[norm(from)];
+  return w && fs.existsSync(w.dir) ? w.dir : null;
+}
+function projectDir(cwd) {
+  const base = baseProjectDir(cwd);
+  return workspaceFor(base) || base;
 }
 function projectDripDir(cwd) {
   return path.join(projectDir(cwd), ".drip");
@@ -7419,7 +7446,7 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }
-var here, pluginRoot, skillsDir, contentDir, rulesDir, dataDir, examplesDir, kitDir, filmViewerDir, HOST_PROJECT_VARS, rootCache, GITIGNORE_BEGIN, GITIGNORE_END, LEGACY_HEAD, LEGACY_LINES, gitignoreChecked, homeDripDir;
+var here, pluginRoot, skillsDir, contentDir, rulesDir, dataDir, examplesDir, kitDir, filmViewerDir, HOST_PROJECT_VARS, rootCache, wsFile, wsCache, norm, sessionDir, GITIGNORE_BEGIN, GITIGNORE_END, LEGACY_HEAD, LEGACY_LINES, gitignoreChecked, homeDripDir;
 var init_paths = __esm({
   "src/core/paths.mjs"() {
     here = path.dirname(fileURLToPath(import.meta.url));
@@ -7433,6 +7460,10 @@ var init_paths = __esm({
     filmViewerDir = path.join(contentDir, "film-viewer");
     HOST_PROJECT_VARS = ["DRIP_PROJECT_DIR", "CLAUDE_PROJECT_DIR", "CURSOR_PROJECT_DIR", "CODEX_PROJECT_DIR", "OPENCODE_PROJECT_DIR"];
     rootCache = /* @__PURE__ */ new Map();
+    wsFile = () => path.join(process.env.DRIP_HOME || homeDripDir, "workspaces.json");
+    wsCache = { at: 0, map: {} };
+    norm = (p2) => path.resolve(p2).replace(/\\/g, "/").toLowerCase();
+    sessionDir = (cwd) => baseProjectDir(cwd);
     GITIGNORE_BEGIN = "# >>> drip (generated; put your own lines outside this block) >>>";
     GITIGNORE_END = "# <<< drip <<<";
     LEGACY_HEAD = "# Drip's working files. Shareable settings and the asset credits log stay tracked.";
@@ -77219,13 +77250,13 @@ function _promise(Class2, innerType) {
 }
 // @__NO_SIDE_EFFECTS__
 function _custom(Class2, fn, _params) {
-  const norm6 = normalizeParams(_params);
-  norm6.abort ?? (norm6.abort = true);
+  const norm7 = normalizeParams(_params);
+  norm7.abort ?? (norm7.abort = true);
   const schema = new Class2({
     type: "custom",
     check: "custom",
     fn,
-    ...norm6
+    ...norm7
   });
   return schema;
 }
@@ -88258,10 +88289,7 @@ function criticRounds(task, config2) {
 }
 function needsCritic(task, config2) {
   if (!task || task.skipped || !config2.gates.enforce || !config2.gates.requireCritic || task.size !== "full" || !task.lastUiWriteAt) return false;
-  if (task.mode === "motion") {
-    const rec2 = lastCritique(task, "motion");
-    return !!rec2 && rec2.verdict !== "pass" && !(task.critic?.shipAt && task.critic.shipAt >= rec2.at);
-  }
+  if (task.mode === "motion") return false;
   if (task.loop === "fast") {
     const rec2 = lastCritique(task, "build");
     return !!rec2 && rec2.verdict !== "pass" && !(task.critic?.shipAt && task.critic.shipAt >= rec2.at);
@@ -88283,7 +88311,7 @@ function evidenceStale(task) {
   const fc = task.fitcheck || {};
   if (fc.doneRev && fc.doneRev !== now) stale.push("the fit check passed on an earlier version");
   if (fc.shotRev && fc.shotRev !== now) stale.push("the last fitcheck_shot shows an earlier version");
-  const b = lastCritique(task, task.mode === "motion" ? "motion" : "build");
+  const b = task.mode === "motion" ? null : lastCritique(task, "build");
   if (b?.rev && b.rev !== now) stale.push("the critic reviewed an earlier version");
   return stale;
 }
@@ -99142,7 +99170,7 @@ var decisionsFile = (cwd) => path21.join(memDir(cwd), "decisions.json");
 var styleFile = (cwd) => path21.join(memDir(cwd), "style.json");
 var skillDir = (cwd) => path21.join(projectDripDir(cwd), "skills", "project-design");
 var newId = (p2) => `${p2}_${Date.now().toString(36)}${crypto2.randomBytes(3).toString("hex")}`;
-var norm = (s2) => String(s2 ?? "").toLowerCase().replace(/[^a-z0-9#.%]+/g, " ").trim();
+var norm2 = (s2) => String(s2 ?? "").toLowerCase().replace(/[^a-z0-9#.%]+/g, " ").trim();
 var brandKey2 = (b) => b || "default";
 var emptyDecisions = () => ({ schema: 1, revision: 0, rules: [], exceptions: [], rejected: [], styleRevisions: [], activeRevision: null });
 function loadDecisions(cwd) {
@@ -99231,9 +99259,9 @@ function applyFeedback(d, ev, { supersede, redesign, revision, rejects }) {
   const out = { rule: null, conflict: null, question: null, status: "proposed" };
   for (const what of rejects) d.rejected.push({ id: newId("rej"), kind: "style", what: String(what), why: ev.text, at: ev.at, source: ev.source, scope: ev.scope, evidence: { feedback: [ev.id] } });
   if (!ev.rule) return out;
-  const key = norm(ev.rule.topic);
-  const sameTopic = d.rules.filter((r2) => r2.status === "approved" && norm(r2.topic) === key);
-  const conflicts = sameTopic.filter((r2) => norm(r2.value) !== norm(ev.rule.value) && scopeOverlaps(r2, ev.scope, ev.target));
+  const key = norm2(ev.rule.topic);
+  const sameTopic = d.rules.filter((r2) => r2.status === "approved" && norm2(r2.topic) === key);
+  const conflicts = sameTopic.filter((r2) => norm2(r2.value) !== norm2(ev.rule.value) && scopeOverlaps(r2, ev.scope, ev.target));
   const rule = {
     id: newId("rule"),
     topic: ev.rule.topic,
@@ -99251,7 +99279,7 @@ function applyFeedback(d, ev, { supersede, redesign, revision, rejects }) {
   };
   if (ev.scope !== "brand") {
     if (ev.source === "user-explicit") rule.status = "approved";
-    const brandRule = sameTopic.find((r2) => r2.scope === "brand" && norm(r2.value) !== norm(ev.rule.value));
+    const brandRule = sameTopic.find((r2) => r2.scope === "brand" && norm2(r2.value) !== norm2(ev.rule.value));
     if (brandRule) {
       rule.exceptionTo = brandRule.id;
       if (rule.status === "approved") d.exceptions.push({ id: newId("exc"), rule: brandRule.id, for: ev.scope + ":" + (rule.target || "?"), reason: ev.text, at: ev.at, evidence: { feedback: [ev.id] } });
@@ -99293,7 +99321,7 @@ function decideRule(id, action, { supersede = false, reason = "", cwd } = {}) {
     const r2 = d.rules.find((x2) => x2.id === id);
     if (!r2) throw new Error(`No rule "${id}". project_learn({ action: "list" }) shows them.`);
     if (action === "approve") {
-      const conflicts = d.rules.filter((x2) => x2.id !== id && x2.status === "approved" && norm(x2.topic) === norm(r2.topic) && norm(x2.value) !== norm(r2.value) && scopeOverlaps(x2, r2.scope, r2.target));
+      const conflicts = d.rules.filter((x2) => x2.id !== id && x2.status === "approved" && norm2(x2.topic) === norm2(r2.topic) && norm2(x2.value) !== norm2(r2.value) && scopeOverlaps(x2, r2.scope, r2.target));
       if (conflicts.length && !supersede) throw new Error(`"${r2.topic}: ${r2.value}" contradicts the approved rule "${conflicts[0].topic}: ${conflicts[0].value}". Approve with supersede: true if the user wants the new one to replace it, or record an exception for one page/feature.`);
       for (const c3 of conflicts) {
         c3.status = "superseded";
@@ -99327,8 +99355,8 @@ function addException({ rule, forTarget, reason, cwd }) {
 function offDirectionFixes(fixes, cwd) {
   const rules = effectiveRules(cwd);
   return fixes.map((fix) => {
-    const f3 = norm(fix);
-    const hit = rules.find((r2) => (r2.avoid || []).some((a2) => a2 && f3.includes(norm(a2))));
+    const f3 = norm2(fix);
+    const hit = rules.find((r2) => (r2.avoid || []).some((a2) => a2 && f3.includes(norm2(a2))));
     return { fix, off: !!hit && !/^\[off-direction\]/i.test(fix), rule: hit || null };
   });
 }
@@ -99363,7 +99391,7 @@ function promoteRevision(id, { cwd, board: given, reason, critic } = {}) {
     const proposed = d.rules.filter((r2) => rev.ruleIds.includes(r2.id) && r2.status === "proposed");
     rev.supersededRules = [];
     for (const r2 of proposed) {
-      for (const old of d.rules.filter((x2) => x2.status === "approved" && x2.scope === "brand" && norm(x2.topic) === norm(r2.topic) && norm(x2.value) !== norm(r2.value))) {
+      for (const old of d.rules.filter((x2) => x2.status === "approved" && x2.scope === "brand" && norm2(x2.topic) === norm2(r2.topic) && norm2(x2.value) !== norm2(r2.value))) {
         old.status = "superseded";
         old.supersededBy = r2.id;
         rev.supersededRules.push(old.id);
@@ -101013,10 +101041,25 @@ var seekExpr = (t2) => `(async () => {
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height) continue;
     const cs = getComputedStyle(el);
-    if (cs.visibility === 'hidden' || +cs.opacity < 0.2) continue;
+    if (cs.visibility === 'hidden') continue;
     const inside = r.left >= -1 && r.top >= -1 && r.right <= W + 1 && r.bottom <= H + 1;
     const gone = r.right < 0 || r.left > W || r.bottom < 0 || r.top > H;
-    if (!inside && !gone) out.push(el.textContent.trim().slice(0, 40));
+    if (inside || gone) continue;
+    // Only text someone can see counts: opacity multiplies down the tree, and text under a clip-path, a mask (a
+    // reveal in progress) or a container that crops it inside the frame is hidden on purpose.
+    let op = 1, hidden = false;
+    for (let n = el; n && n.nodeType === 1 && !hidden; n = n.parentElement) {
+      const s = getComputedStyle(n);
+      op *= +s.opacity;
+      if (s.display === 'none' || s.visibility === 'hidden') hidden = true;
+      if ((s.clipPath && s.clipPath !== 'none') || (s.maskImage && s.maskImage !== 'none') || (s.webkitMaskImage && s.webkitMaskImage !== 'none')) hidden = true;
+      if (n !== el && /(hidden|clip)/.test(s.overflow + s.overflowX + s.overflowY)) {
+        const b = n.getBoundingClientRect();
+        if (b.left >= -1 && b.top >= -1 && b.right <= W + 1 && b.bottom <= H + 1) hidden = true;
+      }
+    }
+    if (hidden || op < 0.2) continue;
+    out.push(el.textContent.trim().slice(0, 40));
   }
   return { clipped: out };
 })()`;
@@ -101171,7 +101214,7 @@ function judgeFrames(times, m, { dense = false } = {}) {
       if (a2 > 14 && b > 14 && Math.abs((m[i2 - 1]?.mean ?? 0) - (m[i2 + 1]?.mean ?? 0)) < 2) issues.push(`possible flicker at ${fmtT(times[i2])} (the frame differs from both neighbours, which match)`);
     }
   }
-  if (cuts.length) notes.push(`hard changes at ${cuts.slice(0, 10).map(fmtT).join(", ")}${cuts.length > 10 ? ` (+${cuts.length - 10})` : ""}`);
+  if (cuts.length) notes.push(`big picture changes between samples (a cut or a fast camera move; not counted as cuts here) at ${cuts.slice(0, 10).map(fmtT).join(", ")}${cuts.length > 10 ? ` (+${cuts.length - 10})` : ""}`);
   if (holds.length) notes.push(`still stretches: ${holds.slice(0, 6).map(([a2, b]) => `${fmtT(a2)}-${fmtT(b)}`).join(", ")}`);
   const sparse = times.filter((t2, i2) => i2 >= lead && i2 < tail2 && m[i2] && m[i2].fill != null && m[i2].fill < 0.12 && m[i2].spread >= 2.5);
   const filledShare = m.filter((x2) => x2?.fill != null).map((x2) => x2.fill);
@@ -101509,12 +101552,17 @@ var PICK = `(() => {
     const root = document.getElementById('stage') || document.body;
     els = [...root.children, ...[...root.children].flatMap((c) => [...c.children])].filter((e) => !bad(e));
   }
+  // The camera, when the film marks it (data-camera, data-track="camera" or #camera): tracked first, and every element
+  // records whether it sits inside it (its screen motion then includes the camera's).
+  const cam = document.querySelector('[data-camera], [data-track="camera"], #camera');
+  if (cam && !els.includes(cam)) els.unshift(cam);
   els = els.slice(0, 24);
-  return els.map((e, i) => {
+  const labels = els.map((e, i) => {
     e.setAttribute('data-drip-k', i);
     const txt = (e.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 18);
     return e.dataset.track || (e.id ? '#' + e.id : e.tagName.toLowerCase() + (txt ? ' "' + txt + '"' : ''));
   });
+  return { labels, cam: cam ? els.indexOf(cam) : -1, inCam: els.map((e) => !!cam && e !== cam && cam.contains(e)) };
 })()`;
 var SAMPLE = `(() => [...document.querySelectorAll('[data-drip-k]')].map((e) => {
   const r = e.getBoundingClientRect();
@@ -101529,7 +101577,8 @@ async function traceComposition(url2, { from = 0, to: to2, fps = 30, width = 192
     if (!probe) return { probe: null };
     const D = probe.duration || to2 || 10;
     const end = Math.min(to2 ?? D, D);
-    const labels = await evalJson(tab.s, PICK);
+    const picked = await evalJson(tab.s, PICK);
+    const labels = picked.labels;
     const n3 = Math.min(900, Math.max(2, Math.round((end - from) * fps) + 1));
     const dt = (end - from) / (n3 - 1);
     const times = [];
@@ -101551,14 +101600,81 @@ async function traceComposition(url2, { from = 0, to: to2, fps = 30, width = 192
         ghosts.push({ t: t2, buf: Buffer.from(data, "base64") });
       }
     }
-    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts, thumbs };
+    return { probe: { ...probe, duration: D }, labels, times, samples, ghosts, thumbs, cam: picked.cam, inCam: picked.inCam };
   });
 }
 var dist = (a2, b) => Math.hypot(a2[0] - b[0], a2[1] - b[1]);
-function analyzeTrace({ labels, times, samples, width = 1920, beats = [], pixels = [] }) {
+function removeCamera(samples, { width = 1920, cam = -1, inCam = null } = {}) {
+  const n3 = samples.length;
+  if (n3 < 2) return { samples, camera: [] };
+  const tol = Math.max(2, width * 4e-3);
+  const out = [samples[0].map((p2) => p2 ? [...p2] : p2)];
+  const camera = [];
+  const fit2 = (pairs2) => {
+    const k = pairs2.length;
+    let mx = 0, my = 0, nx = 0, ny = 0;
+    for (const [a2, b] of pairs2) {
+      mx += a2[0] / k;
+      my += a2[1] / k;
+      nx += b[0] / k;
+      ny += b[1] / k;
+    }
+    let num2 = 0, den = 0;
+    for (const [a2, b] of pairs2) {
+      num2 += (a2[0] - mx) * (b[0] - nx) + (a2[1] - my) * (b[1] - ny);
+      den += (a2[0] - mx) ** 2 + (a2[1] - my) ** 2;
+    }
+    const s2 = den > 1 ? num2 / den : 1;
+    return { s: s2, tx: nx - s2 * mx, ty: ny - s2 * my };
+  };
+  for (let i2 = 1; i2 < n3; i2++) {
+    const prev = samples[i2 - 1];
+    const cur = samples[i2];
+    const pairs2 = [];
+    for (let k = 0; k < cur.length; k++) if (prev[k] && cur[k] && (prev[k][4] ?? 1) > 0.05 && (cur[k][4] ?? 1) > 0.05) pairs2.push([prev[k], cur[k], k]);
+    let T2 = { s: 1, tx: 0, ty: 0 };
+    const markedCam = cam >= 0 && prev[cam] && cur[cam] && prev[cam][2] > 0;
+    if (markedCam) {
+      const s0 = cur[cam][2] / prev[cam][2];
+      const f3 = { s: s0, tx: cur[cam][0] - s0 * prev[cam][0], ty: cur[cam][1] - s0 * prev[cam][1] };
+      if (Math.abs(f3.s - 1) > 2e-3 || Math.hypot(f3.tx, f3.ty) > 0.8) {
+        T2 = f3;
+        camera.push({ i: i2, ...f3 });
+      }
+    } else if (pairs2.length >= 6) {
+      let f3 = fit2(pairs2);
+      const res = (p2) => Math.hypot(p2[1][0] - (f3.s * p2[0][0] + f3.tx), p2[1][1] - (f3.s * p2[0][1] + f3.ty));
+      const inl = pairs2.filter((p2) => res(p2) < tol);
+      if (inl.length >= Math.max(5, pairs2.length * 0.75)) {
+        f3 = fit2(inl);
+        const moved = Math.abs(f3.s - 1) > 2e-3 || Math.hypot(f3.tx, f3.ty) > 0.8;
+        if (moved) {
+          T2 = f3;
+          camera.push({ i: i2, ...f3 });
+        }
+      }
+    }
+    const row = cur.map((p2, k) => {
+      if (!p2) return p2;
+      const Tk = markedCam && inCam && !inCam[k] && k !== cam ? { s: 1, tx: 0, ty: 0 } : T2;
+      const q2 = prev[k];
+      const c3 = out[i2 - 1][k];
+      if (!q2 || !c3) return [...p2];
+      const ex = Tk.s * q2[0] + Tk.tx;
+      const ey = Tk.s * q2[1] + Tk.ty;
+      const sw = Tk.s ? p2[2] / Tk.s : p2[2];
+      const sh2 = Tk.s ? p2[3] / Tk.s : p2[3];
+      return [c3[0] + (p2[0] - ex), c3[1] + (p2[1] - ey), c3[2] * (q2[2] ? sw / q2[2] : 1), c3[3] * (q2[3] ? sh2 / q2[3] : 1), p2[4]];
+    });
+    out.push(row);
+  }
+  return { samples: out, camera };
+}
+function analyzeTrace({ labels, times, samples: raw, width = 1920, beats = [], pixels = [], cam = -1, inCam = null }) {
   const n3 = times.length;
   if (n3 < 3) return { segments: [], flags: [], notes: [], speeds: [] };
   const dt = (times[n3 - 1] - times[0]) / (n3 - 1);
+  const { samples, camera } = removeCamera(raw, { width, cam, inCam });
   const moveThr = Math.max(6, width * 6e-3);
   const speeds = labels.map(
     (_, k) => times.map((_2, i2) => {
@@ -101584,6 +101700,9 @@ function analyzeTrace({ labels, times, samples, width = 1920, beats = [], pixels
       while (i2 < n3 && active2[i2]) i2++;
       const b = i2 - 1;
       if (b - a2 < 1) continue;
+      let vis = 0;
+      for (let j = a2 - 1; j <= b; j++) vis = Math.max(vis, samples[j]?.[k]?.[4] ?? 0);
+      if (vis < 0.05) continue;
       const seg = sp.slice(a2, b + 1);
       const peak = Math.max(...seg);
       const p0 = samples[a2 - 1][k];
@@ -101634,7 +101753,22 @@ function analyzeTrace({ labels, times, samples, width = 1920, beats = [], pixels
     const key = Math.round(s2.from / (dt * 1.5));
     byStart.set(key, [...byStart.get(key) || [], s2]);
   }
-  for (const group of byStart.values()) if (new Set(group.map((s2) => s2.k)).size >= 4) flags.push(`${new Set(group.map((s2) => s2.k)).size} elements start on the same frame at ${fmtT(group[0].from)} (${group.slice(0, 4).map((s2) => s2.el).join(", ")}\u2026): lead with one, let the others follow`);
+  const units = (ks, i0) => {
+    const i1 = Math.min(n3 - 1, i0 + 4);
+    const a2 = Math.max(0, i0 - 1);
+    const pts = ks.filter((k) => raw[a2]?.[k] && raw[i1]?.[k]);
+    if (pts.length < 4) return ks.length;
+    const { samples: rel3 } = removeCamera([pts.map((k) => raw[a2][k]), pts.map((k) => raw[i1][k])], { width });
+    const still2 = pts.filter((_, j) => Math.hypot(rel3[1][j][0] - rel3[0][j][0], rel3[1][j][1] - rel3[0][j][1]) < Math.max(3, width * 4e-3));
+    return still2.length >= 3 ? ks.length - still2.length + 1 : ks.length;
+  };
+  for (const group of byStart.values()) {
+    const ks = [...new Set(group.map((s2) => s2.k))];
+    if (ks.length < 4) continue;
+    const i0 = times.findIndex((t2) => t2 >= group[0].from - 1e-6);
+    const u2 = units(ks, Math.max(1, i0));
+    if (u2 >= 4) flags.push(`${u2} separate moves start on the same frame at ${fmtT(group[0].from)} (${group.slice(0, 4).map((s2) => s2.el).join(", ")}\u2026): lead with one, let the others follow`);
+  }
   const spatial = segments.filter((s2) => s2.travel > 40);
   const durs = /* @__PURE__ */ new Map();
   for (const s2 of spatial) {
@@ -101665,7 +101799,19 @@ function analyzeTrace({ labels, times, samples, width = 1920, beats = [], pixels
   if (span > 4) notes.push(`${(starts.length / span).toFixed(2)} new moves a second (the house style aims for about 0.7-1.2 in a launch film)`);
   const quiet = beats.filter((b) => b > times[0] + 0.05 && !segments.some((s2) => Math.abs(s2.from - b) <= 0.25));
   if (quiet.length) notes.push(`no move starts within 0.25s of the beat at ${quiet.slice(0, 6).map(fmtT).join(", ")}`);
-  return { segments, flags, notes, speeds, dt };
+  const camSpans = [];
+  for (const c3 of camera) {
+    const t0 = times[c3.i - 1];
+    const last = camSpans.at(-1);
+    if (last && t0 - last.to <= dt * 2.5) {
+      last.to = times[c3.i];
+      last.zoom *= c3.s;
+    } else camSpans.push({ from: t0, to: times[c3.i], zoom: c3.s });
+  }
+  const camLong = camSpans.filter((c3) => c3.to - c3.from >= dt * 2);
+  if (camLong.length)
+    notes.push(`camera moves (one shared move for everything, not counted as choreography): ${camLong.slice(0, 6).map((c3) => `${fmtT(c3.from)}-${fmtT(c3.to)}${Math.abs(c3.zoom - 1) > 0.02 ? ` ${c3.zoom > 1 ? "push in" : "pull out"} x${c3.zoom.toFixed(2)}` : " pan"}`).join(", ")}`);
+  return { segments, flags, notes, speeds, dt, camera: camSpans };
 }
 var workDir3 = null;
 var work2 = () => workDir3 ||= fs36.mkdtempSync(path34.join(os10.tmpdir(), "drip-trace-"));
@@ -102447,12 +102593,29 @@ function filmDir2(task) {
   const f3 = task?.motion?.storyboard?.file;
   return path38.resolve(projectDir(), f3 ? path38.dirname(f3) : "film");
 }
+var AUDIO_EXT = /\.(mp3|wav|ogg|oga|m4a|flac|aac|opus|webm)$/i;
+function soundFileName(source, label) {
+  const src = String(source);
+  let u2 = null;
+  try {
+    u2 = /^https?:/i.test(src) ? new URL(src) : null;
+  } catch {
+    u2 = null;
+  }
+  const pathPart = u2 ? u2.pathname : src.split("?")[0];
+  const fileBase = path38.basename(pathPart || "");
+  const fmt = u2?.searchParams.get("format") || "";
+  const ext = AUDIO_EXT.test(fileBase) ? path38.extname(fileBase).toLowerCase() : /ogg|vorbis/i.test(fmt) ? ".ogg" : /flac/i.test(fmt) ? ".flac" : /wav/i.test(fmt) ? ".wav" : ".mp3";
+  const id = u2 ? u2.searchParams.get("trackid") || u2.searchParams.get("id") : null;
+  const raw = label ? String(label).split(/[(·]/)[0] : AUDIO_EXT.test(fileBase) ? fileBase.replace(AUDIO_EXT, "") : id ? `track-${id}` : "sound";
+  const base = raw.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "sound";
+  return { base, ext };
+}
 async function bringSound(task, source, { name, licence, credit, url: url2 } = {}) {
   const dir = path38.join(filmDir2(task), "sound");
   fs40.mkdirSync(dir, { recursive: true });
-  const base = String(name || path38.basename(String(source).split("?")[0]) || "sound").replace(/[^a-z0-9._-]+/gi, "-").slice(0, 60);
-  const ext = path38.extname(base) || path38.extname(String(source).split("?")[0]) || ".mp3";
-  const file4 = path38.join(dir, base.endsWith(ext) ? base : `${base}${ext}`);
+  const { base, ext } = soundFileName(source, name || credit);
+  const file4 = path38.join(dir, `${base}${ext}`);
   if (!fs40.existsSync(file4)) {
     if (/^https?:/i.test(source)) fs40.writeFileSync(file4, (await get(source, { as: "buffer", ttlMs: 30 * 24 * 36e5, timeoutMs: 12e4, headers: { "User-Agent": "drip-design-plugin" } })).body);
     else fs40.copyFileSync(path38.resolve(projectDir(), source), file4);
@@ -102530,12 +102693,13 @@ function registerAudio(server2, ctx2) {
             if (got >= 6) break;
           }
         }
-        const r2 = found.map((t2) => ({ ...t2, fit: motionFit(t2, feel) })).filter((t2) => t2.fit > -4).sort((a2, b) => b.fit - a2.fit).slice(0, 14);
+        const licScore = (t2) => /cc0|public/i.test(t2.licence) ? 3 : /nc/i.test(t2.licence) ? -6 : /sa/i.test(t2.licence) ? -3 : /by/i.test(t2.licence) ? 2 : 0;
+        const r2 = found.map((t2) => ({ ...t2, fit: motionFit(t2, feel) + licScore(t2) })).filter((t2) => t2.fit > -4).sort((a2, b) => b.fit - a2.fit).slice(0, 14);
         if (!r2.length) return text("No tracks found. Try fewer, broader words (a genre and a feel); or use a track the user owns.", true);
         return text(
           `PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: "Epidemic Sound subscription"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.
 
-${r2.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND, already left out, forbids cutting to picture):
+${r2.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences ranked too: CC0 is free to use; CC BY needs a credit line; BY-SA makes the film itself an adaptation that must be shared under BY-SA too, so avoid it for a commercial launch film; NC forbids commercial use; ND, already left out, forbids cutting to picture). You can't listen: give the user the links of your 2-3 picks to hear before choosing:
 ` + r2.map((t2, i2) => `${i2 + 1}. ${t2.name} \xB7 ${t2.seconds ? `${Math.round(t2.seconds)}s` : "?"} \xB7 ${t2.vocals === "instrumental" ? "instrumental" : t2.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t2.tempo ? ` \xB7 ${t2.tempo}` : ""} \xB7 ${t2.licence} \xB7 ${t2.source}${t2.category && t2.category !== "music" ? ` \xB7 ${t2.category}` : ""}
    ${t2.preview}`).join("\n") + (notes.length ? `
 (${notes.join("; ")})` : "") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it."
@@ -102631,7 +102795,7 @@ ${loud ? `${loud} of these are loud (whoosh/riser/hit): the default film uses no
         const file4 = await bringSound(task, src, { name: s2 ? s2.id.replace(/[:/]/g, "-") : void 0, licence: s2?.licence || licence || void 0, credit: s2?.source, url: s2?.preview });
         placed.push({ ...c3, role: c3.role || "foreground", gainDb: c3.gainDb ?? -12, file: file4, name: s2?.name || c3.sound, licence: s2?.licence || null, start: placeCue(c3, s2), sync: s2?.sync || null });
       }
-      const moves = (task?.motion?.traceMoves || []).map((m) => ({ from: m[0], to: m[1] }));
+      const moves = [...task?.motion?.traceMoves || [], ...task?.motion?.traceActive || []].map((m) => ({ from: m[0], to: m[1] }));
       const chk = checkCues(placed.map((p2) => ({ ...p2, sound: p2.sound })), { duration: task?.motion?.storyboard?.format?.duration, moves });
       if (chk.errors.length) return text(`Cue sheet not recorded:
 ${chk.errors.map((e2) => `- ${e2}`).join("\n")}
@@ -102915,11 +103079,11 @@ async function traceTarget(target, { from, to: to2, fps, storyboard, config: con
     const m = await measureFrames(tr.thumbs.map((x2) => x2.buf), { config: config2 });
     pixels = tr.thumbs.map((x2, i2) => ({ t: x2.t, diff: m[i2]?.diff ?? 0 }));
   }
-  const a2 = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats, pixels });
+  const a2 = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats, pixels, cam: tr.cam ?? -1, inCam: tr.inCam || null });
   const sheet = await dopesheet({ labels: tr.labels, times: tr.times, speeds: a2.speeds, segments: a2.segments, samples: tr.samples, beats, config: config2 });
   const onions = [];
   for (const [s2, e2] of stretchesNow) onions.push({ from: s2, to: e2, buf: await onionSkin({ ghosts: tr.ghosts, labels: tr.labels, times: tr.times, samples: tr.samples, from: s2, to: e2, width: W, height: H, config: config2 }) });
-  return { labels: tr.labels, a: a2, sheet, onions, duration: D };
+  return { labels: tr.labels, a: a2, sheet, onions, duration: D, pixels };
 }
 function register3(server2, ctx2) {
   registerAudio(server2, ctx2);
@@ -103013,6 +103177,27 @@ NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble sho
       const m = await measureFrames(r2.frames.map((f3) => f3.buf), { config: config2 });
       const ts = r2.frames.map((f3) => f3.t);
       const j = judgeFrames(ts, m);
+      const moves = [];
+      if (j.cuts.length) {
+        const probe = [];
+        for (const c3 of j.cuts.slice(0, 20)) {
+          const k = ts.indexOf(c3);
+          const a2 = ts[k - 1] ?? c3 - 0.25;
+          for (let q2 = 0; q2 <= 7; q2++) probe.push(+(a2 + (c3 - a2) * q2 / 7).toFixed(3));
+        }
+        const dense = await sampleVideo(abs2, { times: probe, config: config2 }).catch(() => null);
+        if (dense?.frames?.length === probe.length) {
+          const dm = await measureFrames(dense.frames.map((f3) => f3.buf), { config: config2 });
+          const real = [];
+          j.cuts.slice(0, 20).forEach((c3, g) => {
+            const steps = dm.slice(g * 8 + 1, g * 8 + 8).map((x2) => x2?.diff ?? 0);
+            const total = steps.reduce((x2, y2) => x2 + y2, 0) || 1;
+            if (Math.max(...steps) >= 0.55 * total && Math.max(...steps) > 18) real.push(c3);
+            else moves.push(c3);
+          });
+          j.cuts = [...real, ...j.cuts.slice(20)];
+        }
+      }
       const pick5 = /* @__PURE__ */ new Set([0]);
       for (const c3 of j.cuts) pick5.add(ts.indexOf(c3));
       const step = Math.max(1, Math.floor(ts.length / 24));
@@ -103040,7 +103225,8 @@ NEXT: motion_study the 1-3 that best fit (pass its video URL or the Dribbble sho
       return blocks([
         textBlock(
           `MEASURED: ${r2.duration.toFixed(1)}s, ${shots} shot${shots > 1 ? "s" : ""} (${j.cuts.length} hard cut${j.cuts.length === 1 ? "" : "s"}${j.cuts.length ? ` at ${j.cuts.slice(0, 12).map(fmtT).join(", ")}` : ""}), average shot ${asl.toFixed(1)}s.
-Rhythm (change per second): ${sparkline(perSec)}
+` + (moves.length ? `Fast moves, not cuts (the change spreads over several frames: a camera push, whip or morph): ${moves.slice(0, 10).map(fmtT).join(", ")}.
+` : "") + `Rhythm (change per second): ${sparkline(perSec)}
 ` + (j.holds.length ? `Still stretches: ${j.holds.map(([a2, b]) => `${fmtT(a2)}-${fmtT(b)}`).join(", ")}
 ` : "") + (j.issues.length ? `Flags: ${j.issues.join("; ")}
 ` : "") + `Sheet: ${file4} (\u2702 = a hard cut lands on that frame).
@@ -103176,7 +103362,7 @@ LOOK at every tile as a frame someone pauses on: is there one clear focal point,
     "motion_trace",
     {
       title: "Measure how things move",
-      description: `Stills can't show motion; this measures it. Samples the composition every frame and reads each element's position, size and opacity from the page (elements with an id or data-track). Returns: a DOPESHEET (a lane per element: when it moves, its speed curve, its opacity, against the storyboard's beats: stagger, overlap, rest and simultaneity at a glance), ONION SKINS per beat (frames ghosted over each other plus each element's measured path, one dot per frame: even dots = linear, bunching = easing, a dot past the end = overshoot, straight where an arc was meant = mechanical), and measured flags: stops dead, linear moves, hitches, 4+ things starting on one frame, one duration for every move, mostly fades, overshoot %, how much of the film is still, beats where nothing starts. Use it on every beat you build or change, before the critic. Give important elements data-track="name" for readable lanes. Examples: motion_trace({ target: "film/index.html" }) \xB7 motion_trace({ target: "film/index.html", from: 2, to: 4.6 })`,
+      description: `Stills can't show motion; this measures it. Samples the composition every frame and reads each element's position, size and opacity from the page (elements with an id or data-track). Returns: a DOPESHEET (a lane per element: when it moves, its speed curve, its opacity, against the storyboard's beats: stagger, overlap, rest and simultaneity at a glance), ONION SKINS per beat (frames ghosted over each other plus each element's measured path, one dot per frame: even dots = linear, bunching = easing, a dot past the end = overshoot, straight where an arc was meant = mechanical), and measured flags: stops dead, linear moves, hitches, 4+ things starting on one frame, one duration for every move, mostly fades, overshoot %, how much of the film is still, beats where nothing starts. Use it on every beat you build or change, before the critic. Give important elements data-track="name" for readable lanes, and mark the camera group data-camera: its moves are reported as camera moves and taken out of everything inside it (a camera push is not 24 things starting at once). Examples: motion_trace({ target: "film/index.html" }) \xB7 motion_trace({ target: "film/index.html", from: 2, to: 4.6 })`,
       inputSchema: {
         target: external_exports.string().describe("The composition (.html or URL). Not a rendered video: it reads the page"),
         from: external_exports.number().optional(),
@@ -103202,6 +103388,7 @@ LOOK at every tile as a frame someone pauses on: is there one clear focal point,
       updateState((st) => {
         if (st.task) (st.task.motion ||= { studied: [], renders: [] }).trace = { at: (/* @__PURE__ */ new Date()).toISOString(), rev: artifactRev(st.task), flags: r2.a.flags.length };
         if (st.task) st.task.motion.traceMoves = r2.a.segments.filter((x2) => x2.travel > 20).map((x2) => [x2.from, x2.to]).slice(0, 300);
+        if (st.task) st.task.motion.traceActive = (r2.pixels || []).filter((p2) => p2.diff > 3).map((p2) => [+(p2.t - 0.2).toFixed(2), +(p2.t + 0.2).toFixed(2)]).slice(0, 600);
       });
       return blocks([
         textBlock(
@@ -103517,6 +103704,7 @@ function startMotion({ task, pk, memory, ctx: ctx2 }) {
   const others = otherTasks();
   return text(
     `Drip Motion task started (task id ${t2.id}): a film made in code (HTML + GSAP/CSS/canvas/three.js), rendered locally frame by frame.
+WORKING FOLDER: ${projectDir()} (the film, its renders and Drip's state go here).${workspaceFor(sessionDir()) ? "" : ` If the film isn't part of this repo (a launch film made from some other project's session), call drip_start again now with project: "<a folder of its own>" so nothing lands in this repo.`}
 ` + (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o2) => `"${o2.title}"`).join(", ")}): never touch them.
 ` : "") + (identity ? `THIS PROJECT'S MOTION IDENTITY (.drip/motion/IDENTITY.md, approved on earlier films; keep it unless the user asks for a change):
 ${identity}
@@ -103555,10 +103743,16 @@ function register4(server2, ctx2) {
         packs: external_exports.array(external_exports.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
         memory: external_exports.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
         loop: external_exports.enum(["fast", "full"]).optional().describe("fast (default for design): look, deal, build, check once (the critic on request): a page in ~10 minutes. full: the old process (intake, references by role, three comps, critic, design system, plan) for big brand projects or when the user asks for it."),
+        project: external_exports.string().optional().describe("A folder for this task's work and Drip state (.drip, renders, the film) when it does not belong to the repo the session is open in, e.g. a launch film made in C:/Dev/drip-lab/<name>. Hooks and tools follow it until drip_end. Created if missing."),
         swarm: external_exports.boolean().optional().describe('Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. On by default; pass false for a small job, or set "swarm": false in .drip/config.json.')
       }
     },
-    async ({ task, mode, size, surface, packs, memory, swarm, loop }) => {
+    async ({ task, mode, size, surface, packs, memory, swarm, loop, project }) => {
+      if (project) {
+        const dir = path41.resolve(sessionDir(), project);
+        fs43.mkdirSync(dir, { recursive: true });
+        setWorkspace(sessionDir(), dir);
+      }
       const g = guess(task);
       const m = mode || guessMode(task) || (g.size === "quick" ? "polish" : "design");
       const s2 = size || (m === "polish" ? "quick" : "full");
@@ -103885,6 +104079,7 @@ ${cur.mode === "motion" ? "Look at the film again (motion_frames sweep), fix, th
         s2.task = null;
         s2.history = s2.history.slice(-30);
       });
+      if (workspaceFor(sessionDir())) setWorkspace(sessionDir(), null);
       let skill = "";
       if (hasMemory()) {
         try {
@@ -103902,8 +104097,13 @@ ${cur.mode === "motion" ? "Look at the film again (motion_frames sweep), fix, th
 No design system yet. Once the user is happy with this design, ask once (AskUserQuestion): "Save this design as the project's design system (DESIGN.md)?" On yes: drip_kit({ template: "design-md" }) and fill it from the finished page (its palette, type, spacing, components and what it refuses). On no, leave it.`;
       } catch {
       }
+      const filmCrit = cur?.mode === "motion" ? lastCritique(cur, "motion") : null;
+      const openPoints = filmCrit && filmCrit.verdict !== "pass" ? `
+Tell the user what the critic left open (${filmCrit.verdict.toUpperCase()}: ${filmCrit.summary}):
+${(filmCrit.fixes || []).slice(0, 6).map((f3) => `- ${f3}`).join("\n")}
+They decide whether it ships as is or gets another round.` : "";
       return text(`Task closed. ${st.history.length} tasks in history. The project's boards and memory are kept.${skill}${film ? `
-${film}` : ""}${offer}`);
+${film}` : ""}${openPoints}${offer}`);
     }
   );
 }
@@ -105448,13 +105648,13 @@ var OVERUSED_FACES = [
   "Climate Crisis",
   "Dela Gothic One"
 ];
-var norm2 = (f3) => f3.toLowerCase().replace(/\b(variable|vf)\b/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+var norm3 = (f3) => f3.toLowerCase().replace(/\b(variable|vf)\b/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 function facesOf(type) {
   return String(type || "").split(/\s*(?:\+|\/|,|&|\bwith\b|\band\b)\s*/i).map((s2) => s2.replace(/\b(\d{3}|regular|medium|bold|semibold|light|italic|display|text|mono for (data|labels|numbers))\b/gi, "").replace(/\(.*?\)/g, "").trim()).filter((s2) => s2.length > 1);
 }
 var sameFace = (a2, b) => {
-  const x2 = norm2(a2);
-  const y2 = norm2(b);
+  const x2 = norm3(a2);
+  const y2 = norm3(b);
   return !!x2 && !!y2 && (x2 === y2 || x2.startsWith(`${y2} `) || y2.startsWith(`${x2} `));
 };
 function isOverused(face, list4 = OVERUSED_FACES) {
@@ -106869,7 +107069,8 @@ function lintText(source, rules) {
     if (!hits.length || hits.length < (r2.min || 1)) continue;
     out.push({ id: r2.id, severity: r2.severity || "warn", line: hits[0], count: hits.length, message: r2.message, fix: r2.fix });
   }
-  const families = new Set([...source.matchAll(/font-family:\s*([^;}{]+)/gi)].map((m) => m[1].split(",")[0].trim().replace(/['"]/g, "").toLowerCase()));
+  const used = source.replace(/@font-face\s*\{[^}]*\}/gi, "");
+  const families = new Set([...used.matchAll(/font-family:\s*([^;}{]+)/gi)].map((m) => m[1].split(",")[0].trim().replace(/['"]/g, "").toLowerCase()));
   if (families.size > 3) out.push({ id: "font-families", severity: "warn", line: 1, count: families.size, message: `${families.size} font families in one file.`, fix: "One pairing: a display face and a text face (drip_guide type)." });
   return out;
 }
@@ -108203,7 +108404,7 @@ async function previewHtml(html, { width = 1200, height = 700, config: config2 }
 // src/modules/assets/palette.mjs
 init_color();
 var hex3 = external_exports.string().regex(/^#?[0-9a-fA-F]{3,6}$/, "hex colour like #E8452C");
-var norm3 = (h) => `#${h.replace("#", "").toUpperCase()}`;
+var norm4 = (h) => `#${h.replace("#", "").toUpperCase()}`;
 function swatchHtml(groups) {
   return `<div style="font:13px system-ui;padding:20px;background:#fff">${groups.map(
     (g) => `<div style="margin-bottom:14px"><div style="font-weight:600;margin-bottom:6px">${g.name}</div><div style="display:flex">${g.ramp.map((s2) => `<div style="flex:1;height:64px;background:${s2.hex};display:flex;align-items:flex-end;padding:4px;color:${contrast(s2.hex, "#000") > 7 ? "#000" : "#fff"};font-size:11px">${s2.step}<br>${s2.hex}</div>`).join("")}</div></div>`
@@ -108222,7 +108423,7 @@ function register9(server2, ctx2) {
       }
     },
     safe(async ({ accent, neutralTint = 0.012, name = "accent" }) => {
-      const a2 = norm3(accent);
+      const a2 = norm4(accent);
       const o2 = hexToOklch(a2);
       const groups = [
         { name, ramp: ramp(a2) },
@@ -108289,8 +108490,8 @@ Use ONE accent. Neutrals carry 90% of the UI. Put these in DESIGN.md and the tok
     safe(
       async ({ pairs: pairs2 }) => text(
         pairs2.map((p2) => {
-          const r2 = contrast(norm3(p2.fg), norm3(p2.bg));
-          return `${p2.label ? `${p2.label}: ` : ""}${norm3(p2.fg)} on ${norm3(p2.bg)} = ${r2.toFixed(2)}:1 ${wcag(r2)}`;
+          const r2 = contrast(norm4(p2.fg), norm4(p2.bg));
+          return `${p2.label ? `${p2.label}: ` : ""}${norm4(p2.fg)} on ${norm4(p2.bg)} = ${r2.toFixed(2)}:1 ${wcag(r2)}`;
         }).join("\n")
       )
     )
@@ -108644,11 +108845,11 @@ init_paths();
 init_paths();
 import fs60 from "node:fs";
 import path59 from "node:path";
-var norm4 = (s2) => String(s2 || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+var norm5 = (s2) => String(s2 || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 function pieceKey(piece) {
   if (!piece || /^custom/i.test(piece)) return null;
   const last = String(piece).split(/[/@]/).filter(Boolean).pop() || "";
-  return norm4(last.replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "")) || null;
+  return norm5(last.replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "")) || null;
 }
 function walk(dir, out = [], depth = 6) {
   if (depth < 0 || !fs60.existsSync(dir)) return out;
@@ -108678,8 +108879,8 @@ function unusedPieces(task, root = projectDir()) {
   for (const [id, s2] of Object.entries(task.sections)) {
     const key = pieceKey(s2.piece);
     if (!key || key.length < 4) continue;
-    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm4).filter((k) => k.length >= 3)]);
-    const mine = comps.filter((f3) => keys.has(norm4(path59.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm4(path59.basename(path59.dirname(f3)))));
+    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm5).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f3) => keys.has(norm5(path59.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm5(path59.basename(path59.dirname(f3)))));
     if (!mine.length) {
       out.push(`piece not on the page: #${id} names ${s2.piece}, but no ${key} component is installed under src/components (pieces_install it, or name what the section really uses)`);
       continue;
@@ -108712,8 +108913,8 @@ function piecesOnPage(task, root) {
   for (const [id, s2] of Object.entries(task.sections)) {
     const key = pieceKey(s2.piece);
     if (!key || key.length < 4) continue;
-    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm4).filter((k) => k.length >= 3)]);
-    const mine = comps.filter((f3) => keys.has(norm4(path59.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm4(path59.basename(path59.dirname(f3)))));
+    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm5).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f3) => keys.has(norm5(path59.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm5(path59.basename(path59.dirname(f3)))));
     if (!mine.length) continue;
     const names3 = new Set(mine.map((f3) => path59.basename(f3).startsWith("index.") ? path59.basename(path59.dirname(f3)) : path59.basename(f3).replace(/\.\w+$/, "")));
     out.push({ id, piece: s2.piece, names: names3, mine });
@@ -111297,7 +111498,7 @@ import fs75 from "node:fs";
 import fs73 from "node:fs";
 import path72 from "node:path";
 var HEX = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
-var norm5 = (h) => {
+var norm6 = (h) => {
   h = h.toLowerCase();
   return h.length === 4 ? `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}` : h;
 };
@@ -111326,7 +111527,7 @@ function tokens(src) {
 }
 function designDrift(root, docFile) {
   const doc = fs73.readFileSync(docFile, "utf8");
-  const docHex = new Set((doc.match(HEX) || []).map(norm5));
+  const docHex = new Set((doc.match(HEX) || []).map(norm6));
   const files = cssFiles(root);
   const defined = {};
   const used = /* @__PURE__ */ new Set();
@@ -111334,12 +111535,12 @@ function designDrift(root, docFile) {
   for (const f3 of files) {
     const src = fs73.readFileSync(f3, "utf8");
     Object.assign(defined, tokens(src));
-    for (const h of src.match(HEX) || []) used.add(norm5(h));
+    for (const h of src.match(HEX) || []) used.add(norm6(h));
     for (const m of src.matchAll(/font-family\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
     for (const m of src.matchAll(/--font[\w-]*\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
     for (const m of src.matchAll(/fonts\.googleapis\.com\/css2?\?family=([^&"')]+)/gi)) families.add(decodeURIComponent(m[1]).replace(/\+/g, " ").split(":")[0]);
   }
-  const tokenHex = new Set(Object.values(defined).flatMap((v) => (v.match(HEX) || []).map(norm5)));
+  const tokenHex = new Set(Object.values(defined).flatMap((v) => (v.match(HEX) || []).map(norm6)));
   const issues = [];
   const missing = [...docHex].filter((h) => !used.has(h));
   if (missing.length) issues.push(`DESIGN.md names ${missing.join(" ")} but no stylesheet uses ${missing.length > 1 ? "them" : "it"}: update DESIGN.md or the tokens`);
@@ -111870,7 +112071,7 @@ function hoverSteps(task) {
 var KIND_BRIEF = {
   directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
   build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
-  motion: "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions, half-drawn shapes, clipped text), whether any PRODUCT UI on screen meets a good UI bar (real content, not lorem or a generic dashboard; clear hierarchy; one type family and one accent; readable at video size; states that change because of something; UI feedback at real UI speed, not slow and floaty), whether there is ENOUGH TO LOOK AT (light, depth, layered visuals, the product as a rich object, something new starting about every second; a launch film of flat shapes on an empty ground with one move per beat is basic, however clean), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). Name timestamps for every problem.",
+  motion: "You are judging a MOTION DESIGN FILM from sheets of its real rendered frames (timestamped; read them left to right, top to bottom, as time) close-up strips around each transition (frames 0.1-0.25s apart), and for compositions a DOPESHEET and ONION SKINS measured from the page (timing, spacing, easing and choreography as data). You can't see playback, so judge what these show: the hook in the first two seconds, one clear focal point per frame, composition and type at each pause, whether each transition carries something across (a shape, a position, a colour) or just swaps slides, the rhythm of busy and calm, whether mid-transition frames are clean (no collisions or clipped text; a frame caught inside a reveal or a morph is mid-motion, not unfinished: judge the transition, not one of its in-betweens), whether any PRODUCT UI on screen meets a good UI bar (real content, not lorem or a generic dashboard; clear hierarchy; one type family and one accent; readable at video size; states that change because of something; UI feedback at real UI speed, not slow and floaty), whether there is ENOUGH TO LOOK AT (light, depth, layered visuals, the product as a rich object, something new starting about every second; a launch film of flat shapes on an empty ground with one move per beat is basic, however clean), and whether it looks like a studio made it or like a template (everything fading in, floating particles, glowing gradients, one bounce on everything, feature cards one after another). SIZES: the sheets are reduced (each tile is about a quarter of the real frame); judge type, chip and label sizes ONLY from the FULL-SIZE frames, at the film's real resolution. THE STORYBOARD is the plan; where the film departs from it on purpose (a line dropped, a beat changed), judge whether the film works, never ask for what the plan listed. Name timestamps for every problem.",
   logo: "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a clich\xE9), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
   pack: "You are judging a NICHE PACK: written guidance meant to make a designer excellent in one niche. Is it specific to the niche (real standards, real artists, real techniques, real numbers) or generic design advice with the niche's name pasted in? Name every generic or wrong statement and what's missing.",
   any: "You are judging a design. Judge only what you see against the brief (if any)."
@@ -111990,6 +112191,22 @@ Ask the user now with AskUserQuestion: "Ship it with the open points listed" or 
             files.push(f3);
             notes.push(`transitions close up (each row: -0.25s, -0.1s, the boundary, +0.1s, +0.25s) around ${around.map(fmtT).join(", ")}`);
           });
+        }
+        if (!isVideo(t0)) {
+          try {
+            const D = whole.probe?.duration || fmt.duration || 10;
+            const beatMids = (sb?.beats || []).filter((b) => b.len >= 1.5).map((b) => b.at + b.len * 0.6);
+            const keyTimes = (beatMids.length >= 3 ? [beatMids[0], beatMids[Math.floor(beatMids.length / 2)], beatMids.at(-1)] : [0.3, 0.55, 0.85].map((p2) => p2 * D)).map((x2) => +x2.toFixed(2));
+            const full = await shootComposition(await compositionUrl(t0), { times: { times: keyTimes }, width: fmt.width || 1920, height: fmt.height || 1080, scale: 1, quality: 85, config: config2 });
+            full.frames.forEach((f3, i2) => {
+              const g = path75.join(dir, `full-${i2 + 1}.jpg`);
+              fs76.writeFileSync(g, f3.buf);
+              files.push(g);
+              notes.push(`FULL-SIZE frame at ${fmtT(f3.t)} (${fmt.width || 1920}x${fmt.height || 1080}, real size): judge type and UI sizes here`);
+            });
+          } catch (e2) {
+            notes.push(`(full-size frames failed: ${e2.message})`);
+          }
         }
         let traced = null;
         if (!isVideo(t0)) {
@@ -115977,14 +116194,14 @@ function fbm(noise, x2, y2, octaves = 4, lacunarity = 2, gain = 0.5) {
   let amp = 1;
   let freq = 1;
   let sum = 0;
-  let norm6 = 0;
+  let norm7 = 0;
   for (let o2 = 0; o2 < octaves; o2++) {
     sum += amp * noise(x2 * freq, y2 * freq);
-    norm6 += amp;
+    norm7 += amp;
     amp *= gain;
     freq *= lacunarity;
   }
-  return sum / norm6;
+  return sum / norm7;
 }
 function hexToRgb2(hex4) {
   let h = String(hex4).trim().replace(/^#/, "");

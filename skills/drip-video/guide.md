@@ -57,9 +57,10 @@ for no reason, and a glow tries to hide that nothing was decided. This guide exi
    `motion_voice` (`drip_guide video/voice`), a few calm UI sounds at most (`motion_sound`).
 9. **Draft render, then measure it.** `motion_export` with `draft: true` (half size, 15 fps) to catch errors
    fast. `motion_study` the file: duration, cuts, rhythm and shot lengths must match the storyboard.
-10. **Critic once.** `critic_prepare({ kind: "motion", targets: [...] })` with the sweep and transition sheets, then
-    the Agent `drip:critic` with the prompt unchanged, then `critic_record`. Do not run it earlier, and do not run it
-    again until you have fixed what it found (`drip_guide video/critic`).
+10. **Critic once.** `critic_prepare({ kind: "motion", targets: [...] })`, then the Agent `drip:critic` with the prompt
+    unchanged, then `critic_record`. It is one review of the near-final cut, not a gate: fix what you agree with, and
+    `drip_end` hands what it left open to the user, who decides whether it ships or gets another round. Only a clean
+    `motion_frames` sweep on the current files holds a turn open (`drip_guide video/critic`).
 11. **Fix.** Fix every S0/S1 finding and the cheap ones. Keep decisions the user approved: do not re-do a
     sequence they liked because you changed another. Re-run the sweep.
 12. **Final render.** Local copies of libraries next to the file, fonts loaded, then `motion_export` at full

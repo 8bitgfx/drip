@@ -70,11 +70,55 @@ export function findProjectRoot(start = process.cwd()) {
   return out;
 }
 
-export function projectDir(cwd) {
+function baseProjectDir(cwd) {
   if (cwd) return cwd;
   for (const v of HOST_PROJECT_VARS) if (process.env[v]) return process.env[v];
   return findProjectRoot(process.cwd());
 }
+
+// Workspace redirects: a task can keep its Drip state in another folder than the one the session is open in (a film
+// made for drip-lab from a session opened in some app's repo). drip_start({ project }) records it in
+// ~/.drip/workspaces.json; the server and every hook follow it, so nothing lands in the session's own repo.
+const wsFile = () => path.join(process.env.DRIP_HOME || homeDripDir, "workspaces.json");
+let wsCache = { at: 0, map: {} };
+const norm = (p) => path.resolve(p).replace(/\\/g, "/").toLowerCase();
+function workspaces() {
+  if (Date.now() - wsCache.at < 1500) return wsCache.map;
+  let map = {};
+  try {
+    map = JSON.parse(fs.readFileSync(wsFile(), "utf8"));
+  } catch {
+    /* none */
+  }
+  wsCache = { at: Date.now(), map };
+  return map;
+}
+
+/** Send this folder's Drip work to another folder (dir), or stop doing so (dir null). */
+export function setWorkspace(from, dir) {
+  const map = { ...workspaces() };
+  const key = norm(from);
+  if (dir) map[key] = { dir: path.resolve(dir), at: new Date().toISOString() };
+  else delete map[key];
+  fs.mkdirSync(path.dirname(wsFile()), { recursive: true });
+  fs.writeFileSync(wsFile(), JSON.stringify(map, null, 2));
+  wsCache = { at: Date.now(), map };
+}
+
+/** The folder this one's Drip work is redirected to, or null. */
+export function workspaceFor(from) {
+  const w = workspaces()[norm(from)];
+  return w && fs.existsSync(w.dir) ? w.dir : null;
+}
+
+/** The folder Drip works in: the session's project, or where a drip_start({ project }) sent it. */
+export function projectDir(cwd) {
+  const base = baseProjectDir(cwd);
+  return workspaceFor(base) || base;
+}
+
+/** The session's own folder, ignoring any redirect. */
+export const sessionDir = (cwd) => baseProjectDir(cwd);
 
 export function projectDripDir(cwd) {
   return path.join(projectDir(cwd), ".drip");

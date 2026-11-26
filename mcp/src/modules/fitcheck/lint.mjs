@@ -46,7 +46,9 @@ export function lintText(source, rules) {
     out.push({ id: r.id, severity: r.severity || "warn", line: hits[0], count: hits.length, message: r.message, fix: r.fix });
   }
   // Too many font families in one file.
-  const families = new Set([...source.matchAll(/font-family:\s*([^;}{]+)/gi)].map((m) => m[1].split(",")[0].trim().replace(/['"]/g, "").toLowerCase()));
+  // @font-face blocks declare font files (several weights and styles of one family), not the faces a design uses.
+  const used = source.replace(/@font-face\s*\{[^}]*\}/gi, "");
+  const families = new Set([...used.matchAll(/font-family:\s*([^;}{]+)/gi)].map((m) => m[1].split(",")[0].trim().replace(/['"]/g, "").toLowerCase()));
   if (families.size > 3) out.push({ id: "font-families", severity: "warn", line: 1, count: families.size, message: `${families.size} font families in one file.`, fix: "One pairing: a display face and a text face (drip_guide type)." });
   return out;
 }

@@ -23,14 +23,41 @@ export function filmDir(task) {
 }
 
 /** Copy or download a sound into <film>/sound/ and note its licence. Returns the project-relative path. */
+const AUDIO_EXT = /\.(mp3|wav|ogg|oga|m4a|flac|aac|opus|webm)$/i;
+
+/**
+ * A readable file name and a real audio extension for a sound: from its name or credit ("Upbeat Corporate — Soundrider"),
+ * else the file name in the URL when it is an audio file, else a track id in the query. Streaming URLs such as
+ * https://prod-1.storage.jamendo.com/?trackid=1670486&format=mp32 have no file name (the host is not one). Pure (tested).
+ */
+export function soundFileName(source, label) {
+  const src = String(source);
+  let u = null;
+  try {
+    u = /^https?:/i.test(src) ? new URL(src) : null;
+  } catch {
+    u = null;
+  }
+  const pathPart = u ? u.pathname : src.split("?")[0];
+  const fileBase = path.basename(pathPart || "");
+  const fmt = u?.searchParams.get("format") || "";
+  const ext = AUDIO_EXT.test(fileBase) ? path.extname(fileBase).toLowerCase() : /ogg|vorbis/i.test(fmt) ? ".ogg" : /flac/i.test(fmt) ? ".flac" : /wav/i.test(fmt) ? ".wav" : ".mp3";
+  const id = u ? u.searchParams.get("trackid") || u.searchParams.get("id") : null;
+  const raw = label ? String(label).split(/[(·]/)[0] : AUDIO_EXT.test(fileBase) ? fileBase.replace(AUDIO_EXT, "") : id ? `track-${id}` : "sound";
+  const base =
+    raw
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "sound";
+  return { base, ext };
+}
+
 export async function bringSound(task, source, { name, licence, credit, url } = {}) {
   const dir = path.join(filmDir(task), "sound");
   fs.mkdirSync(dir, { recursive: true });
-  const base = String(name || path.basename(String(source).split("?")[0]) || "sound")
-    .replace(/[^a-z0-9._-]+/gi, "-")
-    .slice(0, 60);
-  const ext = path.extname(base) || path.extname(String(source).split("?")[0]) || ".mp3";
-  const file = path.join(dir, base.endsWith(ext) ? base : `${base}${ext}`);
+  const { base, ext } = soundFileName(source, name || credit);
+  const file = path.join(dir, `${base}${ext}`);
   if (!fs.existsSync(file)) {
     if (/^https?:/i.test(source)) fs.writeFileSync(file, (await get(source, { as: "buffer", ttlMs: 30 * 24 * 3600e3, timeoutMs: 120000, headers: { "User-Agent": "drip-design-plugin" } })).body);
     else fs.copyFileSync(path.resolve(projectDir(), source), file);
@@ -124,11 +151,14 @@ export function registerAudio(server, ctx) {
           }
         }
         // Best fit for motion design first (calm by default); tracks that fight the picture drop to the bottom or out.
-        const r = found.map((t) => ({ ...t, fit: motionFit(t, feel) })).filter((t) => t.fit > -4).sort((a, b) => b.fit - a.fit).slice(0, 14);
+        // Licence matters as much as fit: setting music to picture makes the film an adaptation, so ShareAlike (SA) would
+        // put the whole film under the same licence, and NC forbids commercial use. CC0 and CC BY first.
+        const licScore = (t) => (/cc0|public/i.test(t.licence) ? 3 : /nc/i.test(t.licence) ? -6 : /sa/i.test(t.licence) ? -3 : /by/i.test(t.licence) ? 2 : 0);
+        const r = found.map((t) => ({ ...t, fit: motionFit(t, feel) + licScore(t) })).filter((t) => t.fit > -4).sort((a, b) => b.fit - a.fit).slice(0, 14);
         if (!r.length) return text("No tracks found. Try fewer, broader words (a genre and a feel); or use a track the user owns.", true);
         return text(
           "PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: \"Epidemic Sound subscription\"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.\n\n" +
-            `${r.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences vary: CC0 and CC BY are fine with credit; NC means no commercial use; ND, already left out, forbids cutting to picture):\n` +
+            `${r.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences ranked too: CC0 is free to use; CC BY needs a credit line; BY-SA makes the film itself an adaptation that must be shared under BY-SA too, so avoid it for a commercial launch film; NC forbids commercial use; ND, already left out, forbids cutting to picture). You can't listen: give the user the links of your 2-3 picks to hear before choosing:\n` +
             r.map((t, i) => `${i + 1}. ${t.name} · ${t.seconds ? `${Math.round(t.seconds)}s` : "?"} · ${t.vocals === "instrumental" ? "instrumental" : t.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t.tempo ? ` · ${t.tempo}` : ""} · ${t.licence} · ${t.source}${t.category && t.category !== "music" ? ` · ${t.category}` : ""}\n   ${t.preview}`).join("\n") +
             (notes.length ? `\n(${notes.join("; ")})` : "") +
             "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it.",
@@ -235,7 +265,7 @@ export function registerAudio(server, ctx) {
         const file = await bringSound(task, src, { name: s ? s.id.replace(/[:/]/g, "-") : undefined, licence: s?.licence || licence || undefined, credit: s?.source, url: s?.preview });
         placed.push({ ...c, role: c.role || "foreground", gainDb: c.gainDb ?? -12, file, name: s?.name || c.sound, licence: s?.licence || null, start: placeCue(c, s), sync: s?.sync || null });
       }
-      const moves = (task?.motion?.traceMoves || []).map((m) => ({ from: m[0], to: m[1] }));
+      const moves = [...(task?.motion?.traceMoves || []), ...(task?.motion?.traceActive || [])].map((m) => ({ from: m[0], to: m[1] }));
       const chk = checkCues(placed.map((p) => ({ ...p, sound: p.sound })), { duration: task?.motion?.storyboard?.format?.duration, moves });
       if (chk.errors.length) return text(`Cue sheet not recorded:\n${chk.errors.map((e) => `- ${e}`).join("\n")}\nUse sounds from search (they carry their licence), or record the licence of your own file in sound/LICENCES.md and pass it as a catalogue sound.`, true);
       updateState((st) => {

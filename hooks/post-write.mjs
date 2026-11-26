@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { allow, filmEvent, hashFile, isUiFile, loadConfig, loadState, looksVisual, markSeen, out, readInput, run, shotHash, updateState, writeHints } from "./lib.mjs";
+import { allow, filmEvent, hashFile, isUiFile, loadConfig, loadState, looksVisual, markSeen, out, readInput, run, shotHash, updateState, writeHints, hookDir } from "./lib.mjs";
 
 // taste-skill's copy lint (no browser, ~0.1 s): slop words, stock lines, default names, invented stat strips.
 // Its FAILs and WARNs come back as lint issues; its INFO lines stay out.
@@ -30,7 +30,7 @@ function copyLint(file) {
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   const ti = input.tool_input || {};
   const file = ti.file_path;
   if (!file || !isUiFile(file, dir)) return allow();

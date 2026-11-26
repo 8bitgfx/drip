@@ -1,6 +1,6 @@
 // UserPromptSubmit: keep Claude on track while a Drip task is active. In "always" mode, also
 // remind it to start Drip on design prompts. Otherwise silent: Drip is opt-in.
-import { REWORK_WORDS, allow, checklist, loadConfig, loadState, out, readInput, run, updateState } from "./lib.mjs";
+import { REWORK_WORDS, allow, checklist, loadConfig, loadState, out, readInput, run, updateState, hookDir } from "./lib.mjs";
 import { userWords } from "./transcript.mjs";
 import { isSettingsCommand, openSettingsInBackground } from "./settings-open.mjs";
 
@@ -8,7 +8,7 @@ const LOAD = "If the drip_* tools are not loaded, ToolSearch select:mcp__plugin_
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   // /drip:settings is a page, not a conversation: open it here and stop the prompt, so no model is involved.
   if (isSettingsCommand(input.prompt)) {
     const url = await openSettingsInBackground(dir);

@@ -1,10 +1,10 @@
 // SessionStart: only speaks when there is something to say — an unfinished Drip task, or strict mode.
-import { allow, checklist, loadConfig, loadState, orphanTasks, otherTasks, out, readInput, run } from "./lib.mjs";
+import { allow, checklist, loadConfig, loadState, orphanTasks, otherTasks, out, readInput, run, hookDir } from "./lib.mjs";
 import { sessionPointer } from "../mcp/src/core/project.mjs";
 
 run(async () => {
   const input = await readInput();
-  const dir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const dir = hookDir(input);
   // This session's own task, or one an ended session left open (mentioned, never enforced here).
   const own = loadState(dir).task;
   const task = own || orphanTasks(dir)[0] || null;
