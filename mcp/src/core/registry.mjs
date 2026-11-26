@@ -81,13 +81,13 @@ const wrap = (server) =>
 // (drip_search finds it, drip_execute runs it), so the tool list stays small and every tool still works.
 // "tools": "all" in .drip/config.json lists every tool directly.
 export const CORE = new Set([
-  "drip_start", "drip_status", "drip_guide", "drip_brief", "drip_end", "drip_skip", "drip_kit", "drip_serve", "drip_check", "drip_search", "drip_execute", "keys_open",
+  "drip_start", "drip_status", "drip_guide", "drip_brief", "drip_end", "drip_skip", "drip_kit", "drip_serve", "drip_check", "drip_search", "drip_execute", "keys_open", "settings_open",
   "refs_site", "refs_gallery", "refs_view", "refs_search",
   "layout_deal", "parts_list", "parts_preview", "parts_get", "pieces_install", "pieces_preview", "drip_kits", "components_get", "drip_film",
   "images_search", "images_save", "fonts_compare", "fonts_search", "palette_check", "icons_search", "icons_get", "mockup_render",
   "components_find", "components_local_find",
   "fitcheck_shot", "fitcheck_done", "critic_prepare", "critic_record",
-  "build_prepare", "scout_prepare", "checker_prepare", "page_stitch",
+  "build_prepare", "page_stitch",
   "board_create", "board_directions", "board_tile", "board_choose", "logo_sheet", "logo_test",
 ]);
 

@@ -1,4 +1,7 @@
-# Next session: open problems (updated 2026-11-26, Drip 0.9.0)
+# Next session: open problems (updated 2026-11-26, Drip 0.9.1)
+
+## Done in 0.9.1: settings page
+`/drip:settings` opens a local page (`modules/gen/settings.mjs`, tool `settings_open`) instead of a chat menu: the open task (turn checks off, end it), switches (checks, critic on every page, builders, full process; written to `~/.drip/config.json`), API keys (saved to `~/.drip/keys.json`, never shown), paid kits, niche packs, and an install check. 127.0.0.1 only, random token in every URL and form. Codex and any terminal: `drip settings` (the Codex rules point at `settings_open`). `scout_prepare` and `checker_prepare` are no longer in the core tool list (still reachable through drip_search / drip_execute). `/drip:motion` is the user's own work in progress: don't add it.
 
 ## Done in 0.9.0: cost
 The anime run's 28.5M tokens were the director's context (83k at the start, 411k at the end) re-read on each of 116 calls. Cost = calls x context, so 0.9.0 cuts both:

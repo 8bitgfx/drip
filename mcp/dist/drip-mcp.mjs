@@ -3277,8 +3277,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path83) {
-      let input2 = path83;
+    function removeDotSegments(path84) {
+      let input2 = path84;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3352,11 +3352,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path83) {
-      if (path83 === "" || path83[0] === "/") {
-        return removeDotSegments(path83);
+    function removeDotSegmentsRelative(path84) {
+      if (path84 === "" || path84[0] === "/") {
+        return removeDotSegments(path84);
       }
-      const segments = path83.split("/");
+      const segments = path84.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3719,8 +3719,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path83 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path83 && path83 !== "/" ? path83 : void 0;
+        const path84 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path84 && path84 !== "/" ? path84 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -3779,7 +3779,7 @@ var require_schemes = __commonJS({
       urnComponent.nss = (uuidComponent.uuid || "").toLowerCase();
       return urnComponent;
     }
-    var http4 = (
+    var http5 = (
       /** @type {SchemeHandler} */
       {
         scheme: "http",
@@ -3792,7 +3792,7 @@ var require_schemes = __commonJS({
       /** @type {SchemeHandler} */
       {
         scheme: "https",
-        domainHost: http4.domainHost,
+        domainHost: http5.domainHost,
         parse: httpParse,
         serialize: httpSerialize
       }
@@ -3836,7 +3836,7 @@ var require_schemes = __commonJS({
     var SCHEMES = (
       /** @type {Record<SchemeName, SchemeHandler>} */
       {
-        http: http4,
+        http: http5,
         https,
         ws,
         wss,
@@ -7257,12 +7257,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f3;
     };
-    function addFormats(ajv, list4, fs85, exportName) {
+    function addFormats(ajv, list4, fs86, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f3 of list4)
-        ajv.addFormat(f3, fs85[f3]);
+        ajv.addFormat(f3, fs86[f3]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -11947,7 +11947,7 @@ var require_gifframe = __commonJS({
 var require_gifutil = __commonJS({
   "node_modules/gifwrap/src/gifutil.js"(exports) {
     "use strict";
-    var fs85 = __require("fs");
+    var fs86 = __require("fs");
     var ImageQ = require_image_q();
     var BitmapImage2 = require_bitmapimage();
     var { GifFrame: GifFrame2 } = require_gifframe();
@@ -12062,14 +12062,14 @@ var require_gifutil = __commonJS({
       jimpImage.bitmap.data = bitmapImageToShare.bitmap.data;
       return jimpImage;
     };
-    exports.write = function(path83, frames, spec, encoder) {
+    exports.write = function(path84, frames, spec, encoder) {
       encoder = encoder || defaultCodec;
-      const matches2 = path83.match(/\.[a-zA-Z]+$/);
+      const matches2 = path84.match(/\.[a-zA-Z]+$/);
       if (matches2 !== null && INVALID_SUFFIXES.includes(matches2[0].toLowerCase())) {
-        throw new Error(`GIF '${path83}' has an unexpected suffix`);
+        throw new Error(`GIF '${path84}' has an unexpected suffix`);
       }
       return encoder.encodeGif(frames, spec).then((gif2) => {
-        return _writeBinary(path83, gif2.buffer).then(() => {
+        return _writeBinary(path84, gif2.buffer).then(() => {
           return gif2;
         });
       });
@@ -12141,9 +12141,9 @@ var require_gifutil = __commonJS({
         }
       }
     }
-    function _readBinary(path83) {
+    function _readBinary(path84) {
       return new Promise((resolve2, reject) => {
-        fs85.readFile(path83, (err, buffer) => {
+        fs86.readFile(path84, (err, buffer) => {
           if (err) {
             return reject(err);
           }
@@ -12151,9 +12151,9 @@ var require_gifutil = __commonJS({
         });
       });
     }
-    function _writeBinary(path83, buffer) {
+    function _writeBinary(path84, buffer) {
       return new Promise((resolve2, reject) => {
-        fs85.writeFile(path83, buffer, (err) => {
+        fs86.writeFile(path84, buffer, (err) => {
           if (err) {
             return reject(err);
           }
@@ -14132,9 +14132,9 @@ var require_decoder = __commonJS({
         return a2 < 0 ? 0 : a2 > 255 ? 255 : a2;
       }
       constructor.prototype = {
-        load: function load2(path83) {
+        load: function load2(path84) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", path83, true);
+          xhr.open("GET", path84, true);
           xhr.responseType = "arraybuffer";
           xhr.onload = (function() {
             var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
@@ -24561,11 +24561,11 @@ var require_Mime = __commonJS({
         }
       }
     };
-    Mime.prototype.getType = function(path83) {
-      path83 = String(path83);
-      let last = path83.replace(/^.*[/\\]/, "").toLowerCase();
+    Mime.prototype.getType = function(path84) {
+      path84 = String(path84);
+      let last = path84.replace(/^.*[/\\]/, "").toLowerCase();
       let ext = last.replace(/^.*\./, "").toLowerCase();
-      let hasPath = last.length < path83.length;
+      let hasPath = last.length < path84.length;
       let hasDot = ext.length < last.length - 1;
       return (hasDot || !hasPath) && this._types[ext] || null;
     };
@@ -26818,9 +26818,9 @@ var NotRegularFileError;
 var init_NotRegularFileError = __esm({
   "node_modules/strtok3/lib/NotRegularFileError.js"() {
     NotRegularFileError = class extends Error {
-      constructor(path83) {
-        super(`Not a regular file: ${path83}`);
-        this.path = path83;
+      constructor(path84) {
+        super(`Not a regular file: ${path84}`);
+        this.path = path84;
         this.name = "NotRegularFileError";
       }
     };
@@ -28041,10 +28041,10 @@ var require_supports_color = __commonJS({
         return 3;
       }
       if ("TERM_PROGRAM" in env) {
-        const version2 = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
+        const version3 = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
         switch (env.TERM_PROGRAM) {
           case "iTerm.app":
-            return version2 >= 3 ? 3 : 2;
+            return version3 >= 3 ? 3 : 2;
           case "Apple_Terminal":
             return 2;
         }
@@ -30529,8 +30529,8 @@ var init_core2 = __esm({
           };
         }
         if (this.checkString("AC")) {
-          const version2 = new StringType(4, "latin1").get(this.buffer, 2);
-          if (version2.match("^d*") && version2 >= 1e3 && version2 <= 1050) {
+          const version3 = new StringType(4, "latin1").get(this.buffer, 2);
+          if (version3.match("^d*") && version3 >= 1e3 && version3 <= 1050) {
             return {
               ext: "dwg",
               mime: "image/vnd.dwg"
@@ -31162,9 +31162,9 @@ var init_core2 = __esm({
           ext: "tif",
           mime: "image/tiff"
         };
-        const version2 = (bigEndian ? UINT16_BE : UINT16_LE).get(this.buffer, 2);
+        const version3 = (bigEndian ? UINT16_BE : UINT16_LE).get(this.buffer, 2);
         const ifdOffset = (bigEndian ? UINT32_BE : UINT32_LE).get(this.buffer, 4);
-        if (version2 === 42) {
+        if (version3 === 42) {
           if (ifdOffset >= 6) {
             if (this.checkString("CR", { offset: 8 })) {
               return {
@@ -31209,7 +31209,7 @@ var init_core2 = __esm({
           }
           return fileType ?? tiffFileType;
         }
-        if (version2 === 43) {
+        if (version3 === 43) {
           return tiffFileType;
         }
       }
@@ -31282,8 +31282,8 @@ function isTokenizerStreamBoundsError(error62) {
   }
   return /strtok3[/\\]lib[/\\]stream[/\\]/.test(error62.stack);
 }
-async function fileTypeFromFile(path83, options) {
-  return new FileTypeParser2(options).fromFile(path83, options);
+async function fileTypeFromFile(path84, options) {
+  return new FileTypeParser2(options).fromFile(path84, options);
 }
 async function fileTypeFromStream(stream, options) {
   return new FileTypeParser2(options).fromStream(stream);
@@ -31314,9 +31314,9 @@ var init_file_type = __esm({
           }
         }
       }
-      async fromFile(path83) {
+      async fromFile(path84) {
         this.options.signal?.throwIfAborted();
-        const fileHandle = await fs30.open(path83, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
+        const fileHandle = await fs30.open(path84, fileSystemConstants.O_RDONLY | fileSystemConstants.O_NONBLOCK);
         const fileStat = await fileHandle.stat();
         if (!fileStat.isFile()) {
           await fileHandle.close();
@@ -31325,7 +31325,7 @@ var init_file_type = __esm({
         const tokenizer = new FileTokenizer(fileHandle, {
           ...this.getTokenizerOptions(),
           fileInfo: {
-            path: path83,
+            path: path84,
             size: fileStat.size
           }
         });
@@ -31713,7 +31713,7 @@ var require_XMLDOMImplementation = __commonJS({
       module.exports = XMLDOMImplementation = (function() {
         function XMLDOMImplementation2() {
         }
-        XMLDOMImplementation2.prototype.hasFeature = function(feature, version2) {
+        XMLDOMImplementation2.prototype.hasFeature = function(feature, version3) {
           return true;
         };
         XMLDOMImplementation2.prototype.createDocumentType = function(qualifiedName, publicId, systemId) {
@@ -31725,7 +31725,7 @@ var require_XMLDOMImplementation = __commonJS({
         XMLDOMImplementation2.prototype.createHTMLDocument = function(title) {
           throw new Error("This DOM method is not implemented.");
         };
-        XMLDOMImplementation2.prototype.getFeature = function(feature, version2) {
+        XMLDOMImplementation2.prototype.getFeature = function(feature, version3) {
           throw new Error("This DOM method is not implemented.");
         };
         return XMLDOMImplementation2;
@@ -32456,17 +32456,17 @@ var require_XMLDeclaration = __commonJS({
       NodeType = require_NodeType();
       module.exports = XMLDeclaration = (function(superClass) {
         extend2(XMLDeclaration2, superClass);
-        function XMLDeclaration2(parent, version2, encoding, standalone) {
+        function XMLDeclaration2(parent, version3, encoding, standalone) {
           var ref;
           XMLDeclaration2.__super__.constructor.call(this, parent);
-          if (isObject2(version2)) {
-            ref = version2, version2 = ref.version, encoding = ref.encoding, standalone = ref.standalone;
+          if (isObject2(version3)) {
+            ref = version3, version3 = ref.version, encoding = ref.encoding, standalone = ref.standalone;
           }
-          if (!version2) {
-            version2 = "1.0";
+          if (!version3) {
+            version3 = "1.0";
           }
           this.type = NodeType.Declaration;
-          this.version = this.stringify.xmlVersion(version2);
+          this.version = this.stringify.xmlVersion(version3);
           if (encoding != null) {
             this.encoding = this.stringify.xmlEncoding(encoding);
           }
@@ -33521,10 +33521,10 @@ var require_XMLNode = __commonJS({
           Array.prototype.push.apply(this.parent.children, removed);
           return this;
         };
-        XMLNode2.prototype.declaration = function(version2, encoding, standalone) {
+        XMLNode2.prototype.declaration = function(version3, encoding, standalone) {
           var doc, xmldec;
           doc = this.document();
-          xmldec = new XMLDeclaration(doc, version2, encoding, standalone);
+          xmldec = new XMLDeclaration(doc, version3, encoding, standalone);
           if (doc.children.length === 0) {
             doc.children.unshift(xmldec);
           } else if (doc.children[0].type === NodeType.Declaration) {
@@ -33648,8 +33648,8 @@ var require_XMLNode = __commonJS({
         XMLNode2.prototype.doc = function() {
           return this.document();
         };
-        XMLNode2.prototype.dec = function(version2, encoding, standalone) {
-          return this.declaration(version2, encoding, standalone);
+        XMLNode2.prototype.dec = function(version3, encoding, standalone) {
+          return this.declaration(version3, encoding, standalone);
         };
         XMLNode2.prototype.e = function(name, attributes, text2) {
           return this.element(name, attributes, text2);
@@ -33696,7 +33696,7 @@ var require_XMLNode = __commonJS({
         XMLNode2.prototype.normalize = function() {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
         };
-        XMLNode2.prototype.isSupported = function(feature, version2) {
+        XMLNode2.prototype.isSupported = function(feature, version3) {
           return true;
         };
         XMLNode2.prototype.hasAttributes = function() {
@@ -33752,7 +33752,7 @@ var require_XMLNode = __commonJS({
           }
           return true;
         };
-        XMLNode2.prototype.getFeature = function(feature, version2) {
+        XMLNode2.prototype.getFeature = function(feature, version3) {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
         };
         XMLNode2.prototype.setUserData = function(key, data, handler) {
@@ -34949,13 +34949,13 @@ var require_XMLDocumentCB = __commonJS({
           }
           return this;
         };
-        XMLDocumentCB2.prototype.declaration = function(version2, encoding, standalone) {
+        XMLDocumentCB2.prototype.declaration = function(version3, encoding, standalone) {
           var node2;
           this.openCurrent();
           if (this.documentStarted) {
             throw new Error("declaration() must be the first node.");
           }
-          node2 = new XMLDeclaration(this, version2, encoding, standalone);
+          node2 = new XMLDeclaration(this, version3, encoding, standalone);
           this.onData(this.writer.declaration(node2, this.writerOptions, this.currentLevel + 1), this.currentLevel + 1);
           return this;
         };
@@ -35126,8 +35126,8 @@ var require_XMLDocumentCB = __commonJS({
         XMLDocumentCB2.prototype.ins = function(target, value) {
           return this.instruction(target, value);
         };
-        XMLDocumentCB2.prototype.dec = function(version2, encoding, standalone) {
-          return this.declaration(version2, encoding, standalone);
+        XMLDocumentCB2.prototype.dec = function(version3, encoding, standalone) {
+          return this.declaration(version3, encoding, standalone);
         };
         XMLDocumentCB2.prototype.dtd = function(root, pubID, sysID) {
           return this.doctype(root, pubID, sysID);
@@ -38770,9 +38770,9 @@ var require_opentype = __commonJS({
         }
         return this;
       };
-      Path.fromSVG = function(path83, options) {
+      Path.fromSVG = function(path84, options) {
         const newPath = new Path();
-        return newPath.fromSVG(path83, options);
+        return newPath.fromSVG(path84, options);
       };
       Path.prototype.moveTo = function(x2, y2) {
         this.commands.push({
@@ -43661,8 +43661,8 @@ var require_opentype = __commonJS({
       var draw_default = { line };
       function parseCpalTable(data, start2) {
         const p2 = new Parser(data, start2);
-        const version2 = p2.parseShort();
-        if (version2 !== 0) {
+        const version3 = p2.parseShort();
+        if (version3 !== 0) {
           console.warn("Only CPALv0 is currently fully supported.");
         }
         const numPaletteEntries = p2.parseShort();
@@ -43674,21 +43674,21 @@ var require_opentype = __commonJS({
         const colorRecords = p2.parseULongList(numColorRecords);
         p2.relativeOffset = colorRecordsArrayOffset;
         return {
-          version: version2,
+          version: version3,
           numPaletteEntries,
           colorRecords,
           colorRecordIndices
         };
       }
-      function makeCpalTable({ version: version2 = 0, numPaletteEntries = 0, colorRecords = [], colorRecordIndices = [0] }) {
-        check_default.argument(version2 === 0, "Only CPALv0 are supported.");
+      function makeCpalTable({ version: version3 = 0, numPaletteEntries = 0, colorRecords = [], colorRecordIndices = [0] }) {
+        check_default.argument(version3 === 0, "Only CPALv0 are supported.");
         check_default.argument(colorRecords.length, "No colorRecords given.");
         check_default.argument(colorRecordIndices.length, "No colorRecordIndices given.");
         if (colorRecordIndices.length > 1) {
           check_default.argument(numPaletteEntries, "Can't infer numPaletteEntries on multiple colorRecordIndices");
         }
         return new table_default.Table("CPAL", [
-          { name: "version", type: "USHORT", value: version2 },
+          { name: "version", type: "USHORT", value: version3 },
           { name: "numPaletteEntries", type: "USHORT", value: numPaletteEntries || colorRecords.length },
           { name: "numPalettes", type: "USHORT", value: colorRecordIndices.length },
           { name: "numColorRecords", type: "USHORT", value: colorRecords.length },
@@ -43937,8 +43937,8 @@ var require_opentype = __commonJS({
         }
       }
       var cpal_default = { parse: parseCpalTable, make: makeCpalTable, getPaletteColor, parseColor, formatColor };
-      function getPathDefinition(glyph, path83) {
-        let _path = path83 || new path_default();
+      function getPathDefinition(glyph, path84) {
+        let _path = path84 || new path_default();
         return {
           configurable: true,
           get: function() {
@@ -44166,8 +44166,8 @@ var require_opentype = __commonJS({
       };
       Glyph.prototype.draw = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
-        const path83 = this.getPath(x2, y2, fontSize, options, font);
-        path83.draw(ctx2);
+        const path84 = this.getPath(x2, y2, fontSize, options, font);
+        path84.draw(ctx2);
       };
       Glyph.prototype.drawPoints = function(ctx2, x2, y2, fontSize, options, font) {
         options = Object.assign({}, font && font.defaultRenderOptions, options);
@@ -44196,8 +44196,8 @@ var require_opentype = __commonJS({
         const scale = 1 / this.path.unitsPerEm * fontSize;
         const blueCircles = [];
         const redCircles = [];
-        const path83 = this.path;
-        let commands = path83.commands;
+        const path84 = this.path;
+        let commands = path84.commands;
         if (font && font.variation) {
           commands = font.variation.getTransform(this, options.variation).path.commands;
         }
@@ -44344,9 +44344,9 @@ var require_opentype = __commonJS({
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
             parseGlyph2(glyph, data, position);
-            const path83 = buildPath2(font.glyphs, glyph);
-            path83.unitsPerEm = font.unitsPerEm;
-            return path83;
+            const path84 = buildPath2(font.glyphs, glyph);
+            path84.unitsPerEm = font.unitsPerEm;
+            return path84;
           };
           defineDependentProperty(glyph, "numberOfContours", "_numberOfContours");
           defineDependentProperty(glyph, "xMin", "_xMin");
@@ -44357,13 +44357,13 @@ var require_opentype = __commonJS({
           return glyph;
         };
       }
-      function cffGlyphLoader(font, index, parseCFFCharstring2, charstring, version2) {
+      function cffGlyphLoader(font, index, parseCFFCharstring2, charstring, version3) {
         return function() {
           const glyph = new glyph_default({ index, font });
           glyph.path = function() {
-            const path83 = parseCFFCharstring2(font, glyph, charstring, version2);
-            path83.unitsPerEm = font.unitsPerEm;
-            return path83;
+            const path84 = parseCFFCharstring2(font, glyph, charstring, version3);
+            path84.unitsPerEm = font.unitsPerEm;
+            return path84;
           };
           return glyph;
         };
@@ -44398,11 +44398,11 @@ var require_opentype = __commonJS({
         }
         return bias;
       }
-      function parseCFFIndex(data, start2, conversionFn, version2) {
+      function parseCFFIndex(data, start2, conversionFn, version3) {
         const offsets = [];
         const objects = [];
-        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
-        const countLength = version2 > 1 ? 4 : 2;
+        const count = version3 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
+        const countLength = version3 > 1 ? 4 : 2;
         let objectOffset;
         let endOffset;
         if (count !== 0) {
@@ -44420,16 +44420,16 @@ var require_opentype = __commonJS({
         for (let i2 = 0; i2 < offsets.length - 1; i2 += 1) {
           let value = parse_default.getBytes(data, objectOffset + offsets[i2], objectOffset + offsets[i2 + 1]);
           if (conversionFn) {
-            value = conversionFn(value, data, start2, version2);
+            value = conversionFn(value, data, start2, version3);
           }
           objects.push(value);
         }
         return { objects, startOffset: start2, endOffset };
       }
-      function parseCFFIndexLowMemory(data, start2, version2) {
+      function parseCFFIndexLowMemory(data, start2, version3) {
         const offsets = [];
-        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
-        const countLength = version2 > 1 ? 4 : 2;
+        const count = version3 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
+        const countLength = version3 > 1 ? 4 : 2;
         let objectOffset;
         let endOffset;
         if (count !== 0) {
@@ -44446,9 +44446,9 @@ var require_opentype = __commonJS({
         }
         return { offsets, startOffset: start2, endOffset };
       }
-      function getCffIndexObject(i2, offsets, data, start2, conversionFn, version2) {
-        const count = version2 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
-        const countLength = version2 > 1 ? 4 : 2;
+      function getCffIndexObject(i2, offsets, data, start2, conversionFn, version3) {
+        const count = version3 > 1 ? parse_default.getULong(data, start2) : parse_default.getCard16(data, start2);
+        const countLength = version3 > 1 ? 4 : 2;
         let objectOffset = 0;
         if (count !== 0) {
           const offsetSize = parse_default.getByte(data, start2 + countLength);
@@ -44530,27 +44530,27 @@ var require_opentype = __commonJS({
         }
         return o2;
       }
-      function parseCFFDict(data, start2, size, version2) {
+      function parseCFFDict(data, start2, size, version3) {
         start2 = start2 !== void 0 ? start2 : 0;
         const parser = new parse_default.Parser(data, start2);
         const entries = [];
         let operands = [];
         size = size !== void 0 ? size : data.byteLength;
-        let operandsStart = version2 < 2 ? 22 : 28;
+        let operandsStart = version3 < 2 ? 22 : 28;
         while (parser.relativeOffset < size) {
           let op = parser.parseByte();
           if (op < operandsStart) {
             if (op === 12) {
               op = 1200 + parser.parseByte();
             }
-            if (version2 > 1 && op === 23) {
+            if (version3 > 1 && op === 23) {
               parseBlend(operands);
               continue;
             }
             entries.push([op, operands]);
             operands = [];
           } else {
-            operands.push(parseOperand(parser, op, version2));
+            operands.push(parseOperand(parser, op, version3));
           }
         }
         return entriesToObject(entries);
@@ -44690,16 +44690,16 @@ var require_opentype = __commonJS({
       var FONT_DICT_META = [
         { name: "private", op: 18, type: ["number", "offset"], value: [0, 0] }
       ];
-      function parseCFFTopDict(data, start2, strings, version2) {
-        const dict = parseCFFDict(data, start2, data.byteLength, version2);
-        return interpretDict(dict, version2 > 1 ? TOP_DICT_META_CFF2 : TOP_DICT_META, strings);
+      function parseCFFTopDict(data, start2, strings, version3) {
+        const dict = parseCFFDict(data, start2, data.byteLength, version3);
+        return interpretDict(dict, version3 > 1 ? TOP_DICT_META_CFF2 : TOP_DICT_META, strings);
       }
-      function parseCFFPrivateDict(data, start2, size, strings, version2) {
-        const dict = parseCFFDict(data, start2, size, version2);
-        return interpretDict(dict, version2 > 1 ? PRIVATE_DICT_META_CFF2 : PRIVATE_DICT_META, strings);
+      function parseCFFPrivateDict(data, start2, size, strings, version3) {
+        const dict = parseCFFDict(data, start2, size, version3);
+        return interpretDict(dict, version3 > 1 ? PRIVATE_DICT_META_CFF2 : PRIVATE_DICT_META, strings);
       }
-      function parseFontDict(data, start2, version2) {
-        const dict = parseCFFDict(data, start2, void 0, version2);
+      function parseFontDict(data, start2, version3) {
+        const dict = parseCFFDict(data, start2, void 0, version3);
         return interpretDict(dict, FONT_DICT_META);
       }
       function gatherCFF2FontDicts(data, start2, fdArray) {
@@ -44723,24 +44723,24 @@ var require_opentype = __commonJS({
         }
         return fontDictArray;
       }
-      function gatherCFFTopDicts(data, start2, cffIndex, strings, version2) {
+      function gatherCFFTopDicts(data, start2, cffIndex, strings, version3) {
         const topDictArray = [];
         for (let iTopDict = 0; iTopDict < cffIndex.length; iTopDict += 1) {
           const topDictData = new DataView(new Uint8Array(cffIndex[iTopDict]).buffer);
-          const topDict = parseCFFTopDict(topDictData, 0, strings, version2);
+          const topDict = parseCFFTopDict(topDictData, 0, strings, version3);
           topDict._subrs = [];
           topDict._subrsBias = 0;
           topDict._defaultWidthX = 0;
           topDict._nominalWidthX = 0;
-          const privateSize = version2 < 2 ? topDict.private[0] : 0;
-          const privateOffset = version2 < 2 ? topDict.private[1] : 0;
+          const privateSize = version3 < 2 ? topDict.private[0] : 0;
+          const privateOffset = version3 < 2 ? topDict.private[1] : 0;
           if (privateSize !== 0 && privateOffset !== 0) {
-            const privateDict = parseCFFPrivateDict(data, privateOffset + start2, privateSize, strings, version2);
+            const privateDict = parseCFFPrivateDict(data, privateOffset + start2, privateSize, strings, version3);
             topDict._defaultWidthX = privateDict.defaultWidthX;
             topDict._nominalWidthX = privateDict.nominalWidthX;
             if (privateDict.subrs !== 0) {
               const subrOffset = privateOffset + privateDict.subrs;
-              const subrIndex = parseCFFIndex(data, subrOffset + start2, void 0, version2);
+              const subrIndex = parseCFFIndex(data, subrOffset + start2, void 0, version3);
               topDict._subrs = subrIndex.objects;
               topDict._subrsBias = calcCFFSubroutineBias(topDict._subrs);
             }
@@ -44830,16 +44830,16 @@ var require_opentype = __commonJS({
           operands.pop();
         }
       }
-      function applyPaintType(font, path83) {
+      function applyPaintType(font, path84) {
         const paintType = font.tables.cff && font.tables.cff.topDict && font.tables.cff.topDict.paintType || 0;
         if (paintType === 2) {
-          path83.fill = null;
-          path83.stroke = "black";
-          path83.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
+          path84.fill = null;
+          path84.stroke = "black";
+          path84.strokeWidth = font.tables.cff.topDict.strokeWidth || 0;
         }
         return paintType;
       }
-      function parseCFFCharstring(font, glyph, code, version2, coords) {
+      function parseCFFCharstring(font, glyph, code, version3, coords) {
         let c1x;
         let c1y;
         let c2x;
@@ -44865,15 +44865,15 @@ var require_opentype = __commonJS({
         coords = coords || font.variation && font.variation.get();
         if (!glyph.getBlendPath) {
           glyph.getBlendPath = function(variationCoords) {
-            return parseCFFCharstring(font, glyph, code, version2, variationCoords);
+            return parseCFFCharstring(font, glyph, code, version3, variationCoords);
           };
         }
-        if (font.isCIDFont || version2 > 1) {
+        if (font.isCIDFont || version3 > 1) {
           const fdIndex = cffTable.topDict._fdSelect ? cffTable.topDict._fdSelect[glyph.index] : 0;
           const fdDict = cffTable.topDict._fdArray[fdIndex];
           subrs = fdDict._subrs;
           subrsBias = fdDict._subrsBias;
-          if (version2 > 1) {
+          if (version3 > 1) {
             vstore = cffTable.topDict._vstore.itemVariationStore;
             vsindex = fdDict._privateDict.vsindex;
           } else {
@@ -44989,7 +44989,7 @@ var require_opentype = __commonJS({
                 }
                 break;
               case 11:
-                if (version2 > 1) {
+                if (version3 > 1) {
                   console.error("CFF CharString operator return (11) is not supported in CFF2");
                   break;
                 }
@@ -45070,7 +45070,7 @@ var require_opentype = __commonJS({
                 }
                 break;
               case 14:
-                if (version2 > 1) {
+                if (version3 > 1) {
                   console.error("CFF CharString operator endchar (14) is not supported in CFF2");
                   break;
                 }
@@ -45124,14 +45124,14 @@ var require_opentype = __commonJS({
                 }
                 break;
               case 15:
-                if (version2 < 2) {
+                if (version3 < 2) {
                   console.error("CFF2 CharString operator vsindex (15) is not supported in CFF");
                   break;
                 }
                 vsindex = stack.pop();
                 break;
               case 16:
-                if (version2 < 2) {
+                if (version3 < 2) {
                   console.error("CFF2 CharString operator blend (16) is not supported in CFF");
                   break;
                 }
@@ -45343,7 +45343,7 @@ var require_opentype = __commonJS({
         }
         return p2;
       }
-      function parseCFFFDSelect(data, start2, nGlyphs, fdArrayCount, version2) {
+      function parseCFFFDSelect(data, start2, nGlyphs, fdArrayCount, version3) {
         const fdSelect = [];
         let fdIndex;
         const parser = new parse_default.Parser(data, start2);
@@ -45356,7 +45356,7 @@ var require_opentype = __commonJS({
             }
             fdSelect.push(fdIndex);
           }
-        } else if (format === 3 || version2 > 1 && format === 4) {
+        } else if (format === 3 || version3 > 1 && format === 4) {
           const nRanges = format === 4 ? parser.parseULong() : parser.parseCard16();
           let first = format === 4 ? parser.parseULong() : parser.parseCard16();
           if (first !== 0) {
@@ -45370,7 +45370,7 @@ var require_opentype = __commonJS({
               throw new Error("CFF table CID Font FDSelect has bad FD index value " + fdIndex + " (FD count " + fdArrayCount + ")");
             }
             if (next > nGlyphs) {
-              throw new Error(`CFF Table CID Font FDSelect format ${version2} range has bad GID ${next}`);
+              throw new Error(`CFF Table CID Font FDSelect format ${version3} range has bad GID ${next}`);
             }
             for (; first < next; first++) {
               fdSelect.push(fdIndex);
@@ -45556,11 +45556,11 @@ var require_opentype = __commonJS({
         }
         return m;
       }
-      function makeTopDict(attrs, strings, version2) {
+      function makeTopDict(attrs, strings, version3) {
         const t2 = new table_default.Record("Top DICT", [
           { name: "dict", type: "DICT", value: {} }
         ]);
-        t2.dict = makeDict(version2 > 1 ? TOP_DICT_META_CFF2 : TOP_DICT_META, attrs, strings);
+        t2.dict = makeDict(version3 > 1 ? TOP_DICT_META_CFF2 : TOP_DICT_META, attrs, strings);
         return t2;
       }
       function makeTopDictIndex(topDict) {
@@ -45596,18 +45596,18 @@ var require_opentype = __commonJS({
         }
         return t2;
       }
-      function glyphToOps(glyph, version2) {
+      function glyphToOps(glyph, version3) {
         const ops = [];
-        const path83 = glyph.path;
-        if (version2 < 2) {
+        const path84 = glyph.path;
+        if (version3 < 2) {
           ops.push({ name: "width", type: "NUMBER", value: glyph.advanceWidth });
         }
         let x2 = 0;
         let y2 = 0;
-        for (let i2 = 0; i2 < path83.commands.length; i2 += 1) {
+        for (let i2 = 0; i2 < path84.commands.length; i2 += 1) {
           let dx;
           let dy;
-          let cmd = path83.commands[i2];
+          let cmd = path84.commands[i2];
           if (cmd.type === "Q") {
             const _13 = 1 / 3;
             const _23 = 2 / 3;
@@ -45655,27 +45655,27 @@ var require_opentype = __commonJS({
             y2 = Math.round(cmd.y);
           }
         }
-        if (version2 < 2) {
+        if (version3 < 2) {
           ops.push({ name: "endchar", type: "OP", value: 14 });
         }
         return ops;
       }
-      function makeCharStringsIndex(glyphs, version2) {
+      function makeCharStringsIndex(glyphs, version3) {
         const t2 = new table_default.Record("CharStrings INDEX", [
           { name: "charStrings", type: "INDEX", value: [] }
         ]);
         for (let i2 = 0; i2 < glyphs.length; i2 += 1) {
           const glyph = glyphs.get(i2);
-          const ops = glyphToOps(glyph, version2);
+          const ops = glyphToOps(glyph, version3);
           t2.charStrings.push({ name: glyph.name, type: "CHARSTRING", value: ops });
         }
         return t2;
       }
-      function makePrivateDict(attrs, strings, version2) {
+      function makePrivateDict(attrs, strings, version3) {
         const t2 = new table_default.Record("Private DICT", [
           { name: "dict", type: "DICT", value: {} }
         ]);
-        t2.dict = makeDict(version2 > 1 ? PRIVATE_DICT_META_CFF2 : PRIVATE_DICT_META, attrs, strings);
+        t2.dict = makeDict(version3 > 1 ? PRIVATE_DICT_META_CFF2 : PRIVATE_DICT_META, attrs, strings);
         return t2;
       }
       function makeCFFTable(glyphs, options) {
@@ -46749,8 +46749,8 @@ var require_opentype = __commonJS({
       var meta_default = { parse: parseMetaTable, make: makeMetaTable };
       function parseColrTable(data, start2) {
         const p2 = new Parser(data, start2);
-        const version2 = p2.parseUShort();
-        if (version2 !== 0) {
+        const version3 = p2.parseUShort();
+        if (version3 !== 0) {
           console.warn("Only COLRv0 is currently fully supported. A subset of color glyphs might be available in this font if provided in the v0 format.");
         }
         const numBaseGlyphRecords = p2.parseUShort();
@@ -46769,17 +46769,17 @@ var require_opentype = __commonJS({
           paletteIndex: Parser.uShort
         });
         return {
-          version: version2,
+          version: version3,
           baseGlyphRecords,
           layerRecords
         };
       }
-      function makeColrTable({ version: version2 = 0, baseGlyphRecords = [], layerRecords = [] }) {
-        check_default.argument(version2 === 0, "Only COLRv0 supported.");
+      function makeColrTable({ version: version3 = 0, baseGlyphRecords = [], layerRecords = [] }) {
+        check_default.argument(version3 === 0, "Only COLRv0 supported.");
         const baseGlyphRecordsOffset = 14;
         const layerRecordsOffset = baseGlyphRecordsOffset + baseGlyphRecords.length * 6;
         return new table_default.Table("COLR", [
-          { name: "version", type: "USHORT", value: version2 },
+          { name: "version", type: "USHORT", value: version3 },
           { name: "numBaseGlyphRecords", type: "USHORT", value: baseGlyphRecords.length },
           { name: "baseGlyphRecordsOffset", type: "ULONG", value: baseGlyphRecordsOffset },
           { name: "layerRecordsOffset", type: "ULONG", value: layerRecordsOffset },
@@ -46984,7 +46984,7 @@ var require_opentype = __commonJS({
         if (tableVersionMajor !== 1) {
           console.warn(`Unsupported STAT table version ${tableVersionMajor}.${tableVersionMinor}`);
         }
-        const version2 = [
+        const version3 = [
           tableVersionMajor,
           tableVersionMinor
         ];
@@ -47016,7 +47016,7 @@ var require_opentype = __commonJS({
           values.push(parseSTATAxisValue.apply(p2));
         }
         return {
-          version: version2,
+          version: version3,
           axes,
           values,
           elidedFallbackNameID
@@ -47263,8 +47263,8 @@ var require_opentype = __commonJS({
         const svgTable = /* @__PURE__ */ new Map();
         const buf = data.buffer;
         const p2 = new Parser(data, offset);
-        const version2 = p2.parseUShort();
-        if (version2 !== 0) return svgTable;
+        const version3 = p2.parseUShort();
+        if (version3 !== 0) return svgTable;
         p2.relativeOffset = p2.parseOffset32();
         const svgDocumentListOffset = data.byteOffset + offset + p2.relativeOffset;
         const numEntries = p2.parseUShort();
@@ -53615,8 +53615,8 @@ var require_opentype = __commonJS({
         });
       };
       Font.prototype.draw = function(ctx2, text2, x2, y2, fontSize, options) {
-        const path83 = this.getPath(text2, x2, y2, fontSize, options);
-        path83.draw(ctx2);
+        const path84 = this.getPath(text2, x2, y2, fontSize, options);
+        path84.draw(ctx2);
       };
       Font.prototype.drawPoints = function(ctx2, text2, x2, y2, fontSize, options) {
         options = Object.assign({}, this.defaultRenderOptions, options);
@@ -53760,7 +53760,7 @@ var require_opentype = __commonJS({
         if (tableVersionMajor !== 1) {
           console.warn(`Unsupported hvar table version ${tableVersionMajor}.${tableVersionMinor}`);
         }
-        const version2 = [
+        const version3 = [
           tableVersionMajor,
           tableVersionMinor
         ];
@@ -53777,7 +53777,7 @@ var require_opentype = __commonJS({
           return this.parseDeltaSetIndexMap();
         });
         return {
-          version: version2,
+          version: version3,
           itemVariationStore,
           advanceWidth,
           lsb,
@@ -55638,7 +55638,7 @@ async function QuickJSRaw(moduleArg = {}) {
     throw d;
   }, v = import.meta.url;
   if (n3) {
-    var fs85 = require2("node:fs");
+    var fs86 = require2("node:fs");
     v.startsWith("file:") && require2("node:path").dirname(require2("node:url").fileURLToPath(v)), 1 < process.argv.length && (t2 = process.argv[1].replace(/\\/g, "/")), process.argv.slice(2), u2 = (b, d) => {
       throw process.exitCode = b, d;
     };
@@ -58412,8 +58412,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path83, errorMaps, issueData } = params;
-  const fullPath = [...path83, ...issueData.path || []];
+  const { data, path: path84, errorMaps, issueData } = params;
+  const fullPath = [...path84, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -58528,11 +58528,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path83, key) {
+  constructor(parent, value, path84, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path83;
+    this._path = path84;
     this._key = key;
   }
   get path() {
@@ -58911,11 +58911,11 @@ function datetimeRegex(args) {
   regex = `${regex}(${opts.join("|")})`;
   return new RegExp(`^${regex}$`);
 }
-function isValidIP(ip, version2) {
-  if ((version2 === "v4" || !version2) && ipv4Regex.test(ip)) {
+function isValidIP(ip, version3) {
+  if ((version3 === "v4" || !version3) && ipv4Regex.test(ip)) {
     return true;
   }
-  if ((version2 === "v6" || !version2) && ipv6Regex.test(ip)) {
+  if ((version3 === "v6" || !version3) && ipv6Regex.test(ip)) {
     return true;
   }
   return false;
@@ -58942,11 +58942,11 @@ function isValidJWT(jwt2, alg) {
     return false;
   }
 }
-function isValidCidr(ip, version2) {
-  if ((version2 === "v4" || !version2) && ipv4CidrRegex.test(ip)) {
+function isValidCidr(ip, version3) {
+  if ((version3 === "v4" || !version3) && ipv4CidrRegex.test(ip)) {
     return true;
   }
-  if ((version2 === "v6" || !version2) && ipv6CidrRegex.test(ip)) {
+  if ((version3 === "v6" || !version3) && ipv6CidrRegex.test(ip)) {
     return true;
   }
   return false;
@@ -62487,10 +62487,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path83) {
-  if (!path83)
+function getElementAtPath(obj, path84) {
+  if (!path84)
     return obj;
-  return path83.reduce((acc, key) => acc?.[key], obj);
+  return path84.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -62830,11 +62830,11 @@ function explicitlyAborted(x2, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path83, issues) {
+function prefixIssues(path84, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path83);
+    iss.path.unshift(path84);
     return iss;
   });
 }
@@ -63296,16 +63296,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path83 = []) => {
+  const processError = (error63, path84 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path83, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path84, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path83, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path84, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path83, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path84, ...issue2.path]);
       } else {
-        const fullpath = [...path83, ...issue2.path];
+        const fullpath = [...path84, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -63344,17 +63344,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path83 = []) => {
+  const processError = (error63, path84 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path83, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path84, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path83, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path84, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path83, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path84, ...issue2.path]);
       } else {
-        const fullpath = [...path83, ...issue2.path];
+        const fullpath = [...path84, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -63393,8 +63393,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path83 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path83) {
+  const path84 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path84) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -63660,10 +63660,10 @@ function nanoidOfLength(length) {
 var duration = /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/;
 var extendedDuration = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
 var guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
-var uuid = (version2) => {
-  if (!version2)
+var uuid = (version3) => {
+  if (!version3)
     return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
-  return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version2}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
+  return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version3}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
 };
 var uuid4 = /* @__PURE__ */ uuid(4);
 var uuid6 = /* @__PURE__ */ uuid(6);
@@ -78945,11 +78945,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path83) {
-  if (path83.length === 0) {
+function getDotPath(path84) {
+  if (path84.length === 0) {
     return "object root";
   }
-  return path83.reduce((acc, seg, index) => {
+  return path84.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -81176,13 +81176,13 @@ function resolveRef(ref, ctx2) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path83 = ref.slice(1).split("/").filter(Boolean);
-  if (path83.length === 0) {
+  const path84 = ref.slice(1).split("/").filter(Boolean);
+  if (path84.length === 0) {
     return ctx2.rootSchema;
   }
   const defsKey = ctx2.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path83[0] === defsKey) {
-    const key = path83[1] === void 0 ? void 0 : decodeJSONPointerSegment(path83[1]);
+  if (path84[0] === defsKey) {
+    const key = path84[1] === void 0 ? void 0 : decodeJSONPointerSegment(path84[1]);
     if (!key || !ctx2.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -81796,10 +81796,10 @@ function fromJSONSchema(schema, params) {
   } catch {
     throw new Error("fromJSONSchema input is not valid JSON (possibly cyclic); use $defs/$ref for recursive schemas");
   }
-  const version2 = detectVersion(normalized, params?.defaultTarget);
+  const version3 = detectVersion(normalized, params?.defaultTarget);
   const defs = normalized.$defs || normalized.definitions || {};
   const ctx2 = {
-    version: version2,
+    version: version3,
     defs,
     refs: /* @__PURE__ */ new Map(),
     processing: /* @__PURE__ */ new Set(),
@@ -95729,9 +95729,9 @@ function createJimp({ plugins: pluginsArg, formats: formatsArg } = {}) {
      * await image.write("test/output.png");
      * ```
      */
-    async write(path83, options) {
-      const mimeType = import_lite.default.getType(path83);
-      await writeFile(path83, await this.getBuffer(mimeType, options));
+    async write(path84, options) {
+      const mimeType = import_lite.default.getType(path84);
+      await writeFile(path84, await this.getBuffer(mimeType, options));
     }
     /**
      * Clone the image into a new Jimp instance.
@@ -101478,12 +101478,12 @@ function jsonAfter(html, marker) {
   const start2 = html.indexOf("{", at);
   let depth = 0;
   let inStr = false;
-  let esc8 = false;
+  let esc9 = false;
   for (let k = start2; k < html.length; k++) {
     const ch = html[k];
     if (inStr) {
-      if (esc8) esc8 = false;
-      else if (ch === "\\") esc8 = true;
+      if (esc9) esc9 = false;
+      else if (ch === "\\") esc9 = true;
       else if (ch === '"') inStr = false;
       continue;
     }
@@ -103763,7 +103763,7 @@ async function runDryLint(root, cfg = {}, { env = process.env, timeoutMs = 24e4,
   const accepted = new Set(ledger.pairs || []);
   const pairKey = (c3) => [c3.new.hash, c3.existing.hash].sort().join("+");
   const asFinding = (c3, v) => ({ kind: "dry-lint", severity: "warn", files: [{ file: c3.new.path, line: c3.new.line, name: c3.new.name }, { file: c3.existing.path, line: c3.existing.line, name: c3.existing.name }], key: pairKey(c3), message: `${c3.new.name} (${c3.new.path}:${c3.new.line}) and ${c3.existing.name} (${c3.existing.path}:${c3.existing.line}) look alike (similarity ${c3.similarity})${v ? `; judge says ${v.label} ${v.score}: ${v.why}` : "; not judged"}`, verdict: v ? { label: v.label, score: v.score, why: v.why, judge: v.judge } : void 0 });
-  let version2;
+  let version3;
   if (judge.judge === "none") {
     const out = path39.join(os8.tmpdir(), `drip-dl-${process.pid}-${Date.now()}.json`);
     const r2 = await runCli(uvx, [...base, "detect", "--root", root, "--all", "--out", out], { env: useEnv, timeoutMs, cwd: root });
@@ -103785,7 +103785,7 @@ async function runDryLint(root, cfg = {}, { env = process.env, timeoutMs = 24e4,
     } catch {
       return skip("dry-lint printed something that is not JSON");
     }
-    version2 = doc.judging?.judge;
+    version3 = doc.judging?.judge;
     findings = (doc.findings || []).map((f3) => asFinding(f3.candidate, f3.verdict)).filter((f3) => !accepted.has(f3.key));
     const failed = (doc.judging?.spend || []).reduce((n3, s2) => n3 + (s2.failed || 0), 0);
     if (failed) findings.push({ kind: "dry-lint", severity: "info", files: [], message: `${failed} pair(s) could not be judged (the CLI failed or timed out); they are asked again on the next run.` });
@@ -103794,7 +103794,7 @@ async function runDryLint(root, cfg = {}, { env = process.env, timeoutMs = 24e4,
     const all = [...findings, ...candidates].map((f3) => f3.key).filter(Boolean);
     updateJson(baselineFile(root), (doc) => void (doc.pairs = [.../* @__PURE__ */ new Set([...doc.pairs || [], ...all])]), { init: { pairs: [] } });
   }
-  return { status: "ran", findings, candidates, judge: judge.label, version: version2, durationMs: Date.now() - t0 };
+  return { status: "ran", findings, candidates, judge: judge.label, version: version3, durationMs: Date.now() - t0 };
 }
 
 // src/core/check.mjs
@@ -106471,1655 +106471,23 @@ function register17(server2, ctx2) {
 // src/modules/gen/index.mjs
 var gen_exports = {};
 __export(gen_exports, {
-  register: () => register18
-});
-import fs55 from "node:fs";
-import path52 from "node:path";
-import { pathToFileURL as pathToFileURL5 } from "node:url";
-init_paths();
-
-// src/modules/gen/providers/gemini.mjs
-var RATIO = { landscape: "16:9", portrait: "9:16", square: "1:1" };
-var gemini_default = {
-  id: "gemini",
-  label: "Google Gemini (image)",
-  key: "gemini",
-  async generate({ prompt, aspect = "landscape", model, refs = [] }, key) {
-    const m = model || "gemini-2.5-flash-image";
-    const parts = [{ text: prompt }, ...refs.map((r2) => ({ inlineData: { mimeType: r2.mime, data: r2.buf.toString("base64") } }))];
-    const res = await postJson(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`,
-      { contents: [{ parts }], generationConfig: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: RATIO[aspect] || "16:9" } } },
-      { headers: { "x-goog-api-key": key } }
-    );
-    const out = [];
-    for (const c3 of res.candidates || []) for (const p2 of c3.content?.parts || []) if (p2.inlineData?.data) out.push({ buf: Buffer.from(p2.inlineData.data, "base64"), mime: p2.inlineData.mimeType || "image/png" });
-    if (!out.length) throw new Error(`Gemini returned no image${res.promptFeedback?.blockReason ? ` (blocked: ${res.promptFeedback.blockReason})` : ""}.`);
-    return out;
-  }
-};
-
-// src/modules/gen/providers/openai.mjs
-var SIZES = { landscape: "1536x1024", portrait: "1024x1536", square: "1024x1024" };
-var openai_default = {
-  id: "openai",
-  label: "OpenAI (GPT Image)",
-  key: "openai",
-  async generate({ prompt, aspect = "landscape", model, quality: quality2 = "medium" }, key) {
-    const res = await postJson(
-      "https://api.openai.com/v1/images/generations",
-      { model: model || "gpt-image-1", prompt, size: SIZES[aspect] || SIZES.landscape, quality: quality2, n: 1 },
-      { headers: { Authorization: `Bearer ${key}` } }
-    );
-    return (res.data || []).map((d) => ({ buf: Buffer.from(d.b64_json, "base64"), mime: "image/png" }));
-  }
-};
-
-// src/modules/gen/keypage.mjs
-import crypto6 from "node:crypto";
-import http3 from "node:http";
-var running = null;
-var esc5 = (s2) => String(s2).replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
-function page(names3, token2, msg = "") {
-  const rows = keyStatus(names3).map((k) => `<tr><td>${esc5(k.name)}</td><td>${k.set ? `set (${esc5(k.from)})` : "not set"}</td></tr>`).join("");
-  return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drip keys</title>
-<style>body{font:15px/1.5 system-ui;background:#f4f1ea;color:#16140f;max-width:560px;margin:48px auto;padding:0 16px}h1{font:600 28px ui-serif,Georgia,serif}
-input,select,button{font:inherit;padding:8px 10px;border:1px solid #cfc9bc;border-radius:8px;width:100%;box-sizing:border-box;margin:6px 0}button{background:#16140f;color:#fff;border:0;cursor:pointer}
-table{width:100%;border-collapse:collapse;margin-top:24px}td{border-top:1px solid #e2ddd2;padding:6px 0}.msg{background:#e8f5e9;padding:8px 12px;border-radius:8px}</style>
-<h1>Drip API keys</h1><p>Keys are saved on this computer in <code>~/.drip/keys.json</code>. Claude never sees them.</p>
-${msg ? `<p class="msg">${esc5(msg)}</p>` : ""}
-<form method="post" action="/save?t=${token2}"><label>Provider<select name="name">${names3.map((n3) => `<option>${esc5(n3)}</option>`).join("")}</select></label>
-<label>Name (for a custom provider)<input name="custom" placeholder="optional, e.g. replicate"></label>
-<label>Key<input name="value" type="password" autocomplete="off" required></label><button>Save key</button></form>
-<table>${rows}</table>`;
-}
-async function openKeyPage(names3) {
-  if (running) return running.url;
-  const token2 = crypto6.randomBytes(12).toString("hex");
-  const server2 = http3.createServer(async (req, res) => {
-    const u2 = new URL(req.url, "http://x");
-    if (u2.searchParams.get("t") !== token2) return res.writeHead(403).end("Forbidden");
-    if (req.method === "POST" && u2.pathname === "/save") {
-      let body = "";
-      for await (const c3 of req) body += c3;
-      const f3 = new URLSearchParams(body);
-      const name = (f3.get("custom") || f3.get("name") || "").trim().toLowerCase();
-      if (name && f3.get("value")) setKey(name, f3.get("value"));
-      return res.writeHead(200, { "content-type": "text/html" }).end(page(names3, token2, `Saved key for ${name}.`));
-    }
-    res.writeHead(200, { "content-type": "text/html" }).end(page(names3, token2));
-  });
-  await new Promise((r2) => server2.listen(0, "127.0.0.1", r2));
-  running = { server: server2, url: `http://127.0.0.1:${server2.address().port}/?t=${token2}` };
-  setTimeout(() => {
-    server2.close();
-    running = null;
-  }, 30 * 60 * 1e3).unref();
-  return running.url;
-}
-
-// src/modules/gen/index.mjs
-var BUILT_IN = [openai_default, gemini_default];
-async function providers() {
-  const list4 = [...BUILT_IN];
-  const dir = path52.join(homeDripDir, "providers");
-  if (fs55.existsSync(dir))
-    for (const f3 of fs55.readdirSync(dir).filter((f4) => f4.endsWith(".mjs"))) {
-      try {
-        const mod = await import(pathToFileURL5(path52.join(dir, f3)).href);
-        if (mod.default?.id && mod.default?.generate) list4.push(mod.default);
-      } catch {
-      }
-    }
-  return list4;
-}
-var KEY_NAMES = ["openai", "gemini", "unsplash", "pexels", "pixabay", "openverse"];
-function register18(server2, ctx2) {
-  server2.registerTool(
-    "gen_image",
-    {
-      title: "Generate an image",
-      description: "Generate hero art, illustrations, textures or product renders with the user's own provider key (OpenAI or Gemini built in; custom providers in ~/.drip/providers). Saves into the project and shows you the result. Art-direct the prompt from the chosen direction (read drip_guide imagery/prompting): subject, composition, light, palette, negative space for text. If no key is set, call keys_open and ask the user to paste one, or ask them for their own assets. Costs money: generate one, look, then iterate.",
-      inputSchema: {
-        prompt: external_exports.string(),
-        out: external_exports.string().describe("Project path to save, e.g. public/images/hero.png"),
-        aspect: external_exports.enum(["landscape", "portrait", "square"]).optional(),
-        provider: external_exports.string().optional(),
-        model: external_exports.string().optional(),
-        refs: external_exports.array(external_exports.string()).optional().describe("Reference image URLs for style (providers that support it)")
-      }
-    },
-    safe(async ({ prompt, out, aspect = "landscape", provider, model, refs = [] }) => {
-      const config2 = ctx2.config();
-      const all = await providers();
-      const id = provider || config2.gen.defaultProvider;
-      const p2 = all.find((x2) => x2.id === id) || all.find((x2) => getKey(x2.key));
-      if (!p2) return text(`Unknown provider "${id}". Available: ${all.map((x2) => x2.id).join(", ")}`, true);
-      const key = getKey(p2.key);
-      if (!key) {
-        const url2 = await openKeyPage([.../* @__PURE__ */ new Set([...KEY_NAMES, ...all.map((x2) => x2.key)])]);
-        return text(`No key for ${p2.label}. Ask the user to open ${url2} and paste a key (it stays on their machine), or to provide their own image. Then try again.`, true);
-      }
-      const refImgs = await Promise.all(refs.map((u2) => fetchImage(u2)));
-      const imgs = await p2.generate({ prompt, aspect, model: model || config2.gen.providers?.[p2.id]?.model, refs: refImgs }, key);
-      const file4 = path52.resolve(projectDir(), out);
-      fs55.mkdirSync(path52.dirname(file4), { recursive: true });
-      fs55.writeFileSync(file4, imgs[0].buf);
-      logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
-      const log2 = path52.join(ensureProjectDrip(), "assets.json");
-      const list4 = fs55.existsSync(log2) ? JSON.parse(fs55.readFileSync(log2, "utf8")) : [];
-      list4.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs55.writeFileSync(log2, JSON.stringify(list4, null, 2));
-      return blocks([{ type: "text", text: `Saved ${out} via ${p2.label}. Judge it against the direction; if it misses, change one thing in the prompt and regenerate.` }, imageBlock(await toJpeg(imgs[0].buf, 1400, 1400))]);
-    })
-  );
-  server2.registerTool(
-    "gen_providers",
-    { title: "Image providers", description: "Lists image providers (built-in and custom) and whether each has a key. To add a new provider, copy mcp/src/modules/gen/providers/_template.mjs.txt to ~/.drip/providers/<id>.mjs.", inputSchema: {} },
-    safe(async () => {
-      const all = await providers();
-      return text(all.map((p2) => `- ${p2.id}: ${p2.label} \u2014 key ${getKey(p2.key) ? "set" : "missing"}`).join("\n") + "\n\nAdd a key: keys_open. Add a provider: ~/.drip/providers/<id>.mjs (template in the Drip repo).");
-    })
-  );
-  server2.registerTool(
-    "keys_status",
-    { title: "Which API keys are set", description: "Shows which optional keys (image generation, photo sources) are set and where from. Never shows values.", inputSchema: {} },
-    safe(async () => text(keyStatus(KEY_NAMES).map((k) => `- ${k.name}: ${k.set ? `set (${k.from})` : "not set"}`).join("\n")))
-  );
-  server2.registerTool(
-    "keys_open",
-    { title: "Let the user paste API keys", description: "Opens a local page (link valid 30 minutes) where the USER pastes API keys. Give them the link; never ask them to paste keys into the chat.", inputSchema: {} },
-    safe(async () => {
-      const all = await providers();
-      const url2 = await openKeyPage([.../* @__PURE__ */ new Set([...KEY_NAMES, ...all.map((x2) => x2.key)])]);
-      return text(`Give the user this link to paste keys (stays on their machine): ${url2}`);
-    })
-  );
-}
-
-// src/modules/fitcheck/index.mjs
-var fitcheck_exports = {};
-__export(fitcheck_exports, {
-  isHard: () => isHard,
-  register: () => register21
-});
-import path57 from "node:path";
-init_paths();
-import fs60 from "node:fs";
-
-// src/modules/fitcheck/drift.mjs
-import fs56 from "node:fs";
-import path53 from "node:path";
-var HEX = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
-var norm4 = (h) => {
-  h = h.toLowerCase();
-  return h.length === 4 ? `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}` : h;
-};
-function cssFiles(root, out = [], depth = 4) {
-  if (depth < 0 || out.length > 60) return out;
-  let entries;
-  try {
-    entries = fs56.readdirSync(root, { withFileTypes: true });
-  } catch {
-    return out;
-  }
-  for (const e2 of entries) {
-    if (/^(node_modules|\.git|\.next|dist|build|\.drip|out|coverage)$/.test(e2.name)) continue;
-    const f3 = path53.join(root, e2.name);
-    if (e2.isDirectory()) cssFiles(f3, out, depth - 1);
-    else if (/\.(css|scss|html)$/i.test(e2.name) || /tailwind\.config\.(js|ts|mjs|cjs)$/.test(e2.name)) out.push(f3);
-  }
-  return out;
-}
-function tokens(src) {
-  const out = {};
-  for (const block of src.match(/(?::root|\[data-theme[^\]]*\]|\.dark|html)[^{]*\{[^}]*\}/g) || []) {
-    for (const m of block.matchAll(/(--[\w-]+)\s*:\s*([^;}]+)/g)) out[m[1]] = m[2].trim();
-  }
-  return out;
-}
-function designDrift(root, docFile) {
-  const doc = fs56.readFileSync(docFile, "utf8");
-  const docHex = new Set((doc.match(HEX) || []).map(norm4));
-  const files = cssFiles(root);
-  const defined = {};
-  const used = /* @__PURE__ */ new Set();
-  const families = /* @__PURE__ */ new Set();
-  for (const f3 of files) {
-    const src = fs56.readFileSync(f3, "utf8");
-    Object.assign(defined, tokens(src));
-    for (const h of src.match(HEX) || []) used.add(norm4(h));
-    for (const m of src.matchAll(/font-family\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
-    for (const m of src.matchAll(/--font[\w-]*\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
-    for (const m of src.matchAll(/fonts\.googleapis\.com\/css2?\?family=([^&"')]+)/gi)) families.add(decodeURIComponent(m[1]).replace(/\+/g, " ").split(":")[0]);
-  }
-  const tokenHex = new Set(Object.values(defined).flatMap((v) => (v.match(HEX) || []).map(norm4)));
-  const issues = [];
-  const missing = [...docHex].filter((h) => !used.has(h));
-  if (missing.length) issues.push(`DESIGN.md names ${missing.join(" ")} but no stylesheet uses ${missing.length > 1 ? "them" : "it"}: update DESIGN.md or the tokens`);
-  const undocumented = [...tokenHex].filter((h) => !docHex.has(h) && !["#ffffff", "#000000", "#fff", "#000"].includes(h));
-  if (undocumented.length) issues.push(`tokens define ${undocumented.slice(0, 8).join(" ")} which DESIGN.md never mentions: add ${undocumented.length > 1 ? "them" : "it"} with a role, or remove`);
-  const placeholder = Object.entries(defined).filter(([, v]) => /DISPLAY FACE|TEXT FACE/.test(v));
-  if (placeholder.length) issues.push(`kit placeholders still in the CSS: ${placeholder.map(([k]) => k).join(", ")} \u2014 set the real faces`);
-  const docFaces = [...families].filter((f3) => !/^(ui-|system-ui|sans-serif|serif|monospace|inherit|var\()/i.test(f3));
-  const notInDoc = docFaces.filter((f3) => !doc.toLowerCase().includes(f3.toLowerCase()));
-  if (notInDoc.length) issues.push(`fonts in the code but not in DESIGN.md: ${notInDoc.slice(0, 5).join(", ")}`);
-  return { issues, files: files.length, docHex: docHex.size, tokenCount: Object.keys(defined).length };
-}
-
-// src/modules/fitcheck/index.mjs
-init_serve();
-
-// src/modules/fitcheck/compare.mjs
-import fs57 from "node:fs";
-import path54 from "node:path";
-init_paths();
-init_serve();
-init_chrome();
-var esc6 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
-var dataUrl = (buf, mime2 = "image/jpeg") => `data:${mime2};base64,${buf.toString("base64")}`;
-var mimeOf = (buf) => buf[0] === 137 ? "image/png" : /<svg/i.test(buf.subarray(0, 300).toString()) ? "image/svg+xml" : buf.subarray(8, 12).toString() === "WEBP" ? "image/webp" : "image/jpeg";
-async function sourceImage(src, { width, height, config: config2 }) {
-  const task = loadState().task;
-  if (src === "before") {
-    if (!task?.before?.url) throw new Error("No 'before' recorded: refs_site({ urls: [<current site>], before: true }) first.");
-    src = task.before.url;
-  }
-  const comp = src.match(/^comp:(.+)$/i);
-  if (comp) {
-    const board = task?.board?.id && loadBoard(task.board.id);
-    const d = board?.directions?.find((x2) => x2.name.toLowerCase() === comp[1].trim().toLowerCase()) || comp[1] === "chosen" && board?.directions?.find((x2) => x2.name === board.chosen);
-    if (!d?.tile || !fs57.existsSync(d.tile)) throw new Error(`No rendered comp for "${comp[1]}" (board_directions renders them).`);
-    return fs57.readFileSync(d.tile);
-  }
-  if (/^https?:/i.test(src) || /\.html?$/i.test(src)) return screenshot(await toUrl(src), { width, height, format: "jpeg", quality: 82, config: config2 });
-  if (/^data:/.test(src)) return Buffer.from(src.split(",")[1], "base64");
-  const abs2 = path54.resolve(projectDir(), src);
-  if (fs57.existsSync(abs2)) return fs57.readFileSync(abs2);
-  return (await fetchImage(src)).buf;
-}
-function register19(server2, ctx2) {
-  server2.registerTool(
-    "drip_compare",
-    {
-      title: "Compare things side by side",
-      description: `Puts 2-6 things on one labelled sheet so you, the user or the critic can compare them: pages (URL or local .html, shot at the same size), image files, rendered comps ("comp:<direction>" or "comp:chosen"), the redesign's "before". Uses: before vs after, build vs the chosen comp, your hero vs 3 competitors, two logo or crop options. Saves the sheet for critic_prepare. Example: drip_compare({ items: [{ src: "before", label: "Today" }, { src: "index.html", label: "Redesign" }] })`,
-      inputSchema: {
-        items: external_exports.array(external_exports.object({ src: external_exports.string(), label: external_exports.string().optional(), note: external_exports.string().optional() })).min(2).max(6),
-        width: external_exports.number().int().optional().describe("Page shot width (default 1440)"),
-        height: external_exports.number().int().optional().describe("Page shot height (default 900: the first viewport)"),
-        title: external_exports.string().optional()
-      }
-    },
-    safe(async ({ items, width = 1440, height = 900, title }) => {
-      const config2 = ctx2.config();
-      const imgs = await Promise.all(items.map((it) => sourceImage(it.src, { width, height, config: config2 }).then((buf) => ({ ...it, buf })).catch((e2) => ({ ...it, err: e2.message }))));
-      const cols = imgs.length <= 3 ? imgs.length : imgs.length === 4 ? 2 : 3;
-      const W = 1800;
-      const cellW = Math.floor((W - 48 - (cols - 1) * 20) / cols);
-      const cellH = Math.round(cellW * (height / width));
-      const rows = Math.ceil(imgs.length / cols);
-      const H = 48 + (title ? 44 : 0) + rows * (cellH + 70) + 20;
-      const html = `<style>body{margin:0;background:#ECEBE7;font:15px system-ui;color:#111;padding:24px}h1{font:600 22px system-ui;margin:0 0 20px}.g{display:grid;grid-template-columns:repeat(${cols},${cellW}px);gap:20px}figure{margin:0}.i{width:${cellW}px;height:${cellH}px;background:#fff;border-radius:10px;overflow:hidden;display:grid;place-items:center;border:1px solid #d6d3cb}.i img{width:100%;height:100%;object-fit:contain;display:block}figcaption{margin-top:8px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}.e{color:#b3261e;padding:20px}</style>
-${title ? `<h1>${esc6(title)}</h1>` : ""}<div class="g">${imgs.map((it, i2) => `<figure><div class="i">${it.buf ? `<img src="${dataUrl(it.buf, mimeOf(it.buf))}">` : `<div class="e">${esc6(it.err)}</div>`}</div><figcaption><b>${String.fromCharCode(65 + i2)}</b>${esc6(it.label || it.src)}${it.note ? ` \xB7 ${esc6(it.note)}` : ""}</figcaption></figure>`).join("")}</div>`;
-      const file4 = path54.join(rendersDir("compare"), `compare-${stamp()}.jpg`);
-      const sheet = await renderHtml(html, file4, { width: W, height: H, format: "jpeg", quality: 85, config: config2 });
-      return blocks([
-        textBlock(`Saved ${file4}
-${imgs.map((it, i2) => `${String.fromCharCode(65 + i2)}. ${it.label || it.src}${it.err ? ` \u2014 FAILED: ${it.err}` : ""}`).join("\n")}
-Judge: which one would a stranger remember? What does the winner do that the others don't? Give the critic this file: critic_prepare({ kind: "any", targets: ["${file4.replace(/\\/g, "/")}"] }).`),
-        imageBlock(sheet)
-      ]);
-    })
-  );
-  server2.registerTool(
-    "board_brand",
-    {
-      title: "Brand board",
-      description: `Renders the brand on one 1600x1000 board from Drip's template (kit/brand-board.html): the mark on its ground, the palette with roles and shares, the type pair at real sizes, 1-4 images, voice lines, do / don't. For identity work, a hand-off, or to check that the system holds together before building. Saves HTML + JPG in .drip/brand/. Example: board_brand({ name: "Crumb", logo: "brand/mark.svg", palette: [{ hex: "#F3EFE6", role: "ground", share: 60 }, { hex: "#2B1B17", role: "ink", share: 25 }, { hex: "#E8452C", role: "accent", share: 5 }], display: "Fraunces", text: "Inter", headline: "Bread, honestly", voice: ["We say crumb, not artisan."] })`,
-      inputSchema: {
-        name: external_exports.string(),
-        tagline: external_exports.string().optional(),
-        logo: external_exports.string().optional().describe("SVG markup, or a project path / URL to an SVG or image"),
-        palette: external_exports.array(external_exports.object({ hex: external_exports.string(), role: external_exports.string(), share: external_exports.number().optional() })).min(2).max(8),
-        display: external_exports.string().describe("Display family (Google Fonts name)"),
-        text: external_exports.string().describe("Text family (Google Fonts name)"),
-        displayWeight: external_exports.number().int().optional(),
-        headline: external_exports.string().optional(),
-        body: external_exports.string().optional(),
-        images: external_exports.array(external_exports.string()).max(4).optional().describe("Project paths or URLs"),
-        voice: external_exports.array(external_exports.string()).max(4).optional(),
-        do: external_exports.array(external_exports.string()).max(5).optional(),
-        dont: external_exports.array(external_exports.string()).max(5).optional()
-      }
-    },
-    safe(async (a2) => {
-      const config2 = ctx2.config();
-      const tpl = fs57.readFileSync(path54.join(kitDir, "brand-board.html"), "utf8");
-      const byRole = (r2) => a2.palette.find((p2) => p2.role.toLowerCase().includes(r2))?.hex;
-      const ground = byRole("ground") || byRole("background") || a2.palette[0].hex;
-      const ink2 = byRole("ink") || byRole("text") || a2.palette[1].hex;
-      const lum2 = (h) => {
-        const n3 = parseInt(h.replace("#", "").padEnd(6, "0").slice(0, 6), 16);
-        return 0.2126 * (n3 >> 16 & 255) + 0.7152 * (n3 >> 8 & 255) + 0.0722 * (n3 & 255);
-      };
-      let logo = "";
-      if (a2.logo) {
-        if (/^\s*<svg/i.test(a2.logo)) logo = a2.logo;
-        else {
-          const abs2 = path54.resolve(projectDir(), a2.logo);
-          const buf = fs57.existsSync(abs2) ? fs57.readFileSync(abs2) : (await fetchImage(a2.logo)).buf;
-          logo = /<svg/i.test(buf.subarray(0, 400).toString()) ? buf.toString("utf8").replace(/<\?xml[^>]*>/, "") : `<img src="${dataUrl(buf, mimeOf(buf))}">`;
-        }
-      }
-      const total = a2.palette.reduce((t2, p2) => t2 + (p2.share || 10), 0);
-      const swatches = a2.palette.map((p2) => `<div class="sw" style="flex:${p2.share || 10};background:${p2.hex};color:${lum2(p2.hex) > 150 ? "#111" : "#fff"}"><b>${esc6(p2.role)}</b><span>${esc6(p2.hex.toUpperCase())}${p2.share ? ` \xB7 ${Math.round((p2.share || 10) / total * 100)}%` : ""}</span></div>`).join("");
-      const imgs = await Promise.all((a2.images || []).map(async (src) => {
-        const abs2 = path54.resolve(projectDir(), src);
-        const buf = fs57.existsSync(abs2) ? fs57.readFileSync(abs2) : (await fetchImage(src)).buf;
-        return `<img src="${dataUrl(buf, mimeOf(buf))}">`;
-      }));
-      const fam = (f3, w) => `family=${encodeURIComponent(f3).replace(/%20/g, "+")}:wght@${w}`;
-      const fill = {
-        fontsLink: `<link href="https://fonts.googleapis.com/css2?${fam(a2.display, a2.displayWeight || 700)}&${fam(a2.text, "400;600")}&display=swap" rel="stylesheet">`,
-        displayFamily: `"${a2.display}", serif`,
-        textFamily: `"${a2.text}", sans-serif`,
-        ink: ink2,
-        ground,
-        // The mark on the brand's own ground (a coloured mark on a ground of the same colour vanishes).
-        markGround: ground,
-        markInk: ink2,
-        logo: logo || `<div style="font:700 120px/1 var(--display);letter-spacing:-0.04em">${esc6(a2.name)}</div>`,
-        name: esc6(a2.name),
-        tagline: esc6(a2.tagline || ""),
-        swatches,
-        headline: esc6(a2.headline || a2.tagline || a2.name),
-        bodyCopy: esc6(a2.body || "Body copy at 18px in the text face: what a visitor reads after the headline, set at the real size and measure."),
-        typeMeta: `${esc6(a2.display)} ${a2.displayWeight || 700} \xB7 ${esc6(a2.text)} 400/600`,
-        images: imgs.join("") || `<div style="display:grid;place-items:center;border-radius:14px;background:color-mix(in srgb,var(--ink) 6%,var(--ground));font-size:14px;opacity:.6">Imagery: add 1-4 images</div>`,
-        voice: (a2.voice || ["Add 2-3 lines in the brand's voice."]).map((v) => `<p>${esc6(v)}</p>`).join(""),
-        rules: `<div><h4>Do</h4><ul>${(a2.do || ["\u2026"]).map((x2) => `<li>${esc6(x2)}</li>`).join("")}</ul></div><div><h4>Don't</h4><ul>${(a2.dont || ["\u2026"]).map((x2) => `<li>${esc6(x2)}</li>`).join("")}</ul></div>`
-      };
-      const html = tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => fill[k] ?? "");
-      const dir = rendersDir("brand");
-      const base = path54.join(dir, `brand-${a2.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
-      fs57.writeFileSync(`${base}.html`, html);
-      const jpg = await renderHtml(html, `${base}.jpg`, { width: 1600, height: 1e3, format: "jpeg", quality: 88, config: config2 });
-      const doc = designDoc();
-      return blocks([
-        textBlock(`Saved ${base}.html and ${base}.jpg.${doc ? "" : ' No DESIGN.md yet: drip_kit({ template: "design-md" }) and write the same palette and type into it.'}
-Check: does the mark hold on its ground? Do the shares feel like the direction (one committed colour, not five equal chips)? Is the display face doing work at 150px?`),
-        imageBlock(jpg)
-      ]);
-    })
-  );
-}
-
-// src/modules/fitcheck/readme.mjs
-import fs58 from "node:fs";
-import path55 from "node:path";
-init_browser();
-init_paths();
-init_serve();
-var MIME3 = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp", ".svg": "image/svg+xml", ".avif": "image/avif" };
-async function shoot(url2, { width, height, scale, transparent, dark, fullPage, config: config2 }) {
-  return withTab(config2, async (tab) => {
-    const { s: s2 } = tab;
-    await openPage(tab, url2, { width, height, dark, settleMs: 400 });
-    await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
-    await s2("Emulation.setTouchEmulationEnabled", { enabled: false });
-    if (transparent) await s2("Emulation.setDefaultBackgroundColorOverride", { color: { r: 0, g: 0, b: 0, a: 0 } });
-    let h = height;
-    if (fullPage) {
-      const { result } = await s2("Runtime.evaluate", {
-        expression: "Math.ceil(Math.max(document.body.scrollHeight, ...[...document.body.querySelectorAll('*')].map((e) => e.getBoundingClientRect().bottom + scrollY)))",
-        returnByValue: true
-      });
-      h = Math.min(Math.max(result.value || height, 1), 12e3);
-    }
-    await s2("Emulation.setDeviceMetricsOverride", { width, height: h, deviceScaleFactor: scale, mobile: false });
-    await settle2(s2, 300);
-    const { data } = await s2("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width, height: h, scale: 1 } });
-    return { buf: Buffer.from(data, "base64"), height: h };
-  });
-}
-function readmeImages(md) {
-  const out = [];
-  const pics = [...md.matchAll(/<picture>([\s\S]*?)<\/picture>/gi)];
-  const inPicture = /* @__PURE__ */ new Set();
-  for (const [whole, body] of pics) {
-    const dark = body.match(/<source[^>]*prefers-color-scheme:\s*dark[^>]*srcset=["']([^"'\s]+)/i)?.[1] || body.match(/<source[^>]*srcset=["']([^"'\s]+)["'][^>]*prefers-color-scheme:\s*dark/i)?.[1];
-    const img = body.match(/<img[^>]*>/i)?.[0] || "";
-    const src = img.match(/src=["']([^"']+)/i)?.[1];
-    const alt = img.match(/alt=["']([^"']*)/i)?.[1];
-    if (src) out.push({ src, dark: dark || null, alt: alt ?? null, picture: true });
-    inPicture.add(whole);
-  }
-  let rest = md;
-  for (const p2 of inPicture) rest = rest.replace(p2, "");
-  for (const m of rest.matchAll(/<img[^>]*>/gi)) {
-    const src = m[0].match(/src=["']([^"']+)/i)?.[1];
-    if (src && !/shields\.io|badge\.svg|badgen\.net/i.test(src)) out.push({ src, dark: null, alt: m[0].match(/alt=["']([^"']*)/i)?.[1] ?? null, picture: false });
-  }
-  for (const m of rest.matchAll(/!\[([^\]]*)\]\(([^)\s]+)/g)) if (!/shields\.io|badge\.svg|badgen\.net/i.test(m[2])) out.push({ src: m[2], dark: null, alt: m[1] || null, picture: false });
-  return out;
-}
-function localData(src, base) {
-  if (/^(https?:)?\/\//i.test(src)) return { url: src, bytes: null };
-  const file4 = path55.resolve(base, src.replace(/^\.?\//, ""));
-  if (!fs58.existsSync(file4)) return { url: null, bytes: null, missing: file4 };
-  const buf = fs58.readFileSync(file4);
-  return { url: `data:${MIME3[path55.extname(file4).toLowerCase()] || "image/png"};base64,${buf.toString("base64")}`, bytes: buf.length };
-}
-function register20(server2, ctx2) {
-  server2.registerTool(
-    "render_html",
-    {
-      title: "Render HTML to a PNG",
-      description: `Renders an HTML file or string to a PNG at 2x (retina) in Drip's shared browser, after its web fonts and layout are ready: the file is complete when the call returns. Full page by default; transparent: true keeps the background clear (for art on GitHub's light and dark themes). Use it for README art, social cards, diagrams and comps. Example: render_html({ file: ".drip/art/hero.html", out: "docs/hero.png", width: 830, scale: 2 })`,
-      inputSchema: {
-        file: external_exports.string().optional().describe("HTML file (relative assets and fonts load from its folder)"),
-        html: external_exports.string().optional().describe("Or the HTML itself"),
-        out: external_exports.string().describe("PNG path to write, relative to the project"),
-        width: external_exports.number().int().min(100).max(4e3).optional().describe("CSS px (default 830: GitHub's README column)"),
-        height: external_exports.number().int().min(50).max(12e3).optional().describe("CSS px; with fullPage the page's own height wins"),
-        scale: external_exports.number().min(1).max(4).optional().describe("Pixel ratio (default 2)"),
-        fullPage: external_exports.boolean().optional(),
-        transparent: external_exports.boolean().optional(),
-        dark: external_exports.boolean().optional().describe("prefers-color-scheme: dark")
-      }
-    },
-    safe(async ({ file: file4, html, out, width = 830, height = 600, scale = 2, fullPage = true, transparent = false, dark = false }) => {
-      if (!file4 && !html) return text("Pass file or html.", true);
-      let src = file4 && path55.resolve(projectDir(), file4);
-      if (!src) {
-        src = path55.join(rendersDir(`html-${stamp()}`), "page.html");
-        fs58.writeFileSync(src, /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
-      }
-      if (!fs58.existsSync(src)) return text(`No such file: ${file4}`, true);
-      const { buf, height: h } = await shoot(await toUrl(src), { width, height, scale, transparent, dark, fullPage, config: ctx2.config() });
-      const dest = path55.resolve(projectDir(), out);
-      fs58.mkdirSync(path55.dirname(dest), { recursive: true });
-      fs58.writeFileSync(dest, buf);
-      const preview = await toJpeg(buf, 1200, 1600, 80);
-      return blocks([textBlock(`Wrote ${out}: ${width * scale}x${Math.round(h * scale)} px (${width}x${h} CSS px at ${scale}x), ${Math.round(buf.length / 1024)} KB${transparent ? ", transparent background" : ""}.`), imageBlock(preview)]);
-    })
-  );
-  server2.registerTool(
-    "readme_check",
-    {
-      title: "Check a README's images",
-      description: `The fit check for README work. Shows every image in the README where GitHub shows it: the 830px desktop column and the ~309px phone column, on GitHub's light and dark grounds, with the dark variant where a <picture> has one. Flags images too small for retina (under 1660px wide), missing dark variants, missing alt text, heavy files and mermaid blocks. GitHub strips CSS and uses its own type, so it never judges GitHub's headings. Counts as the fit-check shot for a README task. Example: readme_check({ file: "README.md" })`,
-      inputSchema: { file: external_exports.string().optional().describe("Default README.md") }
-    },
-    safe(async ({ file: file4 = "README.md" }) => {
-      const abs2 = path55.resolve(projectDir(), file4);
-      if (!fs58.existsSync(abs2)) return text(`No README at ${file4}.`, true);
-      const md = fs58.readFileSync(abs2, "utf8");
-      const imgs = readmeImages(md);
-      const base = path55.dirname(abs2);
-      const findings = [];
-      if (/```mermaid/i.test(md)) findings.push({ level: "warn", msg: "mermaid block: GitHub draws it in its own style (and it renders blank in screenshots). An image you design reads better as a hero diagram." });
-      const rows = imgs.map((im, i2) => {
-        const light = localData(im.src, base);
-        const dark = im.dark ? localData(im.dark, base) : null;
-        if (light.missing) findings.push({ level: "error", msg: `image ${i2 + 1}: ${im.src} does not exist` });
-        if (dark?.missing) findings.push({ level: "error", msg: `image ${i2 + 1}: dark variant ${im.dark} does not exist` });
-        if (!im.alt) findings.push({ level: "error", msg: `image ${i2 + 1} (${im.src}): no alt text. Say what the picture shows.` });
-        if (light.bytes > 15e5) findings.push({ level: "warn", msg: `image ${i2 + 1} (${im.src}): ${(light.bytes / 1e6).toFixed(1)} MB; aim under 1 MB (WebP, or a smaller PNG palette)` });
-        return { i: i2 + 1, src: im.src, alt: im.alt, light: light.url, dark: dark?.url || null };
-      });
-      if (!rows.length) return text(`${file4} has no images. A README is a landing page in a narrow column: the first screen needs a picture of the thing (drip_guide readme).`, true);
-      const cell = (r2, theme, w) => `<div class="c" style="width:${w}px;background:${theme === "dark" ? "#0d1117" : "#ffffff"}"><img data-i="${r2.i}" data-t="${theme}" src="${theme === "dark" && r2.dark ? r2.dark : r2.light || ""}"></div>`;
-      const page2 = `<!doctype html><html><head><meta charset="utf-8"><style>
-        body{margin:0;background:#8b8f96;font:13px/1.3 system-ui;color:#111} .row{display:flex;gap:16px;align-items:flex-start;padding:16px;border-bottom:2px solid #6e737a}
-        .lab{width:130px;color:#fff;font-weight:600} .c{padding:12px;box-sizing:content-box} .c img{width:100%;display:block}
-      </style></head><body>${rows.map((r2) => `<div class="row"><div class="lab">${r2.i}. ${path55.basename(r2.src)}<br><span style="font-weight:400">830 light \xB7 830 dark \xB7 309 phone</span></div>${cell(r2, "light", 830)}${cell(r2, "dark", 830)}${cell(r2, "light", 309)}</div>`).join("")}</body></html>`;
-      const dir = rendersDir(`readme-${stamp()}`);
-      const pageFile = path55.join(dir, "check.html");
-      fs58.writeFileSync(pageFile, page2);
-      const config2 = ctx2.config();
-      const { sizes, buf } = await withTab(config2, async (tab) => {
-        const { s: s2 } = tab;
-        await openPage(tab, await toUrl(pageFile), { width: 2200, height: 900, settleMs: 600 });
-        const { result } = await s2("Runtime.evaluate", {
-          expression: "Promise.all([...document.images].map(i => i.decode().catch(()=>0))).then(() => [...document.images].map(i => ({ i: +i.dataset.i, t: i.dataset.t, w: i.naturalWidth, h: i.naturalHeight })))",
-          awaitPromise: true,
-          returnByValue: true
-        });
-        const h = (await s2("Runtime.evaluate", { expression: "document.documentElement.scrollHeight", returnByValue: true })).result.value;
-        await s2("Emulation.setDeviceMetricsOverride", { width: 2200, height: Math.min(h, 9e3), deviceScaleFactor: 1, mobile: false });
-        await settle2(s2, 200);
-        const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: 78, captureBeyondViewport: true, clip: { x: 0, y: 0, width: 2200, height: Math.min(h, 9e3), scale: 1 } });
-        return { sizes: result.value, buf: Buffer.from(data, "base64") };
-      });
-      for (const r2 of rows) {
-        const sz = sizes.find((x2) => x2.i === r2.i && x2.t === "light");
-        if (sz && sz.w && sz.w < 1660) findings.push({ level: "warn", msg: `image ${r2.i} (${r2.src}): ${sz.w}px wide, soft on retina in the 830px column; export at 1660px or more (render_html scale: 2)` });
-        if (sz && !sz.w) findings.push({ level: "error", msg: `image ${r2.i} (${r2.src}): did not load` });
-        if (!r2.dark) findings.push({ level: "info", msg: `image ${r2.i} (${r2.src}): one variant for both themes; check its edges and text on the dark ground in the sheet (or add a <picture> with a prefers-color-scheme: dark source)` });
-      }
-      const sheet = path55.join(dir, "readme-check.jpg");
-      fs58.writeFileSync(sheet, buf);
-      const errors = findings.filter((f3) => f3.level === "error");
-      updateState((st) => {
-        if (!st.task || st.task.surface !== "readme") return;
-        st.task.fitcheck.shots += 1;
-        st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
-        st.task.fitcheck.shotRev = artifactRev(st.task);
-        st.task.fitcheck.blockers = errors.map((f3) => f3.msg);
-        st.task.fitcheck.files = [sheet];
-      });
-      return blocks([
-        textBlock(
-          `${rows.length} image(s) in ${file4}. Sheet: ${sheet}
-` + (findings.length ? findings.map((f3) => `- [${f3.level}] ${f3.msg}`).join("\n") : "No measured problems.") + "\n\nNow judge the sheet: can you read every word at 309px? Do edges and text hold on the dark ground? Does the first image show the real thing? Fix, run readme_check again, then the critic and fitcheck_done."
-        ),
-        imageBlock(await toJpeg(buf, 1600, 2400, 78))
-      ]);
-    })
-  );
-}
-
-// src/modules/fitcheck/index.mjs
-init_chrome();
-
-// src/core/pieces-check.mjs
-init_paths();
-import fs59 from "node:fs";
-import path56 from "node:path";
-var norm5 = (s2) => String(s2 || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-function pieceKey(piece) {
-  if (!piece || /^custom/i.test(piece)) return null;
-  const last = String(piece).split(/[/@]/).filter(Boolean).pop() || "";
-  return norm5(last.replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "")) || null;
-}
-function walk(dir, out = [], depth = 6) {
-  if (depth < 0 || !fs59.existsSync(dir)) return out;
-  for (const e2 of fs59.readdirSync(dir, { withFileTypes: true })) {
-    if (e2.name === "node_modules" || e2.name.startsWith(".")) continue;
-    const f3 = path56.join(dir, e2.name);
-    if (e2.isDirectory()) walk(f3, out, depth - 1);
-    else if (/\.(tsx|ts|jsx|js)$/.test(e2.name)) out.push(f3);
-  }
-  return out;
-}
-function unusedPieces(task, root = projectDir()) {
-  if (!task?.page?.dir || !task.sections) return [];
-  const page2 = path56.resolve(root, task.page.dir);
-  const src = path56.join(page2, "src");
-  if (!fs59.existsSync(path56.join(src, "App.tsx"))) return [];
-  const files = walk(src);
-  const comps = files.filter((f3) => f3.includes(`${path56.sep}components${path56.sep}`));
-  const out = [];
-  for (const [id, s2] of Object.entries(task.sections)) {
-    const key = pieceKey(s2.piece);
-    if (!key || key.length < 4) continue;
-    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm5).filter((k) => k.length >= 3)]);
-    const mine = comps.filter((f3) => keys.has(norm5(path56.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm5(path56.basename(path56.dirname(f3)))));
-    if (!mine.length) {
-      out.push(`piece not on the page: #${id} names ${s2.piece}, but no ${key} component is installed under src/components (pieces_install it, or name what the section really uses)`);
-      continue;
-    }
-    const names3 = new Set(mine.map((f3) => path56.basename(f3).startsWith("index.") ? path56.basename(path56.dirname(f3)) : path56.basename(f3).replace(/\.\w+$/, "")));
-    const used = files.some((f3) => !mine.includes(f3) && [...names3].some((n3) => new RegExp(`from\\s+["'][^"']*/${n3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/index)?["']`).test(fs59.readFileSync(f3, "utf8"))));
-    if (!used) out.push(`piece not on the page: #${id} names ${s2.piece}, it is installed (${[...names3].join(", ")}) but nothing imports it, so the section was hand-made around it. Use the piece, or say why it doesn't fit`);
-  }
-  return out;
-}
-
-// src/modules/fitcheck/index.mjs
-var isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
-var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
-function register21(server2, ctx2) {
-  register19(server2, ctx2);
-  register20(server2, ctx2);
-  server2.registerTool(
-    "fitcheck_shot",
-    {
-      title: "Screenshot the result",
-      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. url can be a dev-server URL or a local .html file / folder (served for you on a free port; no dev server needed). Every section of a long page appears in at least one slice (more than maxSlices if the page has that many sections). hero: true shoots only the first viewport and runs the hero gate (playbook P31): the h1 and the primary action must sit fully inside it and nothing may be cut off at the edges; do it after building nav + hero, before any section. numbersOnly: true returns the measured blockers and numbers with NO images (cheap re-checks after a fix; it never records a pass: the verdict still needs one real shot). section: "<css selector>" shoots just that section (phone and desktop) instead of the page. Several states or pages at once: fitcheck_shot({ urls: ["http://localhost:3000/?state=typing", "http://localhost:3000/?state=result"], numbersOnly: true }). Example: fitcheck_shot({ url: "http://localhost:3000", hero: true }) or fitcheck_shot({ url, numbersOnly: true }) or fitcheck_shot({ url, section: "#pricing" })',
-      inputSchema: {
-        url: external_exports.string().optional().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
-        urls: external_exports.array(external_exports.string()).max(8).optional().describe("Several pages or states in ONE call (e.g. every ?state= of an app screen, or /, /pricing, /about): each is shot and measured, one reply. Prefer this over one call per state"),
-        sizes: external_exports.array(external_exports.object({ name: external_exports.string(), width: external_exports.number(), height: external_exports.number() })).optional(),
-        maxSlices: external_exports.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
-        hero: external_exports.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
-        numbersOnly: external_exports.boolean().optional().describe("Measured blockers and numbers only, no images. Does not count as the fit check (shoot once with images before fitcheck_done)"),
-        section: external_exports.string().optional().describe('CSS selector of one section to shoot at both sizes (e.g. "#pricing", "main > section:nth-of-type(3)")'),
-        steps: external_exports.array(STEP).max(12).optional().describe(
-          'Interactions to capture as states, with real mouse and keyboard input (drag handlers fire). Each step screenshots the desktop viewport. e.g. [{ do: "drag", selector: ".sheet:nth-child(1)", to: { x: 400, y: 60 }, label: "sheets dragged apart" }, { do: "click", selector: "[data-work=2]", label: "work 2 open" }, { do: "key", text: "Escape" }]'
-        ),
-        app: external_exports.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
-        images: external_exports.enum(["small", "sheet", "all", "none"]).optional().describe("Fast loop default: small (one small sheet per size) the first time you see the page, none (numbers and file paths) after that, because every image stays in your context for the rest of the task. sheet: one full-size contact sheet per size. all: every slice full size (to read small text). Every slice is always saved to disk")
-      }
-    },
-    safe(async (args) => {
-      const many = args.urls?.length ? [...new Set([args.url, ...args.urls].filter(Boolean))] : null;
-      if (!args.url && !many) return text("Pass url, or urls for several pages or states at once.", true);
-      try {
-        restitchIfStale(loadState().task);
-        if (!loadState().task?.filmUrl && (args.url || many?.[0])) {
-          const u2 = await toUrl(args.url || many[0]);
-          updateState((st) => {
-            if (st.task && !st.task.filmUrl) st.task.filmUrl = u2;
-          });
-        }
-      } catch {
-      }
-      if (!many || many.length === 1) return shootRetry({ ...args, url: many ? many[0] : args.url });
-      const content = [];
-      let failed = false;
-      for (const u2 of many) {
-        const r2 = await shootRetry({ ...args, url: u2 });
-        failed ||= !!r2.isError;
-        content.push(textBlock(`===== ${u2} =====`), ...r2.content || []);
-      }
-      return { ...blocks(content), ...failed ? { isError: true } : {} };
-    })
-  );
-  async function shootRetry(a2) {
-    try {
-      return await shootOne(a2);
-    } catch (e2) {
-      if (!/navigated or closed|Target closed|Session closed|detached|ECONNREFUSED|ERR_CONNECTION/i.test(String(e2?.message || e2))) throw e2;
-      await new Promise((r2) => setTimeout(r2, 1500));
-      return shootOne(a2);
-    }
-  }
-  function criticLine(task, config2) {
-    const rec = (task?.critic?.records || []).filter((r2) => r2.kind === "build").at(-1);
-    if (rec && rec.verdict !== "pass") return ` The critic said ${String(rec.verdict).toUpperCase()}: fix what it listed, then the user chooses (ship with the open points, or one more round), not your own pass.`;
-    if (rec) return "";
-    return config2.gates.fastCritic ? " Before you show the user: the critic, once (critic_prepare kind build -> drip:critic -> critic_record); drip_end refuses without it." : " The critic is optional here: offer it in your hand-off for a second opinion (critic_prepare kind build), don't run it unasked.";
-  }
-  async function shootOne({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section, images }) {
-    const t0 = loadState().task;
-    const fastTask = t0?.loop === "fast";
-    const seen = !!t0?.fitcheck?.seenAt;
-    const mode = images || (fastTask ? hero || !seen ? "small" : "none" : hero ? "all" : "sheet");
-    const recordable = mode !== "none" || fastTask && seen;
-    const config2 = ctx2.config();
-    const url2 = await toUrl(target);
-    const persuade = app === void 0 ? isPersuade(loadState().task) : !app;
-    const list4 = sizes || config2.fitcheck.sizes;
-    const dir = rendersDir(`fitcheck-${stamp()}`);
-    const content = [];
-    const audits = [];
-    const files = [];
-    const caps = await Promise.all(list4.map((s2) => capture(url2, { width: s2.width, height: s2.height, maxSlices: hero ? 1 : section ? 3 : maxSlices || (s2.width < 600 ? 4 : 5), scale: s2.width > 1200 ? 1200 / s2.width : 1, shots: !numbersOnly, section: section || null, config: config2 })));
-    if (section && caps.every((c3) => c3.audit?.section?.missing)) return text(`No element matches ${section} on ${url2}. Check the selector (an id, class or "main > section:nth-of-type(2)").`, true);
-    for (const [k, s2] of list4.entries()) {
-      const r2 = caps[k];
-      const j = judgeAudit(r2.audit, { persuade, hero });
-      audits.push({ size: s2.name, width: s2.width, audit: r2.audit, ...j });
-      content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${numbersOnly ? "numbers only" : section ? `section ${section} (${r2.audit.section?.missing ? "not found" : `y ${r2.audit.section?.top}, ${r2.audit.section?.h}px tall`})` : `${r2.slices.length} of ${r2.sliceCount} screens${r2.audit.sliceYs ? ` at y ${r2.audit.sliceYs.join(", ")}` : ""}`}
-${formatAudit(r2.audit, j)}`));
-      for (const [i2, sl] of r2.slices.entries()) {
-        const f3 = path57.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-        fs60.writeFileSync(f3, sl.buf);
-        files.push(f3);
-        if (mode === "all" || mode === "sheet" && r2.slices.length === 1) content.push(imageBlock(sl.buf));
-      }
-      if (mode === "sheet" && r2.slices.length > 1 || mode === "small" && r2.slices.length) {
-        const phone = s2.width < 600;
-        const cols = phone ? Math.min(r2.slices.length, 5) : r2.slices.length <= 1 ? 1 : r2.slices.length <= 4 ? 2 : 3;
-        const width = mode === "small" ? phone ? 640 : 960 : phone ? 1500 : 1540;
-        const tileW = Math.floor(width / cols);
-        const tileH = Math.round(tileW * (s2.height / s2.width));
-        content.push(imageBlock(await contactSheet(r2.slices.map((x2) => x2.buf), { cols, tileW, tileH, fit: "contain", gap: 6 })));
-      }
-    }
-    if (steps?.length && !hero && !numbersOnly && !section) {
-      const desk = list4.find((s2) => s2.width >= 1e3) || list4.at(-1);
-      const states = await captureStates(url2, steps, { width: desk.width, height: desk.height, config: config2 });
-      for (const [i2, st] of states.entries()) {
-        content.push(textBlock(`State ${i2 + 1}: ${st.label}${st.error ? ` \xB7 STEP FAILED: ${st.error}` : ""}`));
-        if (!st.buf?.length) continue;
-        const f3 = path57.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
-        fs60.writeFileSync(f3, st.buf);
-        files.push(f3);
-        if (mode === "all") content.push(imageBlock(st.buf));
-      }
-      if (mode === "sheet" || mode === "small") {
-        const bufs = states.filter((x2) => x2.buf?.length).map((x2) => x2.buf);
-        const w = mode === "small" ? 960 : 1540;
-        if (bufs.length) content.push(imageBlock(await contactSheet(bufs, { cols: Math.min(bufs.length, 3), tileW: Math.floor(w / Math.min(bufs.length, 3)), tileH: Math.round(Math.floor(w / Math.min(bufs.length, 3)) * desk.height / desk.width), fit: "contain", gap: 6 })));
-      }
-    }
-    const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
-    if (!hero && !numbersOnly && !section) blockers.push(...unusedPieces(loadState().task));
-    updateState((st) => {
-      if (st.task) {
-        st.task.fitcheck.url = url2;
-        if (!hero && !section) st.task.directorEdits = 0;
-        if (!hero && !numbersOnly && !section && mode !== "none") st.task.fitcheck.seenAt = (/* @__PURE__ */ new Date()).toISOString();
-        if (numbersOnly || section || !recordable) {
-          st.task.fitcheck.numbersAt = (/* @__PURE__ */ new Date()).toISOString();
-          return;
-        }
-        const fast = st.task.loop === "fast";
-        const broken = blockers.filter(isHard).length > 0;
-        if (hero && (!blockers.length || fast && !broken)) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
-        if (hero && fast && !broken) {
-          st.task.fitcheck.lastShotAt = st.task.fitcheck.doneAt = (/* @__PURE__ */ new Date()).toISOString();
-          st.task.fitcheck.shotRev = st.task.fitcheck.doneRev = artifactRev(st.task);
-          return;
-        }
-        if (hero) return;
-        st.task.fitcheck.shots += files.length;
-        st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
-        st.task.fitcheck.shotRev = artifactRev(st.task);
-        st.task.fitcheck.blockers = blockers;
-        st.task.fitcheck.files = files;
-        if (!blockers.length || fast && !broken) {
-          st.task.fitcheck.doneAt = st.task.fitcheck.lastShotAt;
-          st.task.fitcheck.doneRev = st.task.fitcheck.shotRev;
-        }
-      }
-    });
-    if (!hero && !numbersOnly && !section && recordable) markShot(loadState().task);
-    const list22 = blockers.map((b) => `- ${b}`).join("\n");
-    let head;
-    if (numbersOnly)
-      head = `${blockers.length ? `MEASURED BLOCKERS (numbers only, no images):
-${list22}` : "No measured blockers (numbers only)."}
-
-This is not the fit check: it has no pictures. Fix, re-run numbersOnly as needed, then shoot once with images before fitcheck_done.`;
-    else if (section)
-      head = `Section ${section} at both sizes (the page-wide numbers are in the text below${blockers.length ? `; ${blockers.length} blocker(s)` : ""}). Look at it, fix, and shoot the whole page once more before fitcheck_done.`;
-    else {
-      const judge = 'Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, off-system type, imagery, slop tells, the phone layout, missing states. The sheet shows every screen small; to read fine text use images: "all" or section: "#id". Fix, re-shoot, then the critic. Files for the critic: ' + dir;
-      head = hero ? blockers.length ? `HERO GATE FAILED (fix before writing any section):
-${list22}
-
-Redo the hero bigger and fully inside the first screen, then fitcheck_shot({ url, hero: true }) again.
-
-${judge}` : `HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.
-
-${judge}` : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):
-${list22}` : "No measured blockers: the page check is recorded for this version (no fitcheck_done needed). Look at the sheet, fix what looks wrong, then the critic."}
-
-${judge}`;
-    }
-    if (loadState().task?.loop === "fast" && !numbersOnly && !section) {
-      const hard = blockers.filter(isHard);
-      const soft = blockers.filter((b) => !isHard(b));
-      const brokenText = hard.length ? `BROKEN (the user must never see this; fix it, then shoot again):
-${hard.map((b) => `- ${b}`).join("\n")}
-
-` : "";
-      const softText = soft.length ? `Worth fixing in the same edit (numbers, not breakage; no extra round for these):
-${soft.map((b) => `- ${b}`).join("\n")}
-
-` : "";
-      head = hero ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare with every section; its one or two builders in one message): the user sees the finished page, not a question."}`}` : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version."} ${mode === "none" ? `Numbers only: you looked at this page earlier in the task, so no pictures this time (the slices are in ${dir}; images: "small" if you really need a look).` : "Look at the sheet once."} Fixes go as ONE list: small ones in one edit of yours, the rest in one SendMessage to the builder that wrote the section. Then one more shot, and show the user.${criticLine(loadState().task, ctx2.config())}`;
-    }
-    content.unshift(textBlock(head));
-    return blocks(content);
-  }
-  server2.registerTool(
-    "fitcheck_compare",
-    {
-      title: "Compare with the chosen direction",
-      description: "Puts a screenshot of the page next to the CHOSEN direction's comp (the first-viewport comp the user picked), in one picture, so you can see whether the build actually matches what was agreed. Falls back to the direction's reference shots when no comp was rendered.",
-      inputSchema: { url: external_exports.string().optional().describe("Page to shoot; defaults to the last fitcheck_shot URL") }
-    },
-    safe(async ({ url: url2 }) => {
-      const { task } = loadState();
-      const target = url2 || task?.fitcheck?.url;
-      if (!target) return text("No page URL. Pass url or run fitcheck_shot first.", true);
-      const board = task?.board?.id && loadBoard(task.board.id);
-      const dir = board?.directions.find((d) => d.name === board.chosen);
-      const content = [];
-      const shot3 = await screenshot(target, { width: 1440, height: 900, format: "jpeg", quality: 80, config: ctx2.config() });
-      const tile = dir?.tile && fs60.existsSync(dir.tile) ? fs60.readFileSync(dir.tile) : null;
-      if (dir && tile) {
-        const sheet = await contactSheet([shot3, tile], { cols: 2, tileW: 720, tileH: 450, fit: "contain", gap: 12 });
-        content.push(
-          textBlock(`LEFT (1) the build (${target}) \xB7 RIGHT (2) the chosen direction "${dir.name}", its comp: ${dir.summary}
-Adjectives: ${dir.adjectives.join(", ")} \xB7 Palette: ${dir.palette.join(" ")} \xB7 Type: ${dir.type}`),
-          imageBlock(sheet)
-        );
-      } else {
-        content.push(textBlock(`The build (${target}):`), imageBlock(shot3));
-        if (dir) {
-          const items = dir.items.map((k) => board.items.find((it) => it.key === k)).filter((it) => it?.image);
-          const bufs = await Promise.all(items.slice(0, 9).map((it) => fetchImage(it.source === "dribbble" ? thumbUrl(it.image, 480, 360) : it.image).then((r2) => r2.buf).catch(() => Buffer.alloc(0))));
-          content.push(
-            textBlock(`No rendered comp for "${dir.name}" (board_directions renders them), so here are its references: ${dir.summary}
-Adjectives: ${dir.adjectives.join(", ")} \xB7 Palette: ${dir.palette.join(" ")} \xB7 Type: ${dir.type}
-Notes:
-${items.map((it, i2) => `${i2 + 1}. ${it.note}`).join("\n")}`),
-            imageBlock(await contactSheet(bufs, { cols: 3, tileW: 480, tileH: 360 }))
-          );
-        } else content.push(textBlock("No chosen direction on record (quick loop or no board). Compare against DESIGN.md instead."));
-      }
-      content.push(textBlock("Does the build carry the direction's adjectives, palette discipline, type and density? Name each gap and fix it."));
-      return blocks(content);
-    })
-  );
-  server2.registerTool(
-    "fitcheck_lint",
-    {
-      title: "Static slop and polish checks",
-      description: "Scans UI files for AI-slop tells and polish problems (purple gradients, emoji icons, filler copy, removed focus rings, transition-all, 100vh, fake stats\u2026), and checks DESIGN.md against the code (colours, fonts, kit placeholders). Defaults to the files changed in this task.",
-      inputSchema: { files: external_exports.array(external_exports.string()).optional() }
-    },
-    safe(async ({ files }) => {
-      const { task } = loadState();
-      const root = projectDir();
-      const list4 = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f3) => path57.resolve(root, f3));
-      if (!list4.length) return text("No files given and none recorded for this task.", true);
-      const issues = lintFiles(list4, root);
-      updateState((st) => {
-        if (st.task) st.task.fitcheck.lintAt = (/* @__PURE__ */ new Date()).toISOString();
-      });
-      const doc = designDoc(root);
-      let drift = "";
-      if (doc) {
-        const d = designDrift(root, doc.file);
-        drift = d.issues.length ? `
-
-${doc.rel} vs the code (${d.files} style files, ${d.tokenCount} tokens):
-- ${d.issues.join("\n- ")}` : `
-
-${doc.rel} matches the code's colours and fonts.`;
-      }
-      return text(`${list4.length} file(s) checked.
-${formatIssues(issues, root)}${drift}`);
-    })
-  );
-  server2.registerTool(
-    "fitcheck_done",
-    {
-      title: "Record the fit check verdict",
-      description: "Record your honest scores (1-5) after looking at fitcheck_shot images. A verdict of 'pass' needs every score >= 4 and no open slop tells; otherwise list the fixes and do them, then shoot again. Ending your turn after UI changes is blocked until a passing fit check is recorded (or the user accepts the listed gaps).",
-      inputSchema: {
-        scores: external_exports.object(Object.fromEntries(CRITERIA.map((c3) => [c3, external_exports.number().int().min(1).max(5)]))),
-        verdict: external_exports.enum(["pass", "fail"]),
-        fixes: external_exports.array(external_exports.string()).describe("What you fixed, or what is still wrong"),
-        acceptedByUser: external_exports.boolean().optional().describe("True only if the user said to ship despite the remaining gaps")
-      }
-    },
-    safe(async ({ scores, verdict, fixes, acceptedByUser }) => {
-      const low = Object.entries(scores).filter(([, v]) => v < 4);
-      reconcileWorkspace();
-      const { task: t0 } = loadState();
-      if (t0 && !t0.fitcheck?.lastShotAt) return text("Shoot the page first: fitcheck_shot({ url }). A fit check needs the measured, full-page capture.", true);
-      if (t0 && t0.lastUiWriteAt && t0.fitcheck.lastShotAt < t0.lastUiWriteAt && !(t0.fitcheck.shotRev && t0.fitcheck.shotRev === artifactRev(t0))) return text("The UI changed after the last fitcheck_shot. Shoot it again so the verdict is about the current page.", true);
-      if (t0 && t0.fitcheck.shotRev && t0.fitcheck.shotRev !== artifactRev(t0)) return text("The files, DESIGN.md or direction changed after the last fitcheck_shot (the evidence belongs to an earlier version). Shoot it again so the verdict is about what exists now.", true);
-      const blockers = t0?.fitcheck?.blockers || [];
-      if (verdict === "pass" && blockers.length && !acceptedByUser)
-        return text(`Can't pass with measured blockers:
-- ${blockers.join("\n- ")}
-Fix them (drip_guide type / layout), fitcheck_shot again, then record the verdict.`, true);
-      const lastCritic = (t0?.critic?.records || []).filter((r2) => r2.kind === "build").at(-1);
-      if (verdict === "pass" && lastCritic && lastCritic.verdict !== "pass" && !acceptedByUser)
-        return text(
-          `The critic's last word on this build was ${String(lastCritic.verdict).toUpperCase()} ("${lastCritic.worst || lastCritic.summary || ""}"). Your own pass doesn't overrule it. Fix what it listed, then ask the user with AskUserQuestion: "Ship with these open points" (list what is still open) or "One more critic round" (critic_prepare with extraRound: true). Record acceptedByUser: true only when the user chose to ship.`,
-          true
-        );
-      const pass = verdict === "pass" && !low.length;
-      const st = updateState((s2) => {
-        if (!s2.task) return;
-        s2.task.fitcheck.score = Object.entries(scores).map(([k, v]) => `${k} ${v}`).join(", ");
-        if (acceptedByUser) (s2.task.critic ||= { runs: [], records: [] }).shipAt = (/* @__PURE__ */ new Date()).toISOString();
-        if (pass || acceptedByUser) {
-          s2.task.fitcheck.doneAt = (/* @__PURE__ */ new Date()).toISOString();
-          s2.task.fitcheck.doneRev = artifactRev(s2.task);
-        }
-      });
-      if (!st.task) return text("No Drip task is active.", true);
-      if (pass) return text("Fit check passed. Polish last (drip_guide polish), then drip_end when the work is done.");
-      if (acceptedByUser) return text(`Recorded as shipped with known gaps: ${fixes.join("; ")}.`);
-      return text(`Not passing yet${low.length ? ` (below 4: ${low.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}. Fix: ${fixes.join("; ") || "name what is wrong"}. Then fitcheck_shot again and record a new verdict.`, true);
-    })
-  );
-}
-
-// src/modules/critic/index.mjs
-var critic_exports = {};
-__export(critic_exports, {
-  behaviourBlock: () => behaviourBlock,
-  defends: () => defends,
-  goldFor: () => goldFor,
-  hoverSteps: () => hoverSteps,
-  register: () => register22
+  register: () => register20
 });
 import fs61 from "node:fs";
 import path58 from "node:path";
-init_paths();
-init_serve();
-function defends(context) {
-  const s2 = String(context || "");
-  if (s2.length > 400) return `${s2.length} characters: a context that long is a pitch`;
-  const m = s2.match(/\b(intentional(ly)?|deliberate(ly)?|on purpose|by design|as designed|(already|now) (fixed|improved|addressed|better)|we (fixed|improved|chose)|i (fixed|improved|chose)|don'?t (judge|penali[sz]e|count|mark)|ignore|not a (bug|flaw|mistake)|this is fine|should pass|please (pass|be kind)|was (fixed|improved)|much better|huge improvement)\b/i);
-  return m ? m[0] : null;
-}
-var INTERACTIVE = /accordion|expand|hover|carousel|slider|tabs?\b|toggle|marquee|tilt|reveal|drag|compare|before.?after|flip|stack|swipe|scroll|dock|magnet|spotlight|morph|gallery/i;
-function pieceInfo(piece) {
-  if (!piece || /^custom/i.test(piece)) return null;
-  const name = String(piece).split(/[/@]/).pop().replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "").toLowerCase();
-  try {
-    return loadPieces().find((p2) => String(p2.name).toLowerCase() === name) || { name };
-  } catch {
-    return { name };
-  }
-}
-function behaviourBlock(task) {
-  const sections = Object.entries(task?.sections || {});
-  const motions = (task?.refs?.studied || []).filter((s2) => s2.motion).slice(0, 4);
-  if (!sections.length && !motions.length) return "";
-  const lines = sections.map(([id, s2]) => {
-    const p2 = pieceInfo(s2.piece);
-    const what = p2 ? `library piece ${p2.lib ? `${p2.lib}/` : ""}${p2.name}${p2.look ? ` (${p2.look})` : ""}` : s2.piece ? `homemade (${s2.piece})` : "no piece named";
-    return `- #${id}: ${what}. Spec: ${s2.spec}`;
-  });
-  return [
-    "\nHOW IT BEHAVES (stills can't show motion or interaction; this is what each section does, from the build specs):",
-    ...lines,
-    ...motions.length ? ["Motion taken from the references:", ...motions.map((m) => `- ${m.source}: ${m.motion}`)] : [],
-    `Judge each interactive section by what it does, using the interaction states when given. A resting frame of a known pattern (an accordion gallery's narrow panels, a carousel's one slide, collapsed tabs) is its design, not a defect: ask whether the rest state reads and invites the interaction. Without states for it, write "unjudged: <section>" instead of guessing.`
-  ].join("\n");
-}
-function hoverSteps(task) {
-  return Object.entries(task?.sections || {}).filter(([, s2]) => INTERACTIVE.test(`${s2.piece} ${s2.spec} ${pieceInfo(s2.piece)?.look || ""}`)).slice(0, 6).flatMap(([id]) => [
-    { do: "hover", selector: `#${id}`, shot: false },
-    { do: "wait", ms: 600, label: `#${id} while hovered (the pointer at its centre)` }
-  ]);
-}
-var KIND_BRIEF = {
-  directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
-  build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
-  logo: "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a clich\xE9), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
-  pack: "You are judging a NICHE PACK: written guidance meant to make a designer excellent in one niche. Is it specific to the niche (real standards, real artists, real techniques, real numbers) or generic design advice with the niche's name pasted in? Name every generic or wrong statement and what's missing.",
-  any: "You are judging a design. Judge only what you see against the brief (if any)."
-};
-var AXES = {
-  directions: ["appeal", "craft potential", "brief fit", "eye candy", "different ideas"],
-  build: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy", "UX & motion", "copy", "brief/direction fit"],
-  logo: ["idea", "distinctiveness", "construction", "small-size", "typography", "versatility"],
-  pack: ["specificity", "accuracy", "usefulness", "coverage"],
-  any: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy"]
-};
-function briefBlock2(task) {
-  const b = task?.brief;
-  if (!b) return task ? `Request: ${task.title}` : "No brief given.";
-  return [
-    `Request: ${task.title}`,
-    `What: ${b.what}`,
-    `For: ${b.audience}`,
-    `Job: ${b.job}`,
-    `Feel: ${b.feel.join(", ")}`,
-    b.loves?.length ? `Loves: ${b.loves.join(", ")}` : "",
-    b.hates?.length ? `Hates: ${b.hates.join(", ")}` : "",
-    `Ambition: ${b.ambition}${b.ambition === "bold" ? " (the client asked for loud, distinctive work)" : b.ambition === "conservative" ? " (the category standard done perfectly)" : " (beautiful and polished: proven structure is fine; judge appeal, craft and feel, never mark good familiar work down as safe)"}`,
-    b.constraints ? `Constraints: ${b.constraints}` : ""
-  ].filter(Boolean).join("\n");
-}
-var isUrl = (s2) => /^https?:\/\//i.test(s2) || /^file:/i.test(s2);
-function goldFor(task) {
-  const t2 = `${task?.title || ""} ${task?.brief?.what || ""}`.toLowerCase();
-  const kind = /\b(walker|device|hardware|speaker|bike|camera|furniture|toy|gadget|appliance|wearable|shoe|bottle|stroller)\b/.test(t2) && !/\b(saas|software|app|platform)\b/.test(t2) ? "hardware" : /\b(ai|generator|thumbnail|image|video|creative tool|model)\b/.test(t2) ? "ai-tool" : /\b(portfolio|studio|agency|designer|artist|photographer)\b/.test(t2) ? "studio" : task?.surface === "landing" || task?.surface === "app" ? "saas" : null;
-  const labels = { hardware: "teenage.engineering, OP-1 product page", "ai-tool": "krea.ai", studio: "locomotive.ca", saas: "linear.app" };
-  const file4 = kind && path58.join(examplesDir, "gold", kind, "1.jpg");
-  return file4 && fs61.existsSync(file4) ? { kind, file: file4, label: labels[kind] } : null;
-}
-function register22(server2, ctx2) {
-  server2.registerTool(
-    "critic_prepare",
-    {
-      title: "Prepare a critic review",
-      description: `Prepares an independent review by the drip:critic subagent (Sonnet, no history, harsh). It renders the work to image files and returns the exact prompt to pass to the subagent: Agent({ subagent_type: "drip:critic", description: "Critic review", prompt: <returned prompt> }). Pass the prompt unchanged; never add your own defence of the work. kind: directions (uses the board's first-viewport comps), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. Examples: critic_prepare({ kind: "directions" }) \xB7 critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) \xB7 critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })`,
-      inputSchema: {
-        kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
-        targets: external_exports.array(external_exports.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id. Pass every state of an app screen at once (?state=typing, ?state=result, ...): each keeps its own screenshots"),
-        context: external_exports.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses."),
-        steps: external_exports.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (hover, click, open, generate...), same as fitcheck_shot steps. For a transition, add waits of ~150ms between shots: the critic judges motion from that frame strip"),
-        extraRound: external_exports.boolean().optional().describe("Only when the user chose 'one more round' after the round limit")
-      }
-    },
-    safe(async ({ kind, targets = [], context, steps, extraRound }) => {
-      const config2 = ctx2.config();
-      const pleading = defends(context);
-      if (pleading)
-        return text(
-          `The context argues for the work ("${pleading}"). The critic must judge what it sees: give only facts it can't see (what the screen is, who uses it, what's real data), in under 400 characters, and let the work speak.`,
-          true
-        );
-      const { task } = loadState();
-      const building = kind === "build" ? agentsRunning(task).filter((a2) => /builder/i.test(a2.type)) : [];
-      if (building.length)
-        return text(`${building.length} builder${building.length > 1 ? "s are" : " is"} still writing sections. Wait for ${building.length > 1 ? "them" : "it"} to finish, then page_stitch and one fitcheck_shot; the critic judges the finished page, once.`, true);
-      const prevRounds = (task?.critic?.records || []).filter((r2) => r2.kind === kind);
-      const decided = task?.intake?.max === 0;
-      if (kind === "build" && decided && !extraRound && !task?.critic?.extraRounds && prevRounds.length >= criticRounds(task, config2)) extraRound = true;
-      if (kind === "build" && prevRounds.length >= criticRounds(task, config2) + (task?.critic?.extraRounds || 0) && !extraRound)
-        return text(
-          decided ? `Round limit: ${prevRounds.length} critic rounds (last: ${prevRounds.at(-1).verdict.toUpperCase()}). The user told you to decide: ship it. fitcheck_done, then drip_end({ acceptOpen: "decide for me" }) and list the open points in the hand-off.` : `Round limit: the critic has judged this build ${prevRounds.length} times (last: ${prevRounds.at(-1).verdict.toUpperCase()}, ${prevRounds.at(-1).summary}).
-Ask the user now with AskUserQuestion: "Ship it with the open points listed" or "One more critic round". Show the open points first. If they pick another round, call critic_prepare again with extraRound: true; if they ship, fitcheck_done and hand off with the open points.`,
-          true
-        );
-      if (extraRound) updateState((st) => st.task && (st.task.critic.extraRounds = (st.task.critic.extraRounds || 0) + 1));
-      const dir = rendersDir(`critic-${stamp()}`);
-      const files = [];
-      const notes = [];
-      const measured = [];
-      if (kind === "directions") {
-        const board = task?.board?.id && loadBoard(task.board.id);
-        if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
-        const missing = board.directions.filter((d) => !d.tile || !fs61.existsSync(d.tile));
-        if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
-        const unreadable = board.directions.filter((d) => d.typeIssues?.length);
-        if (unreadable.length)
-          return text(`Not ready for the critic: ${unreadable.map((d) => `"${d.name}" (${d.typeIssues.map((t2) => t2.detail).join("; ")})`).join(" \xB7 ")}. Fix the comps and board_tile again; a critic's time goes on ideas, not on broken type.`, true);
-        board.directions.filter((d) => !d.dropped).forEach((d, i2) => {
-          files.push(d.tile);
-          notes.push(`Direction ${i2 + 1} "${d.name}" (${files.length}): ${d.idea ? `IDEA: ${d.idea}. ` : ""}${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} \xB7 ${d.adjectives.join(", ")} \xB7 palette ${d.palette.join(" ")} \xB7 type ${d.type}`);
-          if (i2 === 0 && board.criteria?.length) context = `${context ? `${context}
-` : ""}Choice criteria (written before the tiles): ${board.criteria.join("; ")}`;
-        });
-      }
-      if (kind === "directions" || kind === "build") {
-        const gold = goldFor(task);
-        if (gold) {
-          files.push(gold.file);
-          notes.push(`THE BAR (image ${files.length}): ${gold.label}, a shipped page of the same kind. Judge craft, confidence and restraint against it ("would this sit next to it without looking like a template?"); never ask the work to copy its look.`);
-        }
-      }
-      const list4 = kind === "directions" || kind === "pack" ? [] : targets;
-      for (const [ti, t0] of list4.entries()) {
-        const tag = list4.length > 1 ? `t${ti + 1}-` : "";
-        const t2 = kind === "build" && /\.html?$/i.test(t0) && !isUrl(t0) ? await toUrl(t0) : t0;
-        if (isUrl(t2)) {
-          const sizes = config2.fitcheck.sizes;
-          const caps = await Promise.all(sizes.map((s2) => capture(t2, { width: s2.width, height: s2.height, maxSlices: s2.width < 600 ? 4 : 6, config: config2 })));
-          for (const [k, s2] of sizes.entries()) {
-            const r2 = caps[k];
-            const j = judgeAudit(r2.audit, { persuade: isPersuade(loadState().task) });
-            measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
-            r2.slices.forEach((sl, i2) => {
-              const f3 = path58.join(dir, `${tag}${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
-              fs61.writeFileSync(f3, sl.buf);
-              files.push(f3);
-              notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
-            });
-          }
-          const autoSteps = !steps?.length && kind === "build" && ti === 0 ? hoverSteps(task) : [];
-          const useSteps = steps?.length ? steps : autoSteps;
-          if (useSteps.length) {
-            const desk = sizes.find((s2) => s2.width >= 1e3) || sizes.at(-1);
-            const states = await captureStates(t2, useSteps, { width: desk.width, height: desk.height, config: config2 });
-            states.forEach((st, i2) => {
-              const f3 = path58.join(dir, `${tag}state-${String(i2 + 1).padStart(2, "0")}.jpg`);
-              fs61.writeFileSync(f3, st.buf);
-              files.push(f3);
-              notes.push(`interaction state ${i2 + 1}: ${st.label}${st.error ? ` (step failed: ${st.error})` : ""}`);
-            });
-          }
-        } else {
-          const abs2 = path58.resolve(projectDir(), t2);
-          if (!fs61.existsSync(abs2)) return text(`File not found: ${t2}`, true);
-          if (/\.svg$/i.test(abs2)) {
-            const svg = fs61.readFileSync(abs2, "utf8");
-            for (const [bg, label, size] of [["#FFFFFF", "light", 1024], ["#111111", "dark", 1024], ["#FFFFFF", "small 64px", 64], ["#FFFFFF", "tiny 24px", 24]]) {
-              const f3 = path58.join(dir, `${path58.basename(abs2, ".svg")}-${label.replace(/\W+/g, "")}.png`);
-              await renderSvg(svg, f3, { size, bg, config: config2 });
-              files.push(f3);
-              notes.push(`${t2} on ${label}`);
-            }
-          } else if (/\.html?$/i.test(abs2)) {
-            const f3 = path58.join(dir, `${path58.basename(abs2)}.png`);
-            await renderUrl(`file:///${abs2.replace(/\\/g, "/")}`, f3, { width: 1440, height: 900, config: config2 });
-            files.push(f3);
-            notes.push(`${t2} rendered`);
-          } else {
-            files.push(abs2);
-            notes.push(t2);
-          }
-        }
-      }
-      let packText = "";
-      if (kind === "pack") {
-        const id2 = targets[0];
-        const parts = ["guide.md", "genres.md", "artists.md", "critic.md", "queries.md"].map((f3) => [f3, readPackFile(id2, f3)]).filter(([, c3]) => c3);
-        if (!parts.length) return text(`No pack "${id2}" (or it is empty).`, true);
-        packText = parts.map(([f3, c3]) => `----- ${f3} -----
-${c3.slice(0, 9e3)}`).join("\n\n");
-      }
-      if (kind !== "pack" && !files.length) return text("Nothing to judge: pass targets (URLs or files).", true);
-      const rubric = (task?.packs || []).map((p2) => readPackFile(p2, "critic.md")).filter(Boolean).join("\n\n");
-      const doc = kind === "build" || kind === "any" ? designDoc(projectDir(), task) : null;
-      const memory = kind === "build" || kind === "any" || kind === "directions" ? projectContext({ task, maxChars: 1500 }) : null;
-      const skills = relevantSkills(task);
-      const prev = prevRounds.at(-1);
-      const prevBlock = prev ? [
-        `
-PREVIOUS ROUND (round ${prevRounds.length}: ${prev.verdict.toUpperCase()}, scores ${Object.entries(prev.scores).map(([k, v]) => `${k} ${v}`).join(", ")})`,
-        `Worst then: ${prev.worst}`,
-        `Fixes asked for:
-${prev.fixes.map((f3, i2) => `  ${i2 + 1}. ${f3}`).join("\n")}`,
-        "START your answer with a PROGRESS line per fix above: FIXED / PARTLY / NOT FIXED, from what you see. Then new problems. Scores must reflect progress: an axis whose problems are fixed goes up unless something visibly got worse; do not swap in fresh nitpicks to hold a score down."
-      ].join("\n") : "";
-      const id = `c${Date.now().toString(36)}`;
-      const prompt = [
-        `DRIP CRITIC REVIEW ${id} \xB7 kind: ${kind}`,
-        KIND_BRIEF[kind],
-        "",
-        "THE BRIEF",
-        briefBlock2(task),
-        task?.board?.chosen && kind === "build" ? `Chosen direction: ${task.board.chosen}` : "",
-        doc ? `
-THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; the client chose this. Judge the build against it. A suggestion that breaks one of its rules, e.g. a second accent in a one-accent system, is allowed only labelled [OFF-DIRECTION] in FIXES and never lowers Fit or System):
-${doc.text.slice(0, 4e3)}` : "",
-        skills.length ? `
-THE PRODUCT'S OWN RULES (Claude skills in this workspace; Read each SKILL.md and flag any violation as S1):
-${skills.map((k) => `- ${k.name}: ${k.file}`).join("\n")}` : "",
-        memory?.approved ? `
-THE PROJECT'S APPROVED DIRECTION AND RULES (approved by the user, style ${memory.approved.revision}; ${kind === "directions" ? "a direction that ignores them must justify itself as a redesign" : "judge the work against them. A suggestion that breaks one is allowed only labelled [OFF-DIRECTION] in FIXES"}):
-${memory.text}` : "",
-        prevBlock,
-        context ? `Context: ${context}` : "",
-        kind === "build" ? behaviourBlock(task) : "",
-        measured.length ? `
-MEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):
-${measured.join("\n")}` : "",
-        rubric ? `
-NICHE RUBRIC (also judge against this)
-${rubric}` : "",
-        "",
-        files.length ? `IMAGES (open every one with the Read tool before judging):
-${files.map((f3, i2) => `${i2 + 1}. ${f3}${notes[i2] ? `  \u2014 ${notes[i2]}` : ""}`).join("\n")}` : "",
-        packText ? `
-THE PACK
-${packText}` : "",
-        "",
-        `Score these axes 1-10: ${AXES[kind].join(", ")}.`,
-        "Answer in your standard format (VERDICT, SCORES, RANKING if several, WORST PROBLEM, WHAT'S GENERIC, FIXES, ONE-LINE SUMMARY)."
-      ].filter((x2) => x2 !== "").join("\n");
-      updateState((st) => {
-        if (st.task) st.task.critic.pending = { id, kind, files, rev: artifactRev(st.task), at: (/* @__PURE__ */ new Date()).toISOString(), blockers: measured.filter((m) => /BLOCKERS:/.test(m)).map((m) => m.split("BLOCKERS:")[1].split("\n")[0].trim()) };
-      });
-      const brief = writeBrief(`critic-${kind}`, prompt);
-      return text(
-        `Prepared ${id}: ${files.length} image(s) in ${dir}; the critic's brief is in ${brief}.
-
-NOW: launch the critic with exactly this call (do not add your opinion; you don't need to read the brief):
-${launchLine("critic", `Critic review ${kind}`, prompt, brief)}
-
-Then critic_record the verdict and show the user the critic's own words.`
-      );
-    })
-  );
-  server2.registerTool(
-    "critic_record",
-    {
-      title: "Record the critic's verdict",
-      description: `Store the drip:critic subagent's verdict (copy its numbers and words; don't soften them). Only works after the subagent actually ran. verdict: pass (ship it / show it), revise (fix the listed problems), reject (start over / replace). For directions, include perDirection so the board shows the critic's ranking. Example: critic_record({ kind: "build", verdict: "revise", scores: { concept: 6, typography: 4 }, worst: "the hero has nothing to look at: a headline on a flat ground", fixes: ["put the real product UI as layered cards beside the headline", "cut the three equal cards"], summary: "competent template, not a portfolio anyone remembers" })`,
-      inputSchema: {
-        kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
-        verdict: external_exports.enum(["pass", "revise", "reject"]),
-        scores: external_exports.record(external_exports.string(), external_exports.number().min(1).max(10)),
-        worst: external_exports.string(),
-        fixes: external_exports.array(external_exports.string()).min(1),
-        summary: external_exports.string(),
-        ranking: external_exports.array(external_exports.string()).optional(),
-        perDirection: external_exports.array(external_exports.object({ name: external_exports.string(), score: external_exports.number(), verdict: external_exports.enum(["keep", "rework", "cut"]), note: external_exports.string() })).optional()
-      }
-    },
-    safe(async (rec) => {
-      const { task } = loadState();
-      if (task && !task.skipped) {
-        const pending = task.critic?.pending;
-        const ran = (task.critic?.runs || []).some((r3) => !pending || r3 >= pending.at);
-        if (!ran) return text('No drip:critic run found after critic_prepare. Launch it: Agent({ subagent_type: "drip:critic", prompt: <prompt from critic_prepare> }). Then record its verdict.', true);
-      }
-      const measuredBlockers = task?.critic?.pending?.blockers || [];
-      if (rec.verdict === "pass" && measuredBlockers.length) rec.verdict = "revise";
-      rec.fixes = offDirectionFixes(rec.fixes).map((m) => m.off ? `[OFF-DIRECTION: breaks "${m.rule.topic}: ${m.rule.value}"] ${m.fix}` : m.fix);
-      const r2 = { ...rec, at: (/* @__PURE__ */ new Date()).toISOString(), measuredBlockers, rev: task?.critic?.pending?.rev || null };
-      const movedOn = task && r2.rev && r2.rev !== artifactRev(task);
-      const st = updateState((s2) => {
-        if (!s2.task) return;
-        s2.task.critic.records.push(r2);
-        s2.task.critic.pending = null;
-      });
-      if (rec.kind === "directions" && st.task?.board?.id && rec.perDirection) {
-        if (loadBoard(st.task.board.id))
-          updateBoard(
-            st.task.board.id,
-            (board) => {
-              for (const pd of rec.perDirection) {
-                const d = board.directions.find((x2) => x2.name.toLowerCase() === pd.name.toLowerCase());
-                if (d) {
-                  d.critic = `${pd.score}/10 \xB7 ${pd.verdict} \u2014 ${pd.note}`;
-                  d.dropped = typeof pd.score === "number" && pd.score < (ctx2.config().gates.minDirectionScore ?? 6);
-                }
-              }
-            },
-            { op: "critic", summary: "ranking" }
-          );
-      }
-      try {
-        recordFeedback({ scope: rec.kind === "directions" ? "feature" : "page", source: "critic", kind: "critic", target: rec.kind, board: st.task?.board?.id, text: `${rec.verdict}: ${rec.summary} Worst: ${rec.worst}` });
-      } catch {
-      }
-      const rounds = (st.task?.critic?.records || []).filter((x2) => x2.kind === rec.kind).length;
-      const max = ctx2.config().gates.maxCriticRounds;
-      const next = rec.verdict === "pass" ? rec.kind === "directions" ? "NEXT: show the user the two strongest comps (Read the tile images and present them side by side, with the critic's ranking and your pick), ask them to choose with buttons, then board_choose. No moodboard page unless they ask (board_open)." : rec.kind === "build" ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)." : "NEXT: continue." : rounds >= max + (st.task?.critic?.extraRounds || 0) && rec.kind === "build" ? `That's ${rounds} critic rounds, the limit. Fix what you can, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round" (critic_prepare with extraRound: true). Don't stop silently.` : rec.verdict === "reject" ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review." : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";
-      const stale = movedOn ? "\nWARNING: the work changed after critic_prepare, so this verdict is about the earlier version and does not count for the current one. critic_prepare again when you're done changing it." : "";
-      return text(`Recorded critic verdict: ${rec.verdict.toUpperCase()} (${rec.kind}, round ${rounds}). Worst: ${rec.worst}${stale}
-${next}
-Show the user the critic's own summary and scores, not a softened version.`);
-    })
-  );
-}
-
-// src/modules/logo/index.mjs
-var logo_exports = {};
-__export(logo_exports, {
-  pathStats: () => pathStats,
-  register: () => register23
-});
-import fs63 from "node:fs";
-import path60 from "node:path";
+import { pathToFileURL as pathToFileURL6 } from "node:url";
 init_paths();
 
-// src/modules/logo/outline.mjs
-var import_opentype2 = __toESM(require_opentype(), 1);
-import fs62 from "node:fs";
-import path59 from "node:path";
+// src/core/doctor.mjs
+init_browser();
+import fs59 from "node:fs";
+import os12 from "node:os";
+import path56 from "node:path";
 init_paths();
-async function loadFont2(font, weight = 400, style = "normal") {
-  const local = path59.resolve(projectDir(), font);
-  if (/\.(ttf|otf|woff)$/i.test(font) && fs62.existsSync(local)) {
-    const b = fs62.readFileSync(local);
-    return import_opentype2.default.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
-  }
-  const id = font.trim().toLowerCase().replace(/\s+/g, "-");
-  const url2 = `https://cdn.jsdelivr.net/fontsource/fonts/${id}@latest/latin-${weight}-${style}.woff`;
-  let body;
-  try {
-    ({ body } = await get(url2, { as: "buffer", ttlMs: 30 * 24 * 36e5 }));
-  } catch {
-    throw new Error(`Couldn't fetch "${font}" ${weight} ${style} from Fontsource (${url2}). Check the family name with fonts_search, or pass a local .ttf/.otf/.woff path.`);
-  }
-  return import_opentype2.default.parse(body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength));
-}
-function outline(font, text2, { size = 200, letterSpacing = 0, kerning = true } = {}) {
-  const scale = size / font.unitsPerEm;
-  const asc = font.ascender * scale;
-  const desc = -font.descender * scale;
-  const os22 = font.tables.os2 || {};
-  const metrics = {
-    unitsPerEm: font.unitsPerEm,
-    size,
-    ascender: +asc.toFixed(2),
-    descender: +desc.toFixed(2),
-    capHeight: os22.sCapHeight ? +(os22.sCapHeight * scale).toFixed(2) : null,
-    xHeight: os22.sxHeight ? +(os22.sxHeight * scale).toFixed(2) : null,
-    baselineY: +asc.toFixed(2)
-  };
-  const glyphs = [];
-  let x2 = 0;
-  const parts = [];
-  const chars = Array.from(text2).map((ch) => font.charToGlyph(ch));
-  chars.forEach((g, i2) => {
-    const p2 = g.getPath(x2, asc, size);
-    const bb = p2.getBoundingBox();
-    parts.push(p2.toPathData(2));
-    glyphs.push({ char: Array.from(text2)[i2], x: +x2.toFixed(2), advance: +(g.advanceWidth * scale).toFixed(2), bbox: { x1: +bb.x1.toFixed(2), y1: +bb.y1.toFixed(2), x2: +bb.x2.toFixed(2), y2: +bb.y2.toFixed(2) } });
-    x2 += g.advanceWidth * scale + letterSpacing * size;
-    if (kerning && chars[i2 + 1]) {
-      try {
-        x2 += font.getKerningValue(g, chars[i2 + 1]) * scale;
-      } catch {
-      }
-    }
-  });
-  const width = Math.ceil(x2 - letterSpacing * size);
-  const height = Math.ceil(asc + desc);
-  const d = parts.join(" ");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"><path d="${d}" fill="#111111"/></svg>`;
-  return { svg, d, width, height, metrics, glyphs };
-}
-
-// src/modules/logo/index.mjs
-var esc7 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
-function loadSvg(src) {
-  if (/^\s*<svg/i.test(src)) return src;
-  const abs2 = path60.resolve(projectDir(), src);
-  if (!fs63.existsSync(abs2)) throw new Error(`SVG not found: ${src}`);
-  return fs63.readFileSync(abs2, "utf8");
-}
-var fit = (svg) => svg.replace(/<\?xml[^>]*>/, "").replace(/<svg/, '<svg style="width:100%;height:100%;display:block"');
-var LIGHT = /^(#f{3}|#f{6}|white|#fff[0-9a-f]{3}|#f[0-9a-f]f[0-9a-f]f[0-9a-f])$/i;
-var isLight2 = (c3) => {
-  if (LIGHT.test(c3)) return true;
-  const m = c3.match(/^#([0-9a-f]{6})$/i);
-  if (!m) return false;
-  const n3 = parseInt(m[1], 16);
-  return 0.2126 * (n3 >> 16 & 255) + 0.7152 * (n3 >> 8 & 255) + 0.0722 * (n3 & 255) > 215;
-};
-var mono = (svg, ink2, ground) => svg.replace(/<(linear|radial)Gradient[\s\S]*?<\/\1Gradient>/g, "").replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr, c3) => `${attr}="${isLight2(c3.trim()) ? ground : ink2}"`).replace(/(fill|stroke)\s*:\s*(?!none)([^;"']+)/g, (_, attr, c3) => `${attr}:${isLight2(c3.trim()) ? ground : ink2}`).replace(/currentColor/g, ink2).replace(/<svg([^>]*)>/, (m, a2) => /\sfill=/.test(a2) ? m : `<svg${a2} fill="${ink2}">`);
-function pathStats(svg) {
-  const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
-  return paths.map((d, i2) => {
-    const cmds = d.match(/[a-zA-Z]/g) || [];
-    const nums = (d.match(/-?\d*\.?\d+(?:e-?\d+)?/g) || []).map(Number);
-    let short = 0;
-    for (let k = 2; k + 1 < nums.length; k += 2) if (Math.hypot(nums[k] - nums[k - 2], nums[k + 1] - nums[k - 1]) < 1.5) short++;
-    const decimals = Math.max(0, ...(d.match(/\.\d+/g) || []).map((x2) => x2.length - 1));
-    const shapes = Math.max(1, cmds.filter((c3) => c3 === "M" || c3 === "m").length);
-    return { path: i2 + 1, commands: cmds.length, shapes, curves: cmds.filter((c3) => /[cCsSqQtTaA]/.test(c3)).length, shortSegments: short, decimals };
-  });
-}
-function register23(server2, ctx2) {
-  server2.registerTool(
-    "logo_outline",
-    {
-      title: "Outline a wordmark to SVG paths",
-      description: `Turns text in any open font (Fontsource family name, or a local .ttf/.otf/.woff) into SVG paths, with the font's real metrics (ascender, descender, cap height, x-height, baseline) and per-glyph advances/bounding boxes, so you can customise letters and align a mark to the type (e.g. a frame from ascender to baseline). Always outline wordmarks: SVGs in a GitHub <img> can't load fonts. Example: logo_outline({ text: "crumb", font: "<the face you chose>", weight: 700, size: 240, letterSpacing: -0.02, out: "brand/wordmark.svg" })`,
-      inputSchema: {
-        text: external_exports.string().min(1).max(40),
-        font: external_exports.string().describe("Family name (Fontsource) or a project path to a font file"),
-        weight: external_exports.number().int().min(100).max(900).optional(),
-        style: external_exports.enum(["normal", "italic"]).optional(),
-        size: external_exports.number().min(16).max(2e3).optional(),
-        letterSpacing: external_exports.number().min(-0.2).max(0.5).optional().describe("In em, e.g. -0.02 for tighter"),
-        out: external_exports.string().optional().describe("Project path to save the SVG")
-      }
-    },
-    safe(async ({ text: str, font, weight = 400, style = "normal", size = 200, letterSpacing = 0, out }) => {
-      const f3 = await loadFont2(font, weight, style);
-      const o2 = outline(f3, str, { size, letterSpacing });
-      let saved = "";
-      if (out) {
-        const abs2 = path60.resolve(projectDir(), out);
-        fs63.mkdirSync(path60.dirname(abs2), { recursive: true });
-        fs63.writeFileSync(abs2, o2.svg);
-        saved = `Saved ${out}
-`;
-      }
-      const m = o2.metrics;
-      const file4 = path60.join(rendersDir("logo"), `outline-${stamp()}.jpg`);
-      const png2 = await renderHtml(
-        `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o2.width}px;height:${o2.height}px">${o2.svg}
-<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
-${m.xHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.xHeight}px;border-top:1px dashed #2340ff"></div>` : ""}
-${m.capHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.capHeight}px;border-top:1px dashed #999"></div>` : ""}</div></div>`,
-        file4,
-        { width: Math.min(1800, o2.width + 80), height: o2.height + 80, format: "jpeg", config: ctx2.config() }
-      ).catch(() => null);
-      return blocks([
-        textBlock(
-          `${saved}"${str}" in ${f3.names.fullName?.en || font} ${weight}: ${o2.width}\xD7${o2.height}px (size ${size}).
-Metrics (px from top): baseline ${m.baselineY} \xB7 ascender 0 \xB7 cap height ${m.capHeight ?? "?"} (top at ${m.capHeight ? (m.baselineY - m.capHeight).toFixed(1) : "?"}) \xB7 x-height ${m.xHeight ?? "?"} (top at ${m.xHeight ? (m.baselineY - m.xHeight).toFixed(1) : "?"}) \xB7 descender ${m.descender}
-Glyphs: ${o2.glyphs.map((g) => `${g.char}@${g.x} w${g.advance}`).join(" \xB7 ")}
-Now customise like a designer: kern by eye, cut or extend one letter, and make one detail the brand. Then logo_test.
-Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to save it)"}.`
-        ),
-        ...png2 ? [imageBlock(png2)] : []
-      ]);
-    })
-  );
-  server2.registerTool(
-    "logo_sheet",
-    {
-      title: "Concept sheet for logo ideas",
-      description: `Render 4-24 logo concepts (SVG strings or .svg files) numbered on one sheet, each large on light, on dark, and tiny (32px), so you and the critic can compare ideas side by side. Saves the sheet as a file for critic_prepare({ kind: 'logo', targets: [<file>] }). Sketch many rough ideas first; refine only the winners. Example: logo_sheet({ title: "Crumb bakery", concepts: [{ name: "Bitten C", svg: "<svg viewBox='0 0 100 100'>\u2026</svg>" }, { name: "Loaf stack", svg: "brand/concepts/loaf.svg" }] })`,
-      inputSchema: {
-        title: external_exports.string(),
-        concepts: external_exports.array(external_exports.object({ name: external_exports.string(), svg: external_exports.string().describe("SVG markup or a project path to an .svg") })).min(2).max(24),
-        dark: external_exports.string().optional().describe("Dark ground colour (default #111111)")
-      }
-    },
-    safe(async ({ title, concepts, dark = "#111111" }) => {
-      const svgs = concepts.map((c3) => ({ ...c3, markup: loadSvg(c3.svg) }));
-      const cols = svgs.length <= 6 ? 3 : 4;
-      const cell = (c3, i2) => `<figure>
-  <div class="big light">${fit(c3.markup)}</div>
-  <div class="row"><div class="small dark">${fit(c3.markup)}</div><div class="s64">${fit(c3.markup)}</div><div class="tiny">${fit(c3.markup)}</div><div class="s16">${fit(c3.markup)}</div><div class="tiny">${fit(mono(c3.markup, "#111", "#fff"))}</div></div>
-  <figcaption><b>${i2 + 1}</b> ${esc7(c3.name)}</figcaption></figure>`;
-      const html = `<style>body{font:14px system-ui;background:#ECEBE7;color:#111;margin:0;padding:28px}h1{font:600 20px system-ui;margin:0 0 18px}
-.grid{display:grid;grid-template-columns:repeat(${cols},1fr);gap:18px}figure{margin:0;background:#fff;border-radius:12px;padding:14px;border:1px solid #d9d7d0}
-.big{height:220px;display:grid;place-items:center;padding:24px}.light{background:#fff}.row{display:flex;gap:10px;align-items:center;margin-top:10px}
-.small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
-<h1>${esc7(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
-      const rows = Math.ceil(svgs.length / cols);
-      const file4 = path60.join(rendersDir("logo"), `sheet-${stamp()}.jpg`);
-      const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, format: "jpeg", quality: 88, config: ctx2.config() });
-      return blocks([
-        textBlock(`Concept sheet saved: ${file4}
-Judge ideas first (one clear thought each, no clich\xE9s), then have the critic rank them: critic_prepare({ kind: "logo", targets: ["${file4.replace(/\\/g, "/")}"] }). Refine only the top 2-3, then logo_test each.`),
-        imageBlock(png2)
-      ]);
-    })
-  );
-  server2.registerTool(
-    "logo_test",
-    {
-      title: "Stress-test a logo",
-      description: "Render one logo (SVG markup or file) at 16, 24, 32, 64, 128 and 512px, on light and dark, in one colour and inverted, on a photo-like busy ground, plus construction stats (path count, curve commands, tiny segments that make curves lumpy, coordinate precision). Fix what fails, then test again. Saves a file for the critic.",
-      inputSchema: { svg: external_exports.string(), name: external_exports.string().optional(), dark: external_exports.string().optional() }
-    },
-    safe(async ({ svg: src, name = "logo", dark = "#111111" }) => {
-      const svg = loadSvg(src);
-      const sizes = [16, 24, 32, 64, 128];
-      const strip4 = (bg, s2) => `<div class="strip" style="background:${bg}">${sizes.map((n3) => `<div style="width:${n3}px;height:${n3}px">${fit(s2)}</div>`).join("")}</div>`;
-      const html = `<style>body{margin:0;padding:24px;font:13px system-ui;background:#ECEBE7}.top{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.hero{height:520px;border-radius:12px;display:grid;place-items:center;padding:60px}.strip{display:flex;gap:22px;align-items:flex-end;padding:18px;border-radius:12px;margin-top:14px}
-.label{margin:14px 0 0;color:#555}</style>
-<div class="top"><div class="hero" style="background:#fff">${fit(svg)}</div><div class="hero" style="background:${dark}">${fit(svg)}</div></div>
-<p class="label">Sizes 16 / 24 / 32 / 64 / 128 \u2014 light, dark, one colour, inverse, busy ground</p>
-${strip4("#fff", svg)}${strip4(dark, svg)}${strip4("#fff", mono(svg, "#111", "#fff"))}${strip4("#111", mono(svg, "#fff", "#111"))}
-${strip4("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
-      const file4 = path60.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.jpg`);
-      const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, format: "jpeg", quality: 88, config: ctx2.config() });
-      const stats = pathStats(svg);
-      const hints = [];
-      for (const s2 of stats) {
-        if (s2.shortSegments > 4) hints.push(`path ${s2.path}: ${s2.shortSegments} tiny segments; curves will look lumpy. Redraw with fewer, longer B\xE9ziers.`);
-        if (s2.commands / s2.shapes > 45) hints.push(`path ${s2.path}: ~${Math.round(s2.commands / s2.shapes)} commands per shape; shapes this complex rarely survive 32px. Simplify.`);
-        if (s2.decimals > 3) hints.push(`path ${s2.path}: ${s2.decimals}-decimal coordinates; round to 1-2 decimals (traced/noisy geometry).`);
-      }
-      return blocks([
-        textBlock(
-          `Saved ${file4}
-Paths: ${stats.length} \xB7 ${stats.map((s2) => `#${s2.path} ${s2.commands} cmds/${s2.curves} curves`).join(" \xB7 ") || "none (text or shapes only)"}
-` + (hints.length ? `Construction hints:
-- ${hints.join("\n- ")}
-` : "Construction: no obvious path problems.\n") + "Check: does it read at 16-32px? Same weight on dark (optically lighter there)? Survive one colour? Then critic_prepare({ kind: 'logo', targets: [this file] })."
-        ),
-        imageBlock(png2)
-      ]);
-    })
-  );
-  server2.registerTool(
-    "logo_export",
-    {
-      title: "Favicons and app icons from the logo",
-      description: 'Writes the icon set a site needs from one SVG mark: favicon.svg (copy), favicon.ico (16/32/48), apple-touch-icon.png (180, on a solid ground), icon-192.png and icon-512.png (PWA), plus the <link> tags to paste. Use the simplified mark (no wordmark) for small sizes. Example: logo_export({ svg: "brand/mark.svg", out: "public", ground: "#F3EFE6" })',
-      inputSchema: {
-        svg: external_exports.string().describe("SVG markup or a project path to the mark"),
-        out: external_exports.string().optional().describe("Project folder (default public)"),
-        ground: external_exports.string().optional().describe("Background for the apple-touch icon (iOS fills transparency with black). Default #ffffff"),
-        padding: external_exports.number().min(0).max(0.3).optional().describe("Inner padding as a share of the icon (default 0.08; apple-touch uses 0.14)")
-      }
-    },
-    safe(async ({ svg: src, out = "public", ground = "#ffffff", padding = 0.08 }) => {
-      const { rasterSizes: rasterSizes2 } = await Promise.resolve().then(() => (init_imaging(), imaging_exports));
-      const svg = loadSvg(src);
-      const buf = Buffer.from(svg);
-      const dir = path60.resolve(projectDir(), out);
-      fs63.mkdirSync(dir, { recursive: true });
-      const [p16, p32, p48, p192, p512] = await rasterSizes2(buf, [16, 32, 48, 192, 512], { padding, config: ctx2.config() });
-      const [apple] = await rasterSizes2(buf, [180], { padding: 0.14, bg: ground, config: ctx2.config() });
-      const pngs = [[16, p16], [32, p32], [48, p48]];
-      const head = Buffer.alloc(6 + 16 * pngs.length);
-      head.writeUInt16LE(0, 0);
-      head.writeUInt16LE(1, 2);
-      head.writeUInt16LE(pngs.length, 4);
-      let offset = head.length;
-      pngs.forEach(([s2, b], i2) => {
-        const e2 = 6 + i2 * 16;
-        head.writeUInt8(s2, e2);
-        head.writeUInt8(s2, e2 + 1);
-        head.writeUInt16LE(1, e2 + 4);
-        head.writeUInt16LE(32, e2 + 6);
-        head.writeUInt32LE(b.length, e2 + 8);
-        head.writeUInt32LE(offset, e2 + 12);
-        offset += b.length;
-      });
-      const files = {
-        "favicon.svg": Buffer.from(svg),
-        "favicon.ico": Buffer.concat([head, ...pngs.map(([, b]) => b)]),
-        "apple-touch-icon.png": apple,
-        "icon-192.png": p192,
-        "icon-512.png": p512
-      };
-      for (const [n3, b] of Object.entries(files)) fs63.writeFileSync(path60.join(dir, n3), b);
-      const base = out.replace(/\\/g, "/").replace(/^public\/?/, "");
-      const href = (n3) => `/${base ? `${base}/` : ""}${n3}`;
-      const sheet = await renderHtml(
-        `<div style="display:flex;gap:28px;align-items:end;padding:28px;background:#ECEBE7;font:13px system-ui">${[16, 32, 48].map((s2) => `<img src="data:image/png;base64,${pngs.find(([n3]) => n3 === s2)[1].toString("base64")}" width="${s2}" height="${s2}">`).join("")}<img src="data:image/png;base64,${apple.toString("base64")}" width="90" height="90" style="border-radius:20px"><img src="data:image/png;base64,${p192.toString("base64")}" width="96" height="96"></div>`,
-        path60.join(rendersDir("logo"), `icons-${stamp()}.png`),
-        { width: 520, height: 170, config: ctx2.config() }
-      );
-      return blocks([
-        textBlock(
-          `Wrote ${Object.keys(files).map((n3) => `${out}/${n3}`).join(", ")}.
-Paste into <head>:
-<link rel="icon" href="${href("favicon.ico")}" sizes="32x32">
-<link rel="icon" href="${href("favicon.svg")}" type="image/svg+xml">
-<link rel="apple-touch-icon" href="${href("apple-touch-icon.png")}">
-Web manifest icons: ${href("icon-192.png")} (192x192), ${href("icon-512.png")} (512x512).
-Check the 16px one: if it is mush, export a simpler mark for small sizes.`
-        ),
-        imageBlock(sheet, "image/png")
-      ]);
-    })
-  );
-}
-
-// src/modules/packs/index.mjs
-var packs_exports = {};
-__export(packs_exports, {
-  register: () => register24
-});
-import fs64 from "node:fs";
-import path61 from "node:path";
-init_paths();
-function register24(server2) {
-  server2.registerTool(
-    "pack_export",
-    {
-      title: "Export a niche pack to share",
-      description: "Writes a pack as ONE portable file (<id>.drip-pack.json: its guide, critic rubric, references, slop list, what it learned) to send however the user likes: a DM, a drive, a gist they choose. Nothing is published. It lists anything that looks private first (emails, keys, local paths); pass redact: true to strip them. Someone else adds it with pack_import, and Drip then knows the niche without running /drip:adapt.",
-      inputSchema: { id: external_exports.string(), out: external_exports.string().optional().describe("Folder for the file (default: the project)"), redact: external_exports.boolean().optional() }
-    },
-    safe(async ({ id, out, redact }) => {
-      const { pack, found } = exportPack(id, { redact });
-      if (found.length && !redact)
-        return text(`Not exported: this pack holds things that may be private:
-${found.slice(0, 12).map((f3) => `- ${f3.file}: ${f3.what} (${f3.sample}\u2026)`).join("\n")}
-Ask the user, then pack_export({ id: "${id}", redact: true }) to strip them (or edit the pack first).`, true);
-      const dir = path61.resolve(projectDir(), out || ".");
-      fs64.mkdirSync(dir, { recursive: true });
-      const file4 = path61.join(dir, `${pack.meta.id}.drip-pack.json`);
-      fs64.writeFileSync(file4, JSON.stringify(pack, null, 1));
-      return text(`Exported ${pack.meta.name} to ${path61.relative(projectDir(), file4)} (${Object.keys(pack.files).length} files, ${Math.round(fs64.statSync(file4).size / 1024)} KB). Send the file; the other person runs pack_import with its path or a raw link.`);
-    })
-  );
-  server2.registerTool(
-    "pack_import",
-    {
-      title: "Add a niche pack someone shared",
-      description: "Adds a .drip-pack.json (a file path or a raw https link) as a personal pack (every project on this machine) or shared: true for this project's team. Packs are data only: nothing in one ever runs.",
-      inputSchema: { file: external_exports.string().optional(), url: external_exports.string().url().optional(), shared: external_exports.boolean().optional(), replace: external_exports.boolean().optional() }
-    },
-    safe(async ({ file: file4, url: url2, shared: shared2, replace }) => {
-      let raw;
-      if (url2) raw = (await get(url2, { ttlMs: 0, timeoutMs: 3e4 })).body;
-      else if (file4) raw = fs64.readFileSync(path61.resolve(projectDir(), file4), "utf8");
-      else return text("Pass file or url.", true);
-      const pack = importPack(JSON.parse(raw), { shared: shared2, replace });
-      return text(`Added "${pack.name}" (${pack.dir}). It switches on when a task mentions ${(pack.keywords || []).slice(0, 6).join(", ") || "this project"}.`);
-    })
-  );
-  server2.registerTool(
-    "pack_create",
-    {
-      title: "Create a niche pack",
-      description: `Create (or update the metadata of) a niche pack: a specialised Drip for one niche, used automatically when a task mentions its keywords. Follow the drip-adapt skill. Example: pack_create({ id: "roblox-ui", name: "Roblox UI", niche: "in-experience game UI for Roblox", keywords: ["roblox", "rbx", "obby", "simulator ui"], summary: "Touch-first, chunky, readable game UI\u2026" }). type "project" makes this project's own style pack (saved in .drip/packs, applies to every design task here, no keywords needed; style_update fills it from the approved decisions). workflow adds declarative, versioned stages and criteria (data only, never executed).`,
-      inputSchema: {
-        id: external_exports.string().regex(/^[a-z0-9-]+$/),
-        name: external_exports.string(),
-        niche: external_exports.string(),
-        keywords: external_exports.array(external_exports.string()).optional().describe("Words that, when they appear in a task, activate this pack (required for niche packs)"),
-        type: external_exports.enum(["niche", "project"]).optional().describe("niche (default) or project: this project's own style pack"),
-        workflow: external_exports.object({
-          stages: external_exports.array(external_exports.object({ id: external_exports.string(), title: external_exports.string().optional(), requires: external_exports.array(external_exports.string()).optional(), gate: external_exports.enum(WORKFLOW_GATES).optional(), criteria: external_exports.array(external_exports.string()).optional(), sources: external_exports.array(external_exports.string()).optional() })),
-          criteria: external_exports.array(external_exports.string()).optional()
-        }).optional().describe("Declarative stages the critic and the agent follow for this pack; a stage may name an existing Drip gate. Changing it bumps workflowVersion and keeps the old one."),
-        summary: external_exports.string(),
-        shared: external_exports.boolean().optional().describe("true = save in this project's .drip/packs (share with the team); default personal (~/.drip/packs)")
-      }
-    },
-    safe(async (p2) => {
-      if (p2.type !== "project" && !(p2.keywords || []).length) return text("A niche pack needs at least one keyword (the words that activate it).", true);
-      const pack = createPack(p2);
-      return text(`Pack "${pack.name}" ready at ${pack.dir}${pack.type === "project" ? " (project style pack)" : ""}${pack.workflowVersion ? `, workflow v${pack.workflowVersion}` : ""}.
-Write its files with pack_write: ${PACK_FILES.join(", ")}. guide.md and critic.md are required; then get it reviewed: critic_prepare({ kind: "pack", targets: ["${pack.id}"] }).`);
-    })
-  );
-  server2.registerTool(
-    "pack_write",
-    {
-      title: "Write a pack file",
-      description: `Write one file of a niche pack. Files: ${PACK_FILES.join(", ")}. Markdown files are guides (served as drip_guide pack:<id>/<name>); JSON files must be valid (refs.json: [{ title, url, designer, note }]; slop.json: { rules: [...] } like Drip's; catalogue.json: { entries: [...] }).`,
-      inputSchema: { id: external_exports.string(), file: external_exports.enum(PACK_FILES), content: external_exports.string() }
-    },
-    safe(async ({ id, file: file4, content }) => text(`Wrote ${writePackFile(id, file4, content)}.`))
-  );
-  server2.registerTool(
-    "pack_list",
-    { title: "List niche packs", description: "Niche packs available here (project-shared first, then personal), with the keywords that activate them.", inputSchema: {} },
-    safe(async () => {
-      const packs = listPacks();
-      return text(packs.length ? packs.map((p2) => `- ${p2.id}: ${p2.name} \u2014 ${p2.summary?.slice(0, 120) || ""}
-  keywords: ${(p2.keywords || []).join(", ")} \xB7 ${p2.type === "project" ? "project style pack" : p2.shared ? "shared (project)" : "personal"} \xB7 updated ${p2.updatedAt?.slice(0, 10)}`).join("\n") : "No niche packs yet. Create one with /drip:adapt <niche>.");
-    })
-  );
-  server2.registerTool(
-    "pack_show",
-    { title: "Show a niche pack", description: "A pack's metadata and which files it has (read files with drip_guide pack:<id>/<name>).", inputSchema: { id: external_exports.string() } },
-    safe(async ({ id }) => {
-      const p2 = listPacks().find((x2) => x2.id === id);
-      if (!p2) return text(`No pack "${id}".`, true);
-      const files = PACK_FILES.map((f3) => `${readPackFile(id, f3) ? "[x]" : "[ ]"} ${f3}`);
-      return text(`${p2.name} (${p2.niche})${p2.type === "project" ? " \xB7 project style pack" : ""}
-${p2.summary}
-Keywords: ${(p2.keywords || []).join(", ")}${p2.workflow ? `
-Workflow v${p2.workflowVersion || 1}: ${p2.workflow.stages.map((x2) => x2.id + (x2.gate ? `[${x2.gate}]` : "")).join(" -> ")}` : ""}
-${files.join("\n")}
-Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack:${id}/critic`);
-    })
-  );
-}
-
-// src/modules/codemode/index.mjs
-var codemode_exports = {};
-__export(codemode_exports, {
-  register: () => register25
-});
-import fs66 from "node:fs";
-import path63 from "node:path";
 
 // src/core/codemode/execute.mjs
-import fs65 from "node:fs";
-import path62 from "node:path";
+import fs55 from "node:fs";
+import path52 from "node:path";
 init_paths();
 
 // src/core/codemode/allowlist.mjs
@@ -108160,7 +106528,7 @@ var DEFAULT_ALLOW = [
   "checker_*",
   "scout_*"
 ];
-var DEFAULT_BLOCKED = ["board_open", "keys_open", "drip_serve"];
+var DEFAULT_BLOCKED = ["board_open", "keys_open", "settings_open", "drip_serve"];
 var NEVER2 = ["drip_execute"];
 function globToRegExp(glob) {
   return new RegExp(`^${glob.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*")}$`);
@@ -108454,7 +106822,7 @@ var RESULT_TYPE = "type ToolResult = { text: string; data?: any /* parsed when t
 // src/core/codemode/execute.mjs
 var MAX_CALL_TEXT = 2e5;
 function codemodeOutDir() {
-  return path62.join(projectDripDir(), "cli", "codemode");
+  return path52.join(projectDripDir(), "cli", "codemode");
 }
 function scriptTools(tools = collectTools(), config2 = loadConfig()) {
   const names3 = allowedTools([...tools.keys()], config2);
@@ -108475,9 +106843,9 @@ async function callForScript(name, args, { allowed, outDir, images, signal }) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs65.mkdirSync(outDir, { recursive: true });
-      const file4 = path62.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs65.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs55.mkdirSync(outDir, { recursive: true });
+      const file4 = path52.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs55.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       files.push(file4);
     }
   }
@@ -108540,9 +106908,2346 @@ function searchTools(query, limit = 8) {
   }));
 }
 
-// src/modules/codemode/index.mjs
-var MAX_OUTPUT = 12e3;
+// src/modules/studio/mockup.mjs
+var mockup_exports = {};
+__export(mockup_exports, {
+  MOCKSTUDIO: () => MOCKSTUDIO,
+  buildDocument: () => buildDocument,
+  diffPatch: () => diffPatch,
+  installMockstudio: () => installMockstudio,
+  mergePatch: () => mergePatch,
+  mockstudioDir: () => mockstudioDir,
+  mockstudioReady: () => mockstudioReady2,
+  register: () => register19
+});
+import { execFile as execFile6 } from "node:child_process";
+import fs58 from "node:fs";
+import path55 from "node:path";
+init_browser();
+init_serve();
+
+// src/modules/fitcheck/readme.mjs
+import fs56 from "node:fs";
+import path53 from "node:path";
+init_browser();
+init_paths();
+init_serve();
+var MIME3 = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp", ".svg": "image/svg+xml", ".avif": "image/avif" };
+async function shoot(url2, { width, height, scale, transparent, dark, fullPage, config: config2 }) {
+  return withTab(config2, async (tab) => {
+    const { s: s2 } = tab;
+    await openPage(tab, url2, { width, height, dark, settleMs: 400 });
+    await s2("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
+    await s2("Emulation.setTouchEmulationEnabled", { enabled: false });
+    if (transparent) await s2("Emulation.setDefaultBackgroundColorOverride", { color: { r: 0, g: 0, b: 0, a: 0 } });
+    let h = height;
+    if (fullPage) {
+      const { result } = await s2("Runtime.evaluate", {
+        expression: "Math.ceil(Math.max(document.body.scrollHeight, ...[...document.body.querySelectorAll('*')].map((e) => e.getBoundingClientRect().bottom + scrollY)))",
+        returnByValue: true
+      });
+      h = Math.min(Math.max(result.value || height, 1), 12e3);
+    }
+    await s2("Emulation.setDeviceMetricsOverride", { width, height: h, deviceScaleFactor: scale, mobile: false });
+    await settle2(s2, 300);
+    const { data } = await s2("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width, height: h, scale: 1 } });
+    return { buf: Buffer.from(data, "base64"), height: h };
+  });
+}
+function readmeImages(md) {
+  const out = [];
+  const pics = [...md.matchAll(/<picture>([\s\S]*?)<\/picture>/gi)];
+  const inPicture = /* @__PURE__ */ new Set();
+  for (const [whole, body] of pics) {
+    const dark = body.match(/<source[^>]*prefers-color-scheme:\s*dark[^>]*srcset=["']([^"'\s]+)/i)?.[1] || body.match(/<source[^>]*srcset=["']([^"'\s]+)["'][^>]*prefers-color-scheme:\s*dark/i)?.[1];
+    const img = body.match(/<img[^>]*>/i)?.[0] || "";
+    const src = img.match(/src=["']([^"']+)/i)?.[1];
+    const alt = img.match(/alt=["']([^"']*)/i)?.[1];
+    if (src) out.push({ src, dark: dark || null, alt: alt ?? null, picture: true });
+    inPicture.add(whole);
+  }
+  let rest = md;
+  for (const p2 of inPicture) rest = rest.replace(p2, "");
+  for (const m of rest.matchAll(/<img[^>]*>/gi)) {
+    const src = m[0].match(/src=["']([^"']+)/i)?.[1];
+    if (src && !/shields\.io|badge\.svg|badgen\.net/i.test(src)) out.push({ src, dark: null, alt: m[0].match(/alt=["']([^"']*)/i)?.[1] ?? null, picture: false });
+  }
+  for (const m of rest.matchAll(/!\[([^\]]*)\]\(([^)\s]+)/g)) if (!/shields\.io|badge\.svg|badgen\.net/i.test(m[2])) out.push({ src: m[2], dark: null, alt: m[1] || null, picture: false });
+  return out;
+}
+function localData(src, base) {
+  if (/^(https?:)?\/\//i.test(src)) return { url: src, bytes: null };
+  const file4 = path53.resolve(base, src.replace(/^\.?\//, ""));
+  if (!fs56.existsSync(file4)) return { url: null, bytes: null, missing: file4 };
+  const buf = fs56.readFileSync(file4);
+  return { url: `data:${MIME3[path53.extname(file4).toLowerCase()] || "image/png"};base64,${buf.toString("base64")}`, bytes: buf.length };
+}
+function register18(server2, ctx2) {
+  server2.registerTool(
+    "render_html",
+    {
+      title: "Render HTML to a PNG",
+      description: `Renders an HTML file or string to a PNG at 2x (retina) in Drip's shared browser, after its web fonts and layout are ready: the file is complete when the call returns. Full page by default; transparent: true keeps the background clear (for art on GitHub's light and dark themes). Use it for README art, social cards, diagrams and comps. Example: render_html({ file: ".drip/art/hero.html", out: "docs/hero.png", width: 830, scale: 2 })`,
+      inputSchema: {
+        file: external_exports.string().optional().describe("HTML file (relative assets and fonts load from its folder)"),
+        html: external_exports.string().optional().describe("Or the HTML itself"),
+        out: external_exports.string().describe("PNG path to write, relative to the project"),
+        width: external_exports.number().int().min(100).max(4e3).optional().describe("CSS px (default 830: GitHub's README column)"),
+        height: external_exports.number().int().min(50).max(12e3).optional().describe("CSS px; with fullPage the page's own height wins"),
+        scale: external_exports.number().min(1).max(4).optional().describe("Pixel ratio (default 2)"),
+        fullPage: external_exports.boolean().optional(),
+        transparent: external_exports.boolean().optional(),
+        dark: external_exports.boolean().optional().describe("prefers-color-scheme: dark")
+      }
+    },
+    safe(async ({ file: file4, html, out, width = 830, height = 600, scale = 2, fullPage = true, transparent = false, dark = false }) => {
+      if (!file4 && !html) return text("Pass file or html.", true);
+      let src = file4 && path53.resolve(projectDir(), file4);
+      if (!src) {
+        src = path53.join(rendersDir(`html-${stamp()}`), "page.html");
+        fs56.writeFileSync(src, /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
+      }
+      if (!fs56.existsSync(src)) return text(`No such file: ${file4}`, true);
+      const { buf, height: h } = await shoot(await toUrl(src), { width, height, scale, transparent, dark, fullPage, config: ctx2.config() });
+      const dest = path53.resolve(projectDir(), out);
+      fs56.mkdirSync(path53.dirname(dest), { recursive: true });
+      fs56.writeFileSync(dest, buf);
+      const preview = await toJpeg(buf, 1200, 1600, 80);
+      return blocks([textBlock(`Wrote ${out}: ${width * scale}x${Math.round(h * scale)} px (${width}x${h} CSS px at ${scale}x), ${Math.round(buf.length / 1024)} KB${transparent ? ", transparent background" : ""}.`), imageBlock(preview)]);
+    })
+  );
+  server2.registerTool(
+    "readme_check",
+    {
+      title: "Check a README's images",
+      description: `The fit check for README work. Shows every image in the README where GitHub shows it: the 830px desktop column and the ~309px phone column, on GitHub's light and dark grounds, with the dark variant where a <picture> has one. Flags images too small for retina (under 1660px wide), missing dark variants, missing alt text, heavy files and mermaid blocks. GitHub strips CSS and uses its own type, so it never judges GitHub's headings. Counts as the fit-check shot for a README task. Example: readme_check({ file: "README.md" })`,
+      inputSchema: { file: external_exports.string().optional().describe("Default README.md") }
+    },
+    safe(async ({ file: file4 = "README.md" }) => {
+      const abs2 = path53.resolve(projectDir(), file4);
+      if (!fs56.existsSync(abs2)) return text(`No README at ${file4}.`, true);
+      const md = fs56.readFileSync(abs2, "utf8");
+      const imgs = readmeImages(md);
+      const base = path53.dirname(abs2);
+      const findings = [];
+      if (/```mermaid/i.test(md)) findings.push({ level: "warn", msg: "mermaid block: GitHub draws it in its own style (and it renders blank in screenshots). An image you design reads better as a hero diagram." });
+      const rows = imgs.map((im, i2) => {
+        const light = localData(im.src, base);
+        const dark = im.dark ? localData(im.dark, base) : null;
+        if (light.missing) findings.push({ level: "error", msg: `image ${i2 + 1}: ${im.src} does not exist` });
+        if (dark?.missing) findings.push({ level: "error", msg: `image ${i2 + 1}: dark variant ${im.dark} does not exist` });
+        if (!im.alt) findings.push({ level: "error", msg: `image ${i2 + 1} (${im.src}): no alt text. Say what the picture shows.` });
+        if (light.bytes > 15e5) findings.push({ level: "warn", msg: `image ${i2 + 1} (${im.src}): ${(light.bytes / 1e6).toFixed(1)} MB; aim under 1 MB (WebP, or a smaller PNG palette)` });
+        return { i: i2 + 1, src: im.src, alt: im.alt, light: light.url, dark: dark?.url || null };
+      });
+      if (!rows.length) return text(`${file4} has no images. A README is a landing page in a narrow column: the first screen needs a picture of the thing (drip_guide readme).`, true);
+      const cell = (r2, theme, w) => `<div class="c" style="width:${w}px;background:${theme === "dark" ? "#0d1117" : "#ffffff"}"><img data-i="${r2.i}" data-t="${theme}" src="${theme === "dark" && r2.dark ? r2.dark : r2.light || ""}"></div>`;
+      const page2 = `<!doctype html><html><head><meta charset="utf-8"><style>
+        body{margin:0;background:#8b8f96;font:13px/1.3 system-ui;color:#111} .row{display:flex;gap:16px;align-items:flex-start;padding:16px;border-bottom:2px solid #6e737a}
+        .lab{width:130px;color:#fff;font-weight:600} .c{padding:12px;box-sizing:content-box} .c img{width:100%;display:block}
+      </style></head><body>${rows.map((r2) => `<div class="row"><div class="lab">${r2.i}. ${path53.basename(r2.src)}<br><span style="font-weight:400">830 light \xB7 830 dark \xB7 309 phone</span></div>${cell(r2, "light", 830)}${cell(r2, "dark", 830)}${cell(r2, "light", 309)}</div>`).join("")}</body></html>`;
+      const dir = rendersDir(`readme-${stamp()}`);
+      const pageFile = path53.join(dir, "check.html");
+      fs56.writeFileSync(pageFile, page2);
+      const config2 = ctx2.config();
+      const { sizes, buf } = await withTab(config2, async (tab) => {
+        const { s: s2 } = tab;
+        await openPage(tab, await toUrl(pageFile), { width: 2200, height: 900, settleMs: 600 });
+        const { result } = await s2("Runtime.evaluate", {
+          expression: "Promise.all([...document.images].map(i => i.decode().catch(()=>0))).then(() => [...document.images].map(i => ({ i: +i.dataset.i, t: i.dataset.t, w: i.naturalWidth, h: i.naturalHeight })))",
+          awaitPromise: true,
+          returnByValue: true
+        });
+        const h = (await s2("Runtime.evaluate", { expression: "document.documentElement.scrollHeight", returnByValue: true })).result.value;
+        await s2("Emulation.setDeviceMetricsOverride", { width: 2200, height: Math.min(h, 9e3), deviceScaleFactor: 1, mobile: false });
+        await settle2(s2, 200);
+        const { data } = await s2("Page.captureScreenshot", { format: "jpeg", quality: 78, captureBeyondViewport: true, clip: { x: 0, y: 0, width: 2200, height: Math.min(h, 9e3), scale: 1 } });
+        return { sizes: result.value, buf: Buffer.from(data, "base64") };
+      });
+      for (const r2 of rows) {
+        const sz = sizes.find((x2) => x2.i === r2.i && x2.t === "light");
+        if (sz && sz.w && sz.w < 1660) findings.push({ level: "warn", msg: `image ${r2.i} (${r2.src}): ${sz.w}px wide, soft on retina in the 830px column; export at 1660px or more (render_html scale: 2)` });
+        if (sz && !sz.w) findings.push({ level: "error", msg: `image ${r2.i} (${r2.src}): did not load` });
+        if (!r2.dark) findings.push({ level: "info", msg: `image ${r2.i} (${r2.src}): one variant for both themes; check its edges and text on the dark ground in the sheet (or add a <picture> with a prefers-color-scheme: dark source)` });
+      }
+      const sheet = path53.join(dir, "readme-check.jpg");
+      fs56.writeFileSync(sheet, buf);
+      const errors = findings.filter((f3) => f3.level === "error");
+      updateState((st) => {
+        if (!st.task || st.task.surface !== "readme") return;
+        st.task.fitcheck.shots += 1;
+        st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
+        st.task.fitcheck.shotRev = artifactRev(st.task);
+        st.task.fitcheck.blockers = errors.map((f3) => f3.msg);
+        st.task.fitcheck.files = [sheet];
+      });
+      return blocks([
+        textBlock(
+          `${rows.length} image(s) in ${file4}. Sheet: ${sheet}
+` + (findings.length ? findings.map((f3) => `- [${f3.level}] ${f3.msg}`).join("\n") : "No measured problems.") + "\n\nNow judge the sheet: can you read every word at 309px? Do edges and text hold on the dark ground? Does the first image show the real thing? Fix, run readme_check again, then the critic and fitcheck_done."
+        ),
+        imageBlock(await toJpeg(buf, 1600, 2400, 78))
+      ]);
+    })
+  );
+}
+
+// src/modules/studio/raster.mjs
+import fs57 from "node:fs";
+import os11 from "node:os";
+import path54 from "node:path";
+import { pathToFileURL as pathToFileURL5 } from "node:url";
+init_imaging();
+init_paths();
+async function loadOptional(name) {
+  try {
+    return await import(name);
+  } catch {
+  }
+  const dir = path54.join(homeDripDir, "vendor", "node_modules", name);
+  try {
+    const pkg = JSON.parse(fs57.readFileSync(path54.join(dir, "package.json"), "utf8"));
+    const entry = typeof pkg.module === "string" ? pkg.module : typeof pkg.exports === "string" ? pkg.exports : pkg.exports?.["."]?.import || pkg.exports?.["."]?.default || pkg.exports?.["."] || pkg.main || "index.js";
+    return await import(pathToFileURL5(path54.join(dir, typeof entry === "string" ? entry : "index.js")).href);
+  } catch {
+    return null;
+  }
+}
+async function optimizeSvg(svg) {
+  const svgo = await loadOptional("svgo");
+  if (!svgo?.optimize) return { svg, optimized: false };
+  try {
+    const out = svgo.optimize(svg, { multipass: true, floatPrecision: 1 });
+    return { svg: out.data, optimized: true };
+  } catch {
+    return { svg, optimized: false };
+  }
+}
+function projectPath(out) {
+  const root = path54.resolve(projectDir());
+  const abs2 = path54.resolve(root, out);
+  if (abs2 !== root && !abs2.startsWith(root + path54.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
+  return abs2;
+}
+async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, rasterizer = "browser", config: config2 } = {}) {
+  if (rasterizer === "resvg") {
+    const mod = await loadOptional("@resvg/resvg-js");
+    if (!mod?.Resvg) throw new Error('@resvg/resvg-js is not installed. Run: cd ~/.drip/vendor && npm i @resvg/resvg-js (or use rasterizer: "browser").');
+    const png3 = Buffer.from(new mod.Resvg(svg, { fitTo: { mode: "width", value: width } }).render().asPng());
+    return format === "png" ? png3 : encode5(png3, { width, format, maxKB, config: config2 });
+  }
+  const file4 = path54.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
+  const png2 = await renderHtml(`<div style="width:${width}px;height:${height}px;overflow:hidden;line-height:0">${svg.replace(/<svg /, `<svg style="display:block;width:${width}px;height:${height}px" `)}</div>`, file4, { width, height, config: config2 });
+  fs57.rmSync(file4, { force: true });
+  return format === "png" ? png2 : encode5(png2, { width, format, maxKB, config: config2 });
+}
+async function encode5(png2, { width, format, maxKB, config: config2 }) {
+  const r2 = await processImage(png2, { outputs: [{ name: "", width, format }], focus: { x: 0.5, y: 0.5 }, maxKB, config: config2 });
+  return r2.files[0].buf;
+}
+function saveFile(out, data) {
+  const abs2 = projectPath(out);
+  fs57.mkdirSync(path54.dirname(abs2), { recursive: true });
+  fs57.writeFileSync(abs2, data);
+  return { abs: abs2, rel: path54.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs57.statSync(abs2).size / 1024)) };
+}
+function logAsset(entries) {
+  const log2 = path54.join(ensureProjectDrip(), "assets.json");
+  withLock(log2, () => {
+    const prev = readJson2(log2, []);
+    for (const e2 of entries) prev.push({ credit: null, author: null, savedAt: (/* @__PURE__ */ new Date()).toISOString(), ...e2 });
+    writeJsonAtomic(log2, prev);
+  });
+}
+async function previewBlock(buf, maxW = 1280, maxH = 900) {
+  try {
+    return imageBlock(await toJpeg(buf, maxW, maxH, 82));
+  } catch {
+    return null;
+  }
+}
+function tempDir(prefix = "drip-studio-") {
+  return fs57.mkdtempSync(path54.join(os11.tmpdir(), prefix));
+}
+function cleanDir(dir) {
+  try {
+    fs57.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+  } catch {
+  }
+}
+
+// src/modules/studio/mockup.mjs
+var MOCKSTUDIO = {
+  repo: "https://github.com/lenxism/mockstudio",
+  sha: "98bf0ebf513aaa075bd4ba17a79afd924c3342a2",
+  pnpm: "pnpm@9.15.0",
+  devices: ["iphone-17-pro", "studio-display"],
+  looks: ["studio", "hero", "cinematic", "retro", "noir", "clean"],
+  cameras: ["head-on", "three-quarter", "hero", "top-down", "wide"],
+  motions: ["orbit", "dolly-in", "reveal", "drift"],
+  environments: ["studio", "daylight", "city", "neon", "sunset", "warm"],
+  aspects: ["16:9", "9:16", "1:1", "4:5", "3:2", "4:3", "match-frame"]
+};
+var SCREEN = { "iphone-17-pro": { width: 402, height: 874, scale: 3 }, "studio-display": { width: 1600, height: 900, scale: 2 }, slab: { width: 1440, height: 900, scale: 2 } };
+var mockstudioDir = () => path55.join(vendorDir(), "mockstudio");
+var presetsDir = () => path55.join(mockstudioDir(), "drip-presets");
+var mockstudioReady2 = () => fs58.existsSync(path55.join(mockstudioDir(), "dist", "index.html")) && fs58.existsSync(path55.join(presetsDir(), "look.studio.json"));
+function run2(file4, args, opts = {}) {
+  return new Promise((resolve2, reject) => {
+    execFile6(
+      file4,
+      args,
+      { timeout: 9e5, windowsHide: true, maxBuffer: 32 * 1024 * 1024, ...opts },
+      (err, stdout, stderr) => err ? reject(new Error(`${path55.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
+    );
+  });
+}
+function npx() {
+  const bin = path55.dirname(process.execPath);
+  for (const p2 of [path55.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path55.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs58.existsSync(p2)) return [process.execPath, [p2]];
+  return [process.platform === "win32" ? "npx.cmd" : "npx", []];
+}
+function diffPatch(base, next) {
+  const out = {};
+  for (const k of Object.keys(next)) {
+    const a2 = base?.[k];
+    const b = next[k];
+    if (b && typeof b === "object" && !Array.isArray(b) && a2 && typeof a2 === "object" && !Array.isArray(a2)) {
+      const d = diffPatch(a2, b);
+      if (Object.keys(d).length) out[k] = d;
+    } else if (JSON.stringify(a2) !== JSON.stringify(b)) out[k] = b;
+  }
+  for (const k of Object.keys(base || {})) if (!(k in next)) out[k] = null;
+  return out;
+}
+function mergePatch(target, patch) {
+  if (!patch || typeof patch !== "object" || Array.isArray(patch)) return patch;
+  const out = target && typeof target === "object" && !Array.isArray(target) ? { ...target } : {};
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === null) delete out[k];
+    else out[k] = mergePatch(out[k], v);
+  }
+  return out;
+}
+async function installMockstudio(log2 = () => {
+}) {
+  const dir = mockstudioDir();
+  fs58.mkdirSync(path55.dirname(dir), { recursive: true });
+  if (!fs58.existsSync(path55.join(dir, ".git"))) {
+    log2(`Cloning MockStudio ${MOCKSTUDIO.sha.slice(0, 7)} ...`);
+    await run2("git", ["clone", "--filter=blob:none", "--quiet", MOCKSTUDIO.repo, dir]);
+  }
+  await run2("git", ["-C", dir, "fetch", "--quiet", "origin", MOCKSTUDIO.sha]).catch(() => {
+  });
+  await run2("git", ["-C", dir, "checkout", "--quiet", "--force", MOCKSTUDIO.sha]);
+  const [npxFile, npxPre] = npx();
+  const env = { ...process.env, PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1", CI: "1" };
+  log2("Installing its build dependencies (temporary) ...");
+  await run2(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "install", "--frozen-lockfile"], { cwd: dir, env });
+  log2("Building the static site ...");
+  await run2(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "build"], { cwd: dir, env });
+  log2("Saving the Look / Camera / Motion presets ...");
+  const pd = presetsDir();
+  fs58.mkdirSync(pd, { recursive: true });
+  const cli = path55.join(dir, "bin", "mockstudio.mjs");
+  const compose = async (args, name) => {
+    const out = path55.join(pd, `${name}.json`);
+    await run2(process.execPath, [cli, "compose", ...args, "--out", out], { cwd: dir, env });
+    return JSON.parse(fs58.readFileSync(out, "utf8"));
+  };
+  const base = await compose(["--default"], "default");
+  for (const l2 of MOCKSTUDIO.looks) await compose(["--look", l2], `look.${l2}`);
+  for (const c3 of MOCKSTUDIO.cameras) fs58.writeFileSync(path55.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
+  for (const m of MOCKSTUDIO.motions) fs58.writeFileSync(path55.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
+  fs58.rmSync(path55.join(pd, "tmp.json"), { force: true });
+  log2("Removing the build dependencies (the built site is all Drip needs) ...");
+  fs58.rmSync(path55.join(dir, "node_modules"), { recursive: true, force: true });
+  return { dir, ok: mockstudioReady2() };
+}
+var ASPECT = { "16:9": 16 / 9, "9:16": 9 / 16, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "4:3": 4 / 3 };
+function buildDocument(o2, presets = (n3) => JSON.parse(fs58.readFileSync(path55.join(presetsDir(), `${n3}.json`), "utf8"))) {
+  let doc = presets(`look.${o2.look || "studio"}`);
+  if (o2.camera) doc = mergePatch(doc, presets(`camera.${o2.camera}`));
+  if (o2.motion) doc = mergePatch(doc, presets(`motion.${o2.motion}`));
+  const device = o2.device || "iphone-17-pro";
+  const p2 = { frame: device === "slab" ? { kind: "slab", slab: { ...o2.slabMaterial ? { material: o2.slabMaterial } : {} } } : { kind: "device", device: { model: device } }, artboard: { aspect: o2.aspect || (device === "studio-display" ? "16:9" : "4:5") } };
+  if (o2.finish) p2.image = { finish: o2.finish };
+  const bg = o2.background;
+  if (bg) p2.stage = { background: bg === "transparent" ? { kind: "transparent" } : typeof bg === "string" ? { kind: "solid", solid: bg } : { kind: "gradient", gradient: { from: bg.from, to: bg.to, shape: bg.shape || "radial", angle: bg.angle ?? 0 } } };
+  if (o2.environment) p2.stage = { ...p2.stage || {}, environment: { id: o2.environment, ...o2.light !== void 0 ? { intensity: o2.light } : {} } };
+  doc = mergePatch(doc, p2);
+  if (o2.patch) doc = mergePatch(doc, o2.patch);
+  return doc;
+}
+function credits(device) {
+  const lines = [`Rendered with MockStudio (Apache-2.0) ${MOCKSTUDIO.repo}`];
+  if (device === "slab") return lines;
+  try {
+    const notice = fs58.readFileSync(path55.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
+    const row = notice.split(/\r?\n/).find((l2) => l2.startsWith("|") && l2.split("|")[1]?.trim() === device);
+    const [, , , title, author, license, source] = row.split("|").map((c3) => c3.trim());
+    lines.push(`3D model: "${title}" by ${author}, ${license}, ${source}`);
+  } catch {
+    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path55.join(mockstudioDir(), "public", "models", "NOTICE")})`);
+  }
+  return lines;
+}
+async function screenBytes(image2, device, config2) {
+  if (/\.html?$/i.test(image2)) {
+    const s2 = SCREEN[device] || SCREEN.slab;
+    const { buf: buf2 } = await shoot(await toUrl(projectPath(image2)), { width: s2.width, height: s2.height, scale: s2.scale, transparent: false, dark: false, fullPage: false, config: config2 });
+    return { buf: buf2, mime: "image/png", name: "screen.png" };
+  }
+  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs58.readFileSync(projectPath(image2));
+  const ext = path55.extname(image2.split("?")[0]).toLowerCase();
+  return { buf, mime: ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".webp" ? "image/webp" : "image/png", name: `screen${ext || ".png"}` };
+}
+function register19(server2, ctx2) {
+  server2.registerTool(
+    "mockup_render",
+    {
+      title: "Render a device mockup (real models)",
+      description: 'The tool for device mockups: your screenshot (or an HTML screen, rendered for you at the device\'s size) on a REAL device model (iPhone 17 Pro, Studio Display) or a clean slab frame, conformed to the real screen (rounded corners, Dynamic Island), lit by an HDRI studio with colour-true tone mapping, in a curated look (studio, hero, cinematic, retro, noir, clean) and camera (head-on, three-quarter, hero, top-down, wide). Use this instead of building devices from shapes or HTML. Stills (png/jpg/webp) or a short clip with motion (orbit, dolly-in, reveal, drift \u2192 .mp4/.webm). The model credit is written next to the file. Needs MockStudio once: `drip doctor --install mockstudio` (a few minutes). Example: mockup_render({ image: "shots/home.png", device: "iphone-17-pro", look: "hero", camera: "three-quarter", background: "#0D0E12", aspect: "4:5", out: "public/img/phone.png" })',
+      inputSchema: {
+        image: external_exports.string().describe("Screenshot (project path or URL), or an .html file rendered at the device's screen size"),
+        device: external_exports.enum([...MOCKSTUDIO.devices, "slab"]).optional().describe("Default iphone-17-pro"),
+        look: external_exports.enum(MOCKSTUDIO.looks).optional(),
+        camera: external_exports.enum(MOCKSTUDIO.cameras).optional(),
+        motion: external_exports.enum(MOCKSTUDIO.motions).optional().describe("A camera move; with an .mp4/.webm out it renders a clip"),
+        aspect: external_exports.enum(MOCKSTUDIO.aspects).optional().describe("Output frame (default 4:5 for a phone, 16:9 for a display)"),
+        background: external_exports.union([external_exports.string(), external_exports.object({ from: external_exports.string(), to: external_exports.string(), shape: external_exports.enum(["linear", "radial"]).optional(), angle: external_exports.number().optional() })]).optional().describe("#hex, transparent, or a gradient"),
+        environment: external_exports.enum(MOCKSTUDIO.environments).optional().describe("HDRI lighting"),
+        light: external_exports.number().min(0).max(4).optional().describe("Environment intensity (default from the look)"),
+        finish: external_exports.enum(["glass", "flat"]).optional().describe("Screen finish: glass reflects the studio, flat shows the pixels exactly"),
+        slabMaterial: external_exports.enum(["matte-black", "space-gray", "silver", "glass"]).optional(),
+        width: external_exports.number().int().min(400).max(4096).optional().describe("Output width in px (default 1600)"),
+        seconds: external_exports.number().min(1).max(20).optional().describe("Clip length (motion only)"),
+        patch: external_exports.record(external_exports.string(), external_exports.any()).optional().describe("Advanced: a JSON merge patch on MockStudio's Scene Document (effects, camera tilt, bloom, grain\u2026)"),
+        out: external_exports.string().describe("File to write: .png, .jpg, .webp, .mp4 or .webm")
+      }
+    },
+    safe(async (o2) => {
+      if (!mockstudioReady2()) return text("MockStudio isn't installed yet. Run `drip doctor --install mockstudio` once (it clones a pinned version into ~/.drip/vendor and builds it; a few minutes), then call mockup_render again.", true);
+      const config2 = ctx2.config();
+      const device = o2.device || "iphone-17-pro";
+      const ext = path55.extname(o2.out).toLowerCase().slice(1);
+      const video = ["mp4", "webm"].includes(ext);
+      if (video && !o2.motion) return text("A clip needs a motion (orbit, dolly-in, reveal, drift).", true);
+      const doc = buildDocument(o2);
+      if (video && o2.seconds && doc.animation) doc.animation.duration = o2.seconds;
+      const screen2 = await screenBytes(o2.image, device, config2);
+      const W = o2.width || 1600;
+      const aspect = ASPECT[doc.artboard?.aspect] || (device === "iphone-17-pro" ? 9 / 19.5 : 16 / 10);
+      const H = Math.round(W / aspect / 2) * 2;
+      const base = await serveDir(path55.join(mockstudioDir(), "dist"));
+      const t0 = Date.now();
+      const b64 = await withTab(config2, async (tab) => {
+        await openPage(tab, `${base}/?render`, { width: 1280, height: 900, settleMs: 100 });
+        const expr = `(async () => {
+          for (let i = 0; i < 300 && !window.__mockstudio; i++) await new Promise((r) => setTimeout(r, 50));
+          const b = window.__mockstudio;
+          if (!b) throw new Error("MockStudio's render page did not start");
+          const loaded = b.loadDocument(${JSON.stringify(JSON.stringify(doc))});
+          if (loaded.recovered) throw new Error("MockStudio rejected the scene (check patch): it fell back to defaults");
+          const bytes = Uint8Array.from(atob(${JSON.stringify(screen2.buf.toString("base64"))}), (c) => c.charCodeAt(0));
+          await b.bindSourceMediaBytes({ data: bytes.buffer, name: ${JSON.stringify(screen2.name)}, mimeType: ${JSON.stringify(screen2.mime)} });
+          await b.whenReady();
+          // whenReady() resolves before the device model and the HDRI have loaded: wait until nothing new has loaded for 700 ms.
+          let last = -1, stable = 0;
+          for (let i = 0; i < 150 && stable < 7; i++) {
+            await new Promise((r) => setTimeout(r, 100));
+            const n = performance.getEntriesByType("resource").filter((e) => e.responseEnd > 0).length;
+            stable = n === last ? stable + 1 : 0;
+            last = n;
+          }
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          const req = ${video} ? { kind: "video", width: ${W}, height: ${H}, fps: 30, format: ${JSON.stringify(ext)} } : { kind: "image", width: ${W}, height: ${H}, format: ${JSON.stringify(ext === "jpg" ? "jpeg" : ext)}, transparent: ${o2.background === "transparent"} };
+          const res = await b.capture(req);
+          const u8 = new Uint8Array(res.data);
+          let s = "";
+          for (let i = 0; i < u8.length; i += 32768) s += String.fromCharCode(...u8.subarray(i, i + 32768));
+          return btoa(s);
+        })()`;
+        const { result, exceptionDetails } = await tab.s("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true, timeout: 6e5 });
+        if (exceptionDetails) throw new Error(exceptionDetails.exception?.description?.split("\n")[0] || exceptionDetails.text);
+        return result.value;
+      });
+      const buf = Buffer.from(b64, "base64");
+      const file4 = saveFile(o2.out, buf);
+      const credit = credits(device);
+      saveFile(o2.out.replace(/\.[a-z0-9]+$/i, ".credits.txt"), `${credit.join("\n")}
+`);
+      saveFile(o2.out.replace(/\.[a-z0-9]+$/i, ".mock.json"), JSON.stringify(doc, null, 2));
+      const head = `${video ? "Clip" : "Mockup"} ${W}x${H} (${device}, ${o2.look || "studio"} look${o2.camera ? `, ${o2.camera} camera` : ""}${o2.motion ? `, ${o2.motion}` : ""}) in ${((Date.now() - t0) / 1e3).toFixed(1)}s: ${file4.rel} (${file4.kb} KB)
+Credit (keep it with the image): ${credit.slice(1).join("; ") || "none needed"}
+Scene saved as .mock.json next to it: change one thing with patch and render again.`;
+      return video ? text(head) : blocks([textBlock(head), imageBlock(await toJpeg(buf, 1200, 1200, 82))]);
+    })
+  );
+}
+
+// src/core/doctor.mjs
+function onPath(names3) {
+  const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
+  for (const dir of (process.env.PATH || "").split(path56.delimiter).filter(Boolean)) {
+    for (const n3 of names3) {
+      for (const e2 of exts) {
+        const f3 = path56.join(dir, n3 + e2);
+        try {
+          if (fs59.statSync(f3).isFile()) return f3;
+        } catch {
+        }
+      }
+    }
+  }
+  return null;
+}
+function findBlender() {
+  const viaPath = onPath(["blender"]);
+  if (viaPath) return viaPath;
+  const found = [];
+  const scan2 = (base, rel3) => {
+    try {
+      for (const d of fs59.readdirSync(base)) found.push(path56.join(base, d, rel3));
+    } catch {
+    }
+  };
+  if (process.platform === "win32") {
+    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path56.join(pf, "Blender Foundation"), "blender.exe");
+  } else if (process.platform === "darwin") {
+    found.push("/Applications/Blender.app/Contents/MacOS/Blender");
+  } else {
+    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path56.join(os12.homedir(), "blender", "blender"));
+  }
+  return found.find((f3) => fs59.existsSync(f3)) || null;
+}
+var check3 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
+var BLENDER_GET = "download it from blender.org/download and put it on PATH.";
+async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
+  const checks = [];
+  const major = Number(process.versions.node.split(".")[0]);
+  checks.push(major >= 22 ? check3("node", "Node.js", "ok", `v${process.versions.node}`) : check3("node", "Node.js", "fail", `v${process.versions.node} (Drip needs 22 or newer)`, "Install Node 22+ from nodejs.org."));
+  const config2 = cfg || loadConfig();
+  const chrome = chromeIn === void 0 ? findChrome(config2) : chromeIn;
+  checks.push(chrome ? check3("chrome", "Chrome / Edge", "ok", chrome) : check3("chrome", "Chrome / Edge", "fail", "not found (screenshots, fit checks and previews need it)", CHROME_GET));
+  const blender = findBlender();
+  checks.push(blender ? check3("blender", "Blender (optional)", "ok", blender) : check3("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
+  const uvx = onPath(["uvx"]);
+  const ms = path56.join(vendor0(), "mockstudio", "dist", "index.html");
+  checks.push(fs59.existsSync(ms) ? check3("mockstudio", "MockStudio (device mockups)", "ok", path56.dirname(path56.dirname(ms))) : check3("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
+  checks.push(uvx ? check3("uvx", "uvx (optional)", "ok", uvx) : check3("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
+  const vendor = vendorDir();
+  const installed = Object.keys(VENDOR_DEPS).filter((n3) => vendorResolve(n3));
+  checks.push(check3("vendor", "Optional dependencies", "info", `${installed.length ? installed.join(", ") : "none installed"} (in ${vendor})`, `Available: ${Object.keys(VENDOR_DEPS).join(", ")}. Install the recommended ones with: drip doctor --fix --yes; any one with: drip doctor --install <name>`));
+  const names3 = Object.keys(KEY_ENV);
+  const keys = keyStatus(names3);
+  const set2 = keys.filter((k) => k.set).map((k) => k.name);
+  checks.push(check3("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
+  const proj = projectDir();
+  const dripDir = projectDripDir();
+  const hasDrip = fs59.existsSync(dripDir);
+  checks.push(check3("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
+  checks.push(check3("plugin", "Plugin root", fs59.existsSync(path56.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
+  checks.push(check3("home", "User folder", "ok", homeDripDir));
+  let state = "no task";
+  try {
+    const f3 = path56.join(dripDir, "state.json");
+    if (fs59.existsSync(f3)) {
+      const raw = JSON.parse(fs59.readFileSync(f3, "utf8"));
+      const n3 = Object.keys(raw.tasks || (raw.task ? { x: 1 } : {})).length;
+      state = `${n3} open task${n3 === 1 ? "" : "s"}`;
+    }
+  } catch {
+    state = "state.json is unreadable";
+  }
+  checks.push(check3("state", "Task state", state.includes("unreadable") ? "warn" : "ok", state, state.includes("unreadable") ? "Move .drip/state.json aside; Drip starts fresh." : void 0));
+  checks.push(check3("tools", "Tool registry", "ok", `${collectTools().size} tools`));
+  try {
+    const r2 = await executeCode("return 1 + 1", { timeoutMs: 15e3 });
+    checks.push(r2.ok && r2.value === 2 ? check3("codemode", "Code Mode sandbox", "ok", `QuickJS, ${r2.ms} ms`) : check3("codemode", "Code Mode sandbox", "warn", r2.error?.message || "unexpected result"));
+  } catch (e2) {
+    checks.push(check3("codemode", "Code Mode sandbox", "warn", String(e2?.message || e2)));
+  }
+  if (hostsDoctor) {
+    try {
+      for (const c3 of await hostsDoctor() || []) checks.push(c3);
+    } catch (e2) {
+      checks.push(check3("hosts", "Host integrations", "warn", String(e2?.message || e2)));
+    }
+  }
+  const failed = checks.filter((c3) => c3.status === "fail");
+  return { ok: failed.length === 0, checks, summary: failed.length ? `${failed.length} problem${failed.length === 1 ? "" : "s"} to fix` : "Everything Drip needs is here." };
+}
+function formatDoctor(r2) {
+  const mark = { ok: "ok  ", warn: "warn", fail: "FAIL", info: "info" };
+  const lines = [];
+  for (const c3 of r2.checks) {
+    lines.push(`[${mark[c3.status] || c3.status}] ${c3.label}: ${c3.detail}`);
+    if (c3.fix && c3.status !== "ok") lines.push(`       fix: ${c3.fix}`);
+  }
+  lines.push("", r2.summary);
+  return lines.join("\n");
+}
+async function doctorFix({ confirm = false, config: config2, chrome, log: log2 = () => {
+}, installers } = {}) {
+  const missing = missingPieces({ config: config2, chrome });
+  const inst = installers || {};
+  const installVendorFn = inst.vendor || installVendor;
+  const installMockFn = inst.mockstudio || installMockstudio;
+  const manual = missing.filter((m) => !m.installable).map((m) => `${m.what}: ${m.fix}`);
+  const blender = findBlender() ? [] : [`Blender (optional): ${BLENDER_GET}`];
+  const todo = [];
+  for (const m of missing) {
+    if (m.id === "vendor") for (const n3 of m.names) todo.push(`npm package ${n3} into ${vendorDir()}`);
+    if (m.id === "mockstudio") todo.push("MockStudio into ~/.drip/vendor (git clone and build, a few minutes)");
+  }
+  if (!confirm) return { ok: true, confirmed: false, installed: [], failed: [], todo, manual: [...manual, ...blender] };
+  const installed = [];
+  const failed = [];
+  for (const m of missing) {
+    if (m.id === "vendor") {
+      for (const n3 of m.names) {
+        try {
+          log2(`Installing ${n3} ...`);
+          await installVendorFn(n3);
+          installed.push(n3);
+        } catch (e2) {
+          failed.push(`${n3}: ${e2.message}`);
+        }
+      }
+    } else if (m.id === "mockstudio") {
+      try {
+        log2("Installing MockStudio ...");
+        const r2 = await installMockFn(log2);
+        if (r2 && r2.ok === false) failed.push("mockstudio: installed but its build is missing");
+        else installed.push("mockstudio");
+      } catch (e2) {
+        failed.push(`mockstudio: ${e2.message}`);
+      }
+    }
+  }
+  return { ok: failed.length === 0, confirmed: true, installed, failed, todo, manual: [...manual, ...blender] };
+}
+function formatFix(r2) {
+  const lines = [];
+  if (!r2.confirmed) {
+    lines.push(r2.todo.length ? `Drip would install:
+${r2.todo.map((t2) => `  - ${t2}`).join("\n")}
+Run again with --yes to do it: drip doctor --fix --yes` : "Nothing for Drip to install.");
+  } else {
+    if (r2.installed.length) lines.push(`Installed: ${r2.installed.join(", ")}.`);
+    if (r2.failed.length) lines.push(`Failed:
+${r2.failed.map((t2) => `  - ${t2}`).join("\n")}`);
+    if (!r2.installed.length && !r2.failed.length) lines.push("Nothing for Drip to install.");
+  }
+  if (r2.manual.length) lines.push(`Install these yourself (Drip never installs them):
+${r2.manual.map((t2) => `  - ${t2}`).join("\n")}`);
+  return lines.join("\n");
+}
+async function installPreflight({ config: config2, chrome } = {}) {
+  const r2 = await runDoctor({ config: config2, chrome });
+  const failures = r2.checks.filter((c3) => c3.status === "fail");
+  const warns = r2.checks.filter((c3) => c3.status === "warn");
+  const lines = [];
+  for (const c3 of failures) lines.push(`${c3.label} missing or broken: ${c3.detail}
+  fix: ${c3.fix || "see drip doctor"}`);
+  for (const c3 of warns) lines.push(`warning: ${c3.label}: ${c3.detail}${c3.fix ? ` (fix: ${c3.fix})` : ""}`);
+  return { ok: failures.length === 0, failures, checks: r2.checks, text: lines.join("\n") };
+}
+
+// src/modules/gen/settings.mjs
+init_paths();
+import { spawn as spawn4 } from "node:child_process";
+import crypto6 from "node:crypto";
+import fs60 from "node:fs";
+import http3 from "node:http";
+import path57 from "node:path";
+var KEYS2 = [
+  ["openai", "Image generation (gpt-image)"],
+  ["gemini", "Image generation (Gemini)"],
+  ["unsplash", "Photo search"],
+  ["pexels", "Photo search"],
+  ["pixabay", "Photo search"],
+  ["openverse", "Photo search (openly licensed)"]
+];
+var KITS = ["Aceternity Pro", "Magic UI Pro", "bencho Pro", "Breeze UI", "Tailark", "efferd Pro", "Skiper UI", "shadcnblocks"];
+var SWITCHES = [
+  ["checks", "Checks", "Drip holds UI writes until the work has been looked at, and checks the page before you see it. Off: advice only, nothing is blocked.", (c3) => c3.gates.enforce !== false, (on) => ({ gates: { enforce: on } })],
+  ["critic", "Critic on every page", "An independent Sonnet review before a page is handed over. Off: offered at the end, run when you ask.", (c3) => !!c3.gates.fastCritic, (on) => ({ gates: { fastCritic: on } })],
+  ["builders", "Builders", "The session directs and one or two Sonnet builders write the code. Off: the session builds alone.", (c3) => c3.swarm !== false, (on) => ({ swarm: on })],
+  ["full", "Full process by default", "Moodboard, three directions and a design system before building. Off: the fast loop (a page in about ten minutes).", (c3) => c3.loop === "full", (on) => ({ loop: on ? "full" : "fast" })]
+];
+var esc5 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
+function version2() {
+  try {
+    return JSON.parse(fs60.readFileSync(path57.join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8")).version;
+  } catch {
+    return "";
+  }
+}
+var globalFile = () => path57.join(homeDripDir, "config.json");
+var readJson4 = (f3) => {
+  try {
+    return JSON.parse(fs60.readFileSync(f3, "utf8"));
+  } catch {
+    return {};
+  }
+};
+var deepMerge = (a2, b) => {
+  const out = { ...a2 };
+  for (const [k, v] of Object.entries(b)) out[k] = v && typeof v === "object" && !Array.isArray(v) ? deepMerge(a2?.[k] || {}, v) : v;
+  return out;
+};
+function writeGlobalConfig(patch) {
+  fs60.mkdirSync(homeDripDir, { recursive: true });
+  fs60.writeFileSync(globalFile(), JSON.stringify(deepMerge(readJson4(globalFile()), patch), null, 2));
+}
+function projectOverrides(cwd) {
+  const p2 = readJson4(path57.join(projectDripDir(cwd), "config.json"));
+  const out = [];
+  if (p2.gates && "enforce" in p2.gates) out.push("checks");
+  if (p2.gates && "fastCritic" in p2.gates) out.push("critic");
+  if ("swarm" in p2) out.push("builders");
+  if ("loop" in p2) out.push("full");
+  return out;
+}
+var CSS = `
+:root{--bg:#f4f1ea;--card:#fffdf8;--ink:#16140f;--muted:#6b665b;--line:#e2ddd2;--accent:#16140f;--on:#2f6f4f;--warn:#9a4a16;--field:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#14130f;--card:#1d1b16;--ink:#f1ede4;--muted:#a39d90;--line:#322f27;--accent:#f1ede4;--on:#7fc79f;--warn:#e3a06a;--field:#14130f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:40px 16px 64px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:28px}
+h1{font:600 34px/1.1 ui-serif,Georgia,serif;margin:0;letter-spacing:-.01em}h2{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+.ver{color:var(--muted);font:13px ui-monospace,Menlo,monospace}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:0 0 16px}
+.row{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0;padding-top:0}
+.grow{flex:1;min-width:0}.name{font-weight:600}.help{color:var(--muted);font-size:13.5px}
+.pill{font-size:12px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}.pill.on{color:var(--on);border-color:currentColor}
+input[type=password],input[type=text]{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);width:210px;max-width:100%}
+button{font:inherit;font-size:14px;padding:7px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--line)}button.danger{background:transparent;color:var(--warn);border-color:currentColor}
+button:hover{opacity:.88}button:focus-visible,input:focus-visible{outline:2px solid var(--on);outline-offset:2px}
+.switch{position:relative;width:42px;height:24px;flex:none}.switch input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:absolute;z-index:1}
+.switch span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:background .15s}.switch span:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--card);transition:transform .15s}
+.switch input:checked+span{background:var(--on)}.switch input:checked+span:after{transform:translateX(18px)}
+.switch input:focus-visible+span{outline:2px solid var(--on);outline-offset:2px}
+pre{white-space:pre-wrap;font:12.5px/1.5 ui-monospace,Menlo,monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;margin:12px 0 0;max-height:320px;overflow:auto}
+.msg{background:var(--on);color:var(--bg);padding:10px 14px;border-radius:10px;margin:0 0 16px}
+.kits{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 16px;margin:0 0 14px}.kits label{display:flex;gap:8px;align-items:center}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}form.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+code{font:13px ui-monospace,Menlo,monospace}.foot{color:var(--muted);font-size:13px;margin-top:20px}
+@media (max-width:560px){.row{flex-wrap:wrap}input[type=password]{width:100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}`;
+function renderSettings({ token: token2, cwd, msg = "", doctor = "" }) {
+  const config2 = loadConfig(cwd);
+  const { task } = loadState(cwd);
+  const keys = keyStatus(KEYS2.map(([k]) => k));
+  const owned = ownedKits() || [];
+  const packs = listPacks(cwd);
+  const over = projectOverrides(cwd);
+  const t2 = (p2) => `${p2}?t=${token2}`;
+  const taskCard = task ? `<div class="row"><div class="grow"><div class="name">${esc5(task.title)}</div><div class="help">${esc5(task.loop || task.size)} loop \xB7 ${esc5(task.surface)}${task.skipped ? " \xB7 checks off for this task" : ""}</div></div></div>
+<pre>${esc5(checklist(task, config2))}</pre>
+<div class="actions">${task.skipped ? "" : `<form method="post" action="${t2("/task/skip")}"><button class="ghost">Turn checks off for this task</button></form>`}
+<form method="post" action="${t2("/task/end")}" onsubmit="return confirm('End this Drip task? Its page and files stay.')"><button class="danger">End the task</button></form></div>` : `<p class="help" style="margin:0">No task open. Start one by asking for a design (/drip:design in Claude Code).</p>`;
+  const keyRows = keys.map((k, i2) => {
+    const purpose = KEYS2[i2][1];
+    const fromEnv = k.set && !/keys\.json/.test(k.from || "");
+    return `<div class="row"><div class="grow"><div class="name">${esc5(k.name)}</div><div class="help">${esc5(purpose)}${fromEnv ? ` \xB7 from ${esc5(k.from)}` : ""}</div></div>
+<span class="pill${k.set ? " on" : ""}">${k.set ? "set" : "not set"}</span>
+<form class="inline" method="post" action="${t2("/key")}"><input type="hidden" name="name" value="${esc5(k.name)}"><input type="password" name="value" autocomplete="off" placeholder="${k.set ? "Replace key" : "Paste key"}" aria-label="${esc5(k.name)} key"><button>Save</button>${k.set && !fromEnv ? `<button class="ghost" name="remove" value="1" formnovalidate>Remove</button>` : ""}</form></div>`;
+  }).join("");
+  const switches = SWITCHES.map(([id, label, help, read5]) => {
+    const on = read5(config2);
+    return `<form class="row" method="post" action="${t2("/switch")}"><input type="hidden" name="id" value="${id}"><input type="hidden" name="on" value="${on ? "0" : "1"}">
+<div class="grow"><div class="name">${esc5(label)}</div><div class="help">${esc5(help)}${over.includes(id) ? " This project's own .drip/config.json sets it, so the change applies to other projects." : ""}</div></div>
+<label class="switch"><input type="checkbox" role="switch" aria-label="${esc5(label)}" ${on ? "checked" : ""} onchange="this.form.submit()"><span></span></label><noscript><button>${on ? "Turn off" : "Turn on"}</button></noscript></form>`;
+  }).join("");
+  const kits = `<form method="post" action="${t2("/kits")}"><div class="kits">${KITS.map((k) => `<label><input type="checkbox" name="kit" value="${esc5(k)}" ${owned.includes(k) ? "checked" : ""}> ${esc5(k)}</label>`).join("")}</div><button>Save kits</button></form>`;
+  const packList = packs.length ? packs.map((p2) => `<div class="row"><div class="grow"><div class="name">${esc5(p2.name || p2.id)}</div><div class="help">${esc5(p2.niche || p2.summary || "")}</div></div><span class="pill">${esc5(p2.type || "pack")}</span></div>`).join("") : `<p class="help" style="margin:0">No niche packs yet. Ask Drip to learn a niche (/drip:adapt in Claude Code) and it becomes a pack used on every matching task.</p>`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drip settings</title><style>${CSS}</style>
+<main><header><h1>Drip settings</h1><span class="ver">v${esc5(version2())}</span></header>
+${msg ? `<p class="msg" role="status">${esc5(msg)}</p>` : ""}
+<section><h2>Current task</h2>${taskCard}</section>
+<section><h2>How Drip works</h2>${switches}</section>
+<section><h2>API keys</h2><p class="help" style="margin:0 0 14px">All optional. Saved on this computer in <code>~/.drip/keys.json</code>; the model never sees them.</p>${keyRows}</section>
+<section><h2>Paid UI kits you own</h2><p class="help" style="margin:0 0 14px">Drip offers their pieces too, installed with your own login.</p>${kits}</section>
+<section><h2>Niche packs</h2>${packList}</section>
+<section><h2>Install</h2><form method="post" action="${t2("/doctor")}"><button class="ghost">Check the install</button></form>${doctor ? `<pre>${esc5(doctor)}</pre>` : ""}</section>
+<p class="foot">Machine-wide settings live in <code>~/.drip/config.json</code>; a project's <code>.drip/config.json</code> overrides them. This page stops when Drip does.</p></main>`;
+}
+async function applySettings(route, form, { cwd, runDoctor: runDoctor2 } = {}) {
+  if (route === "/key") {
+    const name = String(form.get("name") || "").trim().toLowerCase();
+    if (!KEYS2.some(([k]) => k === name)) return { msg: "Unknown key." };
+    if (form.get("remove")) {
+      setKey(name, "");
+      return { msg: `Removed the ${name} key.` };
+    }
+    const value = String(form.get("value") || "").trim();
+    if (!value) return { msg: "Paste a key first." };
+    setKey(name, value);
+    return { msg: `Saved the ${name} key.` };
+  }
+  if (route === "/switch") {
+    const sw = SWITCHES.find(([id]) => id === form.get("id"));
+    if (!sw) return { msg: "Unknown setting." };
+    const on = form.get("on") === "1";
+    writeGlobalConfig(sw[4](on));
+    return { msg: `${sw[1]}: ${on ? "on" : "off"}.` };
+  }
+  if (route === "/kits") {
+    const owned = form.getAll("kit").filter((k) => KITS.includes(k));
+    saveKits(owned);
+    return { msg: owned.length ? `Saved: ${owned.join(", ")}.` : "Saved: no paid kits." };
+  }
+  if (route === "/task/skip") {
+    updateState((st) => {
+      if (st.task) st.task.skipped = "the user turned checks off on the settings page";
+    }, cwd);
+    return { msg: "Checks are off for this task." };
+  }
+  if (route === "/task/end") {
+    updateState((st) => {
+      if (!st.task) return;
+      st.history.push({ ...st.task, endedAt: (/* @__PURE__ */ new Date()).toISOString(), endedBy: "settings page", acceptedOpen: "the user ended the task on the settings page" });
+      st.task = null;
+      st.history = st.history.slice(-30);
+    }, cwd);
+    return { msg: "The task is ended. Its page and files are untouched." };
+  }
+  if (route === "/doctor" && runDoctor2) return { msg: "Install checked.", doctor: await runDoctor2() };
+  return { msg: "" };
+}
+var running = null;
+async function openSettingsPage({ cwd, runDoctor: runDoctor2, ttlMs = 60 * 60 * 1e3 } = {}) {
+  if (running) return running.url;
+  const token2 = crypto6.randomBytes(16).toString("hex");
+  const server2 = http3.createServer(async (req, res) => {
+    const u2 = new URL(req.url, "http://x");
+    if (u2.searchParams.get("t") !== token2) return res.writeHead(403).end("Forbidden");
+    const send = (html) => res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "DENY" }).end(html);
+    try {
+      if (req.method === "POST") {
+        let body = "";
+        for await (const c3 of req) body += c3;
+        const r2 = await applySettings(u2.pathname, new URLSearchParams(body), { cwd, runDoctor: runDoctor2 });
+        return send(renderSettings({ token: token2, cwd, ...r2 }));
+      }
+      send(renderSettings({ token: token2, cwd }));
+    } catch (e2) {
+      send(renderSettings({ token: token2, cwd, msg: `Something went wrong: ${e2.message}` }));
+    }
+  });
+  await new Promise((r2) => server2.listen(0, "127.0.0.1", r2));
+  running = { server: server2, url: `http://127.0.0.1:${server2.address().port}/?t=${token2}` };
+  if (ttlMs) {
+    setTimeout(() => {
+      server2.close();
+      running = null;
+    }, ttlMs).unref();
+  }
+  return running.url;
+}
+function openInBrowser2(url2) {
+  if (process.env.DRIP_NO_OPEN || process.env.CI) return false;
+  try {
+    const [cmd, args] = process.platform === "win32" ? ["cmd", ["/c", "start", "", url2]] : process.platform === "darwin" ? ["open", [url2]] : ["xdg-open", [url2]];
+    spawn4(cmd, args, { detached: true, stdio: "ignore", windowsHide: true }).unref();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// src/modules/gen/providers/gemini.mjs
+var RATIO = { landscape: "16:9", portrait: "9:16", square: "1:1" };
+var gemini_default = {
+  id: "gemini",
+  label: "Google Gemini (image)",
+  key: "gemini",
+  async generate({ prompt, aspect = "landscape", model, refs = [] }, key) {
+    const m = model || "gemini-2.5-flash-image";
+    const parts = [{ text: prompt }, ...refs.map((r2) => ({ inlineData: { mimeType: r2.mime, data: r2.buf.toString("base64") } }))];
+    const res = await postJson(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`,
+      { contents: [{ parts }], generationConfig: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: RATIO[aspect] || "16:9" } } },
+      { headers: { "x-goog-api-key": key } }
+    );
+    const out = [];
+    for (const c3 of res.candidates || []) for (const p2 of c3.content?.parts || []) if (p2.inlineData?.data) out.push({ buf: Buffer.from(p2.inlineData.data, "base64"), mime: p2.inlineData.mimeType || "image/png" });
+    if (!out.length) throw new Error(`Gemini returned no image${res.promptFeedback?.blockReason ? ` (blocked: ${res.promptFeedback.blockReason})` : ""}.`);
+    return out;
+  }
+};
+
+// src/modules/gen/providers/openai.mjs
+var SIZES = { landscape: "1536x1024", portrait: "1024x1536", square: "1024x1024" };
+var openai_default = {
+  id: "openai",
+  label: "OpenAI (GPT Image)",
+  key: "openai",
+  async generate({ prompt, aspect = "landscape", model, quality: quality2 = "medium" }, key) {
+    const res = await postJson(
+      "https://api.openai.com/v1/images/generations",
+      { model: model || "gpt-image-1", prompt, size: SIZES[aspect] || SIZES.landscape, quality: quality2, n: 1 },
+      { headers: { Authorization: `Bearer ${key}` } }
+    );
+    return (res.data || []).map((d) => ({ buf: Buffer.from(d.b64_json, "base64"), mime: "image/png" }));
+  }
+};
+
+// src/modules/gen/keypage.mjs
+import crypto7 from "node:crypto";
+import http4 from "node:http";
+var running2 = null;
+var esc6 = (s2) => String(s2).replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
+function page(names3, token2, msg = "") {
+  const rows = keyStatus(names3).map((k) => `<tr><td>${esc6(k.name)}</td><td>${k.set ? `set (${esc6(k.from)})` : "not set"}</td></tr>`).join("");
+  return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drip keys</title>
+<style>body{font:15px/1.5 system-ui;background:#f4f1ea;color:#16140f;max-width:560px;margin:48px auto;padding:0 16px}h1{font:600 28px ui-serif,Georgia,serif}
+input,select,button{font:inherit;padding:8px 10px;border:1px solid #cfc9bc;border-radius:8px;width:100%;box-sizing:border-box;margin:6px 0}button{background:#16140f;color:#fff;border:0;cursor:pointer}
+table{width:100%;border-collapse:collapse;margin-top:24px}td{border-top:1px solid #e2ddd2;padding:6px 0}.msg{background:#e8f5e9;padding:8px 12px;border-radius:8px}</style>
+<h1>Drip API keys</h1><p>Keys are saved on this computer in <code>~/.drip/keys.json</code>. Claude never sees them.</p>
+${msg ? `<p class="msg">${esc6(msg)}</p>` : ""}
+<form method="post" action="/save?t=${token2}"><label>Provider<select name="name">${names3.map((n3) => `<option>${esc6(n3)}</option>`).join("")}</select></label>
+<label>Name (for a custom provider)<input name="custom" placeholder="optional, e.g. replicate"></label>
+<label>Key<input name="value" type="password" autocomplete="off" required></label><button>Save key</button></form>
+<table>${rows}</table>`;
+}
+async function openKeyPage(names3) {
+  if (running2) return running2.url;
+  const token2 = crypto7.randomBytes(12).toString("hex");
+  const server2 = http4.createServer(async (req, res) => {
+    const u2 = new URL(req.url, "http://x");
+    if (u2.searchParams.get("t") !== token2) return res.writeHead(403).end("Forbidden");
+    if (req.method === "POST" && u2.pathname === "/save") {
+      let body = "";
+      for await (const c3 of req) body += c3;
+      const f3 = new URLSearchParams(body);
+      const name = (f3.get("custom") || f3.get("name") || "").trim().toLowerCase();
+      if (name && f3.get("value")) setKey(name, f3.get("value"));
+      return res.writeHead(200, { "content-type": "text/html" }).end(page(names3, token2, `Saved key for ${name}.`));
+    }
+    res.writeHead(200, { "content-type": "text/html" }).end(page(names3, token2));
+  });
+  await new Promise((r2) => server2.listen(0, "127.0.0.1", r2));
+  running2 = { server: server2, url: `http://127.0.0.1:${server2.address().port}/?t=${token2}` };
+  setTimeout(() => {
+    server2.close();
+    running2 = null;
+  }, 30 * 60 * 1e3).unref();
+  return running2.url;
+}
+
+// src/modules/gen/index.mjs
+var BUILT_IN = [openai_default, gemini_default];
+async function providers() {
+  const list4 = [...BUILT_IN];
+  const dir = path58.join(homeDripDir, "providers");
+  if (fs61.existsSync(dir))
+    for (const f3 of fs61.readdirSync(dir).filter((f4) => f4.endsWith(".mjs"))) {
+      try {
+        const mod = await import(pathToFileURL6(path58.join(dir, f3)).href);
+        if (mod.default?.id && mod.default?.generate) list4.push(mod.default);
+      } catch {
+      }
+    }
+  return list4;
+}
+var KEY_NAMES = ["openai", "gemini", "unsplash", "pexels", "pixabay", "openverse"];
+function register20(server2, ctx2) {
+  server2.registerTool(
+    "gen_image",
+    {
+      title: "Generate an image",
+      description: "Generate hero art, illustrations, textures or product renders with the user's own provider key (OpenAI or Gemini built in; custom providers in ~/.drip/providers). Saves into the project and shows you the result. Art-direct the prompt from the chosen direction (read drip_guide imagery/prompting): subject, composition, light, palette, negative space for text. If no key is set, call keys_open and ask the user to paste one, or ask them for their own assets. Costs money: generate one, look, then iterate.",
+      inputSchema: {
+        prompt: external_exports.string(),
+        out: external_exports.string().describe("Project path to save, e.g. public/images/hero.png"),
+        aspect: external_exports.enum(["landscape", "portrait", "square"]).optional(),
+        provider: external_exports.string().optional(),
+        model: external_exports.string().optional(),
+        refs: external_exports.array(external_exports.string()).optional().describe("Reference image URLs for style (providers that support it)")
+      }
+    },
+    safe(async ({ prompt, out, aspect = "landscape", provider, model, refs = [] }) => {
+      const config2 = ctx2.config();
+      const all = await providers();
+      const id = provider || config2.gen.defaultProvider;
+      const p2 = all.find((x2) => x2.id === id) || all.find((x2) => getKey(x2.key));
+      if (!p2) return text(`Unknown provider "${id}". Available: ${all.map((x2) => x2.id).join(", ")}`, true);
+      const key = getKey(p2.key);
+      if (!key) {
+        const url2 = await openKeyPage([.../* @__PURE__ */ new Set([...KEY_NAMES, ...all.map((x2) => x2.key)])]);
+        return text(`No key for ${p2.label}. Ask the user to open ${url2} and paste a key (it stays on their machine), or to provide their own image. Then try again.`, true);
+      }
+      const refImgs = await Promise.all(refs.map((u2) => fetchImage(u2)));
+      const imgs = await p2.generate({ prompt, aspect, model: model || config2.gen.providers?.[p2.id]?.model, refs: refImgs }, key);
+      const file4 = path58.resolve(projectDir(), out);
+      fs61.mkdirSync(path58.dirname(file4), { recursive: true });
+      fs61.writeFileSync(file4, imgs[0].buf);
+      logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
+      const log2 = path58.join(ensureProjectDrip(), "assets.json");
+      const list4 = fs61.existsSync(log2) ? JSON.parse(fs61.readFileSync(log2, "utf8")) : [];
+      list4.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
+      fs61.writeFileSync(log2, JSON.stringify(list4, null, 2));
+      return blocks([{ type: "text", text: `Saved ${out} via ${p2.label}. Judge it against the direction; if it misses, change one thing in the prompt and regenerate.` }, imageBlock(await toJpeg(imgs[0].buf, 1400, 1400))]);
+    })
+  );
+  server2.registerTool(
+    "gen_providers",
+    { title: "Image providers", description: "Lists image providers (built-in and custom) and whether each has a key. To add a new provider, copy mcp/src/modules/gen/providers/_template.mjs.txt to ~/.drip/providers/<id>.mjs.", inputSchema: {} },
+    safe(async () => {
+      const all = await providers();
+      return text(all.map((p2) => `- ${p2.id}: ${p2.label} \u2014 key ${getKey(p2.key) ? "set" : "missing"}`).join("\n") + "\n\nAdd a key: keys_open. Add a provider: ~/.drip/providers/<id>.mjs (template in the Drip repo).");
+    })
+  );
+  server2.registerTool(
+    "keys_status",
+    { title: "Which API keys are set", description: "Shows which optional keys (image generation, photo sources) are set and where from. Never shows values.", inputSchema: {} },
+    safe(async () => text(keyStatus(KEY_NAMES).map((k) => `- ${k.name}: ${k.set ? `set (${k.from})` : "not set"}`).join("\n")))
+  );
+  server2.registerTool(
+    "settings_open",
+    {
+      title: "Open Drip's settings page",
+      description: "Opens Drip's settings as a local page in the user's browser: the current task (turn checks off, end it), API keys (pasted there, never in chat), switches (checks, critic, builders, full process), paid kits and niche packs, and an install check. Give the user the link in one line; don't summarise the settings in chat.",
+      inputSchema: {}
+    },
+    safe(async () => {
+      const url2 = await openSettingsPage({ cwd: projectDir(), runDoctor: async () => formatDoctor(await runDoctor({})) });
+      const opened = openInBrowser2(url2);
+      return text(`${opened ? "Opened" : "Open"} Drip settings: ${url2}
+(Local to this computer; the link works for an hour.)`);
+    })
+  );
+  server2.registerTool(
+    "keys_open",
+    { title: "Let the user paste API keys", description: "Opens a local page (link valid 30 minutes) where the USER pastes API keys. Give them the link; never ask them to paste keys into the chat.", inputSchema: {} },
+    safe(async () => {
+      const all = await providers();
+      const url2 = await openKeyPage([.../* @__PURE__ */ new Set([...KEY_NAMES, ...all.map((x2) => x2.key)])]);
+      return text(`Give the user this link to paste keys (stays on their machine): ${url2}`);
+    })
+  );
+}
+
+// src/modules/fitcheck/index.mjs
+var fitcheck_exports = {};
+__export(fitcheck_exports, {
+  isHard: () => isHard,
+  register: () => register22
+});
+import path62 from "node:path";
+init_paths();
+import fs65 from "node:fs";
+
+// src/modules/fitcheck/drift.mjs
+import fs62 from "node:fs";
+import path59 from "node:path";
+var HEX = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
+var norm4 = (h) => {
+  h = h.toLowerCase();
+  return h.length === 4 ? `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}` : h;
+};
+function cssFiles(root, out = [], depth = 4) {
+  if (depth < 0 || out.length > 60) return out;
+  let entries;
+  try {
+    entries = fs62.readdirSync(root, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const e2 of entries) {
+    if (/^(node_modules|\.git|\.next|dist|build|\.drip|out|coverage)$/.test(e2.name)) continue;
+    const f3 = path59.join(root, e2.name);
+    if (e2.isDirectory()) cssFiles(f3, out, depth - 1);
+    else if (/\.(css|scss|html)$/i.test(e2.name) || /tailwind\.config\.(js|ts|mjs|cjs)$/.test(e2.name)) out.push(f3);
+  }
+  return out;
+}
+function tokens(src) {
+  const out = {};
+  for (const block of src.match(/(?::root|\[data-theme[^\]]*\]|\.dark|html)[^{]*\{[^}]*\}/g) || []) {
+    for (const m of block.matchAll(/(--[\w-]+)\s*:\s*([^;}]+)/g)) out[m[1]] = m[2].trim();
+  }
+  return out;
+}
+function designDrift(root, docFile) {
+  const doc = fs62.readFileSync(docFile, "utf8");
+  const docHex = new Set((doc.match(HEX) || []).map(norm4));
+  const files = cssFiles(root);
+  const defined = {};
+  const used = /* @__PURE__ */ new Set();
+  const families = /* @__PURE__ */ new Set();
+  for (const f3 of files) {
+    const src = fs62.readFileSync(f3, "utf8");
+    Object.assign(defined, tokens(src));
+    for (const h of src.match(HEX) || []) used.add(norm4(h));
+    for (const m of src.matchAll(/font-family\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
+    for (const m of src.matchAll(/--font[\w-]*\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
+    for (const m of src.matchAll(/fonts\.googleapis\.com\/css2?\?family=([^&"')]+)/gi)) families.add(decodeURIComponent(m[1]).replace(/\+/g, " ").split(":")[0]);
+  }
+  const tokenHex = new Set(Object.values(defined).flatMap((v) => (v.match(HEX) || []).map(norm4)));
+  const issues = [];
+  const missing = [...docHex].filter((h) => !used.has(h));
+  if (missing.length) issues.push(`DESIGN.md names ${missing.join(" ")} but no stylesheet uses ${missing.length > 1 ? "them" : "it"}: update DESIGN.md or the tokens`);
+  const undocumented = [...tokenHex].filter((h) => !docHex.has(h) && !["#ffffff", "#000000", "#fff", "#000"].includes(h));
+  if (undocumented.length) issues.push(`tokens define ${undocumented.slice(0, 8).join(" ")} which DESIGN.md never mentions: add ${undocumented.length > 1 ? "them" : "it"} with a role, or remove`);
+  const placeholder = Object.entries(defined).filter(([, v]) => /DISPLAY FACE|TEXT FACE/.test(v));
+  if (placeholder.length) issues.push(`kit placeholders still in the CSS: ${placeholder.map(([k]) => k).join(", ")} \u2014 set the real faces`);
+  const docFaces = [...families].filter((f3) => !/^(ui-|system-ui|sans-serif|serif|monospace|inherit|var\()/i.test(f3));
+  const notInDoc = docFaces.filter((f3) => !doc.toLowerCase().includes(f3.toLowerCase()));
+  if (notInDoc.length) issues.push(`fonts in the code but not in DESIGN.md: ${notInDoc.slice(0, 5).join(", ")}`);
+  return { issues, files: files.length, docHex: docHex.size, tokenCount: Object.keys(defined).length };
+}
+
+// src/modules/fitcheck/index.mjs
+init_serve();
+
+// src/modules/fitcheck/compare.mjs
+import fs63 from "node:fs";
+import path60 from "node:path";
+init_paths();
+init_serve();
+init_chrome();
+var esc7 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
+var dataUrl = (buf, mime2 = "image/jpeg") => `data:${mime2};base64,${buf.toString("base64")}`;
+var mimeOf = (buf) => buf[0] === 137 ? "image/png" : /<svg/i.test(buf.subarray(0, 300).toString()) ? "image/svg+xml" : buf.subarray(8, 12).toString() === "WEBP" ? "image/webp" : "image/jpeg";
+async function sourceImage(src, { width, height, config: config2 }) {
+  const task = loadState().task;
+  if (src === "before") {
+    if (!task?.before?.url) throw new Error("No 'before' recorded: refs_site({ urls: [<current site>], before: true }) first.");
+    src = task.before.url;
+  }
+  const comp = src.match(/^comp:(.+)$/i);
+  if (comp) {
+    const board = task?.board?.id && loadBoard(task.board.id);
+    const d = board?.directions?.find((x2) => x2.name.toLowerCase() === comp[1].trim().toLowerCase()) || comp[1] === "chosen" && board?.directions?.find((x2) => x2.name === board.chosen);
+    if (!d?.tile || !fs63.existsSync(d.tile)) throw new Error(`No rendered comp for "${comp[1]}" (board_directions renders them).`);
+    return fs63.readFileSync(d.tile);
+  }
+  if (/^https?:/i.test(src) || /\.html?$/i.test(src)) return screenshot(await toUrl(src), { width, height, format: "jpeg", quality: 82, config: config2 });
+  if (/^data:/.test(src)) return Buffer.from(src.split(",")[1], "base64");
+  const abs2 = path60.resolve(projectDir(), src);
+  if (fs63.existsSync(abs2)) return fs63.readFileSync(abs2);
+  return (await fetchImage(src)).buf;
+}
+function register21(server2, ctx2) {
+  server2.registerTool(
+    "drip_compare",
+    {
+      title: "Compare things side by side",
+      description: `Puts 2-6 things on one labelled sheet so you, the user or the critic can compare them: pages (URL or local .html, shot at the same size), image files, rendered comps ("comp:<direction>" or "comp:chosen"), the redesign's "before". Uses: before vs after, build vs the chosen comp, your hero vs 3 competitors, two logo or crop options. Saves the sheet for critic_prepare. Example: drip_compare({ items: [{ src: "before", label: "Today" }, { src: "index.html", label: "Redesign" }] })`,
+      inputSchema: {
+        items: external_exports.array(external_exports.object({ src: external_exports.string(), label: external_exports.string().optional(), note: external_exports.string().optional() })).min(2).max(6),
+        width: external_exports.number().int().optional().describe("Page shot width (default 1440)"),
+        height: external_exports.number().int().optional().describe("Page shot height (default 900: the first viewport)"),
+        title: external_exports.string().optional()
+      }
+    },
+    safe(async ({ items, width = 1440, height = 900, title }) => {
+      const config2 = ctx2.config();
+      const imgs = await Promise.all(items.map((it) => sourceImage(it.src, { width, height, config: config2 }).then((buf) => ({ ...it, buf })).catch((e2) => ({ ...it, err: e2.message }))));
+      const cols = imgs.length <= 3 ? imgs.length : imgs.length === 4 ? 2 : 3;
+      const W = 1800;
+      const cellW = Math.floor((W - 48 - (cols - 1) * 20) / cols);
+      const cellH = Math.round(cellW * (height / width));
+      const rows = Math.ceil(imgs.length / cols);
+      const H = 48 + (title ? 44 : 0) + rows * (cellH + 70) + 20;
+      const html = `<style>body{margin:0;background:#ECEBE7;font:15px system-ui;color:#111;padding:24px}h1{font:600 22px system-ui;margin:0 0 20px}.g{display:grid;grid-template-columns:repeat(${cols},${cellW}px);gap:20px}figure{margin:0}.i{width:${cellW}px;height:${cellH}px;background:#fff;border-radius:10px;overflow:hidden;display:grid;place-items:center;border:1px solid #d6d3cb}.i img{width:100%;height:100%;object-fit:contain;display:block}figcaption{margin-top:8px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}.e{color:#b3261e;padding:20px}</style>
+${title ? `<h1>${esc7(title)}</h1>` : ""}<div class="g">${imgs.map((it, i2) => `<figure><div class="i">${it.buf ? `<img src="${dataUrl(it.buf, mimeOf(it.buf))}">` : `<div class="e">${esc7(it.err)}</div>`}</div><figcaption><b>${String.fromCharCode(65 + i2)}</b>${esc7(it.label || it.src)}${it.note ? ` \xB7 ${esc7(it.note)}` : ""}</figcaption></figure>`).join("")}</div>`;
+      const file4 = path60.join(rendersDir("compare"), `compare-${stamp()}.jpg`);
+      const sheet = await renderHtml(html, file4, { width: W, height: H, format: "jpeg", quality: 85, config: config2 });
+      return blocks([
+        textBlock(`Saved ${file4}
+${imgs.map((it, i2) => `${String.fromCharCode(65 + i2)}. ${it.label || it.src}${it.err ? ` \u2014 FAILED: ${it.err}` : ""}`).join("\n")}
+Judge: which one would a stranger remember? What does the winner do that the others don't? Give the critic this file: critic_prepare({ kind: "any", targets: ["${file4.replace(/\\/g, "/")}"] }).`),
+        imageBlock(sheet)
+      ]);
+    })
+  );
+  server2.registerTool(
+    "board_brand",
+    {
+      title: "Brand board",
+      description: `Renders the brand on one 1600x1000 board from Drip's template (kit/brand-board.html): the mark on its ground, the palette with roles and shares, the type pair at real sizes, 1-4 images, voice lines, do / don't. For identity work, a hand-off, or to check that the system holds together before building. Saves HTML + JPG in .drip/brand/. Example: board_brand({ name: "Crumb", logo: "brand/mark.svg", palette: [{ hex: "#F3EFE6", role: "ground", share: 60 }, { hex: "#2B1B17", role: "ink", share: 25 }, { hex: "#E8452C", role: "accent", share: 5 }], display: "Fraunces", text: "Inter", headline: "Bread, honestly", voice: ["We say crumb, not artisan."] })`,
+      inputSchema: {
+        name: external_exports.string(),
+        tagline: external_exports.string().optional(),
+        logo: external_exports.string().optional().describe("SVG markup, or a project path / URL to an SVG or image"),
+        palette: external_exports.array(external_exports.object({ hex: external_exports.string(), role: external_exports.string(), share: external_exports.number().optional() })).min(2).max(8),
+        display: external_exports.string().describe("Display family (Google Fonts name)"),
+        text: external_exports.string().describe("Text family (Google Fonts name)"),
+        displayWeight: external_exports.number().int().optional(),
+        headline: external_exports.string().optional(),
+        body: external_exports.string().optional(),
+        images: external_exports.array(external_exports.string()).max(4).optional().describe("Project paths or URLs"),
+        voice: external_exports.array(external_exports.string()).max(4).optional(),
+        do: external_exports.array(external_exports.string()).max(5).optional(),
+        dont: external_exports.array(external_exports.string()).max(5).optional()
+      }
+    },
+    safe(async (a2) => {
+      const config2 = ctx2.config();
+      const tpl = fs63.readFileSync(path60.join(kitDir, "brand-board.html"), "utf8");
+      const byRole = (r2) => a2.palette.find((p2) => p2.role.toLowerCase().includes(r2))?.hex;
+      const ground = byRole("ground") || byRole("background") || a2.palette[0].hex;
+      const ink2 = byRole("ink") || byRole("text") || a2.palette[1].hex;
+      const lum2 = (h) => {
+        const n3 = parseInt(h.replace("#", "").padEnd(6, "0").slice(0, 6), 16);
+        return 0.2126 * (n3 >> 16 & 255) + 0.7152 * (n3 >> 8 & 255) + 0.0722 * (n3 & 255);
+      };
+      let logo = "";
+      if (a2.logo) {
+        if (/^\s*<svg/i.test(a2.logo)) logo = a2.logo;
+        else {
+          const abs2 = path60.resolve(projectDir(), a2.logo);
+          const buf = fs63.existsSync(abs2) ? fs63.readFileSync(abs2) : (await fetchImage(a2.logo)).buf;
+          logo = /<svg/i.test(buf.subarray(0, 400).toString()) ? buf.toString("utf8").replace(/<\?xml[^>]*>/, "") : `<img src="${dataUrl(buf, mimeOf(buf))}">`;
+        }
+      }
+      const total = a2.palette.reduce((t2, p2) => t2 + (p2.share || 10), 0);
+      const swatches = a2.palette.map((p2) => `<div class="sw" style="flex:${p2.share || 10};background:${p2.hex};color:${lum2(p2.hex) > 150 ? "#111" : "#fff"}"><b>${esc7(p2.role)}</b><span>${esc7(p2.hex.toUpperCase())}${p2.share ? ` \xB7 ${Math.round((p2.share || 10) / total * 100)}%` : ""}</span></div>`).join("");
+      const imgs = await Promise.all((a2.images || []).map(async (src) => {
+        const abs2 = path60.resolve(projectDir(), src);
+        const buf = fs63.existsSync(abs2) ? fs63.readFileSync(abs2) : (await fetchImage(src)).buf;
+        return `<img src="${dataUrl(buf, mimeOf(buf))}">`;
+      }));
+      const fam = (f3, w) => `family=${encodeURIComponent(f3).replace(/%20/g, "+")}:wght@${w}`;
+      const fill = {
+        fontsLink: `<link href="https://fonts.googleapis.com/css2?${fam(a2.display, a2.displayWeight || 700)}&${fam(a2.text, "400;600")}&display=swap" rel="stylesheet">`,
+        displayFamily: `"${a2.display}", serif`,
+        textFamily: `"${a2.text}", sans-serif`,
+        ink: ink2,
+        ground,
+        // The mark on the brand's own ground (a coloured mark on a ground of the same colour vanishes).
+        markGround: ground,
+        markInk: ink2,
+        logo: logo || `<div style="font:700 120px/1 var(--display);letter-spacing:-0.04em">${esc7(a2.name)}</div>`,
+        name: esc7(a2.name),
+        tagline: esc7(a2.tagline || ""),
+        swatches,
+        headline: esc7(a2.headline || a2.tagline || a2.name),
+        bodyCopy: esc7(a2.body || "Body copy at 18px in the text face: what a visitor reads after the headline, set at the real size and measure."),
+        typeMeta: `${esc7(a2.display)} ${a2.displayWeight || 700} \xB7 ${esc7(a2.text)} 400/600`,
+        images: imgs.join("") || `<div style="display:grid;place-items:center;border-radius:14px;background:color-mix(in srgb,var(--ink) 6%,var(--ground));font-size:14px;opacity:.6">Imagery: add 1-4 images</div>`,
+        voice: (a2.voice || ["Add 2-3 lines in the brand's voice."]).map((v) => `<p>${esc7(v)}</p>`).join(""),
+        rules: `<div><h4>Do</h4><ul>${(a2.do || ["\u2026"]).map((x2) => `<li>${esc7(x2)}</li>`).join("")}</ul></div><div><h4>Don't</h4><ul>${(a2.dont || ["\u2026"]).map((x2) => `<li>${esc7(x2)}</li>`).join("")}</ul></div>`
+      };
+      const html = tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => fill[k] ?? "");
+      const dir = rendersDir("brand");
+      const base = path60.join(dir, `brand-${a2.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+      fs63.writeFileSync(`${base}.html`, html);
+      const jpg = await renderHtml(html, `${base}.jpg`, { width: 1600, height: 1e3, format: "jpeg", quality: 88, config: config2 });
+      const doc = designDoc();
+      return blocks([
+        textBlock(`Saved ${base}.html and ${base}.jpg.${doc ? "" : ' No DESIGN.md yet: drip_kit({ template: "design-md" }) and write the same palette and type into it.'}
+Check: does the mark hold on its ground? Do the shares feel like the direction (one committed colour, not five equal chips)? Is the display face doing work at 150px?`),
+        imageBlock(jpg)
+      ]);
+    })
+  );
+}
+
+// src/modules/fitcheck/index.mjs
+init_chrome();
+
+// src/core/pieces-check.mjs
+init_paths();
+import fs64 from "node:fs";
+import path61 from "node:path";
+var norm5 = (s2) => String(s2 || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+function pieceKey(piece) {
+  if (!piece || /^custom/i.test(piece)) return null;
+  const last = String(piece).split(/[/@]/).filter(Boolean).pop() || "";
+  return norm5(last.replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "")) || null;
+}
+function walk(dir, out = [], depth = 6) {
+  if (depth < 0 || !fs64.existsSync(dir)) return out;
+  for (const e2 of fs64.readdirSync(dir, { withFileTypes: true })) {
+    if (e2.name === "node_modules" || e2.name.startsWith(".")) continue;
+    const f3 = path61.join(dir, e2.name);
+    if (e2.isDirectory()) walk(f3, out, depth - 1);
+    else if (/\.(tsx|ts|jsx|js)$/.test(e2.name)) out.push(f3);
+  }
+  return out;
+}
+function unusedPieces(task, root = projectDir()) {
+  if (!task?.page?.dir || !task.sections) return [];
+  const page2 = path61.resolve(root, task.page.dir);
+  const src = path61.join(page2, "src");
+  if (!fs64.existsSync(path61.join(src, "App.tsx"))) return [];
+  const files = walk(src);
+  const comps = files.filter((f3) => f3.includes(`${path61.sep}components${path61.sep}`));
+  const out = [];
+  for (const [id, s2] of Object.entries(task.sections)) {
+    const key = pieceKey(s2.piece);
+    if (!key || key.length < 4) continue;
+    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm5).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f3) => keys.has(norm5(path61.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm5(path61.basename(path61.dirname(f3)))));
+    if (!mine.length) {
+      out.push(`piece not on the page: #${id} names ${s2.piece}, but no ${key} component is installed under src/components (pieces_install it, or name what the section really uses)`);
+      continue;
+    }
+    const names3 = new Set(mine.map((f3) => path61.basename(f3).startsWith("index.") ? path61.basename(path61.dirname(f3)) : path61.basename(f3).replace(/\.\w+$/, "")));
+    const used = files.some((f3) => !mine.includes(f3) && [...names3].some((n3) => new RegExp(`from\\s+["'][^"']*/${n3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/index)?["']`).test(fs64.readFileSync(f3, "utf8"))));
+    if (!used) out.push(`piece not on the page: #${id} names ${s2.piece}, it is installed (${[...names3].join(", ")}) but nothing imports it, so the section was hand-made around it. Use the piece, or say why it doesn't fit`);
+  }
+  return out;
+}
+
+// src/modules/fitcheck/index.mjs
+var isHard = (b) => /not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
+var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
+function register22(server2, ctx2) {
+  register21(server2, ctx2);
+  register18(server2, ctx2);
+  server2.registerTool(
+    "fitcheck_shot",
+    {
+      title: "Screenshot the result",
+      description: 'Captures the WHOLE running page at phone and desktop sizes (screen-sized slices from top to bottom, not just the first screen) and MEASURES it: horizontal overflow, number of text sizes and font families, share of tiny text, paragraph size, monospace share, empty stretches, imagery. Blockers in the audit must be fixed before fitcheck_done can pass. Use it instead of improvising screenshots. url can be a dev-server URL or a local .html file / folder (served for you on a free port; no dev server needed). Every section of a long page appears in at least one slice (more than maxSlices if the page has that many sections). hero: true shoots only the first viewport and runs the hero gate (playbook P31): the h1 and the primary action must sit fully inside it and nothing may be cut off at the edges; do it after building nav + hero, before any section. numbersOnly: true returns the measured blockers and numbers with NO images (cheap re-checks after a fix; it never records a pass: the verdict still needs one real shot). section: "<css selector>" shoots just that section (phone and desktop) instead of the page. Several states or pages at once: fitcheck_shot({ urls: ["http://localhost:3000/?state=typing", "http://localhost:3000/?state=result"], numbersOnly: true }). Example: fitcheck_shot({ url: "http://localhost:3000", hero: true }) or fitcheck_shot({ url, numbersOnly: true }) or fitcheck_shot({ url, section: "#pricing" })',
+      inputSchema: {
+        url: external_exports.string().optional().describe("e.g. http://localhost:3000/pricing, or index.html / site/ (served automatically)"),
+        urls: external_exports.array(external_exports.string()).max(8).optional().describe("Several pages or states in ONE call (e.g. every ?state= of an app screen, or /, /pricing, /about): each is shot and measured, one reply. Prefer this over one call per state"),
+        sizes: external_exports.array(external_exports.object({ name: external_exports.string(), width: external_exports.number(), height: external_exports.number() })).optional(),
+        maxSlices: external_exports.number().int().min(1).max(10).optional().describe("Slices per size (default 5 desktop, 4 phone); long pages are sampled evenly"),
+        hero: external_exports.boolean().optional().describe("Only the first viewport, judged by the hero gate"),
+        numbersOnly: external_exports.boolean().optional().describe("Measured blockers and numbers only, no images. Does not count as the fit check (shoot once with images before fitcheck_done)"),
+        section: external_exports.string().optional().describe('CSS selector of one section to shoot at both sizes (e.g. "#pricing", "main > section:nth-of-type(3)")'),
+        steps: external_exports.array(STEP).max(12).optional().describe(
+          'Interactions to capture as states, with real mouse and keyboard input (drag handlers fire). Each step screenshots the desktop viewport. e.g. [{ do: "drag", selector: ".sheet:nth-child(1)", to: { x: 400, y: 60 }, label: "sheets dragged apart" }, { do: "click", selector: "[data-work=2]", label: "work 2 open" }, { do: "key", text: "Escape" }]'
+        ),
+        app: external_exports.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
+        images: external_exports.enum(["small", "sheet", "all", "none"]).optional().describe("Fast loop default: small (one small sheet per size) the first time you see the page, none (numbers and file paths) after that, because every image stays in your context for the rest of the task. sheet: one full-size contact sheet per size. all: every slice full size (to read small text). Every slice is always saved to disk")
+      }
+    },
+    safe(async (args) => {
+      const many = args.urls?.length ? [...new Set([args.url, ...args.urls].filter(Boolean))] : null;
+      if (!args.url && !many) return text("Pass url, or urls for several pages or states at once.", true);
+      try {
+        restitchIfStale(loadState().task);
+        if (!loadState().task?.filmUrl && (args.url || many?.[0])) {
+          const u2 = await toUrl(args.url || many[0]);
+          updateState((st) => {
+            if (st.task && !st.task.filmUrl) st.task.filmUrl = u2;
+          });
+        }
+      } catch {
+      }
+      if (!many || many.length === 1) return shootRetry({ ...args, url: many ? many[0] : args.url });
+      const content = [];
+      let failed = false;
+      for (const u2 of many) {
+        const r2 = await shootRetry({ ...args, url: u2 });
+        failed ||= !!r2.isError;
+        content.push(textBlock(`===== ${u2} =====`), ...r2.content || []);
+      }
+      return { ...blocks(content), ...failed ? { isError: true } : {} };
+    })
+  );
+  async function shootRetry(a2) {
+    try {
+      return await shootOne(a2);
+    } catch (e2) {
+      if (!/navigated or closed|Target closed|Session closed|detached|ECONNREFUSED|ERR_CONNECTION/i.test(String(e2?.message || e2))) throw e2;
+      await new Promise((r2) => setTimeout(r2, 1500));
+      return shootOne(a2);
+    }
+  }
+  function criticLine(task, config2) {
+    const rec = (task?.critic?.records || []).filter((r2) => r2.kind === "build").at(-1);
+    if (rec && rec.verdict !== "pass") return ` The critic said ${String(rec.verdict).toUpperCase()}: fix what it listed, then the user chooses (ship with the open points, or one more round), not your own pass.`;
+    if (rec) return "";
+    return config2.gates.fastCritic ? " Before you show the user: the critic, once (critic_prepare kind build -> drip:critic -> critic_record); drip_end refuses without it." : " The critic is optional here: offer it in your hand-off for a second opinion (critic_prepare kind build), don't run it unasked.";
+  }
+  async function shootOne({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section, images }) {
+    const t0 = loadState().task;
+    const fastTask = t0?.loop === "fast";
+    const seen = !!t0?.fitcheck?.seenAt;
+    const mode = images || (fastTask ? hero || !seen ? "small" : "none" : hero ? "all" : "sheet");
+    const recordable = mode !== "none" || fastTask && seen;
+    const config2 = ctx2.config();
+    const url2 = await toUrl(target);
+    const persuade = app === void 0 ? isPersuade(loadState().task) : !app;
+    const list4 = sizes || config2.fitcheck.sizes;
+    const dir = rendersDir(`fitcheck-${stamp()}`);
+    const content = [];
+    const audits = [];
+    const files = [];
+    const caps = await Promise.all(list4.map((s2) => capture(url2, { width: s2.width, height: s2.height, maxSlices: hero ? 1 : section ? 3 : maxSlices || (s2.width < 600 ? 4 : 5), scale: s2.width > 1200 ? 1200 / s2.width : 1, shots: !numbersOnly, section: section || null, config: config2 })));
+    if (section && caps.every((c3) => c3.audit?.section?.missing)) return text(`No element matches ${section} on ${url2}. Check the selector (an id, class or "main > section:nth-of-type(2)").`, true);
+    for (const [k, s2] of list4.entries()) {
+      const r2 = caps[k];
+      const j = judgeAudit(r2.audit, { persuade, hero });
+      audits.push({ size: s2.name, width: s2.width, audit: r2.audit, ...j });
+      content.push(textBlock(`${s2.name} ${s2.width}px \xB7 ${numbersOnly ? "numbers only" : section ? `section ${section} (${r2.audit.section?.missing ? "not found" : `y ${r2.audit.section?.top}, ${r2.audit.section?.h}px tall`})` : `${r2.slices.length} of ${r2.sliceCount} screens${r2.audit.sliceYs ? ` at y ${r2.audit.sliceYs.join(", ")}` : ""}`}
+${formatAudit(r2.audit, j)}`));
+      for (const [i2, sl] of r2.slices.entries()) {
+        const f3 = path62.join(dir, `${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+        fs65.writeFileSync(f3, sl.buf);
+        files.push(f3);
+        if (mode === "all" || mode === "sheet" && r2.slices.length === 1) content.push(imageBlock(sl.buf));
+      }
+      if (mode === "sheet" && r2.slices.length > 1 || mode === "small" && r2.slices.length) {
+        const phone = s2.width < 600;
+        const cols = phone ? Math.min(r2.slices.length, 5) : r2.slices.length <= 1 ? 1 : r2.slices.length <= 4 ? 2 : 3;
+        const width = mode === "small" ? phone ? 640 : 960 : phone ? 1500 : 1540;
+        const tileW = Math.floor(width / cols);
+        const tileH = Math.round(tileW * (s2.height / s2.width));
+        content.push(imageBlock(await contactSheet(r2.slices.map((x2) => x2.buf), { cols, tileW, tileH, fit: "contain", gap: 6 })));
+      }
+    }
+    if (steps?.length && !hero && !numbersOnly && !section) {
+      const desk = list4.find((s2) => s2.width >= 1e3) || list4.at(-1);
+      const states = await captureStates(url2, steps, { width: desk.width, height: desk.height, config: config2 });
+      for (const [i2, st] of states.entries()) {
+        content.push(textBlock(`State ${i2 + 1}: ${st.label}${st.error ? ` \xB7 STEP FAILED: ${st.error}` : ""}`));
+        if (!st.buf?.length) continue;
+        const f3 = path62.join(dir, `state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+        fs65.writeFileSync(f3, st.buf);
+        files.push(f3);
+        if (mode === "all") content.push(imageBlock(st.buf));
+      }
+      if (mode === "sheet" || mode === "small") {
+        const bufs = states.filter((x2) => x2.buf?.length).map((x2) => x2.buf);
+        const w = mode === "small" ? 960 : 1540;
+        if (bufs.length) content.push(imageBlock(await contactSheet(bufs, { cols: Math.min(bufs.length, 3), tileW: Math.floor(w / Math.min(bufs.length, 3)), tileH: Math.round(Math.floor(w / Math.min(bufs.length, 3)) * desk.height / desk.width), fit: "contain", gap: 6 })));
+      }
+    }
+    const blockers = audits.flatMap((a2) => a2.blockers.map((b) => `${a2.size}: ${b}`));
+    if (!hero && !numbersOnly && !section) blockers.push(...unusedPieces(loadState().task));
+    updateState((st) => {
+      if (st.task) {
+        st.task.fitcheck.url = url2;
+        if (!hero && !section) st.task.directorEdits = 0;
+        if (!hero && !numbersOnly && !section && mode !== "none") st.task.fitcheck.seenAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (numbersOnly || section || !recordable) {
+          st.task.fitcheck.numbersAt = (/* @__PURE__ */ new Date()).toISOString();
+          return;
+        }
+        const fast = st.task.loop === "fast";
+        const broken = blockers.filter(isHard).length > 0;
+        if (hero && (!blockers.length || fast && !broken)) st.task.fitcheck.heroPassedAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (hero && fast && !broken) {
+          st.task.fitcheck.lastShotAt = st.task.fitcheck.doneAt = (/* @__PURE__ */ new Date()).toISOString();
+          st.task.fitcheck.shotRev = st.task.fitcheck.doneRev = artifactRev(st.task);
+          return;
+        }
+        if (hero) return;
+        st.task.fitcheck.shots += files.length;
+        st.task.fitcheck.lastShotAt = (/* @__PURE__ */ new Date()).toISOString();
+        st.task.fitcheck.shotRev = artifactRev(st.task);
+        st.task.fitcheck.blockers = blockers;
+        st.task.fitcheck.files = files;
+        if (!blockers.length || fast && !broken) {
+          st.task.fitcheck.doneAt = st.task.fitcheck.lastShotAt;
+          st.task.fitcheck.doneRev = st.task.fitcheck.shotRev;
+        }
+      }
+    });
+    if (!hero && !numbersOnly && !section && recordable) markShot(loadState().task);
+    const list22 = blockers.map((b) => `- ${b}`).join("\n");
+    let head;
+    if (numbersOnly)
+      head = `${blockers.length ? `MEASURED BLOCKERS (numbers only, no images):
+${list22}` : "No measured blockers (numbers only)."}
+
+This is not the fit check: it has no pictures. Fix, re-run numbersOnly as needed, then shoot once with images before fitcheck_done.`;
+    else if (section)
+      head = `Section ${section} at both sizes (the page-wide numbers are in the text below${blockers.length ? `; ${blockers.length} blocker(s)` : ""}). Look at it, fix, and shoot the whole page once more before fitcheck_done.`;
+    else {
+      const judge = 'Now judge the slices like a design director, not the author (drip_guide fitcheck): hierarchy, scale (is the type big and confident enough?), empty stretches, off-system type, imagery, slop tells, the phone layout, missing states. The sheet shows every screen small; to read fine text use images: "all" or section: "#id". Fix, re-shoot, then the critic. Files for the critic: ' + dir;
+      head = hero ? blockers.length ? `HERO GATE FAILED (fix before writing any section):
+${list22}
+
+Redo the hero bigger and fully inside the first screen, then fitcheck_shot({ url, hero: true }) again.
+
+${judge}` : `HERO GATE PASSED. Now look: could this be any brand's hero? If not, build the sections in plan order (playbook P24-P32), then fitcheck_shot the whole page.
+
+${judge}` : `${blockers.length ? `MEASURED BLOCKERS (fix before fitcheck_done can pass):
+${list22}` : "No measured blockers: the page check is recorded for this version (no fitcheck_done needed). Look at the sheet, fix what looks wrong, then the critic."}
+
+${judge}`;
+    }
+    if (loadState().task?.loop === "fast" && !numbersOnly && !section) {
+      const hard = blockers.filter(isHard);
+      const soft = blockers.filter((b) => !isHard(b));
+      const brokenText = hard.length ? `BROKEN (the user must never see this; fix it, then shoot again):
+${hard.map((b) => `- ${b}`).join("\n")}
+
+` : "";
+      const softText = soft.length ? `Worth fixing in the same edit (numbers, not breakage; no extra round for these):
+${soft.map((b) => `- ${b}`).join("\n")}
+
+` : "";
+      head = hero ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare with every section; its one or two builders in one message): the user sees the finished page, not a question."}`}` : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version."} ${mode === "none" ? `Numbers only: you looked at this page earlier in the task, so no pictures this time (the slices are in ${dir}; images: "small" if you really need a look).` : "Look at the sheet once."} Fixes go as ONE list: small ones in one edit of yours, the rest in one SendMessage to the builder that wrote the section. Then one more shot, and show the user.${criticLine(loadState().task, ctx2.config())}`;
+    }
+    content.unshift(textBlock(head));
+    return blocks(content);
+  }
+  server2.registerTool(
+    "fitcheck_compare",
+    {
+      title: "Compare with the chosen direction",
+      description: "Puts a screenshot of the page next to the CHOSEN direction's comp (the first-viewport comp the user picked), in one picture, so you can see whether the build actually matches what was agreed. Falls back to the direction's reference shots when no comp was rendered.",
+      inputSchema: { url: external_exports.string().optional().describe("Page to shoot; defaults to the last fitcheck_shot URL") }
+    },
+    safe(async ({ url: url2 }) => {
+      const { task } = loadState();
+      const target = url2 || task?.fitcheck?.url;
+      if (!target) return text("No page URL. Pass url or run fitcheck_shot first.", true);
+      const board = task?.board?.id && loadBoard(task.board.id);
+      const dir = board?.directions.find((d) => d.name === board.chosen);
+      const content = [];
+      const shot3 = await screenshot(target, { width: 1440, height: 900, format: "jpeg", quality: 80, config: ctx2.config() });
+      const tile = dir?.tile && fs65.existsSync(dir.tile) ? fs65.readFileSync(dir.tile) : null;
+      if (dir && tile) {
+        const sheet = await contactSheet([shot3, tile], { cols: 2, tileW: 720, tileH: 450, fit: "contain", gap: 12 });
+        content.push(
+          textBlock(`LEFT (1) the build (${target}) \xB7 RIGHT (2) the chosen direction "${dir.name}", its comp: ${dir.summary}
+Adjectives: ${dir.adjectives.join(", ")} \xB7 Palette: ${dir.palette.join(" ")} \xB7 Type: ${dir.type}`),
+          imageBlock(sheet)
+        );
+      } else {
+        content.push(textBlock(`The build (${target}):`), imageBlock(shot3));
+        if (dir) {
+          const items = dir.items.map((k) => board.items.find((it) => it.key === k)).filter((it) => it?.image);
+          const bufs = await Promise.all(items.slice(0, 9).map((it) => fetchImage(it.source === "dribbble" ? thumbUrl(it.image, 480, 360) : it.image).then((r2) => r2.buf).catch(() => Buffer.alloc(0))));
+          content.push(
+            textBlock(`No rendered comp for "${dir.name}" (board_directions renders them), so here are its references: ${dir.summary}
+Adjectives: ${dir.adjectives.join(", ")} \xB7 Palette: ${dir.palette.join(" ")} \xB7 Type: ${dir.type}
+Notes:
+${items.map((it, i2) => `${i2 + 1}. ${it.note}`).join("\n")}`),
+            imageBlock(await contactSheet(bufs, { cols: 3, tileW: 480, tileH: 360 }))
+          );
+        } else content.push(textBlock("No chosen direction on record (quick loop or no board). Compare against DESIGN.md instead."));
+      }
+      content.push(textBlock("Does the build carry the direction's adjectives, palette discipline, type and density? Name each gap and fix it."));
+      return blocks(content);
+    })
+  );
+  server2.registerTool(
+    "fitcheck_lint",
+    {
+      title: "Static slop and polish checks",
+      description: "Scans UI files for AI-slop tells and polish problems (purple gradients, emoji icons, filler copy, removed focus rings, transition-all, 100vh, fake stats\u2026), and checks DESIGN.md against the code (colours, fonts, kit placeholders). Defaults to the files changed in this task.",
+      inputSchema: { files: external_exports.array(external_exports.string()).optional() }
+    },
+    safe(async ({ files }) => {
+      const { task } = loadState();
+      const root = projectDir();
+      const list4 = (files?.length ? files : [...new Set((task?.uiWrites || []).map((w) => w.file))]).map((f3) => path62.resolve(root, f3));
+      if (!list4.length) return text("No files given and none recorded for this task.", true);
+      const issues = lintFiles(list4, root);
+      updateState((st) => {
+        if (st.task) st.task.fitcheck.lintAt = (/* @__PURE__ */ new Date()).toISOString();
+      });
+      const doc = designDoc(root);
+      let drift = "";
+      if (doc) {
+        const d = designDrift(root, doc.file);
+        drift = d.issues.length ? `
+
+${doc.rel} vs the code (${d.files} style files, ${d.tokenCount} tokens):
+- ${d.issues.join("\n- ")}` : `
+
+${doc.rel} matches the code's colours and fonts.`;
+      }
+      return text(`${list4.length} file(s) checked.
+${formatIssues(issues, root)}${drift}`);
+    })
+  );
+  server2.registerTool(
+    "fitcheck_done",
+    {
+      title: "Record the fit check verdict",
+      description: "Record your honest scores (1-5) after looking at fitcheck_shot images. A verdict of 'pass' needs every score >= 4 and no open slop tells; otherwise list the fixes and do them, then shoot again. Ending your turn after UI changes is blocked until a passing fit check is recorded (or the user accepts the listed gaps).",
+      inputSchema: {
+        scores: external_exports.object(Object.fromEntries(CRITERIA.map((c3) => [c3, external_exports.number().int().min(1).max(5)]))),
+        verdict: external_exports.enum(["pass", "fail"]),
+        fixes: external_exports.array(external_exports.string()).describe("What you fixed, or what is still wrong"),
+        acceptedByUser: external_exports.boolean().optional().describe("True only if the user said to ship despite the remaining gaps")
+      }
+    },
+    safe(async ({ scores, verdict, fixes, acceptedByUser }) => {
+      const low = Object.entries(scores).filter(([, v]) => v < 4);
+      reconcileWorkspace();
+      const { task: t0 } = loadState();
+      if (t0 && !t0.fitcheck?.lastShotAt) return text("Shoot the page first: fitcheck_shot({ url }). A fit check needs the measured, full-page capture.", true);
+      if (t0 && t0.lastUiWriteAt && t0.fitcheck.lastShotAt < t0.lastUiWriteAt && !(t0.fitcheck.shotRev && t0.fitcheck.shotRev === artifactRev(t0))) return text("The UI changed after the last fitcheck_shot. Shoot it again so the verdict is about the current page.", true);
+      if (t0 && t0.fitcheck.shotRev && t0.fitcheck.shotRev !== artifactRev(t0)) return text("The files, DESIGN.md or direction changed after the last fitcheck_shot (the evidence belongs to an earlier version). Shoot it again so the verdict is about what exists now.", true);
+      const blockers = t0?.fitcheck?.blockers || [];
+      if (verdict === "pass" && blockers.length && !acceptedByUser)
+        return text(`Can't pass with measured blockers:
+- ${blockers.join("\n- ")}
+Fix them (drip_guide type / layout), fitcheck_shot again, then record the verdict.`, true);
+      const lastCritic = (t0?.critic?.records || []).filter((r2) => r2.kind === "build").at(-1);
+      if (verdict === "pass" && lastCritic && lastCritic.verdict !== "pass" && !acceptedByUser)
+        return text(
+          `The critic's last word on this build was ${String(lastCritic.verdict).toUpperCase()} ("${lastCritic.worst || lastCritic.summary || ""}"). Your own pass doesn't overrule it. Fix what it listed, then ask the user with AskUserQuestion: "Ship with these open points" (list what is still open) or "One more critic round" (critic_prepare with extraRound: true). Record acceptedByUser: true only when the user chose to ship.`,
+          true
+        );
+      const pass = verdict === "pass" && !low.length;
+      const st = updateState((s2) => {
+        if (!s2.task) return;
+        s2.task.fitcheck.score = Object.entries(scores).map(([k, v]) => `${k} ${v}`).join(", ");
+        if (acceptedByUser) (s2.task.critic ||= { runs: [], records: [] }).shipAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (pass || acceptedByUser) {
+          s2.task.fitcheck.doneAt = (/* @__PURE__ */ new Date()).toISOString();
+          s2.task.fitcheck.doneRev = artifactRev(s2.task);
+        }
+      });
+      if (!st.task) return text("No Drip task is active.", true);
+      if (pass) return text("Fit check passed. Polish last (drip_guide polish), then drip_end when the work is done.");
+      if (acceptedByUser) return text(`Recorded as shipped with known gaps: ${fixes.join("; ")}.`);
+      return text(`Not passing yet${low.length ? ` (below 4: ${low.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}. Fix: ${fixes.join("; ") || "name what is wrong"}. Then fitcheck_shot again and record a new verdict.`, true);
+    })
+  );
+}
+
+// src/modules/critic/index.mjs
+var critic_exports = {};
+__export(critic_exports, {
+  behaviourBlock: () => behaviourBlock,
+  defends: () => defends,
+  goldFor: () => goldFor,
+  hoverSteps: () => hoverSteps,
+  register: () => register23
+});
+import fs66 from "node:fs";
+import path63 from "node:path";
+init_paths();
+init_serve();
+function defends(context) {
+  const s2 = String(context || "");
+  if (s2.length > 400) return `${s2.length} characters: a context that long is a pitch`;
+  const m = s2.match(/\b(intentional(ly)?|deliberate(ly)?|on purpose|by design|as designed|(already|now) (fixed|improved|addressed|better)|we (fixed|improved|chose)|i (fixed|improved|chose)|don'?t (judge|penali[sz]e|count|mark)|ignore|not a (bug|flaw|mistake)|this is fine|should pass|please (pass|be kind)|was (fixed|improved)|much better|huge improvement)\b/i);
+  return m ? m[0] : null;
+}
+var INTERACTIVE = /accordion|expand|hover|carousel|slider|tabs?\b|toggle|marquee|tilt|reveal|drag|compare|before.?after|flip|stack|swipe|scroll|dock|magnet|spotlight|morph|gallery/i;
+function pieceInfo(piece) {
+  if (!piece || /^custom/i.test(piece)) return null;
+  const name = String(piece).split(/[/@]/).pop().replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "").toLowerCase();
+  try {
+    return loadPieces().find((p2) => String(p2.name).toLowerCase() === name) || { name };
+  } catch {
+    return { name };
+  }
+}
+function behaviourBlock(task) {
+  const sections = Object.entries(task?.sections || {});
+  const motions = (task?.refs?.studied || []).filter((s2) => s2.motion).slice(0, 4);
+  if (!sections.length && !motions.length) return "";
+  const lines = sections.map(([id, s2]) => {
+    const p2 = pieceInfo(s2.piece);
+    const what = p2 ? `library piece ${p2.lib ? `${p2.lib}/` : ""}${p2.name}${p2.look ? ` (${p2.look})` : ""}` : s2.piece ? `homemade (${s2.piece})` : "no piece named";
+    return `- #${id}: ${what}. Spec: ${s2.spec}`;
+  });
+  return [
+    "\nHOW IT BEHAVES (stills can't show motion or interaction; this is what each section does, from the build specs):",
+    ...lines,
+    ...motions.length ? ["Motion taken from the references:", ...motions.map((m) => `- ${m.source}: ${m.motion}`)] : [],
+    `Judge each interactive section by what it does, using the interaction states when given. A resting frame of a known pattern (an accordion gallery's narrow panels, a carousel's one slide, collapsed tabs) is its design, not a defect: ask whether the rest state reads and invites the interaction. Without states for it, write "unjudged: <section>" instead of guessing.`
+  ].join("\n");
+}
+function hoverSteps(task) {
+  return Object.entries(task?.sections || {}).filter(([, s2]) => INTERACTIVE.test(`${s2.piece} ${s2.spec} ${pieceInfo(s2.piece)?.look || ""}`)).slice(0, 6).flatMap(([id]) => [
+    { do: "hover", selector: `#${id}`, shot: false },
+    { do: "wait", ms: 600, label: `#${id} while hovered (the pointer at its centre)` }
+  ]);
+}
+var KIND_BRIEF = {
+  directions: "You are judging 2-4 candidate DESIGN DIRECTIONS, each shown as its first viewport at 1440x900 (a comp; the picture slot is labelled with what will fill it) plus a spec strip, before the client sees them. Rank them best to worst. For each: is it beautiful, the kind of hero a designer saves on Dribbble? Is there one rich picture carrying it (the product UI as a glowing mockup, a fan or arc of real image cards, a 3D render, a character, a product photo) at a real size, with a calm confident headline (about 48-80px) and soft light and depth? Is it polished or rough? Does it fit the brief? Are the directions different ways to show the product, not one idea recoloured? A familiar structure done beautifully is a strength; a shouting poster nobody asked for is not. If none is good enough, say so (verdict reject).",
+  build: "You are judging a BUILT page/screen (screenshots at phone and desktop sizes) against the brief and the chosen direction. Judge only what you see. Is it beautiful, polished and finished, with something worth looking at on every screen? Do the states and interaction states show a considered flow (hover, press, loading, transitions)? Name every place it looks rough, empty, generic or AI-made.",
+  logo: "You are judging LOGO concepts or a finished logo (renders at large and small sizes, light and dark). Judge the idea (one clear thought, not a clich\xE9), the construction (curve quality, optical balance, consistent stroke and spacing, no wobbly or lumpy shapes), small-size survival (16-32px), the wordmark's type, and whether it would look at home next to the best marks in its field. Rank concepts if several.",
+  pack: "You are judging a NICHE PACK: written guidance meant to make a designer excellent in one niche. Is it specific to the niche (real standards, real artists, real techniques, real numbers) or generic design advice with the niche's name pasted in? Name every generic or wrong statement and what's missing.",
+  any: "You are judging a design. Judge only what you see against the brief (if any)."
+};
+var AXES = {
+  directions: ["appeal", "craft potential", "brief fit", "eye candy", "different ideas"],
+  build: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy", "UX & motion", "copy", "brief/direction fit"],
+  logo: ["idea", "distinctiveness", "construction", "small-size", "typography", "versatility"],
+  pack: ["specificity", "accuracy", "usefulness", "coverage"],
+  any: ["appeal", "polish & craft", "hierarchy", "typography", "colour", "composition", "imagery & eye candy"]
+};
+function briefBlock2(task) {
+  const b = task?.brief;
+  if (!b) return task ? `Request: ${task.title}` : "No brief given.";
+  return [
+    `Request: ${task.title}`,
+    `What: ${b.what}`,
+    `For: ${b.audience}`,
+    `Job: ${b.job}`,
+    `Feel: ${b.feel.join(", ")}`,
+    b.loves?.length ? `Loves: ${b.loves.join(", ")}` : "",
+    b.hates?.length ? `Hates: ${b.hates.join(", ")}` : "",
+    `Ambition: ${b.ambition}${b.ambition === "bold" ? " (the client asked for loud, distinctive work)" : b.ambition === "conservative" ? " (the category standard done perfectly)" : " (beautiful and polished: proven structure is fine; judge appeal, craft and feel, never mark good familiar work down as safe)"}`,
+    b.constraints ? `Constraints: ${b.constraints}` : ""
+  ].filter(Boolean).join("\n");
+}
+var isUrl = (s2) => /^https?:\/\//i.test(s2) || /^file:/i.test(s2);
+function goldFor(task) {
+  const t2 = `${task?.title || ""} ${task?.brief?.what || ""}`.toLowerCase();
+  const kind = /\b(walker|device|hardware|speaker|bike|camera|furniture|toy|gadget|appliance|wearable|shoe|bottle|stroller)\b/.test(t2) && !/\b(saas|software|app|platform)\b/.test(t2) ? "hardware" : /\b(ai|generator|thumbnail|image|video|creative tool|model)\b/.test(t2) ? "ai-tool" : /\b(portfolio|studio|agency|designer|artist|photographer)\b/.test(t2) ? "studio" : task?.surface === "landing" || task?.surface === "app" ? "saas" : null;
+  const labels = { hardware: "teenage.engineering, OP-1 product page", "ai-tool": "krea.ai", studio: "locomotive.ca", saas: "linear.app" };
+  const file4 = kind && path63.join(examplesDir, "gold", kind, "1.jpg");
+  return file4 && fs66.existsSync(file4) ? { kind, file: file4, label: labels[kind] } : null;
+}
+function register23(server2, ctx2) {
+  server2.registerTool(
+    "critic_prepare",
+    {
+      title: "Prepare a critic review",
+      description: `Prepares an independent review by the drip:critic subagent (Sonnet, no history, harsh). It renders the work to image files and returns the exact prompt to pass to the subagent: Agent({ subagent_type: "drip:critic", description: "Critic review", prompt: <returned prompt> }). Pass the prompt unchanged; never add your own defence of the work. kind: directions (uses the board's first-viewport comps), build (screenshots the URL(s) at phone + desktop), logo (renders SVG/PNG files light/dark + small), pack (a niche pack id), any. Examples: critic_prepare({ kind: "directions" }) \xB7 critic_prepare({ kind: "build", targets: ["http://localhost:3000"] }) \xB7 critic_prepare({ kind: "logo", targets: ["brand/concepts.png"] })`,
+      inputSchema: {
+        kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
+        targets: external_exports.array(external_exports.string()).optional().describe("URLs, file paths (png/jpg/svg/html) or, for kind pack, the pack id. Pass every state of an app screen at once (?state=typing, ?state=result, ...): each keeps its own screenshots"),
+        context: external_exports.string().optional().describe("Facts the critic needs that aren't visible (e.g. 'this is the mobile app's settings screen'). Never excuses."),
+        steps: external_exports.array(STEP).optional().describe("build: interactions to show the critic as extra screenshots (hover, click, open, generate...), same as fitcheck_shot steps. For a transition, add waits of ~150ms between shots: the critic judges motion from that frame strip"),
+        extraRound: external_exports.boolean().optional().describe("Only when the user chose 'one more round' after the round limit")
+      }
+    },
+    safe(async ({ kind, targets = [], context, steps, extraRound }) => {
+      const config2 = ctx2.config();
+      const pleading = defends(context);
+      if (pleading)
+        return text(
+          `The context argues for the work ("${pleading}"). The critic must judge what it sees: give only facts it can't see (what the screen is, who uses it, what's real data), in under 400 characters, and let the work speak.`,
+          true
+        );
+      const { task } = loadState();
+      const building = kind === "build" ? agentsRunning(task).filter((a2) => /builder/i.test(a2.type)) : [];
+      if (building.length)
+        return text(`${building.length} builder${building.length > 1 ? "s are" : " is"} still writing sections. Wait for ${building.length > 1 ? "them" : "it"} to finish, then page_stitch and one fitcheck_shot; the critic judges the finished page, once.`, true);
+      const prevRounds = (task?.critic?.records || []).filter((r2) => r2.kind === kind);
+      const decided = task?.intake?.max === 0;
+      if (kind === "build" && decided && !extraRound && !task?.critic?.extraRounds && prevRounds.length >= criticRounds(task, config2)) extraRound = true;
+      if (kind === "build" && prevRounds.length >= criticRounds(task, config2) + (task?.critic?.extraRounds || 0) && !extraRound)
+        return text(
+          decided ? `Round limit: ${prevRounds.length} critic rounds (last: ${prevRounds.at(-1).verdict.toUpperCase()}). The user told you to decide: ship it. fitcheck_done, then drip_end({ acceptOpen: "decide for me" }) and list the open points in the hand-off.` : `Round limit: the critic has judged this build ${prevRounds.length} times (last: ${prevRounds.at(-1).verdict.toUpperCase()}, ${prevRounds.at(-1).summary}).
+Ask the user now with AskUserQuestion: "Ship it with the open points listed" or "One more critic round". Show the open points first. If they pick another round, call critic_prepare again with extraRound: true; if they ship, fitcheck_done and hand off with the open points.`,
+          true
+        );
+      if (extraRound) updateState((st) => st.task && (st.task.critic.extraRounds = (st.task.critic.extraRounds || 0) + 1));
+      const dir = rendersDir(`critic-${stamp()}`);
+      const files = [];
+      const notes = [];
+      const measured = [];
+      if (kind === "directions") {
+        const board = task?.board?.id && loadBoard(task.board.id);
+        if (!board?.directions?.length) return text("No directions to judge. board_directions first (it renders the comps).", true);
+        const missing = board.directions.filter((d) => !d.tile || !fs66.existsSync(d.tile));
+        if (missing.length) return text(`Render the comps first (board_tile): missing for ${missing.map((d) => d.name).join(", ")}.`, true);
+        const unreadable = board.directions.filter((d) => d.typeIssues?.length);
+        if (unreadable.length)
+          return text(`Not ready for the critic: ${unreadable.map((d) => `"${d.name}" (${d.typeIssues.map((t2) => t2.detail).join("; ")})`).join(" \xB7 ")}. Fix the comps and board_tile again; a critic's time goes on ideas, not on broken type.`, true);
+        board.directions.filter((d) => !d.dropped).forEach((d, i2) => {
+          files.push(d.tile);
+          notes.push(`Direction ${i2 + 1} "${d.name}" (${files.length}): ${d.idea ? `IDEA: ${d.idea}. ` : ""}${d.summary}${d.manifesto ? ` Manifesto: ${d.manifesto}` : ""}${d.pairing ? ` Pairing: ${d.pairing}.` : ""} \xB7 ${d.adjectives.join(", ")} \xB7 palette ${d.palette.join(" ")} \xB7 type ${d.type}`);
+          if (i2 === 0 && board.criteria?.length) context = `${context ? `${context}
+` : ""}Choice criteria (written before the tiles): ${board.criteria.join("; ")}`;
+        });
+      }
+      if (kind === "directions" || kind === "build") {
+        const gold = goldFor(task);
+        if (gold) {
+          files.push(gold.file);
+          notes.push(`THE BAR (image ${files.length}): ${gold.label}, a shipped page of the same kind. Judge craft, confidence and restraint against it ("would this sit next to it without looking like a template?"); never ask the work to copy its look.`);
+        }
+      }
+      const list4 = kind === "directions" || kind === "pack" ? [] : targets;
+      for (const [ti, t0] of list4.entries()) {
+        const tag = list4.length > 1 ? `t${ti + 1}-` : "";
+        const t2 = kind === "build" && /\.html?$/i.test(t0) && !isUrl(t0) ? await toUrl(t0) : t0;
+        if (isUrl(t2)) {
+          const sizes = config2.fitcheck.sizes;
+          const caps = await Promise.all(sizes.map((s2) => capture(t2, { width: s2.width, height: s2.height, maxSlices: s2.width < 600 ? 4 : 6, config: config2 })));
+          for (const [k, s2] of sizes.entries()) {
+            const r2 = caps[k];
+            const j = judgeAudit(r2.audit, { persuade: isPersuade(loadState().task) });
+            measured.push(`${s2.name}: ${formatAudit(r2.audit, j)}`);
+            r2.slices.forEach((sl, i2) => {
+              const f3 = path63.join(dir, `${tag}${s2.name}-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs66.writeFileSync(f3, sl.buf);
+              files.push(f3);
+              notes.push(`${t2} at ${s2.name} ${s2.width}px, screen ${i2 + 1} of ${r2.sliceCount} (from y=${sl.y}px)`);
+            });
+          }
+          const autoSteps = !steps?.length && kind === "build" && ti === 0 ? hoverSteps(task) : [];
+          const useSteps = steps?.length ? steps : autoSteps;
+          if (useSteps.length) {
+            const desk = sizes.find((s2) => s2.width >= 1e3) || sizes.at(-1);
+            const states = await captureStates(t2, useSteps, { width: desk.width, height: desk.height, config: config2 });
+            states.forEach((st, i2) => {
+              const f3 = path63.join(dir, `${tag}state-${String(i2 + 1).padStart(2, "0")}.jpg`);
+              fs66.writeFileSync(f3, st.buf);
+              files.push(f3);
+              notes.push(`interaction state ${i2 + 1}: ${st.label}${st.error ? ` (step failed: ${st.error})` : ""}`);
+            });
+          }
+        } else {
+          const abs2 = path63.resolve(projectDir(), t2);
+          if (!fs66.existsSync(abs2)) return text(`File not found: ${t2}`, true);
+          if (/\.svg$/i.test(abs2)) {
+            const svg = fs66.readFileSync(abs2, "utf8");
+            for (const [bg, label, size] of [["#FFFFFF", "light", 1024], ["#111111", "dark", 1024], ["#FFFFFF", "small 64px", 64], ["#FFFFFF", "tiny 24px", 24]]) {
+              const f3 = path63.join(dir, `${path63.basename(abs2, ".svg")}-${label.replace(/\W+/g, "")}.png`);
+              await renderSvg(svg, f3, { size, bg, config: config2 });
+              files.push(f3);
+              notes.push(`${t2} on ${label}`);
+            }
+          } else if (/\.html?$/i.test(abs2)) {
+            const f3 = path63.join(dir, `${path63.basename(abs2)}.png`);
+            await renderUrl(`file:///${abs2.replace(/\\/g, "/")}`, f3, { width: 1440, height: 900, config: config2 });
+            files.push(f3);
+            notes.push(`${t2} rendered`);
+          } else {
+            files.push(abs2);
+            notes.push(t2);
+          }
+        }
+      }
+      let packText = "";
+      if (kind === "pack") {
+        const id2 = targets[0];
+        const parts = ["guide.md", "genres.md", "artists.md", "critic.md", "queries.md"].map((f3) => [f3, readPackFile(id2, f3)]).filter(([, c3]) => c3);
+        if (!parts.length) return text(`No pack "${id2}" (or it is empty).`, true);
+        packText = parts.map(([f3, c3]) => `----- ${f3} -----
+${c3.slice(0, 9e3)}`).join("\n\n");
+      }
+      if (kind !== "pack" && !files.length) return text("Nothing to judge: pass targets (URLs or files).", true);
+      const rubric = (task?.packs || []).map((p2) => readPackFile(p2, "critic.md")).filter(Boolean).join("\n\n");
+      const doc = kind === "build" || kind === "any" ? designDoc(projectDir(), task) : null;
+      const memory = kind === "build" || kind === "any" || kind === "directions" ? projectContext({ task, maxChars: 1500 }) : null;
+      const skills = relevantSkills(task);
+      const prev = prevRounds.at(-1);
+      const prevBlock = prev ? [
+        `
+PREVIOUS ROUND (round ${prevRounds.length}: ${prev.verdict.toUpperCase()}, scores ${Object.entries(prev.scores).map(([k, v]) => `${k} ${v}`).join(", ")})`,
+        `Worst then: ${prev.worst}`,
+        `Fixes asked for:
+${prev.fixes.map((f3, i2) => `  ${i2 + 1}. ${f3}`).join("\n")}`,
+        "START your answer with a PROGRESS line per fix above: FIXED / PARTLY / NOT FIXED, from what you see. Then new problems. Scores must reflect progress: an axis whose problems are fixed goes up unless something visibly got worse; do not swap in fresh nitpicks to hold a score down."
+      ].join("\n") : "";
+      const id = `c${Date.now().toString(36)}`;
+      const prompt = [
+        `DRIP CRITIC REVIEW ${id} \xB7 kind: ${kind}`,
+        KIND_BRIEF[kind],
+        "",
+        "THE BRIEF",
+        briefBlock2(task),
+        task?.board?.chosen && kind === "build" ? `Chosen direction: ${task.board.chosen}` : "",
+        doc ? `
+THE LOCKED DIRECTION AND SYSTEM (${doc.rel}; the client chose this. Judge the build against it. A suggestion that breaks one of its rules, e.g. a second accent in a one-accent system, is allowed only labelled [OFF-DIRECTION] in FIXES and never lowers Fit or System):
+${doc.text.slice(0, 4e3)}` : "",
+        skills.length ? `
+THE PRODUCT'S OWN RULES (Claude skills in this workspace; Read each SKILL.md and flag any violation as S1):
+${skills.map((k) => `- ${k.name}: ${k.file}`).join("\n")}` : "",
+        memory?.approved ? `
+THE PROJECT'S APPROVED DIRECTION AND RULES (approved by the user, style ${memory.approved.revision}; ${kind === "directions" ? "a direction that ignores them must justify itself as a redesign" : "judge the work against them. A suggestion that breaks one is allowed only labelled [OFF-DIRECTION] in FIXES"}):
+${memory.text}` : "",
+        prevBlock,
+        context ? `Context: ${context}` : "",
+        kind === "build" ? behaviourBlock(task) : "",
+        measured.length ? `
+MEASURED FACTS (from the live page; trust these over your eyes, and apply the caps in your rules):
+${measured.join("\n")}` : "",
+        rubric ? `
+NICHE RUBRIC (also judge against this)
+${rubric}` : "",
+        "",
+        files.length ? `IMAGES (open every one with the Read tool before judging):
+${files.map((f3, i2) => `${i2 + 1}. ${f3}${notes[i2] ? `  \u2014 ${notes[i2]}` : ""}`).join("\n")}` : "",
+        packText ? `
+THE PACK
+${packText}` : "",
+        "",
+        `Score these axes 1-10: ${AXES[kind].join(", ")}.`,
+        "Answer in your standard format (VERDICT, SCORES, RANKING if several, WORST PROBLEM, WHAT'S GENERIC, FIXES, ONE-LINE SUMMARY)."
+      ].filter((x2) => x2 !== "").join("\n");
+      updateState((st) => {
+        if (st.task) st.task.critic.pending = { id, kind, files, rev: artifactRev(st.task), at: (/* @__PURE__ */ new Date()).toISOString(), blockers: measured.filter((m) => /BLOCKERS:/.test(m)).map((m) => m.split("BLOCKERS:")[1].split("\n")[0].trim()) };
+      });
+      const brief = writeBrief(`critic-${kind}`, prompt);
+      return text(
+        `Prepared ${id}: ${files.length} image(s) in ${dir}; the critic's brief is in ${brief}.
+
+NOW: launch the critic with exactly this call (do not add your opinion; you don't need to read the brief):
+${launchLine("critic", `Critic review ${kind}`, prompt, brief)}
+
+Then critic_record the verdict and show the user the critic's own words.`
+      );
+    })
+  );
+  server2.registerTool(
+    "critic_record",
+    {
+      title: "Record the critic's verdict",
+      description: `Store the drip:critic subagent's verdict (copy its numbers and words; don't soften them). Only works after the subagent actually ran. verdict: pass (ship it / show it), revise (fix the listed problems), reject (start over / replace). For directions, include perDirection so the board shows the critic's ranking. Example: critic_record({ kind: "build", verdict: "revise", scores: { concept: 6, typography: 4 }, worst: "the hero has nothing to look at: a headline on a flat ground", fixes: ["put the real product UI as layered cards beside the headline", "cut the three equal cards"], summary: "competent template, not a portfolio anyone remembers" })`,
+      inputSchema: {
+        kind: external_exports.enum(["directions", "build", "logo", "pack", "any"]),
+        verdict: external_exports.enum(["pass", "revise", "reject"]),
+        scores: external_exports.record(external_exports.string(), external_exports.number().min(1).max(10)),
+        worst: external_exports.string(),
+        fixes: external_exports.array(external_exports.string()).min(1),
+        summary: external_exports.string(),
+        ranking: external_exports.array(external_exports.string()).optional(),
+        perDirection: external_exports.array(external_exports.object({ name: external_exports.string(), score: external_exports.number(), verdict: external_exports.enum(["keep", "rework", "cut"]), note: external_exports.string() })).optional()
+      }
+    },
+    safe(async (rec) => {
+      const { task } = loadState();
+      if (task && !task.skipped) {
+        const pending = task.critic?.pending;
+        const ran = (task.critic?.runs || []).some((r3) => !pending || r3 >= pending.at);
+        if (!ran) return text('No drip:critic run found after critic_prepare. Launch it: Agent({ subagent_type: "drip:critic", prompt: <prompt from critic_prepare> }). Then record its verdict.', true);
+      }
+      const measuredBlockers = task?.critic?.pending?.blockers || [];
+      if (rec.verdict === "pass" && measuredBlockers.length) rec.verdict = "revise";
+      rec.fixes = offDirectionFixes(rec.fixes).map((m) => m.off ? `[OFF-DIRECTION: breaks "${m.rule.topic}: ${m.rule.value}"] ${m.fix}` : m.fix);
+      const r2 = { ...rec, at: (/* @__PURE__ */ new Date()).toISOString(), measuredBlockers, rev: task?.critic?.pending?.rev || null };
+      const movedOn = task && r2.rev && r2.rev !== artifactRev(task);
+      const st = updateState((s2) => {
+        if (!s2.task) return;
+        s2.task.critic.records.push(r2);
+        s2.task.critic.pending = null;
+      });
+      if (rec.kind === "directions" && st.task?.board?.id && rec.perDirection) {
+        if (loadBoard(st.task.board.id))
+          updateBoard(
+            st.task.board.id,
+            (board) => {
+              for (const pd of rec.perDirection) {
+                const d = board.directions.find((x2) => x2.name.toLowerCase() === pd.name.toLowerCase());
+                if (d) {
+                  d.critic = `${pd.score}/10 \xB7 ${pd.verdict} \u2014 ${pd.note}`;
+                  d.dropped = typeof pd.score === "number" && pd.score < (ctx2.config().gates.minDirectionScore ?? 6);
+                }
+              }
+            },
+            { op: "critic", summary: "ranking" }
+          );
+      }
+      try {
+        recordFeedback({ scope: rec.kind === "directions" ? "feature" : "page", source: "critic", kind: "critic", target: rec.kind, board: st.task?.board?.id, text: `${rec.verdict}: ${rec.summary} Worst: ${rec.worst}` });
+      } catch {
+      }
+      const rounds = (st.task?.critic?.records || []).filter((x2) => x2.kind === rec.kind).length;
+      const max = ctx2.config().gates.maxCriticRounds;
+      const next = rec.verdict === "pass" ? rec.kind === "directions" ? "NEXT: show the user the two strongest comps (Read the tile images and present them side by side, with the critic's ranking and your pick), ask them to choose with buttons, then board_choose. No moodboard page unless they ask (board_open)." : rec.kind === "build" ? "NEXT: fitcheck_done, then hand off (screenshots, scores, the critic's summary, what's left)." : "NEXT: continue." : rounds >= max + (st.task?.critic?.extraRounds || 0) && rec.kind === "build" ? `That's ${rounds} critic rounds, the limit. Fix what you can, then ask the user with AskUserQuestion: "Ship with these open points" (list them) or "One more critic round" (critic_prepare with extraRound: true). Don't stop silently.` : rec.verdict === "reject" ? "NEXT: start over on what was rejected (new concepts / directions), not cosmetic tweaks. Then prepare a new review." : "NEXT: fix the listed problems in order, re-render / re-shoot, and prepare a new review.";
+      const stale = movedOn ? "\nWARNING: the work changed after critic_prepare, so this verdict is about the earlier version and does not count for the current one. critic_prepare again when you're done changing it." : "";
+      return text(`Recorded critic verdict: ${rec.verdict.toUpperCase()} (${rec.kind}, round ${rounds}). Worst: ${rec.worst}${stale}
+${next}
+Show the user the critic's own summary and scores, not a softened version.`);
+    })
+  );
+}
+
+// src/modules/logo/index.mjs
+var logo_exports = {};
+__export(logo_exports, {
+  pathStats: () => pathStats,
+  register: () => register24
+});
+import fs68 from "node:fs";
+import path65 from "node:path";
+init_paths();
+
+// src/modules/logo/outline.mjs
+var import_opentype2 = __toESM(require_opentype(), 1);
+import fs67 from "node:fs";
+import path64 from "node:path";
+init_paths();
+async function loadFont2(font, weight = 400, style = "normal") {
+  const local = path64.resolve(projectDir(), font);
+  if (/\.(ttf|otf|woff)$/i.test(font) && fs67.existsSync(local)) {
+    const b = fs67.readFileSync(local);
+    return import_opentype2.default.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
+  }
+  const id = font.trim().toLowerCase().replace(/\s+/g, "-");
+  const url2 = `https://cdn.jsdelivr.net/fontsource/fonts/${id}@latest/latin-${weight}-${style}.woff`;
+  let body;
+  try {
+    ({ body } = await get(url2, { as: "buffer", ttlMs: 30 * 24 * 36e5 }));
+  } catch {
+    throw new Error(`Couldn't fetch "${font}" ${weight} ${style} from Fontsource (${url2}). Check the family name with fonts_search, or pass a local .ttf/.otf/.woff path.`);
+  }
+  return import_opentype2.default.parse(body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength));
+}
+function outline(font, text2, { size = 200, letterSpacing = 0, kerning = true } = {}) {
+  const scale = size / font.unitsPerEm;
+  const asc = font.ascender * scale;
+  const desc = -font.descender * scale;
+  const os22 = font.tables.os2 || {};
+  const metrics = {
+    unitsPerEm: font.unitsPerEm,
+    size,
+    ascender: +asc.toFixed(2),
+    descender: +desc.toFixed(2),
+    capHeight: os22.sCapHeight ? +(os22.sCapHeight * scale).toFixed(2) : null,
+    xHeight: os22.sxHeight ? +(os22.sxHeight * scale).toFixed(2) : null,
+    baselineY: +asc.toFixed(2)
+  };
+  const glyphs = [];
+  let x2 = 0;
+  const parts = [];
+  const chars = Array.from(text2).map((ch) => font.charToGlyph(ch));
+  chars.forEach((g, i2) => {
+    const p2 = g.getPath(x2, asc, size);
+    const bb = p2.getBoundingBox();
+    parts.push(p2.toPathData(2));
+    glyphs.push({ char: Array.from(text2)[i2], x: +x2.toFixed(2), advance: +(g.advanceWidth * scale).toFixed(2), bbox: { x1: +bb.x1.toFixed(2), y1: +bb.y1.toFixed(2), x2: +bb.x2.toFixed(2), y2: +bb.y2.toFixed(2) } });
+    x2 += g.advanceWidth * scale + letterSpacing * size;
+    if (kerning && chars[i2 + 1]) {
+      try {
+        x2 += font.getKerningValue(g, chars[i2 + 1]) * scale;
+      } catch {
+      }
+    }
+  });
+  const width = Math.ceil(x2 - letterSpacing * size);
+  const height = Math.ceil(asc + desc);
+  const d = parts.join(" ");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"><path d="${d}" fill="#111111"/></svg>`;
+  return { svg, d, width, height, metrics, glyphs };
+}
+
+// src/modules/logo/index.mjs
+var esc8 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
+function loadSvg(src) {
+  if (/^\s*<svg/i.test(src)) return src;
+  const abs2 = path65.resolve(projectDir(), src);
+  if (!fs68.existsSync(abs2)) throw new Error(`SVG not found: ${src}`);
+  return fs68.readFileSync(abs2, "utf8");
+}
+var fit = (svg) => svg.replace(/<\?xml[^>]*>/, "").replace(/<svg/, '<svg style="width:100%;height:100%;display:block"');
+var LIGHT = /^(#f{3}|#f{6}|white|#fff[0-9a-f]{3}|#f[0-9a-f]f[0-9a-f]f[0-9a-f])$/i;
+var isLight2 = (c3) => {
+  if (LIGHT.test(c3)) return true;
+  const m = c3.match(/^#([0-9a-f]{6})$/i);
+  if (!m) return false;
+  const n3 = parseInt(m[1], 16);
+  return 0.2126 * (n3 >> 16 & 255) + 0.7152 * (n3 >> 8 & 255) + 0.0722 * (n3 & 255) > 215;
+};
+var mono = (svg, ink2, ground) => svg.replace(/<(linear|radial)Gradient[\s\S]*?<\/\1Gradient>/g, "").replace(/(fill|stroke)="(?!none)([^"]*)"/g, (_, attr, c3) => `${attr}="${isLight2(c3.trim()) ? ground : ink2}"`).replace(/(fill|stroke)\s*:\s*(?!none)([^;"']+)/g, (_, attr, c3) => `${attr}:${isLight2(c3.trim()) ? ground : ink2}`).replace(/currentColor/g, ink2).replace(/<svg([^>]*)>/, (m, a2) => /\sfill=/.test(a2) ? m : `<svg${a2} fill="${ink2}">`);
+function pathStats(svg) {
+  const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
+  return paths.map((d, i2) => {
+    const cmds = d.match(/[a-zA-Z]/g) || [];
+    const nums = (d.match(/-?\d*\.?\d+(?:e-?\d+)?/g) || []).map(Number);
+    let short = 0;
+    for (let k = 2; k + 1 < nums.length; k += 2) if (Math.hypot(nums[k] - nums[k - 2], nums[k + 1] - nums[k - 1]) < 1.5) short++;
+    const decimals = Math.max(0, ...(d.match(/\.\d+/g) || []).map((x2) => x2.length - 1));
+    const shapes = Math.max(1, cmds.filter((c3) => c3 === "M" || c3 === "m").length);
+    return { path: i2 + 1, commands: cmds.length, shapes, curves: cmds.filter((c3) => /[cCsSqQtTaA]/.test(c3)).length, shortSegments: short, decimals };
+  });
+}
+function register24(server2, ctx2) {
+  server2.registerTool(
+    "logo_outline",
+    {
+      title: "Outline a wordmark to SVG paths",
+      description: `Turns text in any open font (Fontsource family name, or a local .ttf/.otf/.woff) into SVG paths, with the font's real metrics (ascender, descender, cap height, x-height, baseline) and per-glyph advances/bounding boxes, so you can customise letters and align a mark to the type (e.g. a frame from ascender to baseline). Always outline wordmarks: SVGs in a GitHub <img> can't load fonts. Example: logo_outline({ text: "crumb", font: "<the face you chose>", weight: 700, size: 240, letterSpacing: -0.02, out: "brand/wordmark.svg" })`,
+      inputSchema: {
+        text: external_exports.string().min(1).max(40),
+        font: external_exports.string().describe("Family name (Fontsource) or a project path to a font file"),
+        weight: external_exports.number().int().min(100).max(900).optional(),
+        style: external_exports.enum(["normal", "italic"]).optional(),
+        size: external_exports.number().min(16).max(2e3).optional(),
+        letterSpacing: external_exports.number().min(-0.2).max(0.5).optional().describe("In em, e.g. -0.02 for tighter"),
+        out: external_exports.string().optional().describe("Project path to save the SVG")
+      }
+    },
+    safe(async ({ text: str, font, weight = 400, style = "normal", size = 200, letterSpacing = 0, out }) => {
+      const f3 = await loadFont2(font, weight, style);
+      const o2 = outline(f3, str, { size, letterSpacing });
+      let saved = "";
+      if (out) {
+        const abs2 = path65.resolve(projectDir(), out);
+        fs68.mkdirSync(path65.dirname(abs2), { recursive: true });
+        fs68.writeFileSync(abs2, o2.svg);
+        saved = `Saved ${out}
+`;
+      }
+      const m = o2.metrics;
+      const file4 = path65.join(rendersDir("logo"), `outline-${stamp()}.jpg`);
+      const png2 = await renderHtml(
+        `<div style="padding:40px;background:#fff"><div style="position:relative;width:${o2.width}px;height:${o2.height}px">${o2.svg}
+<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY}px;border-top:1px solid #e8452c"></div>
+${m.xHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.xHeight}px;border-top:1px dashed #2340ff"></div>` : ""}
+${m.capHeight ? `<div style="position:absolute;left:-30px;right:-30px;top:${m.baselineY - m.capHeight}px;border-top:1px dashed #999"></div>` : ""}</div></div>`,
+        file4,
+        { width: Math.min(1800, o2.width + 80), height: o2.height + 80, format: "jpeg", config: ctx2.config() }
+      ).catch(() => null);
+      return blocks([
+        textBlock(
+          `${saved}"${str}" in ${f3.names.fullName?.en || font} ${weight}: ${o2.width}\xD7${o2.height}px (size ${size}).
+Metrics (px from top): baseline ${m.baselineY} \xB7 ascender 0 \xB7 cap height ${m.capHeight ?? "?"} (top at ${m.capHeight ? (m.baselineY - m.capHeight).toFixed(1) : "?"}) \xB7 x-height ${m.xHeight ?? "?"} (top at ${m.xHeight ? (m.baselineY - m.xHeight).toFixed(1) : "?"}) \xB7 descender ${m.descender}
+Glyphs: ${o2.glyphs.map((g) => `${g.char}@${g.x} w${g.advance}`).join(" \xB7 ")}
+Now customise like a designer: kern by eye, cut or extend one letter, and make one detail the brand. Then logo_test.
+Path data (${o2.d.length} chars) is in the saved SVG${out ? "" : " (pass out to save it)"}.`
+        ),
+        ...png2 ? [imageBlock(png2)] : []
+      ]);
+    })
+  );
+  server2.registerTool(
+    "logo_sheet",
+    {
+      title: "Concept sheet for logo ideas",
+      description: `Render 4-24 logo concepts (SVG strings or .svg files) numbered on one sheet, each large on light, on dark, and tiny (32px), so you and the critic can compare ideas side by side. Saves the sheet as a file for critic_prepare({ kind: 'logo', targets: [<file>] }). Sketch many rough ideas first; refine only the winners. Example: logo_sheet({ title: "Crumb bakery", concepts: [{ name: "Bitten C", svg: "<svg viewBox='0 0 100 100'>\u2026</svg>" }, { name: "Loaf stack", svg: "brand/concepts/loaf.svg" }] })`,
+      inputSchema: {
+        title: external_exports.string(),
+        concepts: external_exports.array(external_exports.object({ name: external_exports.string(), svg: external_exports.string().describe("SVG markup or a project path to an .svg") })).min(2).max(24),
+        dark: external_exports.string().optional().describe("Dark ground colour (default #111111)")
+      }
+    },
+    safe(async ({ title, concepts, dark = "#111111" }) => {
+      const svgs = concepts.map((c3) => ({ ...c3, markup: loadSvg(c3.svg) }));
+      const cols = svgs.length <= 6 ? 3 : 4;
+      const cell = (c3, i2) => `<figure>
+  <div class="big light">${fit(c3.markup)}</div>
+  <div class="row"><div class="small dark">${fit(c3.markup)}</div><div class="s64">${fit(c3.markup)}</div><div class="tiny">${fit(c3.markup)}</div><div class="s16">${fit(c3.markup)}</div><div class="tiny">${fit(mono(c3.markup, "#111", "#fff"))}</div></div>
+  <figcaption><b>${i2 + 1}</b> ${esc8(c3.name)}</figcaption></figure>`;
+      const html = `<style>body{font:14px system-ui;background:#ECEBE7;color:#111;margin:0;padding:28px}h1{font:600 20px system-ui;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(${cols},1fr);gap:18px}figure{margin:0;background:#fff;border-radius:12px;padding:14px;border:1px solid #d9d7d0}
+.big{height:220px;display:grid;place-items:center;padding:24px}.light{background:#fff}.row{display:flex;gap:10px;align-items:center;margin-top:10px}
+.small{width:96px;height:96px;padding:12px;border-radius:10px;background:${dark}}.s64{width:64px;height:64px}.tiny{width:32px;height:32px}.s16{width:16px;height:16px}figcaption{margin-top:10px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}</style>
+<h1>${esc8(title)} \u2014 ${svgs.length} concepts</h1><div class="grid">${svgs.map(cell).join("")}</div>`;
+      const rows = Math.ceil(svgs.length / cols);
+      const file4 = path65.join(rendersDir("logo"), `sheet-${stamp()}.jpg`);
+      const png2 = await renderHtml(html, file4, { width: cols * 330 + 60, height: rows * 400 + 90, format: "jpeg", quality: 88, config: ctx2.config() });
+      return blocks([
+        textBlock(`Concept sheet saved: ${file4}
+Judge ideas first (one clear thought each, no clich\xE9s), then have the critic rank them: critic_prepare({ kind: "logo", targets: ["${file4.replace(/\\/g, "/")}"] }). Refine only the top 2-3, then logo_test each.`),
+        imageBlock(png2)
+      ]);
+    })
+  );
+  server2.registerTool(
+    "logo_test",
+    {
+      title: "Stress-test a logo",
+      description: "Render one logo (SVG markup or file) at 16, 24, 32, 64, 128 and 512px, on light and dark, in one colour and inverted, on a photo-like busy ground, plus construction stats (path count, curve commands, tiny segments that make curves lumpy, coordinate precision). Fix what fails, then test again. Saves a file for the critic.",
+      inputSchema: { svg: external_exports.string(), name: external_exports.string().optional(), dark: external_exports.string().optional() }
+    },
+    safe(async ({ svg: src, name = "logo", dark = "#111111" }) => {
+      const svg = loadSvg(src);
+      const sizes = [16, 24, 32, 64, 128];
+      const strip4 = (bg, s2) => `<div class="strip" style="background:${bg}">${sizes.map((n3) => `<div style="width:${n3}px;height:${n3}px">${fit(s2)}</div>`).join("")}</div>`;
+      const html = `<style>body{margin:0;padding:24px;font:13px system-ui;background:#ECEBE7}.top{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.hero{height:520px;border-radius:12px;display:grid;place-items:center;padding:60px}.strip{display:flex;gap:22px;align-items:flex-end;padding:18px;border-radius:12px;margin-top:14px}
+.label{margin:14px 0 0;color:#555}</style>
+<div class="top"><div class="hero" style="background:#fff">${fit(svg)}</div><div class="hero" style="background:${dark}">${fit(svg)}</div></div>
+<p class="label">Sizes 16 / 24 / 32 / 64 / 128 \u2014 light, dark, one colour, inverse, busy ground</p>
+${strip4("#fff", svg)}${strip4(dark, svg)}${strip4("#fff", mono(svg, "#111", "#fff"))}${strip4("#111", mono(svg, "#fff", "#111"))}
+${strip4("repeating-linear-gradient(45deg,#c9b8a0 0 14px,#7d8f7a 14px 28px,#e7e1d3 28px 42px)", svg)}`;
+      const file4 = path65.join(rendersDir("logo"), `test-${name.replace(/\W+/g, "-")}-${stamp()}.jpg`);
+      const png2 = await renderHtml(html, file4, { width: 1140, height: 1340, format: "jpeg", quality: 88, config: ctx2.config() });
+      const stats = pathStats(svg);
+      const hints = [];
+      for (const s2 of stats) {
+        if (s2.shortSegments > 4) hints.push(`path ${s2.path}: ${s2.shortSegments} tiny segments; curves will look lumpy. Redraw with fewer, longer B\xE9ziers.`);
+        if (s2.commands / s2.shapes > 45) hints.push(`path ${s2.path}: ~${Math.round(s2.commands / s2.shapes)} commands per shape; shapes this complex rarely survive 32px. Simplify.`);
+        if (s2.decimals > 3) hints.push(`path ${s2.path}: ${s2.decimals}-decimal coordinates; round to 1-2 decimals (traced/noisy geometry).`);
+      }
+      return blocks([
+        textBlock(
+          `Saved ${file4}
+Paths: ${stats.length} \xB7 ${stats.map((s2) => `#${s2.path} ${s2.commands} cmds/${s2.curves} curves`).join(" \xB7 ") || "none (text or shapes only)"}
+` + (hints.length ? `Construction hints:
+- ${hints.join("\n- ")}
+` : "Construction: no obvious path problems.\n") + "Check: does it read at 16-32px? Same weight on dark (optically lighter there)? Survive one colour? Then critic_prepare({ kind: 'logo', targets: [this file] })."
+        ),
+        imageBlock(png2)
+      ]);
+    })
+  );
+  server2.registerTool(
+    "logo_export",
+    {
+      title: "Favicons and app icons from the logo",
+      description: 'Writes the icon set a site needs from one SVG mark: favicon.svg (copy), favicon.ico (16/32/48), apple-touch-icon.png (180, on a solid ground), icon-192.png and icon-512.png (PWA), plus the <link> tags to paste. Use the simplified mark (no wordmark) for small sizes. Example: logo_export({ svg: "brand/mark.svg", out: "public", ground: "#F3EFE6" })',
+      inputSchema: {
+        svg: external_exports.string().describe("SVG markup or a project path to the mark"),
+        out: external_exports.string().optional().describe("Project folder (default public)"),
+        ground: external_exports.string().optional().describe("Background for the apple-touch icon (iOS fills transparency with black). Default #ffffff"),
+        padding: external_exports.number().min(0).max(0.3).optional().describe("Inner padding as a share of the icon (default 0.08; apple-touch uses 0.14)")
+      }
+    },
+    safe(async ({ svg: src, out = "public", ground = "#ffffff", padding = 0.08 }) => {
+      const { rasterSizes: rasterSizes2 } = await Promise.resolve().then(() => (init_imaging(), imaging_exports));
+      const svg = loadSvg(src);
+      const buf = Buffer.from(svg);
+      const dir = path65.resolve(projectDir(), out);
+      fs68.mkdirSync(dir, { recursive: true });
+      const [p16, p32, p48, p192, p512] = await rasterSizes2(buf, [16, 32, 48, 192, 512], { padding, config: ctx2.config() });
+      const [apple] = await rasterSizes2(buf, [180], { padding: 0.14, bg: ground, config: ctx2.config() });
+      const pngs = [[16, p16], [32, p32], [48, p48]];
+      const head = Buffer.alloc(6 + 16 * pngs.length);
+      head.writeUInt16LE(0, 0);
+      head.writeUInt16LE(1, 2);
+      head.writeUInt16LE(pngs.length, 4);
+      let offset = head.length;
+      pngs.forEach(([s2, b], i2) => {
+        const e2 = 6 + i2 * 16;
+        head.writeUInt8(s2, e2);
+        head.writeUInt8(s2, e2 + 1);
+        head.writeUInt16LE(1, e2 + 4);
+        head.writeUInt16LE(32, e2 + 6);
+        head.writeUInt32LE(b.length, e2 + 8);
+        head.writeUInt32LE(offset, e2 + 12);
+        offset += b.length;
+      });
+      const files = {
+        "favicon.svg": Buffer.from(svg),
+        "favicon.ico": Buffer.concat([head, ...pngs.map(([, b]) => b)]),
+        "apple-touch-icon.png": apple,
+        "icon-192.png": p192,
+        "icon-512.png": p512
+      };
+      for (const [n3, b] of Object.entries(files)) fs68.writeFileSync(path65.join(dir, n3), b);
+      const base = out.replace(/\\/g, "/").replace(/^public\/?/, "");
+      const href = (n3) => `/${base ? `${base}/` : ""}${n3}`;
+      const sheet = await renderHtml(
+        `<div style="display:flex;gap:28px;align-items:end;padding:28px;background:#ECEBE7;font:13px system-ui">${[16, 32, 48].map((s2) => `<img src="data:image/png;base64,${pngs.find(([n3]) => n3 === s2)[1].toString("base64")}" width="${s2}" height="${s2}">`).join("")}<img src="data:image/png;base64,${apple.toString("base64")}" width="90" height="90" style="border-radius:20px"><img src="data:image/png;base64,${p192.toString("base64")}" width="96" height="96"></div>`,
+        path65.join(rendersDir("logo"), `icons-${stamp()}.png`),
+        { width: 520, height: 170, config: ctx2.config() }
+      );
+      return blocks([
+        textBlock(
+          `Wrote ${Object.keys(files).map((n3) => `${out}/${n3}`).join(", ")}.
+Paste into <head>:
+<link rel="icon" href="${href("favicon.ico")}" sizes="32x32">
+<link rel="icon" href="${href("favicon.svg")}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${href("apple-touch-icon.png")}">
+Web manifest icons: ${href("icon-192.png")} (192x192), ${href("icon-512.png")} (512x512).
+Check the 16px one: if it is mush, export a simpler mark for small sizes.`
+        ),
+        imageBlock(sheet, "image/png")
+      ]);
+    })
+  );
+}
+
+// src/modules/packs/index.mjs
+var packs_exports = {};
+__export(packs_exports, {
+  register: () => register25
+});
+import fs69 from "node:fs";
+import path66 from "node:path";
+init_paths();
 function register25(server2) {
+  server2.registerTool(
+    "pack_export",
+    {
+      title: "Export a niche pack to share",
+      description: "Writes a pack as ONE portable file (<id>.drip-pack.json: its guide, critic rubric, references, slop list, what it learned) to send however the user likes: a DM, a drive, a gist they choose. Nothing is published. It lists anything that looks private first (emails, keys, local paths); pass redact: true to strip them. Someone else adds it with pack_import, and Drip then knows the niche without running /drip:adapt.",
+      inputSchema: { id: external_exports.string(), out: external_exports.string().optional().describe("Folder for the file (default: the project)"), redact: external_exports.boolean().optional() }
+    },
+    safe(async ({ id, out, redact }) => {
+      const { pack, found } = exportPack(id, { redact });
+      if (found.length && !redact)
+        return text(`Not exported: this pack holds things that may be private:
+${found.slice(0, 12).map((f3) => `- ${f3.file}: ${f3.what} (${f3.sample}\u2026)`).join("\n")}
+Ask the user, then pack_export({ id: "${id}", redact: true }) to strip them (or edit the pack first).`, true);
+      const dir = path66.resolve(projectDir(), out || ".");
+      fs69.mkdirSync(dir, { recursive: true });
+      const file4 = path66.join(dir, `${pack.meta.id}.drip-pack.json`);
+      fs69.writeFileSync(file4, JSON.stringify(pack, null, 1));
+      return text(`Exported ${pack.meta.name} to ${path66.relative(projectDir(), file4)} (${Object.keys(pack.files).length} files, ${Math.round(fs69.statSync(file4).size / 1024)} KB). Send the file; the other person runs pack_import with its path or a raw link.`);
+    })
+  );
+  server2.registerTool(
+    "pack_import",
+    {
+      title: "Add a niche pack someone shared",
+      description: "Adds a .drip-pack.json (a file path or a raw https link) as a personal pack (every project on this machine) or shared: true for this project's team. Packs are data only: nothing in one ever runs.",
+      inputSchema: { file: external_exports.string().optional(), url: external_exports.string().url().optional(), shared: external_exports.boolean().optional(), replace: external_exports.boolean().optional() }
+    },
+    safe(async ({ file: file4, url: url2, shared: shared2, replace }) => {
+      let raw;
+      if (url2) raw = (await get(url2, { ttlMs: 0, timeoutMs: 3e4 })).body;
+      else if (file4) raw = fs69.readFileSync(path66.resolve(projectDir(), file4), "utf8");
+      else return text("Pass file or url.", true);
+      const pack = importPack(JSON.parse(raw), { shared: shared2, replace });
+      return text(`Added "${pack.name}" (${pack.dir}). It switches on when a task mentions ${(pack.keywords || []).slice(0, 6).join(", ") || "this project"}.`);
+    })
+  );
+  server2.registerTool(
+    "pack_create",
+    {
+      title: "Create a niche pack",
+      description: `Create (or update the metadata of) a niche pack: a specialised Drip for one niche, used automatically when a task mentions its keywords. Follow the drip-adapt skill. Example: pack_create({ id: "roblox-ui", name: "Roblox UI", niche: "in-experience game UI for Roblox", keywords: ["roblox", "rbx", "obby", "simulator ui"], summary: "Touch-first, chunky, readable game UI\u2026" }). type "project" makes this project's own style pack (saved in .drip/packs, applies to every design task here, no keywords needed; style_update fills it from the approved decisions). workflow adds declarative, versioned stages and criteria (data only, never executed).`,
+      inputSchema: {
+        id: external_exports.string().regex(/^[a-z0-9-]+$/),
+        name: external_exports.string(),
+        niche: external_exports.string(),
+        keywords: external_exports.array(external_exports.string()).optional().describe("Words that, when they appear in a task, activate this pack (required for niche packs)"),
+        type: external_exports.enum(["niche", "project"]).optional().describe("niche (default) or project: this project's own style pack"),
+        workflow: external_exports.object({
+          stages: external_exports.array(external_exports.object({ id: external_exports.string(), title: external_exports.string().optional(), requires: external_exports.array(external_exports.string()).optional(), gate: external_exports.enum(WORKFLOW_GATES).optional(), criteria: external_exports.array(external_exports.string()).optional(), sources: external_exports.array(external_exports.string()).optional() })),
+          criteria: external_exports.array(external_exports.string()).optional()
+        }).optional().describe("Declarative stages the critic and the agent follow for this pack; a stage may name an existing Drip gate. Changing it bumps workflowVersion and keeps the old one."),
+        summary: external_exports.string(),
+        shared: external_exports.boolean().optional().describe("true = save in this project's .drip/packs (share with the team); default personal (~/.drip/packs)")
+      }
+    },
+    safe(async (p2) => {
+      if (p2.type !== "project" && !(p2.keywords || []).length) return text("A niche pack needs at least one keyword (the words that activate it).", true);
+      const pack = createPack(p2);
+      return text(`Pack "${pack.name}" ready at ${pack.dir}${pack.type === "project" ? " (project style pack)" : ""}${pack.workflowVersion ? `, workflow v${pack.workflowVersion}` : ""}.
+Write its files with pack_write: ${PACK_FILES.join(", ")}. guide.md and critic.md are required; then get it reviewed: critic_prepare({ kind: "pack", targets: ["${pack.id}"] }).`);
+    })
+  );
+  server2.registerTool(
+    "pack_write",
+    {
+      title: "Write a pack file",
+      description: `Write one file of a niche pack. Files: ${PACK_FILES.join(", ")}. Markdown files are guides (served as drip_guide pack:<id>/<name>); JSON files must be valid (refs.json: [{ title, url, designer, note }]; slop.json: { rules: [...] } like Drip's; catalogue.json: { entries: [...] }).`,
+      inputSchema: { id: external_exports.string(), file: external_exports.enum(PACK_FILES), content: external_exports.string() }
+    },
+    safe(async ({ id, file: file4, content }) => text(`Wrote ${writePackFile(id, file4, content)}.`))
+  );
+  server2.registerTool(
+    "pack_list",
+    { title: "List niche packs", description: "Niche packs available here (project-shared first, then personal), with the keywords that activate them.", inputSchema: {} },
+    safe(async () => {
+      const packs = listPacks();
+      return text(packs.length ? packs.map((p2) => `- ${p2.id}: ${p2.name} \u2014 ${p2.summary?.slice(0, 120) || ""}
+  keywords: ${(p2.keywords || []).join(", ")} \xB7 ${p2.type === "project" ? "project style pack" : p2.shared ? "shared (project)" : "personal"} \xB7 updated ${p2.updatedAt?.slice(0, 10)}`).join("\n") : "No niche packs yet. Create one with /drip:adapt <niche>.");
+    })
+  );
+  server2.registerTool(
+    "pack_show",
+    { title: "Show a niche pack", description: "A pack's metadata and which files it has (read files with drip_guide pack:<id>/<name>).", inputSchema: { id: external_exports.string() } },
+    safe(async ({ id }) => {
+      const p2 = listPacks().find((x2) => x2.id === id);
+      if (!p2) return text(`No pack "${id}".`, true);
+      const files = PACK_FILES.map((f3) => `${readPackFile(id, f3) ? "[x]" : "[ ]"} ${f3}`);
+      return text(`${p2.name} (${p2.niche})${p2.type === "project" ? " \xB7 project style pack" : ""}
+${p2.summary}
+Keywords: ${(p2.keywords || []).join(", ")}${p2.workflow ? `
+Workflow v${p2.workflowVersion || 1}: ${p2.workflow.stages.map((x2) => x2.id + (x2.gate ? `[${x2.gate}]` : "")).join(" -> ")}` : ""}
+${files.join("\n")}
+Read: drip_guide pack:${id} (guide), pack:${id}/genres, pack:${id}/artists, pack:${id}/critic`);
+    })
+  );
+}
+
+// src/modules/codemode/index.mjs
+var codemode_exports = {};
+__export(codemode_exports, {
+  register: () => register26
+});
+import fs70 from "node:fs";
+import path67 from "node:path";
+var MAX_OUTPUT = 12e3;
+function register26(server2) {
   server2.registerTool(
     "drip_search",
     {
@@ -108594,7 +109299,7 @@ Only the first ${maxImages} are attached.` : ""}`);
       const content = [{ type: "text", text: parts.join("\n\n") }];
       for (const f3 of r2.images.slice(0, maxImages)) {
         try {
-          content.push(imageBlock(fs66.readFileSync(f3), /\.png$/i.test(f3) ? "image/png" : /\.webp$/i.test(f3) ? "image/webp" : "image/jpeg"));
+          content.push(imageBlock(fs70.readFileSync(f3), /\.png$/i.test(f3) ? "image/png" : /\.webp$/i.test(f3) ? "image/webp" : "image/jpeg"));
         } catch {
         }
       }
@@ -108605,9 +109310,9 @@ Only the first ${maxImages} are attached.` : ""}`);
 function bound(s2) {
   if (s2.length <= MAX_OUTPUT) return s2;
   const dir = codemodeOutDir();
-  fs66.mkdirSync(dir, { recursive: true });
-  const file4 = path63.join(dir, `result-${Date.now()}.json`);
-  fs66.writeFileSync(file4, s2);
+  fs70.mkdirSync(dir, { recursive: true });
+  const file4 = path67.join(dir, `result-${Date.now()}.json`);
+  fs70.writeFileSync(file4, s2);
   return `${s2.slice(0, MAX_OUTPUT)}
 [truncated: ${s2.length} characters, full result in ${file4}]`;
 }
@@ -108615,30 +109320,30 @@ function bound(s2) {
 // src/modules/patterns/index.mjs
 var patterns_exports = {};
 __export(patterns_exports, {
-  register: () => register26
+  register: () => register27
 });
-import fs70 from "node:fs";
-import path68 from "node:path";
+import fs74 from "node:fs";
+import path72 from "node:path";
 init_paths();
 
 // src/modules/patterns/diff.mjs
 init_browser();
-import fs67 from "node:fs";
-import path64 from "node:path";
+import fs71 from "node:fs";
+import path68 from "node:path";
 init_paths();
 var AXE_VERSION = "4.10.2";
 var AXE_URL = `https://cdn.jsdelivr.net/npm/axe-core@${AXE_VERSION}/axe.min.js`;
 async function loadAxe() {
   const local = process.env.DRIP_AXE_PATH;
   if (local) {
-    if (fs67.existsSync(local)) return { src: fs67.readFileSync(local, "utf8"), from: local };
+    if (fs71.existsSync(local)) return { src: fs71.readFileSync(local, "utf8"), from: local };
     return { src: null, reason: `DRIP_AXE_PATH points at ${local}, which does not exist` };
   }
-  const cached2 = path64.join(ensureDir(path64.join(homeDripDir, "vendor")), `axe-core-${AXE_VERSION}.min.js`);
-  if (fs67.existsSync(cached2)) return { src: fs67.readFileSync(cached2, "utf8"), from: cached2 };
+  const cached2 = path68.join(ensureDir(path68.join(homeDripDir, "vendor")), `axe-core-${AXE_VERSION}.min.js`);
+  if (fs71.existsSync(cached2)) return { src: fs71.readFileSync(cached2, "utf8"), from: cached2 };
   try {
     const { body } = await get(AXE_URL, { ttlMs: 0, timeoutMs: 2e4, retries: 0 });
-    fs67.writeFileSync(cached2, body);
+    fs71.writeFileSync(cached2, body);
     return { src: body, from: AXE_URL };
   } catch (e2) {
     return { src: null, reason: `axe-core ${AXE_VERSION} could not be downloaded (${e2.message}). Set DRIP_AXE_PATH to a local axe.min.js to run it offline` };
@@ -108721,11 +109426,11 @@ async function diffSheet(pairs2, { threshold = 0.1, config: config2 } = {}) {
 // src/modules/patterns/extract.mjs
 init_browser();
 init_serve();
-import path66 from "node:path";
+import path70 from "node:path";
 
 // src/modules/patterns/run.mjs
-import fs68 from "node:fs";
-import path65 from "node:path";
+import fs72 from "node:fs";
+import path69 from "node:path";
 init_browser();
 init_paths();
 init_serve();
@@ -108937,14 +109642,14 @@ function installLib() {
       if (!vis) continue;
       if (t2) {
         const words3 = t2.split(" ").length;
-        const fs85 = round(parseFloat(cs.fontSize));
-        const tk = `${fs85}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
-        const e2 = typeMap.get(tk) || { px: fs85, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs85, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs85, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
+        const fs86 = round(parseFloat(cs.fontSize));
+        const tk = `${fs86}|${cs.fontWeight}|${cs.fontFamily.split(",")[0].replace(/["']/g, "").trim()}`;
+        const e2 = typeMap.get(tk) || { px: fs86, weight: +cs.fontWeight || cs.fontWeight, family: cs.fontFamily.split(",")[0].replace(/["']/g, "").trim(), lineHeight: cs.lineHeight === "normal" ? "normal" : round(parseFloat(cs.lineHeight) / fs86, 2), letterSpacingEm: round((parseFloat(cs.letterSpacing) || 0) / fs86, 3), count: 0, sample: t2.slice(0, 40), textTransform: cs.textTransform !== "none" ? cs.textTransform : void 0 };
         e2.count += words3;
         typeMap.set(tk, e2);
         const tc = rgba(cs.color);
         addColor(tc, "text", words3);
-        heads.push({ text: t2.slice(0, 50), size: fs85, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
+        heads.push({ text: t2.slice(0, 50), size: fs86, weight: +cs.fontWeight || 400, tag: el.tagName.toLowerCase(), contrast: contrast2(tc, effectiveBg(el)) });
       }
       const bg = rgba(cs.backgroundColor);
       if (bg[3] > 0.1) addColor(bg, "background", Math.max(1, Math.min(60, Math.round(r2.width * r2.height / 4e3))));
@@ -109165,15 +109870,15 @@ var IMAGE = /\.(png|jpe?g|webp|gif|avif)$/i;
 var isImagePath = (p2) => IMAGE.test(p2 || "");
 async function resolveTarget({ url: url2, file: file4, html, css, js, dir }) {
   if (html !== void 0) {
-    const base = dir || path65.join(ensureProjectDrip(), "cache", `harness-${Date.now().toString(36)}`);
-    fs68.mkdirSync(base, { recursive: true });
-    fs68.writeFileSync(path65.join(base, "index.html"), harness({ html, css, js }));
-    return { url: `${await serveDir(base)}/index.html`, kind: "local", file: path65.join(base, "index.html") };
+    const base = dir || path69.join(ensureProjectDrip(), "cache", `harness-${Date.now().toString(36)}`);
+    fs72.mkdirSync(base, { recursive: true });
+    fs72.writeFileSync(path69.join(base, "index.html"), harness({ html, css, js }));
+    return { url: `${await serveDir(base)}/index.html`, kind: "local", file: path69.join(base, "index.html") };
   }
   const t2 = url2 || file4;
   if (!t2) throw new Error("Give url, file or html.");
-  if (!/^https?:/i.test(t2) && isImagePath(t2)) return { kind: "screenshot", file: path65.resolve(projectDir(), t2) };
-  return { url: await toUrl(t2), kind: /^https?:/i.test(t2) ? "live" : "local", file: /^https?:/i.test(t2) ? void 0 : path65.resolve(projectDir(), t2) };
+  if (!/^https?:/i.test(t2) && isImagePath(t2)) return { kind: "screenshot", file: path69.resolve(projectDir(), t2) };
+  return { url: await toUrl(t2), kind: /^https?:/i.test(t2) ? "live" : "local", file: /^https?:/i.test(t2) ? void 0 : path69.resolve(projectDir(), t2) };
 }
 function harness({ html, css = "", js = "" }) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drip pattern preview</title><style>*,*::before,*::after{box-sizing:border-box}body{margin:0;padding:24px;font-family:system-ui,sans-serif}${css}</style></head><body>${html}${js ? `<script>${js}</script>` : ""}</body></html>`;
@@ -109332,8 +110037,8 @@ async function extractSpec(target, { selector, states = [], sizes = SIZES2, conf
   return { spec, shots };
 }
 async function inferFromImage(file4, { config: config2, source }) {
-  const base = await serveDir(path66.dirname(file4));
-  const src = `${base}/${encodeURIComponent(path66.basename(file4))}`;
+  const base = await serveDir(path70.dirname(file4));
+  const src = `${base}/${encodeURIComponent(path70.basename(file4))}`;
   const data = await withTab(config2, async (tab) => {
     await openPage(tab, `${base}/__drip_blank__`, { width: 800, height: 600, settleMs: 50 });
     return evalJson(
@@ -109516,14 +110221,14 @@ function compareSpecs(ref, impl) {
 
 // src/modules/patterns/store.mjs
 init_paths();
-import fs69 from "node:fs";
-import path67 from "node:path";
+import fs73 from "node:fs";
+import path71 from "node:path";
 var KINDS3 = ["component", "section", "page", "motion", "style"];
-var patternsRoot = () => ensureDir(path67.join(ensureProjectDrip(), "patterns"));
-var indexFile3 = () => path67.join(patternsRoot(), "index.json");
-var patternDir = (id) => ensureDir(path67.join(patternsRoot(), id));
+var patternsRoot = () => ensureDir(path71.join(ensureProjectDrip(), "patterns"));
+var indexFile3 = () => path71.join(patternsRoot(), "index.json");
+var patternDir = (id) => ensureDir(path71.join(patternsRoot(), id));
 var slug5 = (s2) => String(s2 || "pattern").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "pattern";
-var rel2 = (p2) => path67.relative(projectDir(), p2).split(path67.sep).join("/");
+var rel2 = (p2) => path71.relative(projectDir(), p2).split(path71.sep).join("/");
 function listPatterns({ status, kind, tag } = {}) {
   const idx = readJson2(indexFile3(), { patterns: [] });
   return (idx.patterns || []).filter((p2) => (!status || p2.status === status) && (!kind || p2.kind === kind) && (!tag || (p2.tags || []).includes(tag)));
@@ -109531,7 +110236,7 @@ function listPatterns({ status, kind, tag } = {}) {
 function getPattern(id) {
   const entry = listPatterns().find((p2) => p2.id === id);
   if (!entry) return null;
-  return { entry, dir: path67.join(patternsRoot(), id), spec: readJson2(path67.join(patternsRoot(), id, "spec.json"), null) };
+  return { entry, dir: path71.join(patternsRoot(), id), spec: readJson2(path71.join(patternsRoot(), id, "spec.json"), null) };
 }
 function upsertPattern(entry) {
   return updateJson(
@@ -109548,14 +110253,14 @@ function upsertPattern(entry) {
 }
 function writeSpec(id, spec) {
   const dir = patternDir(id);
-  writeJsonAtomic(path67.join(dir, "spec.json"), spec);
+  writeJsonAtomic(path71.join(dir, "spec.json"), spec);
   return dir;
 }
 function saveImages(dir, sub, items) {
-  const out = ensureDir(path67.join(dir, sub));
+  const out = ensureDir(path71.join(dir, sub));
   return items.map(({ name, buf }) => {
-    const f3 = path67.join(out, name);
-    fs69.writeFileSync(f3, buf);
+    const f3 = path71.join(out, name);
+    fs73.writeFileSync(f3, buf);
     return f3;
   });
 }
@@ -109573,7 +110278,7 @@ var trim = (s2, n3) => s2.length > n3 ? s2.slice(0, n3) + "\n... (trimmed; the f
 var stepsOf = (spec) => (spec.states || []).map((s2) => ({ ...s2.step, label: s2.label }));
 function patternPaths(id) {
   const dir = patternDir(id);
-  return { dir, spec: path68.join(dir, "spec.json"), md: path68.join(dir, "spec.md") };
+  return { dir, spec: path72.join(dir, "spec.json"), md: path72.join(dir, "spec.md") };
 }
 function writeEvidence(id, shots, widths) {
   const dir = patternDir(id);
@@ -109585,7 +110290,7 @@ function writeEvidence(id, shots, widths) {
   }
   return files;
 }
-function register26(server2, ctx2) {
+function register27(server2, ctx2) {
   server2.registerTool(
     "refs_extract",
     {
@@ -109596,8 +110301,8 @@ function register26(server2, ctx2) {
     safe(async ({ url: url2, file: file4, selector, states, sizes }) => {
       const target = await resolveTarget({ url: url2, file: file4 });
       const { spec, shots } = await extractSpec(target, { selector, states, sizes, config: ctx2.config() });
-      const out = path68.join(ensureDir(path68.join(projectDripDir(), "cache")), `extract-${stamp()}.json`);
-      fs70.writeFileSync(out, JSON.stringify(spec, null, 2));
+      const out = path72.join(ensureDir(path72.join(projectDripDir(), "cache")), `extract-${stamp()}.json`);
+      fs74.writeFileSync(out, JSON.stringify(spec, null, 2));
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const desktop = shots[widths[widths.length - 1]];
       const content = [textBlock(`${trim(specToMarkdown(spec), 7e3)}
@@ -109632,19 +110337,19 @@ Next: pattern_study (save it with evidence), or build your own version and patte
       if (notes) spec.notes = notes;
       const { dir, md } = patternPaths(id);
       writeSpec(id, spec);
-      fs70.writeFileSync(md, specToMarkdown(spec, { name, notes }));
+      fs74.writeFileSync(md, specToMarkdown(spec, { name, notes }));
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const files = writeEvidence(id, shots, widths);
       if (target.kind === "screenshot") {
-        const keep = path68.join(dir, "reference", `source${path68.extname(target.file)}`);
-        ensureDir(path68.dirname(keep));
-        fs70.copyFileSync(target.file, keep);
+        const keep = path72.join(dir, "reference", `source${path72.extname(target.file)}`);
+        ensureDir(path72.dirname(keep));
+        fs74.copyFileSync(target.file, keep);
         files.push(keep);
       }
-      upsertPattern({ id, name, kind, files: [], spec: rel2(path68.join(dir, "spec.json")), previews: files.map(rel2), source: { ...spec.source, file: spec.source.file ? rel2(spec.source.file) : void 0 }, status: "proposed", tags });
+      upsertPattern({ id, name, kind, files: [], spec: rel2(path72.join(dir, "spec.json")), previews: files.map(rel2), source: { ...spec.source, file: spec.source.file ? rel2(spec.source.file) : void 0 }, status: "proposed", tags });
       const desktop = shots[widths[widths.length - 1]];
       const phone = shots[widths[0]];
-      const content = [textBlock(`Studied "${name}" as ${id}. Spec ${rel2(path68.join(dir, "spec.json"))}, readable ${rel2(md)}, evidence in ${rel2(path68.join(dir, "reference"))} (${files.length} files). Status: proposed.
+      const content = [textBlock(`Studied "${name}" as ${id}. Spec ${rel2(path72.join(dir, "spec.json"))}, readable ${rel2(md)}, evidence in ${rel2(path72.join(dir, "reference"))} (${files.length} files). Status: proposed.
 
 ${trim(specToMarkdown(spec, { name }), 5e3)}
 Next: write your own implementation from this spec (primitives + your tokens, original styling), pattern_preview it, then pattern_compare({ id: "${id}", ... }).`)];
@@ -109687,7 +110392,7 @@ Next: write your own implementation from this spec (primitives + your tokens, or
       }
       writeSpec(id, spec);
       const { md } = patternPaths(id);
-      fs70.writeFileSync(md, specToMarkdown(spec, { name: cur.entry.name, notes: spec.notes }));
+      fs74.writeFileSync(md, specToMarkdown(spec, { name: cur.entry.name, notes: spec.notes }));
       upsertPattern({ id });
       return text(`Updated ${rel2(md)} and spec.json for ${id}.`);
     })
@@ -109710,7 +110415,7 @@ Next: write your own implementation from this spec (primitives + your tokens, or
     safe(async ({ id, url: url2, file: file4, selector, html, css, js, states, sizes }) => {
       const ref = id ? getPattern(id) : null;
       if (id && !ref) return text(`No pattern "${id}". pattern_list shows what exists.`, true);
-      const outDir = ref ? ensureDir(path68.join(ref.dir, "preview")) : ensureDir(path68.join(projectDripDir(), "cache", `preview-${stamp()}`));
+      const outDir = ref ? ensureDir(path72.join(ref.dir, "preview")) : ensureDir(path72.join(projectDripDir(), "cache", `preview-${stamp()}`));
       const target = await resolveTarget({ url: url2, file: file4, html, css, js, dir: outDir });
       const useStates = states || (ref?.spec ? stepsOf(ref.spec) : []);
       const useSel = selector || ref?.spec?.source?.selector;
@@ -109718,8 +110423,8 @@ Next: write your own implementation from this spec (primitives + your tokens, or
       const widths = Object.keys(shots).map(Number).sort((a2, b) => a2 - b);
       const files = [];
       for (const w of widths) files.push(...saveImages(outDir, ".", [{ name: `impl-base-${w}.png`, buf: shots[w].base }, ...shots[w].states.map((s2, i2) => ({ name: `impl-state-${i2 + 1}-${w}.png`, buf: s2.png }))]));
-      const specFile = path68.join(outDir, "impl-spec.json");
-      fs70.writeFileSync(specFile, JSON.stringify(spec, null, 2));
+      const specFile = path72.join(outDir, "impl-spec.json");
+      fs74.writeFileSync(specFile, JSON.stringify(spec, null, 2));
       const tiles = [];
       const legend = [];
       for (const w of widths) {
@@ -109764,15 +110469,15 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     safe(async ({ id, url: url2, file: file4, selector, html, css, js, threshold = 0.1, axe = true }) => {
       const ref = getPattern(id);
       if (!ref?.spec) return text(`No studied pattern "${id}". pattern_study first.`, true);
-      const outDir = ensureDir(path68.join(ref.dir, "preview"));
+      const outDir = ensureDir(path72.join(ref.dir, "preview"));
       const target = await resolveTarget({ url: url2, file: file4, html, css, js, dir: outDir });
       const refSpec = ref.spec;
       const widths = refSpec.responsive ? Object.keys(refSpec.responsive).map(Number) : SIZES2;
       const { spec: impl, shots } = await extractSpec(target, { selector: selector || refSpec.source?.selector, states: stepsOf(refSpec), sizes: widths, config: ctx2.config(), source: { title: "implementation" }, axe });
       const pairs2 = [];
       const readRef = (name) => {
-        const f3 = path68.join(ref.dir, "reference", name);
-        return fs70.existsSync(f3) ? fs70.readFileSync(f3) : null;
+        const f3 = path72.join(ref.dir, "reference", name);
+        return fs74.existsSync(f3) ? fs74.readFileSync(f3) : null;
       };
       for (const w of Object.keys(shots).map(Number).sort((a2, b) => a2 - b)) {
         const r2 = readRef(`base-${w}.png`);
@@ -109786,9 +110491,9 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
       let diffs = [];
       if (pairs2.length) ({ sheet, results: diffs } = await diffSheet(pairs2.slice(0, 14), { threshold, config: ctx2.config() }));
       const deltas = compareSpecs(refSpec, impl);
-      const file0 = path68.join(outDir, `compare-${stamp()}.jpg`);
-      if (sheet) fs70.writeFileSync(file0, sheet);
-      fs70.writeFileSync(path68.join(outDir, "impl-spec.json"), JSON.stringify(impl, null, 2));
+      const file0 = path72.join(outDir, `compare-${stamp()}.jpg`);
+      if (sheet) fs74.writeFileSync(file0, sheet);
+      fs74.writeFileSync(path72.join(outDir, "impl-spec.json"), JSON.stringify(impl, null, 2));
       const order = { high: 0, medium: 1, low: 2 };
       deltas.sort((a2, b) => order[a2.severity] - order[b.severity]);
       const L2 = [];
@@ -109828,16 +110533,16 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     },
     safe(async ({ id, name, kind, files = [], status, tags, notes, source }) => {
       const cur = getPattern(id);
-      const missing = files.filter((f3) => !fs70.existsSync(path68.resolve(projectDir(), f3)));
+      const missing = files.filter((f3) => !fs74.existsSync(path72.resolve(projectDir(), f3)));
       if (missing.length) return text(`These files do not exist: ${missing.join(", ")}`, true);
       const dir = patternDir(id);
-      const previews = fs70.readdirSync(dir, { recursive: true }).filter((f3) => /\.(png|jpe?g|webp)$/i.test(String(f3))).map((f3) => rel2(path68.join(dir, String(f3))));
+      const previews = fs74.readdirSync(dir, { recursive: true }).filter((f3) => /\.(png|jpe?g|webp)$/i.test(String(f3))).map((f3) => rel2(path72.join(dir, String(f3))));
       const entry = {
         id,
         name: name || cur?.entry.name || id,
         kind: kind || cur?.entry.kind || "component",
-        files: [.../* @__PURE__ */ new Set([...cur?.entry.files || [], ...files.map((f3) => rel2(path68.resolve(projectDir(), f3)))])],
-        spec: fs70.existsSync(path68.join(dir, "spec.json")) ? rel2(path68.join(dir, "spec.json")) : void 0,
+        files: [.../* @__PURE__ */ new Set([...cur?.entry.files || [], ...files.map((f3) => rel2(path72.resolve(projectDir(), f3)))])],
+        spec: fs74.existsSync(path72.join(dir, "spec.json")) ? rel2(path72.join(dir, "spec.json")) : void 0,
         previews,
         source: { ...cur?.entry.source || {}, ...source || {} },
         status: status || cur?.entry.status || "proposed",
@@ -109875,10 +110580,10 @@ Next: pattern_compare({ id: "${id}", ${url2 ? `url: "${url2}"` : file4 ? `file: 
     safe(async ({ id }) => {
       const p2 = getPattern(id);
       if (!p2) return text(`No pattern "${id}". pattern_list shows what exists.`, true);
-      const md = path68.join(p2.dir, "spec.md");
+      const md = path72.join(p2.dir, "spec.md");
       return text(`${JSON.stringify(p2.entry, null, 2)}
 
-${fs70.existsSync(md) ? trim(fs70.readFileSync(md, "utf8"), 9e3) : "(no spec.md)"}`);
+${fs74.existsSync(md) ? trim(fs74.readFileSync(md, "utf8"), 9e3) : "(no spec.md)"}`);
     })
   );
 }
@@ -109886,23 +110591,23 @@ ${fs70.existsSync(md) ? trim(fs70.readFileSync(md, "utf8"), 9e3) : "(no spec.md)
 // src/modules/project/index.mjs
 var project_exports = {};
 __export(project_exports, {
-  register: () => register27
+  register: () => register28
 });
-import fs73 from "node:fs";
-import path71 from "node:path";
+import fs77 from "node:fs";
+import path75 from "node:path";
 init_paths();
 init_serve();
 
 // src/modules/project/exchange.mjs
 init_paths();
-import crypto7 from "node:crypto";
-import fs72 from "node:fs";
-import path70 from "node:path";
+import crypto8 from "node:crypto";
+import fs76 from "node:fs";
+import path74 from "node:path";
 
 // src/modules/project/style.mjs
 init_browser();
-import fs71 from "node:fs";
-import path69 from "node:path";
+import fs75 from "node:fs";
+import path73 from "node:path";
 init_paths();
 var HEX2 = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3})\b/gi;
 var FUNC_COLOR = /\b(?:rgba?|hsla?|oklch|oklab|lab|lch|color)\([^)]*\)/gi;
@@ -109974,7 +110679,7 @@ function parseCss(src) {
   };
 }
 function parseTokenFile(file4) {
-  const src = fs71.readFileSync(file4, "utf8");
+  const src = fs75.readFileSync(file4, "utf8");
   if (/\.json$/i.test(file4)) {
     let j;
     try {
@@ -110096,11 +110801,11 @@ async function measurePage(url2, { width = 1440, height = 900, config: config2 }
 function measureFiles(rels, root = projectDir()) {
   const out = [];
   for (const rel3 of rels) {
-    if (SECRET_FILE.test(path69.basename(rel3))) continue;
-    const abs2 = path69.resolve(root, rel3);
-    if (!abs2.startsWith(path69.resolve(root))) continue;
-    if (!fs71.existsSync(abs2)) continue;
-    const tokens2 = /\.(css|scss|sass|less)$/i.test(rel3) ? parseCss(fs71.readFileSync(abs2, "utf8")) : parseTokenFile(abs2);
+    if (SECRET_FILE.test(path73.basename(rel3))) continue;
+    const abs2 = path73.resolve(root, rel3);
+    if (!abs2.startsWith(path73.resolve(root))) continue;
+    if (!fs75.existsSync(abs2)) continue;
+    const tokens2 = /\.(css|scss|sass|less)$/i.test(rel3) ? parseCss(fs75.readFileSync(abs2, "utf8")) : parseTokenFile(abs2);
     out.push({ kind: "file", ref: rel3, hash: hashFile(abs2), tokens: tokens2 });
   }
   return out;
@@ -110137,16 +110842,16 @@ function describeTokens(t2) {
 // src/modules/project/exchange.mjs
 var SECRET_TEXT = /(-----BEGIN [A-Z ]*PRIVATE KEY-----|\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{16,}|\bAKIA[0-9A-Z]{16}\b|\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.|(?:api[_-]?key|secret|passw(?:or)?d|token)\s*[:=]\s*["'][A-Za-z0-9_\-/+=]{16,}["'])/i;
 var TEXT_EXT = /\.(css|scss|sass|less|json|md|txt|svg|html?|js|ts|mjs|cjs|tsx|jsx)$/i;
-var posix2 = (p2) => p2.split(path70.sep).join("/");
-var sha2 = (b) => crypto7.createHash("sha1").update(b).digest("hex");
+var posix2 = (p2) => p2.split(path74.sep).join("/");
+var sha2 = (b) => crypto8.createHash("sha1").update(b).digest("hex");
 var safeName = (rel3) => rel3.replace(/^[./\\]+/, "").replace(/\.\.+/g, ".").replace(/[<>:"|?*]/g, "_");
 function whyNotShareable(abs2) {
-  if (SECRET_FILE.test(path70.basename(abs2))) return "looks like a secrets file";
+  if (SECRET_FILE.test(path74.basename(abs2))) return "looks like a secrets file";
   try {
-    const st = fs72.statSync(abs2);
+    const st = fs76.statSync(abs2);
     if (!st.isFile()) return "not a file";
     if (st.size > 12 * 1024 * 1024) return "larger than 12 MB";
-    if (TEXT_EXT.test(abs2) && st.size < 2 * 1024 * 1024 && SECRET_TEXT.test(fs72.readFileSync(abs2, "utf8"))) return "contains something that looks like a secret";
+    if (TEXT_EXT.test(abs2) && st.size < 2 * 1024 * 1024 && SECRET_TEXT.test(fs76.readFileSync(abs2, "utf8"))) return "contains something that looks like a secret";
   } catch {
     return "unreadable";
   }
@@ -110157,19 +110862,19 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
   const idx = loadIndex2();
   const mid = boardId || idx.masters.default || masterId(null);
   const board = mid ? loadBoard(mid) : null;
-  const projName = name || path70.basename(root);
-  const dest = path70.resolve(root, out || path70.join(".drip", "exports", `style-pack-${safeName(projName)}`));
-  fs72.mkdirSync(dest, { recursive: true });
+  const projName = name || path74.basename(root);
+  const dest = path74.resolve(root, out || path74.join(".drip", "exports", `style-pack-${safeName(projName)}`));
+  fs76.mkdirSync(dest, { recursive: true });
   const files = [];
   const skipped = [];
   const write2 = (rel3, data, kind) => {
-    const abs2 = path70.join(dest, rel3);
-    fs72.mkdirSync(path70.dirname(abs2), { recursive: true });
-    fs72.writeFileSync(abs2, data);
+    const abs2 = path74.join(dest, rel3);
+    fs76.mkdirSync(path74.dirname(abs2), { recursive: true });
+    fs76.writeFileSync(abs2, data);
     files.push({ path: rel3, sha1: sha2(data), size: Buffer.byteLength(data), kind });
   };
   const copy = (srcRel, kind) => {
-    const abs2 = path70.resolve(root, srcRel);
+    const abs2 = path74.resolve(root, srcRel);
     if (!abs2.startsWith(root)) {
       skipped.push({ path: srcRel, why: "outside the project" });
       return null;
@@ -110179,8 +110884,8 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
       skipped.push({ path: srcRel, why });
       return null;
     }
-    const rel3 = posix2(path70.join(kind === "font" ? "fonts" : kind === "code" ? "code" : "assets", safeName(srcRel)));
-    write2(rel3, fs72.readFileSync(abs2), kind);
+    const rel3 = posix2(path74.join(kind === "font" ? "fonts" : kind === "code" ? "code" : "assets", safeName(srcRel)));
+    write2(rel3, fs76.readFileSync(abs2), kind);
     return rel3;
   };
   let exportedBoard = null;
@@ -110206,7 +110911,7 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     }
     const directions = board.directions.map((d2) => {
       const o2 = { ...d2, tile: void 0 };
-      if (d2.tile && fs72.existsSync(d2.tile)) o2.tile = copy(posix2(path70.relative(root, d2.tile)), "asset");
+      if (d2.tile && fs76.existsSync(d2.tile)) o2.tile = copy(posix2(path74.relative(root, d2.tile)), "asset");
       return JSON.parse(JSON.stringify(o2));
     });
     exportedBoard = { schema: SCHEMA, name: board.name, brief: board.brief, scope: "master", items, directions, chosen: board.chosen, criteria: board.criteria || null, approved: idx.approved.default ? { direction: idx.approved.default.direction, snapshot: idx.approved.default.snapshot, reason: idx.approved.default.reason } : null };
@@ -110224,16 +110929,16 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
   if (style?.tokens) write2("style.json", JSON.stringify({ schema: 1, tokens: style.tokens, sources: (style.sources || []).map(({ kind, ref, at }) => ({ kind, ref, at })) }, null, 2), "style");
   write2("guide.md", skillBody(cwd, { brandOnly: true }), "guide");
   if (includePatterns) {
-    const pdir = path70.join(projectDripDir(cwd), "patterns");
-    const pidx = path70.join(pdir, "index.json");
-    if (fs72.existsSync(pidx)) {
+    const pdir = path74.join(projectDripDir(cwd), "patterns");
+    const pidx = path74.join(pdir, "index.json");
+    if (fs76.existsSync(pidx)) {
       try {
-        const index = JSON.parse(fs72.readFileSync(pidx, "utf8"));
+        const index = JSON.parse(fs76.readFileSync(pidx, "utf8"));
         const entries = (index.patterns || index.entries || []).filter((p2) => p2.status === "approved");
         write2("patterns/index.json", JSON.stringify({ schema: index.schema || 1, patterns: entries }, null, 2), "patterns");
         for (const p2 of entries) for (const f3 of ["spec.json", "spec.md"]) {
-          const abs2 = path70.join(pdir, p2.id, f3);
-          if (fs72.existsSync(abs2) && !whyNotShareable(abs2)) write2(`patterns/${p2.id}/${f3}`, fs72.readFileSync(abs2), "patterns");
+          const abs2 = path74.join(pdir, p2.id, f3);
+          if (fs76.existsSync(abs2) && !whyNotShareable(abs2)) write2(`patterns/${p2.id}/${f3}`, fs76.readFileSync(abs2), "patterns");
         }
       } catch {
         skipped.push({ path: ".drip/patterns/index.json", why: "unreadable" });
@@ -110246,7 +110951,7 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     kind: "drip-style-pack",
     name: projName,
     createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    source: { project: path70.basename(root), board: board?.id || null, styleRevision: idx.approved.default?.revision || null },
+    source: { project: path74.basename(root), board: board?.id || null, styleRevision: idx.approved.default?.revision || null },
     approvedDirection: idx.approved.default?.direction || null,
     fonts: fonts2.map((f3) => ({ family: f3, bundled: files.some((x2) => x2.kind === "font" && x2.path.toLowerCase().includes(f3.toLowerCase().replace(/\s+/g, "-"))) })),
     dependencies: [],
@@ -110254,15 +110959,15 @@ function exportStylePack({ out, name, board: boardId, includePatterns = true, cw
     skipped,
     notes: "Project-owned files only. Personal feedback and secrets are never included. Import copies assets into .drip/imports and creates an editable board; it never overwrites."
   };
-  fs72.writeFileSync(path70.join(dest, "manifest.json"), JSON.stringify(manifest, null, 2));
+  fs76.writeFileSync(path74.join(dest, "manifest.json"), JSON.stringify(manifest, null, 2));
   return { out: dest, manifest, skipped };
 }
 function importStylePack({ from, name, cwd } = {}) {
   const root = projectDir(cwd);
-  const src = path70.resolve(root, from);
+  const src = path74.resolve(root, from);
   let manifest;
   try {
-    manifest = JSON.parse(fs72.readFileSync(path70.join(src, "manifest.json"), "utf8"));
+    manifest = JSON.parse(fs76.readFileSync(path74.join(src, "manifest.json"), "utf8"));
   } catch {
     throw new Error(`${from} is not a style pack (no readable manifest.json).`);
   }
@@ -110270,19 +110975,19 @@ function importStylePack({ from, name, cwd } = {}) {
   const packName = name || manifest.name || "style";
   const slug6 = safeName(packName).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "style";
   ensureProjectDrip(cwd);
-  let dest = path70.join(projectDripDir(cwd), "imports", slug6);
-  for (let n3 = 2; fs72.existsSync(dest); n3++) dest = path70.join(projectDripDir(cwd), "imports", `${slug6}-${n3}`);
+  let dest = path74.join(projectDripDir(cwd), "imports", slug6);
+  for (let n3 = 2; fs76.existsSync(dest); n3++) dest = path74.join(projectDripDir(cwd), "imports", `${slug6}-${n3}`);
   const skipped = [];
   const copied = [];
   for (const f3 of manifest.files || []) {
-    const abs2 = path70.resolve(src, f3.path);
-    if (path70.isAbsolute(f3.path) || f3.path.split(/[\\/]/).includes("..") || !abs2.startsWith(src)) {
+    const abs2 = path74.resolve(src, f3.path);
+    if (path74.isAbsolute(f3.path) || f3.path.split(/[\\/]/).includes("..") || !abs2.startsWith(src)) {
       skipped.push({ path: f3.path, why: "path leaves the pack" });
       continue;
     }
     let data;
     try {
-      data = fs72.readFileSync(abs2);
+      data = fs76.readFileSync(abs2);
     } catch {
       skipped.push({ path: f3.path, why: "missing" });
       continue;
@@ -110291,15 +110996,15 @@ function importStylePack({ from, name, cwd } = {}) {
       skipped.push({ path: f3.path, why: "hash mismatch (changed since export)" });
       continue;
     }
-    const to2 = path70.join(dest, f3.path);
-    fs72.mkdirSync(path70.dirname(to2), { recursive: true });
-    fs72.writeFileSync(to2, data);
+    const to2 = path74.join(dest, f3.path);
+    fs76.mkdirSync(path74.dirname(to2), { recursive: true });
+    fs76.writeFileSync(to2, data);
     copied.push(f3.path);
   }
-  const relDest = posix2(path70.relative(root, dest));
+  const relDest = posix2(path74.relative(root, dest));
   const readIn = (rel3) => {
     try {
-      return JSON.parse(fs72.readFileSync(path70.join(dest, rel3), "utf8"));
+      return JSON.parse(fs76.readFileSync(path74.join(dest, rel3), "utf8"));
     } catch {
       return null;
     }
@@ -110318,11 +111023,11 @@ function importStylePack({ from, name, cwd } = {}) {
       b.items = (packBoard?.items || []).map((it) => ({
         ...it,
         status: asMaster ? it.status || "current" : "proposed",
-        ...it.path ? { path: posix2(path70.join(relDest, it.path)) } : {},
-        provenance: { source: "import", label: `${packName}${it.provenance?.label ? ` \xB7 ${it.provenance.label}` : ""}`, url: it.provenance?.url || null, path: it.path ? posix2(path70.join(relDest, it.path)) : null, addedBy: by, addedAt: (/* @__PURE__ */ new Date()).toISOString() },
+        ...it.path ? { path: posix2(path74.join(relDest, it.path)) } : {},
+        provenance: { source: "import", label: `${packName}${it.provenance?.label ? ` \xB7 ${it.provenance.label}` : ""}`, url: it.provenance?.url || null, path: it.path ? posix2(path74.join(relDest, it.path)) : null, addedBy: by, addedAt: (/* @__PURE__ */ new Date()).toISOString() },
         addedAt: (/* @__PURE__ */ new Date()).toISOString()
       }));
-      b.directions = (packBoard?.directions || []).map((d) => ({ ...d, tile: d.tile ? path70.resolve(root, relDest, d.tile) : void 0, items: d.items || [] }));
+      b.directions = (packBoard?.directions || []).map((d) => ({ ...d, tile: d.tile ? path74.resolve(root, relDest, d.tile) : void 0, items: d.items || [] }));
       b.criteria = packBoard?.criteria || void 0;
     },
     { op: "import", summary: `style pack "${packName}" (${copied.length} files)`, by }
@@ -110330,10 +111035,10 @@ function importStylePack({ from, name, cwd } = {}) {
   let ruleCount = 0;
   updateDecisions((d) => {
     for (const r2 of decisions?.rules || []) {
-      d.rules.push({ id: `rule_${Date.now().toString(36)}${crypto7.randomBytes(3).toString("hex")}`, topic: r2.topic, value: r2.value, avoid: r2.avoid || [], scope: "brand", target: null, status: asMaster ? "approved" : "proposed", since: (/* @__PURE__ */ new Date()).toISOString(), source: "import", text: r2.text || "", evidence: { import: packName, from: manifest.source?.project || null }, revision: null, supersedes: [] });
+      d.rules.push({ id: `rule_${Date.now().toString(36)}${crypto8.randomBytes(3).toString("hex")}`, topic: r2.topic, value: r2.value, avoid: r2.avoid || [], scope: "brand", target: null, status: asMaster ? "approved" : "proposed", since: (/* @__PURE__ */ new Date()).toISOString(), source: "import", text: r2.text || "", evidence: { import: packName, from: manifest.source?.project || null }, revision: null, supersedes: [] });
       ruleCount++;
     }
-    for (const x2 of decisions?.rejected || []) d.rejected.push({ id: `rej_${Date.now().toString(36)}${crypto7.randomBytes(3).toString("hex")}`, kind: x2.kind || "style", what: x2.what, why: x2.why, at: (/* @__PURE__ */ new Date()).toISOString(), source: "import", evidence: { import: packName } });
+    for (const x2 of decisions?.rejected || []) d.rejected.push({ id: `rej_${Date.now().toString(36)}${crypto8.randomBytes(3).toString("hex")}`, kind: x2.kind || "style", what: x2.what, why: x2.why, at: (/* @__PURE__ */ new Date()).toISOString(), source: "import", evidence: { import: packName } });
     d.imports = [...d.imports || [], { name: packName, at: (/* @__PURE__ */ new Date()).toISOString(), dir: relDest, from: manifest.source || null, asMaster }];
     return d;
   }, cwd);
@@ -110360,10 +111065,10 @@ function importStylePack({ from, name, cwd } = {}) {
 }
 
 // src/modules/project/index.mjs
-var posix3 = (p2) => p2.split(path71.sep).join("/");
+var posix3 = (p2) => p2.split(path75.sep).join("/");
 function setShare(patch) {
   const dir = ensureProjectDrip();
-  const file4 = path71.join(dir, "config.json");
+  const file4 = path75.join(dir, "config.json");
   const cfg = readJson2(file4, {}) || {};
   cfg.share = { ...cfg.share || {}, ...patch };
   writeJsonAtomic(file4, cfg);
@@ -110380,7 +111085,7 @@ async function shootApp(boardId, url2, config2, by) {
     const buf = cap.slices[0].buf;
     const hash2 = contentHash(buf);
     const { abs: abs2, rel: rel3 } = boardAssetPath(boardId, `app-${width}-${hash2}.jpg`, root);
-    fs73.writeFileSync(abs2, buf);
+    fs77.writeFileSync(abs2, buf);
     entries.push({ entry: { key: `screenshot:${target}@${width}`, kind: "screenshot", title: `${url2} at ${width}px`, path: rel3, hash: hash2, url: target, note: "the running app as it looks today (current implementation, not an approved look)" }, prov: makeProvenance({ source: "screenshot", label: `${url2} @${width}`, path: rel3, url: target, by }), status: "current" });
     shots.push(buf);
   }
@@ -110388,13 +111093,13 @@ async function shootApp(boardId, url2, config2, by) {
 }
 function entryForFile(boardId, input2, { by, status }) {
   const root = projectDir();
-  const abs2 = path71.resolve(root, input2);
-  const inside = abs2 === root || abs2.startsWith(root + path71.sep);
-  const name = path71.basename(abs2);
+  const abs2 = path75.resolve(root, input2);
+  const inside = abs2 === root || abs2.startsWith(root + path75.sep);
+  const name = path75.basename(abs2);
   if (SECRET_FILE.test(name)) return { skip: `${input2}: looks like a secrets file, never read` };
   let st;
   try {
-    st = fs73.statSync(abs2);
+    st = fs77.statSync(abs2);
   } catch {
     return { skip: `${input2}: not found` };
   }
@@ -110403,23 +111108,23 @@ function entryForFile(boardId, input2, { by, status }) {
   const why = whyNotShareable(abs2);
   if (why) return { skip: `${input2}: ${why}` };
   let rel3;
-  if (inside) rel3 = posix3(path71.relative(root, abs2));
+  if (inside) rel3 = posix3(path75.relative(root, abs2));
   else {
-    const a2 = boardAssetPath(boardId, `${contentHash(fs73.readFileSync(abs2)).slice(0, 8)}-${name}`, root);
-    fs73.copyFileSync(abs2, a2.abs);
+    const a2 = boardAssetPath(boardId, `${contentHash(fs77.readFileSync(abs2)).slice(0, 8)}-${name}`, root);
+    fs77.copyFileSync(abs2, a2.abs);
     rel3 = a2.rel;
   }
-  const hash2 = fileHash(path71.join(root, rel3));
-  const ext = path71.extname(name).toLowerCase();
+  const hash2 = fileHash(path75.join(root, rel3));
+  const ext = path75.extname(name).toLowerCase();
   const kind = /\.(png|jpe?g|webp|avif|gif|svg)$/.test(ext) ? /(logo|wordmark|brand|mark)/i.test(name) ? "logo" : "image" : /\.(woff2?|ttf|otf)$/.test(ext) ? "font" : /\.(css|scss|json)$/.test(ext) ? "tokens" : "doc";
   return {
-    entry: { key: kind === "font" ? `font:${name.replace(/\.[^.]+$/, "")}` : `file:${rel3}`, kind, title: name, path: rel3, hash: hash2, ...kind === "doc" ? { excerpt: fs73.readFileSync(abs2, "utf8").slice(0, 600).replace(/\s+/g, " ") } : {}, note: `a file you were given (${kind}), kept with its source path` },
+    entry: { key: kind === "font" ? `font:${name.replace(/\.[^.]+$/, "")}` : `file:${rel3}`, kind, title: name, path: rel3, hash: hash2, ...kind === "doc" ? { excerpt: fs77.readFileSync(abs2, "utf8").slice(0, 600).replace(/\s+/g, " ") } : {}, note: `a file you were given (${kind}), kept with its source path` },
     prov: makeProvenance({ source: inside ? "repo" : "user-file", label: inside ? "project file" : `given file, copied from ${name}`, path: rel3, by }),
     status
   };
 }
 var fmtRule = (r2) => `${r2.id} [${r2.status}${r2.scope !== "brand" ? ` ${r2.scope}${r2.target ? ` ${r2.target}` : ""}` : ""}] ${r2.topic}: ${r2.value}${r2.avoid?.length ? ` (refuses: ${r2.avoid.join("; ")})` : ""} \xB7 ${r2.source}${r2.conflictsWith?.length ? ` \xB7 CONTRADICTS ${r2.conflictsWith.join(", ")}` : ""}${r2.offDirection ? " \xB7 off-direction" : ""}`;
-function register27(server2, ctx2) {
+function register28(server2, ctx2) {
   server2.registerTool(
     "board_project",
     {
@@ -110452,7 +111157,7 @@ function register27(server2, ctx2) {
       if (action === "discover" || action === "status") {
         const boards = listBoards();
         const idx = hasMemory() ? loadIndex2() : null;
-        out.push(`Project ${path71.basename(root)}: ${boards.length} board(s).${idx?.masters?.default ? ` Master: ${idx.masters.default}.` : " No master board yet."}`);
+        out.push(`Project ${path75.basename(root)}: ${boards.length} board(s).${idx?.masters?.default ? ` Master: ${idx.masters.default}.` : " No master board yet."}`);
         if (boards.length) out.push(boards.slice(0, 8).map((b) => `- ${b.id} (${b.scope}${b.status === "archived" ? ", archived" : ""}) r${b.revision} \xB7 ${liveItems(b).length} items${b.chosen ? ` \xB7 chose ${b.chosen}` : ""}`).join("\n"));
         out.push(describeInventory(inv));
         out.push(idx?.masters?.default ? "NEXT: board_import refreshes changed repo files; project_context is what a design task starts from." : 'NEXT: board_project({ action: "bootstrap" }) creates the master board from this.');
@@ -110471,8 +111176,8 @@ function register27(server2, ctx2) {
         board = r2.board;
         counts = r2.counts;
       } else {
-        const brief = inv.readme?.summary || `${path71.basename(root)}: existing product`;
-        const b0 = createBoard(name || `${inv.stack.name || path71.basename(root)} design memory`, brief, { scope: "master", brand: brand || null });
+        const brief = inv.readme?.summary || `${path75.basename(root)}: existing product`;
+        const b0 = createBoard(name || `${inv.stack.name || path75.basename(root)} design memory`, brief, { scope: "master", brand: brand || null });
         const r2 = importInventory(b0.id, inv, { by });
         board = r2.board;
         counts = r2.counts;
@@ -110537,13 +111242,13 @@ function register27(server2, ctx2) {
       if (paths?.length) {
         const entries = [];
         for (const p2 of paths) {
-          const abs2 = path71.resolve(root, p2);
+          const abs2 = path75.resolve(root, p2);
           let list4 = [p2];
           try {
-            if (fs73.statSync(abs2).isDirectory()) {
+            if (fs77.statSync(abs2).isDirectory()) {
               const inv = scanRepo(abs2);
-              list4 = [...inv.logos, ...inv.images, ...inv.tokens, ...inv.css].map((x2) => posix3(path71.relative(root, path71.join(abs2, x2.rel)))).slice(0, 60);
-              for (const d of inv.designDocs) list4.push(posix3(path71.relative(root, path71.join(abs2, d.rel))));
+              list4 = [...inv.logos, ...inv.images, ...inv.tokens, ...inv.css].map((x2) => posix3(path75.relative(root, path75.join(abs2, x2.rel)))).slice(0, 60);
+              for (const d of inv.designDocs) list4.push(posix3(path75.relative(root, path75.join(abs2, d.rel))));
             }
           } catch {
           }
@@ -110707,7 +111412,7 @@ function register27(server2, ctx2) {
         }
         if (a2.reset) {
           const r2 = resetBoard(board.id, { approved: a2.approved, by });
-          return text(`Reset "${board.name}": items and directions cleared. The previous content is saved at ${posix3(path71.relative(projectDir(), r2.snapshot))}.`);
+          return text(`Reset "${board.name}": items and directions cleared. The previous content is saved at ${posix3(path75.relative(projectDir(), r2.snapshot))}.`);
         }
         if (a2.master) {
           if (a2.approved !== true) return text("Changing the project master needs the user's yes. Ask them, then call again with approved: true.", true);
@@ -110931,7 +111636,7 @@ NEXT: style_update puts this into the project skill; compare a new page's number
       }
       const r2 = writeProjectSkill({ dryRun });
       const L2 = [dryRun ? `Preview of the project skill block:
-${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path71.relative(projectDir(), r2.file)}. Previous version kept in .history.` : "Project skill already matches the approved decisions."];
+${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path75.relative(projectDir(), r2.file)}. Previous version kept in .history.` : "Project skill already matches the approved decisions."];
       if (pack && !dryRun) L2.push(...syncProjectPack());
       return text(L2.join("\n"));
     })
@@ -110942,14 +111647,14 @@ ${r2.preview}` : r2.changed ? `Project skill updated (v${r2.version}): ${path71.
     const out = [];
     const skill = skillBody();
     if (!packDir(id)) {
-      createPack({ id, name: `${path71.basename(projectDir())} style`, niche: "this project's own design language", keywords: [], summary: "Generated from the project's approved decisions and measured tokens.", type: "project" });
+      createPack({ id, name: `${path75.basename(projectDir())} style`, niche: "this project's own design language", keywords: [], summary: "Generated from the project's approved decisions and measured tokens.", type: "project" });
       out.push(`Created the project style pack "${id}".`);
     } else {
       const meta3 = listPacks().find((p2) => p2.id === id);
       if (meta3 && meta3.type !== "project") return [`Pack "${id}" exists and is not a project pack; left alone.`];
     }
     for (const [file4, body] of [["guide.md", `${marker}
-# ${path71.basename(projectDir())} design language
+# ${path75.basename(projectDir())} design language
 
 ${skill}
 `], ["critic.md", `${marker}
@@ -111021,7 +111726,7 @@ var inspire_exports = {};
 __export(inspire_exports, {
   defaultSources: () => defaultSources,
   interleave: () => interleave,
-  register: () => register28,
+  register: () => register29,
   toSeenItem: () => toSeenItem
 });
 
@@ -111364,17 +112069,17 @@ var NOT_USABLE = [
 
 // src/modules/inspire/rank.mjs
 init_paths();
-import fs74 from "node:fs";
-import path72 from "node:path";
+import fs78 from "node:fs";
+import path76 from "node:path";
 var read4 = (f3) => {
   try {
-    return JSON.parse(fs74.readFileSync(f3, "utf8"));
+    return JSON.parse(fs78.readFileSync(f3, "utf8"));
   } catch {
     return {};
   }
 };
 function loadEntries() {
-  return [...read4(path72.join(dataDir, "catalogue.json")).entries || [], ...read4(path72.join(projectDripDir(), "catalogue.json")).entries || []];
+  return [...read4(path76.join(dataDir, "catalogue.json")).entries || [], ...read4(path76.join(projectDripDir(), "catalogue.json")).entries || []];
 }
 function rankEntries(entries, { stack = [], fit: fit2 = [], category } = {}) {
   const stacks = stack.map((s2) => String(s2).toLowerCase());
@@ -111445,7 +112150,7 @@ function toSeenItem(it, { query, kind }) {
     from: { kind: "gallery", query: query || "", tag: it.source, category: it.kind === "component" ? "product-design" : "web-design", wanted: kind }
   };
 }
-function register28(server2, ctx2) {
+function register29(server2, ctx2) {
   server2.registerTool(
     "refs_gallery",
     {
@@ -111588,11 +112293,11 @@ __export(studio_exports, {
 // src/modules/studio/art-tool.mjs
 var art_tool_exports = {};
 __export(art_tool_exports, {
-  register: () => register29,
+  register: () => register30,
   specOf: () => specOf
 });
-import fs76 from "node:fs";
-import path74 from "node:path";
+import fs79 from "node:fs";
+import path77 from "node:path";
 init_paths();
 
 // src/modules/studio/rng.mjs
@@ -112143,90 +112848,6 @@ function describe5(art) {
   return `${art.width}x${art.height}, palette ${art.palette.join(" ")} (background ${bgL < 0.2 ? "dark" : "light"}), layers: ${art.layers.map((l2) => `${l2.type}${l2.info ? ` (${Object.entries(l2.info).map(([k, v]) => `${v} ${k}`).join(", ")})` : ""}`).join(" + ")}`;
 }
 
-// src/modules/studio/raster.mjs
-import fs75 from "node:fs";
-import os11 from "node:os";
-import path73 from "node:path";
-import { pathToFileURL as pathToFileURL6 } from "node:url";
-init_imaging();
-init_paths();
-async function loadOptional(name) {
-  try {
-    return await import(name);
-  } catch {
-  }
-  const dir = path73.join(homeDripDir, "vendor", "node_modules", name);
-  try {
-    const pkg = JSON.parse(fs75.readFileSync(path73.join(dir, "package.json"), "utf8"));
-    const entry = typeof pkg.module === "string" ? pkg.module : typeof pkg.exports === "string" ? pkg.exports : pkg.exports?.["."]?.import || pkg.exports?.["."]?.default || pkg.exports?.["."] || pkg.main || "index.js";
-    return await import(pathToFileURL6(path73.join(dir, typeof entry === "string" ? entry : "index.js")).href);
-  } catch {
-    return null;
-  }
-}
-async function optimizeSvg(svg) {
-  const svgo = await loadOptional("svgo");
-  if (!svgo?.optimize) return { svg, optimized: false };
-  try {
-    const out = svgo.optimize(svg, { multipass: true, floatPrecision: 1 });
-    return { svg: out.data, optimized: true };
-  } catch {
-    return { svg, optimized: false };
-  }
-}
-function projectPath(out) {
-  const root = path73.resolve(projectDir());
-  const abs2 = path73.resolve(root, out);
-  if (abs2 !== root && !abs2.startsWith(root + path73.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
-  return abs2;
-}
-async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, rasterizer = "browser", config: config2 } = {}) {
-  if (rasterizer === "resvg") {
-    const mod = await loadOptional("@resvg/resvg-js");
-    if (!mod?.Resvg) throw new Error('@resvg/resvg-js is not installed. Run: cd ~/.drip/vendor && npm i @resvg/resvg-js (or use rasterizer: "browser").');
-    const png3 = Buffer.from(new mod.Resvg(svg, { fitTo: { mode: "width", value: width } }).render().asPng());
-    return format === "png" ? png3 : encode5(png3, { width, format, maxKB, config: config2 });
-  }
-  const file4 = path73.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
-  const png2 = await renderHtml(`<div style="width:${width}px;height:${height}px;overflow:hidden;line-height:0">${svg.replace(/<svg /, `<svg style="display:block;width:${width}px;height:${height}px" `)}</div>`, file4, { width, height, config: config2 });
-  fs75.rmSync(file4, { force: true });
-  return format === "png" ? png2 : encode5(png2, { width, format, maxKB, config: config2 });
-}
-async function encode5(png2, { width, format, maxKB, config: config2 }) {
-  const r2 = await processImage(png2, { outputs: [{ name: "", width, format }], focus: { x: 0.5, y: 0.5 }, maxKB, config: config2 });
-  return r2.files[0].buf;
-}
-function saveFile(out, data) {
-  const abs2 = projectPath(out);
-  fs75.mkdirSync(path73.dirname(abs2), { recursive: true });
-  fs75.writeFileSync(abs2, data);
-  return { abs: abs2, rel: path73.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs75.statSync(abs2).size / 1024)) };
-}
-function logAsset(entries) {
-  const log2 = path73.join(ensureProjectDrip(), "assets.json");
-  withLock(log2, () => {
-    const prev = readJson2(log2, []);
-    for (const e2 of entries) prev.push({ credit: null, author: null, savedAt: (/* @__PURE__ */ new Date()).toISOString(), ...e2 });
-    writeJsonAtomic(log2, prev);
-  });
-}
-async function previewBlock(buf, maxW = 1280, maxH = 900) {
-  try {
-    return imageBlock(await toJpeg(buf, maxW, maxH, 82));
-  } catch {
-    return null;
-  }
-}
-function tempDir(prefix = "drip-studio-") {
-  return fs75.mkdtempSync(path73.join(os11.tmpdir(), prefix));
-}
-function cleanDir(dir) {
-  try {
-    fs75.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
-  } catch {
-  }
-}
-
 // src/core/apps.mjs
 var APP_MIME = "text/html;profile=mcp-app";
 var UI_EXTENSION = "io.modelcontextprotocol/ui";
@@ -112385,7 +113006,7 @@ var layerSchema = external_exports.object({ type: external_exports.enum(LAYER_TY
 function specOf(art, extra = {}) {
   return { version: 1, ...extra, width: art.width, height: art.height, palette: art.palette, layers: art.layers.map(({ type, seed, params }) => ({ type, seed, params })) };
 }
-function register29(server2, ctx2) {
+function register30(server2, ctx2) {
   registerViewer(server2);
   server2.registerTool(
     "art_generate",
@@ -112409,7 +113030,7 @@ function register29(server2, ctx2) {
       _meta: studioToolMeta()
     },
     safe(async (args) => {
-      const base = args.from ? JSON.parse(fs76.readFileSync(projectPath(args.from), "utf8")) : {};
+      const base = args.from ? JSON.parse(fs79.readFileSync(projectPath(args.from), "utf8")) : {};
       const kind = args.kind || "composition";
       const mood = args.mood || base.mood || "calm";
       let layers = args.layers || (kind !== "composition" || !base.layers ? null : base.layers);
@@ -112425,10 +113046,10 @@ function register29(server2, ctx2) {
       let optimizedNote = "";
       if (args.out) {
         const abs2 = projectPath(args.out);
-        const ext = path74.extname(abs2).slice(1).toLowerCase();
+        const ext = path77.extname(abs2).slice(1).toLowerCase();
         if (!["svg", "webp", "png"].includes(ext)) throw new Error("out must end in .svg, .webp or .png");
         const stem3 = abs2.slice(0, -(ext.length + 1));
-        const rel3 = (p2) => path74.relative(projectDir(), p2).replace(/\\/g, "/");
+        const rel3 = (p2) => path77.relative(projectDir(), p2).replace(/\\/g, "/");
         const opt = args.optimize === false ? { svg: art.svg, optimized: false } : await optimizeSvg(art.svg);
         optimizedNote = opt.optimized ? " (SVGO applied)" : "";
         files.push(saveFile(rel3(`${stem3}.svg`), opt.svg));
@@ -112458,11 +113079,11 @@ __export(assets3d_exports, {
   extractTo: () => extractTo,
   hdrBuffer: () => hdrBuffer,
   rankAssets: () => rankAssets,
-  register: () => register30,
+  register: () => register31,
   unzip: () => unzip
 });
-import fs77 from "node:fs";
-import path75 from "node:path";
+import fs80 from "node:fs";
+import path78 from "node:path";
 import zlib from "node:zlib";
 var UA2 = { "User-Agent": "drip-design-mcp/0.5 (design tool; https://github.com/8bitgfx/drip)" };
 var DAY2 = 24 * 36e5;
@@ -112498,13 +113119,13 @@ function unzip(buf) {
   return out;
 }
 function extractTo(entries, dir) {
-  const root = path75.resolve(dir);
+  const root = path78.resolve(dir);
   const written = [];
   for (const e2 of entries) {
-    const target = path75.resolve(root, e2.name);
-    if (target !== root && !target.startsWith(root + path75.sep)) throw new Error(`Refusing to write outside the folder: ${e2.name}`);
-    fs77.mkdirSync(path75.dirname(target), { recursive: true });
-    fs77.writeFileSync(target, e2.data);
+    const target = path78.resolve(root, e2.name);
+    if (target !== root && !target.startsWith(root + path78.sep)) throw new Error(`Refusing to write outside the folder: ${e2.name}`);
+    fs80.mkdirSync(path78.dirname(target), { recursive: true });
+    fs80.writeFileSync(target, e2.data);
     written.push(e2.name);
   }
   return written;
@@ -112561,14 +113182,14 @@ async function acgDownloads(id) {
 }
 var download = async (url2) => (await get(url2, { as: "buffer", headers: UA2, ttlMs: 30 * DAY2 })).body;
 async function hdrBuffer(idOrPath, res = "1k") {
-  if (/\.hdr$/i.test(idOrPath)) return fs77.readFileSync(projectPath(idOrPath));
+  if (/\.hdr$/i.test(idOrPath)) return fs80.readFileSync(projectPath(idOrPath));
   const files = await phFiles(idOrPath);
   const hit = files.hdri?.[res]?.hdr || files.hdri?.["1k"]?.hdr;
   if (!hit) throw new Error(`Poly Haven has no HDRI "${idOrPath}" (search with assets_3d_search type hdri).`);
   return download(hit.url);
 }
 var PH_TEXTURE_MAPS = { Diffuse: "diff", nor_gl: "nor_gl", Rough: "rough", AO: "ao", Displacement: "disp" };
-function register30(server2) {
+function register31(server2) {
   server2.registerTool(
     "assets_3d_search",
     {
@@ -112614,9 +113235,9 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
       const id = rest.join(":");
       if (!["polyhaven", "ambientcg"].includes(source) || !id) return text(`"${asset}" is not a Poly Haven or ambientCG asset. Use a number from assets_3d_search or source:id.`, true);
       const known = lookup(key);
-      const folder = path75.join(dest, source, id).replace(/\\/g, "/");
+      const folder = path78.join(dest, source, id).replace(/\\/g, "/");
       const abs2 = projectPath(folder);
-      fs77.mkdirSync(abs2, { recursive: true });
+      fs80.mkdirSync(abs2, { recursive: true });
       const files = [];
       let authors = [];
       let kind;
@@ -112627,15 +113248,15 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
         authors = Object.keys(info.authors || {});
         page2 = `https://polyhaven.com/a/${id}`;
         const put = async (url2, rel3) => {
-          const target = path75.join(abs2, rel3);
-          fs77.mkdirSync(path75.dirname(target), { recursive: true });
-          fs77.writeFileSync(target, await download(url2));
+          const target = path78.join(abs2, rel3);
+          fs80.mkdirSync(path78.dirname(target), { recursive: true });
+          fs80.writeFileSync(target, await download(url2));
           files.push(rel3.replace(/\\/g, "/"));
         };
         if (kind === "hdri") {
           const hit = listing2.hdri?.[resolution]?.hdr || listing2.hdri?.["1k"]?.hdr;
           if (!hit) throw new Error(`No .hdr file for ${id} at ${resolution}`);
-          await put(hit.url, path75.basename(new URL(hit.url).pathname));
+          await put(hit.url, path78.basename(new URL(hit.url).pathname));
         } else if (kind === "texture") {
           for (const [map2, short] of Object.entries(PH_TEXTURE_MAPS)) {
             const hit = listing2[map2]?.[resolution]?.jpg || listing2[map2]?.["1k"]?.jpg;
@@ -112658,7 +113279,7 @@ NEXT: assets_3d_save({ asset: "${tag}-1" }) downloads it into the project (resol
         files.push(...extractTo(unzip(await download(pick5.downloadLink || pick5.fullDownloadPath)), abs2));
       }
       const record2 = { source, id, kind, url: page2, authors, license: "CC0 1.0 (as stated by the source)", resolution, retrievedAt: (/* @__PURE__ */ new Date()).toISOString(), files };
-      fs77.writeFileSync(path75.join(abs2, "provenance.json"), JSON.stringify(record2, null, 2));
+      fs80.writeFileSync(path78.join(abs2, "provenance.json"), JSON.stringify(record2, null, 2));
       logAsset(files.slice(0, 40).map((f3) => ({ file: `${folder}/${f3}`, source: page2, author: authors.join(", ") || null, license: record2.license })));
       const hint = kind === "hdri" ? `Use it: scene_render({ scene: { environment: { hdri: "${source === "polyhaven" ? id : `${folder}/${files.find((f3) => /\.hdr$/i.test(f3)) || ""}`}" } ... } }).` : kind === "texture" ? `Use it: material: { pbrFolder: "${folder}" } in scene_render.` : `A glTF model: open it in blender_render (objects can import it) or a three.js page.`;
       return text(`Saved ${kind} "${id}" (${source}, ${resolution}) to ${folder}/ \u2014 ${files.length} file${files.length === 1 ? "" : "s"}: ${files.slice(0, 8).join(", ")}${files.length > 8 ? ", ..." : ""}.
@@ -112674,13 +113295,13 @@ var blender_exports = {};
 __export(blender_exports, {
   blenderCandidates: () => blenderCandidates,
   blenderSpec: () => blenderSpec,
-  findBlender: () => findBlender,
-  register: () => register32
+  findBlender: () => findBlender2,
+  register: () => register33
 });
-import { execFile as execFile6 } from "node:child_process";
-import fs79 from "node:fs";
-import os12 from "node:os";
-import path77 from "node:path";
+import { execFile as execFile7 } from "node:child_process";
+import fs82 from "node:fs";
+import os13 from "node:os";
+import path80 from "node:path";
 
 // src/modules/studio/scene.mjs
 var scene_exports = {};
@@ -112691,14 +113312,14 @@ __export(scene_exports, {
   findPbrMaps: () => findPbrMaps,
   mockupScene: () => mockupScene,
   prepareScene: () => prepareScene,
-  register: () => register31,
+  register: () => register32,
   renderScene: () => renderScene,
   resolveModel: () => resolveModel,
   scenePage: () => scenePage,
   sceneSchema: () => sceneSchema
 });
-import fs78 from "node:fs";
-import path76 from "node:path";
+import fs81 from "node:fs";
+import path79 from "node:path";
 init_browser();
 init_imaging();
 init_paths();
@@ -112825,18 +113446,18 @@ async function inlineImage(src, maxSide = 2048) {
   if (!src) return void 0;
   if (src.startsWith("data:")) return src;
   const local = !/^https?:/i.test(src);
-  const buf = local ? fs78.readFileSync(projectPath(src)) : (await fetchImage(src)).buf;
+  const buf = local ? fs81.readFileSync(projectPath(src)) : (await fetchImage(src)).buf;
   const jpeg2 = await toJpeg(buf, maxSide, maxSide, 90).catch(() => null);
   return jpeg2 ? dataUrl2(jpeg2) : dataUrl2(buf, "image/png");
 }
 var PBR_NAMES = { map: /(color|diff|albedo|basecolor)/i, normalMap: /(normalgl|nor_gl|normal)/i, roughnessMap: /(rough)/i, aoMap: /(ambientocclusion|_ao|ao_)/i };
 function findPbrMaps(folder) {
   const abs2 = projectPath(folder);
-  const files = fs78.readdirSync(abs2).filter((f3) => /\.(jpe?g|png)$/i.test(f3));
+  const files = fs81.readdirSync(abs2).filter((f3) => /\.(jpe?g|png)$/i.test(f3));
   const out = {};
   for (const [role, re] of Object.entries(PBR_NAMES)) {
     const hit = files.filter((f3) => re.test(f3) && !(role === "map" && /normal/i.test(f3)) && !(role === "normalMap" && /dx|directx/i.test(f3)));
-    if (hit.length) out[role] = path76.join(folder, hit[0]);
+    if (hit.length) out[role] = path79.join(folder, hit[0]);
   }
   return out;
 }
@@ -112844,32 +113465,32 @@ async function resolveModel(src) {
   const ph = /^polyhaven:([\w-]+)$/i.exec(src);
   if (ph) {
     const id = ph[1];
-    const dir = path76.join(homeDripDir, "cache", "models", id);
-    const main = path76.join(dir, `${id}.gltf`);
-    if (fs78.existsSync(main)) return main;
+    const dir = path79.join(homeDripDir, "cache", "models", id);
+    const main = path79.join(dir, `${id}.gltf`);
+    if (fs81.existsSync(main)) return main;
     const r2 = await fetch(`https://api.polyhaven.com/files/${id}`, { headers: { "user-agent": "drip" } });
     if (!r2.ok) throw new Error(`Poly Haven has no model "${id}" (assets_3d_search lists them)`);
     const g = (await r2.json()).gltf;
     const pick5 = g?.["2k"]?.gltf || g?.["1k"]?.gltf;
     if (!pick5) throw new Error(`Poly Haven "${id}" has no glTF download`);
     const put = async (url2, rel3) => {
-      const target = path76.join(dir, rel3);
-      fs78.mkdirSync(path76.dirname(target), { recursive: true });
+      const target = path79.join(dir, rel3);
+      fs81.mkdirSync(path79.dirname(target), { recursive: true });
       const res = await fetch(url2, { headers: { "user-agent": "drip" } });
       if (!res.ok) throw new Error(`Download failed: ${url2}`);
-      fs78.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
+      fs81.writeFileSync(target, Buffer.from(await res.arrayBuffer()));
     };
     for (const [rel3, f3] of Object.entries(pick5.include || {})) await put(f3.url, rel3);
     await put(pick5.url, `${id}.gltf`);
-    fs78.writeFileSync(path76.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
+    fs81.writeFileSync(path79.join(dir, "provenance.json"), JSON.stringify({ source: "polyhaven", id, url: `https://polyhaven.com/a/${id}`, license: "CC0" }, null, 2));
     return main;
   }
   const abs2 = projectPath(src);
-  if (!fs78.existsSync(abs2)) throw new Error(`Model not found: ${src}`);
-  if (fs78.statSync(abs2).isDirectory()) {
-    const f3 = fs78.readdirSync(abs2).find((n3) => /\.(glb|gltf)$/i.test(n3));
+  if (!fs81.existsSync(abs2)) throw new Error(`Model not found: ${src}`);
+  if (fs81.statSync(abs2).isDirectory()) {
+    const f3 = fs81.readdirSync(abs2).find((n3) => /\.(glb|gltf)$/i.test(n3));
     if (!f3) throw new Error(`No .glb or .gltf in ${src}`);
-    return path76.join(abs2, f3);
+    return path79.join(abs2, f3);
   }
   return abs2;
 }
@@ -112883,8 +113504,8 @@ async function prepareScene(spec) {
     if (o2.type === "model") {
       if (!o2.src) throw new Error("A model object needs src: a .glb/.gltf file, a folder from assets_3d_save, or polyhaven:<id>.");
       const file4 = await resolveModel(o2.src);
-      o2.modelDir = path76.dirname(file4);
-      o2.modelFile = path76.basename(file4);
+      o2.modelDir = path79.dirname(file4);
+      o2.modelFile = path79.basename(file4);
       if (o2.label) o2.label = { ...o2.label, image: await inlineImage(o2.label.image, 2048) };
     }
   }
@@ -113113,15 +113734,15 @@ async function renderScene(spec, { turntable, config: config2, timeout = 6e4 } =
   const width = prepared.width || 1600;
   const height = prepared.height || 1e3;
   const dir = tempDir("drip-scene-");
-  const file4 = path76.join(dir, "scene.html");
+  const file4 = path79.join(dir, "scene.html");
   prepared.objects.forEach((o2, i2) => {
     if (o2.type !== "model") return;
-    const to2 = path76.join(dir, "models", String(i2));
-    fs78.cpSync(o2.modelDir, to2, { recursive: true });
+    const to2 = path79.join(dir, "models", String(i2));
+    fs81.cpSync(o2.modelDir, to2, { recursive: true });
     o2.modelUrl = `models/${i2}/${encodeURIComponent(o2.modelFile)}`;
     delete o2.modelDir;
   });
-  fs78.writeFileSync(file4, scenePage(prepared));
+  fs81.writeFileSync(file4, scenePage(prepared));
   const toBuf = (u2) => Buffer.from(u2.split(",")[1], "base64");
   try {
     return await withTab(config2, async (tab) => {
@@ -113145,7 +113766,7 @@ async function renderScene(spec, { turntable, config: config2, timeout = 6e4 } =
     cleanDir(dir);
   }
 }
-function register31(server2, ctx2) {
+function register32(server2, ctx2) {
   registerViewer(server2);
   server2.registerTool(
     "scene_render",
@@ -113179,7 +113800,7 @@ function register31(server2, ctx2) {
       const seconds = ((Date.now() - t0) / 1e3).toFixed(1);
       const files = [];
       if (args.out) {
-        const ext = path76.extname(args.out).slice(1).toLowerCase();
+        const ext = path79.extname(args.out).slice(1).toLowerCase();
         if (!["png", "webp"].includes(ext)) throw new Error("out must end in .png or .webp");
         const buf = ext === "png" ? r2.still : (await processImage(r2.still, { outputs: [{ name: "", width: r2.width, format: "webp" }], focus: { x: 0.5, y: 0.5 }, maxKB: 600, config: ctx2.config() })).files[0].buf;
         files.push(saveFile(args.out, buf));
@@ -113218,7 +113839,7 @@ Scene (edit and pass back as scene): ${JSON.stringify({ ...spec, objects: spec.o
 var byVersionDesc = (a2, b) => b.localeCompare(a2, void 0, { numeric: true });
 function listDir(dir) {
   try {
-    return fs79.readdirSync(dir);
+    return fs82.readdirSync(dir);
   } catch {
     return [];
   }
@@ -113227,25 +113848,25 @@ function blenderCandidates(env = process.env, platform = process.platform) {
   const out = [];
   if (env.DRIP_BLENDER) out.push(env.DRIP_BLENDER);
   const exe = platform === "win32" ? "blender.exe" : "blender";
-  for (const dir of (env.PATH || "").split(path77.delimiter).filter(Boolean)) out.push(path77.join(dir, exe));
+  for (const dir of (env.PATH || "").split(path80.delimiter).filter(Boolean)) out.push(path80.join(dir, exe));
   if (platform === "win32") {
-    for (const base of [env.ProgramFiles || "C:\\Program Files", env["ProgramFiles(x86)"] || "C:\\Program Files (x86)", env.LOCALAPPDATA && path77.join(env.LOCALAPPDATA, "Programs")].filter(Boolean)) {
-      const root = path77.join(base, "Blender Foundation");
-      for (const d of listDir(root).filter((n3) => /^Blender/i.test(n3)).sort(byVersionDesc)) out.push(path77.join(root, d, "blender.exe"));
+    for (const base of [env.ProgramFiles || "C:\\Program Files", env["ProgramFiles(x86)"] || "C:\\Program Files (x86)", env.LOCALAPPDATA && path80.join(env.LOCALAPPDATA, "Programs")].filter(Boolean)) {
+      const root = path80.join(base, "Blender Foundation");
+      for (const d of listDir(root).filter((n3) => /^Blender/i.test(n3)).sort(byVersionDesc)) out.push(path80.join(root, d, "blender.exe"));
     }
     out.push("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Blender\\blender.exe");
   } else if (platform === "darwin") {
-    out.push("/Applications/Blender.app/Contents/MacOS/Blender", path77.join(os12.homedir(), "Applications/Blender.app/Contents/MacOS/Blender"));
+    out.push("/Applications/Blender.app/Contents/MacOS/Blender", path80.join(os13.homedir(), "Applications/Blender.app/Contents/MacOS/Blender"));
   } else {
     out.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/var/lib/flatpak/exports/bin/org.blender.Blender");
-    for (const d of listDir("/opt").filter((n3) => /^blender/i.test(n3)).sort(byVersionDesc)) out.push(path77.join("/opt", d, "blender"));
+    for (const d of listDir("/opt").filter((n3) => /^blender/i.test(n3)).sort(byVersionDesc)) out.push(path80.join("/opt", d, "blender"));
   }
   return out;
 }
-function findBlender(config2, env = process.env, platform = process.platform) {
+function findBlender2(config2, env = process.env, platform = process.platform) {
   const configured = config2?.blender?.path;
   const list4 = [...configured ? [configured] : [], ...blenderCandidates(env, platform)];
-  return list4.find((p2) => p2 && fs79.existsSync(p2)) || null;
+  return list4.find((p2) => p2 && fs82.existsSync(p2)) || null;
 }
 var BLENDER_SCRIPT = `
 import bpy, bmesh, sys, json, math, os
@@ -113580,14 +114201,14 @@ print("DRIP_DONE", out_path)
 `;
 async function localFile2(src, dir, name) {
   if (!src) return void 0;
-  const ext = (path77.extname(src.split("?")[0]) || ".png").toLowerCase();
-  const target = path77.join(dir, `${name}${ext}`);
+  const ext = (path80.extname(src.split("?")[0]) || ".png").toLowerCase();
+  const target = path80.join(dir, `${name}${ext}`);
   if (/^data:/.test(src)) {
-    fs79.writeFileSync(target, Buffer.from(src.split(",")[1], "base64"));
+    fs82.writeFileSync(target, Buffer.from(src.split(",")[1], "base64"));
     return target;
   }
   if (/^https?:/i.test(src)) {
-    fs79.writeFileSync(target, (await fetchImage(src)).buf);
+    fs82.writeFileSync(target, (await fetchImage(src)).buf);
     return target;
   }
   return projectPath(src);
@@ -113604,17 +114225,17 @@ async function blenderSpec(spec, dir, { samples = 48 } = {}) {
     if (o2.decal) o2.decal.image = await localFile2(o2.decal.image, dir, `decal${n3++}`);
   }
   if (out.environment?.hdri) {
-    const file4 = path77.join(dir, "env.hdr");
-    fs79.writeFileSync(file4, await hdrBuffer(out.environment.hdri, out.environment.resolution || "1k"));
+    const file4 = path80.join(dir, "env.hdr");
+    fs82.writeFileSync(file4, await hdrBuffer(out.environment.hdri, out.environment.resolution || "1k"));
     out.environment.hdriFile = file4;
   }
   out.samples = samples;
   return out;
 }
-var run2 = (file4, args, timeout) => new Promise((resolve2, reject) => {
-  execFile6(file4, args, { timeout, maxBuffer: 16 * 1024 * 1024, windowsHide: true }, (err, stdout, stderr) => err && !stdout?.includes("DRIP_DONE") ? reject(Object.assign(err, { stdout, stderr })) : resolve2({ stdout, stderr }));
+var run3 = (file4, args, timeout) => new Promise((resolve2, reject) => {
+  execFile7(file4, args, { timeout, maxBuffer: 16 * 1024 * 1024, windowsHide: true }, (err, stdout, stderr) => err && !stdout?.includes("DRIP_DONE") ? reject(Object.assign(err, { stdout, stderr })) : resolve2({ stdout, stderr }));
 });
-function register32(server2, ctx2) {
+function register33(server2, ctx2) {
   server2.registerTool(
     "blender_render",
     {
@@ -113635,7 +114256,7 @@ function register32(server2, ctx2) {
       }
     },
     safe(async (args) => {
-      const exe = findBlender(ctx2.config());
+      const exe = findBlender2(ctx2.config());
       if (!exe) return text('Blender was not found. Install it from https://www.blender.org/download/ (free), or set DRIP_BLENDER to the executable, or "blender": { "path": "..." } in .drip/config.json. scene_render renders mockups without it.', true);
       const spec = args.scene ? { ...sceneSchema.parse(args.scene) } : mockupScene(args.mockup || "phone", { image: args.image, color: args.color, background: args.background, width: args.width, height: args.height });
       if (args.environment) spec.environment = { ...spec.environment || {}, ...args.environment };
@@ -113645,22 +114266,22 @@ function register32(server2, ctx2) {
       const dir = tempDir("drip-blender-");
       try {
         const prepared = await blenderSpec(spec, dir, { samples: args.samples || 48 });
-        fs79.writeFileSync(path77.join(dir, "spec.json"), JSON.stringify(prepared));
-        fs79.writeFileSync(path77.join(dir, "render.py"), BLENDER_SCRIPT);
-        const png2 = path77.join(dir, "out.png");
+        fs82.writeFileSync(path80.join(dir, "spec.json"), JSON.stringify(prepared));
+        fs82.writeFileSync(path80.join(dir, "render.py"), BLENDER_SCRIPT);
+        const png2 = path80.join(dir, "out.png");
         const t0 = Date.now();
         let res;
         try {
-          res = await run2(exe, ["-b", "--factory-startup", "-noaudio", "--python", path77.join(dir, "render.py"), "--", path77.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
+          res = await run3(exe, ["-b", "--factory-startup", "-noaudio", "--python", path80.join(dir, "render.py"), "--", path80.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
         } catch (err) {
           const tail2 = `${err.stdout || ""}
 ${err.stderr || ""}`.split("\n").filter((l2) => /Error|Traceback|File "|Exception/i.test(l2)).slice(-8).join("\n");
           throw new Error(`Blender failed (${err.killed ? "timed out" : `exit ${err.code}`}).${tail2 ? `
 ${tail2}` : ""}`);
         }
-        if (!fs79.existsSync(png2)) throw new Error(`Blender finished without writing an image.
+        if (!fs82.existsSync(png2)) throw new Error(`Blender finished without writing an image.
 ${res.stdout.split("\n").slice(-6).join("\n")}`);
-        let buf = fs79.readFileSync(png2);
+        let buf = fs82.readFileSync(png2);
         const bg = spec.background;
         if (bg && bg !== "transparent") {
           const img = await Jimp.read(buf);
@@ -113674,237 +114295,11 @@ ${res.stdout.split("\n").slice(-6).join("\n")}`);
           files.push(saveFile(args.out, buf));
           files.push(saveFile(args.out.replace(/\.png$/i, ".scene.json"), JSON.stringify(spec, null, 2)));
         }
-        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path77.basename(path77.dirname(exe)) || exe}).${files.length ? `
+        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path80.basename(path80.dirname(exe)) || exe}).${files.length ? `
 Saved: ${files.map((f3) => `${f3.rel} (${f3.kb} KB)`).join(", ")}.` : ""}`), imageBlock(await toJpeg(buf, 1280, 900, 86))]);
       } finally {
         cleanDir(dir);
       }
-    })
-  );
-}
-
-// src/modules/studio/mockup.mjs
-var mockup_exports = {};
-__export(mockup_exports, {
-  MOCKSTUDIO: () => MOCKSTUDIO,
-  buildDocument: () => buildDocument,
-  diffPatch: () => diffPatch,
-  installMockstudio: () => installMockstudio,
-  mergePatch: () => mergePatch,
-  mockstudioDir: () => mockstudioDir,
-  mockstudioReady: () => mockstudioReady2,
-  register: () => register33
-});
-import { execFile as execFile7 } from "node:child_process";
-import fs80 from "node:fs";
-import path78 from "node:path";
-init_browser();
-init_serve();
-var MOCKSTUDIO = {
-  repo: "https://github.com/lenxism/mockstudio",
-  sha: "98bf0ebf513aaa075bd4ba17a79afd924c3342a2",
-  pnpm: "pnpm@9.15.0",
-  devices: ["iphone-17-pro", "studio-display"],
-  looks: ["studio", "hero", "cinematic", "retro", "noir", "clean"],
-  cameras: ["head-on", "three-quarter", "hero", "top-down", "wide"],
-  motions: ["orbit", "dolly-in", "reveal", "drift"],
-  environments: ["studio", "daylight", "city", "neon", "sunset", "warm"],
-  aspects: ["16:9", "9:16", "1:1", "4:5", "3:2", "4:3", "match-frame"]
-};
-var SCREEN = { "iphone-17-pro": { width: 402, height: 874, scale: 3 }, "studio-display": { width: 1600, height: 900, scale: 2 }, slab: { width: 1440, height: 900, scale: 2 } };
-var mockstudioDir = () => path78.join(vendorDir(), "mockstudio");
-var presetsDir = () => path78.join(mockstudioDir(), "drip-presets");
-var mockstudioReady2 = () => fs80.existsSync(path78.join(mockstudioDir(), "dist", "index.html")) && fs80.existsSync(path78.join(presetsDir(), "look.studio.json"));
-function run3(file4, args, opts = {}) {
-  return new Promise((resolve2, reject) => {
-    execFile7(
-      file4,
-      args,
-      { timeout: 9e5, windowsHide: true, maxBuffer: 32 * 1024 * 1024, ...opts },
-      (err, stdout, stderr) => err ? reject(new Error(`${path78.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
-    );
-  });
-}
-function npx() {
-  const bin = path78.dirname(process.execPath);
-  for (const p2 of [path78.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path78.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs80.existsSync(p2)) return [process.execPath, [p2]];
-  return [process.platform === "win32" ? "npx.cmd" : "npx", []];
-}
-function diffPatch(base, next) {
-  const out = {};
-  for (const k of Object.keys(next)) {
-    const a2 = base?.[k];
-    const b = next[k];
-    if (b && typeof b === "object" && !Array.isArray(b) && a2 && typeof a2 === "object" && !Array.isArray(a2)) {
-      const d = diffPatch(a2, b);
-      if (Object.keys(d).length) out[k] = d;
-    } else if (JSON.stringify(a2) !== JSON.stringify(b)) out[k] = b;
-  }
-  for (const k of Object.keys(base || {})) if (!(k in next)) out[k] = null;
-  return out;
-}
-function mergePatch(target, patch) {
-  if (!patch || typeof patch !== "object" || Array.isArray(patch)) return patch;
-  const out = target && typeof target === "object" && !Array.isArray(target) ? { ...target } : {};
-  for (const [k, v] of Object.entries(patch)) {
-    if (v === null) delete out[k];
-    else out[k] = mergePatch(out[k], v);
-  }
-  return out;
-}
-async function installMockstudio(log2 = () => {
-}) {
-  const dir = mockstudioDir();
-  fs80.mkdirSync(path78.dirname(dir), { recursive: true });
-  if (!fs80.existsSync(path78.join(dir, ".git"))) {
-    log2(`Cloning MockStudio ${MOCKSTUDIO.sha.slice(0, 7)} ...`);
-    await run3("git", ["clone", "--filter=blob:none", "--quiet", MOCKSTUDIO.repo, dir]);
-  }
-  await run3("git", ["-C", dir, "fetch", "--quiet", "origin", MOCKSTUDIO.sha]).catch(() => {
-  });
-  await run3("git", ["-C", dir, "checkout", "--quiet", "--force", MOCKSTUDIO.sha]);
-  const [npxFile, npxPre] = npx();
-  const env = { ...process.env, PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1", CI: "1" };
-  log2("Installing its build dependencies (temporary) ...");
-  await run3(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "install", "--frozen-lockfile"], { cwd: dir, env });
-  log2("Building the static site ...");
-  await run3(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "build"], { cwd: dir, env });
-  log2("Saving the Look / Camera / Motion presets ...");
-  const pd = presetsDir();
-  fs80.mkdirSync(pd, { recursive: true });
-  const cli = path78.join(dir, "bin", "mockstudio.mjs");
-  const compose = async (args, name) => {
-    const out = path78.join(pd, `${name}.json`);
-    await run3(process.execPath, [cli, "compose", ...args, "--out", out], { cwd: dir, env });
-    return JSON.parse(fs80.readFileSync(out, "utf8"));
-  };
-  const base = await compose(["--default"], "default");
-  for (const l2 of MOCKSTUDIO.looks) await compose(["--look", l2], `look.${l2}`);
-  for (const c3 of MOCKSTUDIO.cameras) fs80.writeFileSync(path78.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
-  for (const m of MOCKSTUDIO.motions) fs80.writeFileSync(path78.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
-  fs80.rmSync(path78.join(pd, "tmp.json"), { force: true });
-  log2("Removing the build dependencies (the built site is all Drip needs) ...");
-  fs80.rmSync(path78.join(dir, "node_modules"), { recursive: true, force: true });
-  return { dir, ok: mockstudioReady2() };
-}
-var ASPECT = { "16:9": 16 / 9, "9:16": 9 / 16, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "4:3": 4 / 3 };
-function buildDocument(o2, presets = (n3) => JSON.parse(fs80.readFileSync(path78.join(presetsDir(), `${n3}.json`), "utf8"))) {
-  let doc = presets(`look.${o2.look || "studio"}`);
-  if (o2.camera) doc = mergePatch(doc, presets(`camera.${o2.camera}`));
-  if (o2.motion) doc = mergePatch(doc, presets(`motion.${o2.motion}`));
-  const device = o2.device || "iphone-17-pro";
-  const p2 = { frame: device === "slab" ? { kind: "slab", slab: { ...o2.slabMaterial ? { material: o2.slabMaterial } : {} } } : { kind: "device", device: { model: device } }, artboard: { aspect: o2.aspect || (device === "studio-display" ? "16:9" : "4:5") } };
-  if (o2.finish) p2.image = { finish: o2.finish };
-  const bg = o2.background;
-  if (bg) p2.stage = { background: bg === "transparent" ? { kind: "transparent" } : typeof bg === "string" ? { kind: "solid", solid: bg } : { kind: "gradient", gradient: { from: bg.from, to: bg.to, shape: bg.shape || "radial", angle: bg.angle ?? 0 } } };
-  if (o2.environment) p2.stage = { ...p2.stage || {}, environment: { id: o2.environment, ...o2.light !== void 0 ? { intensity: o2.light } : {} } };
-  doc = mergePatch(doc, p2);
-  if (o2.patch) doc = mergePatch(doc, o2.patch);
-  return doc;
-}
-function credits(device) {
-  const lines = [`Rendered with MockStudio (Apache-2.0) ${MOCKSTUDIO.repo}`];
-  if (device === "slab") return lines;
-  try {
-    const notice = fs80.readFileSync(path78.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
-    const row = notice.split(/\r?\n/).find((l2) => l2.startsWith("|") && l2.split("|")[1]?.trim() === device);
-    const [, , , title, author, license, source] = row.split("|").map((c3) => c3.trim());
-    lines.push(`3D model: "${title}" by ${author}, ${license}, ${source}`);
-  } catch {
-    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path78.join(mockstudioDir(), "public", "models", "NOTICE")})`);
-  }
-  return lines;
-}
-async function screenBytes(image2, device, config2) {
-  if (/\.html?$/i.test(image2)) {
-    const s2 = SCREEN[device] || SCREEN.slab;
-    const { buf: buf2 } = await shoot(await toUrl(projectPath(image2)), { width: s2.width, height: s2.height, scale: s2.scale, transparent: false, dark: false, fullPage: false, config: config2 });
-    return { buf: buf2, mime: "image/png", name: "screen.png" };
-  }
-  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs80.readFileSync(projectPath(image2));
-  const ext = path78.extname(image2.split("?")[0]).toLowerCase();
-  return { buf, mime: ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".webp" ? "image/webp" : "image/png", name: `screen${ext || ".png"}` };
-}
-function register33(server2, ctx2) {
-  server2.registerTool(
-    "mockup_render",
-    {
-      title: "Render a device mockup (real models)",
-      description: 'The tool for device mockups: your screenshot (or an HTML screen, rendered for you at the device\'s size) on a REAL device model (iPhone 17 Pro, Studio Display) or a clean slab frame, conformed to the real screen (rounded corners, Dynamic Island), lit by an HDRI studio with colour-true tone mapping, in a curated look (studio, hero, cinematic, retro, noir, clean) and camera (head-on, three-quarter, hero, top-down, wide). Use this instead of building devices from shapes or HTML. Stills (png/jpg/webp) or a short clip with motion (orbit, dolly-in, reveal, drift \u2192 .mp4/.webm). The model credit is written next to the file. Needs MockStudio once: `drip doctor --install mockstudio` (a few minutes). Example: mockup_render({ image: "shots/home.png", device: "iphone-17-pro", look: "hero", camera: "three-quarter", background: "#0D0E12", aspect: "4:5", out: "public/img/phone.png" })',
-      inputSchema: {
-        image: external_exports.string().describe("Screenshot (project path or URL), or an .html file rendered at the device's screen size"),
-        device: external_exports.enum([...MOCKSTUDIO.devices, "slab"]).optional().describe("Default iphone-17-pro"),
-        look: external_exports.enum(MOCKSTUDIO.looks).optional(),
-        camera: external_exports.enum(MOCKSTUDIO.cameras).optional(),
-        motion: external_exports.enum(MOCKSTUDIO.motions).optional().describe("A camera move; with an .mp4/.webm out it renders a clip"),
-        aspect: external_exports.enum(MOCKSTUDIO.aspects).optional().describe("Output frame (default 4:5 for a phone, 16:9 for a display)"),
-        background: external_exports.union([external_exports.string(), external_exports.object({ from: external_exports.string(), to: external_exports.string(), shape: external_exports.enum(["linear", "radial"]).optional(), angle: external_exports.number().optional() })]).optional().describe("#hex, transparent, or a gradient"),
-        environment: external_exports.enum(MOCKSTUDIO.environments).optional().describe("HDRI lighting"),
-        light: external_exports.number().min(0).max(4).optional().describe("Environment intensity (default from the look)"),
-        finish: external_exports.enum(["glass", "flat"]).optional().describe("Screen finish: glass reflects the studio, flat shows the pixels exactly"),
-        slabMaterial: external_exports.enum(["matte-black", "space-gray", "silver", "glass"]).optional(),
-        width: external_exports.number().int().min(400).max(4096).optional().describe("Output width in px (default 1600)"),
-        seconds: external_exports.number().min(1).max(20).optional().describe("Clip length (motion only)"),
-        patch: external_exports.record(external_exports.string(), external_exports.any()).optional().describe("Advanced: a JSON merge patch on MockStudio's Scene Document (effects, camera tilt, bloom, grain\u2026)"),
-        out: external_exports.string().describe("File to write: .png, .jpg, .webp, .mp4 or .webm")
-      }
-    },
-    safe(async (o2) => {
-      if (!mockstudioReady2()) return text("MockStudio isn't installed yet. Run `drip doctor --install mockstudio` once (it clones a pinned version into ~/.drip/vendor and builds it; a few minutes), then call mockup_render again.", true);
-      const config2 = ctx2.config();
-      const device = o2.device || "iphone-17-pro";
-      const ext = path78.extname(o2.out).toLowerCase().slice(1);
-      const video = ["mp4", "webm"].includes(ext);
-      if (video && !o2.motion) return text("A clip needs a motion (orbit, dolly-in, reveal, drift).", true);
-      const doc = buildDocument(o2);
-      if (video && o2.seconds && doc.animation) doc.animation.duration = o2.seconds;
-      const screen2 = await screenBytes(o2.image, device, config2);
-      const W = o2.width || 1600;
-      const aspect = ASPECT[doc.artboard?.aspect] || (device === "iphone-17-pro" ? 9 / 19.5 : 16 / 10);
-      const H = Math.round(W / aspect / 2) * 2;
-      const base = await serveDir(path78.join(mockstudioDir(), "dist"));
-      const t0 = Date.now();
-      const b64 = await withTab(config2, async (tab) => {
-        await openPage(tab, `${base}/?render`, { width: 1280, height: 900, settleMs: 100 });
-        const expr = `(async () => {
-          for (let i = 0; i < 300 && !window.__mockstudio; i++) await new Promise((r) => setTimeout(r, 50));
-          const b = window.__mockstudio;
-          if (!b) throw new Error("MockStudio's render page did not start");
-          const loaded = b.loadDocument(${JSON.stringify(JSON.stringify(doc))});
-          if (loaded.recovered) throw new Error("MockStudio rejected the scene (check patch): it fell back to defaults");
-          const bytes = Uint8Array.from(atob(${JSON.stringify(screen2.buf.toString("base64"))}), (c) => c.charCodeAt(0));
-          await b.bindSourceMediaBytes({ data: bytes.buffer, name: ${JSON.stringify(screen2.name)}, mimeType: ${JSON.stringify(screen2.mime)} });
-          await b.whenReady();
-          // whenReady() resolves before the device model and the HDRI have loaded: wait until nothing new has loaded for 700 ms.
-          let last = -1, stable = 0;
-          for (let i = 0; i < 150 && stable < 7; i++) {
-            await new Promise((r) => setTimeout(r, 100));
-            const n = performance.getEntriesByType("resource").filter((e) => e.responseEnd > 0).length;
-            stable = n === last ? stable + 1 : 0;
-            last = n;
-          }
-          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-          const req = ${video} ? { kind: "video", width: ${W}, height: ${H}, fps: 30, format: ${JSON.stringify(ext)} } : { kind: "image", width: ${W}, height: ${H}, format: ${JSON.stringify(ext === "jpg" ? "jpeg" : ext)}, transparent: ${o2.background === "transparent"} };
-          const res = await b.capture(req);
-          const u8 = new Uint8Array(res.data);
-          let s = "";
-          for (let i = 0; i < u8.length; i += 32768) s += String.fromCharCode(...u8.subarray(i, i + 32768));
-          return btoa(s);
-        })()`;
-        const { result, exceptionDetails } = await tab.s("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true, timeout: 6e5 });
-        if (exceptionDetails) throw new Error(exceptionDetails.exception?.description?.split("\n")[0] || exceptionDetails.text);
-        return result.value;
-      });
-      const buf = Buffer.from(b64, "base64");
-      const file4 = saveFile(o2.out, buf);
-      const credit = credits(device);
-      saveFile(o2.out.replace(/\.[a-z0-9]+$/i, ".credits.txt"), `${credit.join("\n")}
-`);
-      saveFile(o2.out.replace(/\.[a-z0-9]+$/i, ".mock.json"), JSON.stringify(doc, null, 2));
-      const head = `${video ? "Clip" : "Mockup"} ${W}x${H} (${device}, ${o2.look || "studio"} look${o2.camera ? `, ${o2.camera} camera` : ""}${o2.motion ? `, ${o2.motion}` : ""}) in ${((Date.now() - t0) / 1e3).toFixed(1)}s: ${file4.rel} (${file4.kb} KB)
-Credit (keep it with the image): ${credit.slice(1).join("; ") || "none needed"}
-Scene saved as .mock.json next to it: change one thing with patch and render again.`;
-      return video ? text(head) : blocks([textBlock(head), imageBlock(await toJpeg(buf, 1200, 1200, 82))]);
     })
   );
 }
@@ -113916,8 +114311,8 @@ __export(motion_exports, {
   naturalDuration: () => naturalDuration,
   register: () => register34
 });
-import fs81 from "node:fs";
-import path79 from "node:path";
+import fs83 from "node:fs";
+import path81 from "node:path";
 init_browser();
 init_serve();
 init_paths();
@@ -114031,9 +114426,9 @@ function register34(server2, ctx2) {
         files.push(saveFile(out, animatedWebp(frames.map((f3) => f3.buf), { fps: realFps })));
         if (keepFrames) {
           const dir = abs2.replace(/\.webp$/i, "-frames");
-          fs81.mkdirSync(dir, { recursive: true });
-          frames.forEach((f3, i2) => fs81.writeFileSync(path79.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
-          files.push({ rel: path79.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
+          fs83.mkdirSync(dir, { recursive: true });
+          frames.forEach((f3, i2) => fs83.writeFileSync(path81.join(dir, `${String(i2 + 1).padStart(4, "0")}.webp`), f3.buf));
+          files.push({ rel: path81.relative(projectDir(), dir).replace(/\\/g, "/"), kb: 0 });
         }
       }
       const pick5 = Array.from({ length: Math.min(8, frames.length) }, (_, i2) => frames[Math.round(i2 * (frames.length - 1) / Math.max(1, Math.min(8, frames.length) - 1))]);
@@ -114072,10 +114467,10 @@ __export(shader_exports, {
   shaderPage: () => shaderPage,
   snippets: () => snippets
 });
-import path80 from "node:path";
+import path82 from "node:path";
 init_browser();
 init_imaging();
-import fs82 from "node:fs";
+import fs84 from "node:fs";
 import { pathToFileURL as pathToFileURL7 } from "node:url";
 var SHADERS_VERSION = "0.0.80";
 var SHADERS_URL = `https://cdn.jsdelivr.net/npm/@paper-design/shaders@${SHADERS_VERSION}/+esm`;
@@ -114192,8 +114587,8 @@ function register35(server2, ctx2) {
       const { preset, params = {}, width = 1600, height = 900, time: time3 = 2, frames = 0, duration: duration3 = 3, out } = args;
       const html = shaderPage(preset, params, { width, height });
       const dir = tempDir("drip-shader-");
-      const file4 = path80.join(dir, "shader.html");
-      fs82.writeFileSync(file4, html);
+      const file4 = path82.join(dir, "shader.html");
+      fs84.writeFileSync(file4, html);
       try {
         const shot3 = await withTab(ctx2.config(), async (tab) => {
           await openPage(tab, pathToFileURL7(file4).href, { width, height, settleMs: 200, timeout: 2e4 });
@@ -114214,7 +114609,7 @@ function register35(server2, ctx2) {
         const snip = snippets(preset, params);
         const files = [];
         if (out) {
-          const ext = path80.extname(out).slice(1).toLowerCase();
+          const ext = path82.extname(out).slice(1).toLowerCase();
           if (!["webp", "png", "jpg", "jpeg"].includes(ext)) throw new Error("out must end in .webp, .png or .jpg");
           const still = ext === "png" ? shot3.png : processImage(shot3.png, { outputs: [{ name: "", width, format: ext === "webp" ? "webp" : "jpeg" }], focus: { x: 0.5, y: 0.5 }, maxKB: 500, config: ctx2.config() }).then((r2) => r2.files[0].buf);
           files.push(saveFile(out, await still));
@@ -114316,6 +114711,7 @@ var CORE = /* @__PURE__ */ new Set([
   "drip_search",
   "drip_execute",
   "keys_open",
+  "settings_open",
   "refs_site",
   "refs_gallery",
   "refs_view",
@@ -114344,8 +114740,6 @@ var CORE = /* @__PURE__ */ new Set([
   "critic_prepare",
   "critic_record",
   "build_prepare",
-  "scout_prepare",
-  "checker_prepare",
   "page_stitch",
   "board_create",
   "board_directions",
@@ -114380,189 +114774,13 @@ function collectTools() {
 }
 
 // src/core/cli.mjs
-import fs84 from "node:fs";
-import path82 from "node:path";
+import fs85 from "node:fs";
+import path83 from "node:path";
 import { fileURLToPath as fileURLToPath2, pathToFileURL as pathToFileURL8 } from "node:url";
 init_paths();
-
-// src/core/doctor.mjs
-init_browser();
-import fs83 from "node:fs";
-import os13 from "node:os";
-import path81 from "node:path";
-init_paths();
-function onPath(names3) {
-  const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
-  for (const dir of (process.env.PATH || "").split(path81.delimiter).filter(Boolean)) {
-    for (const n3 of names3) {
-      for (const e2 of exts) {
-        const f3 = path81.join(dir, n3 + e2);
-        try {
-          if (fs83.statSync(f3).isFile()) return f3;
-        } catch {
-        }
-      }
-    }
-  }
-  return null;
-}
-function findBlender2() {
-  const viaPath = onPath(["blender"]);
-  if (viaPath) return viaPath;
-  const found = [];
-  const scan2 = (base, rel3) => {
-    try {
-      for (const d of fs83.readdirSync(base)) found.push(path81.join(base, d, rel3));
-    } catch {
-    }
-  };
-  if (process.platform === "win32") {
-    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path81.join(pf, "Blender Foundation"), "blender.exe");
-  } else if (process.platform === "darwin") {
-    found.push("/Applications/Blender.app/Contents/MacOS/Blender");
-  } else {
-    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path81.join(os13.homedir(), "blender", "blender"));
-  }
-  return found.find((f3) => fs83.existsSync(f3)) || null;
-}
-var check3 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
-var BLENDER_GET = "download it from blender.org/download and put it on PATH.";
-async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
-  const checks = [];
-  const major = Number(process.versions.node.split(".")[0]);
-  checks.push(major >= 22 ? check3("node", "Node.js", "ok", `v${process.versions.node}`) : check3("node", "Node.js", "fail", `v${process.versions.node} (Drip needs 22 or newer)`, "Install Node 22+ from nodejs.org."));
-  const config2 = cfg || loadConfig();
-  const chrome = chromeIn === void 0 ? findChrome(config2) : chromeIn;
-  checks.push(chrome ? check3("chrome", "Chrome / Edge", "ok", chrome) : check3("chrome", "Chrome / Edge", "fail", "not found (screenshots, fit checks and previews need it)", CHROME_GET));
-  const blender = findBlender2();
-  checks.push(blender ? check3("blender", "Blender (optional)", "ok", blender) : check3("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
-  const uvx = onPath(["uvx"]);
-  const ms = path81.join(vendor0(), "mockstudio", "dist", "index.html");
-  checks.push(fs83.existsSync(ms) ? check3("mockstudio", "MockStudio (device mockups)", "ok", path81.dirname(path81.dirname(ms))) : check3("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
-  checks.push(uvx ? check3("uvx", "uvx (optional)", "ok", uvx) : check3("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
-  const vendor = vendorDir();
-  const installed = Object.keys(VENDOR_DEPS).filter((n3) => vendorResolve(n3));
-  checks.push(check3("vendor", "Optional dependencies", "info", `${installed.length ? installed.join(", ") : "none installed"} (in ${vendor})`, `Available: ${Object.keys(VENDOR_DEPS).join(", ")}. Install the recommended ones with: drip doctor --fix --yes; any one with: drip doctor --install <name>`));
-  const names3 = Object.keys(KEY_ENV);
-  const keys = keyStatus(names3);
-  const set2 = keys.filter((k) => k.set).map((k) => k.name);
-  checks.push(check3("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
-  const proj = projectDir();
-  const dripDir = projectDripDir();
-  const hasDrip = fs83.existsSync(dripDir);
-  checks.push(check3("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
-  checks.push(check3("plugin", "Plugin root", fs83.existsSync(path81.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
-  checks.push(check3("home", "User folder", "ok", homeDripDir));
-  let state = "no task";
-  try {
-    const f3 = path81.join(dripDir, "state.json");
-    if (fs83.existsSync(f3)) {
-      const raw = JSON.parse(fs83.readFileSync(f3, "utf8"));
-      const n3 = Object.keys(raw.tasks || (raw.task ? { x: 1 } : {})).length;
-      state = `${n3} open task${n3 === 1 ? "" : "s"}`;
-    }
-  } catch {
-    state = "state.json is unreadable";
-  }
-  checks.push(check3("state", "Task state", state.includes("unreadable") ? "warn" : "ok", state, state.includes("unreadable") ? "Move .drip/state.json aside; Drip starts fresh." : void 0));
-  checks.push(check3("tools", "Tool registry", "ok", `${collectTools().size} tools`));
-  try {
-    const r2 = await executeCode("return 1 + 1", { timeoutMs: 15e3 });
-    checks.push(r2.ok && r2.value === 2 ? check3("codemode", "Code Mode sandbox", "ok", `QuickJS, ${r2.ms} ms`) : check3("codemode", "Code Mode sandbox", "warn", r2.error?.message || "unexpected result"));
-  } catch (e2) {
-    checks.push(check3("codemode", "Code Mode sandbox", "warn", String(e2?.message || e2)));
-  }
-  if (hostsDoctor) {
-    try {
-      for (const c3 of await hostsDoctor() || []) checks.push(c3);
-    } catch (e2) {
-      checks.push(check3("hosts", "Host integrations", "warn", String(e2?.message || e2)));
-    }
-  }
-  const failed = checks.filter((c3) => c3.status === "fail");
-  return { ok: failed.length === 0, checks, summary: failed.length ? `${failed.length} problem${failed.length === 1 ? "" : "s"} to fix` : "Everything Drip needs is here." };
-}
-function formatDoctor(r2) {
-  const mark = { ok: "ok  ", warn: "warn", fail: "FAIL", info: "info" };
-  const lines = [];
-  for (const c3 of r2.checks) {
-    lines.push(`[${mark[c3.status] || c3.status}] ${c3.label}: ${c3.detail}`);
-    if (c3.fix && c3.status !== "ok") lines.push(`       fix: ${c3.fix}`);
-  }
-  lines.push("", r2.summary);
-  return lines.join("\n");
-}
-async function doctorFix({ confirm = false, config: config2, chrome, log: log2 = () => {
-}, installers } = {}) {
-  const missing = missingPieces({ config: config2, chrome });
-  const inst = installers || {};
-  const installVendorFn = inst.vendor || installVendor;
-  const installMockFn = inst.mockstudio || installMockstudio;
-  const manual = missing.filter((m) => !m.installable).map((m) => `${m.what}: ${m.fix}`);
-  const blender = findBlender2() ? [] : [`Blender (optional): ${BLENDER_GET}`];
-  const todo = [];
-  for (const m of missing) {
-    if (m.id === "vendor") for (const n3 of m.names) todo.push(`npm package ${n3} into ${vendorDir()}`);
-    if (m.id === "mockstudio") todo.push("MockStudio into ~/.drip/vendor (git clone and build, a few minutes)");
-  }
-  if (!confirm) return { ok: true, confirmed: false, installed: [], failed: [], todo, manual: [...manual, ...blender] };
-  const installed = [];
-  const failed = [];
-  for (const m of missing) {
-    if (m.id === "vendor") {
-      for (const n3 of m.names) {
-        try {
-          log2(`Installing ${n3} ...`);
-          await installVendorFn(n3);
-          installed.push(n3);
-        } catch (e2) {
-          failed.push(`${n3}: ${e2.message}`);
-        }
-      }
-    } else if (m.id === "mockstudio") {
-      try {
-        log2("Installing MockStudio ...");
-        const r2 = await installMockFn(log2);
-        if (r2 && r2.ok === false) failed.push("mockstudio: installed but its build is missing");
-        else installed.push("mockstudio");
-      } catch (e2) {
-        failed.push(`mockstudio: ${e2.message}`);
-      }
-    }
-  }
-  return { ok: failed.length === 0, confirmed: true, installed, failed, todo, manual: [...manual, ...blender] };
-}
-function formatFix(r2) {
-  const lines = [];
-  if (!r2.confirmed) {
-    lines.push(r2.todo.length ? `Drip would install:
-${r2.todo.map((t2) => `  - ${t2}`).join("\n")}
-Run again with --yes to do it: drip doctor --fix --yes` : "Nothing for Drip to install.");
-  } else {
-    if (r2.installed.length) lines.push(`Installed: ${r2.installed.join(", ")}.`);
-    if (r2.failed.length) lines.push(`Failed:
-${r2.failed.map((t2) => `  - ${t2}`).join("\n")}`);
-    if (!r2.installed.length && !r2.failed.length) lines.push("Nothing for Drip to install.");
-  }
-  if (r2.manual.length) lines.push(`Install these yourself (Drip never installs them):
-${r2.manual.map((t2) => `  - ${t2}`).join("\n")}`);
-  return lines.join("\n");
-}
-async function installPreflight({ config: config2, chrome } = {}) {
-  const r2 = await runDoctor({ config: config2, chrome });
-  const failures = r2.checks.filter((c3) => c3.status === "fail");
-  const warns = r2.checks.filter((c3) => c3.status === "warn");
-  const lines = [];
-  for (const c3 of failures) lines.push(`${c3.label} missing or broken: ${c3.detail}
-  fix: ${c3.fix || "see drip doctor"}`);
-  for (const c3 of warns) lines.push(`warning: ${c3.label}: ${c3.detail}${c3.fix ? ` (fix: ${c3.fix})` : ""}`);
-  return { ok: failures.length === 0, failures, checks: r2.checks, text: lines.join("\n") };
-}
-
-// src/core/cli.mjs
 var EXIT = { OK: 0, TOOL: 1, USAGE: 2, PREREQ: 3 };
 var VALUE_FLAGS = /* @__PURE__ */ new Set(["project", "session", "task", "out", "input", "input-file", "install", "agent", "file", "max-chars", "code"]);
-var BOOL_FLAGS = /* @__PURE__ */ new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "stdin", "version", "fix", "yes"]);
+var BOOL_FLAGS = /* @__PURE__ */ new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "no-open", "stdin", "version", "fix", "yes"]);
 var DEFAULT_MAX_CHARS = 2e4;
 var UsageError = class extends Error {
 };
@@ -114610,14 +114828,14 @@ var PREREQ = /(Chrome\/Edge not found|not installed|isn't installed|no API key|A
 function bound2(text2, flags, name, outDir) {
   const max = flags["max-chars"] ? Number(flags["max-chars"]) : flags.__legacy ? Infinity : DEFAULT_MAX_CHARS;
   if (!(text2.length > max)) return { text: text2 };
-  fs84.mkdirSync(outDir, { recursive: true });
-  const file4 = path82.join(outDir, `${name}-${Date.now()}.txt`);
-  fs84.writeFileSync(file4, text2);
+  fs85.mkdirSync(outDir, { recursive: true });
+  const file4 = path83.join(outDir, `${name}-${Date.now()}.txt`);
+  fs85.writeFileSync(file4, text2);
   return { text: `${text2.slice(0, max)}
 [output cut at ${max} of ${text2.length} characters; full text: ${file4}]`, textFile: file4 };
 }
 function outDirFor(flags) {
-  return path82.resolve(flags.out || path82.join(projectDripDir(), "cli"));
+  return path83.resolve(flags.out || path83.join(projectDripDir(), "cli"));
 }
 async function invokeTool(name, args, flags = {}) {
   const tools = collectTools();
@@ -114641,9 +114859,9 @@ async function invokeTool(name, args, flags = {}) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs84.mkdirSync(outDir, { recursive: true });
-      const file4 = path82.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs84.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs85.mkdirSync(outDir, { recursive: true });
+      const file4 = path83.join(outDir, `${name}-${Date.now()}-${images.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs85.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       images.push(file4);
     }
   }
@@ -114659,7 +114877,7 @@ async function readInput(flags, pos) {
   if (flags.input !== void 0 && flags.input !== "-") raw = flags.input;
   else if (flags["input-file"]) {
     try {
-      raw = fs84.readFileSync(path82.resolve(flags["input-file"]), "utf8");
+      raw = fs85.readFileSync(path83.resolve(flags["input-file"]), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --input-file: ${e2.message}`);
     }
@@ -114678,14 +114896,15 @@ async function readInput(flags, pos) {
   }
 }
 async function loadHosts() {
-  const here2 = path82.dirname(fileURLToPath2(import.meta.url));
-  for (const f3 of [path82.resolve(here2, "..", "hosts", "index.mjs"), path82.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
-    if (fs84.existsSync(f3)) return import(pathToFileURL8(f3).href);
+  const here2 = path83.dirname(fileURLToPath2(import.meta.url));
+  for (const f3 of [path83.resolve(here2, "..", "hosts", "index.mjs"), path83.resolve(here2, "..", "src", "hosts", "index.mjs")]) {
+    if (fs85.existsSync(f3)) return import(pathToFileURL8(f3).href);
   }
   return null;
 }
 var NO_HOSTS = "Host installers are not available in this build (mcp/src/hosts/index.mjs is missing).";
 var COMMANDS = [
+  ["settings [--no-open]", "Open Drip's settings page in the browser: the task, API keys, switches, paid kits, niche packs (runs until Ctrl+C)."],
   ["doctor [--json] [--install <dep>]", "Check Node, Chrome/Edge, Blender, uvx, optional dependencies, keys (names only), project and plugin folders."],
   ["doctor --fix [--yes]", "Install what is missing and optional (MockStudio, axe-core, svgo). Lists it first; --yes does it. Never installs Chrome, Edge or Blender: says where to get them."],
   ["tools list [--json]", "Every tool name with a one-line description."],
@@ -114789,11 +115008,11 @@ function basicProject() {
   const root = projectDir();
   const lines = [`Project: ${root}`];
   const drip = projectDripDir();
-  lines.push(fs84.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
-  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs84.existsSync(path82.join(root, f3))) lines.push(`Design doc: ${f3}`);
+  lines.push(fs85.existsSync(drip) ? `.drip folder: ${drip}` : "No .drip folder yet (created on first use).");
+  for (const f3 of ["DESIGN.md", "docs/DESIGN.md", "design/DESIGN.md"]) if (fs85.existsSync(path83.join(root, f3))) lines.push(`Design doc: ${f3}`);
   try {
-    const boards = path82.join(drip, "boards");
-    const ids = fs84.existsSync(boards) ? fs84.readdirSync(boards).filter((d) => fs84.existsSync(path82.join(boards, d, "board.json"))) : [];
+    const boards = path83.join(drip, "boards");
+    const ids = fs85.existsSync(boards) ? fs85.readdirSync(boards).filter((d) => fs85.existsSync(path83.join(boards, d, "board.json"))) : [];
     lines.push(ids.length ? `Boards: ${ids.join(", ")}` : "Boards: none");
   } catch {
     lines.push("Boards: unreadable");
@@ -114804,8 +115023,8 @@ function basicProject() {
   } catch {
     lines.push("Task: state unreadable");
   }
-  const cfg = path82.join(drip, "config.json");
-  lines.push(fs84.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
+  const cfg = path83.join(drip, "config.json");
+  lines.push(fs85.existsSync(cfg) ? `Config: ${cfg}` : "Config: defaults");
   return lines.join("\n");
 }
 async function cmdProject(pos, flags) {
@@ -114845,12 +115064,12 @@ async function cmdRun(flags) {
   let code;
   if (flags.file) {
     try {
-      code = fs84.readFileSync(path82.resolve(flags.file), "utf8");
+      code = fs85.readFileSync(path83.resolve(flags.file), "utf8");
     } catch (e2) {
       throw new UsageError(`Can't read --file: ${e2.message}`);
     }
   } else code = flags.code;
-  const r2 = await executeCode(code, { outDir: flags.out ? path82.resolve(flags.out) : void 0 });
+  const r2 = await executeCode(code, { outDir: flags.out ? path83.resolve(flags.out) : void 0 });
   const lines = [];
   if (r2.logs.length) lines.push(...r2.logs);
   if (r2.ok) lines.push(r2.value === void 0 ? "(no return value)" : JSON.stringify(r2.value, null, 2));
@@ -114881,7 +115100,7 @@ async function cmdHosts(sub, pos, flags) {
 ${pre.text}`), flags);
     if (pre.text) log(pre.text);
   }
-  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path82.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
+  const opts = { pluginRoot, home: process.env.HOME || process.env.USERPROFILE || path83.dirname(homeDripDir), dryRun: !!flags["dry-run"] };
   const fn = hosts[sub];
   if (typeof fn !== "function") return finish(failure2(sub, EXIT.PREREQ, "not_available", `${sub} is not available in this build.`), flags);
   try {
@@ -114892,8 +115111,8 @@ ${pre.text}`), flags);
 }
 function applyGlobals(flags) {
   if (flags.project) {
-    const p2 = path82.resolve(flags.project);
-    if (!fs84.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
+    const p2 = path83.resolve(flags.project);
+    if (!fs85.existsSync(p2)) throw new UsageError(`--project folder not found: ${p2}`);
     process.env.DRIP_PROJECT_DIR = p2;
   }
   let session = flags.session;
@@ -114905,7 +115124,7 @@ function applyGlobals(flags) {
     if (!t2 || t2.id !== flags.task) log(`warning: no open task "${flags.task}" in ${projectDir()}.`);
   }
 }
-async function runCli2(argv, { version: version2 = "" } = {}) {
+async function runCli2(argv, { version: version3 = "" } = {}) {
   let parsed;
   try {
     parsed = parseArgs(argv);
@@ -114917,7 +115136,7 @@ async function runCli2(argv, { version: version2 = "" } = {}) {
   const [cmd, ...pos] = positional;
   try {
     if (flags.version) {
-      await writeOut(`drip ${version2}`.trim());
+      await writeOut(`drip ${version3}`.trim());
       return EXIT.OK;
     }
     if (cmd && flags.help && collectTools().has(cmd)) {
@@ -114938,6 +115157,15 @@ Schema: drip tools schema ${cmd}`);
         return cmdTools(["list"], { ...flags, json: false });
       case "doctor":
         return await cmdDoctor(flags);
+      case "settings": {
+        const url2 = await openSettingsPage({ cwd: projectDir(), ttlMs: 0, runDoctor: async () => formatDoctor(await runDoctor({})) });
+        if (!flags["no-open"]) openInBrowser2(url2);
+        await writeOut(`Drip settings: ${url2}
+The page runs while this command does. Press Ctrl+C to stop.`);
+        if (!flags["no-wait"]) await new Promise(() => {
+        });
+        return EXIT.OK;
+      }
       case "tools":
         return await cmdTools(pos, flags);
       case "call": {
@@ -114979,7 +115207,7 @@ Schema: drip tools schema ${cmd}`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.0";
+var VERSION = "0.9.1";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

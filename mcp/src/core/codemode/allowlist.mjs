@@ -14,7 +14,7 @@ export const DEFAULT_ALLOW = [
 ];
 
 /** Tools that start a local server or open a window. Exact-name allow in config re-enables them. */
-export const DEFAULT_BLOCKED = ["board_open", "keys_open", "drip_serve"];
+export const DEFAULT_BLOCKED = ["board_open", "keys_open", "settings_open", "drip_serve"];
 
 /** Never callable from a script. */
 export const NEVER = ["drip_execute"];

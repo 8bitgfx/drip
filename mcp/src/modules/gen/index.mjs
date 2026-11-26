@@ -7,6 +7,8 @@ import { fetchImage, imageBlock, toJpeg } from "../../core/images.mjs";
 import { getKey, keyStatus, logUsage } from "../../core/keys.mjs";
 import { ensureProjectDrip, homeDripDir, projectDir } from "../../core/paths.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
+import { formatDoctor, runDoctor } from "../../core/doctor.mjs";
+import { openInBrowser, openSettingsPage } from "./settings.mjs";
 import gemini from "./providers/gemini.mjs";
 import openai from "./providers/openai.mjs";
 import { openKeyPage } from "./keypage.mjs";
@@ -86,6 +88,22 @@ export function register(server, ctx) {
     "keys_status",
     { title: "Which API keys are set", description: "Shows which optional keys (image generation, photo sources) are set and where from. Never shows values.", inputSchema: {} },
     safe(async () => text(keyStatus(KEY_NAMES).map((k) => `- ${k.name}: ${k.set ? `set (${k.from})` : "not set"}`).join("\n"))),
+  );
+
+  server.registerTool(
+    "settings_open",
+    {
+      title: "Open Drip's settings page",
+      description:
+        "Opens Drip's settings as a local page in the user's browser: the current task (turn checks off, end it), API keys (pasted there, never in chat), switches (checks, critic, builders, full process), paid kits and niche packs, and an install check. " +
+        "Give the user the link in one line; don't summarise the settings in chat.",
+      inputSchema: {},
+    },
+    safe(async () => {
+      const url = await openSettingsPage({ cwd: projectDir(), runDoctor: async () => formatDoctor(await runDoctor({})) });
+      const opened = openInBrowser(url);
+      return text(`${opened ? "Opened" : "Open"} Drip settings: ${url}\n(Local to this computer; the link works for an hour.)`);
+    }),
   );
 
   server.registerTool(

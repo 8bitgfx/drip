@@ -13,6 +13,7 @@ import { collectTools } from "./registry.mjs";
 import { bindSession, loadState, setIdentity } from "./state.mjs";
 import { doctorFix, formatDoctor, formatFix, installPreflight, runDoctor } from "./doctor.mjs";
 import { installVendor } from "./vendor.mjs";
+import { openInBrowser, openSettingsPage } from "../modules/gen/settings.mjs";
 import { installMockstudio } from "../modules/studio/mockup.mjs";
 import { executeCode } from "./codemode/execute.mjs";
 import { toolSignature } from "./codemode/signatures.mjs";
@@ -20,7 +21,7 @@ import { toolSignature } from "./codemode/signatures.mjs";
 export const EXIT = { OK: 0, TOOL: 1, USAGE: 2, PREREQ: 3 };
 
 const VALUE_FLAGS = new Set(["project", "session", "task", "out", "input", "input-file", "install", "agent", "file", "max-chars", "code"]);
-const BOOL_FLAGS = new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "stdin", "version", "fix", "yes"]);
+const BOOL_FLAGS = new Set(["json", "changed", "full", "dry-run", "help", "no-wait", "no-open", "stdin", "version", "fix", "yes"]);
 const DEFAULT_MAX_CHARS = 20000;
 
 class UsageError extends Error {}
@@ -164,6 +165,7 @@ const NO_HOSTS = "Host installers are not available in this build (mcp/src/hosts
 // ---- help ----
 
 const COMMANDS = [
+  ["settings [--no-open]", "Open Drip's settings page in the browser: the task, API keys, switches, paid kits, niche packs (runs until Ctrl+C)."],
   ["doctor [--json] [--install <dep>]", "Check Node, Chrome/Edge, Blender, uvx, optional dependencies, keys (names only), project and plugin folders."],
   ["doctor --fix [--yes]", "Install what is missing and optional (MockStudio, axe-core, svgo). Lists it first; --yes does it. Never installs Chrome, Edge or Blender: says where to get them."],
   ["tools list [--json]", "Every tool name with a one-line description."],
@@ -433,6 +435,13 @@ Schema: drip tools schema ${cmd}`);
         return cmdTools(["list"], { ...flags, json: false });
       case "doctor":
         return await cmdDoctor(flags);
+      case "settings": {
+        const url = await openSettingsPage({ cwd: projectDir(), ttlMs: 0, runDoctor: async () => formatDoctor(await runDoctor({})) });
+        if (!flags["no-open"]) openInBrowser(url);
+        await writeOut(`Drip settings: ${url}\nThe page runs while this command does. Press Ctrl+C to stop.`);
+        if (!flags["no-wait"]) await new Promise(() => {});
+        return EXIT.OK;
+      }
       case "tools":
         return await cmdTools(pos, flags);
       case "call": {

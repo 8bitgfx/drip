@@ -74,6 +74,7 @@ Drip is a design-process toolset on this machine: the \`drip_*\`, \`refs_*\`, \`
 - ${SERVER_NOTE}
 - Ask the user the intake questions in chat, material first, then record the answers with \`drip_brief\`.
 - Many calls in a row? Code Mode: \`drip_search\` finds tool signatures, \`drip_execute\` runs one sandboxed script that calls them.
+- Drip settings (API keys, checks, critic, builders, the open task): call \`settings_open\` and give the user the link in one line; it is a local page, so keys never go through chat. From a terminal: \`drip settings\`.
 - Search the project's own components first (\`components_local_find\`), and run \`drip_check\` before hand-off.
 `;
 }
