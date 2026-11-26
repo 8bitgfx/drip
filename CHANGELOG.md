@@ -2,6 +2,10 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.9.8: pieces are reviewed, not just recoloured
+- Builders keep the idea that made a piece the pick and review the rest against the page: colours, radius, borders, shadows, hover and press effects, spacing, fonts, motion timing. What fits stays (byte for byte is fine); what doesn't changes ("its hover shadow doesn't fit this flat page: a border brighten instead"). They report each decision. taste.md, builder.md, the builder brief and pieces_install say so.
+- `pieces_install` fingerprints the files it writes; the page check lists PIECES TO REVIEW (unchanged from the library, demo effects such as hover shadows, lifts and scales, demo colours) as notes for a decision. The 0.9.7 demo-colour blocker is now one of these notes: a piece is never blocked for its looks.
+
 ## 0.9.7: no placeholders, no pills, visuals that show at rest
 - **No placeholders, ever.** Prices, plans, product data and sample outputs are written (realistic, listed as assumptions at hand-off); customers, quotes and user counts that only the world can say are left out; pictures are made or found, never empty slots. taste.md, the playbook, the builder brief and the intake say so; the page check now also blocks blank prices (`$XX`, `$—`, `$__`) and `TBD`.
 - **Pieces restyled or not done**: a used piece whose files still carry 4+ demo colour classes (zinc, slate, gray, neutral, blue, indigo, violet...) is a blocker (`pieces-check.mjs`).

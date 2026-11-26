@@ -15,6 +15,7 @@ import { projectDir } from "../../core/paths.mjs";
 import { vendor0 } from "../../core/setup.mjs";
 import { updateState } from "../../core/state.mjs";
 import { dealPieces, formatPieces, ownedKits, saveKits } from "./pieces.mjs";
+import { componentHashes } from "../../core/pieces-check.mjs";
 import { ensureInstalled, isReactPage, scaffoldReact, sh } from "./react.mjs";
 
 export const TASTE = { repo: "https://github.com/Leonxlnx/taste-skill.git", sha: "6c0b5c78f5d31776e2210305abaa210cdc0030bf" };
@@ -343,6 +344,9 @@ export function registerDeal(server, ctx) {
       await ensureInstalled(root);
       // Registries time out now and then: retry here, twice, rather than hand the director a round trip.
       const add = () => sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u) => `"${u}"`).join(" ")}`, root).catch((e) => `FAILED: ${e.message}`);
+      // Fingerprints of the component files before and after: a file this install wrote is remembered as installed, so
+      // the page check can tell a piece that was adapted to the page from one left exactly as it came.
+      const before = componentHashes(root);
       let outp = await add();
       for (let i = 0; i < 2 && /^FAILED/.test(outp) && /timed? ?out|ETIMEDOUT|ECONNRESET|fetch failed|socket hang up|503|502|429/i.test(outp); i++) {
         await new Promise((r) => setTimeout(r, 3000 * (i + 1)));
@@ -352,12 +356,15 @@ export function registerDeal(server, ctx) {
       // A registry item's files are often named apart from the item (efferd's "header3" installs header.tsx): keep its real
       // file names, so the page check finds the piece by what it installed, not by its URL.
       const names = Object.fromEntries(await Promise.all(urls.map(async (u) => [u, await registryFileNames(u)])));
+      const after = componentHashes(root);
+      const installed = Object.fromEntries(Object.entries(after).filter(([f, h]) => before[f] !== h));
       updateState((st) => {
         if (!st.task) return;
+        st.task.installed = { ...(st.task.installed || {}), ...installed };
         st.task.pieces = [...new Set([...(st.task.pieces || []), ...urls])];
         st.task.pieceFiles = { ...(st.task.pieceFiles || {}), ...Object.fromEntries(Object.entries(names).filter(([, n]) => n.length)) };
       });
-      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path.relative(projectDir(), root)}.`}${files.length ? `\nFiles: ${files.join(", ")}` : ""}\nBuilders import them from @/components/... and use them as they are: restyle to the tokens and the client's content, never rewrite their motion.`, /^FAILED/.test(outp));
+      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path.relative(projectDir(), root)}.`}${files.length ? `\nFiles: ${files.join(", ")}` : ""}\nBuilders import them from @/components/... and review them against the page: keep what fits, change what doesn't (tokens, radius, borders, shadows, hover effects, motion timing, content).`, /^FAILED/.test(outp));
     }),
   );
 

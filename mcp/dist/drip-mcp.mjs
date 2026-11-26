@@ -90901,7 +90901,7 @@ function sectionBlock({ section, spec, files, piece, from }, pg, stack, many, ta
     "Match its layout, composition, proportions, spacing, type scale and motion; take what the spec says from it. Change the content to the client's (and the colours to the brand's own, when it has them). Don't drift back to a generic section."
   ].filter(Boolean) : [];
   const mine = files?.length ? files : sectionFiles(section, stack);
-  const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it, import it and use it AS IT IS: keep its motion, structure and craft; change only colours (to the tokens: replace its hard-coded zinc/slate/blue with bg-background, text-foreground, the brand colour), radius, font and content (the client's words, numbers, pictures). Never rewrite or "simplify" it, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) and use it as it is; restyle only colours, radius, font and content.` : "";
+  const pieceLine = piece ? /^custom/i.test(piece) ? `PIECE: none (${piece}). Build it yourself, to the level of the library pieces around it, inside a piece's frame (window, device, card) when one is installed.` : stack === "react" ? `THE PIECE: ${piece}. It is installed (pieces_install) under src/components/: find it and import it. Keep the idea that made it the pick (its structure and its signature motion); adapt everything else so it looks born on this page: colours to the tokens (its hard-coded zinc/slate/blue become bg-background, text-foreground, the brand colour), radius, borders, shadows, hover and press effects (a demo's hover shadow, lift, scale or glow goes if the page doesn't do that), spacing, fonts, motion timing, and its content (the client's words, numbers, pictures). Review it before you finish: for each of its colours, shadows, hover and press effects and motion, decide whether it fits this page; keep what fits (unchanged is fine), change what doesn't, and list your decisions in your answer. Never rebuild it by hand, and never swap it for something you made: if it won't install or breaks the build, fix that (a dependency, an import path) or say so in your answer. Some registries (Aceternity) leave out the keyframes: if it uses an animate-* class that isn't defined, add the keyframes and --animate-* to src/index.css from the library's page. If it is not installed yet, run: npx shadcn@latest add --yes ${/^https?:/.test(piece) ? piece : "<its registry url>"}` : `THE PIECE: ${piece}. Copy it in (parts_get for a taste part; a plain-HTML library piece: download its file into assets/) keep its idea and adapt the rest to this page: colours, radius, borders, shadows, hover effects, spacing, fonts, motion and content.` : "";
   const placement = stack === "react" ? [...OWN, ...WHOLE].includes(id) ? "" : `Export the section as the default export of ${mine[0]}, wrapped in <section id="${id}">.` : WHOLE.includes(id) ? "You build the whole page: index.html and its own styles and scripts." : OWN.includes(id) ? "Edit the page's own nav / hero / footer in index.html (and its <style>)." : `${mine[0]} holds the <section id="${id}"> element alone (no <html>/<head>), ${mine[1]} its styles.`;
   return [
     many ? `=== SECTION: ${section} ===` : "",
@@ -105717,8 +105717,8 @@ __export(images_exports, {
   parseImageory: () => parseImageory,
   register: () => register13
 });
-import fs50 from "node:fs";
-import path49 from "node:path";
+import fs51 from "node:fs";
+import path50 from "node:path";
 init_imaging();
 init_paths();
 
@@ -105740,24 +105740,107 @@ __export(parts_exports, {
   tasteReady: () => tasteReady
 });
 import { execFile as execFile5 } from "node:child_process";
-import fs49 from "node:fs";
-import path48 from "node:path";
+import fs50 from "node:fs";
+import path49 from "node:path";
 init_chrome();
 init_serve();
 init_paths();
+
+// src/core/pieces-check.mjs
+init_paths();
+import fs49 from "node:fs";
+import path48 from "node:path";
+var norm4 = (s2) => String(s2 || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+function pieceKey(piece) {
+  if (!piece || /^custom/i.test(piece)) return null;
+  const last = String(piece).split(/[/@]/).filter(Boolean).pop() || "";
+  return norm4(last.replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "")) || null;
+}
+function walk(dir, out = [], depth = 6) {
+  if (depth < 0 || !fs49.existsSync(dir)) return out;
+  for (const e2 of fs49.readdirSync(dir, { withFileTypes: true })) {
+    if (e2.name === "node_modules" || e2.name.startsWith(".")) continue;
+    const f3 = path48.join(dir, e2.name);
+    if (e2.isDirectory()) walk(f3, out, depth - 1);
+    else if (/\.(tsx|ts|jsx|js)$/.test(e2.name)) out.push(f3);
+  }
+  return out;
+}
+function componentHashes(pageRoot2, base = projectDir()) {
+  const out = {};
+  for (const f3 of walk(path48.join(pageRoot2, "src", "components"))) out[relPath(base, f3)] = sha1(fs49.readFileSync(f3));
+  return out;
+}
+var DEMO_EFFECTS = /\b(?:hover:)?shadow-(?:md|lg|xl|2xl)\b|\bhover:(?:-?translate-y-[\w.[\]]+|scale-1\d\d)\b|\bring-[1-4]\b/g;
+var DEMO_COLOURS = /\b(?:bg|text|border|ring|from|via|to|fill|stroke|shadow|outline|divide)-(?:zinc|slate|gray|neutral|stone|blue|indigo|violet|purple|sky)-\d{2,3}\b/g;
+function unusedPieces(task, root = projectDir()) {
+  if (!task?.page?.dir || !task.sections) return [];
+  const page2 = path48.resolve(root, task.page.dir);
+  const src = path48.join(page2, "src");
+  if (!fs49.existsSync(path48.join(src, "App.tsx"))) return [];
+  const files = walk(src);
+  const comps = files.filter((f3) => f3.includes(`${path48.sep}components${path48.sep}`));
+  const out = [];
+  for (const [id, s2] of Object.entries(task.sections)) {
+    const key = pieceKey(s2.piece);
+    if (!key || key.length < 4) continue;
+    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm4).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f3) => keys.has(norm4(path48.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm4(path48.basename(path48.dirname(f3)))));
+    if (!mine.length) {
+      out.push(`piece not on the page: #${id} names ${s2.piece}, but no ${key} component is installed under src/components (pieces_install it, or name what the section really uses)`);
+      continue;
+    }
+    const names3 = new Set(mine.map((f3) => path48.basename(f3).startsWith("index.") ? path48.basename(path48.dirname(f3)) : path48.basename(f3).replace(/\.\w+$/, "")));
+    const used = files.some((f3) => !mine.includes(f3) && [...names3].some((n3) => new RegExp(`from\\s+["'][^"']*/${n3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/index)?["']`).test(fs49.readFileSync(f3, "utf8"))));
+    if (!used) out.push(`piece not on the page: #${id} names ${s2.piece}, it is installed (${[...names3].join(", ")}) but nothing imports it, so the section was hand-made around it. Use the piece, or say why it doesn't fit`);
+  }
+  return out;
+}
+function pieceReview(task, root = projectDir()) {
+  const out = [];
+  for (const { id, piece, names: names3, mine } of piecesOnPage(task, root)) {
+    const unchanged = task.installed && mine.every((f3) => task.installed[relPath(root, f3)] === sha1(fs49.readFileSync(f3)));
+    const effects = [...new Set(mine.flatMap((f3) => fs49.readFileSync(f3, "utf8").match(DEMO_EFFECTS) || []))];
+    const colours = [...new Set(mine.flatMap((f3) => fs49.readFileSync(f3, "utf8").match(DEMO_COLOURS) || []))];
+    const bits = [effects.length ? `effects ${effects.slice(0, 4).join(", ")}` : "", colours.length >= 3 ? `demo colours ${colours.slice(0, 4).join(", ")}` : ""].filter(Boolean);
+    if (unchanged || bits.length)
+      out.push(`#${id} (${[...names3].join(", ") || piece})${unchanged ? " is unchanged from the library" : ""}${bits.length ? `${unchanged ? ", with" : " still has"} ${bits.join("; ")}` : ""}: keep what fits this page, change what doesn't (its other cards, buttons and hover are the measure)`);
+  }
+  return out;
+}
+function piecesOnPage(task, root) {
+  if (!task?.page?.dir || !task.sections) return [];
+  const src = path48.join(path48.resolve(root, task.page.dir), "src");
+  if (!fs49.existsSync(path48.join(src, "App.tsx"))) return [];
+  const files = walk(src);
+  const comps = files.filter((f3) => f3.includes(`${path48.sep}components${path48.sep}`));
+  const out = [];
+  for (const [id, s2] of Object.entries(task.sections)) {
+    const key = pieceKey(s2.piece);
+    if (!key || key.length < 4) continue;
+    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm4).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f3) => keys.has(norm4(path48.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm4(path48.basename(path48.dirname(f3)))));
+    if (!mine.length) continue;
+    const names3 = new Set(mine.map((f3) => path48.basename(f3).startsWith("index.") ? path48.basename(path48.dirname(f3)) : path48.basename(f3).replace(/\.\w+$/, "")));
+    out.push({ id, piece: s2.piece, names: names3, mine });
+  }
+  return out;
+}
+
+// src/modules/parts/index.mjs
 init_react();
 var TASTE = { repo: "https://github.com/Leonxlnx/taste-skill.git", sha: "6c0b5c78f5d31776e2210305abaa210cdc0030bf" };
-var tasteDir = () => path48.join(vendor0(), "taste-skill");
-var tasteAssets = () => path48.join(tasteDir(), "skills", "taste-skill", "assets");
-var tasteReady = () => fs49.existsSync(path48.join(tasteAssets(), "effects", "index.json"));
+var tasteDir = () => path49.join(vendor0(), "taste-skill");
+var tasteAssets = () => path49.join(tasteDir(), "skills", "taste-skill", "assets");
+var tasteReady = () => fs50.existsSync(path49.join(tasteAssets(), "effects", "index.json"));
 var run = (file4, args, opts = {}) => new Promise((res, rej) => execFile5(file4, args, { windowsHide: true, maxBuffer: 1 << 26, ...opts }, (e2, out, err) => e2 ? rej(new Error(`${file4} ${args[0]}: ${String(err || e2.message).slice(0, 300)}`)) : res(out)));
 var installing2 = null;
 async function installTaste() {
   if (tasteReady()) return tasteDir();
   installing2 ||= (async () => {
     const dir = tasteDir();
-    fs49.mkdirSync(path48.dirname(dir), { recursive: true });
-    if (!fs49.existsSync(path48.join(dir, ".git"))) await run("git", ["clone", "--filter=blob:none", "--quiet", TASTE.repo, dir]);
+    fs50.mkdirSync(path49.dirname(dir), { recursive: true });
+    if (!fs50.existsSync(path49.join(dir, ".git"))) await run("git", ["clone", "--filter=blob:none", "--quiet", TASTE.repo, dir]);
     await run("git", ["-C", dir, "fetch", "--quiet", "origin", TASTE.sha]).catch(() => {
     });
     await run("git", ["-C", dir, "checkout", "--quiet", "--force", TASTE.sha]);
@@ -105778,23 +105861,23 @@ var FAMILIES = {
 var describe4 = (m) => String(m.look || m.for || m.shows || m.job || m.what || m.title || m.name || "").replace(/\s+/g, " ");
 function familyItems(family) {
   const F = FAMILIES[family];
-  const root = path48.join(tasteAssets(), F.dir);
-  if (!fs49.existsSync(root)) return [];
-  if (family === "effect") return (readJson(path48.join(root, "index.json"))?.effects || []).map((e2) => ({ id: e2.id, name: e2.name, about: describe4(e2), tags: [e2.family, ...e2.bestOn || []].join(" ") }));
-  if (family === "diagram") return Object.entries(readJson(path48.join(root, "presets.json"))?.presets || {}).map(([id, p2]) => ({ id, name: id, about: describe4(p2) || `${p2.layout || ""} diagram` }));
+  const root = path49.join(tasteAssets(), F.dir);
+  if (!fs50.existsSync(root)) return [];
+  if (family === "effect") return (readJson(path49.join(root, "index.json"))?.effects || []).map((e2) => ({ id: e2.id, name: e2.name, about: describe4(e2), tags: [e2.family, ...e2.bestOn || []].join(" ") }));
+  if (family === "diagram") return Object.entries(readJson(path49.join(root, "presets.json"))?.presets || {}).map(([id, p2]) => ({ id, name: id, about: describe4(p2) || `${p2.layout || ""} diagram` }));
   if (family === "hero")
-    return ((j) => Array.isArray(j) ? j : j?.heroes || [])(readJson(path48.join(root, "heroes.json"))).map((h) => ({ id: h.id, name: h.name, about: describe4(h), demo: h.demo ? path48.join(root, h.demo) : null }));
-  return fs49.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory() && !d.name.startsWith("_") && fs49.existsSync(path48.join(root, d.name, "meta.json"))).map((d) => {
-    const m = readJson(path48.join(root, d.name, "meta.json")) || {};
-    const demo = ["demo.html", "index.html"].map((f3) => path48.join(root, d.name, f3)).find((f3) => fs49.existsSync(f3)) || null;
+    return ((j) => Array.isArray(j) ? j : j?.heroes || [])(readJson(path49.join(root, "heroes.json"))).map((h) => ({ id: h.id, name: h.name, about: describe4(h), demo: h.demo ? path49.join(root, h.demo) : null }));
+  return fs50.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory() && !d.name.startsWith("_") && fs50.existsSync(path49.join(root, d.name, "meta.json"))).map((d) => {
+    const m = readJson(path49.join(root, d.name, "meta.json")) || {};
+    const demo = ["demo.html", "index.html"].map((f3) => path49.join(root, d.name, f3)).find((f3) => fs50.existsSync(f3)) || null;
     return { id: m.id || m.name || d.name, folder: d.name, name: m.title || m.name || d.name, about: describe4(m), tags: [...m.useFor || [], ...m.bestOn || []].join(" "), demo };
   });
 }
 var score2 = (it, words3) => words3.reduce((s2, w) => s2 + (`${it.id} ${it.name} ${it.about} ${it.tags || ""}`.toLowerCase().includes(w) ? 1 : 0), 0);
 function previewPage(family, it) {
   const F = FAMILIES[family];
-  const root = path48.join(tasteAssets(), F.dir);
-  const file4 = path48.join(root, `_drip_${family}_${it.id}.html`);
+  const root = path49.join(tasteAssets(), F.dir);
+  const file4 = path49.join(root, `_drip_${family}_${it.id}.html`);
   const palette2 = ":root{--bg:#0B0C10;--surface:#15171D;--ink:#F2F3F5;--muted:#9AA0AA;--accent:#5B8CFF;--accent-ink:#0B0C10}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui}";
   let body = "";
   if (family === "effect")
@@ -105802,17 +105885,17 @@ function previewPage(family, it) {
   else if (family === "diagram")
     body = `<style>${palette2}.panel{width:900px;margin:80px auto;padding:40px;background:var(--surface);border-radius:20px}</style><div class="panel"><div class="dg" data-diagram="${it.id}"></div></div><link rel="stylesheet" href="./diagram.css"><script type="module" src="./mount.js"></script>`;
   else {
-    const dir = path48.join(root, it.folder || it.id);
-    const index = fs49.existsSync(path48.join(root, "index.html")) ? fs49.readFileSync(path48.join(root, "index.html"), "utf8") : "";
+    const dir = path49.join(root, it.folder || it.id);
+    const index = fs50.existsSync(path49.join(root, "index.html")) ? fs50.readFileSync(path49.join(root, "index.html"), "utf8") : "";
     const head = index.includes("</head>") ? index.slice(0, index.indexOf("</head>")).replace(/<script[\s\S]*?<\/script>/g, "") : `<!doctype html><html><head><meta charset="utf-8"><style>${palette2}</style>`;
-    const html = fs49.existsSync(path48.join(dir, `${F.file}.html`)) ? fs49.readFileSync(path48.join(dir, `${F.file}.html`), "utf8") : "";
-    const lib = ["ui.js", "shared.js"].filter((f3) => fs49.existsSync(path48.join(root, f3))).map((f3) => `<script type="module" src="./${f3}"></script>`).join("");
-    return fs49.writeFileSync(
+    const html = fs50.existsSync(path49.join(dir, `${F.file}.html`)) ? fs50.readFileSync(path49.join(dir, `${F.file}.html`), "utf8") : "";
+    const lib = ["ui.js", "shared.js"].filter((f3) => fs50.existsSync(path49.join(root, f3))).map((f3) => `<script type="module" src="./${f3}"></script>`).join("");
+    return fs50.writeFileSync(
       file4,
       `${head}<link rel="stylesheet" href="./${it.folder || it.id}/${F.file}.css"></head><body><div style="max-width:1100px;margin:64px auto;padding:0 32px">${html}</div>${lib}<script type="module" src="./${it.folder || it.id}/${F.file}.js"></script></body></html>`
     ), file4;
   }
-  fs49.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"></head><body>${body}</body></html>`);
+  fs50.writeFileSync(file4, `<!doctype html><html><head><meta charset="utf-8"></head><body>${body}</body></html>`);
   return file4;
 }
 var ITEM = external_exports.object({ kind: external_exports.enum(Object.keys(FAMILIES)), id: external_exports.string() });
@@ -105860,7 +105943,7 @@ Next: parts_preview({ items: [{ kind, id }, ...] }) to see several at once, part
           const it = familyItems(kind).find((x2) => x2.id === id || x2.folder === id);
           if (!it) return { kind, id, err: `no ${kind} "${id}" (parts_list)` };
           const file4 = it.demo || previewPage(kind, it);
-          const rel3 = path48.relative(tasteAssets(), file4).replace(/\\/g, "/");
+          const rel3 = path49.relative(tasteAssets(), file4).replace(/\\/g, "/");
           try {
             const png2 = await screenshot(`${base}/${rel3}`, { width: 1200, height: 750, config: ctx2.config(), waitMs: 1500 });
             return { kind, id, buf: await toJpeg(png2, 800, 800, 78) };
@@ -105889,14 +105972,14 @@ Next: parts_preview({ items: [{ kind, id }, ...] }) to see several at once, part
     safe(async ({ items, out }) => {
       await installTaste();
       const src = tasteAssets();
-      const dest = path48.resolve(projectDir(), out || "assets");
+      const dest = path49.resolve(projectDir(), out || "assets");
       const copied = /* @__PURE__ */ new Set();
       const copy = (rel3) => {
         if (copied.has(rel3)) return;
         copied.add(rel3);
-        const from = path48.join(src, rel3);
-        if (!fs49.existsSync(from)) return;
-        fs49.cpSync(from, path48.join(dest, rel3), { recursive: true, filter: (f3) => !path48.basename(f3).startsWith("_drip_") });
+        const from = path49.join(src, rel3);
+        if (!fs50.existsSync(from)) return;
+        fs50.cpSync(from, path49.join(dest, rel3), { recursive: true, filter: (f3) => !path49.basename(f3).startsWith("_drip_") });
       };
       const lines = [];
       for (const rel3 of ["system.css", "system.js", "motion"]) copy(rel3);
@@ -105907,17 +105990,17 @@ Next: parts_preview({ items: [{ kind, id }, ...] }) to see several at once, part
           lines.push(`- ${kind} ${id}: not found (parts_list)`);
           continue;
         }
-        const root = path48.join(src, F.dir);
-        for (const f3 of fs49.readdirSync(root, { withFileTypes: true })) if (f3.isFile() && /\.(js|css|json|mjs)$/.test(f3.name)) copy(path48.join(F.dir, f3.name));
-        if (it.folder || fs49.existsSync(path48.join(root, it.id))) copy(path48.join(F.dir, it.folder || it.id));
-        if (kind === "hero" && it.demo) copy(path48.join(F.dir, path48.basename(it.demo)));
-        const guide = path48.join(tasteDir(), "skills", "taste-skill", "references", F.ref);
-        if (fs49.existsSync(guide)) fs49.writeFileSync(path48.join(dest, F.dir, "README.md"), fs49.readFileSync(guide, "utf8"));
-        lines.push(`- ${kind} ${it.id} -> ${path48.relative(projectDir(), path48.join(dest, F.dir, it.folder || ""))}${it.demo ? ` (demo: ${path48.basename(it.demo)})` : ""}`);
+        const root = path49.join(src, F.dir);
+        for (const f3 of fs50.readdirSync(root, { withFileTypes: true })) if (f3.isFile() && /\.(js|css|json|mjs)$/.test(f3.name)) copy(path49.join(F.dir, f3.name));
+        if (it.folder || fs50.existsSync(path49.join(root, it.id))) copy(path49.join(F.dir, it.folder || it.id));
+        if (kind === "hero" && it.demo) copy(path49.join(F.dir, path49.basename(it.demo)));
+        const guide = path49.join(tasteDir(), "skills", "taste-skill", "references", F.ref);
+        if (fs50.existsSync(guide)) fs50.writeFileSync(path49.join(dest, F.dir, "README.md"), fs50.readFileSync(guide, "utf8"));
+        lines.push(`- ${kind} ${it.id} -> ${path49.relative(projectDir(), path49.join(dest, F.dir, it.folder || ""))}${it.demo ? ` (demo: ${path49.basename(it.demo)})` : ""}`);
       }
-      fs49.writeFileSync(path48.join(dest, "CREDITS-taste-skill.md"), `Parts from taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
+      fs50.writeFileSync(path49.join(dest, "CREDITS-taste-skill.md"), `Parts from taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
 `);
-      return text(`Copied into ${path48.relative(projectDir(), dest) || "."}:
+      return text(`Copied into ${path49.relative(projectDir(), dest) || "."}:
 ${lines.join("\n")}
 Each family folder has a README.md with how to mount it. Rewrite every label and number to the client's; never ship the demo copy.`);
     })
@@ -105941,31 +106024,31 @@ var KIT = ["system.css", "system.js", "motion", "backgrounds", "diagrams", "ui",
 var NAV_CLASS = { "nav-centre": "nav nav--centre", "nav-split": "nav nav--split" };
 var FOOTER_CLASS = { "footer-dark": "footer closing footer--dark ground-inverse", "footer-statement": "footer closing footer--statement" };
 async function scaffoldPage({ out, kind, hero, palette: palette2, type, nav, footer, close, buttons, mark, radius }) {
-  const skill = path48.join(tasteDir(), "skills", "taste-skill");
+  const skill = path49.join(tasteDir(), "skills", "taste-skill");
   const src = tasteAssets();
-  const dir = path48.resolve(projectDir(), out);
-  const page2 = path48.join(dir, "index.html");
-  if (fs49.existsSync(page2)) return `${path48.relative(projectDir(), page2)} exists: not scaffolded (build on it, or deal into an empty folder).`;
-  fs49.mkdirSync(dir, { recursive: true });
+  const dir = path49.resolve(projectDir(), out);
+  const page2 = path49.join(dir, "index.html");
+  if (fs50.existsSync(page2)) return `${path49.relative(projectDir(), page2)} exists: not scaffolded (build on it, or deal into an empty folder).`;
+  fs50.mkdirSync(dir, { recursive: true });
   for (const rel3 of KIT) {
-    const from = path48.join(src, rel3);
-    if (fs49.existsSync(from)) fs49.cpSync(from, path48.join(dir, "assets", rel3), { recursive: true, filter: (f3) => !/[\\/](_demo|_lab|demo\.html|check\.(html|mjs)|pick\.mjs)$/.test(f3) && !/[\\/]img$/.test(f3) });
+    const from = path49.join(src, rel3);
+    if (fs50.existsSync(from)) fs50.cpSync(from, path49.join(dir, "assets", rel3), { recursive: true, filter: (f3) => !/[\\/](_demo|_lab|demo\.html|check\.(html|mjs)|pick\.mjs)$/.test(f3) && !/[\\/]img$/.test(f3) });
   }
-  fs49.writeFileSync(path48.join(dir, "assets", "CREDITS-taste-skill.md"), `Kit from taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
+  fs50.writeFileSync(path49.join(dir, "assets", "CREDITS-taste-skill.md"), `Kit from taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
 `);
   let head = "";
-  if (palette2 && type) head = await run(process.execPath, [path48.join(skill, "scripts", "start.mjs"), "css", "--page", kind === "tech" ? "product" : kind, "--palette", palette2, "--type", type, "--radius", radius], { cwd: dir }).catch(() => "");
-  fs49.rmSync(path48.join(dir, ".taste-skill"), { recursive: true, force: true });
-  let html = fs49.readFileSync(path48.join(src, "starter.html"), "utf8");
-  const demo = hero && path48.join(src, "layout", `hero-${hero}.html`);
-  if (demo && fs49.existsSync(demo)) {
-    const d = fs49.readFileSync(demo, "utf8");
+  if (palette2 && type) head = await run(process.execPath, [path49.join(skill, "scripts", "start.mjs"), "css", "--page", kind === "tech" ? "product" : kind, "--palette", palette2, "--type", type, "--radius", radius], { cwd: dir }).catch(() => "");
+  fs50.rmSync(path49.join(dir, ".taste-skill"), { recursive: true, force: true });
+  let html = fs50.readFileSync(path49.join(src, "starter.html"), "utf8");
+  const demo = hero && path49.join(src, "layout", `hero-${hero}.html`);
+  if (demo && fs50.existsSync(demo)) {
+    const d = fs50.readFileSync(demo, "utf8");
     const fix = (s2) => s2.replace(/(["'(])\.\.\//g, "$1assets/").replace(/(src|href)="img\//g, '$1="assets/layout/img/');
     for (const m of d.matchAll(/(?:src|href)="img\/([^"]+)"/g)) {
-      const f3 = path48.join(src, "layout", "img", m[1]);
-      if (fs49.existsSync(f3)) {
-        fs49.mkdirSync(path48.join(dir, "assets", "layout", "img"), { recursive: true });
-        fs49.copyFileSync(f3, path48.join(dir, "assets", "layout", "img", m[1]));
+      const f3 = path49.join(src, "layout", "img", m[1]);
+      if (fs50.existsSync(f3)) {
+        fs50.mkdirSync(path49.join(dir, "assets", "layout", "img"), { recursive: true });
+        fs50.copyFileSync(f3, path49.join(dir, "assets", "layout", "img", m[1]));
       }
     }
     const section = (d.match(/<section class="hero[\s\S]*?<\/section>/) || [])[0];
@@ -105991,24 +106074,24 @@ ${b}`);
   html = html.replace(/data-mark="\[dealt mark\]"/g, `data-mark="${mark}"`);
   if (mark === "wordmark") html = html.replace(/<span class="mark" data-mark="wordmark" aria-hidden="true"><\/span>/g, "");
   if (mark === "initial") html = html.replace(/<span class="mark" data-mark="initial" aria-hidden="true"><\/span>/g, '<span class="mark mark--initial" aria-hidden="true">[N]</span>');
-  fs49.writeFileSync(page2, html);
+  fs50.writeFileSync(page2, html);
   const left = (html.match(/\[[^\]\n]{1,80}\]/g) || []).length;
-  return `Scaffolded ${path48.relative(projectDir(), page2)}: the dealt ${hero || "split"} hero with its CSS, palette ${palette2 || "?"}, type ${type || "?"}, ${nav}, ${close}, ${footer}, buttons ${buttons}, mark ${mark}; the kit in assets/. ${left} [brackets] to fill with the client's copy (system.js outlines any left in red). Sections go between <!-- drip:sections --> markers (page_stitch).`;
+  return `Scaffolded ${path49.relative(projectDir(), page2)}: the dealt ${hero || "split"} hero with its CSS, palette ${palette2 || "?"}, type ${type || "?"}, ${nav}, ${close}, ${footer}, buttons ${buttons}, mark ${mark}; the kit in assets/. ${left} [brackets] to fill with the client's copy (system.js outlines any left in red). Sections go between <!-- drip:sections --> markers (page_stitch).`;
 }
 async function scaffoldReactPage({ out, kind, hero, palette: palette2, type, radius, trade }) {
-  const skill = path48.join(tasteDir(), "skills", "taste-skill");
+  const skill = path49.join(tasteDir(), "skills", "taste-skill");
   const src = tasteAssets();
-  const dir = path48.resolve(projectDir(), out);
-  const rel3 = path48.relative(projectDir(), dir) || ".";
-  if (fs49.existsSync(path48.join(dir, "package.json")) || fs49.existsSync(path48.join(dir, "index.html"))) return `${rel3} already has a page: not scaffolded (build on it, or deal into an empty folder).`;
-  fs49.mkdirSync(dir, { recursive: true });
+  const dir = path49.resolve(projectDir(), out);
+  const rel3 = path49.relative(projectDir(), dir) || ".";
+  if (fs50.existsSync(path49.join(dir, "package.json")) || fs50.existsSync(path49.join(dir, "index.html"))) return `${rel3} already has a page: not scaffolded (build on it, or deal into an empty folder).`;
+  fs50.mkdirSync(dir, { recursive: true });
   let head = "";
-  if (palette2 && type) head = await run(process.execPath, [path48.join(skill, "scripts", "start.mjs"), "css", "--page", kind === "tech" ? "product" : kind, "--palette", palette2, "--type", type, "--radius", radius], { cwd: dir }).catch(() => "");
-  fs49.rmSync(path48.join(dir, ".taste-skill"), { recursive: true, force: true });
-  const demo = hero && path48.join(src, "layout", `hero-${hero}.html`);
+  if (palette2 && type) head = await run(process.execPath, [path49.join(skill, "scripts", "start.mjs"), "css", "--page", kind === "tech" ? "product" : kind, "--palette", palette2, "--type", type, "--radius", radius], { cwd: dir }).catch(() => "");
+  fs50.rmSync(path49.join(dir, ".taste-skill"), { recursive: true, force: true });
+  const demo = hero && path49.join(src, "layout", `hero-${hero}.html`);
   let heroRecipe = null;
-  if (demo && fs49.existsSync(demo)) {
-    const d = fs49.readFileSync(demo, "utf8");
+  if (demo && fs50.existsSync(demo)) {
+    const d = fs50.readFileSync(demo, "utf8");
     const section = (d.match(/<section class="hero[\s\S]*?<\/section>/) || [])[0] || "";
     const style = ((d.match(/<style>([\s\S]*?)<\/style>/) || [])[1] || "").replace(/:root\s*\{[^}]*\}/, "");
     heroRecipe = `<!-- The dealt hero layout "${hero}" from taste-skill (MIT). Follow its grid, sizes and motion; build it in Hero.tsx with Tailwind and the chosen pieces. Its copy is a demo: never ship it. -->
@@ -106018,7 +106101,7 @@ ${style.trim()}
 ${section}
 `;
   }
-  fs49.writeFileSync(path48.join(dir, "CREDITS-taste-skill.md"), `Palette, type and hero layout dealt by taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
+  fs50.writeFileSync(path49.join(dir, "CREDITS-taste-skill.md"), `Palette, type and hero layout dealt by taste-skill (https://github.com/Leonxlnx/taste-skill, MIT licence), commit ${TASTE.sha}.
 `);
   return scaffoldReact({ dir, rel: rel3, title: trade ? trade.replace(/\b\w/g, (c3) => c3.toUpperCase()) : "Page", head, radius, heroRecipe });
 }
@@ -106042,13 +106125,14 @@ function registerDeal(server2, ctx2) {
       }
     },
     safe(async ({ page: page2, urls }) => {
-      const dir = path48.resolve(projectDir(), page2);
-      const root = fs49.existsSync(dir) && fs49.statSync(dir).isFile() ? path48.dirname(dir) : dir;
+      const dir = path49.resolve(projectDir(), page2);
+      const root = fs50.existsSync(dir) && fs50.statSync(dir).isFile() ? path49.dirname(dir) : dir;
       if (!isReactPage(root)) return text(`${page2} is not a React page (no vite.config.ts + src/App.tsx). On a plain page use parts_get, or download a plain-HTML piece.`, true);
       const bad = urls.find((u2) => /["'`$&|;<>^%\s]/.test(u2));
       if (bad) return text(`Not a plain registry URL: ${bad}`, true);
       await ensureInstalled(root);
       const add2 = () => sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u2) => `"${u2}"`).join(" ")}`, root).catch((e2) => `FAILED: ${e2.message}`);
+      const before = componentHashes(root);
       let outp = await add2();
       for (let i2 = 0; i2 < 2 && /^FAILED/.test(outp) && /timed? ?out|ETIMEDOUT|ECONNRESET|fetch failed|socket hang up|503|502|429/i.test(outp); i2++) {
         await new Promise((r2) => setTimeout(r2, 3e3 * (i2 + 1)));
@@ -106056,14 +106140,17 @@ function registerDeal(server2, ctx2) {
       }
       const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f3) => f3.replace(/\\/g, "/")))];
       const names3 = Object.fromEntries(await Promise.all(urls.map(async (u2) => [u2, await registryFileNames(u2)])));
+      const after = componentHashes(root);
+      const installed = Object.fromEntries(Object.entries(after).filter(([f3, h]) => before[f3] !== h));
       updateState((st) => {
         if (!st.task) return;
+        st.task.installed = { ...st.task.installed || {}, ...installed };
         st.task.pieces = [.../* @__PURE__ */ new Set([...st.task.pieces || [], ...urls])];
         st.task.pieceFiles = { ...st.task.pieceFiles || {}, ...Object.fromEntries(Object.entries(names3).filter(([, n3]) => n3.length)) };
       });
-      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path48.relative(projectDir(), root)}.`}${files.length ? `
+      return text(`${/^FAILED/.test(outp) ? outp : `Installed ${urls.length} piece(s) in ${path49.relative(projectDir(), root)}.`}${files.length ? `
 Files: ${files.join(", ")}` : ""}
-Builders import them from @/components/... and use them as they are: restyle to the tokens and the client's content, never rewrite their motion.`, /^FAILED/.test(outp));
+Builders import them from @/components/... and review them against the page: keep what fits, change what doesn't (tokens, radius, borders, shadows, hover effects, motion timing, content).`, /^FAILED/.test(outp));
     })
   );
   server2.registerTool(
@@ -106097,19 +106184,19 @@ Builders import them from @/components/... and use them as they are: restyle to 
     safe(async ({ kind, trade, has, directions = 1, out: outDir, radius = "soft", stack: stackIn = "auto", surface = "landing" }) => {
       const stack = surface === "app" ? "react" : stackIn === "auto" ? ["software", "gaming", "tech"].includes(kind) ? "react" : "html" : stackIn;
       await installTaste();
-      const skill = path48.join(tasteDir(), "skills", "taste-skill");
-      const work = path48.join(projectDir(), ".drip", "deal");
-      fs49.mkdirSync(work, { recursive: true });
-      const hist = path48.join(work, "history.json");
+      const skill = path49.join(tasteDir(), "skills", "taste-skill");
+      const work = path49.join(projectDir(), ".drip", "deal");
+      fs50.mkdirSync(work, { recursive: true });
+      const hist = path49.join(work, "history.json");
       const out = [];
       const sets = [];
       for (let i2 = 0; i2 < directions; i2++) {
-        const heroArgs = [path48.join(skill, "assets", "layout", "deal.mjs"), "--type", PAGE_TYPE[kind], "--history", path48.join(work, "layout-history.json")];
+        const heroArgs = [path49.join(skill, "assets", "layout", "deal.mjs"), "--type", PAGE_TYPE[kind], "--history", path49.join(work, "layout-history.json")];
         if (kind === "gaming" || kind === "tech") heroArgs.push("--kind", kind);
         if (has?.length) heroArgs.push("--has", has.join(","));
         const [hero2, look] = await Promise.all([
           run(process.execPath, heroArgs, { cwd: work }).catch((e2) => `hero deal failed: ${e2.message}`),
-          run(process.execPath, [path48.join(skill, "scripts", "start.mjs"), "deal", "--page", kind === "tech" ? "product" : kind, "--trade", trade, "--history", hist], { cwd: work }).catch((e2) => `palette deal failed: ${e2.message}`)
+          run(process.execPath, [path49.join(skill, "scripts", "start.mjs"), "deal", "--page", kind === "tech" ? "product" : kind, "--trade", trade, "--history", hist], { cwd: work }).catch((e2) => `palette deal failed: ${e2.message}`)
         ]);
         const [nav, footer, close, rhythm, buttons, mark] = LISTS[kind].map(pick3);
         const clean = (s2) => String(s2).replace(/<skill>/g, skill.replace(/\\/g, "/")).split("\n").filter((l2) => !/finish gate is armed|^then: node|plan line 2/.test(l2)).join("\n").trim();
@@ -106126,7 +106213,7 @@ SECTIONS: nav ${nav} \xB7 footer ${footer} \xB7 close ${close} \xB7 rhythm ${rhy
       const palette2 = (first.match(/^ {2}([a-z0-9-]+) {2,}[A-Z]/m) || [])[1];
       const summary = [hero && `hero ${hero}`, palette2 && `palette ${palette2}`, kind].filter(Boolean).join(", ");
       const htmlParts = stack === "html" ? Object.fromEntries(["effect", "ui", "component", "moment"].map((k) => [k, familyItems(k)])) : null;
-      const dealt = dealPieces({ kind, stack, surface, historyFile: path48.join(work, "pieces-history.json"), htmlParts });
+      const dealt = dealPieces({ kind, stack, surface, historyFile: path49.join(work, "pieces-history.json"), htmlParts });
       const piecesText = formatPieces(dealt, { stack, owned: ownedKits() });
       updateState((st) => {
         if (st.task) st.task.deal = { kind, trade, summary, stack, at: (/* @__PURE__ */ new Date()).toISOString() };
@@ -106179,7 +106266,7 @@ function libraryPhotos() {
     return [];
   }
   try {
-    library = JSON.parse(fs50.readFileSync(path49.join(tasteAssets(), "photos", "photos.json"), "utf8")).photos || [];
+    library = JSON.parse(fs51.readFileSync(path50.join(tasteAssets(), "photos", "photos.json"), "utf8")).photos || [];
   } catch {
     library = [];
   }
@@ -106372,13 +106459,13 @@ Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3
       }
     },
     safe(async ({ image: image2, dest, slots, format, focus = "auto", maxKB = 400, keepOriginal, credit }) => {
-      const local = !/^https?:/.test(image2) && fs50.existsSync(path49.resolve(projectDir(), image2));
-      const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : local ? { image: path49.resolve(projectDir(), image2), url: image2 } : lookup(resolve(image2, "image"));
+      const local = !/^https?:/.test(image2) && fs51.existsSync(path50.resolve(projectDir(), image2));
+      const item = /^https?:/.test(image2) ? { image: image2, url: image2 } : local ? { image: path50.resolve(projectDir(), image2), url: image2 } : lookup(resolve(image2, "image"));
       if (!item?.image) return text("Unknown image. Use a number from the last images_search, a URL or a project file.", true);
       const { buf } = await fetchImage(item.image, { ttlMs: 0 });
       if (item.ping && getKey("unsplash")) get(item.ping, { as: "json", ttlMs: 0, headers: { Authorization: `Client-ID ${getKey("unsplash")}` } }).catch(() => {
       });
-      const ext0 = path49.extname(dest).slice(1).toLowerCase();
+      const ext0 = path50.extname(dest).slice(1).toLowerCase();
       const fmt = format || (["jpg", "jpeg"].includes(ext0) ? "jpeg" : ext0 === "png" ? "png" : "webp");
       const stem3 = ext0 ? dest.slice(0, -ext0.length - 1) : dest;
       const list4 = slots?.length ? slots : [{ name: "", width: 2400 }];
@@ -106386,19 +106473,19 @@ Tiles are letterboxed (whole image shown). Save one with images_save({ image: "3
       const ext = fmt === "jpeg" ? "jpg" : fmt;
       const written = res.files.map((f3) => {
         const rel3 = `${stem3}${f3.name ? `-${f3.name}` : ""}.${ext}`;
-        const abs2 = path49.resolve(projectDir(), rel3);
-        fs50.mkdirSync(path49.dirname(abs2), { recursive: true });
-        fs50.writeFileSync(abs2, f3.buf);
+        const abs2 = path50.resolve(projectDir(), rel3);
+        fs51.mkdirSync(path50.dirname(abs2), { recursive: true });
+        fs51.writeFileSync(abs2, f3.buf);
         return { ...f3, rel: rel3 };
       });
       if (keepOriginal) {
-        const o2 = path49.resolve(projectDir(), `${stem3}-original${path49.extname(new URL(item.image, "file:///").pathname) || ".jpg"}`);
-        fs50.writeFileSync(o2, buf);
+        const o2 = path50.resolve(projectDir(), `${stem3}-original${path50.extname(new URL(item.image, "file:///").pathname) || ".jpg"}`);
+        fs51.writeFileSync(o2, buf);
       }
-      const log2 = path49.join(ensureProjectDrip(), "assets.json");
-      const prev = fs50.existsSync(log2) ? JSON.parse(fs50.readFileSync(log2, "utf8")) : [];
+      const log2 = path50.join(ensureProjectDrip(), "assets.json");
+      const prev = fs51.existsSync(log2) ? JSON.parse(fs51.readFileSync(log2, "utf8")) : [];
       for (const w of written) prev.push({ file: w.rel, source: item.url, author: item.designer || null, license: item.license || null, credit: credit || null, savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs50.writeFileSync(log2, JSON.stringify(prev, null, 2));
+      fs51.writeFileSync(log2, JSON.stringify(prev, null, 2));
       const web = (rel3) => "/" + rel3.replace(/\\/g, "/").replace(/^public\//, "");
       const phone = written.find((w) => w.height > w.width);
       const desk = written.find((w) => w.width >= w.height) || written[0];
@@ -106423,8 +106510,8 @@ var optical_exports = {};
 __export(optical_exports, {
   register: () => register14
 });
-import fs51 from "node:fs";
-import path50 from "node:path";
+import fs52 from "node:fs";
+import path51 from "node:path";
 init_imaging();
 init_paths();
 var pct = (v) => `${(v * 100).toFixed(1)}%`;
@@ -106444,7 +106531,7 @@ function register14(server2, ctx2) {
     safe(async ({ file: file4, svg, detail, width }) => {
       let buf;
       if (svg) buf = Buffer.from(svg);
-      else if (file4) buf = /^https?:/.test(file4) ? (await fetchImage(file4)).buf : fs51.readFileSync(path50.resolve(projectDir(), file4));
+      else if (file4) buf = /^https?:/.test(file4) ? (await fetchImage(file4)).buf : fs52.readFileSync(path51.resolve(projectDir(), file4));
       else return text("Pass file or svg.", true);
       const o2 = await opticalCenter(buf, { detail, config: ctx2.config() });
       if (o2.empty) return text("No shape found (the image is one flat colour?).", true);
@@ -106481,9 +106568,9 @@ __export(typecompare_exports, {
   strokeContrast: () => strokeContrast
 });
 var import_opentype = __toESM(require_opentype(), 1);
-import fs52 from "node:fs";
+import fs53 from "node:fs";
 import os10 from "node:os";
-import path51 from "node:path";
+import path52 from "node:path";
 import { pathToFileURL as pathToFileURL4 } from "node:url";
 init_browser();
 init_paths();
@@ -106497,10 +106584,10 @@ function familyName(font) {
 var parseFont = (buf) => import_opentype.default.parse(toArrayBuffer(Buffer.from(buf)));
 async function loadFontFile(spec, weight = 400) {
   const s2 = String(spec).trim();
-  const local = path51.resolve(projectDir(), s2);
+  const local = path52.resolve(projectDir(), s2);
   if (/\.(ttf|otf|woff)$/i.test(s2)) {
-    if (!fs52.existsSync(local)) throw new Error(`Font file not found: ${local}`);
-    return { buf: fs52.readFileSync(local), family: path51.basename(s2).replace(/\.[^.]+$/, ""), weight, id: local, local: true, format: path51.extname(s2).slice(1).toLowerCase() };
+    if (!fs53.existsSync(local)) throw new Error(`Font file not found: ${local}`);
+    return { buf: fs53.readFileSync(local), family: path52.basename(s2).replace(/\.[^.]+$/, ""), weight, id: local, local: true, format: path52.extname(s2).slice(1).toLowerCase() };
   }
   if (/\.woff2$/i.test(s2)) throw new Error("woff2 files can't be read for metrics; pass the .ttf, .otf or .woff of the same font");
   const id = s2.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -106645,9 +106732,9 @@ p{margin:0 0 18px;line-height:1.55;color:#3d3a33;max-width:62ch}
 footer{color:#77716a;font-size:12px;border-top:1px solid #e6e3da;padding-top:10px}</style><div class=g style="width:${width}px">${html}</div>`;
 }
 async function renderSheet(html, { width, config: config2 }) {
-  const dir = fs52.mkdtempSync(path51.join(os10.tmpdir(), "drip-fonts-"));
-  const file4 = path51.join(dir, "sheet.html");
-  fs52.writeFileSync(file4, html);
+  const dir = fs53.mkdtempSync(path52.join(os10.tmpdir(), "drip-fonts-"));
+  const file4 = path52.join(dir, "sheet.html");
+  fs53.writeFileSync(file4, html);
   try {
     return await withTab(config2, async (tab) => {
       await openPage(tab, pathToFileURL4(file4).href, { width, height: 900, settleMs: 400 });
@@ -106658,7 +106745,7 @@ async function renderSheet(html, { width, config: config2 }) {
     });
   } finally {
     try {
-      fs52.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      fs53.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
     } catch {
     }
   }
@@ -106711,8 +106798,8 @@ ${failed.join("\n")}`, true);
       const width = cards.length === 1 ? 900 : cards.length === 2 ? 1400 : 1500;
       const png2 = await renderSheet(sheetHtml(cards, { headline, body, sizes, width }), { width, config: ctx2.config() });
       const dir = rendersDir();
-      const file4 = path51.join(dir, `fonts-${stamp()}.png`);
-      fs52.writeFileSync(file4, png2);
+      const file4 = path52.join(dir, `fonts-${stamp()}.png`);
+      fs53.writeFileSync(file4, png2);
       return blocks([
         textBlock(`Compared ${cards.length} font${cards.length > 1 ? "s" : ""} (saved ${file4}):
 ${metricsTable(cards)}${failed.length ? `
@@ -106736,11 +106823,11 @@ __export(wordmark_exports, {
   pathData: () => pathData,
   register: () => register16
 });
-import fs53 from "node:fs";
-import path52 from "node:path";
+import fs54 from "node:fs";
+import path53 from "node:path";
 init_paths();
 var slug5 = (s2) => slug(s2, { max: 40, fallback: "wordmark" });
-var wordmarksDir = () => path52.join(ensureProjectDrip(), "wordmarks");
+var wordmarksDir = () => path53.join(ensureProjectDrip(), "wordmarks");
 var n2 = (v) => +v.toFixed(2);
 function pathData(p2) {
   return p2.commands.map((c3) => c3.type === "Z" ? "Z" : c3.type === "M" || c3.type === "L" ? `${c3.type}${n2(c3.x)} ${n2(c3.y)}` : c3.type === "Q" ? `Q${n2(c3.x1)} ${n2(c3.y1)} ${n2(c3.x)} ${n2(c3.y)}` : `C${n2(c3.x1)} ${n2(c3.y1)} ${n2(c3.x2)} ${n2(c3.y2)} ${n2(c3.x)} ${n2(c3.y)}`).join("");
@@ -106839,9 +106926,9 @@ function register16(server2, ctx2) {
     safe(async (args) => {
       let base = {};
       if (args.from) {
-        const f3 = path52.join(wordmarksDir(), slug5(args.from), "wordmark.json");
-        if (!fs53.existsSync(f3)) return text(`No saved wordmark "${args.from}" (looked for ${f3}). Build it first, or drop "from".`, true);
-        base = JSON.parse(fs53.readFileSync(f3, "utf8"));
+        const f3 = path53.join(wordmarksDir(), slug5(args.from), "wordmark.json");
+        if (!fs54.existsSync(f3)) return text(`No saved wordmark "${args.from}" (looked for ${f3}). Build it first, or drop "from".`, true);
+        base = JSON.parse(fs54.readFileSync(f3, "utf8"));
       }
       const spec = {
         text: args.text ?? base.text,
@@ -106863,10 +106950,10 @@ function register16(server2, ctx2) {
       if (missing.length) return text(`${file4.family} has no glyph for: ${[...new Set(missing)].join(" ")}. Pick another font or change the text.`, true);
       const out = buildWordmark(font, spec);
       const name = slug5(args.name || args.from || spec.text);
-      const dir = ensureDir(path52.join(wordmarksDir(), name));
+      const dir = ensureDir(path53.join(wordmarksDir(), name));
       const saved = { version: 1, ...spec, family: file4.family, usedWeight: file4.weight, fontFile: file4.local ? spec.font : void 0, savedAt: (/* @__PURE__ */ new Date()).toISOString() };
-      fs53.writeFileSync(path52.join(dir, "wordmark.svg"), out.svg);
-      fs53.writeFileSync(path52.join(dir, "wordmark.json"), JSON.stringify(saved, null, 2));
+      fs54.writeFileSync(path53.join(dir, "wordmark.svg"), out.svg);
+      fs54.writeFileSync(path53.join(dir, "wordmark.json"), JSON.stringify(saved, null, 2));
       const report = gapReport(out.gaps);
       const lines = [
         `Wordmark "${spec.text}" in ${file4.family} ${file4.weight}${file4.weight !== spec.weight ? ` (nearest to ${spec.weight})` : ""}: ${out.ink.w}x${out.ink.h} px ink at size ${spec.size}.`,
@@ -106877,7 +106964,7 @@ function register16(server2, ctx2) {
       ];
       const content = [textBlock(lines.join("\n"))];
       try {
-        const png2 = await renderHtml(previewHtml2(out.svg, spec), path52.join(dir, "preview.png"), { width: 1400, height: 572, config: ctx2.config() });
+        const png2 = await renderHtml(previewHtml2(out.svg, spec), path53.join(dir, "preview.png"), { width: 1400, height: 572, config: ctx2.config() });
         content.push(imageBlock(await toJpeg(png2, 1400, 600, 86)));
       } catch (err) {
         content.push(textBlock(`(No preview: ${String(err.message || err).slice(0, 120)})`));
@@ -106897,21 +106984,21 @@ var gen_exports = {};
 __export(gen_exports, {
   register: () => register20
 });
-import fs60 from "node:fs";
-import path59 from "node:path";
+import fs61 from "node:fs";
+import path60 from "node:path";
 import { pathToFileURL as pathToFileURL6 } from "node:url";
 init_paths();
 
 // src/core/doctor.mjs
 init_browser();
-import fs58 from "node:fs";
+import fs59 from "node:fs";
 import os12 from "node:os";
-import path57 from "node:path";
+import path58 from "node:path";
 init_paths();
 
 // src/core/codemode/execute.mjs
-import fs54 from "node:fs";
-import path53 from "node:path";
+import fs55 from "node:fs";
+import path54 from "node:path";
 init_paths();
 
 // src/core/codemode/allowlist.mjs
@@ -107246,7 +107333,7 @@ var RESULT_TYPE = "type ToolResult = { text: string; data?: any /* parsed when t
 // src/core/codemode/execute.mjs
 var MAX_CALL_TEXT = 2e5;
 function codemodeOutDir() {
-  return path53.join(projectDripDir(), "cli", "codemode");
+  return path54.join(projectDripDir(), "cli", "codemode");
 }
 function scriptTools(tools = collectTools(), config2 = loadConfig()) {
   const names3 = allowedTools([...tools.keys()], config2);
@@ -107267,9 +107354,9 @@ async function callForScript(name, args, { allowed, outDir, images, signal }) {
   for (const c3 of res?.content || []) {
     if (c3.type === "text") body += (body ? "\n" : "") + c3.text;
     else if (c3.type === "image") {
-      fs54.mkdirSync(outDir, { recursive: true });
-      const file4 = path53.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
-      fs54.writeFileSync(file4, Buffer.from(c3.data, "base64"));
+      fs55.mkdirSync(outDir, { recursive: true });
+      const file4 = path54.join(outDir, `${name}-${Date.now()}-${images.length + files.length + 1}.${c3.mimeType === "image/png" ? "png" : c3.mimeType === "image/webp" ? "webp" : "jpg"}`);
+      fs55.writeFileSync(file4, Buffer.from(c3.data, "base64"));
       files.push(file4);
     }
   }
@@ -107345,14 +107432,14 @@ __export(mockup_exports, {
   register: () => register19
 });
 import { execFile as execFile6 } from "node:child_process";
-import fs57 from "node:fs";
-import path56 from "node:path";
+import fs58 from "node:fs";
+import path57 from "node:path";
 init_browser();
 init_serve();
 
 // src/modules/fitcheck/readme.mjs
-import fs55 from "node:fs";
-import path54 from "node:path";
+import fs56 from "node:fs";
+import path55 from "node:path";
 init_browser();
 init_paths();
 init_serve();
@@ -107401,10 +107488,10 @@ function readmeImages(md) {
 }
 function localData(src, base) {
   if (/^(https?:)?\/\//i.test(src)) return { url: src, bytes: null };
-  const file4 = path54.resolve(base, src.replace(/^\.?\//, ""));
-  if (!fs55.existsSync(file4)) return { url: null, bytes: null, missing: file4 };
-  const buf = fs55.readFileSync(file4);
-  return { url: `data:${MIME3[path54.extname(file4).toLowerCase()] || "image/png"};base64,${buf.toString("base64")}`, bytes: buf.length };
+  const file4 = path55.resolve(base, src.replace(/^\.?\//, ""));
+  if (!fs56.existsSync(file4)) return { url: null, bytes: null, missing: file4 };
+  const buf = fs56.readFileSync(file4);
+  return { url: `data:${MIME3[path55.extname(file4).toLowerCase()] || "image/png"};base64,${buf.toString("base64")}`, bytes: buf.length };
 }
 function register18(server2, ctx2) {
   server2.registerTool(
@@ -107426,16 +107513,16 @@ function register18(server2, ctx2) {
     },
     safe(async ({ file: file4, html, out, width = 830, height = 600, scale = 2, fullPage = true, transparent = false, dark = false }) => {
       if (!file4 && !html) return text("Pass file or html.", true);
-      let src = file4 && path54.resolve(projectDir(), file4);
+      let src = file4 && path55.resolve(projectDir(), file4);
       if (!src) {
-        src = path54.join(rendersDir(`html-${stamp()}`), "page.html");
-        fs55.writeFileSync(src, /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
+        src = path55.join(rendersDir(`html-${stamp()}`), "page.html");
+        fs56.writeFileSync(src, /<html[\s>]/i.test(html) ? html : `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0}</style></head><body>${html}</body></html>`);
       }
-      if (!fs55.existsSync(src)) return text(`No such file: ${file4}`, true);
+      if (!fs56.existsSync(src)) return text(`No such file: ${file4}`, true);
       const { buf, height: h } = await shoot(await toUrl(src), { width, height, scale, transparent, dark, fullPage, config: ctx2.config() });
-      const dest = path54.resolve(projectDir(), out);
-      fs55.mkdirSync(path54.dirname(dest), { recursive: true });
-      fs55.writeFileSync(dest, buf);
+      const dest = path55.resolve(projectDir(), out);
+      fs56.mkdirSync(path55.dirname(dest), { recursive: true });
+      fs56.writeFileSync(dest, buf);
       const preview = await toJpeg(buf, 1200, 1600, 80);
       return blocks([textBlock(`Wrote ${out}: ${width * scale}x${Math.round(h * scale)} px (${width}x${h} CSS px at ${scale}x), ${Math.round(buf.length / 1024)} KB${transparent ? ", transparent background" : ""}.`), imageBlock(preview)]);
     })
@@ -107448,11 +107535,11 @@ function register18(server2, ctx2) {
       inputSchema: { file: external_exports.string().optional().describe("Default README.md") }
     },
     safe(async ({ file: file4 = "README.md" }) => {
-      const abs2 = path54.resolve(projectDir(), file4);
-      if (!fs55.existsSync(abs2)) return text(`No README at ${file4}.`, true);
-      const md = fs55.readFileSync(abs2, "utf8");
+      const abs2 = path55.resolve(projectDir(), file4);
+      if (!fs56.existsSync(abs2)) return text(`No README at ${file4}.`, true);
+      const md = fs56.readFileSync(abs2, "utf8");
       const imgs = readmeImages(md);
-      const base = path54.dirname(abs2);
+      const base = path55.dirname(abs2);
       const findings = [];
       if (/```mermaid/i.test(md)) findings.push({ level: "warn", msg: "mermaid block: GitHub draws it in its own style (and it renders blank in screenshots). An image you design reads better as a hero diagram." });
       const rows = imgs.map((im, i2) => {
@@ -107469,10 +107556,10 @@ function register18(server2, ctx2) {
       const page2 = `<!doctype html><html><head><meta charset="utf-8"><style>
         body{margin:0;background:#8b8f96;font:13px/1.3 system-ui;color:#111} .row{display:flex;gap:16px;align-items:flex-start;padding:16px;border-bottom:2px solid #6e737a}
         .lab{width:130px;color:#fff;font-weight:600} .c{padding:12px;box-sizing:content-box} .c img{width:100%;display:block}
-      </style></head><body>${rows.map((r2) => `<div class="row"><div class="lab">${r2.i}. ${path54.basename(r2.src)}<br><span style="font-weight:400">830 light \xB7 830 dark \xB7 309 phone</span></div>${cell(r2, "light", 830)}${cell(r2, "dark", 830)}${cell(r2, "light", 309)}</div>`).join("")}</body></html>`;
+      </style></head><body>${rows.map((r2) => `<div class="row"><div class="lab">${r2.i}. ${path55.basename(r2.src)}<br><span style="font-weight:400">830 light \xB7 830 dark \xB7 309 phone</span></div>${cell(r2, "light", 830)}${cell(r2, "dark", 830)}${cell(r2, "light", 309)}</div>`).join("")}</body></html>`;
       const dir = rendersDir(`readme-${stamp()}`);
-      const pageFile = path54.join(dir, "check.html");
-      fs55.writeFileSync(pageFile, page2);
+      const pageFile = path55.join(dir, "check.html");
+      fs56.writeFileSync(pageFile, page2);
       const config2 = ctx2.config();
       const { sizes, buf } = await withTab(config2, async (tab) => {
         const { s: s2 } = tab;
@@ -107494,8 +107581,8 @@ function register18(server2, ctx2) {
         if (sz && !sz.w) findings.push({ level: "error", msg: `image ${r2.i} (${r2.src}): did not load` });
         if (!r2.dark) findings.push({ level: "info", msg: `image ${r2.i} (${r2.src}): one variant for both themes; check its edges and text on the dark ground in the sheet (or add a <picture> with a prefers-color-scheme: dark source)` });
       }
-      const sheet = path54.join(dir, "readme-check.jpg");
-      fs55.writeFileSync(sheet, buf);
+      const sheet = path55.join(dir, "readme-check.jpg");
+      fs56.writeFileSync(sheet, buf);
       const errors = findings.filter((f3) => f3.level === "error");
       updateState((st) => {
         if (!st.task || st.task.surface !== "readme") return;
@@ -107517,9 +107604,9 @@ function register18(server2, ctx2) {
 }
 
 // src/modules/studio/raster.mjs
-import fs56 from "node:fs";
+import fs57 from "node:fs";
 import os11 from "node:os";
-import path55 from "node:path";
+import path56 from "node:path";
 import { pathToFileURL as pathToFileURL5 } from "node:url";
 init_imaging();
 init_paths();
@@ -107528,11 +107615,11 @@ async function loadOptional(name) {
     return await import(name);
   } catch {
   }
-  const dir = path55.join(homeDripDir, "vendor", "node_modules", name);
+  const dir = path56.join(homeDripDir, "vendor", "node_modules", name);
   try {
-    const pkg = JSON.parse(fs56.readFileSync(path55.join(dir, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs57.readFileSync(path56.join(dir, "package.json"), "utf8"));
     const entry = typeof pkg.module === "string" ? pkg.module : typeof pkg.exports === "string" ? pkg.exports : pkg.exports?.["."]?.import || pkg.exports?.["."]?.default || pkg.exports?.["."] || pkg.main || "index.js";
-    return await import(pathToFileURL5(path55.join(dir, typeof entry === "string" ? entry : "index.js")).href);
+    return await import(pathToFileURL5(path56.join(dir, typeof entry === "string" ? entry : "index.js")).href);
   } catch {
     return null;
   }
@@ -107548,9 +107635,9 @@ async function optimizeSvg(svg) {
   }
 }
 function projectPath(out) {
-  const root = path55.resolve(projectDir());
-  const abs2 = path55.resolve(root, out);
-  if (abs2 !== root && !abs2.startsWith(root + path55.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
+  const root = path56.resolve(projectDir());
+  const abs2 = path56.resolve(root, out);
+  if (abs2 !== root && !abs2.startsWith(root + path56.sep)) throw new Error(`"${out}" is outside the project (${root}). Use a project-relative path such as public/img/hero.webp.`);
   return abs2;
 }
 async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, rasterizer = "browser", config: config2 } = {}) {
@@ -107560,9 +107647,9 @@ async function rasterizeSvg(svg, { width, height, format = "png", maxKB = 400, r
     const png3 = Buffer.from(new mod.Resvg(svg, { fitTo: { mode: "width", value: width } }).render().asPng());
     return format === "png" ? png3 : encode5(png3, { width, format, maxKB, config: config2 });
   }
-  const file4 = path55.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
+  const file4 = path56.join(rendersDir("studio"), `raster-${stamp()}-${Math.random().toString(36).slice(2, 6)}.png`);
   const png2 = await renderHtml(`<div style="width:${width}px;height:${height}px;overflow:hidden;line-height:0">${svg.replace(/<svg /, `<svg style="display:block;width:${width}px;height:${height}px" `)}</div>`, file4, { width, height, config: config2 });
-  fs56.rmSync(file4, { force: true });
+  fs57.rmSync(file4, { force: true });
   return format === "png" ? png2 : encode5(png2, { width, format, maxKB, config: config2 });
 }
 async function encode5(png2, { width, format, maxKB, config: config2 }) {
@@ -107571,12 +107658,12 @@ async function encode5(png2, { width, format, maxKB, config: config2 }) {
 }
 function saveFile(out, data) {
   const abs2 = projectPath(out);
-  fs56.mkdirSync(path55.dirname(abs2), { recursive: true });
-  fs56.writeFileSync(abs2, data);
-  return { abs: abs2, rel: path55.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs56.statSync(abs2).size / 1024)) };
+  fs57.mkdirSync(path56.dirname(abs2), { recursive: true });
+  fs57.writeFileSync(abs2, data);
+  return { abs: abs2, rel: path56.relative(projectDir(), abs2).replace(/\\/g, "/"), kb: Math.max(1, Math.round(fs57.statSync(abs2).size / 1024)) };
 }
 function logAsset(entries) {
-  const log2 = path55.join(ensureProjectDrip(), "assets.json");
+  const log2 = path56.join(ensureProjectDrip(), "assets.json");
   withLock(log2, () => {
     const prev = readJson(log2, []);
     for (const e2 of entries) prev.push({ credit: null, author: null, savedAt: (/* @__PURE__ */ new Date()).toISOString(), ...e2 });
@@ -107591,11 +107678,11 @@ async function previewBlock(buf, maxW = 1280, maxH = 900) {
   }
 }
 function tempDir(prefix = "drip-studio-") {
-  return fs56.mkdtempSync(path55.join(os11.tmpdir(), prefix));
+  return fs57.mkdtempSync(path56.join(os11.tmpdir(), prefix));
 }
 function cleanDir(dir) {
   try {
-    fs56.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+    fs57.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
   } catch {
   }
 }
@@ -107613,22 +107700,22 @@ var MOCKSTUDIO = {
   aspects: ["16:9", "9:16", "1:1", "4:5", "3:2", "4:3", "match-frame"]
 };
 var SCREEN = { "iphone-17-pro": { width: 402, height: 874, scale: 3 }, "studio-display": { width: 1600, height: 900, scale: 2 }, slab: { width: 1440, height: 900, scale: 2 } };
-var mockstudioDir = () => path56.join(vendorDir(), "mockstudio");
-var presetsDir = () => path56.join(mockstudioDir(), "drip-presets");
-var mockstudioReady2 = () => fs57.existsSync(path56.join(mockstudioDir(), "dist", "index.html")) && fs57.existsSync(path56.join(presetsDir(), "look.studio.json"));
+var mockstudioDir = () => path57.join(vendorDir(), "mockstudio");
+var presetsDir = () => path57.join(mockstudioDir(), "drip-presets");
+var mockstudioReady2 = () => fs58.existsSync(path57.join(mockstudioDir(), "dist", "index.html")) && fs58.existsSync(path57.join(presetsDir(), "look.studio.json"));
 function run2(file4, args, opts = {}) {
   return new Promise((resolve2, reject) => {
     execFile6(
       file4,
       args,
       { timeout: 9e5, windowsHide: true, maxBuffer: 32 * 1024 * 1024, ...opts },
-      (err, stdout, stderr) => err ? reject(new Error(`${path56.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
+      (err, stdout, stderr) => err ? reject(new Error(`${path57.basename(file4)} ${args.slice(0, 3).join(" ")} failed: ${String(stderr || err.message).trim().split("\n").slice(-4).join(" ")}`)) : resolve2(stdout)
     );
   });
 }
 function npx() {
-  const bin = path56.dirname(process.execPath);
-  for (const p2 of [path56.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path56.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs57.existsSync(p2)) return [process.execPath, [p2]];
+  const bin = path57.dirname(process.execPath);
+  for (const p2 of [path57.join(bin, "node_modules", "npm", "bin", "npx-cli.js"), path57.join(bin, "..", "lib", "node_modules", "npm", "bin", "npx-cli.js")]) if (fs58.existsSync(p2)) return [process.execPath, [p2]];
   return [process.platform === "win32" ? "npx.cmd" : "npx", []];
 }
 function diffPatch(base, next) {
@@ -107656,8 +107743,8 @@ function mergePatch(target, patch) {
 async function installMockstudio(log2 = () => {
 }) {
   const dir = mockstudioDir();
-  fs57.mkdirSync(path56.dirname(dir), { recursive: true });
-  if (!fs57.existsSync(path56.join(dir, ".git"))) {
+  fs58.mkdirSync(path57.dirname(dir), { recursive: true });
+  if (!fs58.existsSync(path57.join(dir, ".git"))) {
     log2(`Cloning MockStudio ${MOCKSTUDIO.sha.slice(0, 7)} ...`);
     await run2("git", ["clone", "--filter=blob:none", "--quiet", MOCKSTUDIO.repo, dir]);
   }
@@ -107672,24 +107759,24 @@ async function installMockstudio(log2 = () => {
   await run2(npxFile, [...npxPre, "-y", MOCKSTUDIO.pnpm, "build"], { cwd: dir, env });
   log2("Saving the Look / Camera / Motion presets ...");
   const pd = presetsDir();
-  fs57.mkdirSync(pd, { recursive: true });
-  const cli = path56.join(dir, "bin", "mockstudio.mjs");
+  fs58.mkdirSync(pd, { recursive: true });
+  const cli = path57.join(dir, "bin", "mockstudio.mjs");
   const compose = async (args, name) => {
-    const out = path56.join(pd, `${name}.json`);
+    const out = path57.join(pd, `${name}.json`);
     await run2(process.execPath, [cli, "compose", ...args, "--out", out], { cwd: dir, env });
-    return JSON.parse(fs57.readFileSync(out, "utf8"));
+    return JSON.parse(fs58.readFileSync(out, "utf8"));
   };
   const base = await compose(["--default"], "default");
   for (const l2 of MOCKSTUDIO.looks) await compose(["--look", l2], `look.${l2}`);
-  for (const c3 of MOCKSTUDIO.cameras) fs57.writeFileSync(path56.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
-  for (const m of MOCKSTUDIO.motions) fs57.writeFileSync(path56.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
-  fs57.rmSync(path56.join(pd, "tmp.json"), { force: true });
+  for (const c3 of MOCKSTUDIO.cameras) fs58.writeFileSync(path57.join(pd, `camera.${c3}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--camera", c3], `tmp`))));
+  for (const m of MOCKSTUDIO.motions) fs58.writeFileSync(path57.join(pd, `motion.${m}.json`), JSON.stringify(diffPatch(base, await compose(["--default", "--motion", m], `tmp`))));
+  fs58.rmSync(path57.join(pd, "tmp.json"), { force: true });
   log2("Removing the build dependencies (the built site is all Drip needs) ...");
-  fs57.rmSync(path56.join(dir, "node_modules"), { recursive: true, force: true });
+  fs58.rmSync(path57.join(dir, "node_modules"), { recursive: true, force: true });
   return { dir, ok: mockstudioReady2() };
 }
 var ASPECT = { "16:9": 16 / 9, "9:16": 9 / 16, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "4:3": 4 / 3 };
-function buildDocument(o2, presets = (n3) => JSON.parse(fs57.readFileSync(path56.join(presetsDir(), `${n3}.json`), "utf8"))) {
+function buildDocument(o2, presets = (n3) => JSON.parse(fs58.readFileSync(path57.join(presetsDir(), `${n3}.json`), "utf8"))) {
   let doc = presets(`look.${o2.look || "studio"}`);
   if (o2.camera) doc = mergePatch(doc, presets(`camera.${o2.camera}`));
   if (o2.motion) doc = mergePatch(doc, presets(`motion.${o2.motion}`));
@@ -107707,12 +107794,12 @@ function credits(device) {
   const lines = [`Rendered with MockStudio (Apache-2.0) ${MOCKSTUDIO.repo}`];
   if (device === "slab") return lines;
   try {
-    const notice = fs57.readFileSync(path56.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
+    const notice = fs58.readFileSync(path57.join(mockstudioDir(), "public", "models", "NOTICE"), "utf8");
     const row = notice.split(/\r?\n/).find((l2) => l2.startsWith("|") && l2.split("|")[1]?.trim() === device);
     const [, , , title, author, license, source] = row.split("|").map((c3) => c3.trim());
     lines.push(`3D model: "${title}" by ${author}, ${license}, ${source}`);
   } catch {
-    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path56.join(mockstudioDir(), "public", "models", "NOTICE")})`);
+    lines.push(`3D model: ${device}, CC-BY 4.0 (see ${path57.join(mockstudioDir(), "public", "models", "NOTICE")})`);
   }
   return lines;
 }
@@ -107722,8 +107809,8 @@ async function screenBytes(image2, device, config2) {
     const { buf: buf2 } = await shoot(await toUrl(projectPath(image2)), { width: s2.width, height: s2.height, scale: s2.scale, transparent: false, dark: false, fullPage: false, config: config2 });
     return { buf: buf2, mime: "image/png", name: "screen.png" };
   }
-  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs57.readFileSync(projectPath(image2));
-  const ext = path56.extname(image2.split("?")[0]).toLowerCase();
+  const buf = /^https?:/i.test(image2) ? (await fetchImage(image2)).buf : fs58.readFileSync(projectPath(image2));
+  const ext = path57.extname(image2.split("?")[0]).toLowerCase();
   return { buf, mime: ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".webp" ? "image/webp" : "image/png", name: `screen${ext || ".png"}` };
 }
 function register19(server2, ctx2) {
@@ -107754,7 +107841,7 @@ function register19(server2, ctx2) {
       if (!mockstudioReady2()) return text("MockStudio isn't installed yet. Run `drip doctor --install mockstudio` once (it clones a pinned version into ~/.drip/vendor and builds it; a few minutes), then call mockup_render again.", true);
       const config2 = ctx2.config();
       const device = o2.device || "iphone-17-pro";
-      const ext = path56.extname(o2.out).toLowerCase().slice(1);
+      const ext = path57.extname(o2.out).toLowerCase().slice(1);
       const video = ["mp4", "webm"].includes(ext);
       if (video && !o2.motion) return text("A clip needs a motion (orbit, dolly-in, reveal, drift).", true);
       const doc = buildDocument(o2);
@@ -107763,7 +107850,7 @@ function register19(server2, ctx2) {
       const W = o2.width || 1600;
       const aspect = ASPECT[doc.artboard?.aspect] || (device === "iphone-17-pro" ? 9 / 19.5 : 16 / 10);
       const H = Math.round(W / aspect / 2) * 2;
-      const base = await serveDir(path56.join(mockstudioDir(), "dist"));
+      const base = await serveDir(path57.join(mockstudioDir(), "dist"));
       const t0 = Date.now();
       const b64 = await withTab(config2, async (tab) => {
         await openPage(tab, `${base}/?render`, { width: 1280, height: 900, settleMs: 100 });
@@ -107813,12 +107900,12 @@ Scene saved as .mock.json next to it: change one thing with patch and render aga
 // src/core/doctor.mjs
 function onPath(names3) {
   const exts = process.platform === "win32" ? (process.env.PATHEXT || ".EXE;.CMD;.BAT").split(";").concat("") : [""];
-  for (const dir of (process.env.PATH || "").split(path57.delimiter).filter(Boolean)) {
+  for (const dir of (process.env.PATH || "").split(path58.delimiter).filter(Boolean)) {
     for (const n3 of names3) {
       for (const e2 of exts) {
-        const f3 = path57.join(dir, n3 + e2);
+        const f3 = path58.join(dir, n3 + e2);
         try {
-          if (fs58.statSync(f3).isFile()) return f3;
+          if (fs59.statSync(f3).isFile()) return f3;
         } catch {
         }
       }
@@ -107832,18 +107919,18 @@ function findBlender() {
   const found = [];
   const scan2 = (base, rel3) => {
     try {
-      for (const d of fs58.readdirSync(base)) found.push(path57.join(base, d, rel3));
+      for (const d of fs59.readdirSync(base)) found.push(path58.join(base, d, rel3));
     } catch {
     }
   };
   if (process.platform === "win32") {
-    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path57.join(pf, "Blender Foundation"), "blender.exe");
+    for (const pf of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], "C:\\Program Files"].filter(Boolean)) scan2(path58.join(pf, "Blender Foundation"), "blender.exe");
   } else if (process.platform === "darwin") {
     found.push("/Applications/Blender.app/Contents/MacOS/Blender");
   } else {
-    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path57.join(os12.homedir(), "blender", "blender"));
+    found.push("/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender", "/opt/blender/blender", path58.join(os12.homedir(), "blender", "blender"));
   }
-  return found.find((f3) => fs58.existsSync(f3)) || null;
+  return found.find((f3) => fs59.existsSync(f3)) || null;
 }
 var check3 = (id, label, status, detail, fix) => ({ id, label, status, detail, ...fix ? { fix } : {} });
 var BLENDER_GET = "download it from blender.org/download and put it on PATH.";
@@ -107857,8 +107944,8 @@ async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   const blender = findBlender();
   checks.push(blender ? check3("blender", "Blender (optional)", "ok", blender) : check3("blender", "Blender (optional)", "info", "not found (only 3D renders need it)", "Blender is optional: " + BLENDER_GET));
   const uvx = onPath(["uvx"]);
-  const ms = path57.join(vendor0(), "mockstudio", "dist", "index.html");
-  checks.push(fs58.existsSync(ms) ? check3("mockstudio", "MockStudio (device mockups)", "ok", path57.dirname(path57.dirname(ms))) : check3("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
+  const ms = path58.join(vendor0(), "mockstudio", "dist", "index.html");
+  checks.push(fs59.existsSync(ms) ? check3("mockstudio", "MockStudio (device mockups)", "ok", path58.dirname(path58.dirname(ms))) : check3("mockstudio", "MockStudio (device mockups)", "info", "not installed (mockup_render needs it)", "drip doctor --fix --yes (or drip doctor --install mockstudio)"));
   checks.push(uvx ? check3("uvx", "uvx (optional)", "ok", uvx) : check3("uvx", "uvx (optional)", "info", "not found (only the dry-lint check uses it)", "Install uv from docs.astral.sh/uv."));
   const vendor = vendorDir();
   const installed = Object.keys(VENDOR_DEPS).filter((n3) => vendorResolve(n3));
@@ -107869,15 +107956,15 @@ async function runDoctor({ hostsDoctor, config: cfg, chrome: chromeIn } = {}) {
   checks.push(check3("keys", "API keys (optional)", "info", set2.length ? `set: ${set2.join(", ")}; not set: ${names3.filter((n3) => !set2.includes(n3)).join(", ") || "none"}` : `none set (${names3.join(", ")})`, "Run the keys_open tool, or set the environment variables."));
   const proj = projectDir();
   const dripDir = projectDripDir();
-  const hasDrip = fs58.existsSync(dripDir);
+  const hasDrip = fs59.existsSync(dripDir);
   checks.push(check3("project", "Project", "ok", `${proj}${hasDrip ? " (.drip folder present)" : " (no .drip folder yet; created on first use)"}`));
-  checks.push(check3("plugin", "Plugin root", fs58.existsSync(path57.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
+  checks.push(check3("plugin", "Plugin root", fs59.existsSync(path58.join(pluginRoot, "skills")) ? "ok" : "warn", pluginRoot, "Set the plugin location if skills are missing."));
   checks.push(check3("home", "User folder", "ok", homeDripDir));
   let state = "no task";
   try {
-    const f3 = path57.join(dripDir, "state.json");
-    if (fs58.existsSync(f3)) {
-      const raw = JSON.parse(fs58.readFileSync(f3, "utf8"));
+    const f3 = path58.join(dripDir, "state.json");
+    if (fs59.existsSync(f3)) {
+      const raw = JSON.parse(fs59.readFileSync(f3, "utf8"));
       const n3 = Object.keys(raw.tasks || (raw.task ? { x: 1 } : {})).length;
       state = `${n3} open task${n3 === 1 ? "" : "s"}`;
     }
@@ -107981,8 +108068,8 @@ async function installPreflight({ config: config2, chrome } = {}) {
 
 // src/modules/gen/settings.mjs
 init_paths();
-import fs59 from "node:fs";
-import path58 from "node:path";
+import fs60 from "node:fs";
+import path59 from "node:path";
 var KEYS2 = [
   ["openai", "Image generation (gpt-image)"],
   ["gemini", "Image generation (Gemini)"],
@@ -107998,14 +108085,14 @@ var SWITCHES = [
   ["builders", "Builders", "The session directs and one or two Sonnet builders write the code. Off: the session builds alone.", (c3) => c3.swarm !== false, (on) => ({ swarm: on })],
   ["full", "Full process by default", "Moodboard, three directions and a design system before building. Off: the fast loop (a page in about ten minutes).", (c3) => c3.loop === "full", (on) => ({ loop: on ? "full" : "fast" })]
 ];
-var globalFile = () => path58.join(homeDripDir, "config.json");
+var globalFile = () => path59.join(homeDripDir, "config.json");
 var readJson2 = (f3) => readJson(f3, {});
 function writeGlobalConfig(patch) {
-  fs59.mkdirSync(homeDripDir, { recursive: true });
-  fs59.writeFileSync(globalFile(), JSON.stringify(merge2(readJson2(globalFile()), patch), null, 2));
+  fs60.mkdirSync(homeDripDir, { recursive: true });
+  fs60.writeFileSync(globalFile(), JSON.stringify(merge2(readJson2(globalFile()), patch), null, 2));
 }
 function projectOverrides(cwd) {
-  const p2 = readJson2(path58.join(projectDripDir(cwd), "config.json"));
+  const p2 = readJson2(path59.join(projectDripDir(cwd), "config.json"));
   const out = [];
   if (p2.gates && "enforce" in p2.gates) out.push("checks");
   if (p2.gates && "fastCritic" in p2.gates) out.push("critic");
@@ -108210,11 +108297,11 @@ async function openKeyPage(names3) {
 var BUILT_IN = [openai_default, gemini_default];
 async function providers() {
   const list4 = [...BUILT_IN];
-  const dir = path59.join(homeDripDir, "providers");
-  if (fs60.existsSync(dir))
-    for (const f3 of fs60.readdirSync(dir).filter((f4) => f4.endsWith(".mjs"))) {
+  const dir = path60.join(homeDripDir, "providers");
+  if (fs61.existsSync(dir))
+    for (const f3 of fs61.readdirSync(dir).filter((f4) => f4.endsWith(".mjs"))) {
       try {
-        const mod = await import(pathToFileURL6(path59.join(dir, f3)).href);
+        const mod = await import(pathToFileURL6(path60.join(dir, f3)).href);
         if (mod.default?.id && mod.default?.generate) list4.push(mod.default);
       } catch {
       }
@@ -108250,14 +108337,14 @@ function register20(server2, ctx2) {
       }
       const refImgs = await Promise.all(refs.map((u2) => fetchImage(u2)));
       const imgs = await p2.generate({ prompt, aspect, model: model || config2.gen.providers?.[p2.id]?.model, refs: refImgs }, key);
-      const file4 = path59.resolve(projectDir(), out);
-      fs60.mkdirSync(path59.dirname(file4), { recursive: true });
-      fs60.writeFileSync(file4, imgs[0].buf);
+      const file4 = path60.resolve(projectDir(), out);
+      fs61.mkdirSync(path60.dirname(file4), { recursive: true });
+      fs61.writeFileSync(file4, imgs[0].buf);
       logUsage({ kind: "gen_image", provider: p2.id, model: model || config2.gen.providers?.[p2.id]?.model, out, prompt: prompt.slice(0, 300) });
-      const log2 = path59.join(ensureProjectDrip(), "assets.json");
-      const list4 = fs60.existsSync(log2) ? JSON.parse(fs60.readFileSync(log2, "utf8")) : [];
+      const log2 = path60.join(ensureProjectDrip(), "assets.json");
+      const list4 = fs61.existsSync(log2) ? JSON.parse(fs61.readFileSync(log2, "utf8")) : [];
       list4.push({ file: out, source: `generated by ${p2.label}`, prompt, license: "generated (check provider terms)", savedAt: (/* @__PURE__ */ new Date()).toISOString() });
-      fs60.writeFileSync(log2, JSON.stringify(list4, null, 2));
+      fs61.writeFileSync(log2, JSON.stringify(list4, null, 2));
       return blocks([{ type: "text", text: `Saved ${out} via ${p2.label}. Judge it against the direction; if it misses, change one thing in the prompt and regenerate.` }, imageBlock(await toJpeg(imgs[0].buf, 1400, 1400))]);
     })
   );
@@ -108310,10 +108397,10 @@ init_paths();
 import fs64 from "node:fs";
 
 // src/modules/fitcheck/drift.mjs
-import fs61 from "node:fs";
-import path60 from "node:path";
+import fs62 from "node:fs";
+import path61 from "node:path";
 var HEX = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
-var norm4 = (h) => {
+var norm5 = (h) => {
   h = h.toLowerCase();
   return h.length === 4 ? `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}` : h;
 };
@@ -108321,13 +108408,13 @@ function cssFiles(root, out = [], depth = 4) {
   if (depth < 0 || out.length > 60) return out;
   let entries;
   try {
-    entries = fs61.readdirSync(root, { withFileTypes: true });
+    entries = fs62.readdirSync(root, { withFileTypes: true });
   } catch {
     return out;
   }
   for (const e2 of entries) {
     if (/^(node_modules|\.git|\.next|dist|build|\.drip|out|coverage)$/.test(e2.name)) continue;
-    const f3 = path60.join(root, e2.name);
+    const f3 = path61.join(root, e2.name);
     if (e2.isDirectory()) cssFiles(f3, out, depth - 1);
     else if (/\.(css|scss|html)$/i.test(e2.name) || /tailwind\.config\.(js|ts|mjs|cjs)$/.test(e2.name)) out.push(f3);
   }
@@ -108341,21 +108428,21 @@ function tokens(src) {
   return out;
 }
 function designDrift(root, docFile) {
-  const doc = fs61.readFileSync(docFile, "utf8");
-  const docHex = new Set((doc.match(HEX) || []).map(norm4));
+  const doc = fs62.readFileSync(docFile, "utf8");
+  const docHex = new Set((doc.match(HEX) || []).map(norm5));
   const files = cssFiles(root);
   const defined = {};
   const used = /* @__PURE__ */ new Set();
   const families = /* @__PURE__ */ new Set();
   for (const f3 of files) {
-    const src = fs61.readFileSync(f3, "utf8");
+    const src = fs62.readFileSync(f3, "utf8");
     Object.assign(defined, tokens(src));
-    for (const h of src.match(HEX) || []) used.add(norm4(h));
+    for (const h of src.match(HEX) || []) used.add(norm5(h));
     for (const m of src.matchAll(/font-family\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
     for (const m of src.matchAll(/--font[\w-]*\s*:\s*["']?([^"',;]+)/gi)) families.add(m[1].trim());
     for (const m of src.matchAll(/fonts\.googleapis\.com\/css2?\?family=([^&"')]+)/gi)) families.add(decodeURIComponent(m[1]).replace(/\+/g, " ").split(":")[0]);
   }
-  const tokenHex = new Set(Object.values(defined).flatMap((v) => (v.match(HEX) || []).map(norm4)));
+  const tokenHex = new Set(Object.values(defined).flatMap((v) => (v.match(HEX) || []).map(norm5)));
   const issues = [];
   const missing = [...docHex].filter((h) => !used.has(h));
   if (missing.length) issues.push(`DESIGN.md names ${missing.join(" ")} but no stylesheet uses ${missing.length > 1 ? "them" : "it"}: update DESIGN.md or the tokens`);
@@ -108373,8 +108460,8 @@ function designDrift(root, docFile) {
 init_serve();
 
 // src/modules/fitcheck/compare.mjs
-import fs62 from "node:fs";
-import path61 from "node:path";
+import fs63 from "node:fs";
+import path62 from "node:path";
 init_paths();
 init_serve();
 init_chrome();
@@ -108390,13 +108477,13 @@ async function sourceImage(src, { width, height, config: config2 }) {
   if (comp) {
     const board = task?.board?.id && loadBoard(task.board.id);
     const d = board?.directions?.find((x2) => x2.name.toLowerCase() === comp[1].trim().toLowerCase()) || comp[1] === "chosen" && board?.directions?.find((x2) => x2.name === board.chosen);
-    if (!d?.tile || !fs62.existsSync(d.tile)) throw new Error(`No rendered comp for "${comp[1]}" (board_directions renders them).`);
-    return fs62.readFileSync(d.tile);
+    if (!d?.tile || !fs63.existsSync(d.tile)) throw new Error(`No rendered comp for "${comp[1]}" (board_directions renders them).`);
+    return fs63.readFileSync(d.tile);
   }
   if (/^https?:/i.test(src) || /\.html?$/i.test(src)) return screenshot(await toUrl(src), { width, height, format: "jpeg", quality: 82, config: config2 });
   if (/^data:/.test(src)) return Buffer.from(src.split(",")[1], "base64");
-  const abs2 = path61.resolve(projectDir(), src);
-  if (fs62.existsSync(abs2)) return fs62.readFileSync(abs2);
+  const abs2 = path62.resolve(projectDir(), src);
+  if (fs63.existsSync(abs2)) return fs63.readFileSync(abs2);
   return (await fetchImage(src)).buf;
 }
 function register21(server2, ctx2) {
@@ -108423,7 +108510,7 @@ function register21(server2, ctx2) {
       const H = 48 + (title ? 44 : 0) + rows * (cellH + 70) + 20;
       const html = `<style>body{margin:0;background:#ECEBE7;font:15px system-ui;color:#111;padding:24px}h1{font:600 22px system-ui;margin:0 0 20px}.g{display:grid;grid-template-columns:repeat(${cols},${cellW}px);gap:20px}figure{margin:0}.i{width:${cellW}px;height:${cellH}px;background:#fff;border-radius:10px;overflow:hidden;display:grid;place-items:center;border:1px solid #d6d3cb}.i img{width:100%;height:100%;object-fit:contain;display:block}figcaption{margin-top:8px}figcaption b{display:inline-block;min-width:22px;background:#111;color:#fff;border-radius:6px;text-align:center;margin-right:6px}.e{color:#b3261e;padding:20px}</style>
 ${title ? `<h1>${escHtml(title)}</h1>` : ""}<div class="g">${imgs.map((it, i2) => `<figure><div class="i">${it.buf ? `<img src="${dataUrl(it.buf, mimeOf(it.buf))}">` : `<div class="e">${escHtml(it.err)}</div>`}</div><figcaption><b>${String.fromCharCode(65 + i2)}</b>${escHtml(it.label || it.src)}${it.note ? ` \xB7 ${escHtml(it.note)}` : ""}</figcaption></figure>`).join("")}</div>`;
-      const file4 = path61.join(rendersDir("compare"), `compare-${stamp()}.jpg`);
+      const file4 = path62.join(rendersDir("compare"), `compare-${stamp()}.jpg`);
       const sheet = await renderHtml(html, file4, { width: W, height: H, format: "jpeg", quality: 85, config: config2 });
       return blocks([
         textBlock(`Saved ${file4}
@@ -108456,7 +108543,7 @@ Judge: which one would a stranger remember? What does the winner do that the oth
     },
     safe(async (a2) => {
       const config2 = ctx2.config();
-      const tpl = fs62.readFileSync(path61.join(kitDir, "brand-board.html"), "utf8");
+      const tpl = fs63.readFileSync(path62.join(kitDir, "brand-board.html"), "utf8");
       const byRole = (r2) => a2.palette.find((p2) => p2.role.toLowerCase().includes(r2))?.hex;
       const ground = byRole("ground") || byRole("background") || a2.palette[0].hex;
       const ink2 = byRole("ink") || byRole("text") || a2.palette[1].hex;
@@ -108468,16 +108555,16 @@ Judge: which one would a stranger remember? What does the winner do that the oth
       if (a2.logo) {
         if (/^\s*<svg/i.test(a2.logo)) logo = a2.logo;
         else {
-          const abs2 = path61.resolve(projectDir(), a2.logo);
-          const buf = fs62.existsSync(abs2) ? fs62.readFileSync(abs2) : (await fetchImage(a2.logo)).buf;
+          const abs2 = path62.resolve(projectDir(), a2.logo);
+          const buf = fs63.existsSync(abs2) ? fs63.readFileSync(abs2) : (await fetchImage(a2.logo)).buf;
           logo = /<svg/i.test(buf.subarray(0, 400).toString()) ? buf.toString("utf8").replace(/<\?xml[^>]*>/, "") : `<img src="${dataUrl(buf, mimeOf(buf))}">`;
         }
       }
       const total = a2.palette.reduce((t2, p2) => t2 + (p2.share || 10), 0);
       const swatches = a2.palette.map((p2) => `<div class="sw" style="flex:${p2.share || 10};background:${p2.hex};color:${lum2(p2.hex) > 150 ? "#111" : "#fff"}"><b>${escHtml(p2.role)}</b><span>${escHtml(p2.hex.toUpperCase())}${p2.share ? ` \xB7 ${Math.round((p2.share || 10) / total * 100)}%` : ""}</span></div>`).join("");
       const imgs = await Promise.all((a2.images || []).map(async (src) => {
-        const abs2 = path61.resolve(projectDir(), src);
-        const buf = fs62.existsSync(abs2) ? fs62.readFileSync(abs2) : (await fetchImage(src)).buf;
+        const abs2 = path62.resolve(projectDir(), src);
+        const buf = fs63.existsSync(abs2) ? fs63.readFileSync(abs2) : (await fetchImage(src)).buf;
         return `<img src="${dataUrl(buf, mimeOf(buf))}">`;
       }));
       const fam = (f3, w) => `family=${encodeURIComponent(f3).replace(/%20/g, "+")}:wght@${w}`;
@@ -108503,8 +108590,8 @@ Judge: which one would a stranger remember? What does the winner do that the oth
       };
       const html = tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => fill[k] ?? "");
       const dir = rendersDir("brand");
-      const base = path61.join(dir, `brand-${a2.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
-      fs62.writeFileSync(`${base}.html`, html);
+      const base = path62.join(dir, `brand-${a2.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+      fs63.writeFileSync(`${base}.html`, html);
       const jpg = await renderHtml(html, `${base}.jpg`, { width: 1600, height: 1e3, format: "jpeg", quality: 88, config: config2 });
       const doc = designDoc();
       return blocks([
@@ -108518,57 +108605,6 @@ Check: does the mark hold on its ground? Do the shares feel like the direction (
 
 // src/modules/fitcheck/index.mjs
 init_chrome();
-
-// src/core/pieces-check.mjs
-init_paths();
-import fs63 from "node:fs";
-import path62 from "node:path";
-var norm5 = (s2) => String(s2 || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-function pieceKey(piece) {
-  if (!piece || /^custom/i.test(piece)) return null;
-  const last = String(piece).split(/[/@]/).filter(Boolean).pop() || "";
-  return norm5(last.replace(/\.json$/i, "").replace(/-(TS|JS)-(TW|CSS)$/i, "")) || null;
-}
-function walk(dir, out = [], depth = 6) {
-  if (depth < 0 || !fs63.existsSync(dir)) return out;
-  for (const e2 of fs63.readdirSync(dir, { withFileTypes: true })) {
-    if (e2.name === "node_modules" || e2.name.startsWith(".")) continue;
-    const f3 = path62.join(dir, e2.name);
-    if (e2.isDirectory()) walk(f3, out, depth - 1);
-    else if (/\.(tsx|ts|jsx|js)$/.test(e2.name)) out.push(f3);
-  }
-  return out;
-}
-var DEMO_COLOURS = /\b(?:bg|text|border|ring|from|via|to|fill|stroke|shadow|outline|divide)-(?:zinc|slate|gray|neutral|stone|blue|indigo|violet|purple|sky)-\d{2,3}\b/g;
-function unusedPieces(task, root = projectDir()) {
-  if (!task?.page?.dir || !task.sections) return [];
-  const page2 = path62.resolve(root, task.page.dir);
-  const src = path62.join(page2, "src");
-  if (!fs63.existsSync(path62.join(src, "App.tsx"))) return [];
-  const files = walk(src);
-  const comps = files.filter((f3) => f3.includes(`${path62.sep}components${path62.sep}`));
-  const out = [];
-  for (const [id, s2] of Object.entries(task.sections)) {
-    const key = pieceKey(s2.piece);
-    if (!key || key.length < 4) continue;
-    const keys = /* @__PURE__ */ new Set([key, ...(task.pieceFiles?.[s2.piece] || []).map(norm5).filter((k) => k.length >= 3)]);
-    const mine = comps.filter((f3) => keys.has(norm5(path62.basename(f3).replace(/\.\w+$/, ""))) || keys.has(norm5(path62.basename(path62.dirname(f3)))));
-    if (!mine.length) {
-      out.push(`piece not on the page: #${id} names ${s2.piece}, but no ${key} component is installed under src/components (pieces_install it, or name what the section really uses)`);
-      continue;
-    }
-    const names3 = new Set(mine.map((f3) => path62.basename(f3).startsWith("index.") ? path62.basename(path62.dirname(f3)) : path62.basename(f3).replace(/\.\w+$/, "")));
-    const used = files.some((f3) => !mine.includes(f3) && [...names3].some((n3) => new RegExp(`from\\s+["'][^"']*/${n3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/index)?["']`).test(fs63.readFileSync(f3, "utf8"))));
-    if (!used) out.push(`piece not on the page: #${id} names ${s2.piece}, it is installed (${[...names3].join(", ")}) but nothing imports it, so the section was hand-made around it. Use the piece, or say why it doesn't fit`);
-    else {
-      const demo = mine.flatMap((f3) => fs63.readFileSync(f3, "utf8").match(DEMO_COLOURS) || []);
-      if (demo.length >= 4) out.push(`piece not restyled: #${id} (${[...names3].join(", ")}) still has ${demo.length} demo colour classes (${[...new Set(demo)].slice(0, 4).join(", ")}). Replace them with the page's tokens (bg-background, text-foreground, bg-card, text-muted-foreground, border-border, the brand colour) and its demo copy with the client's`);
-    }
-  }
-  return out;
-}
-
-// src/modules/fitcheck/index.mjs
 var isHard = (b) => /(^|: )broken:|not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
 var CRITERIA = ["hierarchy", "layout", "type", "color", "imagery", "polish", "copy", "fidelity"];
 function register22(server2, ctx2) {
@@ -108755,6 +108791,11 @@ ${soft.map((b) => `- ${b}`).join("\n")}
 ` : "";
       head = hero ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare with every section; its one or two builders in one message): the user sees the finished page, not a question."}`}` : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version."} ${mode === "none" ? `Numbers only: you looked at this page earlier in the task, so no pictures this time (the slices are in ${dir}; images: "small" if you really need a look).` : "Look at the sheet once."} Fixes go as ONE list: small ones in one edit of yours, the rest in one SendMessage to the builder that wrote the section. Then one more shot, and show the user.${criticLine(loadState().task, ctx2.config())}`;
     }
+    const review = !hero && !numbersOnly && !section ? pieceReview(loadState().task) : [];
+    if (review.length) head += `
+
+PIECES TO REVIEW (keep what fits, change what doesn't; one line each in the fix list):
+${review.map((r2) => `- ${r2}`).join("\n")}`;
     content.unshift(textBlock(head));
     return blocks(content);
   }
@@ -115827,7 +115868,7 @@ The page runs while this command does. Press Ctrl+C to stop.`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.7";
+var VERSION = "0.9.8";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

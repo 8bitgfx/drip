@@ -4,6 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { projectDir } from "./paths.mjs";
+import { relPath, sha1 } from "./util.mjs";
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -24,6 +25,16 @@ function walk(dir, out = [], depth = 6) {
   }
   return out;
 }
+
+/** sha1 of every component file of a page, keyed by its path from `base` (the project): what pieces_install compares. */
+export function componentHashes(pageRoot, base = projectDir()) {
+  const out = {};
+  for (const f of walk(path.join(pageRoot, "src", "components"))) out[relPath(base, f)] = sha1(fs.readFileSync(f));
+  return out;
+}
+
+/** Demo effects that often don't fit the page: big shadows, hover shadows, lifts and scales, rings. Worth a decision. */
+export const DEMO_EFFECTS = /\b(?:hover:)?shadow-(?:md|lg|xl|2xl)\b|\bhover:(?:-?translate-y-[\w.[\]]+|scale-1\d\d)\b|\bring-[1-4]\b/g;
 
 /** Tailwind palette classes a library ships its demos in; a restyled piece uses the page's tokens instead. */
 export const DEMO_COLOURS = /\b(?:bg|text|border|ring|from|via|to|fill|stroke|shadow|outline|divide)-(?:zinc|slate|gray|neutral|stone|blue|indigo|violet|purple|sky)-\d{2,3}\b/g;
@@ -51,11 +62,41 @@ export function unusedPieces(task, root = projectDir()) {
     const names = new Set(mine.map((f) => (path.basename(f).startsWith("index.") ? path.basename(path.dirname(f)) : path.basename(f).replace(/\.\w+$/, ""))));
     const used = files.some((f) => !mine.includes(f) && [...names].some((n) => new RegExp(`from\\s+["'][^"']*/${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/index)?["']`).test(fs.readFileSync(f, "utf8"))));
     if (!used) out.push(`piece not on the page: #${id} names ${s.piece}, it is installed (${[...names].join(", ")}) but nothing imports it, so the section was hand-made around it. Use the piece, or say why it doesn't fit`);
-    else {
-      // Used, but left in its demo colours: the library's greys and blues instead of the page's tokens.
-      const demo = mine.flatMap((f) => fs.readFileSync(f, "utf8").match(DEMO_COLOURS) || []);
-      if (demo.length >= 4) out.push(`piece not restyled: #${id} (${[...names].join(", ")}) still has ${demo.length} demo colour classes (${[...new Set(demo)].slice(0, 4).join(", ")}). Replace them with the page's tokens (bg-background, text-foreground, bg-card, text-muted-foreground, border-border, the brand colour) and its demo copy with the client's`);
-    }
+  }
+  return out;
+}
+
+/** The pieces on the page that are worth a second look, as notes (never blockers): an unchanged piece, demo colours,
+ *  demo effects. Keeping them is fine when they fit the page; the point is that someone decided. */
+export function pieceReview(task, root = projectDir()) {
+  const out = [];
+  for (const { id, piece, names, mine } of piecesOnPage(task, root)) {
+    const unchanged = task.installed && mine.every((f) => task.installed[relPath(root, f)] === sha1(fs.readFileSync(f)));
+    const effects = [...new Set(mine.flatMap((f) => fs.readFileSync(f, "utf8").match(DEMO_EFFECTS) || []))];
+    const colours = [...new Set(mine.flatMap((f) => fs.readFileSync(f, "utf8").match(DEMO_COLOURS) || []))];
+    const bits = [effects.length ? `effects ${effects.slice(0, 4).join(", ")}` : "", colours.length >= 3 ? `demo colours ${colours.slice(0, 4).join(", ")}` : ""].filter(Boolean);
+    if (unchanged || bits.length)
+      out.push(`#${id} (${[...names].join(", ") || piece})${unchanged ? " is unchanged from the library" : ""}${bits.length ? `${unchanged ? ", with" : " still has"} ${bits.join("; ")}` : ""}: keep what fits this page, change what doesn't (its other cards, buttons and hover are the measure)`);
+  }
+  return out;
+}
+
+/** The named pieces that are installed and imported: { id, piece, names, mine }. */
+function piecesOnPage(task, root) {
+  if (!task?.page?.dir || !task.sections) return [];
+  const src = path.join(path.resolve(root, task.page.dir), "src");
+  if (!fs.existsSync(path.join(src, "App.tsx"))) return [];
+  const files = walk(src);
+  const comps = files.filter((f) => f.includes(`${path.sep}components${path.sep}`));
+  const out = [];
+  for (const [id, s] of Object.entries(task.sections)) {
+    const key = pieceKey(s.piece);
+    if (!key || key.length < 4) continue;
+    const keys = new Set([key, ...(task.pieceFiles?.[s.piece] || []).map(norm).filter((k) => k.length >= 3)]);
+    const mine = comps.filter((f) => keys.has(norm(path.basename(f).replace(/\.\w+$/, ""))) || keys.has(norm(path.basename(path.dirname(f)))));
+    if (!mine.length) continue;
+    const names = new Set(mine.map((f) => (path.basename(f).startsWith("index.") ? path.basename(path.dirname(f)) : path.basename(f).replace(/\.\w+$/, ""))));
+    out.push({ id, piece: s.piece, names, mine });
   }
   return out;
 }

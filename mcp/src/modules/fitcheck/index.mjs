@@ -19,7 +19,7 @@ import { rendersDir, stamp } from "../../core/render.mjs";
 import { screenshot } from "../../core/chrome.mjs";
 import { formatIssues, lintFiles } from "./lint.mjs";
 import { restitchIfStale } from "../swarm/index.mjs";
-import { unusedPieces } from "../../core/pieces-check.mjs";
+import { pieceReview, unusedPieces } from "../../core/pieces-check.mjs";
 
 /** A blocker that means the page is broken (something cut off, covered, sideways, unfilled), not a number to tune. */
 export const isHard = (b) => /(^|: )broken:|not fully inside|not in the first viewport|placeholder|covers|covered|sideways|horizontal overflow|clipped|cut off|same picture|piece not on the page|is drawn over|no h1/i.test(String(b));
@@ -231,6 +231,9 @@ export function register(server, ctx) {
           ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare with every section; its one or two builders in one message): the user sees the finished page, not a question."}`}`
           : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version."} ${mode === "none" ? `Numbers only: you looked at this page earlier in the task, so no pictures this time (the slices are in ${dir}; images: "small" if you really need a look).` : "Look at the sheet once."} Fixes go as ONE list: small ones in one edit of yours, the rest in one SendMessage to the builder that wrote the section. Then one more shot, and show the user.${criticLine(loadState().task, ctx.config())}`;
       }
+      // Pieces worth a second look (unchanged from the library, demo effects or colours): notes for a decision, never blockers.
+      const review = !hero && !numbersOnly && !section ? pieceReview(loadState().task) : [];
+      if (review.length) head += `\n\nPIECES TO REVIEW (keep what fits, change what doesn't; one line each in the fix list):\n${review.map((r) => `- ${r}`).join("\n")}`;
       content.unshift(textBlock(head));
       return blocks(content);
   }

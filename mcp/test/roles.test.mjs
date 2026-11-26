@@ -208,7 +208,8 @@ test("page_stitch: React sections are imported into App.tsx; a static page gets 
 test("builder prompts: the piece is used as it is, the stack decides the files, no self-shots", () => {
   const react = swarm.buildPrompt({ section: "features", spec: "Bento of four live features with real numbers", piece: "https://magicui.design/r/bento-grid.json", page: swarm.pageOf(null, "rp"), task: null });
   assert.match(react, /src\/sections\/Features\.tsx/);
-  assert.match(react, /AS IT IS/);
+  assert.match(react, /looks born on this page/);
+  assert.match(react, /hover and press effects/);
   assert.match(react, /bg-background/);
   assert.doesNotMatch(react, /fitcheck_shot with section/);
   const html = swarm.buildPrompt({ section: "proof", spec: "One quote from the head of ops, with photo", piece: "custom: a single quote", page: swarm.pageOf(null, "sp/index.html"), task: null });
