@@ -122,7 +122,9 @@
     const n = o.blobs || 4, I = o.intensity == null ? 1 : o.intensity, sp = o.speed == null ? 1 : o.speed;
     const cols = o.colors || [P.accent, P.glow, mix(P.accent, P.ink, 0.28), mix(P.accent, P.ground, 0.4)];
     const alphas = [0.28, 0.17, 0.13, 0.2];
-    const el = mk(container, `left:0;top:0;width:${W}px;height:${H}px;overflow:hidden;isolation:isolate;z-index:${o.z == null ? 0 : o.z}`);
+    const el = mk(null, `left:0;top:0;width:${W}px;height:${H}px;overflow:hidden;isolation:isolate;z-index:${o.z == null ? 0 : o.z}`);
+    // The ground goes behind everything already on the stage, whenever it is created.
+    container.insertBefore(el, container.firstChild);
     const blobs = [];
     for (let i = 0; i < n; i++) {
       const c = cols[i % cols.length], sz = (0.5 + R() * 0.45) * Math.max(W, H) * 1.05;
@@ -908,8 +910,12 @@
 
   // ---------- drive ----------
   // One line from the film: DripVisuals.drive(tl, [a, b, c]). Runs each at(tl.time()) on every timeline update (and once now).
+  // Calling it again ADDS to what the timeline drives (the kit's living ground, then the film's own visuals, then
+  // SnapCN pieces): one onUpdate runs every list, in the order they were added.
   function drive(tl, list) {
-    const run = () => { const t = tl.time(); for (let i = 0; i < list.length; i++) list[i].at(t); };
+    const all = (tl.__dripDriven = tl.__dripDriven || []);
+    all.push(...list);
+    const run = () => { const t = tl.time(); for (let i = 0; i < all.length; i++) all[i].at(t); };
     tl.eventCallback("onUpdate", run);
     run();
     return run;

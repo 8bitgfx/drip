@@ -18,10 +18,11 @@ import { ROLES, checkStoryboard, storyboardMd } from "./story.mjs";
 import { analyzeTrace, dopesheet, onionSkin, stretches, traceComposition } from "./trace.mjs";
 import { mastersWork, parseLikes, search24fps, searchDribbbleMotion, searchKisto, searchRelaxed } from "./refsources.mjs";
 import { listing, shot as dribbbleShot, thumbUrl } from "../refs/dribbble.mjs";
-import { registerAudio } from "./audio.mjs";
+import { filmDir, registerAudio } from "./audio.mjs";
+import { installPiece, searchPieces } from "./pieces.mjs";
 import { registerVoice } from "./voice.mjs";
 import { mixGraph, soundTracks } from "./sound.mjs";
-import { ensureRenderers, mux, noteDistrust, readChoice, renderWith } from "./renderers.mjs";
+import { distrustedFor, ensureRenderers, mux, noteDistrust, renderWith } from "./renderers.mjs";
 
 const motionOf = (task) => task?.motion || { studied: [], renders: [] };
 
@@ -295,9 +296,22 @@ export function register(server, ctx) {
         }
       });
       const bounds = r.beats.slice(1).map((b) => b.at);
+      // Proven pieces before hand-building: SnapCN pieces that may fit each beat (from what the beat does and shows).
+      const fits = [];
+      try {
+        for (const [i, b] of r.beats.entries()) {
+          const found = await searchPieces(`${b.visual || ""} ${b.action}`, 2);
+          if (found.length) fits.push(`- beat ${i + 1}: ${found.map((p) => `${p.name} (${(p.description || p.title || "").split(/[.:]/)[0].slice(0, 70)})`).join("; ")}`);
+        }
+      } catch {
+        /* the registry is a help, never a blocker */
+      }
       return text(
         `Storyboard recorded (${r.beats.length} beats, ${r.duration}s): ${path.relative(projectDir(), file)}.\n` +
           (r.warnings.length ? `Consider:\n${r.warnings.map((w) => `- ${w}`).join("\n")}\n` : "") +
+          (fits.length
+            ? `\nSnapCN pieces that may fit (ready-made, MIT; motion_piece add installs one, restyled through its props). Use one when it is as good as what you'd build; the visuals library (drip_guide video/visuals) covers light, depth and particles:\n${fits.join("\n")}\n`
+            : "") +
           `\nNEXT: style frames first: build the 2-3 hardest frames (the hook, the biggest transformation, the end card) as still states of the composition and motion_frames({ target, times: [...] }) them. Then the whole timeline, then motion_frames (the full sweep) and motion_frames({ target, around: [${bounds.slice(0, 8).join(", ")}] }) for the transitions.`,
       );
     }),
@@ -413,6 +427,49 @@ export function register(server, ctx) {
   );
 
   server.registerTool(
+    "motion_piece",
+    {
+      title: "SnapCN pieces for a beat",
+      description:
+        "SnapCN (snapcn.dev, MIT) is a library of ~145 ready-made video pieces: text reveals and swaps, captions, logo assembles, phone and laptop frames, terminals, cursor tracks, count grids, galleries, prompt and agent UIs, dot blooms. " +
+        "action search: pieces that fit a beat (words from what the beat needs: \"headline reveal\", \"logo assemble\", \"phone ui\", \"counter\"). action add: installs one into the film: fetches its source (and SnapCN's shared helpers) into <film>/pieces/src, and bundles it into <film>/pieces/<name>.js with Drip's Remotion stand-in, so it seeks on the film's clock like everything else and any renderer can play it. Then in the composition: <script src=\"pieces/<name>.js\"></script> and " +
+        "const p = DripPieces.mount(\"<name>\", stage, { start: <s>, duration: <s>, props: { ... } }); DripVisuals.drive(tl, [p]). Check a proven piece before building one by hand; restyle it through its props (text, colours, theme, mode, fonts) to the film's look. " +
+        'Examples: motion_piece({ action: "search", query: "headline word reveal" }) · motion_piece({ action: "add", name: "text-reveal" })',
+      inputSchema: {
+        action: z.enum(["search", "add"]),
+        query: z.string().optional(),
+        name: z.string().optional().describe("add: the piece's registry name (from search)"),
+        component: z.string().optional().describe("add: which export to mount, when the piece exports several"),
+      },
+    },
+    safe(async ({ action, query, name, component }) => {
+      const { task } = loadState();
+      if (action === "search") {
+        const r = await searchPieces(query || "", 12);
+        if (!r.length) return text(`No SnapCN piece matches "${query}". Try what it does ("reveal", "counter", "frame", "cursor", "logo", "captions"), or build it with the visuals library (drip_guide video/visuals).`, true);
+        return text(
+          `${r.length} SnapCN pieces (MIT):\n${r.map((p, i) => `${i + 1}. ${p.name}${p.title ? ` · ${p.title}` : ""}${p.description ? `: ${p.description.slice(0, 140)}` : ""}`).join("\n")}\n\n` +
+            "Previews: https://snapcn.dev (each piece's page). NEXT: motion_piece({ action: \"add\", name }) for the one that fits the beat; restyle it through its props to the film's look.",
+        );
+      }
+      if (!name) return text("Pass name (a SnapCN piece from action search).", true);
+      const r = await installPiece(name, { filmDir: filmDir(task), component });
+      const rel = path.relative(projectDir(), r.file).replace(/\\/g, "/");
+      const lic = path.join(path.dirname(r.file), "LICENCES.md");
+      const prev = fs.existsSync(lic) ? fs.readFileSync(lic, "utf8") : "# Piece licences\n\n";
+      if (!prev.includes(`- ${name}:`)) fs.writeFileSync(lic, `${prev}- ${name}: ${r.licence}, from snapcn.dev (source in pieces/src/${name})\n`);
+      return text(
+        `Added ${name} (${r.title}): ${rel}, component ${r.component || "(default export)"}.\n` +
+          `In the composition: <script src="${path.basename(path.dirname(r.file))}/${path.basename(r.file)}"></script>, then\n` +
+          `  const ${name.replace(/-([a-z])/g, (_, c) => c.toUpperCase())} = DripPieces.mount("${name}", stage, { start: <seconds>, duration: <seconds>, props: { /* below */ } });\n` +
+          `  DripVisuals.drive(tl, [${name.replace(/-([a-z])/g, (_, c) => c.toUpperCase())}]);\n` +
+          (r.props ? `Its props:\n${r.props}\n` : "") +
+          "Then motion_frames the beat it lives in. A piece made for 1 s plays once and holds its last frame for the rest of its duration; give it the length it was designed for.",
+      );
+    }),
+  );
+
+  server.registerTool(
     "motion_export",
     {
       title: "Render the film to video",
@@ -446,6 +503,7 @@ export function register(server, ctx) {
       fs.mkdirSync(path.dirname(outFile), { recursive: true });
       // Partial, draft and transparent renders need per-frame control: Drip's own capture does those.
       const special = alpha || draft || from > 0 || to != null || /^https?:/i.test(target);
+      let fellBack = [];
       if (engine !== "drip" && !special) {
         if (!abs) return text("The external renderers render a local composition file: pass its path.", true);
         let order = [engine];
@@ -454,12 +512,12 @@ export function register(server, ctx) {
           order = choice.order?.length ? choice.order : ["drip"];
         }
         const fails = [];
-        const distrust = readChoice()?.distrust || {};
+        const distrust = distrustedFor(abs);
         const compUrl = await compositionUrl(target);
         for (const eng of order) {
           if (eng === "drip") break;
-          if (engine === "auto" && (distrust[eng] || 0) >= 2) {
-            fails.push(`${eng}: skipped (its renders didn't match Chrome twice on this machine)`);
+          if (engine === "auto" && distrust.has(eng)) {
+            fails.push(`${eng}: skipped (its last render of this film didn't match Chrome)`);
             continue;
           }
           const tmp = outFile.replace(/(\.[^.]+)$/, `.${eng}-video$1`);
@@ -473,7 +531,7 @@ export function register(server, ctx) {
           const fid = await fidelity(tmp, compUrl, { width: fmt.width || 1920, height: fmt.height || 1080, config }).catch((e) => ({ ok: false, why: e.message }));
           if (!fid.ok) {
             fs.rmSync(tmp, { force: true });
-            noteDistrust(eng);
+            noteDistrust(eng, abs);
             fails.push(`${eng}: its video doesn't match Chrome's frames${fid.at != null ? ` (worst at ${fmtT(fid.at)}, difference ${fid.worst.toFixed(1)})` : fid.why ? ` (${fid.why})` : ""}`);
             continue;
           }
@@ -501,6 +559,7 @@ export function register(server, ctx) {
         }
         if (fails.length && engine !== "auto") return text(`${engine} failed:\n${fails.join("\n")}\nengine "auto" falls back through the other renderers.`, true);
         // Everything external failed (or Drip's capture won the test): render with Drip's own capture below.
+        fellBack = fails;
       }
       const ffmpeg = await findFfmpeg();
       if (!ffmpeg) return text("ffmpeg isn't installed. Ask the user to install it (winget install ffmpeg / brew install ffmpeg), or run `drip doctor --install ffmpeg` (a static build, ~70 MB, in ~/.drip/vendor). Meanwhile motion_frames shows the frames.", true);
@@ -536,7 +595,8 @@ export function register(server, ctx) {
         }
       });
       return text(
-        `Rendered ${path.relative(projectDir(), r.file)}: ${r.frames} frames in ${r.seconds.toFixed(0)}s${draft ? " (draft: half size, 15 fps)" : ""}${mixFor ? `, with ${tracks.length} sound track(s) mixed (music ducked under the voice)` : ""}.\n` +
+        `Rendered ${path.relative(projectDir(), r.file)} with Drip's Chrome capture: ${r.frames} frames in ${r.seconds.toFixed(0)}s${draft ? " (draft: half size, 15 fps)" : ""}${mixFor ? `, with ${tracks.length} sound track(s) mixed (music ducked under the voice)` : ""}.\n` +
+          (fellBack.length ? `(the faster renderers were not used: ${fellBack.join("; ")})\n` : "") +
           `NEXT: motion_study({ source: "${path.relative(projectDir(), r.file).replace(/\\/g, "/")}" }) to check the video itself (cuts where you meant them, no blank or held frames), then show the user the file.`,
       );
     }),

@@ -47,6 +47,7 @@ describe techniques, they don't reproduce frames or copy.
 Sound: sfx.akalan.dev (CC0, includes Wyzowl's SFX Kit, CC0), foleykit (rudqlsdla, CC0 presets), Kenney's interface sounds via
 hipdiscovery/Free-Sound-Effects (CC0), Openverse (Freesound, Jamendo; licence per item, recorded in each film's sound/LICENCES.md).
 Narration and optional music generation run on the user's own ElevenLabs account.
+SnapCN pieces (snapcn.dev, MIT, Sri Nath) are installed into a film's own folder as source, credited in its pieces/LICENCES.md. Drip's Remotion stand-in (content/kit/snapcn/remotion.mjs) is written from Remotion's public API docs; no Remotion code is copied.
 
 ## Notices
 

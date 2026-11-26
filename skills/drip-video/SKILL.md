@@ -37,5 +37,5 @@ Film tasks run in `drip_start` mode `motion` (`/drip:motion`). **Call `drip_guid
 | Self-review, the anti-slop table, the 12-point checklist | `drip_guide video/critic` |
 | Studying reference films before planning | `drip_guide video/research` |
 | What working studios do: measured cuts, rests, signature moves per studio | `drip_guide video/studios` |
-| Ready-made video pieces (SnapCN), porting them to a seekable film | `drip_guide video/components` |
+| Ready-made video pieces (SnapCN): finding one per beat, motion_piece, mounting it on the film clock | `drip_guide video/components` |
 | The default look and pacing (calm continuous product motion, copy, rhythm, DEFAULTS block) | `drip_guide video/house-style` |

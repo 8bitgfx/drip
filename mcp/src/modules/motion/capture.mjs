@@ -46,6 +46,13 @@ export const seekExpr = (t) => `(async () => {
   if (document.getAnimations) for (const a of document.getAnimations()) { try { a.pause(); a.currentTime = t * 1000; } catch (e) {} }
   for (const v of document.querySelectorAll('video')) { try { v.pause(); if (Math.abs(v.currentTime - t) > 0.02) { v.currentTime = t; await new Promise((r) => { v.addEventListener('seeked', r, { once: true }); setTimeout(r, 1500); }); } } catch (e) {} }
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  // Images that appeared with this frame (a card grid, a React piece mounting <img>) must be decoded before the shot,
+  // or the same time gives two pictures. Fonts too. Capped so a broken image can't hang a render.
+  const pending = [...document.images].filter((i) => !i.complete || !i.naturalWidth).map((i) => (i.decode ? i.decode().catch(() => {}) : Promise.resolve()));
+  if (pending.length || (document.fonts && document.fonts.status !== 'loaded')) {
+    await Promise.race([Promise.all([...pending, document.fonts ? document.fonts.ready : null]), new Promise((r) => setTimeout(r, 4000))]);
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  }
   // Text that pokes out of the frame while visible (a common render-only flaw).
   const W = innerWidth, H = innerHeight, out = [];
   for (const el of document.querySelectorAll('h1,h2,h3,h4,p,span,li,a,strong,em,b,div')) {

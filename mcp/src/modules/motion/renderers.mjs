@@ -43,12 +43,25 @@ function run(cmd, args, { cwd, timeout = 15 * 60e3, env } = {}) {
   });
 }
 
-/** Remember a renderer whose video didn't match Chrome; after two, auto stops using it on this machine. */
-export function noteDistrust(engine) {
+/**
+ * Remember that a renderer's video of THIS film didn't match Chrome, so the next export of the same film skips it.
+ * Per film, not per machine: a mismatch usually comes from one film's content (an SVG filter, a canvas, images a
+ * renderer seeks too early), and the renderer may be perfect for the next film.
+ */
+export function noteDistrust(engine, film) {
   const c = readChoice();
   if (!c) return;
-  c.distrust = { ...(c.distrust || {}), [engine]: ((c.distrust || {})[engine] || 0) + 1 };
+  const key = String(film || "").replace(/\\/g, "/").toLowerCase();
+  const per = c.distrustFilms || {};
+  per[key] = [...new Set([...(per[key] || []), engine])];
+  c.distrustFilms = per;
   fs.writeFileSync(stateFile(), JSON.stringify(c, null, 2));
+}
+
+/** Renderers that didn't match Chrome on this film before. */
+export function distrustedFor(film) {
+  const key = String(film || "").replace(/\\/g, "/").toLowerCase();
+  return new Set((readChoice()?.distrustFilms || {})[key] || []);
 }
 
 export function readChoice() {

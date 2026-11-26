@@ -57,28 +57,37 @@ video. Its pieces are **Remotion** components, not DOM components, so they are s
 | Captions | word-captions, karaoke-captions | Spoken-word films |
 | End card | wordmark-cut, bloom-lockup, cut-lockup, logo-assemble, thank-you-swarm, flood-outro | A calm lockup, then silence |
 
-## Seek recipe: making a SnapCN piece obey `__drip.seek(t)`
+## Using a piece: motion_piece
 
-The source is already seekable in principle: its maths is a pure function of the frame number (the files say
-"frame-deterministic and side-effect free"), with `speed` as a time multiplier. No CSS animations, no clocks. Frame
-is `round(t * fps)`. What differs from Drip is that Remotion supplies the frame through hooks. Two ways:
+`motion_piece({ action: "search", query })` finds pieces by what a beat needs; `motion_storyboard` already lists the
+ones that may fit each beat. `motion_piece({ action: "add", name })` installs one: it fetches the piece and SnapCN's
+shared helpers into `<film>/pieces/src/<name>` (MIT source, credited in `pieces/LICENCES.md`) and bundles it into
+`<film>/pieces/<name>.js`. In the bundle, Remotion is replaced by Drip's clean-room stand-in (the current frame,
+video size, interpolate, Easing, spring, AbsoluteFill, Sequence, Img, Google Fonts loading), driven by the film's
+clock: the piece renders the exact frame for every seek, so `motion_frames`, `motion_trace` and every renderer see the
+same picture. Drip installs the bundler and React into `~/.drip/vendor` the first time.
 
-1. **Port the maths (preferred for a single piece).** Open the item JSON, take the exported pure helpers (e.g.
-   `splitText`, `enterOffset`, `springEase`, `resolveEasing` in text-reveal), and drive plain DOM from the GSAP
-   timeline: `tl.to({f:0}, {f: frames, duration: frames/fps, ease: "none", onUpdate: () => paint(f)})`, where `paint`
-   sets transform and opacity from the helper. Closed-form, seeks exactly. Replace `useSnapCnTheme` with the film's
-   tokens; replace `@remotion/google-fonts` with the film's own font loading (fonts before frame 0).
-2. **Run the component as is.** Bundle it with React and an alias that maps `remotion` to a small shim:
-   `useCurrentFrame` returns a value from a store, `useVideoConfig` returns `{fps, width, height, durationInFrames}`,
-   `AbsoluteFill` is a full-size div, `interpolate`, `Easing`, `spring`, `random` re-exported from the real package,
-   `delayRender`/`continueRender` count pending work. `__drip.seek(t)` sets the frame, re-renders synchronously
-   (`flushSync`), then awaits the pending count and `document.fonts.ready`. Or mount `@remotion/player` and call
-   `seekTo(frame)` on its ref before each frame.
+```html
+<script src="pieces/text-reveal.js"></script>
+<script>
+  const reveal = DripPieces.mount("text-reveal", stage, { start: 0.4, duration: 3.2, props: { text: "Films made in code.", fontSize: 120, mode: "dark" } });
+  DripVisuals.drive(tl, [reveal]);
+</script>
+```
 
-Checks that bite: a piece that measures text (text-reveal calls `delayRender` for line geometry) needs the wait above;
-canvas pieces (dot-bloom replays a recorded step table) are fine because they index by frame; anything using `Date`,
-`Math.random` or `useEffect` timers is not, so read the source first. Pass `mode="dark"` on a dark ground: pieces
-default to shadcn's light palette. Compare `seek(t)` against two orders of visiting the same times; frames must match.
+- **Restyle through props**: text, colours, `theme` tokens, `mode: "dark"` on a dark ground, `fontFamily` to the film's
+  face. A piece left in its demo look reads as a template.
+- **Layer it**: pieces paint their theme's background, which hides the film's light field. Pass the film's ground
+  through `theme` (or a transparent `background` where the piece takes one) when the piece sits over other layers.
+- **Give it its own length**: many pieces are designed for a set number of frames (dot-bloom is 30 frames, 1 s at 30
+  fps); after that a piece holds its last frame. Read its exported `*_FRAMES` constants.
+- **Check it**: `motion_frames` the beat it lives in. Seeking the same time twice must give the same picture.
+- **Renderers**: pieces render through React in the page; the Chrome check in `motion_export` catches a renderer that
+  draws one wrong (on the dev machine FrameVelo and Kinetograph both missed parts of SnapCN pieces, so those films
+  rendered with Drip's Chrome capture).
+
+Porting the maths by hand (the pure helpers driven from `tl`) is still an option for one small effect, but the bundled
+piece is the default.
 
 ## Its design defaults, in our words
 

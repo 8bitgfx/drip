@@ -2,6 +2,9 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.10.3: SnapCN pieces in films
+- **SnapCN pieces in films**: `motion_piece` searches SnapCN's ~145 video pieces and adds one to a film: its MIT source goes into `<film>/pieces/src`, bundled (esbuild, installed by the agent) into `pieces/<name>.js` with a clean-room Remotion stand-in driven by the film's clock, so pieces seek exactly and every renderer plays them (mount with `DripPieces.mount`). `motion_storyboard` lists SnapCN pieces that may fit each beat, and film tasks check SnapCN and the visuals library before hand-building. Tested on text-reveal, dot-bloom, count-grid and logo-assemble. Seeks now wait for images and fonts (the same time always gives the same picture); `DripVisuals.drive` adds to what the timeline drives instead of replacing it; the light field always sits behind the stage; a renderer that mismatches Chrome is skipped for that film only.
+
 ## 0.10.2: Amicro and sensory-ui
 - **Amicro** (amicro.dev, MIT): 176 Motion + Tailwind micro-interactions (morphing icon buttons, magnetic and glare buttons, card spreads, 3D carousels, loaders, text reveals, mono and dither charts) in the catalogue, searchable with components_find. amicro.dev answers scripts with a Vercel bot check, so its registry is read from the GitHub repo.
 - **sensory-ui** (Shadcn Labs, MIT): sound for shadcn/ui, 24 drop-in components with a `sound` prop, synthesized with Web Audio. taste.md says when a page gets sound (opt-in, small actions small sounds, never on hover or scroll).
