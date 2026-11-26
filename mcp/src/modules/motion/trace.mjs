@@ -61,8 +61,9 @@ export async function traceComposition(url, { from = 0, to, fps = 30, width = 19
       await evalJson(tab.s, seekExpr(t));
       times.push(t);
       samples.push(await evalJson(tab.s, SAMPLE));
-      // Tiny frames about 4 times a second: canvas visuals (particles, globes, light fields) change pixels, not boxes.
-      if (i % Math.max(1, Math.round(fps / 4)) === 0) {
+      // Tiny frames about 15 times a second: canvas visuals (particles, globes, light fields) change pixels, not boxes,
+      // and the speed curve (judgeSpeed) needs them close together to see a camera stop at a keyframe.
+      if (i % Math.max(1, Math.round(fps / 15)) === 0) {
         const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 60, clip: { x: 0, y: 0, width, height, scale: Math.min(1, 192 / width) } });
         thumbs.push({ t, buf: Buffer.from(data, "base64") });
       }
@@ -76,6 +77,54 @@ export async function traceComposition(url, { from = 0, to, fps = 30, width = 19
 }
 
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+
+/**
+ * The film's speed curve from frame differences ([{ t, diff }], evenly spaced, diff 0-255): smooth motion changes
+ * speed gradually. Flags what reads as jitter whatever drew it (DOM, canvas, WebGL): a move that stops dead for a
+ * frame and starts again (a camera whose keys stop on every axis), a sudden speed-up that isn't a cut, and judder
+ * (the speed jumping up and down frame to frame). Returns [{ kind, at, text }]. Pure (tested).
+ */
+export function judgeSpeed(pix) {
+  const d = pix.map((p) => p.diff ?? 0);
+  const t = pix.map((p) => p.t);
+  const out = [];
+  const near = (k, at) => out.some((o) => o.kind === k && Math.abs(o.at - at) < 0.4);
+  const dt = t.length > 1 ? (t.at(-1) - t[0]) / (t.length - 1) : 0.066;
+  const w = Math.max(2, Math.round(0.25 / dt));
+  const max = (a, b) => Math.max(0, ...d.slice(Math.max(0, a), Math.max(0, b)));
+  const mean = (a, b) => {
+    const s = d.slice(Math.max(0, a), b);
+    return s.length ? s.reduce((x, y) => x + y, 0) / s.length : 0;
+  };
+  for (let i = 1; i < d.length - 1; i++) {
+    if (d[i] >= 38 || d[i + 1] >= 38) continue; // a cut, not a speed
+    const before = max(i - w, i);
+    const after = max(i + 1, i + 1 + w);
+    // Stop-start: moving on both sides, near still here.
+    if (before > 2.5 && after > 2.5 && d[i] < 0.3 * Math.min(before, after) && !near("stop", t[i]))
+      out.push({ kind: "stop", at: t[i], text: `the motion stops dead at ${fmtT(t[i])} and starts again (a keyframe the move halts on: let it carry through with overlapping, eased moves)` });
+    // Sudden speed-up, held for two frames (one frame is a flicker, not a speed).
+    const prev = mean(i - 3, i);
+    if (prev > 1 && d[i] > 2.4 * prev && d[i + 1] > 2 * prev && d[i] - prev > 3 && !near("jump", t[i]))
+      out.push({ kind: "jump", at: t[i], text: `the speed jumps at ${fmtT(t[i])} (${prev.toFixed(1)} → ${d[i].toFixed(1)} a frame) without a cut: ease into it` });
+  }
+  // Judder: in a moving stretch, the change goes up, down, up, down frame after frame.
+  let run = 0;
+  let start = 0;
+  for (let i = 2; i < d.length; i++) {
+    const moving = d[i] > 1.5 && d[i - 1] > 1.5 && d[i - 2] > 1.5;
+    const alt = moving && (d[i] - d[i - 1]) * (d[i - 1] - d[i - 2]) < 0 && Math.abs(d[i] - d[i - 1]) > 0.35 * Math.max(d[i], d[i - 1]);
+    if (alt) {
+      if (!run) start = i - 2;
+      run++;
+    }
+    if ((!alt || i === d.length - 1) && run) {
+      if (run >= 5 && t[i] - t[start] >= 0.4 && !near("judder", t[start])) out.push({ kind: "judder", at: t[start], text: `uneven frame-to-frame speed (judder) ${fmtT(t[start])}-${fmtT(t[i])}: the picture lurches instead of gliding` });
+      run = 0;
+    }
+  }
+  return out.sort((a, b) => a.at - b.at);
+}
 
 /**
  * The numbers: per element its moving segments, and the flags. Pure (tested).

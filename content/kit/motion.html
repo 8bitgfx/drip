@@ -130,6 +130,8 @@ window.__drip = {
     document.documentElement.dataset.rendering = "1";
     playing = false;
     await ready;
+    // A frozen UI (DripVisuals.uiFrame) loads before the first frame.
+    if (window.__dripWait) await Promise.all(window.__dripWait);
     show(t);
   },
 };

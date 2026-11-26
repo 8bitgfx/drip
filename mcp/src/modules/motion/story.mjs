@@ -83,7 +83,43 @@ export function checkStoryboard(sb, { studied = [] } = {}) {
   const kinds = beats.map((b) => String(b.visual || "").toLowerCase().split(/[,;]/)[0].trim()).filter(Boolean);
   if (kinds.length >= 4 && new Set(kinds).size <= Math.ceil(kinds.length / 3)) warnings.push("most beats use the same visual: vary what is cool to look at from beat to beat");
   if (!String(sb.motif || "").trim()) warnings.push("no motif: name the object or shape that survives from beat to beat (it is what makes the film continuous)");
+  else {
+    // Continuity is checked, not just named: the motif has to be in the beats, and every boundary carries something.
+    const c = continuity(sb.motif, beats);
+    if (beats.length >= 3 && c.missing.length > beats.length / 2 && c.breaks.length >= (beats.length - 1) / 2)
+      errors.push(`the motif ("${sb.motif}") is in ${beats.length - c.missing.length} of ${beats.length} beats: beats ${c.missing.map((i) => i + 1).join(", ")} never mention it. A film of separate scenes joined by cuts has no continuity: write in each beat where the motif is and what it becomes`);
+    else if (c.missing.length) warnings.push(`beats ${c.missing.map((i) => i + 1).join(", ")} don't mention the motif ("${sb.motif}"): where is it there?`);
+    if (c.breaks.length) warnings.push(`nothing carries across ${c.breaks.map((i) => `beat ${i} → ${i + 1}`).join(", ")} (a bare cut between beats without the motif): match a shape, a position or the camera across it`);
+  }
   return { errors: [...new Set(errors)], warnings: [...new Set(warnings)], duration: D, beats };
+}
+
+const STOP = new Set(["the", "and", "that", "with", "from", "into", "which", "this", "its", "one", "a", "an", "of", "to", "in", "on", "as", "is", "it"]);
+
+/**
+ * Where the motif is: { missing: [beat index], breaks: [beat number before a boundary nothing carries across] }.
+ * A beat carries the motif when its action, visual, moments or transition names one of the motif's words (by stem).
+ * Pure (tested).
+ */
+export function continuity(motif, beats) {
+  const stems = String(motif || "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length > 2 && !STOP.has(w))
+    .map((w) => w.slice(0, Math.max(4, w.length - 2)));
+  if (!stems.length) return { missing: [], breaks: [] };
+  const has = (b) => {
+    const t = `${b.action || ""} ${b.visual || ""} ${(b.moments || []).join(" ")} ${b.transition || ""} ${b.text || ""}`.toLowerCase();
+    return stems.some((s) => t.includes(s));
+  };
+  const carried = beats.map(has);
+  const missing = carried.map((c, i) => (c ? null : i)).filter((i) => i != null);
+  const breaks = [];
+  for (let i = 1; i < beats.length; i++) {
+    const tr = String(beats[i].transition || "").trim().toLowerCase();
+    if (/^(cut|hard cut|)$/.test(tr) && !(carried[i - 1] && carried[i])) breaks.push(i);
+  }
+  return { missing, breaks };
 }
 
 /** The storyboard as Markdown (written next to the task, shown to builders and the critic). */

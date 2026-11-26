@@ -92,7 +92,7 @@ export const CORE = new Set([
   "fitcheck_shot", "fitcheck_done", "critic_prepare", "critic_record",
   "build_prepare", "page_stitch",
   "board_create", "board_directions", "board_tile", "board_choose", "logo_sheet", "logo_test",
-  "motion_refs", "motion_study", "motion_storyboard", "motion_frames", "motion_trace", "motion_export", "motion_music", "motion_sound", "motion_voice", "motion_piece",
+  "motion_refs", "motion_study", "motion_storyboard", "motion_frames", "motion_trace", "motion_ui_freeze", "motion_export", "motion_music", "motion_sound", "motion_voice", "motion_piece",
 ]);
 
 export function registerAll(server, c = ctx) {

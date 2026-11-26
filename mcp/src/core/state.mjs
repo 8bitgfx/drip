@@ -486,7 +486,7 @@ export function checklist(task, config) {
       `${tick((mo.studied || []).length > 0)} studied motion references${(mo.studied || []).length ? ` (${mo.studied.length})` : ""}`,
       `${tick(!!mo.storyboard)} storyboard${mo.storyboard ? `: ${mo.storyboard.concept} (${(mo.storyboard.beats || []).length} beats, ${mo.storyboard.format?.duration}s)` : ""}`,
       `${tick(task.uiWrites.length > 0)} composition built (${task.uiWrites.length} writes)`,
-      `${tick(!!fc.doneAt && !needsFitcheck(task, config))} clean motion_frames sweep on the current version`,
+      `${tick(!!fc.doneAt && !needsFitcheck(task, config))} clean motion_frames sweep and a smooth motion_trace speed curve on the current version`,
       `${tick(!!rec && rec.verdict === "pass")} critic on the film${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})` : " (before drip_end)"}`,
       `${tick((mo.renders || []).some((r) => !r.draft))} rendered${(mo.renders || []).length ? `: ${mo.renders.at(-1).file}` : ""}`,
     ].join("\n");

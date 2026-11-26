@@ -306,6 +306,105 @@
   }
 
   // =====================================================================================
+  // 5b. cameraRig: a camera that moves through keyframes WITHOUT stopping at them. Hand-rolled key interpolation that
+  //    eases in and out of every key halts the camera on each one (it reads as jitter). Here the speed carries through
+  //    each key (a smooth curve through all of them, tangents from the neighbours, no overshoot); it eases only out
+  //    of the first key, into the last, and into a key marked hold: true (a deliberate stop).
+  //    opts: { target (default: wraps container's children), keys: [{ t, x, y, s, rx, ry, rz, hold }], perspective:1800, origin }
+  //    x/y in stage px, s = scale (zoom), rx/ry/rz in degrees; a channel left out of a key keeps the previous key's value.
+  //    Mark the target data-camera so motion_trace reports camera moves as camera moves.
+  // =====================================================================================
+  const CAM = ["x", "y", "s", "rx", "ry", "rz"];
+  const CAM0 = { x: 0, y: 0, s: 1, rx: 0, ry: 0, rz: 0 };
+  function camKeys(keys) {
+    const ks = [...(keys || [])].sort((a, b) => a.t - b.t);
+    let prev = CAM0;
+    return ks.map((k) => (prev = { ...prev, ...k }));
+  }
+  // Monotone cubic Hermite (Fritsch-Carlson): continuous speed through the keys, never past a key's value.
+  function camAt(keys, t) {
+    const K = keys;
+    const out = {};
+    if (!K.length) return { ...CAM0 };
+    if (t <= K[0].t) { for (const c of CAM) out[c] = K[0][c]; return out; }
+    if (t >= K[K.length - 1].t) { for (const c of CAM) out[c] = K[K.length - 1][c]; return out; }
+    let i = 0;
+    while (i < K.length - 2 && t > K[i + 1].t) i++;
+    const a = K[i], b = K[i + 1], h = b.t - a.t || 1e-6, u = (t - a.t) / h;
+    for (const c of CAM) {
+      const slope = (j) => (K[j + 1][c] - K[j][c]) / (K[j + 1].t - K[j].t || 1e-6);
+      const tan = (j) => {
+        if (j === 0 || j === K.length - 1 || K[j].hold) return 0;
+        const d0 = slope(j - 1), d1 = slope(j);
+        if (d0 * d1 <= 0) return 0;
+        const w0 = 2 * (K[j + 1].t - K[j].t) + (K[j].t - K[j - 1].t), w1 = (K[j + 1].t - K[j].t) + 2 * (K[j].t - K[j - 1].t);
+        return (w0 + w1) / (w0 / d0 + w1 / d1);
+      };
+      const m0 = tan(i), m1 = tan(i + 1);
+      const u2 = u * u, u3 = u2 * u;
+      out[c] = (2 * u3 - 3 * u2 + 1) * a[c] + (u3 - 2 * u2 + u) * h * m0 + (-2 * u3 + 3 * u2) * b[c] + (u3 - u2) * h * m1;
+    }
+    return out;
+  }
+  function cameraRig(container, o = {}) {
+    let tgt = $(o.target);
+    if (!tgt) {
+      tgt = mk(null, "left:0;top:0;right:0;bottom:0;pointer-events:auto");
+      while (container.firstChild) tgt.appendChild(container.firstChild);
+      container.appendChild(tgt);
+    }
+    tgt.setAttribute("data-camera", "");
+    tgt.style.transformOrigin = o.origin || "50% 50%";
+    tgt.style.willChange = "transform";
+    const keys = camKeys(o.keys);
+    const P = o.perspective || 1800;
+    function at(t) {
+      const c = camAt(keys, t);
+      tgt.style.transform = `perspective(${P}px) translate(${c.x.toFixed(2)}px, ${c.y.toFixed(2)}px) rotateX(${c.rx.toFixed(3)}deg) rotateY(${c.ry.toFixed(3)}deg) rotateZ(${c.rz.toFixed(3)}deg) scale(${c.s.toFixed(4)})`;
+    }
+    return { el: tgt, at, keys, sample: (t) => camAt(keys, t) };
+  }
+
+  // =====================================================================================
+  // 5c. uiFrame: a real UI frozen by motion_ui_freeze, mounted in the film so its parts can be animated.
+  //    opts: { src: "ui/<name>/index.html", width:1440, height:900 (the size it was frozen at), x, y, scale, scroll, radius, z }
+  //    Returns { el (the frame: move, tilt or scale it like any element), doc, ready (a Promise), $(name) (the element
+  //    with that data-ui name; elements.json lists them), $$(selector), at(t) }. Build the tweens on its elements in
+  //    ready.then(...): every renderer waits for it (window.__dripWait) before the first frame.
+  //    scroll: number, or [{ t, y }] keys scrolled through with the camera rig's curve (no stop at a key).
+  // =====================================================================================
+  function uiFrame(container, o = {}) {
+    const W = o.width || 1440, H = o.height || 900;
+    const el = mk(container, `left:${o.x || 0}px;top:${o.y || 0}px;width:${W}px;height:${H}px;overflow:hidden;transform-origin:0 0;transform:scale(${o.scale || 1});border-radius:${o.radius || 0}px;z-index:${o.z == null ? 1 : o.z}`);
+    const fr = document.createElement("iframe");
+    fr.setAttribute("scrolling", "no");
+    fr.setAttribute("tabindex", "-1");
+    fr.style.cssText = `position:absolute;left:0;top:0;width:${W}px;height:${H}px;border:0;background:transparent;pointer-events:none`;
+    const api = { el, frame: fr, doc: null };
+    api.ready = new Promise((resolve) => {
+      fr.addEventListener("load", async () => {
+        api.doc = fr.contentDocument;
+        try { if (api.doc.fonts) await api.doc.fonts.ready; } catch (e) {}
+        await Promise.all([...api.doc.images].map((i) => (i.decode ? i.decode().catch(() => {}) : 0)));
+        resolve(api);
+      }, { once: true });
+    });
+    (window.__dripWait = window.__dripWait || []).push(api.ready);
+    fr.src = o.src;
+    el.appendChild(fr);
+    api.$ = (name) => api.doc && api.doc.querySelector(`[data-ui="${name}"]`);
+    api.$$ = (sel) => (api.doc ? [...api.doc.querySelectorAll(sel)] : []);
+    const scrollKeys = Array.isArray(o.scroll) ? camKeys(o.scroll.map((k) => ({ t: k.t, x: 0, y: k.y, hold: k.hold }))) : null;
+    api.at = (t) => {
+      if (!api.doc) return;
+      const y = scrollKeys ? camAt(scrollKeys, t).y : o.scroll || 0;
+      const root = api.doc.documentElement;
+      if (root) root.style.transform = y ? `translateY(${-y}px)` : "";
+    };
+    return api;
+  }
+
+  // =====================================================================================
   // 6. lightSweep: diagonal specular sweep across a target, masked to its shape.
   //    opts: { target, start | times:[..], dur:1.1, angle:18, width:.34, intensity:.55, show, hide }
   // =====================================================================================
@@ -923,8 +1022,8 @@
 
   window.DripVisuals = {
     version: "1.0",
-    lightField, glow, grain, plane3d, cameraDrift, lightSweep, particlesToShape, dotGlobe, orbitCards,
+    lightField, glow, grain, plane3d, cameraDrift, cameraRig, uiFrame, lightSweep, particlesToShape, dotGlobe, orbitCards,
     liquidBlob, lineDraw, countUp, barGrow, depthStack, typeReveal, drive,
-    util: { rng, clamp, lerp, sstep, inOut, outCubic, outExpo, mix, color, rgba, pal },
+    util: { camAt, camKeys, rng, clamp, lerp, sstep, inOut, outCubic, outExpo, mix, color, rgba, pal },
   };
 })();

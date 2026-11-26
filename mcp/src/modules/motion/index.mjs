@@ -16,16 +16,20 @@ import { artifactRev } from "../../core/evidence.mjs";
 import { fidelity, findFfmpeg, fmtT, judgeFrames, measureFrames, renderComposition, sampleVideo, sparkline } from "./capture.mjs";
 import { compositionUrl, filmSheets, isVideo } from "./sheets.mjs";
 import { ROLES, checkStoryboard, storyboardMd } from "./story.mjs";
-import { analyzeTrace, dopesheet, onionSkin, stretches, traceComposition } from "./trace.mjs";
+import { analyzeTrace, dopesheet, judgeSpeed, onionSkin, stretches, traceComposition } from "./trace.mjs";
 import { LAUNCHY, mastersWork, parseLikes, search24fps, searchDribbbleMotion, searchKisto, searchLaunches, searchRelaxed } from "./refsources.mjs";
 import { listing, shot as dribbbleShot, thumbUrl } from "../refs/dribbble.mjs";
 import { filmDir, registerAudio } from "./audio.mjs";
 import { installPiece, searchPieces } from "./pieces.mjs";
+import { freezeUi } from "./uifreeze.mjs";
+import { openPage, withTab } from "../../core/browser.mjs";
 import { registerVoice } from "./voice.mjs";
 import { mixGraph, soundTracks } from "./sound.mjs";
 import { distrustedFor, ensureRenderers, mux, noteDistrust, renderWith } from "./renderers.mjs";
 
 const motionOf = (task) => task?.motion || { studied: [], renders: [] };
+/** The whole film's speed curve was traced on this version and is smooth. */
+export const speedOk = (mo, rev) => !!mo?.trace?.whole && mo.trace.rev === rev && !mo.trace.speed;
 
 /** Drip's own capture as a renderer test: used by ensureRenderers to time it against the others. */
 export function dripTestRender(config) {
@@ -73,10 +77,12 @@ export async function traceTarget(target, { from, to, fps, storyboard, config, m
     pixels = tr.thumbs.map((x, i) => ({ t: x.t, diff: m[i]?.diff ?? 0 }));
   }
   const a = analyzeTrace({ labels: tr.labels, times: tr.times, samples: tr.samples, width: W, beats, pixels, cam: tr.cam ?? -1, inCam: tr.inCam || null });
+  // The speed curve of the whole picture (DOM, canvas or WebGL alike): stop-starts, jumps, judder.
+  const speed = judgeSpeed(pixels);
   const sheet = await dopesheet({ labels: tr.labels, times: tr.times, speeds: a.speeds, segments: a.segments, samples: tr.samples, beats, config });
   const onions = [];
   for (const [s, e] of stretchesNow) onions.push({ from: s, to: e, buf: await onionSkin({ ghosts: tr.ghosts, labels: tr.labels, times: tr.times, samples: tr.samples, from: s, to: e, width: W, height: H, config }) });
-  return { labels: tr.labels, a, sheet, onions, duration: D, pixels };
+  return { labels: tr.labels, a, sheet, onions, duration: D, pixels, speed, whole: from == null && to == null };
 }
 
 // Reference sources live in refsources.mjs (masters first, then open search with a quality floor).
@@ -473,20 +479,79 @@ export function register(server, ctx) {
         st.task.fitcheck.shots = (st.task.fitcheck.shots || 0) + 1;
         st.task.fitcheck.lastShotAt = now;
         st.task.fitcheck.shotRev = rev;
-        if (sweep && clean && !isVideo(target)) {
+        const mo = (st.task.motion ||= { studied: [], renders: [] });
+        // A clean sweep is half the check: the speed curve (motion_trace over the whole film) is the other half. A
+        // jittery draft once passed on clean stills alone.
+        if (sweep && clean && !isVideo(target) && speedOk(mo, rev)) {
           st.task.fitcheck.doneAt = now;
           st.task.fitcheck.doneRev = rev;
         }
-        const mo = (st.task.motion ||= { studied: [], renders: [] });
         mo.frames = { at: now, rev, sweep, clean, target };
       });
-      const head = issues.length ? `PROBLEMS (fix, then sweep again):\n${issues.map((x) => `- ${x}`).join("\n")}` : sweep ? "No measured problems: the sweep is recorded for this version." : "No measured problems in these frames (a range or transition check; the full sweep is what records the check).";
+      const after = loadState().task?.motion;
+      const needTrace = sweep && clean && !isVideo(target) && after && !speedOk(after, after.frames?.rev);
+      const head = issues.length
+        ? `PROBLEMS (fix, then sweep again):\n${issues.map((x) => `- ${x}`).join("\n")}`
+        : sweep
+          ? needTrace
+            ? `No problems in the stills. NOW (required): motion_trace({ target: "${target}" }) over the whole film: stills can't show jitter, and the film isn't checked until its speed curve is smooth.`
+            : "No measured problems, and this version's speed curve is smooth: the check is recorded."
+          : "No measured problems in these frames (a range or transition check; the full sweep is what records the check).";
       return blocks([
         textBlock(
           `${head}\nClock: ${r.probe?.via}${D ? `, ${D.toFixed(2)}s` : ""}. ${notes.join(". ")}${notes.length ? "." : ""}\nRhythm: ${sparkline(r.judge.energy)}\nSheets: ${files.join(", ")}\n\n` +
             "LOOK at every tile as a frame someone pauses on: is there one clear focal point, is the type set well at this size, does each transition carry something across, is anything half-drawn or colliding mid-move? Then fix and look again.",
         ),
         ...r.sheets.map((b) => imageBlock(b)),
+      ]);
+    }),
+  );
+
+  server.registerTool(
+    "motion_ui_freeze",
+    {
+      title: "Freeze a real UI to animate it",
+      description:
+        "A product film shows the real UI moving, not a screenshot on a tilted plane. This opens the live page (a URL or a local dev server), scrolls it so lazy images and reveals load, then freezes it: animations baked where they are and stopped, scripts and handlers removed, canvases and videos kept as stills, every stylesheet inlined, fonts and images saved locally. " +
+        "It writes <film>/ui/<name>/index.html with its assets and elements.json, and names the elements a film animates (headings, copy, buttons, cards, images, inputs, nav) with data-ui. In the composition: " +
+        'const ui = DripVisuals.uiFrame(stage, { src: "ui/<name>/index.html", width, height, x, y, scale }); ui.ready.then(() => { tl.from(ui.$("h1-ship-faster"), { y: 40, opacity: 0, duration: 0.8 }, 1.2); ... }). ' +
+        "Animate its parts (a card lifting, a value counting, a button pressed, the cursor, the camera through the page); never treat the whole page as one flat picture. " +
+        'Example: motion_ui_freeze({ url: "http://localhost:3000/dashboard", name: "dashboard", width: 1440, height: 900 })',
+      inputSchema: {
+        url: z.string().describe("The page: an http(s) URL (a dev server works) or a local .html file"),
+        name: z.string().describe("A short name for this screen: 'dashboard', 'editor', 'pricing'"),
+        width: z.number().int().min(320).max(3840).optional().describe("Viewport width the page is frozen at (default 1440: its desktop layout)"),
+        height: z.number().int().min(320).max(4000).optional().describe("Viewport height (default 900)"),
+      },
+    },
+    safe(async ({ url, name, width = 1440, height = 900 }, extra) => {
+      const config = ctx.config();
+      const prog = progress(extra);
+      const { task } = loadState();
+      const src = /^https?:/i.test(url) ? url : await compositionUrl(url);
+      const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "screen";
+      const film = filmDir(task);
+      const dir = path.join(film, "ui", slug);
+      prog.tick(`freezing ${url}`);
+      const r = await freezeUi(src, { dir, width, height, config });
+      prog.tick("checking the frozen copy");
+      // The frozen copy as it renders, so a broken stylesheet or a missing font shows now, not in the film.
+      const shot = await withTab(config, async (tab) => {
+        await openPage(tab, await compositionUrl(r.file), { width, height, settleMs: 600 });
+        const { data } = await tab.s("Page.captureScreenshot", { format: "jpeg", quality: 80, clip: { x: 0, y: 0, width, height, scale: Math.min(1, 1200 / width) } });
+        return Buffer.from(data, "base64");
+      });
+      const rel = (f) => path.relative(film, f).replace(/\\/g, "/");
+      const list = r.elements.filter((e) => e.y < height * 3).slice(0, 60);
+      return blocks([
+        textBlock(
+          `Frozen ${url} → ${path.relative(projectDir(), r.file)} (${width}x${height} viewport, page ${r.height}px tall, ${r.assets} assets saved${r.missing.length ? `; NOT saved: ${r.missing.slice(0, 5).join(", ")}` : ""}).\n` +
+            `Mount it: DripVisuals.uiFrame(stage, { src: "${rel(r.file)}", width: ${width}, height: ${height} }) (src relative to the composition in ${path.relative(projectDir(), film) || "."}).\n` +
+            `${r.elements.length} named elements (all in ${rel(path.join(dir, "elements.json"))}); the first screens:\n` +
+            list.map((e) => `- ${e.name} (${e.tag}, ${e.x},${e.y} ${e.w}x${e.h})${e.text && !e.name.includes(e.text.toLowerCase().slice(0, 6)) ? ` "${e.text}"` : ""}`).join("\n") +
+            "\n\nLOOK at the picture: it is the frozen copy. If it differs from the live page (a missing font, an empty panel), say so and fix the source or freeze again before building on it.",
+        ),
+        imageBlock(shot),
       ]);
     }),
   );
@@ -522,14 +587,28 @@ export function register(server, ctx) {
       save("dopesheet.png", r.sheet);
       r.onions.forEach((o, i) => save(`onion-${i + 1}.png`, o.buf));
       updateState((st) => {
-        if (st.task) (st.task.motion ||= { studied: [], renders: [] }).trace = { at: new Date().toISOString(), rev: artifactRev(st.task), flags: r.a.flags.length };
+        if (st.task) {
+          const mo = (st.task.motion ||= { studied: [], renders: [] });
+          const rev = artifactRev(st.task);
+          mo.trace = { at: new Date().toISOString(), rev, flags: r.a.flags.length, whole: r.whole, speed: r.speed.length };
+          // The other half of the check: a clean sweep of this same version earlier counts now.
+          if (r.whole && !r.speed.length && mo.frames?.sweep && mo.frames.clean && mo.frames.rev === rev) {
+            st.task.fitcheck.doneAt = mo.trace.at;
+            st.task.fitcheck.doneRev = rev;
+          }
+        }
         if (st.task) st.task.motion.traceMoves = r.a.segments.filter((x) => x.travel > 20).map((x) => [x.from, x.to]).slice(0, 300);
         // Pixel change counts as movement too: an SVG path changing shape, a canvas, a light sweep.
         if (st.task) st.task.motion.traceActive = (r.pixels || []).filter((p) => p.diff > 3).map((p) => [+(p.t - 0.2).toFixed(2), +(p.t + 0.2).toFixed(2)]).slice(0, 600);
       });
       return blocks([
         textBlock(
-          `${r.a.flags.length ? `FLAGS (measured):\n${r.a.flags.map((f) => `- ${f}`).join("\n")}` : "No measured motion flags."}\n${r.a.notes.join(". ")}.\n` +
+          (r.speed.length
+            ? `SPEED CURVE PROBLEMS (they read as jitter; fix, then trace again):\n${r.speed.map((x) => `- ${x.text}`).join("\n")}\n\n`
+            : r.whole
+              ? "Speed curve: smooth (no stop-starts, jumps or judder).\n"
+              : "Speed curve: smooth in this range (the whole film's trace is what records the check).\n") +
+            `${r.a.flags.length ? `FLAGS (measured):\n${r.a.flags.map((f) => `- ${f}`).join("\n")}` : "No measured motion flags."}\n${r.a.notes.join(". ")}.\n` +
             `${r.a.segments.length} moves on ${new Set(r.a.segments.map((s) => s.k)).size} of ${r.labels.length} tracked elements, sampled at ${Math.round(1 / r.a.dt)} fps.\nFiles: ${files.join(", ")}\n\n` +
             "Read the dopesheet for choreography (who leads, who follows, where it rests) and each onion skin for spacing and arcs. Measured is measured; whether a move feels right is your call, and the flags are contextual (a linear move can be a deliberate mechanical feel).",
         ),

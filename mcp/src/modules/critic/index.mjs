@@ -297,7 +297,7 @@ export function register(server, ctx) {
             notes.push(`(motion trace failed: ${e.message})`);
           }
         }
-        if (traced) measured.push(`MOTION (measured from the page, contextual, not automatic faults): ${[...traced.a.flags, ...traced.a.notes].join("; ") || "no flags"}`);
+        if (traced) measured.push(`MOTION (measured from the page, contextual, not automatic faults): ${[...(traced.speed || []).map((x) => `SPEED: ${x.text}`), ...traced.a.flags, ...traced.a.notes].join("; ") || "no flags"}`);
         const flags = [...whole.errors.map((e) => `page: ${e}`), ...whole.judge.issues, ...(whole.clipped.length ? [`text cut by the frame edge: ${whole.clipped.slice(0, 3).join("; ")}`] : [])];
         measured.push(`film: ${whole.probe?.duration ? `${whole.probe.duration.toFixed(1)}s` : "?"}; ${whole.judge.notes.join("; ") || "no hard cuts or long holds"}${flags.length ? `\nBLOCKERS: ${flags.join("; ")}` : ""}`);
         if (sb) context = `${context ? `${context}\n` : ""}THE STORYBOARD (what the film is meant to do; judge the frames against it):\n${storyboardBrief(sb)}`;

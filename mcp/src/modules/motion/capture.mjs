@@ -39,6 +39,8 @@ export const PROBE = `(() => {
 /** Runs in the page: put everything at time t (seconds), then wait two frames for layout and paint. */
 export const seekExpr = (t) => `(async () => {
   const t = ${Number(t)};
+  // Frozen UIs (DripVisuals.uiFrame) and anything else the film registered load before the first frame.
+  if (window.__dripWait && window.__dripWait.length) await Promise.race([Promise.all(window.__dripWait), new Promise((r) => setTimeout(r, 10000))]);
   const d = window.__drip;
   if (d && typeof d.seek === 'function') await d.seek(t);
   else if (typeof window.seek === 'function') await window.seek(t);
@@ -196,7 +198,16 @@ window.run = async () => {
     for (let i = 0; i < L.length; i++) { const k = ((d[i * 4] >> 4) << 8) | ((d[i * 4 + 1] >> 4) << 4) | (d[i * 4 + 2] >> 4); buckets.set(k, (buckets.get(k) || 0) + 1); }
     let modeK = 0, modeN = -1; for (const [k, n] of buckets) if (n > modeN) { modeN = n; modeK = k; }
     const mr = ((modeK >> 8) & 15) * 16 + 8, mg = ((modeK >> 4) & 15) * 16 + 8, mb = (modeK & 15) * 16 + 8;
-    let filled = 0; for (let i = 0; i < L.length; i++) if (Math.abs(d[i * 4] - mr) + Math.abs(d[i * 4 + 1] - mg) + Math.abs(d[i * 4 + 2] - mb) > 48) filled++;
+    // On a dark ground (an ink brand) dark UI differs from it by small steps: the threshold follows the ground's
+    // brightness, and any edge (text, a hairline border) counts as something on screen.
+    const gL = 0.2126 * mr + 0.7152 * mg + 0.0722 * mb;
+    const thr = gL < 40 ? 16 : gL < 90 ? 30 : 48;
+    let filled = 0;
+    for (let i = 0; i < L.length; i++) {
+      const off = Math.abs(d[i * 4] - mr) + Math.abs(d[i * 4 + 1] - mg) + Math.abs(d[i * 4 + 2] - mb) > thr;
+      const edge = (i % 64 && Math.abs(L[i] - L[i - 1]) > 10) || (i >= 64 && Math.abs(L[i] - L[i - 64]) > 10);
+      if (off || edge) filled++;
+    }
     out.push({ mean: +mean.toFixed(1), spread: +Math.sqrt(v / L.length).toFixed(1), diff: diff == null ? null : +diff.toFixed(1), block: block == null ? null : +block.toFixed(1), fill: +(filled / L.length).toFixed(3) });
     prev = L;
   }
