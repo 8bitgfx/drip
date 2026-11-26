@@ -1,117 +1,82 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Drip Film</title>
-<meta name="color-scheme" content="dark light">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0A0B0F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="viewer.css">
-<script>
-  // theme before paint: ?theme= wins, then the saved choice, then the system
-  (function () {
-    var q = new URLSearchParams(location.search).get('theme'), s = null;
-    try { s = localStorage.getItem('drip-film-theme'); } catch (e) {}
-    var t = q || s || 'dark';
-    document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
-  })();
-</script>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-play" viewBox="0 0 256 256"><path fill="currentColor" d="M240 128a15.74 15.74 0 0 1-7.6 13.51L88.32 229.65a16 16 0 0 1-16.2.3A15.86 15.86 0 0 1 64 216.13V39.87a15.86 15.86 0 0 1 8.12-13.82a16 16 0 0 1 16.2.3l144.08 88.14A15.74 15.74 0 0 1 240 128"/></symbol><symbol id="i-pause" viewBox="0 0 256 256"><path fill="currentColor" d="M216 48v160a16 16 0 0 1-16 16h-40a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h40a16 16 0 0 1 16 16M96 32H56a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16"/></symbol><symbol id="i-back" viewBox="0 0 256 256"><path fill="currentColor" d="M208 47.88v160.24a16 16 0 0 1-24.43 13.43L64 146.77V216a8 8 0 0 1-16 0V40a8 8 0 0 1 16 0v69.23l119.57-74.78A15.95 15.95 0 0 1 208 47.88"/></symbol><symbol id="i-fwd" viewBox="0 0 256 256"><path fill="currentColor" d="M208 40v176a8 8 0 0 1-16 0v-69.23L72.43 221.55A15.95 15.95 0 0 1 48 208.12V47.88a15.95 15.95 0 0 1 24.43-13.43L192 109.23V40a8 8 0 0 1 16 0"/></symbol><symbol id="i-check" viewBox="0 0 256 256"><path fill="currentColor" d="m232.49 80.49l-128 128a12 12 0 0 1-17 0l-56-56a12 12 0 1 1 17-17L96 183L215.51 63.51a12 12 0 0 1 17 17Z"/></symbol><symbol id="i-ccw" viewBox="0 0 256 256"><path fill="currentColor" d="M228 128a100 100 0 0 1-98.66 100H128a99.4 99.4 0 0 1-68.62-27.29a12 12 0 0 1 16.48-17.45a76 76 0 1 0-1.57-109c-.13.13-.25.25-.39.37L54.89 92H72a12 12 0 0 1 0 24H24a12 12 0 0 1-12-12V56a12 12 0 0 1 24 0v20.72l21.48-19.66A100 100 0 0 1 228 128"/></symbol><symbol id="i-sun" viewBox="0 0 256 256"><path fill="currentColor" d="M116 36V20a12 12 0 0 1 24 0v16a12 12 0 0 1-24 0m80 92a68 68 0 1 1-68-68a68.07 68.07 0 0 1 68 68m-24 0a44 44 0 1 0-44 44a44.05 44.05 0 0 0 44-44M51.51 68.49a12 12 0 1 0 17-17l-12-12a12 12 0 0 0-17 17Zm0 119l-12 12a12 12 0 0 0 17 17l12-12a12 12 0 1 0-17-17M196 72a12 12 0 0 0 8.49-3.51l12-12a12 12 0 0 0-17-17l-12 12A12 12 0 0 0 196 72m8.49 115.51a12 12 0 0 0-17 17l12 12a12 12 0 0 0 17-17ZM48 128a12 12 0 0 0-12-12H20a12 12 0 0 0 0 24h16a12 12 0 0 0 12-12m80 80a12 12 0 0 0-12 12v16a12 12 0 0 0 24 0v-16a12 12 0 0 0-12-12m108-92h-16a12 12 0 0 0 0 24h16a12 12 0 0 0 0-24"/></symbol><symbol id="i-moon" viewBox="0 0 256 256"><path fill="currentColor" d="M236.37 139.4a12 12 0 0 0-12-3A84.07 84.07 0 0 1 119.6 31.59a12 12 0 0 0-15-15a108.86 108.86 0 0 0-54.91 38.48A108 108 0 0 0 136 228a107.1 107.1 0 0 0 64.93-21.69a108.86 108.86 0 0 0 38.44-54.94a12 12 0 0 0-3-11.97m-49.88 47.74A84 84 0 0 1 68.86 69.51a84.9 84.9 0 0 1 23.41-21.22Q92 52.13 92 56a108.12 108.12 0 0 0 108 108q3.87 0 7.71-.27a84.8 84.8 0 0 1-21.22 23.41"/></symbol></svg>
-<div class="app" id="app" data-mode="live" data-tab="agents">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8a1 1 0 0 0 1.52.86l10.4-6.4a1 1 0 0 0 0-1.72L9.52 4.74A1 1 0 0 0 8 5.6Z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect fill="currentColor" x="6.5" y="5" width="4" height="14" rx="1.2"/><rect fill="currentColor" x="13.5" y="5" width="4" height="14" rx="1.2"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 5h5v5M19 5l-8 8M17 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h4"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5c3.6 4.3 7 8.3 7 12a7 7 0 0 1-14 0c0-3.7 3.4-7.7 7-12Z"/></symbol>
+  <symbol id="i-cursor" viewBox="0 0 20 22"><path d="M2.2 1.6 17.4 10a.9.9 0 0 1-.12 1.64l-6.1 2.1-3.2 5.7a.9.9 0 0 1-1.64-.2L1.03 2.67a.9.9 0 0 1 1.17-1.07Z"/></symbol>
+</svg>
 
+<div class="app" id="app">
   <header class="top">
-    <a class="brand" href="?" aria-label="Drip Film"><span class="brand-name">Drip Film</span></a>
-    <div class="top-right">
-      <div class="modes" role="tablist" aria-label="View">
-        <button class="chip seg-b on" role="tab" data-mode="live" aria-selected="true">Live</button>
-        <button class="chip seg-b" role="tab" data-mode="montage" aria-selected="false">Montage</button>
-      </div>
-      <button class="chip round" id="themeBtn" data-tip="Theme (T)" aria-label="Switch theme"><svg class="ic i-sun" aria-hidden="true"><use href="#i-sun"/></svg><svg class="ic i-moon" aria-hidden="true"><use href="#i-moon"/></svg></button>
-    </div>
-    <span class="sr" id="status" aria-live="polite"><span id="statusText"></span></span>
+    <a class="brand" href="?" aria-label="Drip Film"><svg class="drop" aria-hidden="true"><use href="#i-drop"/></svg></a>
+    <h1 class="title" id="title">Drip Film</h1>
+    <button class="live" id="liveBtn" hidden aria-pressed="true"><i></i>Live</button>
   </header>
 
-  <main class="bento">
+  <main class="stage" id="stage" aria-label="The build, played back">
+    <div class="aura" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="intro" id="intro"></p>
+    <p class="line" id="line" aria-live="polite"></p>
+    <div class="who" id="who" aria-label="Working now"><span class="clock" id="realClock"></span></div>
+    <div class="wall" id="wall"></div>
 
-    <section class="t stage" id="stage" aria-label="The page being built">
-      <div class="cap-row">
-        <p class="cap" id="stageCap"><b>Waiting.</b> Loading the film.</p>
-        <div class="cap-right">
-          <div class="faces faces-live" id="facesLive"></div>
-          <div class="transport" id="transport">
-            <button class="chip round ghost" id="prevBtn" data-tip="Previous frame (&larr;)" aria-label="Previous frame"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg></button>
-            <button class="chip round on" id="playBtn" aria-label="Play"><svg class="ic i-play" aria-hidden="true"><use href="#i-play"/></svg><svg class="ic i-pause" aria-hidden="true"><use href="#i-pause"/></svg></button>
-            <button class="chip round ghost" id="nextBtn" data-tip="Next frame (&rarr;)" aria-label="Next frame"><svg class="ic" aria-hidden="true"><use href="#i-fwd"/></svg></button>
-            <span class="clock mono" id="clock">00:00 <span>/ 00:00</span></span>
-            <div class="speed" id="speed" role="radiogroup" aria-label="Speed">
-              <button class="chip sm" data-speed="1" aria-checked="true" role="radio">1x</button>
-              <button class="chip sm" data-speed="2" aria-checked="false" role="radio">2x</button>
-              <button class="chip sm" data-speed="4" aria-checked="false" role="radio">4x</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="faces faces-row" id="facesRow"></div>
-      <div class="shot" id="screen">
+    <div class="win" id="win">
+      <div class="bar"><i></i><i></i><i></i><span class="url" id="url"></span></div>
+      <div class="view" id="view">
+        <div class="paper" id="paper"></div>
         <img id="imgA" alt="" decoding="async">
         <img id="imgB" alt="" decoding="async">
-        <div class="empty" id="empty" hidden><p id="emptyText">Waiting for the first frame</p></div>
+        <div class="band" id="band"></div>
+        <div class="marks" id="marks"></div>
+        <div class="cursors" id="cursors"></div>
       </div>
-      <div class="hero" id="hero" hidden>
-        <div class="hero-art" id="heroArt"></div>
-        <div class="hero-actions" id="heroActions">
-          <button class="chip white" id="replayBtn"><svg class="ic" aria-hidden="true"><use href="#i-ccw"/></svg>Replay</button>
-          <a class="chip ghost" id="openBtn" target="_blank" rel="noopener">Open the page</a>
+    </div>
+    <p class="note" id="note"></p>
+
+    <div class="empty" id="empty" hidden><p id="emptyText">Waiting for the first moments of the run.</p></div>
+
+    <div class="end" id="end" hidden>
+      <div class="end-in">
+        <svg class="end-drop" aria-hidden="true"><use href="#i-drop"/></svg>
+        <p class="end-big" id="endBig">Built.</p>
+        <p class="end-sub" id="endSub"></p>
+        <div class="end-act">
+          <button class="btn primary" id="replayBtn"><svg aria-hidden="true"><use href="#i-replay"/></svg>Replay</button>
+          <a class="btn" id="openBtn" target="_blank" rel="noopener" hidden><svg aria-hidden="true"><use href="#i-out"/></svg>Open the page</a>
         </div>
       </div>
-    </section>
-
-    <section class="t agents" aria-label="Agents">
-      <div class="cap-row">
-        <p class="cap" id="agCap"><b>Agents.</b> None yet.</p>
-        <div class="switch tabs" role="tablist" aria-label="Panels">
-          <button class="chip sm on" role="tab" data-tab="agents" aria-selected="true">Agents</button>
-          <button class="chip sm" role="tab" data-tab="feed" aria-selected="false">Activity</button>
-        </div>
-      </div>
-      <div class="scroller">
-        <ol class="agent-list" id="agents"></ol>
-        <ol class="feed" id="feed"></ol>
-      </div>
-    </section>
-
-    <section class="t timeline" aria-label="Timeline">
-      <div class="tl-body" id="tlBody">
-        <div class="cap-row">
-          <p class="cap"><b>Timeline.</b> Who built what.</p>
-          <div class="ruler-wrap">
-            <div class="ticks" id="rulerTicks"></div>
-            <div class="tl-ruler" id="ruler"></div>
-          </div>
-        </div>
-        <div class="tl-scroll"><div class="tl-lanes" id="lanes"></div></div>
-        <div class="playhead" id="playhead"></div>
-      </div>
-    </section>
-
-    <section class="t summary blue" aria-label="Summary">
-      <p class="cap" id="sumCap"><b>Elapsed.</b></p>
-      <div class="sum-chips" id="sumChips"></div>
-      <div class="big" id="sumBig">00:00</div>
-    </section>
-
+    </div>
   </main>
 
-  <div class="toast" id="toast" hidden>
-    <span id="toastText">The build finished.</span>
-    <button class="chip on sm" id="toastBtn">Watch the montage</button>
-  </div>
-  <div class="tip" id="tip" hidden></div>
+  <footer class="transport" id="transport">
+    <button class="play" id="playBtn" aria-label="Play"><svg class="i-play" aria-hidden="true"><use href="#i-play"/></svg><svg class="i-pause" aria-hidden="true"><use href="#i-pause"/></svg></button>
+    <span class="time" id="time">00:00</span>
+    <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+      <div class="track" id="track"></div>
+      <div class="ticks" id="ticks"></div>
+      <div class="knob" id="knob"></div>
+      <div class="peek" id="peek"></div>
+    </div>
+    <span class="time dim" id="dur">00:00</span>
+    <button class="speed" id="speedBtn" aria-label="Playback speed">1×</button>
+  </footer>
 </div>
+<script src="model.js"></script>
 <script src="viewer.js"></script>
 </body>
 </html>
