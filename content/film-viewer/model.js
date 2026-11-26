@@ -53,8 +53,9 @@
     const refs = list('ref', 'refs').filter((r) => r.image || r.title).map((r) => ({ ms: r.ms, title: r.title || host(r.url), site: host(r.url), url: r.url || null, image: r.image || null }));
     const pieces = list('piece', 'pieces').filter((p) => p.name || p.image).map((p) => ({ ms: p.ms, title: p.name || base(p.url).replace(/\.json$/, ''), site: host(p.url), url: p.url || null, image: p.image || null }));
     const assets = list('asset', 'assets').map((a) => {
-      const src = a.src || (IMG.test(a.file || '') ? a.file : null);
-      return { ms: a.ms, title: base(a.file || a.src), site: a.assetKind || (a.kind !== 'asset' ? a.kind : '') || '', image: src && IMG.test(src) ? src : null };
+      // The recording's thumbnail (next to the film) first; a project file path is not reachable from the film folder.
+      const src = a.image || (IMG.test(a.src || '') ? a.src : null);
+      return { ms: a.ms, title: base(a.file || a.src), site: a.assetKind || (a.kind !== 'asset' ? a.kind : '') || '', image: src || null };
     }).filter((a) => a.title);
 
     const writes = evs.filter((e) => e.kind === 'write').map((e) => {

@@ -2,6 +2,11 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.9.9: Drip Film rebuilt
+- **Recording** (`modules/film/record.mjs`, `core/film.mjs`, `docs/FILM.md`): frames of the whole page as it grows, never the Vite or Next error overlay, a blank or a loading page; references, assets and pieces with thumbnails; where each agent writes (a target box per write) for the viewer's cursors; `drip_start` opens the live Film tab once per task.
+- **Viewer** (`content/film-viewer`): the run as a story (the brief, references, assets and picked pieces, then the page being built with a cursor per agent), the finished card over the last frame instead of replacing it, exact seeking on click and drag, live follow, bad frames skipped, Drip's own wordmark and colours, far fewer words.
+- An asset card shows the recording's thumbnail (a project file path isn't reachable from the film folder).
+
 ## 0.9.8: pieces are reviewed, not just recoloured
 - Builders keep the idea that made a piece the pick and review the rest against the page: colours, radius, borders, shadows, hover and press effects, spacing, fonts, motion timing. What fits stays (byte for byte is fine); what doesn't changes ("its hover shadow doesn't fit this flat page: a border brighten instead"). They report each decision. taste.md, builder.md, the builder brief and pieces_install say so.
 - `pieces_install` fingerprints the files it writes; the page check lists PIECES TO REVIEW (unchanged from the library, demo effects such as hover shadows, lifts and scales, demo colours) as notes for a decision. The 0.9.7 demo-colour blocker is now one of these notes: a piece is never blocked for its looks.
