@@ -372,14 +372,26 @@ export async function renderComposition(url, { out, fps = 30, width = 1920, heig
     const proc = spawn(ffmpeg, args, { windowsHide: true, stdio: ["pipe", "ignore", "pipe"] });
     let err = "";
     proc.stderr.on("data", (d) => (err = (err + d).slice(-4000)));
-    const done = new Promise((res, rej) => proc.on("close", (code) => (code === 0 ? res() : rej(new Error(`ffmpeg failed (${code}): ${err.split("\n").slice(-4).join(" ")}`)))));
+    // ffmpeg can exit early (a bad argument, a build without a needed format): stop feeding it and report why,
+    // never leave a rejected promise unhandled (it would take the whole server down).
+    let exited = false;
+    const done = new Promise((res, rej) =>
+      proc.on("close", (code) => {
+        exited = true;
+        code === 0 ? res() : rej(new Error(`ffmpeg failed (${code}): ${err.split("\n").slice(-4).join(" ")}`));
+      }),
+    );
+    done.catch(() => {});
+    proc.on("error", () => (exited = true));
+    proc.stdin.on("error", () => {}); // EPIPE once ffmpeg is gone; `done` carries the real reason
     const t0 = Date.now();
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n && !exited; i++) {
       const t = from + i / fps;
       await evalJson(tab.s, seekExpr(t));
       const { data } = await tab.s("Page.captureScreenshot", alpha ? { format: "png", clip: { x: 0, y: 0, width, height, scale: 1 } } : { format: "jpeg", quality: 95, clip: { x: 0, y: 0, width, height, scale: 1 } });
       const buf = Buffer.from(data, "base64");
-      if (!proc.stdin.write(buf)) await new Promise((r) => proc.stdin.once("drain", r));
+      if (exited) break;
+      if (!proc.stdin.write(buf)) await new Promise((r) => (exited ? r() : (proc.stdin.once("drain", r), proc.once("close", r))));
       if (onProgress && i % fps === 0) onProgress(i, n);
     }
     proc.stdin.end();

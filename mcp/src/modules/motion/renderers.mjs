@@ -13,14 +13,33 @@ import path from "node:path";
 import { homeDripDir, kitDir } from "../../core/paths.mjs";
 import { vendorDir } from "../../core/vendor.mjs";
 
-export const PACKAGES = { kinetograph: "kinetograph@>=0.4.0-rc.1", hyperframes: "hyperframes@0.9.72", framevelo: "github:gnipbao/framevelo" };
+// ffmpeg-static and ffprobe-static: full builds. Kinetograph's own FFmpeg is minimal (raw video in, WAV only), so the
+// sound mix, Drip's capture, HyperFrames (needs ffprobe) and FrameVelo use these, put on PATH for every renderer.
+export const PACKAGES = { kinetograph: "kinetograph@>=0.4.0-rc.1", hyperframes: "hyperframes@0.9.72", framevelo: "github:gnipbao/framevelo", "ffmpeg-static": "ffmpeg-static@5", "ffprobe-static": "ffprobe-static@3" };
 const stateFile = () => path.join(process.env.DRIP_HOME || homeDripDir, "motion-renderer.json");
 const isWin = process.platform === "win32";
+const exe = (n) => (isWin ? `${n}.exe` : n);
 
-function run(cmd, args, { cwd, timeout = 15 * 60e3 } = {}) {
+/** The full ffmpeg and ffprobe installed by the setup (or null each). */
+export function mediaTools() {
+  const nm = path.join(vendorDir(), "node_modules");
+  const ffmpeg = path.join(nm, "ffmpeg-static", exe("ffmpeg"));
+  const ffprobe = path.join(nm, "ffprobe-static", "bin", process.platform, process.arch, exe("ffprobe"));
+  return { ffmpeg: fs.existsSync(ffmpeg) ? ffmpeg : null, ffprobe: fs.existsSync(ffprobe) ? ffprobe : null };
+}
+
+/** PATH with the vendored ffmpeg and ffprobe first: the renderers look for them there. */
+function toolEnv() {
+  const t = mediaTools();
+  const dirs = [t.ffmpeg, t.ffprobe].filter(Boolean).map((f) => path.dirname(f));
+  const key = Object.keys(process.env).find((k) => k.toUpperCase() === "PATH") || "PATH";
+  return { ...process.env, [key]: [...dirs, process.env[key] || ""].join(path.delimiter) };
+}
+
+function run(cmd, args, { cwd, timeout = 15 * 60e3, env } = {}) {
   return new Promise((resolve) => {
     const t0 = Date.now();
-    execFile(cmd, args, { cwd, timeout, windowsHide: true, maxBuffer: 16 << 20, shell: isWin && /\.cmd$/i.test(cmd) }, (err, so, se) => resolve({ ok: !err, code: err?.code, out: `${so}\n${se}`.trim(), ms: Date.now() - t0 }));
+    execFile(cmd, args, { cwd, timeout, env, windowsHide: true, maxBuffer: 16 << 20, shell: isWin && /\.cmd$/i.test(cmd) }, (err, so, se) => resolve({ ok: !err, code: err?.code, out: `${so}\n${se}`.trim(), ms: Date.now() - t0 }));
   });
 }
 
@@ -44,30 +63,12 @@ export function binOf(pkg, name) {
   }
 }
 
-/** An ffmpeg binary shipped inside a vendored package (Kinetograph carries one), or null. */
+/**
+ * The full ffmpeg the setup installed, or null. Never Kinetograph's own FFmpeg: that build reads raw video and WAV
+ * only (no image pipes, no MP3/OGG, no mixing filters), which breaks Drip's capture and the sound mix.
+ */
 export function vendoredFfmpeg() {
-  const root = path.join(vendorDir(), "node_modules");
-  const want = isWin ? "ffmpeg.exe" : "ffmpeg";
-  const seen = new Set();
-  const walk = (dir, depth) => {
-    if (depth > 5 || seen.has(dir)) return null;
-    seen.add(dir);
-    let ents;
-    try {
-      ents = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return null;
-    }
-    for (const e of ents) if (e.isFile() && e.name === want) return path.join(dir, e.name);
-    for (const e of ents) {
-      if (!e.isDirectory() || e.name === ".bin" || e.name.startsWith(".")) continue;
-      if (depth === 0 && !/kinetograph|ffmpeg|hyperframes|framevelo|^@/.test(e.name)) continue;
-      const hit = walk(path.join(dir, e.name), depth + 1);
-      if (hit) return hit;
-    }
-    return null;
-  };
-  return walk(root, 0);
+  return mediaTools().ffmpeg;
 }
 
 /** How each engine renders `entry` (an .html composition) to `out`. Returns { cmd, args, cwd } or null when missing. */
@@ -79,7 +80,7 @@ export function engineCommand(engine, entry, out) {
   }
   if (engine === "framevelo") {
     const bin = binOf("framevelo");
-    return bin ? { cmd: process.execPath, args: [bin, "render", cwd, "-o", out], cwd } : null;
+    return bin ? { cmd: process.execPath, args: [bin, "render", cwd, "--no-hyperframes", "-o", out], cwd } : null;
   }
   if (engine === "hyperframes") {
     const bin = binOf("hyperframes");
@@ -94,8 +95,9 @@ let pending = null;
  * Install (once) and pick the renderer. Safe to call often: the first call does the work, later calls return the
  * stored choice. `renderDrip(entry, out)` is Drip's own capture, passed in to avoid an import cycle.
  */
-export function ensureRenderers({ renderDrip, log = () => {} } = {}) {
-  const have = readChoice();
+export function ensureRenderers({ renderDrip, log = () => {}, force = false } = {}) {
+  // force: test again (a new GPU or driver, a renderer update); the stored choice is replaced.
+  const have = force ? null : readChoice();
   if (have?.engine) return Promise.resolve(have);
   if (pending) return pending;
   pending = (async () => {
@@ -105,7 +107,7 @@ export function ensureRenderers({ renderDrip, log = () => {} } = {}) {
     const npm = isWin ? "npm.cmd" : "npm";
     const installed = {};
     for (const [name, spec] of Object.entries(PACKAGES)) {
-      if (binOf(name)) {
+      if (binOf(name) || fs.existsSync(path.join(vdir, "node_modules", name, "package.json"))) {
         installed[name] = "already there";
         continue;
       }
@@ -120,10 +122,11 @@ export function ensureRenderers({ renderDrip, log = () => {} } = {}) {
       entry,
       fs
         .readFileSync(path.join(kitDir, "motion.html"), "utf8")
-        .replace("duration: 8 }", "duration: 1 }")
-        .replace('data-duration="8"', 'data-duration="1"')
-        .replace(/width: 1920, height: 1080/, "width: 640, height: 360")
-        .replace('data-width="1920" data-height="1080"', 'data-width="640" data-height="360"'),
+        // Big and long enough to measure rendering, not start-up: 2 s at 1280x720 (60 frames).
+        .replace("duration: 8 }", "duration: 2 }")
+        .replace('data-duration="8"', 'data-duration="2"')
+        .replace(/width: 1920, height: 1080/, "width: 1280, height: 720")
+        .replace('data-width="1920" data-height="1080"', 'data-width="1280" data-height="720"'),
     );
     const tests = {};
     for (const engine of ["kinetograph", "framevelo", "hyperframes"]) {
@@ -134,7 +137,7 @@ export function ensureRenderers({ renderDrip, log = () => {} } = {}) {
         continue;
       }
       log(`test render: ${engine}`);
-      const r = await run(c.cmd, c.args, { cwd: c.cwd, timeout: 5 * 60e3 });
+      const r = await run(c.cmd, c.args, { cwd: c.cwd, timeout: 5 * 60e3, env: toolEnv() });
       const ok = r.ok && fs.existsSync(out) && fs.statSync(out).size > 1000;
       tests[engine] = { ok, ms: r.ms, why: ok ? undefined : r.out.split("\n").slice(-3).join(" ").slice(0, 300) };
     }
@@ -169,7 +172,7 @@ export function ensureRenderers({ renderDrip, log = () => {} } = {}) {
 export async function renderWith(engine, entry, out) {
   const c = engineCommand(engine, entry, out);
   if (!c) return { ok: false, why: `${engine} is not installed` };
-  const r = await run(c.cmd, c.args, { cwd: c.cwd, timeout: 60 * 60e3 });
+  const r = await run(c.cmd, c.args, { cwd: c.cwd, timeout: 60 * 60e3, env: toolEnv() });
   const ok = r.ok && fs.existsSync(out) && fs.statSync(out).size > 1000;
   return { ok, ms: r.ms, why: ok ? undefined : r.out.split("\n").slice(-6).join("\n").slice(0, 800) };
 }

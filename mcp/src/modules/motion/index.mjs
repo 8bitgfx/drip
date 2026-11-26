@@ -30,7 +30,7 @@ export function dripTestRender(config) {
     const ffmpeg = await findFfmpeg();
     if (!ffmpeg) throw new Error("no ffmpeg");
     const url = await compositionUrl(entry);
-    await renderComposition(url, { out, fps: 30, width: 640, height: 360, ffmpeg, config });
+    await renderComposition(url, { out, fps: 30, width: 1280, height: 720, ffmpeg, config });
   };
 }
 

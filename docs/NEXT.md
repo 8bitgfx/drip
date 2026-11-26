@@ -7,7 +7,7 @@ What shipped is in [CHANGELOG.md](../CHANGELOG.md). Still to measure from 0.9.0:
 ### Drip Motion (0.10.0)
 - The final MP4 encode and the sound mix are untested on a machine with ffmpeg (none on the dev machine); frames, trace, study and music analysis are tested.
 - The cut detector in `motion_study` counts a fast continuous zoom or a blur as many cuts, and misses wipes and dissolves.
-- Renderer setup (`modules/motion/renderers.mjs`) is untested on a real machine: the Kinetograph, FrameVelo (installed from GitHub) and HyperFrames CLI flags are taken from their docs, and the HyperFrames render output flag is a guess. Run one first film and read `~/.drip/motion-renderer.json`.
+- Renderer setup measured on the dev PC (Windows, Node 26), the kit film 8 s at 1080p: FrameVelo 2.9 s, Kinetograph 6.0 s, HyperFrames 13.1 s, Drip capture 19.1 s; all four frame-identical in timing. Kinetograph renders colours a little more saturated than Chrome (the coral accent reads redder): compare a frame when colour matters. Kinetograph's bundled FFmpeg is minimal (raw video and WAV only), so the setup also installs ffmpeg-static and ffprobe-static.
 - Music analysis is signal-based (no librosa/allin1): good on electronic and pop pulses, weaker on rubato or ambient tracks. Drops landing mid-bar are caught through section jumps.
 - Not yet: point tracking/optical flow on reference videos (OpenCV, CoTracker), Whisper timing of reference voice-overs, pronunciation dictionaries for narration, Text to Dialogue for two voices, a Suno path (no public API; the partner beta isn't open).
 

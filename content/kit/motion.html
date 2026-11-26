@@ -35,12 +35,14 @@
   .title { font: 600 112px/0.95 var(--font-display); letter-spacing: -0.035em; }
   .line { font: 500 44px/1.15 var(--font-text); letter-spacing: -0.01em; }
 
-  /* Preview controls: never in a render (seek() hides them). */
-  #ui { position: fixed; left: 16px; right: 16px; bottom: 14px; display: flex; gap: 12px; align-items: center;
+  /* Preview controls: hidden until a person moves the mouse or presses a key, so no renderer ever draws them
+     (Kinetograph and HyperFrames seek __timelines and never call seek() below). */
+  #ui { position: fixed; left: 16px; right: 16px; bottom: 14px; display: none; gap: 12px; align-items: center;
         font: 12px/1 ui-monospace, monospace; color: #ddd; background: rgba(20,20,22,.82); padding: 10px 12px;
         border-radius: 10px; backdrop-filter: blur(8px); z-index: 10; }
   #ui input { flex: 1; accent-color: var(--accent); }
   #ui button { all: unset; cursor: pointer; padding: 4px 8px; border-radius: 6px; background: #333; }
+  html[data-live] #ui { display: flex; }
   html[data-rendering] #ui { display: none; }
 </style>
 </head>
@@ -147,6 +149,10 @@ addEventListener("keydown", (e) => {
   if (e.code === "ArrowLeft") set(now - (e.shiftKey ? 1 : 1 / FORMAT.fps));
   if (e.code === "KeyL") loop = !loop;
 });
+// A person is here: show the controls (renderers never move a mouse or press a key).
+const live = () => { if (!document.documentElement.dataset.rendering) document.documentElement.dataset.live = "1"; };
+addEventListener("mousemove", live, { once: true });
+addEventListener("keydown", live, { once: true });
 ready.then(() => set(+(new URLSearchParams(location.search).get("t") || 0)));
 </script>
 </body>

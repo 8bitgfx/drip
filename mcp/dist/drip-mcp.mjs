@@ -100828,13 +100828,26 @@ import { execFile as execFile3 } from "node:child_process";
 import fs33 from "node:fs";
 import os8 from "node:os";
 import path31 from "node:path";
-var PACKAGES = { kinetograph: "kinetograph@>=0.4.0-rc.1", hyperframes: "hyperframes@0.9.72", framevelo: "github:gnipbao/framevelo" };
+var PACKAGES = { kinetograph: "kinetograph@>=0.4.0-rc.1", hyperframes: "hyperframes@0.9.72", framevelo: "github:gnipbao/framevelo", "ffmpeg-static": "ffmpeg-static@5", "ffprobe-static": "ffprobe-static@3" };
 var stateFile = () => path31.join(process.env.DRIP_HOME || homeDripDir, "motion-renderer.json");
 var isWin = process.platform === "win32";
-function run(cmd, args, { cwd, timeout = 15 * 6e4 } = {}) {
+var exe = (n3) => isWin ? `${n3}.exe` : n3;
+function mediaTools() {
+  const nm = path31.join(vendorDir(), "node_modules");
+  const ffmpeg2 = path31.join(nm, "ffmpeg-static", exe("ffmpeg"));
+  const ffprobe = path31.join(nm, "ffprobe-static", "bin", process.platform, process.arch, exe("ffprobe"));
+  return { ffmpeg: fs33.existsSync(ffmpeg2) ? ffmpeg2 : null, ffprobe: fs33.existsSync(ffprobe) ? ffprobe : null };
+}
+function toolEnv() {
+  const t2 = mediaTools();
+  const dirs = [t2.ffmpeg, t2.ffprobe].filter(Boolean).map((f3) => path31.dirname(f3));
+  const key = Object.keys(process.env).find((k) => k.toUpperCase() === "PATH") || "PATH";
+  return { ...process.env, [key]: [...dirs, process.env[key] || ""].join(path31.delimiter) };
+}
+function run(cmd, args, { cwd, timeout = 15 * 6e4, env } = {}) {
   return new Promise((resolve2) => {
     const t0 = Date.now();
-    execFile3(cmd, args, { cwd, timeout, windowsHide: true, maxBuffer: 16 << 20, shell: isWin && /\.cmd$/i.test(cmd) }, (err, so, se) => resolve2({ ok: !err, code: err?.code, out: `${so}
+    execFile3(cmd, args, { cwd, timeout, env, windowsHide: true, maxBuffer: 16 << 20, shell: isWin && /\.cmd$/i.test(cmd) }, (err, so, se) => resolve2({ ok: !err, code: err?.code, out: `${so}
 ${se}`.trim(), ms: Date.now() - t0 }));
   });
 }
@@ -100856,28 +100869,7 @@ function binOf(pkg, name) {
   }
 }
 function vendoredFfmpeg() {
-  const root = path31.join(vendorDir(), "node_modules");
-  const want = isWin ? "ffmpeg.exe" : "ffmpeg";
-  const seen = /* @__PURE__ */ new Set();
-  const walk2 = (dir, depth) => {
-    if (depth > 5 || seen.has(dir)) return null;
-    seen.add(dir);
-    let ents;
-    try {
-      ents = fs33.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return null;
-    }
-    for (const e2 of ents) if (e2.isFile() && e2.name === want) return path31.join(dir, e2.name);
-    for (const e2 of ents) {
-      if (!e2.isDirectory() || e2.name === ".bin" || e2.name.startsWith(".")) continue;
-      if (depth === 0 && !/kinetograph|ffmpeg|hyperframes|framevelo|^@/.test(e2.name)) continue;
-      const hit = walk2(path31.join(dir, e2.name), depth + 1);
-      if (hit) return hit;
-    }
-    return null;
-  };
-  return walk2(root, 0);
+  return mediaTools().ffmpeg;
 }
 function engineCommand(engine, entry, out) {
   const cwd = path31.dirname(entry);
@@ -100887,7 +100879,7 @@ function engineCommand(engine, entry, out) {
   }
   if (engine === "framevelo") {
     const bin = binOf("framevelo");
-    return bin ? { cmd: process.execPath, args: [bin, "render", cwd, "-o", out], cwd } : null;
+    return bin ? { cmd: process.execPath, args: [bin, "render", cwd, "--no-hyperframes", "-o", out], cwd } : null;
   }
   if (engine === "hyperframes") {
     const bin = binOf("hyperframes");
@@ -100897,8 +100889,8 @@ function engineCommand(engine, entry, out) {
 }
 var pending2 = null;
 function ensureRenderers({ renderDrip, log: log2 = () => {
-} } = {}) {
-  const have = readChoice();
+}, force = false } = {}) {
+  const have = force ? null : readChoice();
   if (have?.engine) return Promise.resolve(have);
   if (pending2) return pending2;
   pending2 = (async () => {
@@ -100908,7 +100900,7 @@ function ensureRenderers({ renderDrip, log: log2 = () => {
     const npm = isWin ? "npm.cmd" : "npm";
     const installed = {};
     for (const [name, spec] of Object.entries(PACKAGES)) {
-      if (binOf(name)) {
+      if (binOf(name) || fs33.existsSync(path31.join(vdir, "node_modules", name, "package.json"))) {
         installed[name] = "already there";
         continue;
       }
@@ -100920,7 +100912,7 @@ function ensureRenderers({ renderDrip, log: log2 = () => {
     const entry = path31.join(tdir, "index.html");
     fs33.writeFileSync(
       entry,
-      fs33.readFileSync(path31.join(kitDir, "motion.html"), "utf8").replace("duration: 8 }", "duration: 1 }").replace('data-duration="8"', 'data-duration="1"').replace(/width: 1920, height: 1080/, "width: 640, height: 360").replace('data-width="1920" data-height="1080"', 'data-width="640" data-height="360"')
+      fs33.readFileSync(path31.join(kitDir, "motion.html"), "utf8").replace("duration: 8 }", "duration: 2 }").replace('data-duration="8"', 'data-duration="2"').replace(/width: 1920, height: 1080/, "width: 1280, height: 720").replace('data-width="1920" data-height="1080"', 'data-width="1280" data-height="720"')
     );
     const tests = {};
     for (const engine of ["kinetograph", "framevelo", "hyperframes"]) {
@@ -100931,7 +100923,7 @@ function ensureRenderers({ renderDrip, log: log2 = () => {
         continue;
       }
       log2(`test render: ${engine}`);
-      const r2 = await run(c3.cmd, c3.args, { cwd: c3.cwd, timeout: 5 * 6e4 });
+      const r2 = await run(c3.cmd, c3.args, { cwd: c3.cwd, timeout: 5 * 6e4, env: toolEnv() });
       const ok = r2.ok && fs33.existsSync(out) && fs33.statSync(out).size > 1e3;
       tests[engine] = { ok, ms: r2.ms, why: ok ? void 0 : r2.out.split("\n").slice(-3).join(" ").slice(0, 300) };
     }
@@ -100963,7 +100955,7 @@ function ensureRenderers({ renderDrip, log: log2 = () => {
 async function renderWith(engine, entry, out) {
   const c3 = engineCommand(engine, entry, out);
   if (!c3) return { ok: false, why: `${engine} is not installed` };
-  const r2 = await run(c3.cmd, c3.args, { cwd: c3.cwd, timeout: 60 * 6e4 });
+  const r2 = await run(c3.cmd, c3.args, { cwd: c3.cwd, timeout: 60 * 6e4, env: toolEnv() });
   const ok = r2.ok && fs33.existsSync(out) && fs33.statSync(out).size > 1e3;
   return { ok, ms: r2.ms, why: ok ? void 0 : r2.out.split("\n").slice(-6).join("\n").slice(0, 800) };
 }
@@ -101289,14 +101281,26 @@ async function renderComposition(url2, { out, fps = 30, width = 1920, height = 1
     const proc = spawn5(ffmpeg2, args, { windowsHide: true, stdio: ["pipe", "ignore", "pipe"] });
     let err = "";
     proc.stderr.on("data", (d) => err = (err + d).slice(-4e3));
-    const done = new Promise((res, rej) => proc.on("close", (code) => code === 0 ? res() : rej(new Error(`ffmpeg failed (${code}): ${err.split("\n").slice(-4).join(" ")}`))));
+    let exited = false;
+    const done = new Promise(
+      (res, rej) => proc.on("close", (code) => {
+        exited = true;
+        code === 0 ? res() : rej(new Error(`ffmpeg failed (${code}): ${err.split("\n").slice(-4).join(" ")}`));
+      })
+    );
+    done.catch(() => {
+    });
+    proc.on("error", () => exited = true);
+    proc.stdin.on("error", () => {
+    });
     const t0 = Date.now();
-    for (let i2 = 0; i2 < n3; i2++) {
+    for (let i2 = 0; i2 < n3 && !exited; i2++) {
       const t2 = from + i2 / fps;
       await evalJson(tab.s, seekExpr(t2));
       const { data } = await tab.s("Page.captureScreenshot", alpha ? { format: "png", clip: { x: 0, y: 0, width, height, scale: 1 } } : { format: "jpeg", quality: 95, clip: { x: 0, y: 0, width, height, scale: 1 } });
       const buf = Buffer.from(data, "base64");
-      if (!proc.stdin.write(buf)) await new Promise((r2) => proc.stdin.once("drain", r2));
+      if (exited) break;
+      if (!proc.stdin.write(buf)) await new Promise((r2) => exited ? r2() : (proc.stdin.once("drain", r2), proc.once("close", r2)));
       if (onProgress && i2 % fps === 0) onProgress(i2, n3);
     }
     proc.stdin.end();
@@ -102466,7 +102470,7 @@ function dripTestRender(config2) {
     const ffmpeg2 = await findFfmpeg();
     if (!ffmpeg2) throw new Error("no ffmpeg");
     const url2 = await compositionUrl(entry);
-    await renderComposition(url2, { out, fps: 30, width: 640, height: 360, ffmpeg: ffmpeg2, config: config2 });
+    await renderComposition(url2, { out, fps: 30, width: 1280, height: 720, ffmpeg: ffmpeg2, config: config2 });
   };
 }
 function startRendererSetup(config2) {
@@ -106671,9 +106675,9 @@ function detectJudge(cfg = {}, env = process.env) {
 function runCli(file4, args, { input: input2, env = process.env, timeoutMs = 12e4, cwd } = {}) {
   return new Promise((resolve2) => {
     const isCmd = process.platform === "win32" && /\.(cmd|bat)$/i.test(file4);
-    const exe = isCmd ? process.env.ComSpec || "cmd.exe" : file4;
+    const exe2 = isCmd ? process.env.ComSpec || "cmd.exe" : file4;
     const argv = isCmd ? ["/d", "/s", "/c", `"${[`"${file4}"`, ...args.map((a2) => a2 === "" ? '""' : /[\s"]/.test(a2) ? `"${a2.replace(/"/g, '\\"')}"` : a2)].join(" ")}"`] : args;
-    const child = execFile5(exe, argv, { env, cwd, timeout: timeoutMs, maxBuffer: 20 * 1024 * 1024, windowsHide: true, windowsVerbatimArguments: isCmd }, (err, stdout, stderr) => {
+    const child = execFile5(exe2, argv, { env, cwd, timeout: timeoutMs, maxBuffer: 20 * 1024 * 1024, windowsHide: true, windowsVerbatimArguments: isCmd }, (err, stdout, stderr) => {
       resolve2({ code: err ? typeof err.code === "number" ? err.code : 1 : 0, stdout: String(stdout || ""), stderr: String(stderr || ""), timedOut: !!err?.killed, error: err && !(typeof err.code === "number") ? String(err.code || err.message) : void 0 });
     });
     if (input2 !== void 0) {
@@ -106839,10 +106843,10 @@ function pkgManager(root) {
 function runScript(root, pm, script, timeoutMs) {
   return new Promise((resolve2) => {
     const win = process.platform === "win32";
-    const exe = win ? process.env.ComSpec || "cmd.exe" : pm;
+    const exe2 = win ? process.env.ComSpec || "cmd.exe" : pm;
     const args = win ? ["/d", "/s", "/c", `${pm} run ${script}`] : ["run", script];
     const t0 = Date.now();
-    execFile6(exe, args, { cwd: root, timeout: timeoutMs, maxBuffer: 8 * 1024 * 1024, windowsHide: true, env: { ...process.env, CI: "1", FORCE_COLOR: "0" }, windowsVerbatimArguments: win }, (err, stdout, stderr) => {
+    execFile6(exe2, args, { cwd: root, timeout: timeoutMs, maxBuffer: 8 * 1024 * 1024, windowsHide: true, env: { ...process.env, CI: "1", FORCE_COLOR: "0" }, windowsVerbatimArguments: win }, (err, stdout, stderr) => {
       resolve2({ code: err ? typeof err.code === "number" ? err.code : 1 : 0, out: `${stdout}
 ${stderr}`.replace(/\x1b\[[0-9;]*m/g, ""), timedOut: !!err?.killed, ms: Date.now() - t0 });
     });
@@ -117154,8 +117158,8 @@ function listDir(dir) {
 function blenderCandidates(env = process.env, platform = process.platform) {
   const out = [];
   if (env.DRIP_BLENDER) out.push(env.DRIP_BLENDER);
-  const exe = platform === "win32" ? "blender.exe" : "blender";
-  for (const dir of (env.PATH || "").split(path91.delimiter).filter(Boolean)) out.push(path91.join(dir, exe));
+  const exe2 = platform === "win32" ? "blender.exe" : "blender";
+  for (const dir of (env.PATH || "").split(path91.delimiter).filter(Boolean)) out.push(path91.join(dir, exe2));
   if (platform === "win32") {
     for (const base of [env.ProgramFiles || "C:\\Program Files", env["ProgramFiles(x86)"] || "C:\\Program Files (x86)", env.LOCALAPPDATA && path91.join(env.LOCALAPPDATA, "Programs")].filter(Boolean)) {
       const root = path91.join(base, "Blender Foundation");
@@ -117563,8 +117567,8 @@ function register34(server2, ctx2) {
       }
     },
     safe(async (args) => {
-      const exe = findBlender2(ctx2.config());
-      if (!exe) return text('Blender was not found. Install it from https://www.blender.org/download/ (free), or set DRIP_BLENDER to the executable, or "blender": { "path": "..." } in .drip/config.json. scene_render renders mockups without it.', true);
+      const exe2 = findBlender2(ctx2.config());
+      if (!exe2) return text('Blender was not found. Install it from https://www.blender.org/download/ (free), or set DRIP_BLENDER to the executable, or "blender": { "path": "..." } in .drip/config.json. scene_render renders mockups without it.', true);
       const spec = args.scene ? { ...sceneSchema.parse(args.scene) } : mockupScene(args.mockup || "phone", { image: args.image, color: args.color, background: args.background, width: args.width, height: args.height });
       if (args.environment) spec.environment = { ...spec.environment || {}, ...args.environment };
       if (args.scene && args.width) spec.width = args.width;
@@ -117579,7 +117583,7 @@ function register34(server2, ctx2) {
         const t0 = Date.now();
         let res;
         try {
-          res = await run4(exe, ["-b", "--factory-startup", "-noaudio", "--python", path91.join(dir, "render.py"), "--", path91.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
+          res = await run4(exe2, ["-b", "--factory-startup", "-noaudio", "--python", path91.join(dir, "render.py"), "--", path91.join(dir, "spec.json"), png2], (args.timeoutSeconds || 600) * 1e3);
         } catch (err) {
           const tail2 = `${err.stdout || ""}
 ${err.stderr || ""}`.split("\n").filter((l2) => /Error|Traceback|File "|Exception/i.test(l2)).slice(-8).join("\n");
@@ -117602,7 +117606,7 @@ ${res.stdout.split("\n").slice(-6).join("\n")}`);
           files.push(saveFile(args.out, buf));
           files.push(saveFile(args.out.replace(/\.png$/i, ".scene.json"), JSON.stringify(spec, null, 2)));
         }
-        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path91.basename(path91.dirname(exe)) || exe}).${files.length ? `
+        return blocks([textBlock(`Blender render ${prepared.width || 1600}x${prepared.height || 1e3}, ${prepared.samples} samples, ${((Date.now() - t0) / 1e3).toFixed(1)}s (${path91.basename(path91.dirname(exe2)) || exe2}).${files.length ? `
 Saved: ${files.map((f3) => `${f3.rel} (${f3.kb} KB)`).join(", ")}.` : ""}`), imageBlock(await toJpeg(buf, 1280, 900, 86))]);
       } finally {
         cleanDir(dir);
