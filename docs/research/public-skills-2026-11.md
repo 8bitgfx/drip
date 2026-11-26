@@ -2,7 +2,7 @@
 
 Date: 2026-11-23. Scope: public agent skills, plugins and prompts for design work, beyond the sources already in
 `CREDITS.md` (Impeccable, Taste Skill, Emil Kowalski, Make Interfaces Feel Better, UI UX Pro Max, Hallmark, unslop-ui,
-Stageshow, Anthropic frontend-design, Vercel Web Interface Guidelines). Measured against `docs/PLAN-0.3.md`, the current
+Stageshow, Anthropic frontend-design, Vercel Web Interface Guidelines). Measured against the 0.3 plan (`docs/PLAN-0.3.md`, now only in git history), the current
 `agents/critic.md` and `skills/drip-direction`.
 
 ## How this was gathered

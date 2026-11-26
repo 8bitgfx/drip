@@ -56,7 +56,7 @@ Where a host has no write or stop hook, or no subagent, Drip says so in the inst
 - `drip_start` mentions what is missing once per machine (cached in `~/.drip/setup.json`); `drip doctor --fix --yes` installs the optional pieces.
 
 ## Swarm Mode without subagents
-Swarm Mode (docs/SWARM.md) needs a host that launches Drip's named subagents (`drip:scout`, `drip:builder`, `drip:checker`, with a model per agent). Claude Code and the Cowork plugin do. The other hosts here only get the critic agent, so on them:
+Swarm Mode ([ARCHITECTURE.md](ARCHITECTURE.md#roles-the-director-and-its-crew-swarm-mode)) needs a host that launches Drip's named subagents (`drip:scout`, `drip:builder`, `drip:checker`, with a model per agent). Claude Code and the Cowork plugin do. The other hosts here only get the critic agent, so on them:
 - `swarmInstructions` says "work the single-agent loop": the same gates and tools, you scout, build and check yourself, in the same order.
 - `scout_prepare`, `build_prepare` and `checker_prepare` still work as written briefs. Where a host has its own subagents you may launch them with those prompts by hand; Drip does not install or claim them.
 - Nothing is lost except the cost saving. The host is detected from `DRIP_HOST` (set by every adapter; unset means Claude Code).

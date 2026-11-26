@@ -43,11 +43,11 @@ Hooks hold each step: no UI before the look, no builders before the pieces were 
   <img alt="Built for agents: Code Mode runs one sandboxed script instead of twenty tool calls; project memory keeps the master board, approved direction and learned rules; pattern study measures a reference, builds your own and diffs it; drip check runs lint, types and tests on what changed; one local engine runs in Claude Code, Codex, Cursor, OpenCode, Claude Desktop and ChatGPT." src="https://raw.githubusercontent.com/8bitgfx/drip/brand/assets/readme/agents-light.png" width="830">
 </picture>
 
-- **Code Mode:** `drip_search` finds tools, `drip_execute` runs a short script against them in a sandbox. Same tools from a terminal with `drip run --file workflow.js`. [Code Mode](docs/CODEMODE.md)
+- **Code Mode:** `drip_search` finds tools, `drip_execute` runs a short script against them in a sandbox. Same tools from a terminal with `drip run --file workflow.js`. [Code Mode](docs/CLI.md#code-mode-drip_search-and-drip_execute)
 - **CLI and CI:** every tool is a command (`drip call <tool>`), and `drip check --changed` gates a pull request. [CLI](docs/CLI.md)
-- **Memory and patterns:** [Project memory](docs/PROJECT_MEMORY.md) · [Pattern study](docs/PATTERNS.md) · [Your own components](docs/COMPONENTS.md)
+- **Memory and patterns:** [Project memory](docs/PROJECT_MEMORY.md) · [Pattern study](docs/COMPONENTS.md#patterns-study-extract-implement-render-compare-save) · [Your own components](docs/COMPONENTS.md)
 - **Niche packs that keep learning:** `/drip:adapt roblox ui` researches a niche once; the pack switches on by itself in any later task and learns from your reactions. Share one as a single file (`pack_export`, privacy-checked; `pack_import` on the other side), no fork needed.
-- **Drip Film:** [watch the agents build](docs/FILM.md), in any IDE.
+- **Drip Film:** [watch the agents build](docs/ARCHITECTURE.md#drip-film-watch-the-swarm-build), in any IDE.
 
 ## Install
 
@@ -92,6 +92,6 @@ Needs Node 22+ and Chrome or Edge for screenshots.
 
 ## Docs
 
-[Architecture](docs/ARCHITECTURE.md) · [Drip Film](docs/FILM.md) · [Project memory](docs/PROJECT_MEMORY.md) · [Pattern study](docs/PATTERNS.md) · [Components](docs/COMPONENTS.md) · [Sources](docs/SOURCES.md) · [Studio](docs/STUDIO.md) · [CLI](docs/CLI.md) · [Code Mode](docs/CODEMODE.md) · [Other agents](docs/HOSTS.md) · [Customise the rules](docs/CUSTOMISE.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Credits](CREDITS.md)
+[Architecture](docs/ARCHITECTURE.md) · [Project memory](docs/PROJECT_MEMORY.md) · [Components and patterns](docs/COMPONENTS.md) · [References](docs/REFERENCES.md) · [Studio](docs/STUDIO.md) · [CLI and Code Mode](docs/CLI.md) · [Other agents](docs/HOSTS.md) · [Customise the rules](docs/CUSTOMISE.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Changelog](CHANGELOG.md) · [Credits](CREDITS.md)
 
 <sub>MIT. Design guides are written in our own words from open sources, credited in CREDITS.md. References are for study, never for copying.</sub>

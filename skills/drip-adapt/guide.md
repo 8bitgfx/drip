@@ -176,4 +176,4 @@ The critic follows it.
 - jaytel0/taste (no licence, ideas only): studied references distilled into numbered, testable defaults plus a
   forbidden list.
 - mattpocock/skills grilling (MIT): ask only what can't be looked up; recommended answers first.
-- Drip's research notes (`docs/research/public-skills-2026-11.md`, item 14) and PLAN-0.3 §10.
+- Drip's research notes (`docs/research/public-skills-2026-11.md`, item 14).
