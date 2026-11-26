@@ -9,6 +9,7 @@ import { projectDir } from "../../core/paths.mjs";
 import { designDoc } from "../../core/skills.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { text, safe } from "../../core/result.mjs";
+import { launchLine, writeBrief } from "../../core/briefs.mjs";
 
 export const ROLES = ["style", "competitor", "page", "before"];
 
@@ -276,12 +277,13 @@ export function swarmInstructions(task, { env = process.env } = {}) {
     return lines.join("\n");
   }
   lines.push(
-    "- Research: scout_prepare once per role (style, competitor, page; before when redesigning) and launch the scouts IN PARALLEL in one message. They study through refs_study, so the gates count their work.",
-    "- Decide: brief, thesis, directions and the choice stay with you. Write each section's spec yourself.",
+    "Every call you make re-reads your whole context, so the run's cost is your calls x your context: few calls, few pictures, and the long briefs live in files.",
+    "- Look and decide yourself: references, the deal, the pieces and each section's spec. No scouts or checkers in the fast loop.",
     `- Build: ONE build_prepare with every section (each names its library piece); it groups them over one or two drip:builder agents (Sonnet, never more than ${MAX_BUILDERS}). You are the director: you write specs, not code (small fixes only), and you never hand the task to another session.`,
-    "- Small jobs (install, download, rename, copy fixes, a re-check): a drip:helper (Haiku) with a one-paragraph task.",
-    "- Measure: one fitcheck_shot of the whole page (or checker_prepare -> drip:checker for numbers only).",
-    "- Judge: the critic once, at the final version. The critic is never a scout, builder or checker.",
+    "- Fixes: ONE list after the page check. Small ones in one edit of yours; the rest in one SendMessage to the builder that wrote the section (it keeps its context). Never relaunch a builder for a fix.",
+    "- Mechanical jobs (installs, downloads, renames) are tools: pieces_install, images_save, drip_execute. A drip:helper (Haiku) only for a long job whose output you shouldn't read.",
+    "- Measure: fitcheck_shot of the whole page; after the first look it returns numbers only.",
+    "- The critic (Sonnet) only when the user wants a second opinion.",
     "Details: drip_guide swarm.",
   );
   return lines.join("\n");
@@ -359,6 +361,7 @@ export function register(server, ctx) {
         if (!st.task) return;
         st.task.built = [...new Set([...(st.task.built || []), ...list.map((s) => slug(s.section))])];
         st.task.directorLines = 0; // the builders take over: the director's running total starts again
+        st.task.directorEdits = 0;
         // What each section is meant to do: the critic sees stills, so it gets the pieces and specs in words.
         st.task.sections ||= {};
         for (const s of list) st.task.sections[slug(s.section)] = { piece: s.piece || "", spec: String(s.spec || "").slice(0, 300), from: s.from ? String(s.from).slice(0, 200) : undefined };
@@ -367,8 +370,9 @@ export function register(server, ctx) {
       const toInstall = react ? list.map((s) => s.piece).filter((p) => p && /^https?:/.test(p) && !(task?.pieces || []).includes(p)) : [];
       const head =
         (toInstall.length ? `FIRST: pieces_install({ page: "${pg.rel}", urls: ${JSON.stringify(toInstall)} }) (one run; then launch).\n\n` : "") +
-        `NOW: launch ${prompts.length === 1 ? "ONE builder" : `the ${prompts.length} builders in ONE message`} with exactly ${prompts.length === 1 ? "this prompt" : "these prompts"} (do not edit them, do not split them into more agents):\n`;
-      const body = prompts.map(({ ids, prompt }) => `${launch("builder", `Build ${ids.join(", ")}`.slice(0, 60))}\n----------------------------------------\n${prompt}\n----------------------------------------`).join("\n\n");
+        `NOW: launch ${prompts.length === 1 ? "ONE builder" : `the ${prompts.length} builders in ONE message`} with exactly ${prompts.length === 1 ? "this call" : "these calls"} (each brief is in its file; you don't need to read it; never split them into more agents):\n`;
+      // Briefs go to files: the builders read them; the director's context keeps only the launch lines.
+      const body = prompts.map(({ ids, prompt }) => launchLine("builder", `Build ${ids.join(", ")}`.slice(0, 60), prompt, writeBrief(`build-${ids.join("-")}`, prompt))).join("\n");
       const stitchable = list.map((s) => slug(s.section)).filter((id) => ![...OWN, ...WHOLE].includes(id));
       const tail = stitchable.length
         ? `\n\nWhen they finish: page_stitch({ page: "${pg?.rel || "<page folder>"}", sections: [<every section id in page order>] }) (fitcheck_shot re-stitches by itself after that), then fitcheck_shot once. Small fixes you make yourself; anything bigger goes back to its builder (SendMessage to it) or a drip:helper.`

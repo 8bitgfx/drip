@@ -1,4 +1,15 @@
-# Next session: open problems (updated 2026-11-26, Drip 0.8.22)
+# Next session: open problems (updated 2026-11-26, Drip 0.9.0)
+
+## Done in 0.9.0: cost
+The anime run's 28.5M tokens were the director's context (83k at the start, 411k at the end) re-read on each of 116 calls. Cost = calls x context, so 0.9.0 cuts both:
+- **Briefs in files** (`core/briefs.mjs`): `build_prepare` and `critic_prepare` write each brief to `.drip/briefs/` and return a two-line launch call. Before, a builder brief sat in the director's context twice (tool result, then the Agent call).
+- **Fewer pictures, smaller**: fast loop fit checks show one small sheet per size the first time the page is seen (`fitcheck.seenAt`), numbers only after that (still recorded as the check); `refs_site` gives one 960px sheet per site instead of every screen; piece previews are 960px wide.
+- **One fix list**: after 6 edits by the director since the last page check (`directorEdits`, reset by fitcheck_shot and build_prepare), the write gate asks for one list: a SendMessage to the builder that wrote the section, or one MultiEdit.
+- **No scouts or checkers in the fast loop**; helpers only for long mechanical jobs; installs and downloads are tools.
+- **Critic optional in the fast loop** (`gates.fastCritic`, default false): offered in the hand-off, not required by `drip_end`. A REVISE it gave still needs the user's choice.
+- **Retries inside tools**: `pieces_install` retries registry timeouts twice; `fitcheck_shot` retries once when the page reloads under it.
+- **All gaps at once**: `drip_status`'s NEXT lists everything missing, not the first item.
+Not measured yet: re-run the anime studio prompt and compare calls, peak context and total with the 0.8.21 run (116 calls, 411k peak, 28.5M).
 
 ## Done in 0.8.22 (from the 2026-11-25 "AI animation studio" run)
 What the transcript showed (`~/.claude/projects/C--Dev-drip-lab/df2920a1-…jsonl`, 25 min, 17 builder launches, ~28.5M cache-read tokens in the main session):

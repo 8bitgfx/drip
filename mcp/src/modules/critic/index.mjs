@@ -10,6 +10,7 @@ import { examplesDir, projectDir } from "../../core/paths.mjs";
 import { renderSvg, renderUrl, rendersDir, stamp } from "../../core/render.mjs";
 import { capture, captureStates, formatAudit, judgeAudit, STEP } from "../../core/cdp.mjs";
 import { safe, text } from "../../core/result.mjs";
+import { launchLine, writeBrief } from "../../core/briefs.mjs";
 import { agentsRunning, criticRounds, isPersuade, loadState, updateState } from "../../core/state.mjs";
 import { artifactRev } from "../../core/evidence.mjs";
 import { offDirectionFixes, recordFeedback } from "../../core/memory.mjs";
@@ -317,9 +318,11 @@ export function register(server, ctx) {
       updateState((st) => {
         if (st.task) st.task.critic.pending = { id, kind, files, rev: artifactRev(st.task), at: new Date().toISOString(), blockers: measured.filter((m) => /BLOCKERS:/.test(m)).map((m) => m.split("BLOCKERS:")[1].split("\n")[0].trim()) };
       });
+      // The brief goes to a file: the critic reads it, the director's context never carries it.
+      const brief = writeBrief(`critic-${kind}`, prompt);
       return text(
-        `Prepared ${id}: ${files.length} image(s) in ${dir}.\n\nNOW: launch the critic with exactly this prompt (do not edit it, do not add your opinion):\nAgent({ subagent_type: "drip:critic", description: "Critic review ${kind}", prompt: <the text between the lines> })\n\n` +
-          `----------------------------------------\n${prompt}\n----------------------------------------\n\nThen critic_record the verdict and show the user the critic's own words.`,
+        `Prepared ${id}: ${files.length} image(s) in ${dir}; the critic's brief is in ${brief}.\n\nNOW: launch the critic with exactly this call (do not add your opinion; you don't need to read the brief):\n${launchLine("critic", `Critic review ${kind}`, prompt, brief)}\n\n` +
+          "Then critic_record the verdict and show the user the critic's own words.",
       );
     }),
   );

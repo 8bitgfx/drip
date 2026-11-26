@@ -42,8 +42,10 @@ test("the three brief tools exist and return a launchable prompt", async () => {
   assert.match(scout, /refs_study/);
 
   fs.writeFileSync(path.join(proj, "DESIGN.md"), "# Direction\nOne accent: #FF4D00. Display 127px.\n");
-  const build = await run("build_prepare", { section: "hero", spec: "h1 at the Display role in cols 1-7, product photo bleeding right, one button Pre-order", files: ["index.html"], url: "http://localhost:3000" });
-  assert.match(build, /subagent_type: "drip:builder"/);
+  const launchText = await run("build_prepare", { section: "hero", spec: "h1 at the Display role in cols 1-7, product photo bleeding right, one button Pre-order", files: ["index.html"], url: "http://localhost:3000" });
+  assert.match(launchText, /subagent_type: "drip:builder"/);
+  assert.ok(launchText.length < 1500, "only the launch line reaches the director");
+  const build = fs.readFileSync(launchText.match(/brief is in (\S+?\.md)/)[1], "utf8");
   assert.match(build, /One accent: #FF4D00/);
   assert.match(build, /YOU MAY TOUCH ONLY: index\.html/);
   assert.match(build, /section/);
@@ -57,9 +59,9 @@ test("the three brief tools exist and return a launchable prompt", async () => {
 
 test("swarmInstructions: full crew on Claude Code, single-agent fallback elsewhere", () => {
   const cc = swarmInstructions(null, { env: {} });
-  assert.match(cc, /scout_prepare/);
+  assert.doesNotMatch(cc, /scout_prepare|checker_prepare/, "no scouts or checkers in the fast loop");
   assert.match(cc, /build_prepare/);
-  assert.match(cc, /checker_prepare/);
+  assert.match(cc, /SendMessage to the builder/);
   assert.ok(cc.split("\n").length <= 10);
   const codex = swarmInstructions(null, { env: { DRIP_HOST: "codex" } });
   assert.match(codex, /single-agent loop/);

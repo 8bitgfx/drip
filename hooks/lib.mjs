@@ -73,7 +73,7 @@ export const isDripState = (file) => /(^|[\\/])\.drip[\\/](.*\.jsonl?$|memory[\\
 export const DRIP_STATE_DENY =
   "This is Drip's own bookkeeping (.drip/*.json, memory): only Drip's tools write it. To change a setting, the user runs /drip:settings or edits .drip/config.json themselves; to move a step on, do the step.";
 
-export const DIRECTOR_MAX = { lines: 40, chars: 2500, total: 150 };
+export const DIRECTOR_MAX = { lines: 40, chars: 2500, total: 150, edits: 6 };
 
 /** A message when the main agent is about to write a big chunk of UI itself in a swarm fast loop; null otherwise. */
 export function directorTooBig(input, ti, task, config) {
@@ -87,6 +87,12 @@ export function directorTooBig(input, ti, task, config) {
   const lines = s.split("\n").length;
   // Many small edits add up: the director's own lines since the last build_prepare have a ceiling too.
   const sofar = task.directorLines || 0;
+  // Each of the director's edits re-reads its whole context (200-400k tokens late in a run): fixes go as one list.
+  if ((task.built || []).length && (task.directorEdits || 0) >= DIRECTOR_MAX.edits && !((ti.edits || []).length > 1))
+    return (
+      `You have made ${task.directorEdits} edits yourself since the last page check, and each one re-reads your whole context. ` +
+      "Put every fix still open in ONE list: send it to the builder that wrote the section (SendMessage to its agent: it keeps its context), or make them in one MultiEdit per file. Then fitcheck_shot once (that resets this count)."
+    );
   if (lines <= DIRECTOR_MAX.lines && s.length <= DIRECTOR_MAX.chars && sofar + lines <= DIRECTOR_MAX.total) return null;
   const what = lines > DIRECTOR_MAX.lines || s.length > DIRECTOR_MAX.chars ? `This write is ${lines} lines` : `You have written ${sofar} lines yourself since the builders last ran, and this adds ${lines}`;
   return (

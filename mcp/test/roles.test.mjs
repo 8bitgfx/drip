@@ -232,6 +232,16 @@ test("build_prepare groups sections over one or two builders, never more", () =>
   for (const s of g[1]) assert.match(p, new RegExp(`=== SECTION: ${s.section} ===`));
 });
 
+test("after six small edits since the page check, the director sends one fix list", () => {
+  const cfg = loadConfig(project);
+  const task = { ...state.newTask({ title: "landing", size: "full", surface: "landing", guides: [] }), loop: "fast", built: ["hero"], directorEdits: 6 };
+  const small = { old_string: "a", new_string: "b" };
+  assert.match(directorTooBig({ agent_id: undefined }, small, task, cfg) || "", /ONE list.*SendMessage/s);
+  assert.equal(directorTooBig({}, { edits: [small, small] }, task, cfg), null, "one MultiEdit with the whole list is fine");
+  assert.equal(directorTooBig({}, small, { ...task, directorEdits: 5 }, cfg), null);
+  assert.equal(directorTooBig({}, small, { ...task, built: [] }, cfg), null, "before any builder, the cap doesn't apply");
+});
+
 test("the director writes small fixes; a big write in the fast loop goes to a builder", () => {
   const cfg = loadConfig(project);
   const task = state.newTask({ title: "landing", size: "full", surface: "landing", guides: [] });

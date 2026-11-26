@@ -455,7 +455,9 @@ export function checklist(task, config) {
       `${tick(!!fc.heroPassedAt)} hero shot`,
       `${tick(task.uiWrites.length > 0)} built (${task.uiWrites.length} UI writes)`,
       `${tick(!!fc.doneAt && !needsFitcheck(task, config))} page check clean on the current version`,
-      `${tick(!!rec && rec.verdict === "pass")} critic once on the finished page${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})${rec.verdict !== "pass" ? " · the user decides: ship with the open points, or one more round" : ""}` : " (before drip_end)"}`,
+      ...(rec || g.fastCritic
+        ? [`${tick(!!rec && rec.verdict === "pass")} critic once on the finished page${rec ? `: ${rec.verdict.toUpperCase()} (${rec.summary})${rec.verdict !== "pass" ? " · the user decides: ship with the open points, or one more round" : ""}` : " (before drip_end)"}`]
+        : ["[-] critic: optional, when the user asks for a second opinion"]),
       ...(task.endedUnchecked?.length ? [`[!] ${task.endedUnchecked.length} turn(s) ended unchecked, last: ${task.endedUnchecked.at(-1).why}. Tell the user, then finish the check.`] : []),
     ].join("\n");
   }

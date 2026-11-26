@@ -48,7 +48,11 @@ run(async () => {
   // The director's own lines add up (directorTooBig): builders and helpers don't count; build_prepare resets it.
   if (task?.loop === "fast" && !input.agent_id && !input.agent_type) {
     const n = [ti.content, ti.new_string, ...(ti.edits || []).map((e) => e.new_string)].filter(Boolean).join("\n").split("\n").length;
-    updateState((st) => st.task && (st.task.directorLines = (st.task.directorLines || 0) + n), dir);
+    updateState((st) => {
+      if (!st.task) return;
+      st.task.directorLines = (st.task.directorLines || 0) + n;
+      st.task.directorEdits = (st.task.directorEdits || 0) + 1; // edit calls since the last page check (fitcheck_shot resets)
+    }, dir);
   }
   if (!task && config.gates.mode !== "always") return allow();
   if (task && visual) {

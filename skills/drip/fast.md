@@ -3,10 +3,13 @@
 The order of work for a page in about ten minutes. What good looks like is in `taste.md` (it comes with this): read both.
 
 ## Roles
-- **You direct** (the session's model; Opus is best): look, decide, choose the pieces, write the specs, judge the shots, fix small things (under 40 lines) yourself. A bigger write by you is refused with a pointer to a builder.
-- **drip:builder** (Sonnet) writes the code of one section on its piece. Several run at once, launched in ONE message.
-- **drip:helper** (Haiku) does one small job from a one-paragraph brief: save pictures, swap copy, an install, a numbers-only check.
-- **drip:critic** (Sonnet) reviews the final version, or when the user asks. It is slow: what you can see, fix yourself.
+- **You direct** (the session's model; Opus is best): look, decide, choose the pieces, write the specs, judge the shots, fix small things (under 40 lines) yourself. A bigger write by you is refused with a pointer to a builder. You never hand the task to another session.
+- **drip:builder** (Sonnet) writes the code. One or two per page (`build_prepare` groups the sections); their briefs are files they read themselves. Fixes go back to the builder that wrote the section with SendMessage; a builder is never relaunched for a fix.
+- **drip:helper** (Haiku) only for a long mechanical job whose output you shouldn't read. Installs, downloads and renames are tools (`pieces_install`, `images_save`, `drip_execute`), not agents.
+- **drip:critic** (Sonnet) only when the user wants a second opinion (offer it in the hand-off).
+
+## What a run costs
+Every call you make re-reads your whole context, so the cost is your calls times your context, and everything you take in early is paid for again on every later call. So: batch calls (Code Mode), keep pictures few and small (fit checks return numbers after your first look; reference and piece sheets come small), and after the page check send ONE fix list, not edit after edit (after six edits the write gate asks for the list).
 
 ## The words
 - **piece**: a finished component from a proven library. Find with `components_find({ need })` (~3,300, landing and app), look with `pieces_preview` (one sheet), install with `pieces_install`. taste-skill's plain-HTML pieces use `parts_list` / `parts_preview` / `parts_get`.
@@ -23,7 +26,7 @@ The order of work for a page in about ten minutes. What good looks like is in `t
 
 ## The sections
 6. A one-line spec per section: its idea, its piece, its picture, its motion; no two neighbours alike. **Each section shows a different real picture.** The client's site rarely has enough: `images_search`, make them (`art_generate`, `gen_image`, `mockup_render`), or ask the user for their own work. One picture repeated across the page is blocked by the page check. `pieces_install` once, ONE `build_prepare` with every section; it groups them over one or two builders (never more), launched in ONE message. You stay the director: never hand the task to another session.
-7. `page_stitch` once when they finish (later shots re-stitch by themselves). `fitcheck_shot({ url })` once; fix what matters in one pass (a 1-2% number is not worth a round). Show the page, `drip_end`: it closes the film and opens the montage for the user.
+7. `page_stitch` once when they finish (later shots re-stitch by themselves). `fitcheck_shot({ url })` once (one small sheet: your look at the page); fix what matters as ONE list (a 1-2% number is not worth a round), then one more shot (numbers only). Show the page, offer the critic for a second opinion, `drip_end`: it closes the film and opens the montage for the user.
 
 ## A new round
 When the user asks for a big change to the finished page ("make it 10x better", "it's boring", "redo it"), that is a new round, not a touch-up: look again at sites that are clearly better at what's asked, search and preview pieces for each upgrade, and build them through builders. "Better" means bigger real pictures, a stronger composition and finished pieces, never stacked effects (glow, grain, shine sweeps, tilt on everything). The write gate holds until the look and the search are done. UI is never written from the shell while a task is open.

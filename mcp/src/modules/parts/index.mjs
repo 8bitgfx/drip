@@ -160,7 +160,7 @@ export function register(server, ctx) {
           const rel = path.relative(tasteAssets(), file).replace(/\\/g, "/");
           try {
             const png = await screenshot(`${base}/${rel}`, { width: 1200, height: 750, config: ctx.config(), waitMs: 1500 });
-            return { kind, id, buf: await toJpeg(png, 1200, 1200, 78) };
+            return { kind, id, buf: await toJpeg(png, 800, 800, 78) };
           } catch (e) {
             return { kind, id, err: e.message };
           }
@@ -347,7 +347,13 @@ export function registerDeal(server, ctx) {
       const bad = urls.find((u) => /["'`$&|;<>^%\s]/.test(u));
       if (bad) return text(`Not a plain registry URL: ${bad}`, true);
       await ensureInstalled(root);
-      const outp = await sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u) => `"${u}"`).join(" ")}`, root).catch((e) => `FAILED: ${e.message}`);
+      // Registries time out now and then: retry here, twice, rather than hand the director a round trip.
+      const add = () => sh(`npx --yes shadcn@latest add --yes --overwrite ${urls.map((u) => `"${u}"`).join(" ")}`, root).catch((e) => `FAILED: ${e.message}`);
+      let outp = await add();
+      for (let i = 0; i < 2 && /^FAILED/.test(outp) && /timed? ?out|ETIMEDOUT|ECONNRESET|fetch failed|socket hang up|503|502|429/i.test(outp); i++) {
+        await new Promise((r) => setTimeout(r, 3000 * (i + 1)));
+        outp = await add();
+      }
       const files = [...new Set((String(outp).match(/src[\\/][\w./\\-]+\.(tsx?|css)/g) || []).map((f) => f.replace(/\\/g, "/")))];
       // A registry item's files are often named apart from the item (efferd's "header3" installs header.tsx): keep its real
       // file names, so the page check finds the piece by what it installed, not by its URL.

@@ -307,7 +307,14 @@ export function register(server, ctx) {
           continue;
         }
         out.push(textBlock(`=== ${r.audit.title || r.url} (${r.key}) · ${r.slices.length} of ${r.total} screens${before && r === results[0] ? " · THE BEFORE" : ""}\n${formatAudit(r.audit, { blockers: [], warnings: [] })}\n${formatBrand(r.audit.brand)}`));
-        for (const sl of r.slices) out.push(imageBlock(sl.buf));
+        // One small sheet per site, not every screen full size: each image stays in the director's context for the whole
+        // task. The full screens are on disk (refs_view / refs_zoom when a detail matters).
+        if (r.slices.length === 1) out.push(imageBlock(await toJpeg(r.slices[0].buf, 960, 960, 80)));
+        else if (r.slices.length) {
+          const cols = Math.min(r.slices.length, 2);
+          const tileW = Math.floor(960 / cols);
+          out.push(imageBlock(await contactSheet(r.slices.map((s) => s.buf), { cols, tileW, tileH: Math.round(tileW * 0.625), fit: "contain", gap: 6 })));
+        }
       }
       const ok = results.filter((r) => r.ok);
       if (before && results[0]?.ok) {

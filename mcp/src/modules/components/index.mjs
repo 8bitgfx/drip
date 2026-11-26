@@ -414,7 +414,7 @@ export function register(server, ctx) {
       const n = ok.length;
       const content = [textBlock(`${lines.join("\n")}\nThe sheet numbers the shown ones in order, each cropped to the piece. It shows the library's own colours: on the page it takes yours.`)];
       if (n) {
-        const sheet = n === 1 ? await toJpeg(ok[0].buf, 1280, 1280, 78) : await contactSheet(ok.map((s) => s.buf), { cols: 2, tileW: 640, tileH: 400, gap: 8, fit: "contain" });
+        const sheet = n === 1 ? await toJpeg(ok[0].buf, 960, 960, 78) : await contactSheet(ok.map((s) => s.buf), { cols: 2, tileW: 480, tileH: 300, gap: 8, fit: "contain" }); // small: it stays in the director's context
         content.push(imageBlock(sheet));
       }
       return blocks(content);

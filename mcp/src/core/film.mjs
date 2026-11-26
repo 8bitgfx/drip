@@ -29,7 +29,7 @@ export function filmEvent(task, ev, dir) {
 export function startEvent(toolInput = {}) {
   const prompt = String(toolInput.prompt || "");
   const piece = (prompt.match(/THE PIECE: (\S+?)\.?(?:\s|$)/) || [])[1] || null;
-  const section = (prompt.match(/DRIP BUILDER · section: (.+)/) || [])[1] || null;
+  const section = (prompt.match(/DRIP BUILDER · sections?: (.+)/) || [])[1] || null;
   const type = typeOf(toolInput.subagent_type);
   return { kind: "start", type, label: toolInput.description || type, job: section ? `section ${section}${piece ? ` on ${piece.replace(/^https?:\/\/(www\.)?/, "").replace(/\/r\/|\/registry\//, " ").replace(/\.json$/, "")}` : ""}` : prompt.split("\n").find((l) => l.trim())?.slice(0, 120) || JOB[type] || "", piece };
 }

@@ -89,7 +89,8 @@ function requiredGuides(size, surface, task, mode, packs) {
 export function nextStep(task, config) {
   if (task.size === "full" && config.gates.requireBrief && !task.brief) return `NEXT: ${task.intake?.max === 0 ? "no questions needed: drip_brief with your assumptions" : `ask at most ${task.intake?.max ?? 2} intake question(s) (AskUserQuestion; see INTAKE), then drip_brief with the answers.`}`;
   const missing = missingBeforeUi(task, config);
-  if (missing.length) return `NEXT: ${missing[0].how}.`;
+  // Everything missing at once: each refusal found one at a time costs the director a full call.
+  if (missing.length) return missing.length === 1 ? `NEXT: ${missing[0].how}.` : `NEXT (all of these, batched where you can):\n${missing.map((m) => `- ${m.need}: ${m.how}`).join("\n")}`;
   if (task.mode === "refs") return "NEXT: summarise what the studied references have in common and where they differ (6-10 lines), then offer a moodboard.";
   if (task.mode === "board") return "NEXT: board_open, present the critic-ranked directions with your pick, ask the user to choose with buttons. Then drip_end.";
   if (task.size === "full" && !task.system)
@@ -216,7 +217,7 @@ export function register(server, ctx) {
         surface: z.enum(["landing", "app", "mobile", "component", "brand", "other"]).optional(),
         packs: z.array(z.string()).optional().describe("Niche pack ids to use (pack_list). Omit: packs matching the task are picked automatically."),
         memory: z.enum(["fidelity", "redesign", "fresh"]).optional().describe("How to treat the project's approved design (when it has one). fidelity (default): extend the existing system, new content only. redesign: explore a new direction as a proposal; the approved one stays until the user approves. fresh: ignore it (a new brand inside this repo)."),
-        loop: z.enum(["fast", "full"]).optional().describe("fast (default for design): look, deal, build, check once, critic once: a page in ~10 minutes. full: the old process (intake, references by role, three comps, critic, design system, plan) for big brand projects or when the user asks for it."),
+        loop: z.enum(["fast", "full"]).optional().describe("fast (default for design): look, deal, build, check once (the critic on request): a page in ~10 minutes. full: the old process (intake, references by role, three comps, critic, design system, plan) for big brand projects or when the user asks for it."),
         swarm: z.boolean().optional().describe("Swarm Mode: you direct; cheap subagents scout references (haiku), build sections (sonnet) and re-check the page (haiku), so your context stays on decisions. On by default; pass false for a small job, or set \"swarm\": false in .drip/config.json."),
       },
     },
@@ -538,7 +539,7 @@ export function register(server, ctx) {
         if (unseen.length) open.push(`UI edits Drip never saw: ${unseen.slice(0, 6).map((u) => u.file).join(", ")}`);
         // Fast loop: the critic is one reality check at the final version, and it has to happen once. The director's own
         // scores aren't a review.
-        if (cur.loop === "fast" && cur.uiWrites?.length && !(cur.critic?.records || []).some((r) => r.kind === "build"))
+        if (cur.loop === "fast" && config.gates.fastCritic && cur.uiWrites?.length && !(cur.critic?.records || []).some((r) => r.kind === "build"))
           open.push('the critic hasn\'t seen the finished page once: critic_prepare({ kind: "build", targets: [<page URL>] }) -> Agent drip:critic -> critic_record');
         if (open.length) return text(`Not closed: ${[...new Set(open)].join("; ")}.\nShoot the page again (fitcheck_shot), fix, review, fitcheck_done; or, if the user accepts shipping as is, drip_end with acceptOpen quoting their words.`, true);
       }

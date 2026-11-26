@@ -466,9 +466,12 @@ test("6b · critic prompts carry the approved direction and rules, and a fix tha
     st.task.memory = { mode: "fidelity", styleRevision: "sr1", approved: "Live Wire", inherited: [], needed: [] };
   });
   const prep = await call("critic_prepare", { kind: "any", targets: ["shot.png"] });
-  assert.match(prep.text, /THE PROJECT'S APPROVED DIRECTION AND RULES/);
-  assert.match(prep.text, /corner radius: sharp/);
-  assert.match(prep.text, /OFF-DIRECTION/);
+  const briefFile = prep.text.match(/brief is in (\S+?\.md)/)[1];
+  assert.doesNotMatch(prep.text, /THE PROJECT'S APPROVED DIRECTION/, "the brief stays out of the director's context");
+  const brief = fs.readFileSync(briefFile, "utf8");
+  assert.match(brief, /THE PROJECT'S APPROVED DIRECTION AND RULES/);
+  assert.match(brief, /corner radius: sharp/);
+  assert.match(brief, /OFF-DIRECTION/);
   state.updateState((st) => (st.task.critic.runs = [new Date().toISOString()]));
   const rec = await call("critic_record", { kind: "any", verdict: "revise", scores: { fit: 6 }, worst: "stiff", fixes: ["use rounded cards with a 24px radius", "raise the headline contrast"], summary: "stiff" });
   assert.ok(!rec.error, rec.text);

@@ -29,6 +29,7 @@ export const DEFAULTS = {
     requireDirection: true,  // a direction must be chosen before UI is written, full loop
     requireCritic: true,     // full loop: one drip:critic reality check on the final build (directions are ranked by the director)
     maxCriticRounds: 1,      // the critic is slow: one round at the final version, then hand off with what's left
+    fastCritic: false,       // fast loop: the critic is optional (the user asks for it); true makes drip_end wait for one review
     requireFitcheck: true,   // Claude can't end its turn after UI changes without a fit check
   },
 

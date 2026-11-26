@@ -59,7 +59,7 @@ export function register(server, ctx) {
             'Interactions to capture as states, with real mouse and keyboard input (drag handlers fire). Each step screenshots the desktop viewport. e.g. [{ do: "drag", selector: ".sheet:nth-child(1)", to: { x: 400, y: 60 }, label: "sheets dragged apart" }, { do: "click", selector: "[data-work=2]", label: "work 2 open" }, { do: "key", text: "Escape" }]',
           ),
         app: z.boolean().optional().describe("An app/tool screen rather than a landing page, portfolio or showcase (the page-scale checks are relaxed). Default: from the task's surface"),
-        images: z.enum(["sheet", "all", "none"]).optional().describe("sheet (default): ONE contact sheet per size, all slices in it (layout, rhythm, scale), so a shot costs 2 images instead of 9. all: every slice full size (when you need to read small text). none: numbers and file paths only. Every slice is always saved to disk"),
+        images: z.enum(["small", "sheet", "all", "none"]).optional().describe("Fast loop default: small (one small sheet per size) the first time you see the page, none (numbers and file paths) after that, because every image stays in your context for the rest of the task. sheet: one full-size contact sheet per size. all: every slice full size (to read small text). Every slice is always saved to disk"),
       },
     },
     safe(async (args) => {
@@ -77,11 +77,11 @@ export function register(server, ctx) {
       } catch {
         /* the shot still runs */
       }
-      if (!many || many.length === 1) return shootOne({ ...args, url: many ? many[0] : args.url });
+      if (!many || many.length === 1) return shootRetry({ ...args, url: many ? many[0] : args.url });
       const content = [];
       let failed = false;
       for (const u of many) {
-        const r = await shootOne({ ...args, url: u });
+        const r = await shootRetry({ ...args, url: u });
         failed ||= !!r.isError;
         content.push(textBlock(`===== ${u} =====`), ...(r.content || []));
       }
@@ -89,9 +89,35 @@ export function register(server, ctx) {
     }),
   );
 
+  /** A page that reloads under the browser (a dev server's hot reload right after a write) fails the first shot: retry once. */
+  async function shootRetry(a) {
+    try {
+      return await shootOne(a);
+    } catch (e) {
+      if (!/navigated or closed|Target closed|Session closed|detached|ECONNREFUSED|ERR_CONNECTION/i.test(String(e?.message || e))) throw e;
+      await new Promise((r) => setTimeout(r, 1500));
+      return shootOne(a);
+    }
+  }
+
+  /** What the fast loop says about the critic after a clean page check. */
+  function criticLine(task, config) {
+    const rec = (task?.critic?.records || []).filter((r) => r.kind === "build").at(-1);
+    if (rec && rec.verdict !== "pass") return ` The critic said ${String(rec.verdict).toUpperCase()}: fix what it listed, then the user chooses (ship with the open points, or one more round), not your own pass.`;
+    if (rec) return "";
+    return config.gates.fastCritic
+      ? " Before you show the user: the critic, once (critic_prepare kind build -> drip:critic -> critic_record); drip_end refuses without it."
+      : " The critic is optional here: offer it in your hand-off for a second opinion (critic_prepare kind build), don't run it unasked.";
+  }
+
   async function shootOne({ url: target, sizes, maxSlices, hero, app, steps, numbersOnly, section, images }) {
-      // Hero shots are one slice per size already; everything else becomes one sheet per size unless asked otherwise.
-      const mode = images || (hero ? "all" : "sheet");
+      // Every image stays in the director's context and is re-read on every later call. Fast loop: the first look at the
+      // page is one small sheet per size; after that, shots are numbers only (the slices are on disk if a look is needed).
+      const t0 = loadState().task;
+      const fastTask = t0?.loop === "fast";
+      const seen = !!t0?.fitcheck?.seenAt;
+      const mode = images || (fastTask ? (hero || !seen ? "small" : "none") : hero ? "all" : "sheet");
+      const recordable = mode !== "none" || (fastTask && seen); // a numbers-only re-shoot counts once the page was looked at
       const config = ctx.config();
       const url = await toUrl(target);
       const persuade = app === undefined ? isPersuade(loadState().task) : !app;
@@ -113,11 +139,13 @@ export function register(server, ctx) {
           files.push(f);
           if (mode === "all" || (mode === "sheet" && r.slices.length === 1)) content.push(imageBlock(sl.buf));
         }
-        if (mode === "sheet" && r.slices.length > 1) {
+        if ((mode === "sheet" && r.slices.length > 1) || (mode === "small" && r.slices.length)) {
           // One image for the whole size, tiles in reading order, numbered; long edge kept under ~1560px (the model's own cap).
+          // small: about a third of the pixels (layout, rhythm and scale still read; small text doesn't).
           const phone = s.width < 600;
-          const cols = phone ? Math.min(r.slices.length, 5) : r.slices.length <= 4 ? 2 : 3;
-          const tileW = phone ? Math.floor(1500 / cols) : Math.floor(1540 / cols);
+          const cols = phone ? Math.min(r.slices.length, 5) : r.slices.length <= 1 ? 1 : r.slices.length <= 4 ? 2 : 3;
+          const width = mode === "small" ? (phone ? 640 : 960) : phone ? 1500 : 1540;
+          const tileW = Math.floor(width / cols);
           const tileH = Math.round(tileW * (s.height / s.width));
           content.push(imageBlock(await contactSheet(r.slices.map((x) => x.buf), { cols, tileW, tileH, fit: "contain", gap: 6 })));
         }
@@ -133,9 +161,10 @@ export function register(server, ctx) {
           files.push(f);
           if (mode === "all") content.push(imageBlock(st.buf));
         }
-        if (mode === "sheet") {
+        if (mode === "sheet" || mode === "small") {
           const bufs = states.filter((x) => x.buf?.length).map((x) => x.buf);
-          if (bufs.length) content.push(imageBlock(await contactSheet(bufs, { cols: Math.min(bufs.length, 3), tileW: Math.floor(1540 / Math.min(bufs.length, 3)), tileH: Math.round((Math.floor(1540 / Math.min(bufs.length, 3)) * desk.height) / desk.width), fit: "contain", gap: 6 })));
+          const w = mode === "small" ? 960 : 1540;
+          if (bufs.length) content.push(imageBlock(await contactSheet(bufs, { cols: Math.min(bufs.length, 3), tileW: Math.floor(w / Math.min(bufs.length, 3)), tileH: Math.round((Math.floor(w / Math.min(bufs.length, 3)) * desk.height) / desk.width), fit: "contain", gap: 6 })));
         }
       }
       const blockers = audits.flatMap((a) => a.blockers.map((b) => `${a.size}: ${b}`));
@@ -144,8 +173,10 @@ export function register(server, ctx) {
       updateState((st) => {
         if (st.task) {
           st.task.fitcheck.url = url;
+          if (!hero && !section) st.task.directorEdits = 0; // a page check starts the next fix list
           // images: "none" sends no pictures back: nobody looked, so it can't be the check of this version.
-          if (numbersOnly || section || images === "none") {
+          if (!hero && !numbersOnly && !section && mode !== "none") st.task.fitcheck.seenAt = new Date().toISOString();
+          if (numbersOnly || section || !recordable) {
             // Cheap re-checks: reported, never recorded as the fit check (no pictures looked at / only part of the page).
             st.task.fitcheck.numbersAt = new Date().toISOString();
             return;
@@ -173,7 +204,7 @@ export function register(server, ctx) {
           }
         }
       });
-      if (!hero && !numbersOnly && !section && images !== "none") markShot(loadState().task); // what the pictures showed: files with these contents are not "unseen" later
+      if (!hero && !numbersOnly && !section && recordable) markShot(loadState().task); // what the pictures showed: files with these contents are not "unseen" later
       const list2 = blockers.map((b) => `- ${b}`).join("\n");
       let head;
       if (numbersOnly)
@@ -198,7 +229,7 @@ export function register(server, ctx) {
         const softText = soft.length ? `Worth fixing in the same edit (numbers, not breakage; no extra round for these):\n${soft.map((b) => `- ${b}`).join("\n")}\n\n` : "";
         head = hero
           ? `${brokenText}${softText}${hard.length ? "The hero check is NOT recorded until nothing is broken." : `${soft.length ? "" : "Hero clean. "}Look at it: is it a polished, proven pattern with the product on show, and real pictures (not one repeated)? ${loadState().task?.whole === false ? "Then show the user the hero and stop: they asked to see it first." : "Then go straight on to the sections (one build_prepare with every section; its one or two builders in one message): the user sees the finished page, not a question."}`}`
-          : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version. Look at the sheet once and fix what looks wrong."} Before you show the user the finished page: the critic, once (critic_prepare kind build -> drip:critic -> critic_record). drip_end refuses without it, and a REVISE needs the user’s choice, not your own pass.`;
+          : `${brokenText}${softText}${hard.length ? "The page check is NOT recorded until nothing is broken." : "The page check is recorded for this version."} ${mode === "none" ? `Numbers only: you looked at this page earlier in the task, so no pictures this time (the slices are in ${dir}; images: "small" if you really need a look).` : "Look at the sheet once."} Fixes go as ONE list: small ones in one edit of yours, the rest in one SendMessage to the builder that wrote the section. Then one more shot, and show the user.${criticLine(loadState().task, ctx.config())}`;
       }
       content.unshift(textBlock(head));
       return blocks(content);
