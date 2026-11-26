@@ -23,16 +23,16 @@ What they scroll past: flat pages with nothing to look at, and posters that shou
 ## The slop Drip refuses (unless the brief literally asks)
 | Slop | Why | Go instead |
 |---|---|---|
-| Purple/indigo/pink "AI" gradients, blobs, sparkles | Generated-by-default tells (always refused) | Light and colour from a real picture: the product, a render, a photo |
+| Framework-default colours (Tailwind indigo, purple-to-pink) and a sparkles icon | Untouched defaults | Gradients, blobs and glows in the direction's own colours, behind something real |
 | Cream/beige paper + terracotta + polite serif ("tasteful AI") | What every model makes for "warm" | A palette taken from the product or its pictures |
-| Near-black where neon glow is the whole idea (orbs, outlines, nothing real) | The "AI startup" costume | Dark with something real on it: product UI, photography, a soft light |
-| Glass on every card | Blur as decoration | One glass layer content passes under (a nav, a panel over a picture) |
+| Effects with nothing under them (an aurora and a headline, nothing real) | No content | The same effects with the product, outputs or pictures in front of them |
+| Hand-made imitations of library effects | They look cheap | The library piece (Magic UI, Aceternity, React Bits...), restyled |
 | A hero plus three equal icon cards, then nothing to look at | The empty template | The same calm structure with real pictures: product cards, a bento of live UI, a render |
 | Inter/Geist as the only voice, at one weight | No voice | A refined face with good details, set with care (fonts_pair) |
 | A screaming poster: giant condensed caps on a drenched colour field | Loud is not the same as good | Calm headline, rich picture, colour from the imagery (unless the user asked for bold) |
 
-Not slop: a polished SaaS or product page (white or dark ground, real product UI, soft depth, crisp type, a restrained
-gradient or glow from the scene). That is the target genre for most briefs. The critic judges how well it is made.
+Not slop: a polished SaaS or product page (white or dark ground, real product UI, soft depth, crisp type, blobs, blur,
+glow, gradient and shiny text, marquees and animated borders from the libraries). That is the target genre for most briefs. The critic judges how well it is made.
 
 ## How to make it beautiful
 - **The picture carries the page**: product UI as crisp layered cards, a 3D render, real photography, a visualisation of real data. Type supports it.

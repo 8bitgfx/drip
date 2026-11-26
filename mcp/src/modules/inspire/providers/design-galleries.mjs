@@ -1,5 +1,5 @@
 // Design-reference galleries read from their public pages (checked 2026-11-26): getdesign.ai (the JSON the page itself
-// calls), posts.design, loadmo.re, recent.design, 60fps.design, supahero.io, navbar.gallery, cta.gallery, inspora.design.
+// calls), posts.design, loadmo.re, recent.design, supahero.io, navbar.gallery, cta.gallery, inspora.design.
 // None has a text search we could rely on, so each is a feed: fetch the latest page (politely, cached) and rank by title.
 // Every parser takes the page HTML (or the JSON text) and returns normalised items, so tests run it on a fixture.
 import { abs, decode, getHtml, makeItem, rankByQuery, slugify, strip } from "../contract.mjs";
@@ -148,45 +148,6 @@ const recentdesign = {
   },
 };
 
-// ---- 60fps.design: UI motion of iOS apps (a Framer page; each shot is a video with a poster and a titled link) ----
-export function parse60fps(html) {
-  const out = [];
-  const seen = new Set();
-  const re = /<a [^>]*href="\.\/shots\/([a-z0-9-]+)"[^>]*>\s*<div[^>]*>\s*<p[^>]*>([^<]+)<\/p>/g;
-  let m;
-  while ((m = re.exec(html))) {
-    const [, slug, title] = m;
-    if (seen.has(slug) || slug === "filter" || slug === "watch") continue;
-    const before = html.slice(Math.max(0, m.index - 12000), m.index);
-    const poster = [...before.matchAll(/poster="([^"]+)"/g)].pop()?.[1];
-    if (!poster) continue;
-    seen.add(slug);
-    const app = [...before.matchAll(/href="\.\/apps\/([a-z0-9-]+)"/g)].pop()?.[1];
-    out.push(
-      makeItem("fps60", {
-        id: slug,
-        title: strip(title),
-        url: `https://60fps.design/shots/${slug}`,
-        image: abs(poster, "https://60fps.design"),
-        author: app ? titleCase(app) : "60fps",
-        tags: ["motion", "ios", ...(app ? [app] : [])],
-        kind: "motion",
-      }),
-    );
-  }
-  return out;
-}
-
-const fps60 = {
-  id: "fps60",
-  label: "60fps.design",
-  kinds: ["motion"],
-  status: "feed",
-  async search(query, { limit = 24, config }) {
-    return rankByQuery(parse60fps(await getHtml("https://60fps.design/", config)), query).slice(0, limit);
-  },
-};
-
 // ---- supahero.io: website hero sections; plain cards <a href="/hero/<slug>"><img src alt> ------------------------
 export function parseSupahero(html) {
   const out = [];
@@ -311,4 +272,4 @@ const inspora = {
   },
 };
 
-export const providers = [getdesign, posts, loadmore, recentdesign, fps60, supahero, navbar, cta, inspora];
+export const providers = [getdesign, posts, loadmore, recentdesign, supahero, navbar, cta, inspora];

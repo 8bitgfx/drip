@@ -1,4 +1,4 @@
-// The design galleries (getdesign.ai, posts.design, loadmo.re, recent.design, 60fps.design, supahero.io, navbar.gallery,
+// The design galleries (getdesign.ai, posts.design, loadmo.re, recent.design, supahero.io, navbar.gallery,
 // cta.gallery, inspora.design): each parser runs on a small trimmed fixture of the real page; the providers fetch
 // through a stubbed getHtml-compatible fetch so nothing here touches the network.
 import assert from "node:assert/strict";
@@ -11,7 +11,7 @@ const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", 
 const read = (name) => fs.readFileSync(path.join(dir, name), "utf8");
 
 const mod = await import("../src/modules/inspire/providers/design-galleries.mjs");
-const { parseGetDesign, parsePostsDesign, parseLoadmore, parseRecentDesign, parse60fps, parseSupahero, parseNavbarGallery, parseCtaGallery, parseInspora, providers } = mod;
+const { parseGetDesign, parsePostsDesign, parseLoadmore, parseRecentDesign, parseSupahero, parseNavbarGallery, parseCtaGallery, parseInspora, providers } = mod;
 const { allProviders, NOT_USABLE } = await import("../src/modules/inspire/providers/index.mjs");
 
 const shape = (items, source) => {
@@ -77,17 +77,6 @@ test("recent.design: feed cards give title, link, poster and author", () => {
   assert.ok(items[0].author.includes("PLANT"));
 });
 
-test("60fps.design: shot links pair with their video poster and app, repeated links are merged", () => {
-  const items = parse60fps(read("fps60.html"));
-  shape(items, "fps60");
-  assert.ok(items.every((i) => i.kind === "motion"));
-  assert.equal(items[0].title, "Airbnb Gift Feature Intro Card Split Interaction");
-  assert.equal(items[0].author, "Airbnb");
-  assert.equal(items[0].url, "https://60fps.design/shots/airbnb-gift-feature-intro-card-split-interaction");
-  assert.match(items[0].image, /^https:\/\/video\.gumlet\.io\/.*thumbnail-1-0\.png\?width=800$/);
-  assert.ok(items[0].tags.includes("airbnb"));
-});
-
 test("supahero.io: hero cards", () => {
   const items = parseSupahero(read("supahero.html"));
   shape(items, "supahero");
@@ -133,17 +122,18 @@ test("inspora.design: posts with a picture are kept, sponsors and pictureless ca
 });
 
 test("parsers return nothing, not errors, on a page they do not recognise", () => {
-  for (const parse of [parseGetDesign, parsePostsDesign, parseLoadmore, parseRecentDesign, parse60fps, parseSupahero, parseNavbarGallery, parseCtaGallery, parseInspora]) assert.deepEqual(parse("<html><body>Just a moment...</body></html>"), []);
+  for (const parse of [parseGetDesign, parsePostsDesign, parseLoadmore, parseRecentDesign, parseSupahero, parseNavbarGallery, parseCtaGallery, parseInspora]) assert.deepEqual(parse("<html><body>Just a moment...</body></html>"), []);
 });
 
 test("the providers are registered, unique, and every search ranks the fetched page by the query", async () => {
-  const ids = ["getdesign", "posts", "loadmore", "recentdesign", "fps60", "supahero", "navbar", "cta", "inspora"];
+  const ids = ["getdesign", "posts", "loadmore", "recentdesign", "supahero", "navbar", "cta", "inspora"];
   assert.deepEqual(providers.map((p) => p.id), ids);
   const registered = allProviders().map((p) => p.id);
   for (const id of ids) assert.equal(registered.filter((x) => x === id).length, 1, id);
   assert.ok(providers.every((p) => p.label && p.kinds.length && typeof p.search === "function" && ["works", "feed"].includes(p.status)));
   // The not-usable list must not repeat a working provider.
   assert.ok(NOT_USABLE.every((n) => !ids.includes(n.id)));
+  assert.ok(NOT_USABLE.some((n) => n.id === "fps60"), "60fps is listed as not usable, with why");
 });
 
 test("ranking puts query matches first and flags the rest as feed", async () => {

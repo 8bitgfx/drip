@@ -22,11 +22,11 @@ If `drip_start` printed PROJECT MEMORY, the project already has a master board a
 9. Write the thesis: one sentence naming the idea this page owns and the category default it refuses. Add one sentence of physical scene (who, where, what light), and let it decide light or dark.
 10. Refuse these defaults unless the brief pinned one:
     - a cream ground with a serif and a terracotta or rust accent;
-    - near-black where neon glow IS the idea and nothing real is on screen (dark itself is fine: real UI, photos, a quiet monochrome light);
-    - purple-to-blue / pink "AI" gradients (banned outright); glass on every card (one deliberate glass layer is fine);
+    - effects with nothing real under them (dark, glow and blur are great; the tell is that nothing is on screen);
+    - Tailwind's default indigo or purple-to-pink, untouched (gradients in the direction's own colours are welcome);
     - Inter, Geist or Space Grotesk as the voice;
     - a hero plus three cards.
-    Not a default to refuse: a well-made SaaS page (generous white space, the real product UI, real photography, crisp type, a restrained glow on dark). Judge the execution, not the genre.
+    Not a default to refuse: a well-made SaaS page (generous white space, the real product UI, real photography, crisp type, blur, glow and motion from the libraries). Judge the execution, not the genre.
 
     Mirror test: would a neighbouring brief get this exact combination? If so, change one major decision.
 11. Colour comes from the picture. The default is a calm ground (white, near-black, or a soft tint) with the colour carried by the imagery, a soft light or glow behind the hero picture, and one accent on the action. Committed or drenched grounds (one colour on 30-60% of the surface) are for briefs that ask for loud or playful. A flat page with nothing to look at and one coloured button is the real default to avoid; fix it with a picture, not a colour field.

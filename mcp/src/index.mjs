@@ -14,7 +14,7 @@ import { runCli } from "./core/cli.mjs";
 import { loadConfig } from "./core/config.mjs";
 import { startRecorder } from "./modules/film/index.mjs";
 
-const VERSION = "0.9.2";
+const VERSION = "0.9.3";
 
 const INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.

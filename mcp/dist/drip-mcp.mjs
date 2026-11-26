@@ -91513,7 +91513,7 @@ function register3(server2, ctx2) {
         const kind = /\b(game|gaming)\b/i.test(task) ? "gaming" : /\b(hardware|device|gadget|controller|headphone|keyboard|drone|robot)\b/i.test(task) ? "tech" : /\b(cafe|café|bakery|restaurant|bar|hotel|shop|store|gym|salon|florist|guesthouse)\b/i.test(task) ? "place" : /\b(clinic|agency|studio|law|consult|dentist|architect)\b/i.test(task) ? "service" : /\b(saas|app|ai|platform|tool|api|dashboard|software|startup|fintech)\b/i.test(task) ? "software" : "product";
         return text(
           `Drip task started (task id ${t2.id}): FAST LOOP, surface ${sf}, kind ${kind}. Ambition: polished (a cooler, cleaner take on proven designs; never "unique" for its own sake).
-` + (!memCtx && !redesignUrl ? `LOOK: unless the brief or brand says otherwise, the default look in taste.md ("The default look"): a painted world or a field of light behind a calm, large headline with one italic word, one rounded action${sf === "app" ? "" : ", the product rising from the bottom of the hero"}. The deal's layout and type apply; take the palette from the picture.
+` + (!memCtx && !redesignUrl ? `LOOK: unless the brief or brand says otherwise, the default look in taste.md ("The default look"): calm but insanely clean and premium; beautiful art and cool visuals (blobs, blur, light, renders, painted or abstract art), amazing bentos with live cells, insane visualisations, smooth motion and library effects everywhere, small and big components in every section; a calm large headline and one rounded action${sf === "app" ? "" : ", the product rising out of the art"}. The deal's layout and type apply; take the palette from the art.
 ` : "") + (others.length ? `Other sessions are working on Drip tasks in this folder (${others.map((o2) => `"${o2.title}"`).join(", ")}): never touch them.
 ` : "") + (memCtx ? `PROJECT MEMORY (${t2.memory.mode}): ${memCtx.text}
 ` : "") + (skills.length ? `The workspace has its own rules: ${skills.map((k) => `${k.name} (${k.file})`).join("; ")}. Load them.
@@ -100963,8 +100963,6 @@ function aiTellsInPage() {
   if (placeholders.size) add2("block", "placeholder copy", [...placeholders].join(", "), "template words still on the page; write the client's real words, or leave the slot visibly empty for them");
   if (oldYear) add2("warn", "old year in the footer", oldYear, `the copyright line says a past year (it is ${year})`);
   if (emoji3 >= 2) add2("warn", "emoji as icons", "", `${emoji3} headings, buttons or nav items carry emoji: use one icon set (icons_search)`);
-  const gradText = [...document.querySelectorAll("h1, h2, h3, span, p, a")].filter((el) => visible(el) && /text/.test(getComputedStyle(el).webkitBackgroundClip + getComputedStyle(el).backgroundClip) && /gradient/.test(getComputedStyle(el).backgroundImage));
-  if (gradText.length > 1) add2("warn", "gradient text", gradText.slice(0, 3).map((e2) => e2.innerText).join(" / "), `${gradText.length} gradient-filled words: once on the page at most, and only with a reason`);
   let lowBody = 0;
   for (const p2 of [...document.querySelectorAll("p, li")].filter(visible)) {
     if ((p2.innerText || "").trim().length < 30) continue;
@@ -112189,42 +112187,6 @@ var recentdesign = {
     return rankByQuery(parseRecentDesign(await getHtml("https://recent.design/", config2)), query).slice(0, limit);
   }
 };
-function parse60fps(html) {
-  const out = [];
-  const seen = /* @__PURE__ */ new Set();
-  const re = /<a [^>]*href="\.\/shots\/([a-z0-9-]+)"[^>]*>\s*<div[^>]*>\s*<p[^>]*>([^<]+)<\/p>/g;
-  let m;
-  while (m = re.exec(html)) {
-    const [, slug6, title] = m;
-    if (seen.has(slug6) || slug6 === "filter" || slug6 === "watch") continue;
-    const before = html.slice(Math.max(0, m.index - 12e3), m.index);
-    const poster = [...before.matchAll(/poster="([^"]+)"/g)].pop()?.[1];
-    if (!poster) continue;
-    seen.add(slug6);
-    const app = [...before.matchAll(/href="\.\/apps\/([a-z0-9-]+)"/g)].pop()?.[1];
-    out.push(
-      makeItem("fps60", {
-        id: slug6,
-        title: strip(title),
-        url: `https://60fps.design/shots/${slug6}`,
-        image: abs(poster, "https://60fps.design"),
-        author: app ? titleCase(app) : "60fps",
-        tags: ["motion", "ios", ...app ? [app] : []],
-        kind: "motion"
-      })
-    );
-  }
-  return out;
-}
-var fps60 = {
-  id: "fps60",
-  label: "60fps.design",
-  kinds: ["motion"],
-  status: "feed",
-  async search(query, { limit = 24, config: config2 }) {
-    return rankByQuery(parse60fps(await getHtml("https://60fps.design/", config2)), query).slice(0, limit);
-  }
-};
 function parseSupahero(html) {
   const out = [];
   const seen = /* @__PURE__ */ new Set();
@@ -112336,7 +112298,7 @@ var inspora = {
     return rankByQuery(parseInspora(await getHtml("https://www.inspora.design/", config2)), query).slice(0, limit);
   }
 };
-var providers2 = [getdesign, posts, loadmore, recentdesign, fps60, supahero, navbar, cta, inspora];
+var providers2 = [getdesign, posts, loadmore, recentdesign, supahero, navbar, cta, inspora];
 
 // src/modules/inspire/providers/galleries.mjs
 var q = encodeURIComponent;
@@ -112631,6 +112593,7 @@ var NOT_USABLE = [
   { id: "behance", label: "Behance", why: "HTTP 403 on public search; the API needs a client id" },
   { id: "landbook", label: "Land-book", why: "answers scripted requests with HTTP 403 (a Cloudflare check); the pages open in a normal browser (checked 2026-11-24)" },
   { id: "lapaninja", label: "Lapa Ninja", why: "same: HTTP 403 to scripted requests, fine in a normal browser" },
+  { id: "fps60", label: "60fps.design", why: "every shot is a video of an iOS interaction: a still poster says nothing about the motion, so it is no use to a model (removed 2026-11-26)" },
   { id: "mobbin", label: "Mobbin", why: "screens load only after login in a script-rendered app; open it in your own browser" }
 ];
 
@@ -112676,7 +112639,7 @@ var ROUTES = {
   cta: ["cta"],
   mobile: ["loadmore"],
   social: ["posts"],
-  motion: ["fps60", "godly", "recentdesign"],
+  motion: ["godly", "recentdesign"],
   "design-md": ["getdesign"],
   fresh: ["recentdesign", "inspora", "godly"]
 };
@@ -112732,12 +112695,12 @@ function register29(server2, ctx2) {
     "refs_gallery",
     {
       title: "Search design galleries",
-      description: 'Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Minimal Gallery, 21st.dev (components), feeds (Httpster, Dark Mode Design, Godly), and libraries of one thing reached with need: hero (Supahero), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps), design-md (getdesign.ai), fresh (Recent.design, Inspora). For one part of the page, pass need: it is the quickest way to the best examples of exactly that. Returns a numbered list AND a contact sheet; the numbers work in refs_pick, refs_view, refs_study and board_add. Without `source` it asks every working source for that kind and mixes the results. kind: site (default: shipped pages), section (pricing tables, FAQs, footers... One Page Love), component (21st.dev), motion (Godly). Example: refs_gallery({ query: "fintech dashboard dark", limit: 24 }) or refs_gallery({ source: "onepagelove", kind: "section", query: "pricing table" }). refs_sources shows what each source is good for and whether it works right now.',
+      description: 'Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Minimal Gallery, 21st.dev (components), feeds (Httpster, Dark Mode Design, Godly), and libraries of one thing reached with need: hero (Supahero), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (Godly, Recent.design), design-md (getdesign.ai), fresh (Recent.design, Inspora). For one part of the page, pass need: it is the quickest way to the best examples of exactly that. Returns a numbered list AND a contact sheet; the numbers work in refs_pick, refs_view, refs_study and board_add. Without `source` it asks every working source for that kind and mixes the results. kind: site (default: shipped pages), section (pricing tables, FAQs, footers... One Page Love), component (21st.dev), motion (Godly). Example: refs_gallery({ query: "fintech dashboard dark", limit: 24 }) or refs_gallery({ source: "onepagelove", kind: "section", query: "pricing table" }). refs_sources shows what each source is good for and whether it works right now.',
       inputSchema: {
         query: external_exports.string().optional().describe(`1-3 words naming WHAT the product is: "coffee", "ai tool", "gaming", "fintech". Not the task sentence, not the client's domain. Empty = the source's latest`),
         source: external_exports.union([external_exports.string(), external_exports.array(external_exports.string())]).optional().describe('One id or several ("awwwards", ["landbook", "lapaninja"]) or "all". See refs_sources'),
         kind: external_exports.enum(KINDS4).optional().describe("What to look for (default site)"),
-        need: external_exports.enum(Object.keys(ROUTES)).optional().describe("The one thing you need, routed to the gallery made for it: hero (Supahero, One Page Love), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps, Godly, Recent), design-md (getdesign.ai), fresh (Recent.design, Inspora, Godly: this month's best). Their latest picks count even without a subject match"),
+        need: external_exports.enum(Object.keys(ROUTES)).optional().describe("The one thing you need, routed to the gallery made for it: hero (Supahero, One Page Love), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (Godly, Recent.design), design-md (getdesign.ai), fresh (Recent.design, Inspora, Godly: this month's best). Their latest picks count even without a subject match"),
         limit: external_exports.number().int().min(4).max(48).optional().describe("Items on the sheet (default 24)"),
         page: external_exports.number().int().min(1).max(20).optional(),
         sheet: external_exports.boolean().optional().describe("Include the contact sheet image (default true)")
@@ -115787,7 +115750,7 @@ The page runs while this command does. Press Ctrl+C to stop.`);
 }
 
 // src/index.mjs
-var VERSION = "0.9.2";
+var VERSION = "0.9.3";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

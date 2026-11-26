@@ -14,7 +14,7 @@ Your own cooler, cleaner take on designs that are already proven: the pages peop
 ## What leads the page
 | Kind | Leads the page | Effects |
 |---|---|---|
-| software (app, SaaS, AI, dev tool) | its own UI showing real work, big, in one window; feature cards with live UI fragments | one effect (a shader ground or one frame), one or two moments |
+| software (app, SaaS, AI, dev tool) | its own UI showing real work, big, in one window; bentos of live UI fragments and visualisations | blob, blur and light behind it; a moment in every section |
 | a generator (thumbnails, images, icons, art, video, music) | its OUTPUTS: many real ones, big (a wall, a marquee, a fan of cards, a before/after); never one output in a small window | one effect at most |
 | gaming | its world as full-bleed key art, its name in the h1 | one effect, never in the art's place |
 | tech (hardware) | the device in photographs, big and whole | a render only when the brief asks for 3D |
@@ -23,21 +23,23 @@ Your own cooler, cleaner take on designs that are already proven: the pages peop
 | place (cafe, shop, hotel) | 12-20 photographs of the place | none |
 
 ## The default look (unless the brief or the brand says otherwise)
-The house style, from the heroes the user saves (Slice, Closer, GrowthOS, Proposa, Operon, Solara, PeakPath, Slicker):
-- **A painted world or a field of light behind the hero.** A full-bleed painterly illustration, gouache or anime-film style, of a landscape whose mood fits the product: meadows and wildflowers, a waterfall in a green valley, mountains at golden hour, a blossoming tree against blue sky. When no world fits: a field of light instead (vertical aurora streaks, a soft glow on deep navy or forest green, a pale sky gradient). The picture carries the colour; never a flat colour block.
-- **A calm, large headline**, centred over the sky or set left: an elegant serif or a crisp grotesk, two lines, one word set in italic for the stress ("Sleep *better*", "while you *close deals*"). One or two quiet lines under it, muted.
-- **One rounded action**: a dark pill on a light picture, or a light or accent pill on a dark one; a quiet text link beside it at most.
-- **The product rising from the world**: for software, its real UI in a light rounded window coming up from the bottom edge of the hero, overlapping the painting.
-- **Then a muted logo row and air.** Minimal nav: the logo left, four or five links, one login or action right. Light, airy sections below with the picture's colours as accents.
-- Pictures for this: `art_generate` / `gen_image` (a painted landscape for the product's mood, no text in it), else `images_search` for painted landscape illustrations. Never stock photos of people at laptops. References: `refs_gallery({ need: "hero" })` and `need: "fresh"`.
+**Calm, but insanely clean and premium, and rich all the way down.** The page a top studio ships this year: quiet type and space, with beautiful art and cool visuals everywhere you look.
+- **Beautiful art and cool visuals behind and around the content.** Any style that is genuinely beautiful and fits the product: painted worlds, a 3D render, soft blobs and blur, a field of light (aurora streaks, a glow on deep navy), a lit object, abstract colour that moves. Not a fixed theme (not "always nature"): whatever art makes this product feel premium. The art carries the colour; never a flat colour block, never a stock photo of people at laptops.
+- **Smooth blob, blur and light.** Soft colour fields, blurred glows behind cards and the hero, gentle gradients that drift: atmosphere that sits behind the content, never on top of words.
+- **Amazing bentos, never boring ones.** Every cell shows something alive: a live UI fragment, a visualisation, a micro-interaction, a real number moving, a render. No cell is an icon with a heading and a line.
+- **Insane visualisations.** Show what the product does as something to look at: animated charts and flows, a pipeline that runs, data that draws itself, a before/after, the product working in a frame.
+- **Cool components everywhere, small and big.** Small ones (a live badge, a toggle that answers, a cursor, a tooltip card, a ticking counter) and big ones (a product window, a gallery, an interactive demo), from the libraries (`pieces_preview`) rather than homemade. Every section has at least one thing worth playing with.
+- **Motion that is smooth and constant, never loud.** Things ease in, float, drift and respond to the cursor; hover and press answer everything; reduced motion respected.
+- **The type stays calm**: a large, refined headline (an elegant serif or a crisp grotesk, one word in italic for stress when it reads better), one or two quiet lines, one rounded action and a quiet link at most. Clean grids, generous space, one radius, crisp 1px borders.
+- Pictures: `art_generate` / `gen_image` for the art (no text in it), `images_search` otherwise; `mockup_render` for devices. References: `refs_gallery({ need: "hero" })`, `need: "fresh"`, and Godly for motion.
 
-Proven hero patterns: a painted world with the product rising out of it, a glowing product mockup (the real UI in a rounded frame rising out of soft light), a fan of real output cards, a bento of live UI, a lit render on dark, a wall of real work, a character in a framed world.
+Proven hero patterns: beautiful art (painted, rendered or blurred light) with the product rising out of it, a glowing product mockup (the real UI in a rounded frame rising out of soft light), a fan of real output cards, a bento of live UI, a lit render on dark, a wall of real work, a character in a framed world.
 
 ## Look and colour
 - **Colour comes from the picture.** A calm ground (white, near-black or a soft tint), colour carried by the imagery, a soft light behind the hero picture, one accent on the action. Loud, drenched grounds only when the brief asks for loud.
 - **A redesign keeps the brand**: its colours, its ground (a light brand stays light), its logo, fonts and real copy. A new ground or colour story is a proposal shown beside the faithful version, never a silent switch.
 - **Type:** refined faces, calm and well set (a crisp grotesk, an elegant serif, a friendly rounded sans for the subject); one family when its range is wide. At most 7 sizes and 2 families; mono only in code, measurements and tabular figures.
-- **A coloured word in the headline** is a cliché when it is a reflex. Use it when it reads better: it carries the meaning, or the brand does it.
+- **A stressed word in the headline** (italic, coloured, gradient or shiny) is great when it carries the meaning; it is a cliché only when every headline on the page does it.
 - **One radius, crisp 1px borders, soft depth and light.** Restyle every library piece to the tokens; never leave its defaults.
 
 ## How people use it (UX principles)
@@ -55,7 +57,7 @@ Judge every screen by these; they explain most "this feels wrong" moments.
 ## House rules
 - One section per screen; the hero alone on the first screen. Each section is one or two screens tall and has a shape; the page has a rhythm of heavy and light, and no two neighbours alike.
 - Equal left and right edges everywhere (one column for header, sections, footer). No caption under an image.
-- The hover layer on everything: cards lift 2px, photos scale 1.02 inside their frame, buttons step on hover and press on click. Every hero enters once on load; one or two dealt moments per page.
+- The hover layer on everything: cards lift 2px, photos scale 1.02 inside their frame, buttons step on hover and press on click. Every hero enters once on load, and every section has something that moves or answers (smooth, quiet, never the same fade on all of them).
 - Real icons of real products, never drawn ones. Every control has focus, hover, press and disabled states; touch targets 44px; body text 4.5:1; nothing scrolls sideways at 320px; reduced motion handled.
 
 ## Pieces before homemade
@@ -73,13 +75,21 @@ A piece made by a library's designers beats one you make: its motion, spacing an
 ## Copy
 Plain words in a voice of its own; names and numbers that aren't the defaults every model picks. Every number, quote, logo and customer comes from the client; an unknown is a `[bracket]` for the user, never invented ("38s", "10,000+ teams"). Never "Unlock / Elevate / Seamless", never "Learn more" or "Get started" as the only label.
 
-## Never
-- Purple-blue or pink "AI" gradients; gradient text; glass or glow as decoration; neon on near-black with nothing real on screen.
-- A hero plus three equal icon cards; the big-number-small-label hero; a card inside a card; one output in a small window when the outputs are the product.
-- Eyebrows, kickers and tracked-caps labels; 01/02/03 numbering unless it is a real sequence; middle-dot meta strings; emoji as icons; decorative status dots.
-- A cream ground with a serif and a terracotta accent, or Inter / Geist / Space Grotesk as the voice, unless the brief pins it.
-- Decoration pasted over content (a flat shape crossing words); devices built from boxes (use `mockup_render`).
-- Fade-up on every section, parallax on text, scroll-jacking, a marquee by reflex, three WebGL grounds on one page.
-- Abstract art (contour lines, particles, a lone big word) where the product should be; a shouting poster nobody asked for.
+## Effects are welcome
+The motion and effects in the best component libraries (Magic UI, Aceternity, React Bits, Cult UI, Motion Primitives, Skiper...) are a large part of what makes a page feel premium. Use them, generously and well:
+- **Text**: blur-in and word-by-word reveals, shiny and gradient text, text that scrambles, rolls or morphs, a typewriter for a live prompt.
+- **Grounds and light**: aurora, blobs and soft blur, mesh gradients, spotlights that follow the cursor, beams, grain over a gradient, dot and grid patterns that fade, particles and stars.
+- **Surfaces**: glowing and animated borders, magic cards, glass over a picture, bento grids with live cells, tilt and 3D cards, shine on hover.
+- **Movement**: marquees of real things, orbiting icons, animated beams between logos, scroll-linked reveals, number tickers, dock and magnetic buttons, smooth page transitions.
+Take them from the libraries (`components_find`, `pieces_preview`): their timing and easing took weeks. A hand-drawn imitation (a CSS blob you made, a glow you guessed) is what looks cheap.
+
+## The real AI tells (never)
+They are about content and craft, not effects:
+- **Fake or template content**: invented numbers, logos, quotes and customers; `[placeholders]`, lorem, Acme; a "trusted by" row of made-up names in plain text.
+- **Broken craft**: a label you can't read on its button, a button that goes nowhere, text cut off or covered, a stretched or broken picture, a page that scrolls sideways, motion that stutters or never stops on reduced motion.
+- **The empty template**: a hero plus three equal icon cards and nothing to look at; a card inside a card; one output in a small window when the outputs are the product; effects with no product, picture or content anywhere (an aurora and a headline, and that's the whole page).
+- **Untouched defaults**: Tailwind's indigo, a stock shadcn look, Inter at one weight as the only voice; library pieces left in their demo colours and copy.
+- **Reflex furniture**: eyebrow labels over every section, 01/02/03 numbering on things that aren't steps, emoji as icons, a sparkles icon for "AI".
+- Devices built from boxes (use `mockup_render`).
 
 Deeper, when a step needs it: `drip_guide type | color | layout | motion | imagery | icons | copy | landing | app | mobile | a11y`.

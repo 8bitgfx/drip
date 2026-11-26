@@ -27,7 +27,7 @@ export const ROUTES = {
   cta: ["cta"],
   mobile: ["loadmore"],
   social: ["posts"],
-  motion: ["fps60", "godly", "recentdesign"],
+  motion: ["godly", "recentdesign"],
   "design-md": ["getdesign"],
   fresh: ["recentdesign", "inspora", "godly"],
 };
@@ -91,7 +91,7 @@ export function register(server, ctx) {
     {
       title: "Search design galleries",
       description:
-        "Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Minimal Gallery, 21st.dev (components), feeds (Httpster, Dark Mode Design, Godly), and libraries of one thing reached with need: hero (Supahero), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps), design-md (getdesign.ai), fresh (Recent.design, Inspora). " +
+        "Search curated galleries beyond Dribbble: Awwwards, One Page Love (sites and cropped sections), Minimal Gallery, 21st.dev (components), feeds (Httpster, Dark Mode Design, Godly), and libraries of one thing reached with need: hero (Supahero), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (Godly, Recent.design), design-md (getdesign.ai), fresh (Recent.design, Inspora). " +
         "For one part of the page, pass need: it is the quickest way to the best examples of exactly that. " +
         "Returns a numbered list AND a contact sheet; the numbers work in refs_pick, refs_view, refs_study and board_add. Without `source` it asks every working source for that kind and mixes the results. " +
         "kind: site (default: shipped pages), section (pricing tables, FAQs, footers... One Page Love), component (21st.dev), motion (Godly). " +
@@ -101,7 +101,7 @@ export function register(server, ctx) {
         query: z.string().optional().describe("1-3 words naming WHAT the product is: \"coffee\", \"ai tool\", \"gaming\", \"fintech\". Not the task sentence, not the client's domain. Empty = the source's latest"),
         source: z.union([z.string(), z.array(z.string())]).optional().describe('One id or several ("awwwards", ["landbook", "lapaninja"]) or "all". See refs_sources'),
         kind: z.enum(KINDS).optional().describe("What to look for (default site)"),
-        need: z.enum(Object.keys(ROUTES)).optional().describe("The one thing you need, routed to the gallery made for it: hero (Supahero, One Page Love), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (60fps, Godly, Recent), design-md (getdesign.ai), fresh (Recent.design, Inspora, Godly: this month's best). Their latest picks count even without a subject match"),
+        need: z.enum(Object.keys(ROUTES)).optional().describe("The one thing you need, routed to the gallery made for it: hero (Supahero, One Page Love), nav (Navbar Gallery), cta (CTA Gallery), mobile (Loadmo.re), social (Posts.design), motion (Godly, Recent.design), design-md (getdesign.ai), fresh (Recent.design, Inspora, Godly: this month's best). Their latest picks count even without a subject match"),
         limit: z.number().int().min(4).max(48).optional().describe("Items on the sheet (default 24)"),
         page: z.number().int().min(1).max(20).optional(),
         sheet: z.boolean().optional().describe("Include the contact sheet image (default true)"),

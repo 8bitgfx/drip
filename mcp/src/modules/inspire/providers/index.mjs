@@ -31,5 +31,6 @@ export const NOT_USABLE = [
   { id: "behance", label: "Behance", why: "HTTP 403 on public search; the API needs a client id" },
   { id: "landbook", label: "Land-book", why: "answers scripted requests with HTTP 403 (a Cloudflare check); the pages open in a normal browser (checked 2026-11-24)" },
   { id: "lapaninja", label: "Lapa Ninja", why: "same: HTTP 403 to scripted requests, fine in a normal browser" },
+  { id: "fps60", label: "60fps.design", why: "every shot is a video of an iOS interaction: a still poster says nothing about the motion, so it is no use to a model (removed 2026-11-26)" },
   { id: "mobbin", label: "Mobbin", why: "screens load only after login in a script-rendered app; open it in your own browser" },
 ];

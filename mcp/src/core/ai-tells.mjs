@@ -229,10 +229,6 @@ export function aiTellsInPage() {
   if (oldYear) add("warn", "old year in the footer", oldYear, `the copyright line says a past year (it is ${year})`);
   if (emoji >= 2) add("warn", "emoji as icons", "", `${emoji} headings, buttons or nav items carry emoji: use one icon set (icons_search)`);
 
-  // Gradient text, used more than once.
-  const gradText = [...document.querySelectorAll("h1, h2, h3, span, p, a")].filter((el) => visible(el) && /text/.test(getComputedStyle(el).webkitBackgroundClip + getComputedStyle(el).backgroundClip) && /gradient/.test(getComputedStyle(el).backgroundImage));
-  if (gradText.length > 1) add("warn", "gradient text", gradText.slice(0, 3).map((e) => e.innerText).join(" / "), `${gradText.length} gradient-filled words: once on the page at most, and only with a reason`);
-
   // Body text that doesn't read on its ground.
   let lowBody = 0;
   for (const p of [...document.querySelectorAll("p, li")].filter(visible)) {

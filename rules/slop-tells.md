@@ -4,9 +4,9 @@ Look for these in code AND in screenshots. Each one is a reason to drop a fit-ch
 static ones are also checked by `fitcheck_lint` (data/slop.json).
 
 ## Colour
-1. Purple-to-pink or indigo-to-cyan gradients, especially on headline text. → One accent from the direction; solid ink headlines.
-2. Gradient text anywhere. → Solid colour; hierarchy from size and weight.
-3. Glowing blurred "orbs" behind the hero for no reason. → A real image, product UI, or a deliberate mesh gradient from the palette.
+1. Tailwind's default purple-to-pink or indigo-to-cyan, untouched. → Gradients, blobs and glows are welcome; take their colours from the direction, not the framework defaults.
+2. Effects with nothing under them: an aurora, a glow or a blob and a headline, and no product, picture or content anywhere. → Keep the effect, put the real thing in front of it.
+3. Hand-drawn imitations of library effects (a CSS blob you guessed, a glow with hard edges, a shimmer that stutters). → Use the library piece: its timing and easing are tuned.
 4. Several accents competing (blue buttons, green badges, purple links). → One accent; semantic colours only for status.
 5. Pure #000 on pure #FFF, or grey-on-grey body text that fails contrast. → Tinted neutrals from the ramp; check contrast.
 6. Dark mode that is just inverted (pure black, saturated accents vibrating). → Raised dark surfaces (not #000), desaturated accent steps.
@@ -42,7 +42,7 @@ static ones are also checked by `fitcheck_lint` (data/slop.json).
 28. Sparkles icon for anything "AI". → An icon that means something here.
 29. Decorative icons on every list item and card. → Icons only where they help scanning.
 30. Status dots and "New" badges sprinkled for decoration. → Only on real status.
-31. Glassmorphism (backdrop blur) on many layers. → Glass is fine as one deliberate layer where content passes under it (a nav, a panel over a photo); the tell is blur on every card.
+31. Glass over nothing: backdrop blur on cards that sit on a flat colour (there is nothing to blur). → Glass over a picture, a gradient or moving content, where the blur shows.
 32. Heavy drop shadows on everything (`shadow-2xl`). → Subtle, consistent elevation from one light source.
 33. Mixed corner radii with no system. → 2-3 radii; nested = outer − padding.
 34. Library defaults untouched (stock shadcn look). → Restyle to tokens.
@@ -52,10 +52,10 @@ static ones are also checked by `fitcheck_lint` (data/slop.json).
 38. Empty, loading and error states missing. → Design them.
 
 ## Motion
-39. Everything fades/slides in on scroll. → Animate one or two meaningful things.
+39. The same fade-up on every element. → Vary it: blur-in for headlines, staggered reveals for grids, scroll-linked motion for the product, live movement in the cells.
 40. `transition: all`, long durations (>400ms for UI), bouncy easing on everything. → Specific properties, 150-300ms, ease-out for entrances.
-41. Infinite marquee of logos/testimonials by reflex. → Only when there are many real logos.
-42. Parallax and 3D tilt cards on product UI. → Save effects for one signature moment on marketing pages.
+41. A marquee of made-up logos or fake testimonials. → Marquees are great with real things in them (logos, outputs, quotes).
+42. Tilt and parallax that make product UI hard to read. → Use them on pictures, cards and outputs; keep text and controls steady.
 43. No reduced-motion handling. → `prefers-reduced-motion: reduce`.
 
 ## Imagery
