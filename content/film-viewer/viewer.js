@@ -117,6 +117,7 @@
     const was = story;
     story = F.buildStory(norm, info, { live: norm.live });
     $('liveBtn').hidden = !norm.live;
+    $('saveBtn2').hidden = norm.live;
     buildWall();
     buildTrack();
     layout();
@@ -469,6 +470,88 @@
     else if (k === 'End') { e.preventDefault(); seek(story ? story.total : 0); }
     else if (k === 'l' || k === 'L') { if (norm && norm.live) $('liveBtn').click(); }
   });
+
+  /* ---------- download the film as a video ----------
+     Chrome and Edge record their own tab (getDisplayMedia + preferCurrentTab), cropped to the film (CropTarget).
+     The page switches to a clean 16:9 frame without controls, replays the run from the start (faster for long runs,
+     so the video stays under REC_MAX seconds), holds on the finished card and saves an MP4 (WebM where MP4 isn't offered). */
+  const REC_MAX = 60;
+  let recording = false;
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  function recType() {
+    const types = ['video/mp4;codecs=avc1.640028', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+    return types.find((x) => MediaRecorder.isTypeSupported(x)) || '';
+  }
+  async function recordVideo() {
+    if (recording || !story || norm.live) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia || !window.MediaRecorder) {
+      alert('Saving a video needs Chrome or Edge on a computer.');
+      return;
+    }
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 30, cursor: 'never', displaySurface: 'browser' }, audio: false,
+        preferCurrentTab: true, selfBrowserSurface: 'include', surfaceSwitching: 'exclude',
+      });
+    } catch (e) { return; } // the person said no
+    const track = stream.getVideoTracks()[0];
+    track.contentHint = 'detail';
+    const was = { speed, t, title: document.title };
+    recording = true;
+    document.body.classList.add('rec');
+    let saved = false;
+    try {
+      layout();
+      setPlaying(false);
+      setFollow(false);
+      seek(0);
+      await wait(500);
+      if (window.CropTarget && track.cropTo) { try { await track.cropTo(await CropTarget.fromElement(app)); } catch (e) { /* the whole tab, then */ } }
+      await wait(400);
+      const type = recType();
+      const rec = new MediaRecorder(stream, Object.assign({ videoBitsPerSecond: 12e6 }, type ? { mimeType: type } : {}));
+      const chunks = [];
+      rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+      const stopped = new Promise((r) => { rec.onstop = r; });
+      rec.start(1000);
+      await wait(300);
+      speed = Math.max(1, story.total / REC_MAX);
+      setPlaying(true);
+      while (t < story.total - 0.02 && track.readyState === 'live') {
+        document.title = 'Recording ' + Math.round((t / story.total) * 100) + '% · Drip Film';
+        await wait(250);
+      }
+      const whole = track.readyState === 'live';
+      if (whole) await wait(3200); // hold on the finished card
+      rec.stop();
+      await stopped;
+      if (whole && chunks.length) {
+        const mime = rec.mimeType || type || 'video/webm';
+        const ext = /mp4/.test(mime) ? 'mp4' : 'webm';
+        const name = String((film.task && film.task.page) || norm.title || 'run').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || 'run';
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(chunks, { type: mime }));
+        a.download = 'drip-film-' + name + '.' + ext;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+        saved = ext;
+      }
+    } finally {
+      stream.getTracks().forEach((x) => x.stop());
+      recording = false;
+      speed = was.speed;
+      document.title = was.title;
+      document.body.classList.remove('rec');
+      layout();
+      render();
+    }
+    if (saved === 'webm') alert('Saved as WebM: this browser cannot record MP4. Convert it before posting on X, or record again in a current Chrome or Edge.');
+  }
+  $('saveBtn').addEventListener('click', recordVideo);
+  $('saveBtn2').addEventListener('click', recordVideo);
 
   let rz = 0;
   addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { layout(); render(); }); });

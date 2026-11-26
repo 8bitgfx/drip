@@ -149,3 +149,14 @@ svg { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .live[aria-pressed="true"] i { animation: none; }
 }
+
+/* ---------- download video ---------- */
+.speed.save { display: grid; place-items: center; min-width: 32px; width: 32px; padding: 0; color: var(--ink2); }
+.speed.save svg { width: 15px; height: 15px; }
+.speed.save:hover { color: var(--ink); }
+.speed.save[hidden] { display: none; }
+/* while recording: a clean 16:9 frame, no controls (only this element is captured) */
+body.rec { display: grid; place-items: center; background: #000; cursor: none; }
+body.rec .app { width: min(100vw, calc(100dvh * 16 / 9)); height: min(100dvh, calc(100vw * 9 / 16)); grid-template-rows: 56px 1fr; background: var(--bg); }
+body.rec .transport, body.rec .live { display: none; }
+body.rec .end-act { visibility: hidden; }
