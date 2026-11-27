@@ -45,7 +45,15 @@ repetition, whooshes and cues where nothing moves (after `motion_trace`).
 - Length: pick a track that is the film's length or cut it at a phrase boundary; do not fade out a track that was
   not made to end.
 - Avoid: generic corporate music (a clean guitar and a clap), repetitive loops that never develop, anything where
-  the tempo fights the picture's rhythm.
+  the tempo fights the picture's rhythm. And game music: a user turned down an action/breakbeat track and a "minimal
+  tech" track tagged *strange, techno* as "video game music, not motion design", and took a light, bright electronic
+  bed (Kevin MacLeod, "Inspired", CC BY 4.0) at 123 BPM. Read the tags; game, action, intense, strange and techno
+  are out (search already scores them down).
+- **The user picks by ear.** You can't listen. Analyse 3-4 candidates, then `motion_music` listen: it downloads them,
+  writes a page with a player for each and serves it on localhost. A plain audio link usually downloads instead of
+  playing. Never set a track the user hasn't heard.
+- **Fit the track to the cut, gently.** A 3-8% tempo change (ffmpeg `atempo`) and a few dB down (`volume=-7dB`) are
+  fine; trim it to start on a downbeat, then set the film's `BPM` from the analysis so `B(n)` lands on its beats.
 - Land major transformations on accents, builds and drops. The biggest visual moment sits on the biggest
   musical moment, within 1-2 frames.
 

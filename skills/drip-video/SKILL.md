@@ -8,6 +8,8 @@ user-invocable: false
 
 Film tasks run in `drip_start` mode `motion` (`/drip:motion`). **Call `drip_guide video`** for the full procedure; it records the read. (Not in your tools? ToolSearch `select:mcp__plugin_drip_drip__drip_guide`.)
 
+- The default is the launch film (`drip_guide video/house-style`): `drip_kit({ template: "motion" })` writes it working; re-skin it. Words land one per beat, real cards fly through depth, one click changes the UI's state, the brand's motif becomes the logo. No glows, blur-ins, highlight boxes or selection boxes that select nothing.
+- Music first, chosen by the user by ear (`motion_music` listen); light, bright electronic, never game or action music. Time everything on its beat grid.
 - Concept before animation: one visual idea in one sentence (a metaphor, not a feature list), and a hook inside 2 seconds.
 - One clock. Every frame is a pure function of time on one paused GSAP timeline `tl`; no timers, no CSS animations, seeded `rand()` only.
 - A motif survives: one shape or object persists through the film and changes meaning. No deck of separate slides.
@@ -38,4 +40,4 @@ Film tasks run in `drip_start` mode `motion` (`/drip:motion`). **Call `drip_guid
 | Studying reference films before planning | `drip_guide video/research` |
 | What working studios do: measured cuts, rests, signature moves per studio | `drip_guide video/studios` |
 | Ready-made video pieces (SnapCN): finding one per beat, motion_piece, mounting it on the film clock | `drip_guide video/components` |
-| The default look and pacing (calm continuous product motion, copy, rhythm, DEFAULTS block) | `drip_guide video/house-style` |
+| The default launch film: what users rejected in their words, the structure, the engine, the DEFAULTS block | `drip_guide video/house-style` |

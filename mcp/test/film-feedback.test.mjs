@@ -14,7 +14,7 @@ const { cleanContext } = await import("../src/modules/critic/index.mjs");
 const { checkStoryboard } = await import("../src/modules/motion/story.mjs");
 const { feelFor, queryFit, motionFit, musicQueries } = await import("../src/modules/motion/sound.mjs");
 const { structure } = await import("../src/modules/motion/music.mjs");
-const { bringSound } = await import("../src/modules/motion/audio.mjs");
+const { bringSound, listenPage } = await import("../src/modules/motion/audio.mjs");
 
 test("critic context: arguments are taken out and the review goes ahead", () => {
   const r = cleanContext("Launch film for Drip, a design plugin. The flat look is deliberately simple. Dark brand on ink.");
@@ -40,6 +40,24 @@ test("music: a cinematic search asks for cinematic tracks, and the asked genre l
   const house = { tags: ["electro", "house"] };
   assert.ok(motionFit(epic, "cinematic") + queryFit(epic, "cinematic") > motionFit(house, "cinematic") + queryFit(house, "cinematic"));
   assert.ok(motionFit(epic, "cinematic") > motionFit(epic, "motion"), "epic is home for cinematic, beatless for motion");
+});
+
+test("music: game and action tracks are out for a motion film; a clean bed stays in", () => {
+  const gamey = { name: "Minimal Tech Background Music", tags: ["minimal", "techno", "strange", "background"] };
+  const action = { name: "Electronic Action", tags: ["electronic", "action", "intense", "video game"] };
+  const bed = { name: "Inspired", tags: ["electronic", "uplifting", "corporate", "bright"] };
+  assert.ok(motionFit(gamey) < -4, "strange/techno reads as game music");
+  assert.ok(motionFit(action) < -4);
+  assert.ok(motionFit(bed) > 0);
+  assert.ok(motionFit(action, "cinematic") > motionFit(action, "motion"), "a cinematic trailer may still use action music");
+});
+
+test("music listening page: every candidate gets a player and its licence", () => {
+  const html = listenPage([{ file: "a.mp3", name: "Inspired", licence: "CC BY 4.0", credit: "Kevin MacLeod" }, { file: "b.mp3", name: "Other <x>" }]);
+  assert.equal((html.match(/<audio controls/g) || []).length, 2);
+  assert.match(html, /src="a\.mp3"/);
+  assert.match(html, /CC BY 4\.0/);
+  assert.match(html, /Other &lt;x&gt;/);
 });
 
 test("music analysis: bars past the last frame never read NaN or silence", () => {

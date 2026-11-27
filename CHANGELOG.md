@@ -2,6 +2,23 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.12.0: the launch film is the default
+
+Drip's release trailer took nine cuts; the user rejected each miss by name. What finally shipped is now the default:
+
+- **`drip_kit({ template: "motion" })` writes the launch engine**, a working 20 s film to re-skin: a beat grid `B(n)`
+  set from the track's BPM, words rising out of masks one per beat, real cards flying through 3D depth outside the
+  text band, a cursor click that changes the UI's state, the brand's motif drawn live and dived into, the motif
+  becoming the logo, an end card that holds still.
+- **House style rewritten** around the user's own words: a table of what they rejected ("AI slop gradients",
+  "random selection boxes", "no cursor", "buggy clicks", "slideshow", "moves weird at the end", "video game music")
+  and the rule each became. The old glow-and-tilted-plane defaults are gone.
+- **The user picks the music by ear.** `motion_music` action `listen` downloads 2-4 candidates, writes a page with a
+  player for each and serves it (a raw audio link downloads instead of playing). Search scores game, action,
+  intense, strange and techno tracks out of every feel but cinematic.
+- **Guides**: new slop tells (blurred or highlight-boxed words, selection boxes that select nothing, clicks with no
+  consequence, long holds, drifting end cards, game music); music before the kit; gentle tempo and level fitting.
+
 ## 0.11.0: what the Drip trailer v3 taught
 
 A launch film came out jittery, disconnected and slideshow-like, and Drip's checks passed it. Fixed at the causes:

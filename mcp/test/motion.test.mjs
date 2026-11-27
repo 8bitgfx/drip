@@ -145,7 +145,7 @@ test("the kit composition seeks to exact times and passes a sweep", { skip }, as
     throw e;
   }
   assert.equal(r.probe.via, "drip");
-  assert.equal(r.probe.duration, 8);
+  assert.equal(r.probe.duration, 20);
   assert.equal(r.times.length, 6);
   assert.equal(r.sheets.length, 1);
   // The bare template is a skeleton: the only thing allowed to complain is that it is still mostly empty.

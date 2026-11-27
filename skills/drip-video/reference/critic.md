@@ -24,6 +24,11 @@ subject. The question is whether anyone decided it.
 | Generic stock music | Music that fits the brand, with accents on real events |
 | Abrupt ending | Settling: the motif comes to rest, a hold, the brand |
 | Template compositions (a centered title on a gradient) | Art direction: scale contrast, a crop, a grid, a point of view |
+| Blurred, glowing or highlight-boxed words | Words rise out of a mask in one colour |
+| Selection boxes or handles that select nothing | Frames and handles only on the motif; a choice is a UI state change |
+| A click with no consequence, or a cursor lost against the card | A visible cursor presses and the UI changes state |
+| A 3-4 s hold on one card | An event on almost every beat; the world keeps moving |
+| A drifting or scaling end card | The lockup lands and holds |
 
 If more than three rows describe the film, it is a template. Return to the concept.
 

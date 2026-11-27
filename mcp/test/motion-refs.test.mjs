@@ -121,7 +121,7 @@ test("music reads as text: energy bar by bar with builds, drops and storyboard b
   const a = { duration: 40, bars: Array.from({ length: 20 }, (_, i) => i * 2), barEnergy: Array.from({ length: 20 }, (_, i) => (i < 8 ? -30 + i : -12)), sections: [{ from: 0, to: 16, level: -25 }, { from: 16, to: 40, level: -12 }], builds: [[10, 16]], drops: [16], quiet: [] };
   const lines = energyLines(a, { beats: [16.2] }).split("\n");
   assert.equal(lines.length, 3);
-  assert.match(lines[0], /^\s*0:00\.0  ▁/);
+  assert.match(lines[0], /^\s*0:00\.0 {2}▁/);
   assert.match(lines[1], /DROP 0:16\.0/);
   assert.match(lines[1], /beat@16\.2s/);
   assert.match(lines[0], /build 0:10\.0-0:16\.0/);

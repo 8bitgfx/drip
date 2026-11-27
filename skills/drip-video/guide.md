@@ -19,7 +19,11 @@ DESIGN.md, IDENTITY.md: flat paint, no highlights, one accent) override every vi
 
 ## The procedure
 
-0. **Defaults.** The default look and pacing come from `drip_guide video/house-style` (its DEFAULTS block) unless the brief or the project's `IDENTITY.md` says otherwise.
+0. **Defaults.** The default is the launch film in `drip_guide video/house-style`: a beat grid, words that land one per
+   beat, real cards flying through depth, one click that changes the UI's state, the brand's motif drawn live and
+   becoming the logo. `drip_kit({ template: "motion" })` writes it as a working film you re-skin. Its section 1 is a
+   table of what a user rejected, in their words; read it before the storyboard. The brief or the project's
+   `IDENTITY.md` overrides it.
 1. **Open the task.** `drip_start` with the request, mode `motion`. Read the project first (README, brand files,
    logo, tokens, existing screenshots, any recorded UI). Collect the real assets: logo, product screens, copy,
    brand fonts. Ask only what the project does not answer: audience, where it plays (site hero, X, Instagram,
@@ -40,9 +44,12 @@ DESIGN.md, IDENTITY.md: flat paint, no highlights, one accent) override every vi
    rest, all-cut transitions and words per second. Fix its errors and read its warnings: they are judgement calls
    you answer in the plan, not noise. Composition files are held until it exists. Re-record it when the user
    changes the plan.
-5. **Kit.** `drip_kit` with `{ template: "motion" }` writes the composition: a stage in film pixels, a seeded
-   `rand()`, a closed-form `spring()` ease, one paused timeline `tl`, `window.__drip`, and a preview with play,
-   scrub and frame stepping. Set `FORMAT` from the storyboard. Fonts: `fonts_search`; colours:
+5. **Music, then kit.** Pick the track before timing anything: `motion_music` search, analyse the 3-4 likeliest,
+   then `motion_music` listen: the user picks by ear on a page with a player for each (you can't hear, and a pick
+   from tags has landed on "video game music" before). Then `drip_kit` with `{ template: "motion" }` writes the
+   launch engine: the beat grid `B(n)` (set `BPM` from the analysis), words, flying cards, clicks, the motif box,
+   the ending, one paused timeline `tl`, `window.__drip`, and a preview with play, scrub and frame stepping.
+   Re-skin every CHANGE ME; keep the mechanics. Set `FORMAT` from the storyboard. Fonts: `fonts_search`; colours:
    `palette_generate`; icons: `icons_search`; stills or textures: `images_search` (licences recorded) or
    `gen_image`.
 6. **Style frames.** Before animating, build the key moments as static compositions (the storyboard's beat
@@ -195,6 +202,13 @@ rewrite the line. Details in `drip_guide video/direction`.
 | Generic stock music | Music chosen for the brand and audience, with accents on real beats |
 | Abrupt ending | Settle: the motif comes to rest, hold a second, end on the brand |
 | Template composition (centered title on a gradient) | Art-direct the frame: scale contrast, an unexpected crop, a grid |
+| Words blur in, glow, or sit on coloured highlight blocks | Words rise out of a mask, one colour; the emphasis is in the sentence, not a box |
+| Selection boxes snap around things that nothing selected; a lone handle floats | Frames and handles belong to the motif only; a selection is a state change in the UI |
+| A click that changes nothing, a cursor you can't see, the card jolts | A dark cursor with a white edge presses and the UI answers: a chip becomes selected, a badge appears |
+| Cards fly across the words | Cards fly outside the text band |
+| Holds of 3-4 s on one card ("a slideshow") | Something new on almost every beat; the world keeps turning |
+| The end card drifts or scales apart | The lockup lands and holds still |
+| Game, action or "strange/techno" music | Light, bright, steady electronic; the user picks by ear (`motion_music` listen) |
 
 These are contextual tells, not bans. A fade is right when it is the idea. `drip_guide video/critic` has the full
 table and the 12-point checklist.
@@ -203,8 +217,8 @@ table and the 12-point checklist.
 
 Sound is found, chosen and mixed, never composed or synthesised in code. **Find before you make**: music comes
 from licensed libraries or the user's files (`motion_music` search); generated music is a fallback only when the
-user asks (`motion_music` generate, Eleven Music with a plan timed to the storyboard). Pick music first when it
-drives the story, then `motion_music` analyse it: tempo, bars, sections, builds and drops. Scene changes go on bar
+user asks (`motion_music` generate, Eleven Music with a plan timed to the storyboard). Pick music first, and let the
+user choose it by ear (`motion_music` listen serves a page with a player per candidate); then `motion_music` analyse it: tempo, bars, sections, builds and drops. Scene changes go on bar
 lines, the big transformation on the drop, rests in the quiet bars; `from` starts the track so its drop meets your
 moment. **Effects are rare and calm**: most beats have none; when used, a smooth UI sound (soft click, glassy tap,
 gentle pop) on a meaningful interaction, never whooshes or risers by default (`motion_sound`, placed by sync point).

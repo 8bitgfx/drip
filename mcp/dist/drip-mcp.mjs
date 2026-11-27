@@ -102621,6 +102621,7 @@ function stretches(duration3, beats = [], max = 6) {
 import fs42 from "node:fs";
 import path40 from "node:path";
 init_paths();
+init_serve();
 
 // src/modules/motion/music.mjs
 init_browser();
@@ -102894,6 +102895,7 @@ var SPEED_SCORE = {
   cinematic: { speed_verylow: -2, speed_low: 0, speed_medium: 2, speed_high: 1, speed_veryhigh: -1 }
 };
 var OFF = /\b(jazz|blues|bossa ?nova|bossanova|latin|salsa|tango|swing|lounge|bar|cafe|war|battle|fight|ethnic|tribal)\b/i;
+var GAMEY = /\b(game|games|gaming|video ?game|8 ?bit|chiptune|chip ?tune|arcade|retro ?game|boss|action|intense|adventure|heroic|spy|strange|weird|glitchy)\b/i;
 var count = (re, txt) => (txt.match(new RegExp(re.source, "gi")) || []).length;
 function motionFit(t2, feel = "motion") {
   const f3 = GOOD[feel] ? feel : "motion";
@@ -102903,6 +102905,7 @@ function motionFit(t2, feel = "motion") {
   if (f3 === "cinematic") s2 -= 3 * count(SLEEPY, words4);
   else if (f3 !== "ambient") s2 -= 3 * count(BEATLESS, words4);
   s2 -= 4 * count(OFF, words4);
+  if (f3 !== "cinematic") s2 -= 8 * count(GAMEY, words4);
   if (CLUB.test(words4)) s2 -= f3 === "energetic" ? 1 : 3;
   for (const tag of t2.tags || []) s2 += SPEED_SCORE[f3][tag] ?? 0;
   if (t2.tempo) s2 += /very fast/.test(t2.tempo) ? -2 : /very slow/.test(t2.tempo) ? f3 === "ambient" ? 1 : -3 : /slow/.test(t2.tempo) ? f3 === "ambient" ? 2 : -1 : /medium/.test(t2.tempo) ? 2 : /fast/.test(t2.tempo) ? f3 === "motion" ? 1 : 2 : 0;
@@ -103119,14 +103122,24 @@ async function bringSound(task, source, { name, licence, credit, url: url2 } = {
 `);
   return path40.relative(projectDir(), file4).replace(/\\/g, "/");
 }
+function listenPage(tracks) {
+  const esc2 = (s2) => String(s2 ?? "").replace(/[&<>"]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c3]);
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Music for the film</title>
+<style>body{margin:0;background:#0D0E12;color:#F5F2EC;font:16px/1.5 system-ui,sans-serif;padding:40px 16px}main{max-width:640px;margin:0 auto}h1{font-size:26px;margin:0 0 6px}p{color:#9A9EAD;margin:0 0 24px}
+.t{background:#16181F;border:1px solid #262934;border-radius:14px;padding:16px 18px 12px;margin-bottom:12px}.t h2{margin:0;font-size:19px}.t .m{color:#9A9EAD;font-size:14px;margin:2px 0 10px}audio{width:100%}</style></head>
+<body><main><h1>Music for the film</h1><p>Press play on each and say which one fits. Nothing is used until you pick.</p>
+${tracks.map((t2) => `<div class="t"><h2>${esc2(t2.name)}</h2><div class="m">${esc2([t2.note, t2.licence, t2.credit].filter(Boolean).join(" \xB7 "))}</div><audio controls preload="metadata" src="${esc2(t2.file)}"></audio></div>`).join("\n")}
+</main></body></html>`;
+}
 function registerAudio(server2, ctx2) {
   server2.registerTool(
     "motion_music",
     {
       title: "Find, read and place the film's music",
-      description: `Music drives a launch film: pick it BEFORE choreographing when it carries the story. action search: licensed tracks from Openverse (Jamendo and others; each with its licence and attribution; check the terms) \u2014 or use a track the user gives you. action analyse: decodes a track and measures it: tempo (BPM), beat grid, bars, sections by energy, builds and DROPS, quiet bars; returns a chart, and if a storyboard exists, how far each beat boundary sits from a bar line. Put the biggest transformation on the drop, scene changes on bar lines, rests in the quiet bars. action use: copies the track into <film>/sound/ with its licence and sets it as the film's music (gainDb, from = where in the track to start, fadeOut seconds). motion_export mixes it. action generate (fallback, only when the user asks; pass userAsked): Eleven Music with a composition plan timed to the storyboard (exact section lengths, the drop where the big moment is, instrumental, negative styles), then analyse it like any track. Suno has no public API: a track made there comes in with action use. Examples: motion_music({ action: "search", query: "minimal electronic upbeat" }) \xB7 motion_music({ action: "analyse", source: "film/sound/track.mp3" }) \xB7 motion_music({ action: "use", source: "<url>", licence: "CC BY 4.0", credit: "Artist \u2013 Title (Jamendo)", from: 12.5, gainDb: -6, fadeOut: 1.5 })`,
+      description: `Music drives a launch film: pick it BEFORE choreographing when it carries the story. action search: licensed tracks from Openverse (Jamendo and others; each with its licence and attribution; check the terms) \u2014 or use a track the user gives you. action analyse: decodes a track and measures it: tempo (BPM), beat grid, bars, sections by energy, builds and DROPS, quiet bars; returns a chart, and if a storyboard exists, how far each beat boundary sits from a bar line. Put the biggest transformation on the drop, scene changes on bar lines, rests in the quiet bars. action use: copies the track into <film>/sound/ with its licence and sets it as the film's music (gainDb, from = where in the track to start, fadeOut seconds). motion_export mixes it. action listen: the user picks the track BY EAR, never you from tags: pass tracks [{ source, name, licence, credit, note }] (2-4 candidates); it downloads them into <film>/sound/candidates/, writes a page with a player for each and serves it on localhost; give the user that URL (open it in the browser pane), then wait for their pick. action generate (fallback, only when the user asks; pass userAsked): Eleven Music with a composition plan timed to the storyboard (exact section lengths, the drop where the big moment is, instrumental, negative styles), then analyse it like any track. Suno has no public API: a track made there comes in with action use. Examples: motion_music({ action: "search", query: "minimal electronic upbeat" }) \xB7 motion_music({ action: "analyse", source: "film/sound/track.mp3" }) \xB7 motion_music({ action: "use", source: "<url>", licence: "CC BY 4.0", credit: "Artist \u2013 Title (Jamendo)", from: 12.5, gainDb: -6, fadeOut: 1.5 })`,
       inputSchema: {
-        action: external_exports.enum(["search", "analyse", "use", "generate"]),
+        action: external_exports.enum(["search", "listen", "analyse", "use", "generate"]),
+        tracks: external_exports.array(external_exports.object({ source: external_exports.string(), name: external_exports.string(), licence: external_exports.string().optional(), credit: external_exports.string().optional(), note: external_exports.string().optional().describe("What it is: '120 BPM, bright clean electronic'") })).max(6).optional().describe("listen: the candidates to play to the user"),
         userAsked: external_exports.string().optional().describe("generate only: the user's own words asking for a generated track, quoted. Found music comes first; generation is the fallback"),
         plan: external_exports.array(external_exports.object({ seconds: external_exports.number().min(3).max(120), what: external_exports.string().describe("What the music does here: 'soft pulse, filtered synth, building', 'the drop: full drums and bass', 'resolve, piano and pad, ends cleanly'"), styles: external_exports.array(external_exports.string()).optional() })).optional().describe("generate: sections that follow the storyboard (the drop where the big moment is)"),
         styles: external_exports.array(external_exports.string()).optional().describe("generate: global styles: genre, mood, instruments, '112 BPM', 'D minor'"),
@@ -103142,9 +103155,35 @@ function registerAudio(server2, ctx2) {
         fadeOut: external_exports.number().optional()
       }
     },
-    safe(async ({ action, query, feel, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, feel, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [], tracks }) => {
       const config2 = ctx2.config();
       const { task } = loadState();
+      if (action === "listen") {
+        if (!tracks?.length) return text('Pass tracks: [{ source: "<audio url or file>", name: "Title (Artist)", licence: "CC BY 4.0", note: "120 BPM, bright clean electronic" }], 2-4 of them.', true);
+        const dir = path40.join(filmDir2(task), "sound", "candidates");
+        fs42.mkdirSync(dir, { recursive: true });
+        const done = [];
+        const failed = [];
+        for (const t2 of tracks) {
+          const { base, ext } = soundFileName(t2.source, t2.name);
+          const file4 = path40.join(dir, `${base}${ext}`);
+          try {
+            if (!fs42.existsSync(file4)) {
+              if (/^https?:/i.test(t2.source)) fs42.writeFileSync(file4, (await get(t2.source, { as: "buffer", ttlMs: 30 * 24 * 36e5, timeoutMs: 12e4, headers: { "User-Agent": "drip-design-plugin" } })).body);
+              else fs42.copyFileSync(path40.resolve(projectDir(), t2.source), file4);
+            }
+            done.push({ ...t2, file: path40.basename(file4) });
+          } catch (e2) {
+            failed.push(`${t2.name}: ${e2.message}`);
+          }
+        }
+        if (!done.length) return text(`None of the tracks could be fetched: ${failed.join("; ")}`, true);
+        fs42.writeFileSync(path40.join(dir, "listen.html"), listenPage(done));
+        const url2 = `${await serveDir(dir)}/listen.html`;
+        return text(
+          `Listening page: ${url2} (${done.length} track${done.length > 1 ? "s" : ""}${failed.length ? `; not fetched: ${failed.join("; ")}` : ""}). Open it in the browser pane for the user and ask which one fits; wait for their pick. Then motion_music analyse the chosen file and action use it. A track can be made to fit: a 3-8% tempo change (ffmpeg atempo) or a few dB quieter is fine; ask before anything bigger.`
+        );
+      }
       if (action === "generate") {
         if (!userAsked) return text("Found music comes first (motion_music search, or a track the user owns). Generate only when the user asks for it: pass userAsked with their words.", true);
         const key = getKey("elevenlabs");
@@ -103192,10 +103231,10 @@ function registerAudio(server2, ctx2) {
         return text(
           `PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: "Epidemic Sound subscription"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.
 
-${r2.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences ranked too: CC0 is free to use; CC BY needs a credit line; BY-SA makes the film itself an adaptation that must be shared under BY-SA too, so avoid it for a commercial launch film; NC forbids commercial use; ND, already left out, forbids cutting to picture). You can't listen: give the user the links of your 2-3 picks to hear before choosing:
+${r2.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences ranked too: CC0 is free to use; CC BY needs a credit line; BY-SA makes the film itself an adaptation that must be shared under BY-SA too, so avoid it for a commercial launch film; NC forbids commercial use; ND, already left out, forbids cutting to picture). Read each one's tags: anything tagged game, action, intense, strange or techno is out (scored down already). The user picks by ear:
 ` + r2.map((t2, i2) => `${i2 + 1}. ${t2.name} \xB7 ${t2.seconds ? `${Math.round(t2.seconds)}s` : "?"} \xB7 ${t2.vocals === "instrumental" ? "instrumental" : t2.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t2.tempo ? ` \xB7 ${t2.tempo}` : ""} \xB7 ${t2.licence} \xB7 ${t2.source}${t2.category && t2.category !== "music" ? ` \xB7 ${t2.category}` : ""}
    ${t2.preview}`).join("\n") + (notes.length ? `
-(${notes.join("; ")})` : "") + "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it."
+(${notes.join("; ")})` : "") + "\n\nYou can't listen, and your pick from tags has been wrong before. motion_music analyse the 3-4 likeliest (tempo, energy, drops), then motion_music listen with them: the user gets a page with a player for each and chooses. Never set a track nobody heard. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it."
         );
       }
       if (!source) return text("Pass source: a project file or an audio URL.", true);
@@ -104724,7 +104763,9 @@ FIRST CALLS (one message):
    For a launch, product, AI or SaaS film it lists real brands' LAUNCH FILMS first. In the same message, WebSearch the 1-2 closest real launches it may lack (the category leader's latest, the competitors': "<brand> launch video"); their YouTube, X or Vimeo post URLs play in motion_study.
 2. When back: motion_study the 1-3 best (pass the video or post URL; role moves / look / story): at least one launch film for a launch. Read them as a motion designer.
 3. The concept, then motion_storyboard. Composition files are held until the storyboard is recorded.
-Then: drip_kit({ template: "motion" }) into the film's folder, style frames first (motion_frames at those times), the whole timeline, motion_frames sweep and around the transitions, motion_export({ draft: true }) and motion_study it, the critic once (critic_prepare kind "motion"), fix, the final render, motion_study the file, drip_end.
+THE DEFAULT FILM is the launch film (drip_guide video/house-style): read its section 1, what a user rejected in their own words (glows, blur-ins, highlight boxes, selection boxes that select nothing, invisible cursors and clicks that change nothing, slideshow holds, game music), before you storyboard.
+MUSIC: search, analyse 3-4, then motion_music listen so the user picks by ear; time the film on that track's beat grid.
+Then: drip_kit({ template: "motion" }) into the film's folder (the launch engine, a working film to re-skin), style frames first (motion_frames at those times), the whole timeline, motion_frames sweep and around the transitions, motion_export({ draft: true }) and motion_study it, the critic once (critic_prepare kind "motion"), fix, the final render, motion_study the file, drip_end.
 Builders: a film has ONE clock and one choreography, and you own the master timeline. A drip:builder may build a self-contained piece (a procedural background, a UI mock, a 3D object) to your spec via build_prepare; it never times the film.
 PIECES BEFORE HAND-BUILDING: for each beat's visual, check SnapCN (motion_piece search: ~145 ready video pieces: text reveals, captions, logo assembles, device frames, terminals, cursors, counters) and the visuals library (drip_kit motion-visuals: light, depth, particles, globes) before building one by hand; motion_storyboard lists SnapCN pieces that may fit each beat.
 UI AND LOGOS IN THE FILM: this is not a page or logo task, but their tools are yours: real product screens (the user's own first; else components_find, pieces_preview, mockup_render; never a fake dashboard), a logo or end card (logo_sheet, logo_test, or the brand's own mark), fonts_search, palette_generate, icons_search. The page and logo gates don't apply here; the film's do (storyboard, frames, trace, critic).
@@ -104905,7 +104946,7 @@ ${b}`).join("\n\n")
       if (template === "system") return text(`Wrote ${rel3}: the living design system. It reads every colour, type role and spacing step from the project's drip-base.css (set the link at the top if it lives elsewhere), so it never drifts. Add a specimen for every component the pages use, in its states, and build them here first. Shoot it with fitcheck_shot to check it.`);
       if (template === "motion")
         return text(
-          `Wrote ${rel3}: a seekable composition. Set FORMAT from the storyboard, put each beat on the master timeline \`tl\` at its storyboard time (a label per beat), keep every random number seeded (rand()), and never use timers or real time. Open it in a browser to scrub (space plays, arrow keys step a frame, ?t=3.2 opens at a time). motion_frames sees exactly what the render will.
+          `Wrote ${rel3}: the launch film engine, already a working 20 s film (drip_guide video/house-style). Re-skin it, don't start over: set BPM from the analysed track (every start is B(n)), replace every CHANGE ME with the brand's type, colours, copy, motif and the product's real screens as cards. Keep its rules: words rise one per beat in one colour, cards fly outside the text band, a click always changes the UI's state, the lockup holds still. Never use timers or real time. Open it in a browser to scrub (space plays, arrow keys step a frame, ?t=3.2 opens at a time). motion_frames sees exactly what the render will.
 motion-visuals.js sits beside it: seekable light fields, glows, grain, 3D planes, light sweeps, particles that form shapes, dot globes, orbiting cards, numbers and more (drip_guide video/visuals). Load it with a <script src> and give every beat its visual; DripVisuals.drive(tl, [...]) keeps them on the clock.`
         );
       if (template === "motion-visuals")
@@ -120205,7 +120246,7 @@ ${ttl ? `The page runs for ${Number(flags.ttl)} minutes.` : "The page runs while
 }
 
 // src/index.mjs
-var VERSION = "0.11.0";
+var VERSION = "0.12.0";
 var INSTRUCTIONS = `Drip is a design director for UI work: pages, app screens, sites, dashboards, components and logos.
 For design work call drip_start with the request: it returns the task, the first calls and two guides (taste: what good looks like; the loop: in what order). Follow them; drip_status shows the next call when lost; drip_end closes the task.
 While a task is open, hooks hold UI writes until the work has been looked at and dealt, and hold the end of the turn until a fitcheck_shot has seen the latest version. Reference, palette, font, icon and piece tools are fine to use any time. Many more tools are one call away: drip_search finds them, drip_execute runs a script of calls.`;

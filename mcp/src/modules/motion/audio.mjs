@@ -8,6 +8,7 @@ import { get } from "../../core/http.mjs";
 import { getKey, logUsage } from "../../core/keys.mjs";
 import { textBlock } from "../../core/images.mjs";
 import { projectDir } from "../../core/paths.mjs";
+import { serveDir } from "../../core/serve.mjs";
 import { blocks, safe, text } from "../../core/result.mjs";
 import { loadState, updateState } from "../../core/state.mjs";
 import { fmtT } from "./capture.mjs";
@@ -91,6 +92,20 @@ export async function bringSound(task, source, { name, licence, credit, url } = 
 
 const soundOf = (task) => task?.motion?.sound || { cues: [], voice: [] };
 
+/**
+ * The listening page: one player per candidate track, so the user picks by ear. Agents can't listen, and a raw audio
+ * link usually downloads instead of playing (a user had to ask for "proper links in the browser to play"). Pure (tested).
+ */
+export function listenPage(tracks) {
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Music for the film</title>
+<style>body{margin:0;background:#0D0E12;color:#F5F2EC;font:16px/1.5 system-ui,sans-serif;padding:40px 16px}main{max-width:640px;margin:0 auto}h1{font-size:26px;margin:0 0 6px}p{color:#9A9EAD;margin:0 0 24px}
+.t{background:#16181F;border:1px solid #262934;border-radius:14px;padding:16px 18px 12px;margin-bottom:12px}.t h2{margin:0;font-size:19px}.t .m{color:#9A9EAD;font-size:14px;margin:2px 0 10px}audio{width:100%}</style></head>
+<body><main><h1>Music for the film</h1><p>Press play on each and say which one fits. Nothing is used until you pick.</p>
+${tracks.map((t) => `<div class="t"><h2>${esc(t.name)}</h2><div class="m">${esc([t.note, t.licence, t.credit].filter(Boolean).join(" · "))}</div><audio controls preload="metadata" src="${esc(t.file)}"></audio></div>`).join("\n")}
+</main></body></html>`;
+}
+
 export function registerAudio(server, ctx) {
   server.registerTool(
     "motion_music",
@@ -101,10 +116,16 @@ export function registerAudio(server, ctx) {
         "action search: licensed tracks from Openverse (Jamendo and others; each with its licence and attribution; check the terms) — or use a track the user gives you. " +
         "action analyse: decodes a track and measures it: tempo (BPM), beat grid, bars, sections by energy, builds and DROPS, quiet bars; returns a chart, and if a storyboard exists, how far each beat boundary sits from a bar line. Put the biggest transformation on the drop, scene changes on bar lines, rests in the quiet bars. " +
         "action use: copies the track into <film>/sound/ with its licence and sets it as the film's music (gainDb, from = where in the track to start, fadeOut seconds). motion_export mixes it. " +
+        "action listen: the user picks the track BY EAR, never you from tags: pass tracks [{ source, name, licence, credit, note }] (2-4 candidates); it downloads them into <film>/sound/candidates/, writes a page with a player for each and serves it on localhost; give the user that URL (open it in the browser pane), then wait for their pick. " +
         "action generate (fallback, only when the user asks; pass userAsked): Eleven Music with a composition plan timed to the storyboard (exact section lengths, the drop where the big moment is, instrumental, negative styles), then analyse it like any track. Suno has no public API: a track made there comes in with action use. " +
         'Examples: motion_music({ action: "search", query: "minimal electronic upbeat" }) · motion_music({ action: "analyse", source: "film/sound/track.mp3" }) · motion_music({ action: "use", source: "<url>", licence: "CC BY 4.0", credit: "Artist – Title (Jamendo)", from: 12.5, gainDb: -6, fadeOut: 1.5 })',
       inputSchema: {
-        action: z.enum(["search", "analyse", "use", "generate"]),
+        action: z.enum(["search", "listen", "analyse", "use", "generate"]),
+        tracks: z
+          .array(z.object({ source: z.string(), name: z.string(), licence: z.string().optional(), credit: z.string().optional(), note: z.string().optional().describe("What it is: '120 BPM, bright clean electronic'") }))
+          .max(6)
+          .optional()
+          .describe("listen: the candidates to play to the user"),
         userAsked: z.string().optional().describe("generate only: the user's own words asking for a generated track, quoted. Found music comes first; generation is the fallback"),
         plan: z
           .array(z.object({ seconds: z.number().min(3).max(120), what: z.string().describe("What the music does here: 'soft pulse, filtered synth, building', 'the drop: full drums and bass', 'resolve, piano and pad, ends cleanly'"), styles: z.array(z.string()).optional() }))
@@ -123,9 +144,36 @@ export function registerAudio(server, ctx) {
         fadeOut: z.number().optional(),
       },
     },
-    safe(async ({ action, query, feel, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [] }) => {
+    safe(async ({ action, query, feel, vocals = "no", source, licence, credit, gainDb = -4, from = 0, fadeOut = 1.5, userAsked, plan, styles = [], avoid = [], tracks }) => {
       const config = ctx.config();
       const { task } = loadState();
+      if (action === "listen") {
+        if (!tracks?.length) return text('Pass tracks: [{ source: "<audio url or file>", name: "Title (Artist)", licence: "CC BY 4.0", note: "120 BPM, bright clean electronic" }], 2-4 of them.', true);
+        const dir = path.join(filmDir(task), "sound", "candidates");
+        fs.mkdirSync(dir, { recursive: true });
+        const done = [];
+        const failed = [];
+        for (const t of tracks) {
+          const { base, ext } = soundFileName(t.source, t.name);
+          const file = path.join(dir, `${base}${ext}`);
+          try {
+            if (!fs.existsSync(file)) {
+              if (/^https?:/i.test(t.source)) fs.writeFileSync(file, (await get(t.source, { as: "buffer", ttlMs: 30 * 24 * 3600e3, timeoutMs: 120000, headers: { "User-Agent": "drip-design-plugin" } })).body);
+              else fs.copyFileSync(path.resolve(projectDir(), t.source), file);
+            }
+            done.push({ ...t, file: path.basename(file) });
+          } catch (e) {
+            failed.push(`${t.name}: ${e.message}`);
+          }
+        }
+        if (!done.length) return text(`None of the tracks could be fetched: ${failed.join("; ")}`, true);
+        fs.writeFileSync(path.join(dir, "listen.html"), listenPage(done));
+        const url = `${await serveDir(dir)}/listen.html`;
+        return text(
+          `Listening page: ${url} (${done.length} track${done.length > 1 ? "s" : ""}${failed.length ? `; not fetched: ${failed.join("; ")}` : ""}). Open it in the browser pane for the user and ask which one fits; wait for their pick. ` +
+            "Then motion_music analyse the chosen file and action use it. A track can be made to fit: a 3-8% tempo change (ffmpeg atempo) or a few dB quieter is fine; ask before anything bigger.",
+        );
+      }
       if (action === "generate") {
         if (!userAsked) return text("Found music comes first (motion_music search, or a track the user owns). Generate only when the user asks for it: pass userAsked with their words.", true);
         const key = getKey("elevenlabs");
@@ -179,10 +227,10 @@ export function registerAudio(server, ctx) {
         if (!r.length) return text("No tracks found. Try fewer, broader words (a genre and a feel); or use a track the user owns.", true);
         return text(
           "PRO LIBRARIES FIRST: if this session has Epidemic Sound tools (its official MCP: SearchRecordings, SearchSimilarToRecording, DownloadRecording) or Artlist's, search there first: that is the music big brands license, covered by the user's own plan. Bring the downloaded file in with action use (licence: \"Epidemic Sound subscription\"). No such tools: ask the user once whether they have one of these subscriptions; else use the free tracks below.\n\n" +
-            `${r.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences ranked too: CC0 is free to use; CC BY needs a credit line; BY-SA makes the film itself an adaptation that must be shared under BY-SA too, so avoid it for a commercial launch film; NC forbids commercial use; ND, already left out, forbids cutting to picture). You can't listen: give the user the links of your 2-3 picks to hear before choosing:\n` +
+            `${r.length} free tracks${vocals === "any" ? "" : ", instrumental first (tracks tagged with vocals are left out; 'vocals unknown' means untagged: check by listening)"} (licences ranked too: CC0 is free to use; CC BY needs a credit line; BY-SA makes the film itself an adaptation that must be shared under BY-SA too, so avoid it for a commercial launch film; NC forbids commercial use; ND, already left out, forbids cutting to picture). Read each one's tags: anything tagged game, action, intense, strange or techno is out (scored down already). The user picks by ear:\n` +
             r.map((t, i) => `${i + 1}. ${t.name} · ${t.seconds ? `${Math.round(t.seconds)}s` : "?"} · ${t.vocals === "instrumental" ? "instrumental" : t.vocals === "vocal" ? "VOCALS" : "vocals unknown"}${t.tempo ? ` · ${t.tempo}` : ""} · ${t.licence} · ${t.source}${t.category && t.category !== "music" ? ` · ${t.category}` : ""}\n   ${t.preview}`).join("\n") +
             (notes.length ? `\n(${notes.join("; ")})` : "") +
-            "\n\nYou can't listen: motion_music analyse the 2-3 likeliest (tempo, energy, drops) and pick by structure and fit, then tell the user which one and why, with the link so they can listen. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it.",
+            "\n\nYou can't listen, and your pick from tags has been wrong before. motion_music analyse the 3-4 likeliest (tempo, energy, drops), then motion_music listen with them: the user gets a page with a player for each and chooses. Never set a track nobody heard. Good motion-design music is made to cut to: instrumental; a steady, clear pulse (about 100-125 BPM); crisp percussion and plucky synths with sharp attacks, so transitions land on hits; a tight bass groove; a build into a lift or drop at the reveal; a clean ending. Restrained, not ambient: drones, solo piano and orchestral swells have no beat to cut to; rock, metal and club mixes fight the picture. After analysing, prefer a confident tempo reading and a clear drop or lift where the film's big moment is. Music with words only when the user asks for it.",
         );
       }
       if (!source) return text("Pass source: a project file or an audio URL.", true);

@@ -126,6 +126,9 @@ const SPEED_SCORE = {
 };
 // Fine music, wrong room for a product film: bar jazz, blues, Latin, lounge, battle themes.
 const OFF = /\b(jazz|blues|bossa ?nova|bossanova|latin|salsa|tango|swing|lounge|bar|cafe|war|battle|fight|ethnic|tribal)\b/i;
+// Game and action music: what a user heard as "video game music, not motion design" (an action electronic track and a
+// "minimal tech" track tagged strange/techno were both turned down). Out for every feel but a cinematic trailer.
+const GAMEY = /\b(game|games|gaming|video ?game|8 ?bit|chiptune|chip ?tune|arcade|retro ?game|boss|action|intense|adventure|heroic|spy|strange|weird|glitchy)\b/i;
 const count = (re, txt) => (txt.match(new RegExp(re.source, "gi")) || []).length;
 
 /** How well a track fits a film, for a feel: "motion" (default), "energetic" or "ambient". Pure (tested). */
@@ -137,6 +140,7 @@ export function motionFit(t, feel = "motion") {
   if (f === "cinematic") s -= 3 * count(SLEEPY, words);
   else if (f !== "ambient") s -= 3 * count(BEATLESS, words);
   s -= 4 * count(OFF, words);
+  if (f !== "cinematic") s -= 8 * count(GAMEY, words);
   if (CLUB.test(words)) s -= f === "energetic" ? 1 : 3;
   for (const tag of t.tags || []) s += SPEED_SCORE[f][tag] ?? 0;
   if (t.tempo) s += /very fast/.test(t.tempo) ? -2 : /very slow/.test(t.tempo) ? (f === "ambient" ? 1 : -3) : /slow/.test(t.tempo) ? (f === "ambient" ? 2 : -1) : /medium/.test(t.tempo) ? 2 : /fast/.test(t.tempo) ? (f === "motion" ? 1 : 2) : 0;
