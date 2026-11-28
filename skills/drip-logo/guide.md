@@ -10,6 +10,10 @@ nine-node drip. This guide exists so that never happens again.
 
 ## The procedure
 
+0. **Defaults.** The default is the house style in `drip_guide logo/house-style`: one bold silhouette with one
+   master for every size, flat palette colour (main + one accent, no gradients, foil, glow or texture), the user
+   seeing finalists after one critic round, and ONE postable brand board per logo built from
+   `drip_kit({ template: "logo-board" })`. Read its section 1, what a user rejected in their own words, first.
 1. **Open the task.** `drip_start` with the request (mode `logo`). Read the project first: README, existing
    `brand/` or `public/` assets, current favicon, CSS tokens, the product's own copy. Never ask what you can read.
 2. **Identity intake** (AskUserQuestion, one round, at most 4 questions, your recommended answer first, "Other" open).
@@ -56,12 +60,21 @@ nine-node drip. This guide exists so that never happens again.
 10. **Critic on finalists.** One `logo_sheet` of the 3 finalists plus their `logo_test` renders and the 3 peer
     shots side by side → `critic_prepare` kind `logo`, with the context "would a brand studio ship this? Name
     the 3 amateur tells" → critic → `critic_record`. A fatal flaw kills a finalist whatever its score. Nothing
-    reaches the user before this.
+    reaches the user before this, and nothing more than this: fix only fatal flaws, then show the user. Never run
+    extra rework rounds the user didn't ask for; on a real job three of them turned a mark the user liked into
+    "a croissant and a basic cloud with a line".
 11. **User picks.** Greyscale sheet next to the peer shots + one line per finalist (idea, critic score, one honest
-    risk), your pick first. AskUserQuestion with the finalists as options. **Chosen = locked.**
-12. **Colour, lockups, deliverables.** Colour on the locked mark (`palette_generate`, `palette_check`), lockups,
-    clear space, the file set, favicon and app icon, BRAND.md (`drip_guide logo/deliverables`). Final
-    `logo_test` on the coloured primary and the favicon. `drip_end` with the hand-off.
+    risk), your pick first. AskUserQuestion with the finalists as options. **Chosen = locked.** The user's words
+    beat the critic's score: when they prefer a version the critic ranked lower, theirs wins and you say so.
+12. **Colour, lockups, deliverables.** Colour on the locked mark, FLAT (`palette_generate`, `palette_check`;
+    house-style section 2: main colour body, accent on the idea's part, versions for light, dark and the brand
+    colour), lockups, clear space, the file set, favicon and app icon, BRAND.md (`drip_guide logo/deliverables`).
+    Final `logo_test` on the coloured primary and the favicon.
+13. **The brand board.** Study 3-4 single-image brand boards first (`refs_tag` "brand guidelines", "brand book",
+    "logo presentation"; `refs_view` them) and note their system. Then `drip_kit({ template: "logo-board" })`,
+    fill it (the mark as a symbol coloured per tile, the outlined wordmark, flat phone and card renders), render it
+    with `render_html` at scale 2, and look at it at 600px wide before showing it. One board per logo. `drip_end`
+    with the hand-off.
 
 ## The craft
 
@@ -136,9 +149,11 @@ bottom on the baseline, drips hanging below like a descender). `drip_guide logo/
   three need a system.
 - **Do** check how the colour reads in the category and culture: red in a medical or "drip" context reads as blood,
   green in finance as profit, purple gradients in tech as "AI startup".
-- **Don't** use a gradient, gloss, bevel or glow to rescue a weak form. If the mark needs effects to look good, the
-  form is weak. Gradient plus sheen reads as a "cheap button"; flat colour won on the real job. One tiny
-  highlight at most, and only if the mark survives without it.
+- **Do** show the mark in its colours, not only as a black or white silhouette: "logos are flat white or black...
+  be a proper brand" was a real user's complaint. Body in the main colour, the idea's part in the accent.
+- **Don't** use a gradient, gloss, bevel, foil, lit edge or glow, on the mark or behind it. If the mark needs
+  effects to look good, the form is weak. Gradient plus sheen reads as a "cheap button"; flat colour won on two
+  real jobs, and a user answered a gradient "foil" version with "I'm asking for the logo to be flat and good".
 - **Don't** fake hand-made texture with SVG filters (displacement, turbulence, blur). It fails as a vector, dies
   at small sizes and reads as messy. If texture is truly the brief, draw it as shapes in a secondary asset.
 
@@ -181,8 +196,11 @@ elements) and say so in BRAND.md.
 - [ ] No fatal flaw: legible at 16px, no resemblance to an existing mark, no unfortunate reading.
 - [ ] The critic judged the finalists; the user picked from a greyscale sheet; the pick is locked.
 - [ ] Deliverables exported (SVG + PNG, mono, reversed, symbol, lockups, favicon set, app icon) and BRAND.md written.
+- [ ] Every colour version is flat: solid palette fills, no gradient, glow, foil or texture on or behind the mark.
+- [ ] One brand board per logo from the `logo-board` kit, readable at 600px wide, nothing under 19px.
 
 ## Reference files
+- `drip_guide logo/house-style` — the default: what a user rejected in their words, the flat mark, the one-image brand board, DEFAULTS
 - `drip_guide logo/concepts` — mark types in depth, the concept sentence, parallel concept agents, scoring and cutting
 - `drip_guide logo/construction` — the 256 grid, Béziers, overshoot, stroke contrast, junctions, SVG hygiene
 - `drip_guide logo/wordmarks` — choosing the base face, kerning, customisation moves, outlining, licences
@@ -204,3 +222,5 @@ elements) and say so in BRAND.md.
 - ziguishian brand-design-skill (no licence, ideas only): the chosen mark is locked; no simulated consent.
 - Drip's own logo job (two rejected rounds): disambiguating "like an artist", one-path liquid shapes, flat over
   gloss, metric-aligned lockups, code-generated concept sheets, branding tags over keyword search.
+- The Nimbus job (eight rounds): flat colour marks, the user's pick over extra critic rounds, the one-image brand
+  board system measured from Sinline and Roamify (Ashfuq Hridoy), Seture (Visvibe) and Session (Lucas Fields).

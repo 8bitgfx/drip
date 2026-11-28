@@ -172,7 +172,7 @@ function refPlan(task, surface, mode) {
       .replace(/\s+/g, " ")
       .trim() || "product";
   if (mode === "logo")
-    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark", refs_tag "${subject.split(" ")[0]} logo", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong.`;
+    return `REFERENCE PLAN (logo): refs_tag "logo design" and "wordmark", refs_tag "${subject.split(" ")[0]} logo", then refs_designer on the 2-3 best identity designers you find. Keyword search is weak for logos; tags and designers are strong. THE DEFAULT LOGO is the house style (drip_guide logo/house-style): read its section 1, what a user rejected in their own words (layered marks the critic pushed, gradient foil, glows, textures, busy imagery behind the logo, small unreadable boards), before you sketch. Flat palette colour; the user sees finalists after one critic round; the presentation is one board per logo from drip_kit({ template: "logo-board" }).`;
   if (surface === "readme")
     return (
       `REFERENCE PLAN (README): TASTE first: refs_gallery({ query: "${subject} landing page" }) and refs_tag "landing page" (popular): the hero art, bentos and diagrams worth stealing ideas from; refs_view the 3-4 best, refs_study them. ` +
@@ -431,10 +431,10 @@ export function register(server, ctx) {
       description:
         "Writes Drip's kit/base.css into the project: the seven type roles (Display ~127px at 1440 down to Small 14px), the 12-column grid and container, the spacing scale, .button with every state, " +
         "focus, reduced motion and overflow-x: clip. Fill in --font-display, --font-text and the colour roles from the chosen direction; never add an eighth size. Example: drip_kit({ out: \"src/styles/base.css\" }). " +
-        "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills), \"readme-art\" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).",
+        "Other templates: template \"design-md\" (DESIGN.md skeleton the critic and fitcheck_lint check against), \"comp\" (a first-viewport comp to copy into .drip/comps/ for board_tile custom comps), \"brand-board\" (the HTML board_brand fills), \"logo-board\" (the default one-image logo presentation, 1600x1200: drip_guide logo/house-style), \"readme-art\" (a neutral script that renders a README hero banner and light/dark bento grid to PNG; see drip_guide readme/art).",
       inputSchema: {
-        template: z.enum(["base-css", "design-md", "comp", "brand-board", "readme-art", "system", "motion", "motion-visuals"]).optional().describe("Default base-css. motion: a seekable film composition (Drip Motion), with the seekable visuals library next to it. motion-visuals: a layered demo film using every visual (light field, glow, grain, 3D planes, light sweep, particles to shape, dot globe, orbiting cards, liquid blob, line draw, numbers, depth stack, type reveal) to copy from"),
-        out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; assets/readme/src/readme-art.mjs)"),
+        template: z.enum(["base-css", "design-md", "comp", "brand-board", "logo-board", "readme-art", "system", "motion", "motion-visuals"]).optional().describe("Default base-css. motion: a seekable film composition (Drip Motion), with the seekable visuals library next to it. motion-visuals: a layered demo film using every visual (light field, glow, grain, 3D planes, light sweep, particles to shape, dot globe, orbiting cards, liquid blob, line draw, numbers, depth stack, type reveal) to copy from"),
+        out: z.string().optional().describe("Path in the project (default styles/drip-base.css or src/styles/drip-base.css; DESIGN.md; .drip/comps/comp.html; .drip/brand/brand-board.html; brand/board/logo-board.html; assets/readme/src/readme-art.mjs)"),
         overwrite: z.boolean().optional(),
       },
     },
@@ -442,8 +442,8 @@ export function register(server, ctx) {
       const root = projectDir();
       if (template === "base-css" && loadState().task?.surface === "readme")
         return text("GitHub strips CSS from READMEs, so base.css does nothing there. For README art use drip_kit({ template: \"readme-art\" }), render it with render_html (scale 2), and check it with readme_check.", true);
-      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "readme-art": "readme-art.mjs", system: "system.html", motion: "motion.html", "motion-visuals": "motion-visuals-demo.html" };
-      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs.existsSync(path.join(root, "src")) ? "src/styles/system.html" : "styles/system.html", motion: "film/index.html", "motion-visuals": "film/visuals-demo.html" };
+      const SRC = { "base-css": "base.css", "design-md": "DESIGN.template.md", comp: "comp.html", "brand-board": "brand-board.html", "logo-board": "logo-board.html", "readme-art": "readme-art.mjs", system: "system.html", motion: "motion.html", "motion-visuals": "motion-visuals-demo.html" };
+      const DEF = { "base-css": fs.existsSync(path.join(root, "src")) ? "src/styles/drip-base.css" : "styles/drip-base.css", "design-md": "DESIGN.md", comp: ".drip/comps/comp.html", "brand-board": ".drip/brand/brand-board.html", "logo-board": "brand/board/logo-board.html", "readme-art": "assets/readme/src/readme-art.mjs", system: fs.existsSync(path.join(root, "src")) ? "src/styles/system.html" : "styles/system.html", motion: "film/index.html", "motion-visuals": "film/visuals-demo.html" };
       const rel = out || DEF[template];
       const dest = path.resolve(root, rel);
       if (fs.existsSync(dest) && !overwrite) return text(`${rel} already exists. Pass overwrite: true to replace it, or edit it.`, true);
@@ -467,6 +467,11 @@ export function register(server, ctx) {
         );
       if (template === "motion-visuals")
         return text(`Wrote ${rel}: a layered demo film using the visuals library (motion-visuals.js beside it). Open it to see what each visual looks like, motion_frames it, and copy the pieces you need into the film.`);
+      if (template === "logo-board")
+        return text(
+          `Wrote ${rel}: the default logo board (drip_guide logo/house-style), one postable image at 1600x1200. Re-skin it, don't start over: set the palette and faces in :root, paste the mark once into the <symbol> (solid fills: var(--body) for the body, var(--acc) for the idea's part), swap the name for the outlined wordmark, draw the construction in the mark's coordinates, and point the phone and card tiles at flat renders (mockup_render, blender_render, transparent backgrounds). ` +
+            "Keep its rules: flat palette colours only (no gradients, glow, foil or texture), nothing but a solid colour behind the mark or a sentence, nothing under 19px. Render it with render_html at scale 2, look at it at 600px wide, one board per logo.",
+        );
       if (template === "brand-board") return text(`Wrote ${rel}: the brand board template. board_brand fills it for you; edit this copy only for a custom layout.`);
       return text(
         `Wrote ${rel}. Now: set --font-display / --font-text (load them), the colour roles (--ground --ink --accent --band) from the direction, --w-display. ` +

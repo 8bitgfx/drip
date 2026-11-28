@@ -9,8 +9,10 @@ before export?"). Never fix silently.
 1. Start from the locked black master. Choose **one brand colour** from the brief's world (`palette_generate`
    with the attributes, or `palette_from_image` from a real source image), plus black and white.
 2. A second colour needs a job (the symbol vs the wordmark, or a highlight). Three colours need a system.
-3. **Flat fills.** Gradient plus sheen reads as a "cheap button"; flat won on the real Drip job. One tiny
-   highlight at most, and only if the mark survives without it. Gradients live in brand imagery, not the master.
+3. **Flat fills.** Gradient plus sheen reads as a "cheap button"; flat won on two real Drip jobs, and a user
+   rejected gradient "foil" with "I'm asking for the logo to be flat and good". No highlight, foil, glow or
+   texture on any version (house style, `drip_guide logo/house-style`). Gradients live in brand imagery, not the
+   mark, and never behind it.
 4. Check meaning in context: red near liquid reads as blood; green in finance as profit; purple-blue gradients
    as "AI startup"; gold on black as cheap luxury unless the craft carries it.
 5. `palette_check` the colour on white and on the dark ground. For marks, aim for 3:1 against the background at

@@ -2,6 +2,22 @@
 
 What each release changed and why (newest first). Open problems are in [docs/NEXT.md](docs/NEXT.md); older history is in the git log.
 
+## 0.13.0: the flat mark and the one-image brand board are the logo default
+
+A logo job (Nimbus) took eight rounds; the user rejected each miss by name. What finally worked is now the default:
+
+- **`drip_guide logo/house-style`**: a table of what the user rejected in their words (critic rounds that layered
+  the mark into "a croissant", "flat white or black, be a proper brand", "I'm asking for the logo to be flat and
+  good", "unreadable, look random, aren't made like real brands") and the rule each became; the flat colour
+  versions; the board system measured from Sinline, Roamify, Seture and Session; a DEFAULTS block.
+- **`drip_kit({ template: "logo-board" })`** writes a working 1600x1200 board to re-skin: brand-tint ground, 80
+  margin, 40 gap, radius 32, 7 palette-colour tiles (construction, device, primary lockup, palette, app icon,
+  print, tagline), the mark defined once and coloured per tile with flat CSS variables, nothing under 19px.
+- **The process**: the user sees finalists after one critic round and picks; critic rounds never override their
+  taste. Logo mode's start and the logo guide point to the house style first.
+- **The critic** judges logos flat: it never asks for gradients, foil, glass, chrome, glow or texture, flags them
+  as flaws, prefers one bold silhouette over layered detail, and judges a brand board as a post at 600px wide.
+
 ## 0.12.0: the launch film is the default
 
 Drip's release trailer took nine cuts; the user rejected each miss by name. What finally shipped is now the default:
